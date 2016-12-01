@@ -4,20 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.common.beans.user.SysUser;
-import com.pxene.pap.repository.SysUserRepository;
+import com.pxene.pap.repository.dao.SysUserDao;
 
 @Service
 public class SysUserService
 {
     @Autowired
-    private SysUserRepository userRepository;
+    private SysUserDao sysUserDao;
 
     
     public SysUser loadUserByUsername(String username)
     {
-        return null;
+        return sysUserDao.loadUserByUsername(username);
     }
-    
-
-    
 }

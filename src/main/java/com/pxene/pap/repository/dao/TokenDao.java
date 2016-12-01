@@ -1,4 +1,4 @@
-package com.pxene.pap.repository;
+package com.pxene.pap.repository.dao;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

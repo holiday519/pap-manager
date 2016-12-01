@@ -1,77 +1,43 @@
 package com.pxene.pap.common.beans.user;
 
+import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 
-@Entity
-public class SysUser
+public class SysUser implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", unique = true)
-    private Long id;
+    private String id;
     
-    @Column(name = "username", nullable = false, unique = true)
     private String username;
     
-    @Column(name = "password", nullable = false)
     private String password;
     
-    @Column(name = "realname")
     private String realname;
     
-    @Column(name = "email")
+    private String phone;
+
     private String email;
     
-    @Column(name = "phone")
-    private String phone;
+    private String remark;
     
-    @Column(name = "address")
-    private String address;
-    
-    @Column(name = "user_type", nullable = false, columnDefinition = "int default 0")
-    private int type;
-    
-    @Column(name = "status", nullable = false, columnDefinition = "int default 0")
-    private int status;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "createtime", columnDefinition = "timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private Date createTime;
     
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updatetime", columnDefinition = "timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private Date updateTime;
     
-    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
-    private List<SysRole> roles;
+    private SysRole sysRole;
+
     
-    
-    public Long getId()
+    public String getId()
     {
         return id;
     }
-    public void setId(Long id)
+    public void setId(String id)
     {
         this.id = id;
     }
-    
+
     public String getUsername()
     {
         return username;
@@ -80,7 +46,7 @@ public class SysUser
     {
         this.username = username;
     }
-    
+
     public String getPassword()
     {
         return password;
@@ -89,16 +55,16 @@ public class SysUser
     {
         this.password = password;
     }
-    
-    public String getEmail()
+
+    public String getRealname()
     {
-        return email;
+        return realname;
     }
-    public void setEmail(String email)
+    public void setRealname(String realname)
     {
-        this.email = email;
+        this.realname = realname;
     }
-    
+
     public String getPhone()
     {
         return phone;
@@ -107,34 +73,25 @@ public class SysUser
     {
         this.phone = phone;
     }
-    
-    public String getAddress()
+
+    public String getEmail()
     {
-        return address;
+        return email;
     }
-    public void setAddress(String address)
+    public void setEmail(String email)
     {
-        this.address = address;
+        this.email = email;
     }
-    
-    public int getType()
+
+    public String getRemark()
     {
-        return type;
+        return remark;
     }
-    public void setType(int type)
+    public void setRemark(String remark)
     {
-        this.type = type;
+        this.remark = remark;
     }
-    
-    public int getStatus()
-    {
-        return status;
-    }
-    public void setStatus(int status)
-    {
-        this.status = status;
-    }
-    
+
     public Date getCreateTime()
     {
         return createTime;
@@ -143,33 +100,30 @@ public class SysUser
     {
         this.createTime = createTime;
     }
-    
-    public List<SysRole> getRoles()
+
+    public Date getUpdateTime()
     {
-        return roles;
+        return updateTime;
     }
-    public void setRoles(List<SysRole> roles)
+    public void setUpdateTime(Date updateTime)
     {
-        this.roles = roles;
+        this.updateTime = updateTime;
+    }
+    
+    public SysRole getSysRole()
+    {
+        return sysRole;
+    }
+    public void setSysRole(SysRole sysRole)
+    {
+        this.sysRole = sysRole;
     }
     
     
     @Override
     public String toString()
     {
-        return "SysUser [id=" + id + ", username=" + username + ", password=" + password + ", realname=" + realname + ", email=" + email + ", phone=" + phone + ", address=" + address + ", type="
-                + type + ", status=" + status + ", createTime=" + createTime + ", updateTime=" + updateTime + ", roles=" + roles + "]";
-    }
-    
-    @PrePersist
-    protected void onCreate()
-    {
-        createTime = updateTime = new Date();
-    }
-    
-    @PreUpdate
-    protected void onUpdate()
-    {
-        updateTime = new Date();
+        return "SysUser [id=" + id + ", username=" + username + ", password=" + password + ", realname=" + realname + ", phone=" + phone + ", email=" + email + ", remark=" + remark + ", createTime="
+                + createTime + ", updateTime=" + updateTime + ", sysRole=" + sysRole + "]";
     }
 }

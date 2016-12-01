@@ -78,7 +78,7 @@ public class Application
      * 注册Filter：接口调用频率过滤器.
      * @return
      */
-    @Bean
+    /*@Bean
     protected FilterRegistrationBean rateLimiterFilterRegistration()
     {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -87,13 +87,13 @@ public class Application
         registrationBean.addUrlPatterns("/v1/*");
         
         return registrationBean;
-    }
+    }*/
     
     /**
      * 注册Filter：自定义的Token认证过滤器
      * @return
      */
-    @Bean
+    /*@Bean
     protected FilterRegistrationBean customTokenFilterRegistrationBean()
     {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -106,6 +106,6 @@ public class Application
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;
-    }
+    }*/
     
 }

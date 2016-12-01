@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
-import com.pxene.pap.repository.TokenDao;
+import com.pxene.pap.repository.dao.TokenDao;
 
 
 /**

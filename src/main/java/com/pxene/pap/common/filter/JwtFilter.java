@@ -24,7 +24,7 @@ import com.pxene.pap.common.beans.AccessToken;
 import com.pxene.pap.common.beans.ResponseResult;
 import com.pxene.pap.common.constant.HttpStatusCode;
 import com.pxene.pap.common.utils.TokenUtils;
-import com.pxene.pap.repository.TokenDao;
+import com.pxene.pap.repository.dao.TokenDao;
 
 public class JwtFilter implements Filter
 {
