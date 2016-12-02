@@ -1,4 +1,4 @@
-package com.pxene.pap.common.utils;
+package com.pxene.pap.common;
 
 import java.security.Key;
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-import com.pxene.pap.common.beans.AccessToken;
+import com.pxene.pap.domain.beans.AccessToken;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;

@@ -1,4 +1,4 @@
-package com.pxene.pap.common.beans;
+package com.pxene.pap.domain.beans;
 
 import java.io.Serializable;
 
@@ -20,7 +20,7 @@ public class AccessToken implements Serializable
     @JsonProperty("issued_at")
     private long issuedAt;
     
-    @JsonProperty("vender")
+    @JsonProperty("username")
     private String username;
     
     

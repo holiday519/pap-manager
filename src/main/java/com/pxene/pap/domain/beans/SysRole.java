@@ -1,13 +1,7 @@
-package com.pxene.pap.common.beans.user;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+package com.pxene.pap.domain.beans;
 
 public class SysRole
 {
-    @Id
-    @GeneratedValue
     private Long id;
     
     private String name;

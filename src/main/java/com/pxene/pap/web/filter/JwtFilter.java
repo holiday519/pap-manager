@@ -1,4 +1,4 @@
-package com.pxene.pap.common.filter;
+package com.pxene.pap.web.filter;
 
 import java.io.IOException;
 import java.util.Date;
@@ -11,6 +11,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -20,11 +21,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pxene.pap.common.beans.AccessToken;
-import com.pxene.pap.common.beans.ResponseResult;
-import com.pxene.pap.common.constant.HttpStatusCode;
-import com.pxene.pap.common.utils.TokenUtils;
-import com.pxene.pap.repository.dao.TokenDao;
+import com.pxene.pap.common.TokenUtils;
+import com.pxene.pap.constant.HttpStatusCode;
+import com.pxene.pap.domain.beans.AccessToken;
+import com.pxene.pap.domain.beans.ResponseResult;
 
 public class JwtFilter implements Filter
 {
@@ -32,9 +32,6 @@ public class JwtFilter implements Filter
 
     @Autowired
     private Environment env;
-    
-    @Autowired
-    private TokenDao tokenDao;
     
     
     @Override
@@ -57,7 +54,11 @@ public class JwtFilter implements Filter
             if (!StringUtils.isEmpty(token))
             {
                 String username = TokenUtils.parseUsernameInToken(env, token.trim());
-                AccessToken accessToken = tokenDao.load(username);
+                
+                HttpServletRequest req = (HttpServletRequest) request;
+                HttpSession session = req.getSession();
+                
+                AccessToken accessToken = (AccessToken) session.getAttribute(username);
                 if (accessToken != null)  
                 {
                     if (new Date(accessToken.getExpiresAt()).after(new Date()))

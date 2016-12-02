@@ -1,4 +1,4 @@
-package com.pxene.pap.common.beans;
+package com.pxene.pap.domain.beans;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

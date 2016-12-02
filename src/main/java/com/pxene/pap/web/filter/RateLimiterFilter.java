@@ -1,4 +1,4 @@
-package com.pxene.pap.common.filter;
+package com.pxene.pap.web.filter;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
-import com.pxene.pap.repository.dao.TokenDao;
+import com.pxene.pap.repository.TokenDao;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.pxene.pap.common.utils;
+package com.pxene.pap.common;
 
 
 import org.springframework.core.env.Environment;

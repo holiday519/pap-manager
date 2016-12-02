@@ -1,4 +1,4 @@
-package com.pxene.pap.common.utils;
+package com.pxene.pap.common;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.pxene.pap.common.constant.HttpStatusCode;
+import com.pxene.pap.constant.HttpStatusCode;
 
 
 public class ResponseUtils

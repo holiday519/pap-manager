@@ -1,4 +1,4 @@
-package com.pxene.pap.repository.dao;
+package com.pxene.pap.repository;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pxene.pap.common.beans.AccessToken;
+import com.pxene.pap.domain.beans.AccessToken;
 
 @Repository
 public class TokenDao

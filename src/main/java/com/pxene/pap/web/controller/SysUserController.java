@@ -1,11 +1,12 @@
-package com.pxene.pap.web;
+package com.pxene.pap.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
@@ -15,9 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pxene.pap.common.beans.user.SysUser;
-import com.pxene.pap.common.constant.HttpStatusCode;
-import com.pxene.pap.common.utils.ResponseUtils;
+import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.constant.HttpStatusCode;
+import com.pxene.pap.domain.beans.AccessToken;
+import com.pxene.pap.domain.beans.SysUser;
 import com.pxene.pap.service.SysUserService;
 
 
@@ -28,15 +30,12 @@ public class SysUserController
     private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
     
     @Autowired
-    private Environment env;
-    
-    @Autowired
     private SysUserService userService;
     
     
     @RequestMapping(value = "auth", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String authenticate(@RequestBody SysUser user, HttpServletResponse response)
+    public String authenticate(@RequestBody SysUser user, HttpServletRequest request, HttpServletResponse response)
     {
         LOGGER.debug("Received body params User {}.", user);
         
@@ -59,7 +58,14 @@ public class SysUserController
         String passwordInDB = userInDB.getPassword();
         if (!StringUtils.isEmpty(passwordInDB) && md5Password.equals(passwordInDB))
         {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "登陆成功", response);
+            // 生成accessToken
+            AccessToken token = userService.generateToken(userInDB);
+            
+            // 将Token保存在Session中
+            HttpSession session = request.getSession();
+            session.setAttribute(username, token);
+            
+            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, token, response);
         }
         
         return ResponseUtils.sendHttp500(LOGGER, response);

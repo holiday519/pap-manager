@@ -1,13 +1,12 @@
-package com.pxene.pap.common.beans.user;
+package com.pxene.pap.domain.beans;
 
-import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 
-public class SysUser implements Serializable
+public class SysUser
 {
-    private static final long serialVersionUID = 1L;
-
     private String id;
     
     private String username;
@@ -26,7 +25,7 @@ public class SysUser implements Serializable
     
     private Date updateTime;
     
-    private SysRole sysRole;
+    private Set<SysRole> authorities = new HashSet<SysRole>(); 
 
     
     public String getId()
@@ -110,20 +109,11 @@ public class SysUser implements Serializable
         this.updateTime = updateTime;
     }
     
-    public SysRole getSysRole()
-    {
-        return sysRole;
-    }
-    public void setSysRole(SysRole sysRole)
-    {
-        this.sysRole = sysRole;
-    }
-    
     
     @Override
     public String toString()
     {
         return "SysUser [id=" + id + ", username=" + username + ", password=" + password + ", realname=" + realname + ", phone=" + phone + ", email=" + email + ", remark=" + remark + ", createTime="
-                + createTime + ", updateTime=" + updateTime + ", sysRole=" + sysRole + "]";
+                + createTime + ", updateTime=" + updateTime + ", authorities=" + authorities + "]";
     }
 }

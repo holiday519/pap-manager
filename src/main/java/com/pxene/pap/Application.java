@@ -33,8 +33,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import com.pxene.pap.common.filter.JwtFilter;
-import com.pxene.pap.common.filter.RateLimiterFilter;
+import com.pxene.pap.web.filter.JwtFilter;
+import com.pxene.pap.web.filter.RateLimiterFilter;
 
 
 @Configuration
@@ -78,7 +78,7 @@ public class Application
      * 注册Filter：接口调用频率过滤器.
      * @return
      */
-    /*@Bean
+    @Bean
     protected FilterRegistrationBean rateLimiterFilterRegistration()
     {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -87,13 +87,13 @@ public class Application
         registrationBean.addUrlPatterns("/v1/*");
         
         return registrationBean;
-    }*/
+    }
     
     /**
      * 注册Filter：自定义的Token认证过滤器
      * @return
      */
-    /*@Bean
+    @Bean
     protected FilterRegistrationBean customTokenFilterRegistrationBean()
     {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -102,10 +102,10 @@ public class Application
         registrationBean.setFilter(jwtFilter);
         
         List<String> urlPatterns = new ArrayList<String>();
-        urlPatterns.add("/v1/files");
+        urlPatterns.add("/v1/test/*");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;
-    }*/
+    }
     
 }

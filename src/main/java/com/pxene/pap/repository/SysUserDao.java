@@ -1,4 +1,4 @@
-package com.pxene.pap.repository.dao;
+package com.pxene.pap.repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,7 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.pxene.pap.common.beans.user.SysUser;
+import com.pxene.pap.domain.beans.SysUser;
 
 @Repository
 public class SysUserDao

@@ -1,4 +1,4 @@
-package com.pxene.pap.common.constant;
+package com.pxene.pap.constant;
 
 public class HttpStatusCode
 {
