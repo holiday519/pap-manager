@@ -19,7 +19,7 @@ public class SysUserDao
     
     public SysUser loadUserByUsername(String username)
     {
-        String sql = "SELECT * FROM sys_user WHERE username = ?";
+        String sql = "SELECT * FROM pap_t_user WHERE name = ?";
         
         SysUser sysUser = jdbcTemplate.queryForObject(sql, new Object[]{username}, new RowMapper<SysUser>()
         {
@@ -30,7 +30,7 @@ public class SysUserDao
                 SysUser sysUser = new SysUser();
                 
                 sysUser.setId(rs.getString("id"));
-                sysUser.setUsername(rs.getString("username"));
+                sysUser.setUsername(rs.getString("name"));
                 sysUser.setPassword(rs.getString("password"));
                 sysUser.setRealname(rs.getString("realname"));
                 sysUser.setPhone(rs.getString("phone"));

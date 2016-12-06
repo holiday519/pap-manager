@@ -24,7 +24,6 @@ import com.pxene.pap.service.SysUserService;
 
 
 @Controller
-@RequestMapping(value = "/v1/")
 public class SysUserController
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
@@ -33,7 +32,14 @@ public class SysUserController
     private SysUserService userService;
     
     
-    @RequestMapping(value = "auth", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    /**
+     * 根据用户名、密码获取AccessToken。
+     * @param user      包含用户名和用户密码的请求载荷，必填
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/auth/tokens", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String authenticate(@RequestBody SysUser user, HttpServletRequest request, HttpServletResponse response)
     {
@@ -42,6 +48,7 @@ public class SysUserController
         String username = user.getUsername();
         String password = user.getPassword();
         
+        // 校验请求参数
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
         {
             return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.BAD_REQUEST, "请求参数不正确", response);
@@ -65,7 +72,7 @@ public class SysUserController
             HttpSession session = request.getSession();
             session.setAttribute(username, token);
             
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, token, response);
+            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, token, response);
         }
         
         return ResponseUtils.sendHttp500(LOGGER, response);
