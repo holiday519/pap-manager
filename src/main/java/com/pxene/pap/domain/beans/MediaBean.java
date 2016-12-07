@@ -1,5 +1,6 @@
 package com.pxene.pap.domain.beans;
 
+
 public class MediaBean
 {
     private String uuid;
@@ -7,7 +8,8 @@ public class MediaBean
     private String type;
     private String path;
     private String uploader;
-    private long volume;
+    private Float volume;
+    private String size;
     
     
     public String getUuid()
@@ -50,18 +52,25 @@ public class MediaBean
     {
         this.uploader = uploader;
     }
-    public long getVolume()
-    {
-        return volume;
-    }
-    public void setVolume(long volume)
-    {
-        this.volume = volume;
-    }
-    
-    @Override
-    public String toString()
-    {
-        return "MediaBean [uuid=" + uuid + ", name=" + name + ", type=" + type + ", path=" + path + ", uploader=" + uploader + ", volume=" + volume + "]";
-    }
+	public Float getVolume() {
+		return volume;
+	}
+	public void setVolume(Float volume) {
+		this.volume = volume;
+	}
+	public String getSize() {
+		return size;
+	}
+	public void setSize(String size) {
+		this.size = size;
+	}
+	
+	@Override
+	public String toString() {
+		return "MediaBean [uuid=" + uuid + ", name=" + name + ", type=" + type
+				+ ", path=" + path + ", uploader=" + uploader + ", volume="
+				+ volume + ", size=" + size + "]";
+	}
+
+
 }

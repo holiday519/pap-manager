@@ -5,9 +5,16 @@ public class VideoBean extends MediaBean
     private int width;
     private int height;
     private int timelength;
+    private String imageId;
     
     
-    public int getWidth()
+    public String getImageId() {
+		return imageId;
+	}
+	public void setImageId(String imageId) {
+		this.imageId = imageId;
+	}
+	public int getWidth()
     {
         return width;
     }
@@ -44,11 +51,10 @@ public class VideoBean extends MediaBean
         this.height = height;
         this.timelength = timelength;
     }
-    
-    
-    @Override
-    public String toString()
-    {
-        return "VideoBean [width=" + width + ", height=" + height + ", timelength=" + timelength + "]";
-    }
+	@Override
+	public String toString() {
+		return "VideoBean [width=" + width + ", height=" + height
+				+ ", timelength=" + timelength + ", imageId=" + imageId + "]";
+	}
+
 }

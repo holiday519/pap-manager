@@ -41,7 +41,7 @@ public class FileUtils
             String name = file.getOriginalFilename();
             String path = uploadDir + name;
             String contentType = file.getContentType();
-            long volume = file.getSize();
+            float volume = file.getSize() / 1024.0f;
             int width = 0;
             int height = 0;
             

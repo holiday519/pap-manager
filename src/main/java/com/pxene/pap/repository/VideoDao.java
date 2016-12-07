@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import ch.qos.logback.core.db.dialect.DBUtil;
+
+import com.pxene.pap.common.DBUtils;
+import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoEntity;
 
 
@@ -22,25 +26,43 @@ public class VideoDao
         int affectedRows = jdbcTemplate.update(sql, UUID.randomUUID().toString(), entity.getName(), entity.getPath(), entity.getTypeid(), entity.getWidth() + entity.getHeight(), entity.getVolume(), entity.getTimelength(), entity.getImageid(), entity.getRemark());
         return affectedRows;
     }
-    
-    /*
-    public int saveFile(VideoEntity videoEntity)
-    {
-        final String sql = "INSERT INTO pap_t_video (id, videotmplid, NAME, path, typeid, width, height, volume, timelength, imageid) VALUES (UUID_SHORT(), "111", "huluwa.mp4", "/usr/local/data/huluwa.mp4", "222", 110, 300, 500.0, 4, '', '')";
-        
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        
-        
-        jdbcTemplate.update(new PreparedStatementCreator()
-        {
-            public PreparedStatement createPreparedStatement(Connection conn) throws SQLException
-            {
-                PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
-                return ps;
-            }
-        }, keyHolder);
-        
-        return keyHolder.getKey().intValue();
+   
+    public int updateVideo(VideoBean bean) throws Exception{
+    	String uuid = bean.getUuid();
+    	String name = bean.getName();
+    	String path = bean.getPath();
+    	String imageId = bean.getImageId();
+    	String type = bean.getType();
+    	String size = bean.getSize();
+    	Float volume = bean.getVolume();
+    	Integer timelength = bean.getTimelength();
+    	String sql = "update pap_t_video set ";
+    	if(name != null){
+    		sql = sql + "name = '" + name + "'";
+    	}
+    	if(path != null){
+    		sql = sql + ", path = '" + path + "'";
+    	}
+    	if(imageId != null){
+    		sql = sql + ", imageid = '" + imageId + "'";
+    	}
+    	if(type != null){
+    		sql = sql + ", typeid = '" + type + "'";
+    	}
+    	if(size != null){
+    		sql = sql + ", sizeid = '" + size + "'";
+    	}
+    	if(volume != null){
+    		sql = sql + ", volume = " + volume + "";
+    	}
+    	if(timelength != null){
+    		sql = sql + ", timelength = " + timelength + "";
+    	}
+    	sql = sql.replace("set ,", "set");
+    	sql = sql + " where id = '" + uuid + "'";
+//    	String sql = DBUtils.buildUpdateSQLByObject("", "id='"+ uuid +"'", bean);
+    	System.out.println(sql);
+    	int num = jdbcTemplate.update(sql);
+    	return num;
     }
-    */
 }
