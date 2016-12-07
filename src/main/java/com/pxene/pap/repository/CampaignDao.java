@@ -27,15 +27,12 @@ public class CampaignDao {
 		String name = bean.getName();
 		String type = bean.getType();
 		Integer totalBudget = bean.getTotalBudget();
-		Integer totalImpression = bean.getTotalImpression();
-		Integer totalClick = bean.getTotalClick();
 		Integer dailyBudget = bean.getDailyBudget();
 		Integer dailyImpression = bean.getDailyImpression();
 		Integer dailyClick = bean.getDailyClick();
 		Date startDate = bean.getStartDate();
 		Date endDate = bean.getEndDate();
 		String status = bean.getStatus();
-		String uniform = bean.getUniform();
 		
 		List<MonitorBean> monitors = bean.getMonitors();
 		for (MonitorBean mnt : monitors) {
@@ -48,13 +45,11 @@ public class CampaignDao {
 		}
 
 		// 插入活动基本信息
-		String sql = "insert into pap_t_campaign (id,projectid,name,type,totalbudget,totalimpression,totalclick,"
-				+ "dailybudget,dailyimpression,dailyclick,status,uniform,startdate,enddate)"
-				+ " values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		String sql = "insert into pap_t_campaign (id,projectid,name,type,totalbudget,"
+				+ "dailybudget,dailyimpression,dailyclick,status,startdate,enddate)"
+				+ " values(?,?,?,?,?,?,?,?,?,?,?)";
 		int num = jdbcTemplate.update(sql, id, projectId, name, type,
-				totalBudget, totalImpression, totalClick, dailyBudget,
-				dailyImpression, dailyClick, status, uniform, startDate,
-				endDate);
+				totalBudget, dailyBudget,dailyImpression, dailyClick, status, startDate,endDate);
 		return num;
 	}
 
