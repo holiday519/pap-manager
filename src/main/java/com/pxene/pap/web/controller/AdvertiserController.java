@@ -1,5 +1,8 @@
 package com.pxene.pap.web.controller;
 
+import java.util.Map.Entry;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -12,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AdvertiserBean;
@@ -30,6 +36,16 @@ public class AdvertiserController
     @ResponseBody
     public String addAdvertiser(@RequestBody AdvertiserBean advertiser, HttpServletResponse response)
     {
+        /*JsonParser parser = new JsonParser();
+        JsonObject o = parser.parse(advertiserStr).getAsJsonObject();
+        Set<Entry<String, JsonElement>> entrySet = o.entrySet();
+        for (Entry<String, JsonElement> entry : entrySet)
+        {
+            System.out.println(entry.getKey());
+        }
+        
+        
+        AdvertiserBean advertiser = null;*/
         LOGGER.debug("Received body params Advertiser {}.", advertiser);
         
         int affectedRows = advertiserService.saveAdvertiser(advertiser);
