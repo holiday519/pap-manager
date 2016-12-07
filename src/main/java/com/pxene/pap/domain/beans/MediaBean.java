@@ -1,10 +1,8 @@
 package com.pxene.pap.domain.beans;
 
-import java.util.UUID;
-
 public class MediaBean
 {
-    private String uuid = UUID.randomUUID().toString();
+    private String uuid;
     private String name;
     private String type;
     private String path;

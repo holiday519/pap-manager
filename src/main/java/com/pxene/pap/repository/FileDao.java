@@ -1,4 +1,4 @@
-package com.pxene.pap.web.repository;
+package com.pxene.pap.repository;
 
 import java.util.UUID;
 

@@ -1,4 +1,4 @@
-package com.pxene.pap.web.service;
+package com.pxene.pap.service;
 
 import java.util.ArrayList;
 import java.util.List;
