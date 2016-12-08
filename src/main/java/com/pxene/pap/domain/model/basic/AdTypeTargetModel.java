@@ -2,12 +2,12 @@ package com.pxene.pap.domain.model.basic;
 
 import java.util.Date;
 
-public class OsTargetModel {
+public class AdTypeTargetModel {
     private String id;
 
     private String campaignId;
 
-    private String os;
+    private String adType;
 
     private Date createTime;
 
@@ -29,12 +29,12 @@ public class OsTargetModel {
         this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
-    public String getOs() {
-        return os;
+    public String getAdType() {
+        return adType;
     }
 
-    public void setOs(String os) {
-        this.os = os == null ? null : os.trim();
+    public void setAdType(String adType) {
+        this.adType = adType == null ? null : adType.trim();
     }
 
     public Date getCreateTime() {

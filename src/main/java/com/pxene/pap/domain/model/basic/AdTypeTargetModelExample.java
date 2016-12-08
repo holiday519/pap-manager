@@ -1,18 +1,17 @@
 package com.pxene.pap.domain.model.basic;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class RegionModelExample {
+public class AdTypeTargetModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public RegionModelExample() {
+    public AdTypeTargetModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -176,193 +175,143 @@ public class RegionModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andNameIsNull() {
-            addCriterion("name is null");
+        public Criteria andCampaignIdIsNull() {
+            addCriterion("campaign_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andNameIsNotNull() {
-            addCriterion("name is not null");
+        public Criteria andCampaignIdIsNotNull() {
+            addCriterion("campaign_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andNameEqualTo(String value) {
-            addCriterion("name =", value, "name");
+        public Criteria andCampaignIdEqualTo(String value) {
+            addCriterion("campaign_id =", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotEqualTo(String value) {
-            addCriterion("name <>", value, "name");
+        public Criteria andCampaignIdNotEqualTo(String value) {
+            addCriterion("campaign_id <>", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameGreaterThan(String value) {
-            addCriterion("name >", value, "name");
+        public Criteria andCampaignIdGreaterThan(String value) {
+            addCriterion("campaign_id >", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameGreaterThanOrEqualTo(String value) {
-            addCriterion("name >=", value, "name");
+        public Criteria andCampaignIdGreaterThanOrEqualTo(String value) {
+            addCriterion("campaign_id >=", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameLessThan(String value) {
-            addCriterion("name <", value, "name");
+        public Criteria andCampaignIdLessThan(String value) {
+            addCriterion("campaign_id <", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameLessThanOrEqualTo(String value) {
-            addCriterion("name <=", value, "name");
+        public Criteria andCampaignIdLessThanOrEqualTo(String value) {
+            addCriterion("campaign_id <=", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameLike(String value) {
-            addCriterion("name like", value, "name");
+        public Criteria andCampaignIdLike(String value) {
+            addCriterion("campaign_id like", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotLike(String value) {
-            addCriterion("name not like", value, "name");
+        public Criteria andCampaignIdNotLike(String value) {
+            addCriterion("campaign_id not like", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameIn(List<String> values) {
-            addCriterion("name in", values, "name");
+        public Criteria andCampaignIdIn(List<String> values) {
+            addCriterion("campaign_id in", values, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotIn(List<String> values) {
-            addCriterion("name not in", values, "name");
+        public Criteria andCampaignIdNotIn(List<String> values) {
+            addCriterion("campaign_id not in", values, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameBetween(String value1, String value2) {
-            addCriterion("name between", value1, value2, "name");
+        public Criteria andCampaignIdBetween(String value1, String value2) {
+            addCriterion("campaign_id between", value1, value2, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotBetween(String value1, String value2) {
-            addCriterion("name not between", value1, value2, "name");
+        public Criteria andCampaignIdNotBetween(String value1, String value2) {
+            addCriterion("campaign_id not between", value1, value2, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeIsNull() {
-            addCriterion("longitude is null");
+        public Criteria andAdTypeIsNull() {
+            addCriterion("ad_type is null");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeIsNotNull() {
-            addCriterion("longitude is not null");
+        public Criteria andAdTypeIsNotNull() {
+            addCriterion("ad_type is not null");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeEqualTo(BigDecimal value) {
-            addCriterion("longitude =", value, "longitude");
+        public Criteria andAdTypeEqualTo(String value) {
+            addCriterion("ad_type =", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeNotEqualTo(BigDecimal value) {
-            addCriterion("longitude <>", value, "longitude");
+        public Criteria andAdTypeNotEqualTo(String value) {
+            addCriterion("ad_type <>", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeGreaterThan(BigDecimal value) {
-            addCriterion("longitude >", value, "longitude");
+        public Criteria andAdTypeGreaterThan(String value) {
+            addCriterion("ad_type >", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("longitude >=", value, "longitude");
+        public Criteria andAdTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("ad_type >=", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeLessThan(BigDecimal value) {
-            addCriterion("longitude <", value, "longitude");
+        public Criteria andAdTypeLessThan(String value) {
+            addCriterion("ad_type <", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("longitude <=", value, "longitude");
+        public Criteria andAdTypeLessThanOrEqualTo(String value) {
+            addCriterion("ad_type <=", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeIn(List<BigDecimal> values) {
-            addCriterion("longitude in", values, "longitude");
+        public Criteria andAdTypeLike(String value) {
+            addCriterion("ad_type like", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeNotIn(List<BigDecimal> values) {
-            addCriterion("longitude not in", values, "longitude");
+        public Criteria andAdTypeNotLike(String value) {
+            addCriterion("ad_type not like", value, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("longitude between", value1, value2, "longitude");
+        public Criteria andAdTypeIn(List<String> values) {
+            addCriterion("ad_type in", values, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLongitudeNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("longitude not between", value1, value2, "longitude");
+        public Criteria andAdTypeNotIn(List<String> values) {
+            addCriterion("ad_type not in", values, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLatitudeIsNull() {
-            addCriterion("latitude is null");
+        public Criteria andAdTypeBetween(String value1, String value2) {
+            addCriterion("ad_type between", value1, value2, "adType");
             return (Criteria) this;
         }
 
-        public Criteria andLatitudeIsNotNull() {
-            addCriterion("latitude is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeEqualTo(BigDecimal value) {
-            addCriterion("latitude =", value, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeNotEqualTo(BigDecimal value) {
-            addCriterion("latitude <>", value, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeGreaterThan(BigDecimal value) {
-            addCriterion("latitude >", value, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeGreaterThanOrEqualTo(BigDecimal value) {
-            addCriterion("latitude >=", value, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeLessThan(BigDecimal value) {
-            addCriterion("latitude <", value, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeLessThanOrEqualTo(BigDecimal value) {
-            addCriterion("latitude <=", value, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeIn(List<BigDecimal> values) {
-            addCriterion("latitude in", values, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeNotIn(List<BigDecimal> values) {
-            addCriterion("latitude not in", values, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("latitude between", value1, value2, "latitude");
-            return (Criteria) this;
-        }
-
-        public Criteria andLatitudeNotBetween(BigDecimal value1, BigDecimal value2) {
-            addCriterion("latitude not between", value1, value2, "latitude");
+        public Criteria andAdTypeNotBetween(String value1, String value2) {
+            addCriterion("ad_type not between", value1, value2, "adType");
             return (Criteria) this;
         }
 
