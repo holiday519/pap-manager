@@ -36,8 +36,8 @@ public class SysUserDao
                 sysUser.setPhone(rs.getString("phone"));
                 sysUser.setEmail(rs.getString("email"));
                 sysUser.setRemark(rs.getString("remark"));
-                sysUser.setCreateTime(rs.getDate("createtime"));
-                sysUser.setUpdateTime(rs.getDate("updatetime"));
+                sysUser.setCreateTime(rs.getDate("create_time"));
+                sysUser.setUpdateTime(rs.getDate("update_time"));
                 
                 return sysUser;
             }

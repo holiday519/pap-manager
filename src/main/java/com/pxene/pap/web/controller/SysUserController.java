@@ -70,7 +70,7 @@ public class SysUserController
             
             // 将Token保存在Session中
             HttpSession session = request.getSession();
-            session.setAttribute(username, token);
+            session.setAttribute(userInDB.getId(), token);
             
             return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, token, response);
         }
