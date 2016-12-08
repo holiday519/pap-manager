@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.VideoTmplTypeModel;
 import com.pxene.pap.domain.model.basic.VideoTmplTypeModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface VideoTmplTypeModelMapper {
-    int countByExample(VideoTmplTypeModelExample example);
+    long countByExample(VideoTmplTypeModelExample example);
 
     int deleteByExample(VideoTmplTypeModelExample example);
 

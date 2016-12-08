@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.SysRoleModel;
 import com.pxene.pap.domain.model.basic.SysRoleModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface SysRoleModelMapper {
-    int countByExample(SysRoleModelExample example);
+    long countByExample(SysRoleModelExample example);
 
     int deleteByExample(SysRoleModelExample example);
 

@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.ImageTypeModel;
 import com.pxene.pap.domain.model.basic.ImageTypeModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface ImageTypeModelMapper {
-    int countByExample(ImageTypeModelExample example);
+    long countByExample(ImageTypeModelExample example);
 
     int deleteByExample(ImageTypeModelExample example);
 

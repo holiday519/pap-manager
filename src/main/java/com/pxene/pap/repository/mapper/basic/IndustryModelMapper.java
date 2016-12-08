@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.IndustryModel;
 import com.pxene.pap.domain.model.basic.IndustryModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface IndustryModelMapper {
-    int countByExample(IndustryModelExample example);
+    long countByExample(IndustryModelExample example);
 
     int deleteByExample(IndustryModelExample example);
 

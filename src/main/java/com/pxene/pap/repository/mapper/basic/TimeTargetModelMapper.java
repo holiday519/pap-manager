@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.TimeTargetModel;
 import com.pxene.pap.domain.model.basic.TimeTargetModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface TimeTargetModelMapper {
-    int countByExample(TimeTargetModelExample example);
+    long countByExample(TimeTargetModelExample example);
 
     int deleteByExample(TimeTargetModelExample example);
 

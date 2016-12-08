@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.NetworkTargetModel;
 import com.pxene.pap.domain.model.basic.NetworkTargetModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface NetworkTargetModelMapper {
-    int countByExample(NetworkTargetModelExample example);
+    long countByExample(NetworkTargetModelExample example);
 
     int deleteByExample(NetworkTargetModelExample example);
 

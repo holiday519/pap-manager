@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface CampaignModelMapper {
-    int countByExample(CampaignModelExample example);
+    long countByExample(CampaignModelExample example);
 
     int deleteByExample(CampaignModelExample example);
 

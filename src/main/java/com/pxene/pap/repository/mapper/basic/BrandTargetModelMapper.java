@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.BrandTargetModel;
 import com.pxene.pap.domain.model.basic.BrandTargetModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface BrandTargetModelMapper {
-    int countByExample(BrandTargetModelExample example);
+    long countByExample(BrandTargetModelExample example);
 
     int deleteByExample(BrandTargetModelExample example);
 

@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.LandPageModel;
 import com.pxene.pap.domain.model.basic.LandPageModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface LandPageModelMapper {
-    int countByExample(LandPageModelExample example);
+    long countByExample(LandPageModelExample example);
 
     int deleteByExample(LandPageModelExample example);
 

@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.domain.model.basic.CreativeModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface CreativeModelMapper {
-    int countByExample(CreativeModelExample example);
+    long countByExample(CreativeModelExample example);
 
     int deleteByExample(CreativeModelExample example);
 

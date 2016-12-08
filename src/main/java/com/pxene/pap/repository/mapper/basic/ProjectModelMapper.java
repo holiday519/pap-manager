@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface ProjectModelMapper {
-    int countByExample(ProjectModelExample example);
+    long countByExample(ProjectModelExample example);
 
     int deleteByExample(ProjectModelExample example);
 

@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.FrequencyModel;
 import com.pxene.pap.domain.model.basic.FrequencyModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface FrequencyModelMapper {
-    int countByExample(FrequencyModelExample example);
+    long countByExample(FrequencyModelExample example);
 
     int deleteByExample(FrequencyModelExample example);
 

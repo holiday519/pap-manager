@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.DeviceTargetModel;
 import com.pxene.pap.domain.model.basic.DeviceTargetModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface DeviceTargetModelMapper {
-    int countByExample(DeviceTargetModelExample example);
+    long countByExample(DeviceTargetModelExample example);
 
     int deleteByExample(DeviceTargetModelExample example);
 

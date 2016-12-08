@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.SizeModel;
 import com.pxene.pap.domain.model.basic.SizeModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface SizeModelMapper {
-    int countByExample(SizeModelExample example);
+    long countByExample(SizeModelExample example);
 
     int deleteByExample(SizeModelExample example);
 

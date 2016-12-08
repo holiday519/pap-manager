@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.MonitorModel;
 import com.pxene.pap.domain.model.basic.MonitorModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface MonitorModelMapper {
-    int countByExample(MonitorModelExample example);
+    long countByExample(MonitorModelExample example);
 
     int deleteByExample(MonitorModelExample example);
 

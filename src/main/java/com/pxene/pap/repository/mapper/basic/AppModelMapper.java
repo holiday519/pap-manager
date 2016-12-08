@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.AppModel;
 import com.pxene.pap.domain.model.basic.AppModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface AppModelMapper {
-    int countByExample(AppModelExample example);
+    long countByExample(AppModelExample example);
 
     int deleteByExample(AppModelExample example);
 

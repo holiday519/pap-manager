@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.RegionModel;
 import com.pxene.pap.domain.model.basic.RegionModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface RegionModelMapper {
-    int countByExample(RegionModelExample example);
+    long countByExample(RegionModelExample example);
 
     int deleteByExample(RegionModelExample example);
 

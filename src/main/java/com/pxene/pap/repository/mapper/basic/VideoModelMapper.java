@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.VideoModel;
 import com.pxene.pap.domain.model.basic.VideoModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface VideoModelMapper {
-    int countByExample(VideoModelExample example);
+    long countByExample(VideoModelExample example);
 
     int deleteByExample(VideoModelExample example);
 

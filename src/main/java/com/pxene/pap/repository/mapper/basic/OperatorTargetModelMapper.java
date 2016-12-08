@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.OperatorTargetModel;
 import com.pxene.pap.domain.model.basic.OperatorTargetModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface OperatorTargetModelMapper {
-    int countByExample(OperatorTargetModelExample example);
+    long countByExample(OperatorTargetModelExample example);
 
     int deleteByExample(OperatorTargetModelExample example);
 

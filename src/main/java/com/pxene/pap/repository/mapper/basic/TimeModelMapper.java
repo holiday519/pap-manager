@@ -3,14 +3,11 @@ package com.pxene.pap.repository.mapper.basic;
 import com.pxene.pap.domain.model.basic.TimeModel;
 import com.pxene.pap.domain.model.basic.TimeModelExample;
 import com.pxene.pap.domain.model.basic.TimeModelWithBLOBs;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface TimeModelMapper {
-    int countByExample(TimeModelExample example);
+    long countByExample(TimeModelExample example);
 
     int deleteByExample(TimeModelExample example);
 

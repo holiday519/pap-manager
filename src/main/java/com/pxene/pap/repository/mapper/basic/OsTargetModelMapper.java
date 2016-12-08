@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.OsTargetModel;
 import com.pxene.pap.domain.model.basic.OsTargetModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface OsTargetModelMapper {
-    int countByExample(OsTargetModelExample example);
+    long countByExample(OsTargetModelExample example);
 
     int deleteByExample(OsTargetModelExample example);
 

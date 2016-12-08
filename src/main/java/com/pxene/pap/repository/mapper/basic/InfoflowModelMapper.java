@@ -2,14 +2,11 @@ package com.pxene.pap.repository.mapper.basic;
 
 import com.pxene.pap.domain.model.basic.InfoflowModel;
 import com.pxene.pap.domain.model.basic.InfoflowModelExample;
-
 import java.util.List;
-
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-@Mapper
+
 public interface InfoflowModelMapper {
-    int countByExample(InfoflowModelExample example);
+    long countByExample(InfoflowModelExample example);
 
     int deleteByExample(InfoflowModelExample example);
 
