@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper" >
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AdvertiserModel" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="company" property="company" jdbcType="VARCHAR" />
+    <result column="contact" property="contact" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="qq" property="qq" jdbcType="VARCHAR" />
+    <result column="industryid" property="industryid" jdbcType="VARCHAR" />
+    <result column="licenseno" property="licenseno" jdbcType="VARCHAR" />
+    <result column="organizationno" property="organizationno" jdbcType="VARCHAR" />
+    <result column="logourl" property="logourl" jdbcType="VARCHAR" />
+    <result column="icpurl" property="icpurl" jdbcType="VARCHAR" />
+    <result column="organizationurl" property="organizationurl" jdbcType="VARCHAR" />
+    <result column="licenseurl" property="licenseurl" jdbcType="VARCHAR" />
+    <result column="accounturl" property="accounturl" jdbcType="VARCHAR" />
+    <result column="siteurl" property="siteurl" jdbcType="VARCHAR" />
+    <result column="sitename" property="sitename" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="zip" property="zip" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="creattime" property="creattime" jdbcType="TIMESTAMP" />
+    <result column="updatetime" property="updatetime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, name, company, contact, phone, qq, industryid, licenseno, organizationno, logourl, 
+    icpurl, organizationurl, licenseurl, accounturl, siteurl, sitename, email, zip, address, 
+    status, remark, creattime, updatetime
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_t_advertiser
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from pap_t_advertiser
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from pap_t_advertiser
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModelExample" >
+    delete from pap_t_advertiser
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel" >
+    insert into pap_t_advertiser (id, name, company, 
+      contact, phone, qq, 
+      industryid, licenseno, organizationno, 
+      logourl, icpurl, organizationurl, 
+      licenseurl, accounturl, siteurl, 
+      sitename, email, zip, 
+      address, status, remark, 
+      creattime, updatetime)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{company,jdbcType=VARCHAR}, 
+      #{contact,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{qq,jdbcType=VARCHAR}, 
+      #{industryid,jdbcType=VARCHAR}, #{licenseno,jdbcType=VARCHAR}, #{organizationno,jdbcType=VARCHAR}, 
+      #{logourl,jdbcType=VARCHAR}, #{icpurl,jdbcType=VARCHAR}, #{organizationurl,jdbcType=VARCHAR}, 
+      #{licenseurl,jdbcType=VARCHAR}, #{accounturl,jdbcType=VARCHAR}, #{siteurl,jdbcType=VARCHAR}, 
+      #{sitename,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{zip,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{creattime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel" >
+    insert into pap_t_advertiser
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="company != null" >
+        company,
+      </if>
+      <if test="contact != null" >
+        contact,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="qq != null" >
+        qq,
+      </if>
+      <if test="industryid != null" >
+        industryid,
+      </if>
+      <if test="licenseno != null" >
+        licenseno,
+      </if>
+      <if test="organizationno != null" >
+        organizationno,
+      </if>
+      <if test="logourl != null" >
+        logourl,
+      </if>
+      <if test="icpurl != null" >
+        icpurl,
+      </if>
+      <if test="organizationurl != null" >
+        organizationurl,
+      </if>
+      <if test="licenseurl != null" >
+        licenseurl,
+      </if>
+      <if test="accounturl != null" >
+        accounturl,
+      </if>
+      <if test="siteurl != null" >
+        siteurl,
+      </if>
+      <if test="sitename != null" >
+        sitename,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="zip != null" >
+        zip,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="creattime != null" >
+        creattime,
+      </if>
+      <if test="updatetime != null" >
+        updatetime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="company != null" >
+        #{company,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null" >
+        #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null" >
+        #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="industryid != null" >
+        #{industryid,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseno != null" >
+        #{licenseno,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationno != null" >
+        #{organizationno,jdbcType=VARCHAR},
+      </if>
+      <if test="logourl != null" >
+        #{logourl,jdbcType=VARCHAR},
+      </if>
+      <if test="icpurl != null" >
+        #{icpurl,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationurl != null" >
+        #{organizationurl,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseurl != null" >
+        #{licenseurl,jdbcType=VARCHAR},
+      </if>
+      <if test="accounturl != null" >
+        #{accounturl,jdbcType=VARCHAR},
+      </if>
+      <if test="siteurl != null" >
+        #{siteurl,jdbcType=VARCHAR},
+      </if>
+      <if test="sitename != null" >
+        #{sitename,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="zip != null" >
+        #{zip,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creattime != null" >
+        #{creattime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null" >
+        #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModelExample" resultType="java.lang.Integer" >
+    select count(*) from pap_t_advertiser
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update pap_t_advertiser
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.company != null" >
+        company = #{record.company,jdbcType=VARCHAR},
+      </if>
+      <if test="record.contact != null" >
+        contact = #{record.contact,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null" >
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qq != null" >
+        qq = #{record.qq,jdbcType=VARCHAR},
+      </if>
+      <if test="record.industryid != null" >
+        industryid = #{record.industryid,jdbcType=VARCHAR},
+      </if>
+      <if test="record.licenseno != null" >
+        licenseno = #{record.licenseno,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organizationno != null" >
+        organizationno = #{record.organizationno,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logourl != null" >
+        logourl = #{record.logourl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.icpurl != null" >
+        icpurl = #{record.icpurl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organizationurl != null" >
+        organizationurl = #{record.organizationurl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.licenseurl != null" >
+        licenseurl = #{record.licenseurl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.accounturl != null" >
+        accounturl = #{record.accounturl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.siteurl != null" >
+        siteurl = #{record.siteurl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sitename != null" >
+        sitename = #{record.sitename,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null" >
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.zip != null" >
+        zip = #{record.zip,jdbcType=VARCHAR},
+      </if>
+      <if test="record.address != null" >
+        address = #{record.address,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creattime != null" >
+        creattime = #{record.creattime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatetime != null" >
+        updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update pap_t_advertiser
+    set id = #{record.id,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      company = #{record.company,jdbcType=VARCHAR},
+      contact = #{record.contact,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      qq = #{record.qq,jdbcType=VARCHAR},
+      industryid = #{record.industryid,jdbcType=VARCHAR},
+      licenseno = #{record.licenseno,jdbcType=VARCHAR},
+      organizationno = #{record.organizationno,jdbcType=VARCHAR},
+      logourl = #{record.logourl,jdbcType=VARCHAR},
+      icpurl = #{record.icpurl,jdbcType=VARCHAR},
+      organizationurl = #{record.organizationurl,jdbcType=VARCHAR},
+      licenseurl = #{record.licenseurl,jdbcType=VARCHAR},
+      accounturl = #{record.accounturl,jdbcType=VARCHAR},
+      siteurl = #{record.siteurl,jdbcType=VARCHAR},
+      sitename = #{record.sitename,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR},
+      zip = #{record.zip,jdbcType=VARCHAR},
+      address = #{record.address,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      creattime = #{record.creattime,jdbcType=TIMESTAMP},
+      updatetime = #{record.updatetime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel" >
+    update pap_t_advertiser
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="company != null" >
+        company = #{company,jdbcType=VARCHAR},
+      </if>
+      <if test="contact != null" >
+        contact = #{contact,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null" >
+        qq = #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="industryid != null" >
+        industryid = #{industryid,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseno != null" >
+        licenseno = #{licenseno,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationno != null" >
+        organizationno = #{organizationno,jdbcType=VARCHAR},
+      </if>
+      <if test="logourl != null" >
+        logourl = #{logourl,jdbcType=VARCHAR},
+      </if>
+      <if test="icpurl != null" >
+        icpurl = #{icpurl,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationurl != null" >
+        organizationurl = #{organizationurl,jdbcType=VARCHAR},
+      </if>
+      <if test="licenseurl != null" >
+        licenseurl = #{licenseurl,jdbcType=VARCHAR},
+      </if>
+      <if test="accounturl != null" >
+        accounturl = #{accounturl,jdbcType=VARCHAR},
+      </if>
+      <if test="siteurl != null" >
+        siteurl = #{siteurl,jdbcType=VARCHAR},
+      </if>
+      <if test="sitename != null" >
+        sitename = #{sitename,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="zip != null" >
+        zip = #{zip,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="creattime != null" >
+        creattime = #{creattime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null" >
+        updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel" >
+    update pap_t_advertiser
+    set name = #{name,jdbcType=VARCHAR},
+      company = #{company,jdbcType=VARCHAR},
+      contact = #{contact,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      qq = #{qq,jdbcType=VARCHAR},
+      industryid = #{industryid,jdbcType=VARCHAR},
+      licenseno = #{licenseno,jdbcType=VARCHAR},
+      organizationno = #{organizationno,jdbcType=VARCHAR},
+      logourl = #{logourl,jdbcType=VARCHAR},
+      icpurl = #{icpurl,jdbcType=VARCHAR},
+      organizationurl = #{organizationurl,jdbcType=VARCHAR},
+      licenseurl = #{licenseurl,jdbcType=VARCHAR},
+      accounturl = #{accounturl,jdbcType=VARCHAR},
+      siteurl = #{siteurl,jdbcType=VARCHAR},
+      sitename = #{sitename,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      zip = #{zip,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      creattime = #{creattime,jdbcType=TIMESTAMP},
+      updatetime = #{updatetime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

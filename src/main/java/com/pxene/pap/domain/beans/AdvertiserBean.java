@@ -1,13 +1,13 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Date;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
 public class AdvertiserBean
 {
-    private String id = UUID.randomUUID().toString();
+    private String id;
     
     private String name;
     

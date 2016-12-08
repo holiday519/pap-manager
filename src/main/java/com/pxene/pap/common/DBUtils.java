@@ -4,12 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
 
 public class DBUtils
 {
-    private static final String SQL_TEMP_UPDATE = "UPDATE {0} SET {1} WHERE {2}";
+    /*private static final String SQL_TEMP_UPDATE = "UPDATE {0} SET {1} WHERE {2}";
     
 
     public static String buildUpdateSQLByObject(String tableName, String whereStr, Object object) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException
@@ -44,5 +44,5 @@ public class DBUtils
         }
         
         return null;
-    }
+    }*/
 }

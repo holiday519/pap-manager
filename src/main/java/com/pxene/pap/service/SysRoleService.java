@@ -16,7 +16,7 @@ public class SysRoleService
         List<SysRole> roles = new ArrayList<>();
         SysRole sysRole = new SysRole();
         sysRole.setId(111L);
-        sysRole.setRoleName("ADMIN");
+        sysRole.setName("ADMIN");
         roles.add(sysRole);
         return roles;
     }

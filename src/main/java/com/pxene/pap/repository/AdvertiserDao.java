@@ -1,5 +1,7 @@
 package com.pxene.pap.repository;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -19,7 +21,7 @@ public class AdvertiserDao
                 + "logourl, icpurl, organizationurl, licenseurl, accounturl, siteurl, sitename, email, zip, address, status, remark) "
                 + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
-        int affectedRows = jdbcTemplate.update(sql, advertiser.getId(), advertiser.getName(), advertiser.getCompany(), advertiser.getContact(), 
+        int affectedRows = jdbcTemplate.update(sql, UUID.randomUUID().toString(), advertiser.getName(), advertiser.getCompany(), advertiser.getContact(), 
                 advertiser.getPhone(), advertiser.getQQ(), advertiser.getIndustryId(), advertiser.getLicenseNO(), 
                 advertiser.getOrganizationNO(), advertiser.getLogoURL(), advertiser.getIcpURL(), advertiser.getOrganizationURL(), 
                 advertiser.getAccountURL(), advertiser.getSiteURL(), advertiser.getSiteName(), advertiser.getEmail(), 
@@ -27,6 +29,7 @@ public class AdvertiserDao
         
         return affectedRows;
     }
+    
     
     
 }

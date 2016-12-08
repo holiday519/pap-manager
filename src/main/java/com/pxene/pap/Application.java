@@ -102,7 +102,7 @@ public class Application
         registrationBean.setFilter(jwtFilter);
         
         List<String> urlPatterns = new ArrayList<String>();
-        urlPatterns.add("/v1/test/*");
+        urlPatterns.add("/v1/test1111/*");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;
