@@ -19,37 +19,31 @@ import com.pxene.pap.web.controller.SysUserController;
 @Service
 public class CampaignService {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
-
 	@Autowired
 	private CampaignDao campaignDao;
 	
 	@Transactional
-	public String createCampaign(CampaignBean bean){
+	public String createCampaign(CampaignBean bean) throws Exception{
 		
-		int basicNum;
-		try {
-			String name = bean.getName();
-			if (name == null || "".equals(name)) {
-				return "活动名称不能为空";
-			}
-			int nameAndId = campaignDao.selectCampaignByNameAndId(name, null);
-			if (nameAndId > 0) {
-				return "活动名称重复";
-			}
-			String id = UUID.randomUUID().toString();
-			bean.setId(id);
-			bean.setStatus("00");
-			bean.setStartDate(new Date());
-			bean.setEndDate(new Date());
-			basicNum = campaignDao.createCampaignBasic(bean);
-			campaignDao.createCampaignTarget(bean);
-			campaignDao.createCampaignFrequency(bean);
-			if (basicNum > 0) {
-				return id;
-			}
-		} catch (Exception e) {
-			LOGGER.error("活动创建失败：",e.getMessage());
+		
+		String name = bean.getName();
+		if (name == null || "".equals(name)) {
+			return "活动名称不能为空";
+		}
+		int nameAndId = campaignDao.selectCampaignByNameAndId(name, null);
+		if (nameAndId > 0) {
+			return "活动名称重复";
+		}
+		String id = UUID.randomUUID().toString();
+		bean.setId(id);
+		bean.setStatus("00");
+		bean.setStartDate(new Date());
+		bean.setEndDate(new Date());
+		int basicNum = campaignDao.createCampaignBasic(bean);
+		campaignDao.createCampaignTarget(bean);
+		campaignDao.createCampaignFrequency(bean);
+		if (basicNum > 0) {
+			return id;
 		}
 		return "活动创建失败";
 	}

@@ -29,8 +29,14 @@ public class CampaignController {
 	@RequestMapping(value="/campaign",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createProject(@RequestBody CampaignBean bean, HttpServletResponse response){
-		String str = campaignService.createCampaign(bean);
-		System.out.println(str);
-		return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		String str;
+		try {
+			str = campaignService.createCampaign(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("活动创建失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
 	}
 }

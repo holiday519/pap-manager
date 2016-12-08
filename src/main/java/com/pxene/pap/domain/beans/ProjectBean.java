@@ -9,6 +9,7 @@ public class ProjectBean {
 	private Integer totalBudget;
 	private String remark;
 	private String status;
+	private String KpiId;
 	
 	public String getId() {
 		return id;
@@ -46,12 +47,18 @@ public class ProjectBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	public String getKpiId() {
+		return KpiId;
+	}
+	public void setKpiId(String kpiId) {
+		KpiId = kpiId;
+	}
 	@Override
 	public String toString() {
 		return "ProjectBean [id=" + id + ", advertiserId=" + advertiserId
 				+ ", name=" + name + ", totalBudget=" + totalBudget
-				+ ", remark=" + remark + ", status=" + status + "]";
+				+ ", remark=" + remark + ", status=" + status + ", KpiId="
+				+ KpiId + "]";
 	}
-	
 	
 }
