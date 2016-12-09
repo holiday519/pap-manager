@@ -38,4 +38,31 @@ public class ProjectController {
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
+	
+	@RequestMapping(value="/project",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String updateProject(@RequestBody ProjectBean bean, HttpServletResponse response){
+		String str;
+		try {
+			str = projectService.updateProject(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("项目修改失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
+	
+	@RequestMapping(value="/project",method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String deleteProject(@RequestBody ProjectBean bean, HttpServletResponse response){
+		String projectId =bean.getId();
+		try {
+			projectService.deleteProject(projectId);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+		} catch (Exception e) {
+			LOGGER.error("项目删除失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
 }

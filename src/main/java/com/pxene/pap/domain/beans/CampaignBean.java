@@ -2,35 +2,110 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 import java.util.List;
-
+/**
+ * 活动
+ */
 public class CampaignBean {
 
+	/**
+	 * 活动id
+	 */
 	private String id;
+	/**
+	 * 项目id
+	 */
 	private String projectId;
+	/**
+	 * 名称
+	 */
 	private String name;
+	/**
+	 * 活动类型
+	 */
 	private String type;
+	/**
+	 * 总预算
+	 */
 	private int totalBudget;
+	/**
+	 * 日预算
+	 */
 	private int dailyBudget;
+	/**
+	 * 日展现
+	 */
 	private int dailyImpression;
+	/**
+	 * 日点击
+	 */
 	private int dailyClick;
+	/**
+	 * 备注
+	 */
 	private String remark;
+	/**
+	 * 状态
+	 */
 	private String status;
+	/**
+	 * 频次id
+	 */
 	private String frequencyId;
+	/**
+	 * 开始时间
+	 */
 	private Date startDate;
+	/**
+	 * 结束时间
+	 */
 	private Date endDate;
-	
+	/**
+	 * 地域定向
+	 */
 	private List<String> regionTarget;
+	/**
+	 * 广告类型定向
+	 */
 	private List<String> adtypeTarget;
+	/**
+	 * 时间定向
+	 */
 	private List<String> timeTarget;
+	/**
+	 * 网络定向
+	 */
 	private List<String> networkTarget;
+	/**
+	 * 运营商定向
+	 */
 	private List<String> operatorTarget;
+	/**
+	 * 设备定向
+	 */
 	private List<String> deviceTarget;
+	/**
+	 * 系统定向
+	 */
 	private List<String> osTarget;
+	/**
+	 * 品牌定向
+	 */
 	private List<String> brandTarget;
+	/**
+	 * app定向
+	 */
 	private List<String> appTarget;
-	
+	/**
+	 *控制对象 
+	 */
 	private String controlObj;
+	/**
+	 * 时间类型
+	 */
 	private String timeType;
+	/**
+	 * 频次
+	 */
 	private int frequency;
 	
 	List<MonitorBean> monitors;

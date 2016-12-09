@@ -28,7 +28,7 @@ public class CampaignController {
 	
 	@RequestMapping(value="/campaign",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createProject(@RequestBody CampaignBean bean, HttpServletResponse response){
+	public String createCampaign(@RequestBody CampaignBean bean, HttpServletResponse response){
 		String str;
 		try {
 			str = campaignService.createCampaign(bean);
@@ -36,6 +36,33 @@ public class CampaignController {
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
 			LOGGER.error("活动创建失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
+	
+	@RequestMapping(value="/campaign",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String updateCampaign(@RequestBody CampaignBean bean, HttpServletResponse response){
+		String str;
+		try {
+			str = campaignService.updateCampaign(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("活动编辑失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
+	
+	@RequestMapping(value="/campaign",method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String deleteCampaign(@RequestBody CampaignBean bean, HttpServletResponse response){
+		String campaignId = bean.getId();
+		try {
+			campaignService.deleteCampaign(campaignId);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+		} catch (Exception e) {
+			LOGGER.error("活动删除失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}

@@ -28,9 +28,42 @@ public class CreativeController {
 	@RequestMapping(value="/creative",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createProject(@RequestBody CreativeBean bean, HttpServletResponse response){
-		String str = creativeService.createCreative(bean);
-		System.out.println(str);
-		return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		String str;
+		try {
+			str = creativeService.createCreative(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("创意创建失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
+	
+	@RequestMapping(value="/creative",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String updateProject(@RequestBody CreativeBean bean, HttpServletResponse response){
+		String str;
+		try {
+			str = creativeService.updateCreative(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("创意创建失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
+	
+	@RequestMapping(value="/creative",method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String deleteProject(@RequestBody CreativeBean bean, HttpServletResponse response){
+		String creativeId = bean.getId();
+		try {
+			creativeService.deleteCreative(creativeId);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+		} catch (Exception e) {
+			LOGGER.error("创意删除失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
 	}
 
 }

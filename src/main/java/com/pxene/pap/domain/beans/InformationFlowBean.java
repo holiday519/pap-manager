@@ -1,17 +1,50 @@
 package com.pxene.pap.domain.beans;
-
+/**
+ * 信息流创意
+ */
 public class InformationFlowBean {
 
+	/**
+	 * 信息流id
+	 */
 	private String id;
+	/**
+	 * 名称
+	 */
 	private String name;
+	/**
+	 * 标题
+	 */
 	private String title;
+	/**
+	 * 描述
+	 */
 	private String description;
+	/**
+	 * 小图id
+	 */
 	private String icon;
+	/**
+	 * 大图id
+	 */
 	private String image1;
+	/**
+	 * 大图id
+	 */
 	private String image2;
+	/**
+	 * 大图id
+	 */
 	private String image3;
+	/**
+	 * 大图id
+	 */
 	private String image4;
+	/**
+	 * 大图id
+	 */
 	private String image5;
+	
 	public String getId() {
 		return id;
 	}

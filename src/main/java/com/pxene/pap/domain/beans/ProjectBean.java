@@ -1,14 +1,37 @@
 package com.pxene.pap.domain.beans;
 
-
+/**
+ * 项目
+ */
 public class ProjectBean {
 
+	/**
+	 * 项目id
+	 */
 	private String id;
+	/**
+	 * 广告主id
+	 */
 	private String advertiserId;
+	/**
+	 * 名称
+	 */
 	private String name;
+	/**
+	 * 总预算
+	 */
 	private Integer totalBudget;
+	/**
+	 * 备注
+	 */
 	private String remark;
+	/**
+	 * 状态
+	 */
 	private String status;
+	/**
+	 * KPI指标id
+	 */
 	private String KpiId;
 	
 	public String getId() {

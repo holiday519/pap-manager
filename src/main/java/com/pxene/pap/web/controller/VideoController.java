@@ -27,10 +27,15 @@ public class VideoController {
 	
 	@RequestMapping(value="/video",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateProject(@RequestBody VideoBean bean, HttpServletResponse response){
-		String str = videoService.updateVideo(bean);
-		System.out.println(str);
-		return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+	public String updateVideo(@RequestBody VideoBean bean, HttpServletResponse response){
+		String str;
+		try {
+			str = videoService.updateVideo(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str,response);
+		} catch (Exception e) {
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
 	}
 
 }

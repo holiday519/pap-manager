@@ -1,13 +1,30 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.List;
-
+/**
+ * 创意
+ */
 public class CreativeBean {
 
+	/**
+	 * 创意id
+	 */
 	private String id;
+	/**
+	 * 活动id 
+	 */
 	private String campaignId;
+	/**
+	 * 创意名称
+	 */
 	private String name;
+	/**
+	 * 素材id数组
+	 */
 	private List<String> materialIds;
+	/**
+	 * 价格数组
+	 */
 	private List<Float> price;
 	
 	public String getId() {

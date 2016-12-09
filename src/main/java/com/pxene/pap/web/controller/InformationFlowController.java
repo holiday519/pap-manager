@@ -27,10 +27,30 @@ public class InformationFlowController {
 	
 	@RequestMapping(value="/info",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createProject(@RequestBody InformationFlowBean bean, HttpServletResponse response){
-		String str = infomationFlowService.createInformationFlow(bean);
-		System.out.println(str);
-		return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+	public String createInfoFlow(@RequestBody InformationFlowBean bean, HttpServletResponse response){
+		String str;
+		try {
+			str = infomationFlowService.createInformationFlow(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("创意创建失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
+	}
+	
+	@RequestMapping(value="/info",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String updateInfoFlow(@RequestBody InformationFlowBean bean, HttpServletResponse response){
+		String str;
+		try {
+			str = infomationFlowService.updateInformationFlow(bean);
+			System.out.println(str);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+		} catch (Exception e) {
+			LOGGER.error("创意修改失败：",e.getMessage());
+			return ResponseUtils.sendHttp500(LOGGER, response);
+		}
 	}
 
 }
