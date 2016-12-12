@@ -15,55 +15,54 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.CreativeBean;
-import com.pxene.pap.service.CreativeService;
+import com.pxene.pap.domain.beans.PurposeBean;
+import com.pxene.pap.service.PurposeService;
 
 @Controller
-public class CreativeController {
-	
+public class PurposeController {
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
 	
 	@Autowired
-	private CreativeService creativeService;
+	private PurposeService purposeService;
 	
-	@RequestMapping(value="/creative",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String createProject(@RequestBody CreativeBean bean, HttpServletResponse response){
+	@RequestMapping(value = "/purpose", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String createProject(@RequestBody PurposeBean bean, HttpServletResponse response){
 		String str;
 		try {
-			str = creativeService.createCreative(bean);
+			str = purposeService.createPurpose(bean);
 			System.out.println(str);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "id", str, response);
 		} catch (Exception e) {
-			LOGGER.error("创意创建失败：",e.getMessage());
+			LOGGER.error("创建失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
 	
-	@RequestMapping(value="/creative",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/purpose", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateProject(@RequestBody CreativeBean bean, HttpServletResponse response){
+	public String updateProject(@RequestBody PurposeBean bean, HttpServletResponse response){
 		String str;
 		try {
-			str = creativeService.updateCreative(bean);
+			str = purposeService.updatePurpose(bean);
 			System.out.println(str);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "id", str, response);
 		} catch (Exception e) {
-			LOGGER.error("创意编辑失败：",e.getMessage());
+			LOGGER.error("编辑失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
 	
-	@RequestMapping(value="/creative",method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/purpose",method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String deleteProject(@RequestBody CreativeBean bean, HttpServletResponse response){
-		String creativeId = bean.getId();
+	public String deleteProject(@RequestBody PurposeBean bean, HttpServletResponse response){
 		try {
-			creativeService.deleteCreative(creativeId);
+			purposeService.deletePurpose(bean);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
 			LOGGER.error("创意删除失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
-
 }
