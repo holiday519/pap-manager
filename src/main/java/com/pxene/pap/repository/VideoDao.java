@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import ch.qos.logback.core.db.dialect.DBUtil;
 
-import com.pxene.pap.common.DBUtils;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoEntity;
 

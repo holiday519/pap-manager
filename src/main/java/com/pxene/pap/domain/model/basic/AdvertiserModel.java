@@ -232,4 +232,37 @@ public class AdvertiserModel {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", name=").append(name);
+        sb.append(", company=").append(company);
+        sb.append(", contact=").append(contact);
+        sb.append(", phone=").append(phone);
+        sb.append(", qq=").append(qq);
+        sb.append(", industryId=").append(industryId);
+        sb.append(", licenseNo=").append(licenseNo);
+        sb.append(", organizationNo=").append(organizationNo);
+        sb.append(", logoUrl=").append(logoUrl);
+        sb.append(", icpUrl=").append(icpUrl);
+        sb.append(", organizationUrl=").append(organizationUrl);
+        sb.append(", licenseUrl=").append(licenseUrl);
+        sb.append(", accountUrl=").append(accountUrl);
+        sb.append(", siteUrl=").append(siteUrl);
+        sb.append(", siteName=").append(siteName);
+        sb.append(", email=").append(email);
+        sb.append(", zip=").append(zip);
+        sb.append(", address=").append(address);
+        sb.append(", status=").append(status);
+        sb.append(", remark=").append(remark);
+        sb.append(", createTime=").append(createTime);
+        sb.append(", updateTime=").append(updateTime);
+        sb.append("]");
+        return sb.toString();
+    }
 }

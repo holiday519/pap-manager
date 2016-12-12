@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
@@ -75,17 +76,27 @@ public class ResponseUtils
         return null;
     }
     
-    public static String sendReponse(Logger logger, int code, Object o, HttpServletResponse resonse)
+    public static String sendReponse(Logger logger, int code, Object o, HttpServletResponse response)
     {
-        logger.debug(o.toString());
-        try
+        if (o != null)
         {
-            return new ObjectMapper().writeValueAsString(o);
+            logger.debug(o.toString());
+            response.setStatus(code);
+            try
+            {
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.setSerializationInclusion(Include.NON_NULL);
+                return objectMapper.writeValueAsString(o);
+            }
+            catch (JsonProcessingException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
         }
-        catch (JsonProcessingException e)
+        else
         {
-            e.printStackTrace();
-            return null;
+            return "";
         }
     }
     public static String sendReponse(Logger logger, int code, String val, HttpServletResponse response)
