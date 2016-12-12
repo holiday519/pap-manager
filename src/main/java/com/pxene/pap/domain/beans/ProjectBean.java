@@ -32,8 +32,19 @@ public class ProjectBean {
 	/**
 	 * KPI指标id
 	 */
-	private String KpiId;
+	private String kpiId;
 	
+	/**
+	 * KPI指标value
+	 */
+	private Integer Value;
+	
+	public Integer getValue() {
+		return Value;
+	}
+	public void setValue(Integer value) {
+		Value = value;
+	}
 	public String getId() {
 		return id;
 	}
@@ -70,18 +81,20 @@ public class ProjectBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
 	public String getKpiId() {
-		return KpiId;
+		return kpiId;
 	}
 	public void setKpiId(String kpiId) {
-		KpiId = kpiId;
+		this.kpiId = kpiId;
 	}
 	@Override
 	public String toString() {
 		return "ProjectBean [id=" + id + ", advertiserId=" + advertiserId
 				+ ", name=" + name + ", totalBudget=" + totalBudget
-				+ ", remark=" + remark + ", status=" + status + ", KpiId="
-				+ KpiId + "]";
+				+ ", remark=" + remark + ", status=" + status + ", kpiId="
+				+ kpiId + ", Value=" + Value + "]";
 	}
+
 	
 }

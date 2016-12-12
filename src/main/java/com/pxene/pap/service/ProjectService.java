@@ -63,8 +63,10 @@ public class ProjectService {
 		// project-kpi 添加关联表数据
 		ProjectKpiModel kpiModel = new ProjectKpiModel();
 		kpiModel.setId(UUID.randomUUID().toString());
+		Integer value = bean.getValue();
 		kpiModel.setKpiId(kpiId);
 		kpiModel.setProjectId(id);
+		kpiModel.setValue(value);
 		projectKpiMapper.insertSelective(kpiModel);
 
 		// 添加项目信息
@@ -76,6 +78,12 @@ public class ProjectService {
 		}
 	}
 	
+	/**
+	 * 编辑项目
+	 * @param bean
+	 * @return
+	 * @throws Exception
+	 */
 	@Transactional
 	public String updateProject(ProjectBean bean) throws Exception{
 		int num;
@@ -89,12 +97,21 @@ public class ProjectService {
 		}
 		Integer totalBudget = bean.getTotalBudget();
 		String status = bean.getStatus();
+		String advertiserId = bean.getAdvertiserId();
 		ProjectModel model = new ProjectModel();
 		model.setId(id);
 		model.setName(name);
 		model.setStatus(status);
+		model.setAdvertiserId(advertiserId );
 		model.setTotalBudget(totalBudget);
-
+		String kpiId = bean.getKpiId();
+		Integer value = bean.getValue();
+		ProjectKpiModel pkModel = new ProjectKpiModel();
+		pkModel.setValue(value);
+		pkModel.setKpiId(kpiId);
+		ProjectKpiModelExample pkExample = new ProjectKpiModelExample();
+		pkExample.createCriteria().andProjectIdEqualTo(id);
+		projectKpiMapper.updateByExampleSelective(pkModel, pkExample);
 		// 修改项目信息
 		num = projectMapper.updateByPrimaryKeySelective(model);
 		if (num > -1) {
@@ -130,5 +147,5 @@ public class ProjectService {
 		int num = projectMapper.deleteByPrimaryKey(projectId);
 		return num;
 	}
-
+	
 }

@@ -234,7 +234,7 @@ public class PurposeService {
 		if (landpageId != null) {
 			landPageMapper.deleteByPrimaryKey(landpageId);
 		}
-		if(downloadId!=null){
+		if (downloadId != null) {
 			downLoadMapper.deleteByPrimaryKey(downloadId);
 		}
 		int num = purposeMapper.deleteByPrimaryKey(id);
