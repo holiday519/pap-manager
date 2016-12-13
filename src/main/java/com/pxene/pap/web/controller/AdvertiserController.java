@@ -70,25 +70,35 @@ public class AdvertiserController
     {
         LOGGER.debug("Received path params id {}.", id);
         
-        int affectedRows = advertiserService.deleteAdvertiser(id);
-        
-        if (affectedRows > 0)
+        int affectedRows;
+        try
         {
-            response.setStatus(HttpStatusCode.NO_CONTENT);
-            return;
-        }
-        else
-        {
-            try
+            affectedRows = advertiserService.deleteAdvertiser(id);
+            if (affectedRows > 0)
+            {
+                response.setStatus(HttpStatusCode.NO_CONTENT);
+                return;
+            }
+            else
             {
                 response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
                 response.getWriter().write(ResponseUtils.sendReponse(LOGGER, HttpStatusCode.INTERNAL_SERVER_ERROR, "删除失败", response));
             }
+        }
+        catch (Exception ex)
+        {
+            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+            try
+            {
+                response.getWriter().write(ResponseUtils.sendReponse(LOGGER, HttpStatusCode.INTERNAL_SERVER_ERROR, ex.getMessage(), response));
+            }
             catch (IOException e)
             {
                 LOGGER.error(e.toString());
+                e.printStackTrace();
             }
         }
+        
     }
     
     

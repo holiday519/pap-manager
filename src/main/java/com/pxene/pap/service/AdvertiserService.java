@@ -12,13 +12,19 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.ProjectModel;
+import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
+import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
 
 @Service
 public class AdvertiserService
 {
     @Autowired
     private AdvertiserModelMapper advertiserMapper;
+
+    @Autowired
+    private ProjectModelMapper projectMapper;
     
     
     public int saveAdvertiser(AdvertiserModel advertiser)
@@ -29,9 +35,21 @@ public class AdvertiserService
 
 
     @Transactional
-    public int deleteAdvertiser(String id)
+    public int deleteAdvertiser(String id) throws Exception
     {
-        return advertiserMapper.deleteByPrimaryKey(id);
+        ProjectModelExample example = new ProjectModelExample();
+        example.createCriteria().andAdvertiserIdEqualTo(id);
+        
+        List<ProjectModel> projects = projectMapper.selectByExample(example);
+        
+        if (projects != null && !projects.isEmpty())
+        {
+            throw new Exception("广告主名下有项目，不能删除。");
+        }
+        else
+        {
+            return advertiserMapper.deleteByPrimaryKey(id);
+        }
     }
 
 

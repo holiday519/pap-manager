@@ -147,5 +147,28 @@ public class ProjectService {
 		int num = projectMapper.deleteByPrimaryKey(projectId);
 		return num;
 	}
+
+    public ProjectBean selectProject(String id)
+    {
+        ProjectModel model = projectMapper.selectByPrimaryKey(id);
+        ProjectBean projectBean = new ProjectBean();
+        ProjectKpiModelExample pkExample = new ProjectKpiModelExample();
+        pkExample.createCriteria().andProjectIdEqualTo(id);
+        List<ProjectKpiModel> list = projectKpiMapper.selectByExample(pkExample);
+        if(list!=null && !list.isEmpty()){
+            for(ProjectKpiModel m : list){
+                projectBean.setKpiId(m.getId());
+                projectBean.setValue(m.getValue());
+            }
+        }
+        projectBean.setAdvertiserId(model.getAdvertiserId());
+        projectBean.setId(model.getId());
+        projectBean.setName(model.getName());
+        projectBean.setRemark(model.getRemark());
+        projectBean.setStatus(model.getStatus());
+        projectBean.setTotalBudget(model.getTotalBudget());
+        
+        return projectBean;
+    }
 	
 }
