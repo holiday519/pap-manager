@@ -20,7 +20,7 @@ import com.pxene.pap.service.CreativeService;
 @Controller
 public class CreativeController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CreativeController.class);
 	
 	@Autowired
 	private CreativeService creativeService;
@@ -31,10 +31,8 @@ public class CreativeController {
 		String str;
 		try {
 			str = creativeService.createCreative(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("创意创建失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -45,10 +43,8 @@ public class CreativeController {
 		String str;
 		try {
 			str = creativeService.updateCreative(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("创意编辑失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -61,7 +57,6 @@ public class CreativeController {
 			creativeService.deleteCreative(creativeId);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			LOGGER.error("创意删除失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}

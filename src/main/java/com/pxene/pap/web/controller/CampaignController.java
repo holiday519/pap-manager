@@ -21,7 +21,7 @@ import com.pxene.pap.service.CampaignService;
 @Controller
 public class CampaignController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CampaignController.class);
 	
 	@Autowired
 	private CampaignService campaignService;
@@ -32,10 +32,8 @@ public class CampaignController {
 		String str;
 		try {
 			str = campaignService.createCampaign(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("活动创建失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -46,10 +44,8 @@ public class CampaignController {
 		String str;
 		try {
 			str = campaignService.updateCampaign(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("活动编辑失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -62,7 +58,6 @@ public class CampaignController {
 			campaignService.deleteCampaign(campaignId);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			LOGGER.error("活动删除失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}

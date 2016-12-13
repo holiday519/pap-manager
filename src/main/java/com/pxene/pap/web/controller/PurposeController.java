@@ -21,7 +21,7 @@ import com.pxene.pap.service.PurposeService;
 @Controller
 public class PurposeController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PurposeController.class);
 	
 	@Autowired
 	private PurposeService purposeService;
@@ -32,10 +32,8 @@ public class PurposeController {
 		String str;
 		try {
 			str = purposeService.createPurpose(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "id", str, response);
 		} catch (Exception e) {
-			LOGGER.error("创建失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -46,10 +44,8 @@ public class PurposeController {
 		String str;
 		try {
 			str = purposeService.updatePurpose(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "id", str, response);
 		} catch (Exception e) {
-			LOGGER.error("编辑失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -61,7 +57,6 @@ public class PurposeController {
 			purposeService.deletePurpose(bean);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			LOGGER.error("创意删除失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}

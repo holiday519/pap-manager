@@ -20,7 +20,7 @@ import com.pxene.pap.service.VideoService;
 @Controller
 public class VideoController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(VideoController.class);
 	
 	@Autowired
 	private VideoService videoService;
@@ -31,7 +31,6 @@ public class VideoController {
 		String str;
 		try {
 			str = videoService.updateVideo(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str,response);
 		} catch (Exception e) {
 			return ResponseUtils.sendHttp500(LOGGER, response);

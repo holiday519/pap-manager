@@ -21,7 +21,7 @@ import com.pxene.pap.service.ProjectService;
 @Controller
 public class ProjectController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProjectController.class);
 	
 	@Autowired
 	private ProjectService projectService;
@@ -34,7 +34,6 @@ public class ProjectController {
 			str = projectService.createProject(bean);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("createProject：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -45,10 +44,8 @@ public class ProjectController {
 		String str;
 		try {
 			str = projectService.updateProject(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("updateProject：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -61,20 +58,19 @@ public class ProjectController {
 			projectService.deleteProject(projectId);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			LOGGER.error("deleteProject：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
 	
-	@RequestMapping(value="/project/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String selectProject(@PathVariable String id, HttpServletResponse response){
-		try {
-			projectService.selectProject(id);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
-		} catch (Exception e) {
-			LOGGER.error("deleteProject：",e.getMessage());
-			return ResponseUtils.sendHttp500(LOGGER, response);
-		}
-	}
+//	@RequestMapping(value="/project/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public String selectProject(@PathVariable String id, HttpServletResponse response){
+//		try {
+//			projectService.selectProject(id);
+//			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+//		} catch (Exception e) {
+//			LOGGER.error("deleteProject：",e.getMessage());
+//			return ResponseUtils.sendHttp500(LOGGER, response);
+//		}
+//	}
 }

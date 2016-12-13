@@ -40,7 +40,7 @@ public class MyBatisConfig implements TransactionManagementConfigurer
         // 分页插件（http://git.oschina.net/free/Mybatis_PageHelper/blob/master/wikis/HowToUse.markdown）
         PageHelper pageHelper = new PageHelper();
         Properties props = new Properties();
-        props.setProperty("dialect", "mysql");
+//        props.setProperty("dialect", "mysql");
         props.setProperty("reasonable", "false");   // 分页参数合理化，默认false禁用。启用合理化时，如果pageNum<1会查询第一页，如果pageNum>pages会查询最后一页；禁用合理化时，如果pageNum<1或pageNum>pages会返回空数据。
         props.setProperty("pageSizeZero", "false");  // 设置为true时，如果pageSize=0或者RowBounds.limit = 0就会查询出全部的结果
         props.setProperty("supportMethodsArguments", "false");  // 支持通过Mapper接口参数来传递分页参数

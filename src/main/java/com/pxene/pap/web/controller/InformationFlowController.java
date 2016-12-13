@@ -20,7 +20,7 @@ import com.pxene.pap.service.InfomationFlowService;
 @Controller
 public class InformationFlowController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(InformationFlowController.class);
 	
 	@Autowired
 	private InfomationFlowService infomationFlowService;
@@ -31,10 +31,8 @@ public class InformationFlowController {
 		String str;
 		try {
 			str = infomationFlowService.createInformationFlow(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("创意创建失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
@@ -45,10 +43,8 @@ public class InformationFlowController {
 		String str;
 		try {
 			str = infomationFlowService.updateInformationFlow(bean);
-			System.out.println(str);
 			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			LOGGER.error("创意修改失败：",e.getMessage());
 			return ResponseUtils.sendHttp500(LOGGER, response);
 		}
 	}
