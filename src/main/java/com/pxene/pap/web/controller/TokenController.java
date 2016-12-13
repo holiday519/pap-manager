@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AccessToken;
-import com.pxene.pap.domain.beans.SysUser;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.PasswordIncorrectAuthException;

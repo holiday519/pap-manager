@@ -69,19 +69,42 @@ public class AdvertiserController
     }
     
     
+    
     /**
-     * 根据ID编辑指定的广告主。
+     * 根据ID编辑指定的广告主（全部更新）。
      * @param id        广告主ID
      * @param response
      * @return
      */
+    @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String updateAdvertiser(@PathVariable String id, @RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
+    {
+        LOGGER.debug("Received path params id {}, body param advertiser {}.", id, advertiser);
+        
+        AdvertiserModel updatedAdvertiser = advertiserService.updateAdvertiser(id, advertiser);
+        
+        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, updatedAdvertiser, response);
+    }
+    
+    
+    /**
+     * 根据ID编辑指定的广告主（部分更析）。
+     * @param id            广告主ID
+     * @param advertiser    广告主DTO
+     * @param response
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String updateAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
+    public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received path params id {}.", id);
+        LOGGER.debug("Received path params id {}, body param advertiser {}.", id, advertiser);
         
-        return null;
+        AdvertiserModel updatedAdvertiser = advertiserService.pathUpdateAdvertiser(id, advertiser);
+        
+        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, updatedAdvertiser, response);
     }
     
     

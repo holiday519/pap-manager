@@ -18,8 +18,10 @@ import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.BadRequestException;
 import com.pxene.pap.exception.DeleteErrorException;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.UpdateErrorException;
 import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
 import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
 
@@ -113,5 +115,43 @@ public class AdvertiserService
         }
         
         return advertisers;
+    }
+
+
+    public AdvertiserModel pathUpdateAdvertiser(String id, AdvertiserModel advertiser) throws Exception
+    {
+        AdvertiserModelExample example = new AdvertiserModelExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(id);
+        
+        if (!StringUtils.isEmpty(advertiser.getId()))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        int affectedRows = advertiserMapper.updateByExampleSelective(advertiser, example);
+        if (affectedRows > 0)
+        {
+            return advertiserMapper.selectByPrimaryKey(id);
+        }
+        else
+        {
+            throw new UpdateErrorException();
+        }
+    }
+    
+    public AdvertiserModel updateAdvertiser(String id, AdvertiserModel advertiser) throws Exception
+    {
+        advertiser.setId(id);
+        
+        int affectedRows = advertiserMapper.updateByPrimaryKey(advertiser);
+        if (affectedRows > 0)
+        {
+            return advertiserMapper.selectByPrimaryKey(id);
+        }
+        else
+        {
+            throw new UpdateErrorException();
+        }
     } 
 }
