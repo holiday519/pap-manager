@@ -37,6 +37,35 @@ public class ResponseResult
     }
     
     
+    public ResponseResult()
+    {
+        super();
+    }
+    public ResponseResult(int code)
+    {
+        super();
+        this.code = code;
+    }
+    public ResponseResult(String message)
+    {
+        super();
+        this.message = message;
+    }
+    public ResponseResult(int code, String message)
+    {
+        super();
+        this.code = code;
+        this.message = message;
+    }
+    public ResponseResult(int code, String message, Object data)
+    {
+        super();
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+    
+    
     @Override
     public String toString()
     {

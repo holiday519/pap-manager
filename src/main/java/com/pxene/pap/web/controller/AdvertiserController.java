@@ -1,6 +1,5 @@
 package com.pxene.pap.web.controller;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +28,7 @@ import com.pxene.pap.service.AdvertiserService;
 @Controller
 public class AdvertiserController
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdvertiserController.class);
     
     @Autowired
     private AdvertiserService advertiserService;
@@ -37,80 +36,48 @@ public class AdvertiserController
     
     /**
      * 添加广告主。
-     * @param advertiser
+     * @param advertiser    广告主DTO
      * @param response
      * @return
      */
     @RequestMapping(value = "/advertisers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String addAdvertiser(@RequestBody AdvertiserModel advertiser, HttpServletResponse response)
+    public String addAdvertiser(@RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
     {
         LOGGER.debug("Received body params Advertiser {}.", advertiser);
         
-        int affectedRows = advertiserService.saveAdvertiser(advertiser);
-        
-        if (affectedRows > 0)
-        {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, "id", advertiser.getId(), response);
-        }
-        
-        return ResponseUtils.sendHttp500(LOGGER, response);
+        advertiserService.saveAdvertiser(advertiser);
+        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, "id", advertiser.getId(), response);
     }
     
     
     /**
      * 删除广告主。
-     * @param id
+     * @param id        广告主ID
      * @param response
      * @return
      */
     @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteAdvertiser(@PathVariable String id, HttpServletResponse response)
+    public void deleteAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
         LOGGER.debug("Received path params id {}.", id);
         
-        int affectedRows;
-        try
-        {
-            affectedRows = advertiserService.deleteAdvertiser(id);
-            if (affectedRows > 0)
-            {
-                response.setStatus(HttpStatusCode.NO_CONTENT);
-                return;
-            }
-            else
-            {
-                response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-                response.getWriter().write(ResponseUtils.sendReponse(LOGGER, HttpStatusCode.INTERNAL_SERVER_ERROR, "删除失败", response));
-            }
-        }
-        catch (Exception ex)
-        {
-            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-            try
-            {
-                response.getWriter().write(ResponseUtils.sendReponse(LOGGER, HttpStatusCode.INTERNAL_SERVER_ERROR, ex.getMessage(), response));
-            }
-            catch (IOException e)
-            {
-                LOGGER.error(e.toString());
-                e.printStackTrace();
-            }
-        }
-        
+        advertiserService.deleteAdvertiser(id);
+        response.setStatus(HttpStatusCode.NO_CONTENT);
+        return;
     }
     
     
     /**
      * 根据ID编辑指定的广告主。
-     * @param id
+     * @param id        广告主ID
      * @param response
      * @return
      */
     @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String updateAdvertiser(@PathVariable String id, HttpServletResponse response)
+    public String updateAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
         LOGGER.debug("Received path params id {}.", id);
         
@@ -120,26 +87,19 @@ public class AdvertiserController
     
     /**
      * 根据ID查询指定的广告主。
-     * @param id
+     * @param id        广告主ID
      * @param response
      * @return
      */
     @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String getAdvertiser(@PathVariable String id, HttpServletResponse response)
+    public String getAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
         LOGGER.debug("Received path params id {}.", id);
         
         AdvertiserModel advertiser = advertiserService.findAdvertiserById(id);
         
-        if (advertiser != null)
-        {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, advertiser, response);
-        }
-        else
-        {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.NOT_FOUND, "找不到指定的广告主", response);
-        }
+        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, advertiser, response);
     }
     
     
@@ -151,7 +111,7 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response)
+    public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         LOGGER.debug("Received path params pageNO {}.", pageNO);
         LOGGER.debug("Received path params pageSize {}.", pageSize);
@@ -164,14 +124,7 @@ public class AdvertiserController
         
         List<AdvertiserModel> advertisers = advertiserService.listAdvertisers(name);
         
-        if (advertisers != null && advertisers.size() > 0)
-        {
-            PaginationResult result = new PaginationResult(advertisers, pager);
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, result, response);
-        }
-        else
-        {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.NOT_FOUND, "找不到指定的广告主", response);
-        }
+        PaginationResult result = new PaginationResult(advertisers, pager);
+        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, result, response);
     }
 }

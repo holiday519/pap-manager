@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
-import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.PurposeBean;
 import com.pxene.pap.service.PurposeService;
 

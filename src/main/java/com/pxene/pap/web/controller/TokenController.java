@@ -1,5 +1,6 @@
 package com.pxene.pap.web.controller;
 
+import javax.security.auth.message.AuthException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -20,16 +21,20 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AccessToken;
 import com.pxene.pap.domain.beans.SysUser;
-import com.pxene.pap.service.SysUserService;
+import com.pxene.pap.domain.model.basic.UserModel;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.PasswordIncorrectAuthException;
+import com.pxene.pap.exception.UserNotFoundAuthException;
+import com.pxene.pap.service.TokenService;
 
 
 @Controller
-public class SysUserController
+public class TokenController
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SysUserController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenController.class);
     
     @Autowired
-    private SysUserService userService;
+    private TokenService tokenService;
     
     
     /**
@@ -38,35 +43,37 @@ public class SysUserController
      * @param request
      * @param response
      * @return
+     * @throws AuthException 
      */
     @RequestMapping(value = "/auth/tokens", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String authenticate(@RequestBody SysUser user, HttpServletRequest request, HttpServletResponse response)
+    public String authenticate(@RequestBody UserModel user, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         LOGGER.debug("Received body params User {}.", user);
         
-        String username = user.getUsername();
+        String username = user.getName();
         String password = user.getPassword();
         
         // 校验请求参数
         if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
         {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.BAD_REQUEST, "请求参数不正确", response);
+            throw new IllegalArgumentException();
         }
         
         String md5Password = DigestUtils.md5DigestAsHex(password.getBytes());
-        SysUser userInDB = (SysUser) userService.loadUserByUsername(username);
+        UserModel userInDB = (UserModel) tokenService.loadUserByUsername(username);
         
+        // 校验用户是否存在
         if (userInDB == null)
         {
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.UNAUTHORIZED, "用户名或密码错误", response);
+            throw new UserNotFoundAuthException();
         }
         
         String passwordInDB = userInDB.getPassword();
         if (!StringUtils.isEmpty(passwordInDB) && md5Password.equals(passwordInDB))
         {
             // 生成accessToken
-            AccessToken token = userService.generateToken(userInDB);
+            AccessToken token = tokenService.generateToken(userInDB);
             
             // 将Token保存在Session中
             HttpSession session = request.getSession();
@@ -74,7 +81,10 @@ public class SysUserController
             
             return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, token, response);
         }
-        
-        return ResponseUtils.sendHttp500(LOGGER, response);
+        else
+        {
+            // 密码不正确
+            throw new PasswordIncorrectAuthException();
+        }
     }
 }
