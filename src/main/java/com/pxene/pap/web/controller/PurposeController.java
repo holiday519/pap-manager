@@ -31,9 +31,9 @@ public class PurposeController {
 		String str;
 		try {
 			str = purposeService.createPurpose(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "id", str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -43,9 +43,9 @@ public class PurposeController {
 		String str;
 		try {
 			str = purposeService.updatePurpose(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "id", str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -54,9 +54,9 @@ public class PurposeController {
 	public String deleteProject(@RequestBody PurposeBean bean, HttpServletResponse response){
 		try {
 			purposeService.deletePurpose(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 }

@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,9 +31,9 @@ public class ProjectController {
 		String str;
 		try {
 			str = projectService.createProject(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -44,9 +43,9 @@ public class ProjectController {
 		String str;
 		try {
 			str = projectService.updateProject(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -56,9 +55,9 @@ public class ProjectController {
 		String projectId =bean.getId();
 		try {
 			projectService.deleteProject(projectId);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -67,10 +66,10 @@ public class ProjectController {
 //	public String selectProject(@PathVariable String id, HttpServletResponse response){
 //		try {
 //			projectService.selectProject(id);
-//			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+//			return ResponseUtils.sendReponse(HttpStatusCode.OK, "执行完毕", response);
 //		} catch (Exception e) {
 //			LOGGER.error("deleteProject：",e.getMessage());
-//			return ResponseUtils.sendHttp500(LOGGER, response);
+//			return ResponseUtils.sendHttp500(response);
 //		}
 //	}
 }

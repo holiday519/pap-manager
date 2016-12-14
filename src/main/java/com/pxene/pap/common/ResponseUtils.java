@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -76,11 +75,10 @@ public class ResponseUtils
         return null;
     }
     
-    public static String sendReponse(Logger logger, int code, Object o, HttpServletResponse response)
+    public static String sendReponse(int code, Object o, HttpServletResponse response)
     {
         if (o != null)
         {
-            logger.debug(o.toString());
             response.setStatus(code);
             try
             {
@@ -99,19 +97,17 @@ public class ResponseUtils
             return "";
         }
     }
-    public static String sendReponse(Logger logger, int code, String val, HttpServletResponse response)
+    public static String sendReponse(int code, String val, HttpServletResponse response)
     {
-        logger.debug(val);
         response.setStatus(code);
         return ResponseUtils.toNormalResponse(val);
     }
-    public static String sendReponse(Logger logger, int code, String key, String val, HttpServletResponse response)
+    public static String sendReponse(int code, String key, String val, HttpServletResponse response)
     {
-        logger.debug(key + ":" + val);
         response.setStatus(code);
         return ResponseUtils.toNormalResponse(key, val);
     }
-    public static String sendResponse(Logger logger, String key, String val, int statusCode, String statusDesc, HttpServletResponse response)
+    public static String sendResponse(String key, String val, int statusCode, String statusDesc, HttpServletResponse response)
     {
         response.setStatus(statusCode);
         if (StringUtils.isEmpty(key) && StringUtils.isEmpty(val))
@@ -121,13 +117,13 @@ public class ResponseUtils
         return ResponseUtils.toNormalResponse(key, val);
     }
     
-    public static String sendHttp400(Logger logger, HttpServletResponse response)
+    public static String sendHttp400(HttpServletResponse response)
     {
-        return sendResponse(logger, null, null, HttpStatusCode.BAD_REQUEST, HttpStatusCode.STR_BAD_REQUEST, response);
+        return sendResponse(null, null, HttpStatusCode.BAD_REQUEST, HttpStatusCode.STR_BAD_REQUEST, response);
     }
     
-    public static String sendHttp500(Logger logger, HttpServletResponse response)
+    public static String sendHttp500(HttpServletResponse response)
     {
-        return sendResponse(logger, null, null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpStatusCode.STR_INTERNAL_SERVER_ERROR, response);
+        return sendResponse(null, null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpStatusCode.STR_INTERNAL_SERVER_ERROR, response);
     }
 }

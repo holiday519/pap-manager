@@ -78,7 +78,7 @@ public class TokenController
             HttpSession session = request.getSession();
             session.setAttribute(userInDB.getId(), token);
             
-            return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, token, response);
+            return ResponseUtils.sendReponse(HttpStatusCode.CREATED, token, response);
         }
         else
         {

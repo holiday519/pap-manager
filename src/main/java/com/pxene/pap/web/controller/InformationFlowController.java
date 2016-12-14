@@ -31,9 +31,9 @@ public class InformationFlowController {
 		String str;
 		try {
 			str = infomationFlowService.createInformationFlow(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -43,9 +43,9 @@ public class InformationFlowController {
 		String str;
 		try {
 			str = infomationFlowService.updateInformationFlow(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 

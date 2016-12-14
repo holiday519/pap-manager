@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.CampaignBean;
-import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.service.CampaignService;
 
 @Controller
@@ -32,9 +31,9 @@ public class CampaignController {
 		String str;
 		try {
 			str = campaignService.createCampaign(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -44,9 +43,9 @@ public class CampaignController {
 		String str;
 		try {
 			str = campaignService.updateCampaign(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -56,9 +55,9 @@ public class CampaignController {
 		String campaignId = bean.getId();
 		try {
 			campaignService.deleteCampaign(campaignId);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 }

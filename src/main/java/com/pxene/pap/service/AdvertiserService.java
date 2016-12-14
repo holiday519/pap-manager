@@ -50,11 +50,7 @@ public class AdvertiserService
         {
             if (exception instanceof DuplicateKeyException)
             {
-                exception.printStackTrace();
-                if (exception.getCause().getMessage().contains("Unique_Name"))
-                {
-                    throw new DuplicateEntityException();
-                }
+                throw new DuplicateEntityException();
             }
         }
         return advertiser;

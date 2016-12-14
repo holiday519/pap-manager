@@ -44,10 +44,8 @@ public class AdvertiserController
     @ResponseBody
     public String addAdvertiser(@RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received body params Advertiser {}.", advertiser);
-        
         advertiserService.saveAdvertiser(advertiser);
-        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.CREATED, "id", advertiser.getId(), response);
+        return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "id", advertiser.getId(), response);
     }
     
     
@@ -61,8 +59,6 @@ public class AdvertiserController
     @ResponseBody
     public void deleteAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received path params id {}.", id);
-        
         advertiserService.deleteAdvertiser(id);
         response.setStatus(HttpStatusCode.NO_CONTENT);
         return;
@@ -84,7 +80,7 @@ public class AdvertiserController
         
         AdvertiserModel updatedAdvertiser = advertiserService.updateAdvertiser(id, advertiser);
         
-        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, updatedAdvertiser, response);
+        return ResponseUtils.sendReponse(HttpStatusCode.OK, updatedAdvertiser, response);
     }
     
     
@@ -100,11 +96,9 @@ public class AdvertiserController
     @ResponseBody
     public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received path params id {}, body param advertiser {}.", id, advertiser);
-        
         AdvertiserModel updatedAdvertiser = advertiserService.pathUpdateAdvertiser(id, advertiser);
         
-        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, updatedAdvertiser, response);
+        return ResponseUtils.sendReponse(HttpStatusCode.OK, updatedAdvertiser, response);
     }
     
     
@@ -118,11 +112,9 @@ public class AdvertiserController
     @ResponseBody
     public String getAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received path params id {}.", id);
-        
         AdvertiserModel advertiser = advertiserService.findAdvertiserById(id);
         
-        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, advertiser, response);
+        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
     }
     
     
@@ -136,9 +128,6 @@ public class AdvertiserController
     @ResponseBody
     public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received path params pageNO {}.", pageNO);
-        LOGGER.debug("Received path params pageSize {}.", pageSize);
-        
         Page<Object> pager = null;
         if (pageNO != null && pageSize != null)
         {
@@ -148,6 +137,6 @@ public class AdvertiserController
         List<AdvertiserModel> advertisers = advertiserService.listAdvertisers(name);
         
         PaginationResult result = new PaginationResult(advertisers, pager);
-        return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, result, response);
+        return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
     }
 }

@@ -31,9 +31,9 @@ public class CreativeController {
 		String str;
 		try {
 			str = creativeService.createCreative(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -43,9 +43,9 @@ public class CreativeController {
 		String str;
 		try {
 			str = creativeService.updateCreative(bean);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, str, response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, str, response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 	
@@ -55,9 +55,9 @@ public class CreativeController {
 		String creativeId = bean.getId();
 		try {
 			creativeService.deleteCreative(creativeId);
-			return ResponseUtils.sendReponse(LOGGER, HttpStatusCode.OK, "执行完毕", response);
+			return ResponseUtils.sendReponse(HttpStatusCode.OK, "执行完毕", response);
 		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(LOGGER, response);
+			return ResponseUtils.sendHttp500(response);
 		}
 	}
 
