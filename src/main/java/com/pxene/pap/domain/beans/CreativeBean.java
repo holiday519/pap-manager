@@ -27,42 +27,66 @@ public class CreativeBean {
 	 */
 	private List<Float> price;
 	
+	/**
+	 * 创意类型数组
+	 */
+	private List<String> creativeType;
+
 	public String getId() {
 		return id;
 	}
+
 	public void setId(String id) {
 		this.id = id;
 	}
+
 	public String getCampaignId() {
 		return campaignId;
 	}
+
 	public void setCampaignId(String campaignId) {
 		this.campaignId = campaignId;
 	}
+
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public List<String> getMaterialIds() {
 		return materialIds;
 	}
+
 	public void setMaterialIds(List<String> materialIds) {
 		this.materialIds = materialIds;
 	}
+
 	public List<Float> getPrice() {
 		return price;
 	}
+
 	public void setPrice(List<Float> price) {
 		this.price = price;
 	}
+
+	public List<String> getCreativeType() {
+		return creativeType;
+	}
+
+	public void setCreativeType(List<String> creativeType) {
+		this.creativeType = creativeType;
+	}
+
 	@Override
 	public String toString() {
 		return "CreativeBean [id=" + id + ", campaignId=" + campaignId
 				+ ", name=" + name + ", materialIds=" + materialIds
-				+ ", price=" + price + "]";
+				+ ", price=" + price + ", creativeType=" + creativeType + "]";
 	}
+
 	
 	
 }

@@ -12,6 +12,8 @@ public class CreativeMaterialModel {
 
     private BigDecimal price;
 
+    private String creativeType;
+
     private Date createTime;
 
     private Date updateTime;
@@ -46,6 +48,14 @@ public class CreativeMaterialModel {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getCreativeType() {
+        return creativeType;
+    }
+
+    public void setCreativeType(String creativeType) {
+        this.creativeType = creativeType == null ? null : creativeType.trim();
     }
 
     public Date getCreateTime() {

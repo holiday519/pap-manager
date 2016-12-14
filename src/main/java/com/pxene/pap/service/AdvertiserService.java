@@ -83,7 +83,6 @@ public class AdvertiserService
         }
     }
 
-
     public AdvertiserModel findAdvertiserById(String id) throws Exception
     {
         AdvertiserModel advertiser = advertiserMapper.selectByPrimaryKey(id);

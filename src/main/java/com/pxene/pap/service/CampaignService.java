@@ -392,13 +392,19 @@ public class CampaignService {
 			for (MonitorBean mnt : monitors) {
 				List<String> urls = mnt.getUrls();
 				String monitorId = UUID.randomUUID().toString();
-				String impressionUrl = urls.get(0);
-				String clickUrl = urls.get(1);
 				MonitorModel monitor = new MonitorModel();
 				monitor.setId(monitorId);
 				monitor.setCampaignId(id);
-				monitor.setImpression(impressionUrl);
-				monitor.setClick(clickUrl);
+				if (urls != null && urls.size() > 0 && urls.get(0) != null
+						&& !"".equals(urls.get(0))) {
+					String impressionUrl = urls.get(0);
+					monitor.setImpression(impressionUrl);
+				}
+				if (urls != null && urls.size() > 1 && urls.get(1) != null
+						&& !"".equals(urls.get(1))) {
+					String clickUrl = urls.get(1);
+					monitor.setClick(clickUrl);
+				}
 				monitorMapper.insertSelective(monitor);
 			}
 		}

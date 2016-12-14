@@ -376,6 +376,76 @@ public class CreativeMaterialModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andCreativeTypeIsNull() {
+            addCriterion("creative_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeIsNotNull() {
+            addCriterion("creative_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeEqualTo(String value) {
+            addCriterion("creative_type =", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeNotEqualTo(String value) {
+            addCriterion("creative_type <>", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeGreaterThan(String value) {
+            addCriterion("creative_type >", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("creative_type >=", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeLessThan(String value) {
+            addCriterion("creative_type <", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeLessThanOrEqualTo(String value) {
+            addCriterion("creative_type <=", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeLike(String value) {
+            addCriterion("creative_type like", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeNotLike(String value) {
+            addCriterion("creative_type not like", value, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeIn(List<String> values) {
+            addCriterion("creative_type in", values, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeNotIn(List<String> values) {
+            addCriterion("creative_type not in", values, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeBetween(String value1, String value2) {
+            addCriterion("creative_type between", value1, value2, "creativeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreativeTypeNotBetween(String value1, String value2) {
+            addCriterion("creative_type not between", value1, value2, "creativeType");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;

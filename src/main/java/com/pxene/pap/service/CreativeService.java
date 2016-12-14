@@ -104,15 +104,18 @@ public class CreativeService {
 		String creativeId = bean.getId();
 		List<Float> prices = bean.getPrice();
 		List<String> materialIds = bean.getMaterialIds();
+		List<String> types = bean.getCreativeType();
 		if (materialIds != null && !materialIds.isEmpty()) {
 			for (int i = 0; i < materialIds.size(); i++) {
 				String mapid = UUID.randomUUID().toString();
 				String materialId = materialIds.get(i);
+				String type = types.get(i);
 				Float price = prices.get(i);
 				CreativeMaterialModel cmModel = new CreativeMaterialModel();
 				cmModel.setId(mapid);
 				cmModel.setCreativeId(creativeId);
 				cmModel.setMaterialId(materialId);
+				cmModel.setCreativeType(type);
 				cmModel.setPrice(new BigDecimal(price));
 				creativeMaterialMapper.insertSelective(cmModel);
 			}

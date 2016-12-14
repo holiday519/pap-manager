@@ -30,6 +30,10 @@ public class PurposeBean {
 	 */
 	private String landpagePath;
 	/**
+	 * 真实落地页地址
+	 */
+	private String landpageUrl;
+	/**
 	 * 安卓deekLink
 	 */
 	private String anidDeepLink;
@@ -57,7 +61,6 @@ public class PurposeBean {
 	 * APP包名
 	 */
 	private String appPkgName;
-	
 	public String getId() {
 		return id;
 	}
@@ -93,6 +96,12 @@ public class PurposeBean {
 	}
 	public void setLandpagePath(String landpagePath) {
 		this.landpagePath = landpagePath;
+	}
+	public String getLandpageUrl() {
+		return landpageUrl;
+	}
+	public void setLandpageUrl(String landpageUrl) {
+		this.landpageUrl = landpageUrl;
 	}
 	public String getAnidDeepLink() {
 		return anidDeepLink;
@@ -141,10 +150,11 @@ public class PurposeBean {
 		return "PurposeBean [id=" + id + ", campaignId=" + campaignId
 				+ ", name=" + name + ", landpageId=" + landpageId
 				+ ", downloadId=" + downloadId + ", landpagePath="
-				+ landpagePath + ", anidDeepLink=" + anidDeepLink
-				+ ", iosDeepLink=" + iosDeepLink + ", downloadPath="
-				+ downloadPath + ", appOs=" + appOs + ", appName=" + appName
-				+ ", appId=" + appId + ", appPkgName=" + appPkgName + "]";
+				+ landpagePath + ", landpageUrl=" + landpageUrl
+				+ ", anidDeepLink=" + anidDeepLink + ", iosDeepLink="
+				+ iosDeepLink + ", downloadPath=" + downloadPath + ", appOs="
+				+ appOs + ", appName=" + appName + ", appId=" + appId
+				+ ", appPkgName=" + appPkgName + "]";
 	}
 
 }

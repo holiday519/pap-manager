@@ -57,12 +57,14 @@ public class PurposeService {
 		if (landpagePath != null && !"".equals(landpagePath)) {
 			String anidDeepLink = bean.getAnidDeepLink();
 			String iosDeepLink = bean.getIosDeepLink();
+			String landingUrl = bean.getLandpageUrl();
 			String landPageId = UUID.randomUUID().toString();
 			LandPageModel landPageModel = new LandPageModel();
 			landPageModel.setId(landPageId);
 			landPageModel.setPath(landpagePath);
 			landPageModel.setAnidDeepLink(anidDeepLink);
 			landPageModel.setIosDeepLink(iosDeepLink);
+			landPageModel.setLandingUrl(landingUrl);
 			landPageMapper.insertSelective(landPageModel);
 			purposeModel.setLandpageId(landPageId);
 		}
@@ -163,9 +165,11 @@ public class PurposeService {
 				String path = bean.getLandpagePath();
 				String anidDeepLink = bean.getAnidDeepLink();
 				String iosDeepLink = bean.getIosDeepLink();
+				String landingUrl = bean.getLandpageUrl();
 				LandPageModel landPageModel = new LandPageModel();
 				landPageModel.setId(landPageId);
 				landPageModel.setPath(path);
+				landPageModel.setLandingUrl(landingUrl);
 				landPageModel.setAnidDeepLink(anidDeepLink);
 				landPageModel.setIosDeepLink(iosDeepLink);
 				landPageMapper.insertSelective(landPageModel);
@@ -178,10 +182,12 @@ public class PurposeService {
 				String landPageId = bean.getLandpageId();
 				String anidDeepLink = bean.getAnidDeepLink();
 				String iosDeepLink = bean.getIosDeepLink();
+				String landingUrl = bean.getLandpageUrl();
 				String path = bean.getLandpagePath();
 				LandPageModel landPage = new LandPageModel();
 				landPage.setId(landPageId);
 				landPage.setPath(path);
+				landPage.setLandingUrl(landingUrl);
 				landPage.setAnidDeepLink(anidDeepLink);
 				landPage.setIosDeepLink(iosDeepLink);
 				landPageMapper.updateByPrimaryKeySelective(landPage);
