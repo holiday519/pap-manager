@@ -11,7 +11,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -25,6 +24,7 @@ import com.pxene.pap.common.TokenUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AccessToken;
 import com.pxene.pap.domain.beans.ResponseResult;
+import com.pxene.pap.service.TokenService;
 
 public class JwtFilter implements Filter
 {
@@ -32,6 +32,9 @@ public class JwtFilter implements Filter
 
     @Autowired
     private Environment env;
+    
+    @Autowired
+    private TokenService tokenService;
     
     
     @Override
@@ -53,12 +56,9 @@ public class JwtFilter implements Filter
             token = token.substring(token.indexOf(BEARER) + 6);
             if (!StringUtils.isEmpty(token))
             {
-                String username = TokenUtils.parseUsernameInToken(env, token.trim());
+                String userId = TokenUtils.parseUserIdInToken(env, token.trim());
                 
-                HttpServletRequest req = (HttpServletRequest) request;
-                HttpSession session = req.getSession();
-                
-                AccessToken accessToken = (AccessToken) session.getAttribute(username);
+                AccessToken accessToken = tokenService.getToken(userId);
                 if (accessToken != null)  
                 {
                     if (new Date(accessToken.getExpiresAt()).after(new Date()))

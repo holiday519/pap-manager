@@ -3,7 +3,6 @@ package com.pxene.pap.web.controller;
 import javax.security.auth.message.AuthException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,9 +73,8 @@ public class TokenController
             // 生成accessToken
             AccessToken token = tokenService.generateToken(userInDB);
             
-            // 将Token保存在Session中
-            HttpSession session = request.getSession();
-            session.setAttribute(userInDB.getId(), token);
+            // 将新生成的Token保存至Redis中（同时设定TTL）
+            tokenService.saveToken(token);
             
             return ResponseUtils.sendReponse(HttpStatusCode.CREATED, token, response);
         }

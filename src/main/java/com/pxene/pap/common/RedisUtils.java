@@ -59,6 +59,24 @@ public class RedisUtils
         }
         stringRedisTemplate.opsForValue().set(key, value);
     }
+    public void set(String key, String value, long timeout)
+    {
+        set(key, value, timeout, TimeUnit.SECONDS);
+    }
+    public void set(String key, String value, long timeout, TimeUnit timeUnit)
+    {
+        if (StringUtils.isEmpty(key))
+        {
+            return;
+        }
+        stringRedisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);
+    }
+    
+    public String get(Object key)
+    {
+        return stringRedisTemplate.opsForValue().get(key);
+    }
+    
     
     /**
      * 压栈
