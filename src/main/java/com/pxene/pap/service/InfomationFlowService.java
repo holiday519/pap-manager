@@ -8,14 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.InformationFlowBean;
-import com.pxene.pap.domain.model.basic.InfoflowModel;
-import com.pxene.pap.repository.mapper.basic.InfoflowModelMapper;
+import com.pxene.pap.domain.model.basic.InfoFlowModel;
+import com.pxene.pap.repository.mapper.basic.InfoFlowModelMapper;
 
 @Service
 public class InfomationFlowService {
 	
 	@Autowired
-	private InfoflowModelMapper infoMapper;
+	private InfoFlowModelMapper infoMapper;
 	
 	/**
 	 * 创建信息流
@@ -35,7 +35,7 @@ public class InfomationFlowService {
 		String image3 = bean.getImage3();
 		String image4 = bean.getImage4();
 		String image5 = bean.getImage5();
-		InfoflowModel info = new InfoflowModel();
+		InfoFlowModel info = new InfoFlowModel();
 		info.setId(id);
 		info.setName(name);
 		info.setTitle(title);
@@ -71,7 +71,7 @@ public class InfomationFlowService {
 		String image3 = bean.getImage3();
 		String image4 = bean.getImage4();
 		String image5 = bean.getImage5();
-		InfoflowModel info = new InfoflowModel();
+		InfoFlowModel info = new InfoFlowModel();
 		info.setId(id);
 		info.setName(name);
 		info.setTitle(title);

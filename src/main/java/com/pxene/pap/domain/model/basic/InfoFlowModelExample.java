@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class InfoflowModelExample {
+public class InfoFlowModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public InfoflowModelExample() {
+    public InfoFlowModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

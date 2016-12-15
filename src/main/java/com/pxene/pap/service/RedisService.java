@@ -421,4 +421,38 @@ public class RedisService {
 		
 	}
 	
+	/**
+	 * 推广组下创意ID写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void WriteMapidToRedis (String campaignId) throws Exception {
+		//查询活动下创意
+		CreativeModelExample creativeExample = new CreativeModelExample();
+		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creatives = creativeMapper.selectByExample(creativeExample);
+		JsonArray mapidJson = new JsonArray();
+		if(creatives !=null && !creatives.isEmpty()){
+			//查询创意对应的关联关系mapid
+			for(CreativeModel creative : creatives){
+				String creativeId = creative.getId();
+				CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
+				cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
+				List<CreativeMaterialModel> list = creativeMaterialMapper.selectByExample(cmExample);
+				if(list==null || list.isEmpty()){
+					continue;
+				}
+				for(CreativeMaterialModel cm : list){
+					String mapId = cm.getId();
+					if(mapId!=null && !"".endsWith(mapId)){
+						mapidJson.add(mapId);
+					}
+				}
+			}
+		}
+		mapidJson.toString();
+		//将mapid数组放入redis————————————————————————
+	}
+	
+	
 }

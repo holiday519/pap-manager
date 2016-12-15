@@ -15,7 +15,7 @@ import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.repository.mapper.basic.CreativeMaterialModelMapper;
 import com.pxene.pap.repository.mapper.basic.CreativeModelMapper;
-import com.pxene.pap.repository.mapper.basic.InfoflowModelMapper;
+import com.pxene.pap.repository.mapper.basic.InfoFlowModelMapper;
 
 @Service
 public class CreativeService {
@@ -24,7 +24,7 @@ public class CreativeService {
 	private CreativeModelMapper creativeMapper;
 	
 	@Autowired
-	private InfoflowModelMapper infoFlowModelMapper;
+	private InfoFlowModelMapper infoFlowModelMapper;
 	
 	@Autowired
 	private CreativeMaterialModelMapper creativeMaterialMapper;
