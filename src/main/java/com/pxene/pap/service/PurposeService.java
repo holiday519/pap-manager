@@ -48,6 +48,7 @@ public class PurposeService {
 		}
 		String landpagePath = bean.getLandpagePath();
 		String downloadPath = bean.getDownloadPath();
+		String escrowUrl = bean.getEscrowUrl();
 		if ((landpagePath == null || "".equals(landpagePath))
 				&& (downloadPath == null || "".equals(downloadPath))) {
 			return "必须选择落地页或APP下载其中一个！";
@@ -57,14 +58,12 @@ public class PurposeService {
 		if (landpagePath != null && !"".equals(landpagePath)) {
 			String anidDeepLink = bean.getAnidDeepLink();
 			String iosDeepLink = bean.getIosDeepLink();
-			String landingUrl = bean.getLandpageUrl();
 			String landPageId = UUID.randomUUID().toString();
 			LandPageModel landPageModel = new LandPageModel();
 			landPageModel.setId(landPageId);
 			landPageModel.setPath(landpagePath);
 			landPageModel.setAnidDeepLink(anidDeepLink);
 			landPageModel.setIosDeepLink(iosDeepLink);
-			landPageModel.setLandingUrl(landingUrl);
 			landPageMapper.insertSelective(landPageModel);
 			purposeModel.setLandpageId(landPageId);
 		}
@@ -89,6 +88,7 @@ public class PurposeService {
 		purposeModel.setId(id);
 		purposeModel.setCampaignId(campaignId);
 		purposeModel.setName(name);
+		purposeModel.setEscrowUrl(escrowUrl);
 		int num = purposeMapper.insertSelective(purposeModel);
 		if (num > 0) {
 			return "目标地址创建成功";
@@ -120,6 +120,7 @@ public class PurposeService {
 		if (oldModel == null) {
 			return "活动目标ID错误！";
 		}
+		String escrowUrl = bean.getEscrowUrl();
 		String oldLandpageId = oldModel.getLandpageId();
 		String oldDownloadId = oldModel.getDownloadId();
 		String landpagePath = bean.getLandpagePath();
@@ -165,11 +166,9 @@ public class PurposeService {
 				String path = bean.getLandpagePath();
 				String anidDeepLink = bean.getAnidDeepLink();
 				String iosDeepLink = bean.getIosDeepLink();
-				String landingUrl = bean.getLandpageUrl();
 				LandPageModel landPageModel = new LandPageModel();
 				landPageModel.setId(landPageId);
 				landPageModel.setPath(path);
-				landPageModel.setLandingUrl(landingUrl);
 				landPageModel.setAnidDeepLink(anidDeepLink);
 				landPageModel.setIosDeepLink(iosDeepLink);
 				landPageMapper.insertSelective(landPageModel);
@@ -182,12 +181,10 @@ public class PurposeService {
 				String landPageId = bean.getLandpageId();
 				String anidDeepLink = bean.getAnidDeepLink();
 				String iosDeepLink = bean.getIosDeepLink();
-				String landingUrl = bean.getLandpageUrl();
 				String path = bean.getLandpagePath();
 				LandPageModel landPage = new LandPageModel();
 				landPage.setId(landPageId);
 				landPage.setPath(path);
-				landPage.setLandingUrl(landingUrl);
 				landPage.setAnidDeepLink(anidDeepLink);
 				landPage.setIosDeepLink(iosDeepLink);
 				landPageMapper.updateByPrimaryKeySelective(landPage);
@@ -217,6 +214,7 @@ public class PurposeService {
 		}
 		purposeModel.setCampaignId(campaignId);
 		purposeModel.setName(name);
+		purposeModel.setEscrowUrl(escrowUrl);
 		purposeModel.setId(id);
 		//此处调用方法如果字段为NULL则更新成NULL（updateByPrimaryKeySelective方法会忽略掉NULL，导致数据更新成null失败）
 		int num = purposeMapper.updateByPrimaryKey(purposeModel);

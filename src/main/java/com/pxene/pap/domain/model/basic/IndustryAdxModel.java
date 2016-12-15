@@ -2,14 +2,14 @@ package com.pxene.pap.domain.model.basic;
 
 import java.util.Date;
 
-public class VideoTypeModel {
+public class IndustryAdxModel {
     private String id;
 
-    private String name;
+    private String industryId;
 
-    private String code;
+    private String adxId;
 
-    private String remark;
+    private String industryCode;
 
     private Date createTime;
 
@@ -23,28 +23,28 @@ public class VideoTypeModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getName() {
-        return name;
+    public String getIndustryId() {
+        return industryId;
     }
 
-    public void setName(String name) {
-        this.name = name == null ? null : name.trim();
+    public void setIndustryId(String industryId) {
+        this.industryId = industryId == null ? null : industryId.trim();
     }
 
-    public String getCode() {
-        return code;
+    public String getAdxId() {
+        return adxId;
     }
 
-    public void setCode(String code) {
-        this.code = code == null ? null : code.trim();
+    public void setAdxId(String adxId) {
+        this.adxId = adxId == null ? null : adxId.trim();
     }
 
-    public String getRemark() {
-        return remark;
+    public String getIndustryCode() {
+        return industryCode;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark == null ? null : remark.trim();
+    public void setIndustryCode(String industryCode) {
+        this.industryCode = industryCode == null ? null : industryCode.trim();
     }
 
     public Date getCreateTime() {

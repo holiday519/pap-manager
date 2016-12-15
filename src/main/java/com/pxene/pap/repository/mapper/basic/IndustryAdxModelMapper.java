@@ -1,0 +1,30 @@
+package com.pxene.pap.repository.mapper.basic;
+
+import com.pxene.pap.domain.model.basic.IndustryAdxModel;
+import com.pxene.pap.domain.model.basic.IndustryAdxModelExample;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface IndustryAdxModelMapper {
+    int countByExample(IndustryAdxModelExample example);
+
+    int deleteByExample(IndustryAdxModelExample example);
+
+    int deleteByPrimaryKey(String id);
+
+    int insert(IndustryAdxModel record);
+
+    int insertSelective(IndustryAdxModel record);
+
+    List<IndustryAdxModel> selectByExample(IndustryAdxModelExample example);
+
+    IndustryAdxModel selectByPrimaryKey(String id);
+
+    int updateByExampleSelective(@Param("record") IndustryAdxModel record, @Param("example") IndustryAdxModelExample example);
+
+    int updateByExample(@Param("record") IndustryAdxModel record, @Param("example") IndustryAdxModelExample example);
+
+    int updateByPrimaryKeySelective(IndustryAdxModel record);
+
+    int updateByPrimaryKey(IndustryAdxModel record);
+}

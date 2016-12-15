@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class VideoTypeModelExample {
+public class AdxModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public VideoTypeModelExample() {
+    public AdxModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -245,73 +245,213 @@ public class VideoTypeModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCodeIsNull() {
-            addCriterion("code is null");
+        public Criteria andImpressionUrlIsNull() {
+            addCriterion("impression_url is null");
             return (Criteria) this;
         }
 
-        public Criteria andCodeIsNotNull() {
-            addCriterion("code is not null");
+        public Criteria andImpressionUrlIsNotNull() {
+            addCriterion("impression_url is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCodeEqualTo(String value) {
-            addCriterion("code =", value, "code");
+        public Criteria andImpressionUrlEqualTo(String value) {
+            addCriterion("impression_url =", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotEqualTo(String value) {
-            addCriterion("code <>", value, "code");
+        public Criteria andImpressionUrlNotEqualTo(String value) {
+            addCriterion("impression_url <>", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeGreaterThan(String value) {
-            addCriterion("code >", value, "code");
+        public Criteria andImpressionUrlGreaterThan(String value) {
+            addCriterion("impression_url >", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeGreaterThanOrEqualTo(String value) {
-            addCriterion("code >=", value, "code");
+        public Criteria andImpressionUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("impression_url >=", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeLessThan(String value) {
-            addCriterion("code <", value, "code");
+        public Criteria andImpressionUrlLessThan(String value) {
+            addCriterion("impression_url <", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeLessThanOrEqualTo(String value) {
-            addCriterion("code <=", value, "code");
+        public Criteria andImpressionUrlLessThanOrEqualTo(String value) {
+            addCriterion("impression_url <=", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeLike(String value) {
-            addCriterion("code like", value, "code");
+        public Criteria andImpressionUrlLike(String value) {
+            addCriterion("impression_url like", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotLike(String value) {
-            addCriterion("code not like", value, "code");
+        public Criteria andImpressionUrlNotLike(String value) {
+            addCriterion("impression_url not like", value, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeIn(List<String> values) {
-            addCriterion("code in", values, "code");
+        public Criteria andImpressionUrlIn(List<String> values) {
+            addCriterion("impression_url in", values, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotIn(List<String> values) {
-            addCriterion("code not in", values, "code");
+        public Criteria andImpressionUrlNotIn(List<String> values) {
+            addCriterion("impression_url not in", values, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeBetween(String value1, String value2) {
-            addCriterion("code between", value1, value2, "code");
+        public Criteria andImpressionUrlBetween(String value1, String value2) {
+            addCriterion("impression_url between", value1, value2, "impressionUrl");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotBetween(String value1, String value2) {
-            addCriterion("code not between", value1, value2, "code");
+        public Criteria andImpressionUrlNotBetween(String value1, String value2) {
+            addCriterion("impression_url not between", value1, value2, "impressionUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlIsNull() {
+            addCriterion("click_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlIsNotNull() {
+            addCriterion("click_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlEqualTo(String value) {
+            addCriterion("click_url =", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlNotEqualTo(String value) {
+            addCriterion("click_url <>", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlGreaterThan(String value) {
+            addCriterion("click_url >", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("click_url >=", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlLessThan(String value) {
+            addCriterion("click_url <", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlLessThanOrEqualTo(String value) {
+            addCriterion("click_url <=", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlLike(String value) {
+            addCriterion("click_url like", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlNotLike(String value) {
+            addCriterion("click_url not like", value, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlIn(List<String> values) {
+            addCriterion("click_url in", values, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlNotIn(List<String> values) {
+            addCriterion("click_url not in", values, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlBetween(String value1, String value2) {
+            addCriterion("click_url between", value1, value2, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andClickUrlNotBetween(String value1, String value2) {
+            addCriterion("click_url not between", value1, value2, "clickUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlIsNull() {
+            addCriterion("audit_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlIsNotNull() {
+            addCriterion("audit_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlEqualTo(String value) {
+            addCriterion("audit_url =", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlNotEqualTo(String value) {
+            addCriterion("audit_url <>", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlGreaterThan(String value) {
+            addCriterion("audit_url >", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("audit_url >=", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlLessThan(String value) {
+            addCriterion("audit_url <", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlLessThanOrEqualTo(String value) {
+            addCriterion("audit_url <=", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlLike(String value) {
+            addCriterion("audit_url like", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlNotLike(String value) {
+            addCriterion("audit_url not like", value, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlIn(List<String> values) {
+            addCriterion("audit_url in", values, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlNotIn(List<String> values) {
+            addCriterion("audit_url not in", values, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlBetween(String value1, String value2) {
+            addCriterion("audit_url between", value1, value2, "auditUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAuditUrlNotBetween(String value1, String value2) {
+            addCriterion("audit_url not between", value1, value2, "auditUrl");
             return (Criteria) this;
         }
 

@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.pxene.pap.repository.mapper.basic.LandPageModelMapper" >
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.LandPageModel" >
+<mapper namespace="com.pxene.pap.repository.mapper.basic.AdxModelMapper" >
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AdxModel" >
     <id column="id" property="id" jdbcType="VARCHAR" />
-    <result column="path" property="path" jdbcType="VARCHAR" />
-    <result column="anid_deep_link" property="anidDeepLink" jdbcType="VARCHAR" />
-    <result column="ios_deep_link" property="iosDeepLink" jdbcType="VARCHAR" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="impression_url" property="impressionUrl" jdbcType="VARCHAR" />
+    <result column="click_url" property="clickUrl" jdbcType="VARCHAR" />
+    <result column="audit_url" property="auditUrl" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -68,16 +70,16 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, path, anid_deep_link, ios_deep_link, create_time, update_time
+    id, name, impression_url, click_url, audit_url, remark, create_time, update_time
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.LandPageModelExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" >
     select
     <if test="distinct" >
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_landpage
+    from pap_t_adx
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,41 +90,47 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
     <include refid="Base_Column_List" />
-    from pap_t_landpage
+    from pap_t_adx
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from pap_t_landpage
+    delete from pap_t_adx
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.LandPageModelExample" >
-    delete from pap_t_landpage
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" >
+    delete from pap_t_adx
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    insert into pap_t_landpage (id, path, anid_deep_link, 
-      ios_deep_link, create_time, update_time
-      )
-    values (#{id,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{anidDeepLink,jdbcType=VARCHAR}, 
-      #{iosDeepLink,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
-      )
+  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AdxModel" >
+    insert into pap_t_adx (id, name, impression_url, 
+      click_url, audit_url, remark, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{impressionUrl,jdbcType=VARCHAR}, 
+      #{clickUrl,jdbcType=VARCHAR}, #{auditUrl,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    insert into pap_t_landpage
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel" >
+    insert into pap_t_adx
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
       </if>
-      <if test="path != null" >
-        path,
+      <if test="name != null" >
+        name,
       </if>
-      <if test="anidDeepLink != null" >
-        anid_deep_link,
+      <if test="impressionUrl != null" >
+        impression_url,
       </if>
-      <if test="iosDeepLink != null" >
-        ios_deep_link,
+      <if test="clickUrl != null" >
+        click_url,
+      </if>
+      <if test="auditUrl != null" >
+        audit_url,
+      </if>
+      <if test="remark != null" >
+        remark,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -135,14 +143,20 @@
       <if test="id != null" >
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="path != null" >
-        #{path,jdbcType=VARCHAR},
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
       </if>
-      <if test="anidDeepLink != null" >
-        #{anidDeepLink,jdbcType=VARCHAR},
+      <if test="impressionUrl != null" >
+        #{impressionUrl,jdbcType=VARCHAR},
       </if>
-      <if test="iosDeepLink != null" >
-        #{iosDeepLink,jdbcType=VARCHAR},
+      <if test="clickUrl != null" >
+        #{clickUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="auditUrl != null" >
+        #{auditUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
@@ -152,26 +166,32 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.LandPageModelExample" resultType="java.lang.Integer" >
-    select count(*) from pap_t_landpage
+  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" resultType="java.lang.Integer" >
+    select count(*) from pap_t_adx
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update pap_t_landpage
+    update pap_t_adx
     <set >
       <if test="record.id != null" >
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.path != null" >
-        path = #{record.path,jdbcType=VARCHAR},
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.anidDeepLink != null" >
-        anid_deep_link = #{record.anidDeepLink,jdbcType=VARCHAR},
+      <if test="record.impressionUrl != null" >
+        impression_url = #{record.impressionUrl,jdbcType=VARCHAR},
       </if>
-      <if test="record.iosDeepLink != null" >
-        ios_deep_link = #{record.iosDeepLink,jdbcType=VARCHAR},
+      <if test="record.clickUrl != null" >
+        click_url = #{record.clickUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.auditUrl != null" >
+        audit_url = #{record.auditUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -185,28 +205,36 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update pap_t_landpage
+    update pap_t_adx
     set id = #{record.id,jdbcType=VARCHAR},
-      path = #{record.path,jdbcType=VARCHAR},
-      anid_deep_link = #{record.anidDeepLink,jdbcType=VARCHAR},
-      ios_deep_link = #{record.iosDeepLink,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      impression_url = #{record.impressionUrl,jdbcType=VARCHAR},
+      click_url = #{record.clickUrl,jdbcType=VARCHAR},
+      audit_url = #{record.auditUrl,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    update pap_t_landpage
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel" >
+    update pap_t_adx
     <set >
-      <if test="path != null" >
-        path = #{path,jdbcType=VARCHAR},
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="anidDeepLink != null" >
-        anid_deep_link = #{anidDeepLink,jdbcType=VARCHAR},
+      <if test="impressionUrl != null" >
+        impression_url = #{impressionUrl,jdbcType=VARCHAR},
       </if>
-      <if test="iosDeepLink != null" >
-        ios_deep_link = #{iosDeepLink,jdbcType=VARCHAR},
+      <if test="clickUrl != null" >
+        click_url = #{clickUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="auditUrl != null" >
+        audit_url = #{auditUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -217,11 +245,13 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    update pap_t_landpage
-    set path = #{path,jdbcType=VARCHAR},
-      anid_deep_link = #{anidDeepLink,jdbcType=VARCHAR},
-      ios_deep_link = #{iosDeepLink,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AdxModel" >
+    update pap_t_adx
+    set name = #{name,jdbcType=VARCHAR},
+      impression_url = #{impressionUrl,jdbcType=VARCHAR},
+      click_url = #{clickUrl,jdbcType=VARCHAR},
+      audit_url = #{auditUrl,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}

@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pxene.pap.repository.mapper.basic.view.CreativeInfoflowModelMapper" >
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModel" >
+    <result column="map_id" property="mapId" jdbcType="VARCHAR" />
+    <result column="campaign_id" property="campaignId" jdbcType="VARCHAR" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="ftype" property="ftype" jdbcType="CHAR" />
+    <result column="ctype" property="ctype" jdbcType="VARCHAR" />
+    <result column="bundle" property="bundle" jdbcType="VARCHAR" />
+    <result column="apk_name" property="apkName" jdbcType="VARCHAR" />
+    <result column="curl" property="curl" jdbcType="VARCHAR" />
+    <result column="landing_url" property="landingUrl" jdbcType="VARCHAR" />
+    <result column="title" property="title" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="rating" property="rating" jdbcType="VARCHAR" />
+    <result column="ctatext" property="ctatext" jdbcType="CHAR" />
+    <result column="icon" property="icon" jdbcType="VARCHAR" />
+    <result column="image1" property="image1" jdbcType="VARCHAR" />
+    <result column="image2" property="image2" jdbcType="VARCHAR" />
+    <result column="image3" property="image3" jdbcType="VARCHAR" />
+    <result column="image4" property="image4" jdbcType="VARCHAR" />
+    <result column="image5" property="image5" jdbcType="VARCHAR" />
+    <result column="project_id" property="projectId" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelWithBLOBs" extends="BaseResultMap" >
+    <result column="imonitor_url" property="imonitorUrl" jdbcType="LONGVARCHAR" />
+    <result column="cmonitor_url" property="cmonitorUrl" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    map_id, campaign_id, price, type, ftype, ctype, bundle, apk_name, curl, landing_url, 
+    title, description, rating, ctatext, icon, image1, image2, image3, image4, image5, 
+    project_id
+  </sql>
+  <sql id="Blob_Column_List" >
+    imonitor_url, cmonitor_url
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from pap_v_creative_infoflow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_v_creative_infoflow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample" >
+    delete from pap_v_creative_infoflow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelWithBLOBs" >
+    insert into pap_v_creative_infoflow (map_id, campaign_id, price, 
+      type, ftype, ctype, bundle, 
+      apk_name, curl, landing_url, 
+      title, description, rating, 
+      ctatext, icon, image1, 
+      image2, image3, image4, 
+      image5, project_id, imonitor_url, 
+      cmonitor_url)
+    values (#{mapId,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, 
+      #{type,jdbcType=VARCHAR}, #{ftype,jdbcType=CHAR}, #{ctype,jdbcType=VARCHAR}, #{bundle,jdbcType=VARCHAR}, 
+      #{apkName,jdbcType=VARCHAR}, #{curl,jdbcType=VARCHAR}, #{landingUrl,jdbcType=VARCHAR}, 
+      #{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{rating,jdbcType=VARCHAR}, 
+      #{ctatext,jdbcType=CHAR}, #{icon,jdbcType=VARCHAR}, #{image1,jdbcType=VARCHAR}, 
+      #{image2,jdbcType=VARCHAR}, #{image3,jdbcType=VARCHAR}, #{image4,jdbcType=VARCHAR}, 
+      #{image5,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{imonitorUrl,jdbcType=LONGVARCHAR}, 
+      #{cmonitorUrl,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelWithBLOBs" >
+    insert into pap_v_creative_infoflow
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="mapId != null" >
+        map_id,
+      </if>
+      <if test="campaignId != null" >
+        campaign_id,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="ftype != null" >
+        ftype,
+      </if>
+      <if test="ctype != null" >
+        ctype,
+      </if>
+      <if test="bundle != null" >
+        bundle,
+      </if>
+      <if test="apkName != null" >
+        apk_name,
+      </if>
+      <if test="curl != null" >
+        curl,
+      </if>
+      <if test="landingUrl != null" >
+        landing_url,
+      </if>
+      <if test="title != null" >
+        title,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="rating != null" >
+        rating,
+      </if>
+      <if test="ctatext != null" >
+        ctatext,
+      </if>
+      <if test="icon != null" >
+        icon,
+      </if>
+      <if test="image1 != null" >
+        image1,
+      </if>
+      <if test="image2 != null" >
+        image2,
+      </if>
+      <if test="image3 != null" >
+        image3,
+      </if>
+      <if test="image4 != null" >
+        image4,
+      </if>
+      <if test="image5 != null" >
+        image5,
+      </if>
+      <if test="projectId != null" >
+        project_id,
+      </if>
+      <if test="imonitorUrl != null" >
+        imonitor_url,
+      </if>
+      <if test="cmonitorUrl != null" >
+        cmonitor_url,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="mapId != null" >
+        #{mapId,jdbcType=VARCHAR},
+      </if>
+      <if test="campaignId != null" >
+        #{campaignId,jdbcType=VARCHAR},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="ftype != null" >
+        #{ftype,jdbcType=CHAR},
+      </if>
+      <if test="ctype != null" >
+        #{ctype,jdbcType=VARCHAR},
+      </if>
+      <if test="bundle != null" >
+        #{bundle,jdbcType=VARCHAR},
+      </if>
+      <if test="apkName != null" >
+        #{apkName,jdbcType=VARCHAR},
+      </if>
+      <if test="curl != null" >
+        #{curl,jdbcType=VARCHAR},
+      </if>
+      <if test="landingUrl != null" >
+        #{landingUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="rating != null" >
+        #{rating,jdbcType=VARCHAR},
+      </if>
+      <if test="ctatext != null" >
+        #{ctatext,jdbcType=CHAR},
+      </if>
+      <if test="icon != null" >
+        #{icon,jdbcType=VARCHAR},
+      </if>
+      <if test="image1 != null" >
+        #{image1,jdbcType=VARCHAR},
+      </if>
+      <if test="image2 != null" >
+        #{image2,jdbcType=VARCHAR},
+      </if>
+      <if test="image3 != null" >
+        #{image3,jdbcType=VARCHAR},
+      </if>
+      <if test="image4 != null" >
+        #{image4,jdbcType=VARCHAR},
+      </if>
+      <if test="image5 != null" >
+        #{image5,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null" >
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="imonitorUrl != null" >
+        #{imonitorUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="cmonitorUrl != null" >
+        #{cmonitorUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample" resultType="java.lang.Integer" >
+    select count(*) from pap_v_creative_infoflow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update pap_v_creative_infoflow
+    <set >
+      <if test="record.mapId != null" >
+        map_id = #{record.mapId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.campaignId != null" >
+        campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.price != null" >
+        price = #{record.price,jdbcType=DECIMAL},
+      </if>
+      <if test="record.type != null" >
+        type = #{record.type,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ftype != null" >
+        ftype = #{record.ftype,jdbcType=CHAR},
+      </if>
+      <if test="record.ctype != null" >
+        ctype = #{record.ctype,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bundle != null" >
+        bundle = #{record.bundle,jdbcType=VARCHAR},
+      </if>
+      <if test="record.apkName != null" >
+        apk_name = #{record.apkName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.curl != null" >
+        curl = #{record.curl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.landingUrl != null" >
+        landing_url = #{record.landingUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.title != null" >
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null" >
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.rating != null" >
+        rating = #{record.rating,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ctatext != null" >
+        ctatext = #{record.ctatext,jdbcType=CHAR},
+      </if>
+      <if test="record.icon != null" >
+        icon = #{record.icon,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image1 != null" >
+        image1 = #{record.image1,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image2 != null" >
+        image2 = #{record.image2,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image3 != null" >
+        image3 = #{record.image3,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image4 != null" >
+        image4 = #{record.image4,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image5 != null" >
+        image5 = #{record.image5,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null" >
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imonitorUrl != null" >
+        imonitor_url = #{record.imonitorUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.cmonitorUrl != null" >
+        cmonitor_url = #{record.cmonitorUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update pap_v_creative_infoflow
+    set map_id = #{record.mapId,jdbcType=VARCHAR},
+      campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      price = #{record.price,jdbcType=DECIMAL},
+      type = #{record.type,jdbcType=VARCHAR},
+      ftype = #{record.ftype,jdbcType=CHAR},
+      ctype = #{record.ctype,jdbcType=VARCHAR},
+      bundle = #{record.bundle,jdbcType=VARCHAR},
+      apk_name = #{record.apkName,jdbcType=VARCHAR},
+      curl = #{record.curl,jdbcType=VARCHAR},
+      landing_url = #{record.landingUrl,jdbcType=VARCHAR},
+      title = #{record.title,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      rating = #{record.rating,jdbcType=VARCHAR},
+      ctatext = #{record.ctatext,jdbcType=CHAR},
+      icon = #{record.icon,jdbcType=VARCHAR},
+      image1 = #{record.image1,jdbcType=VARCHAR},
+      image2 = #{record.image2,jdbcType=VARCHAR},
+      image3 = #{record.image3,jdbcType=VARCHAR},
+      image4 = #{record.image4,jdbcType=VARCHAR},
+      image5 = #{record.image5,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      imonitor_url = #{record.imonitorUrl,jdbcType=LONGVARCHAR},
+      cmonitor_url = #{record.cmonitorUrl,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update pap_v_creative_infoflow
+    set map_id = #{record.mapId,jdbcType=VARCHAR},
+      campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      price = #{record.price,jdbcType=DECIMAL},
+      type = #{record.type,jdbcType=VARCHAR},
+      ftype = #{record.ftype,jdbcType=CHAR},
+      ctype = #{record.ctype,jdbcType=VARCHAR},
+      bundle = #{record.bundle,jdbcType=VARCHAR},
+      apk_name = #{record.apkName,jdbcType=VARCHAR},
+      curl = #{record.curl,jdbcType=VARCHAR},
+      landing_url = #{record.landingUrl,jdbcType=VARCHAR},
+      title = #{record.title,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      rating = #{record.rating,jdbcType=VARCHAR},
+      ctatext = #{record.ctatext,jdbcType=CHAR},
+      icon = #{record.icon,jdbcType=VARCHAR},
+      image1 = #{record.image1,jdbcType=VARCHAR},
+      image2 = #{record.image2,jdbcType=VARCHAR},
+      image3 = #{record.image3,jdbcType=VARCHAR},
+      image4 = #{record.image4,jdbcType=VARCHAR},
+      image5 = #{record.image5,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

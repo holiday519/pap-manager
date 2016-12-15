@@ -18,6 +18,10 @@ public class PurposeBean {
 	 */
 	private String name;
 	/**
+	 * 第三方检测跳转地址
+	 */
+	private String escrowUrl;
+	/**
 	 * 落地页id
 	 */
 	private String landpageId;
@@ -29,10 +33,6 @@ public class PurposeBean {
 	 * 落地页地址
 	 */
 	private String landpagePath;
-	/**
-	 * 真实落地页地址
-	 */
-	private String landpageUrl;
 	/**
 	 * 安卓deekLink
 	 */
@@ -61,6 +61,7 @@ public class PurposeBean {
 	 * APP包名
 	 */
 	private String appPkgName;
+	
 	public String getId() {
 		return id;
 	}
@@ -79,6 +80,12 @@ public class PurposeBean {
 	public void setName(String name) {
 		this.name = name;
 	}
+	public String getEscrowUrl() {
+		return escrowUrl;
+	}
+	public void setEscrowUrl(String escrowUrl) {
+		this.escrowUrl = escrowUrl;
+	}
 	public String getLandpageId() {
 		return landpageId;
 	}
@@ -96,12 +103,6 @@ public class PurposeBean {
 	}
 	public void setLandpagePath(String landpagePath) {
 		this.landpagePath = landpagePath;
-	}
-	public String getLandpageUrl() {
-		return landpageUrl;
-	}
-	public void setLandpageUrl(String landpageUrl) {
-		this.landpageUrl = landpageUrl;
 	}
 	public String getAnidDeepLink() {
 		return anidDeepLink;
@@ -148,13 +149,13 @@ public class PurposeBean {
 	@Override
 	public String toString() {
 		return "PurposeBean [id=" + id + ", campaignId=" + campaignId
-				+ ", name=" + name + ", landpageId=" + landpageId
-				+ ", downloadId=" + downloadId + ", landpagePath="
-				+ landpagePath + ", landpageUrl=" + landpageUrl
-				+ ", anidDeepLink=" + anidDeepLink + ", iosDeepLink="
-				+ iosDeepLink + ", downloadPath=" + downloadPath + ", appOs="
-				+ appOs + ", appName=" + appName + ", appId=" + appId
-				+ ", appPkgName=" + appPkgName + "]";
+				+ ", name=" + name + ", escrowUrl=" + escrowUrl
+				+ ", landpageId=" + landpageId + ", downloadId=" + downloadId
+				+ ", landpagePath=" + landpagePath + ", anidDeepLink="
+				+ anidDeepLink + ", iosDeepLink=" + iosDeepLink
+				+ ", downloadPath=" + downloadPath + ", appOs=" + appOs
+				+ ", appName=" + appName + ", appId=" + appId + ", appPkgName="
+				+ appPkgName + "]";
 	}
-
+	
 }

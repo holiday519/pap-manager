@@ -315,6 +315,76 @@ public class PurposeModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andEscrowUrlIsNull() {
+            addCriterion("escrow_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlIsNotNull() {
+            addCriterion("escrow_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlEqualTo(String value) {
+            addCriterion("escrow_url =", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlNotEqualTo(String value) {
+            addCriterion("escrow_url <>", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlGreaterThan(String value) {
+            addCriterion("escrow_url >", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("escrow_url >=", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlLessThan(String value) {
+            addCriterion("escrow_url <", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlLessThanOrEqualTo(String value) {
+            addCriterion("escrow_url <=", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlLike(String value) {
+            addCriterion("escrow_url like", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlNotLike(String value) {
+            addCriterion("escrow_url not like", value, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlIn(List<String> values) {
+            addCriterion("escrow_url in", values, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlNotIn(List<String> values) {
+            addCriterion("escrow_url not in", values, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlBetween(String value1, String value2) {
+            addCriterion("escrow_url between", value1, value2, "escrowUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andEscrowUrlNotBetween(String value1, String value2) {
+            addCriterion("escrow_url not between", value1, value2, "escrowUrl");
+            return (Criteria) this;
+        }
+
         public Criteria andLandpageIdIsNull() {
             addCriterion("landpage_id is null");
             return (Criteria) this;

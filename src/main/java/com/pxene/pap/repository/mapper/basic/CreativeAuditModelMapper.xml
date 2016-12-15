@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.pxene.pap.repository.mapper.basic.LandPageModelMapper" >
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.LandPageModel" >
+<mapper namespace="com.pxene.pap.repository.mapper.basic.CreativeAuditModelMapper" >
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.CreativeAuditModel" >
     <id column="id" property="id" jdbcType="VARCHAR" />
-    <result column="path" property="path" jdbcType="VARCHAR" />
-    <result column="anid_deep_link" property="anidDeepLink" jdbcType="VARCHAR" />
-    <result column="ios_deep_link" property="iosDeepLink" jdbcType="VARCHAR" />
+    <result column="creative_id" property="creativeId" jdbcType="VARCHAR" />
+    <result column="adx_id" property="adxId" jdbcType="VARCHAR" />
+    <result column="audit_value" property="auditValue" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="massage" property="massage" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -68,16 +70,16 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, path, anid_deep_link, ios_deep_link, create_time, update_time
+    id, creative_id, adx_id, audit_value, status, massage, create_time, update_time
   </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.LandPageModelExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModelExample" >
     select
     <if test="distinct" >
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_landpage
+    from pap_t_creative_audit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,41 +90,47 @@
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     select 
     <include refid="Base_Column_List" />
-    from pap_t_landpage
+    from pap_t_creative_audit
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
-    delete from pap_t_landpage
+    delete from pap_t_creative_audit
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.LandPageModelExample" >
-    delete from pap_t_landpage
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModelExample" >
+    delete from pap_t_creative_audit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    insert into pap_t_landpage (id, path, anid_deep_link, 
-      ios_deep_link, create_time, update_time
-      )
-    values (#{id,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{anidDeepLink,jdbcType=VARCHAR}, 
-      #{iosDeepLink,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
-      )
+  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel" >
+    insert into pap_t_creative_audit (id, creative_id, adx_id, 
+      audit_value, status, massage, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{creativeId,jdbcType=VARCHAR}, #{adxId,jdbcType=VARCHAR}, 
+      #{auditValue,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{massage,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    insert into pap_t_landpage
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel" >
+    insert into pap_t_creative_audit
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
       </if>
-      <if test="path != null" >
-        path,
+      <if test="creativeId != null" >
+        creative_id,
       </if>
-      <if test="anidDeepLink != null" >
-        anid_deep_link,
+      <if test="adxId != null" >
+        adx_id,
       </if>
-      <if test="iosDeepLink != null" >
-        ios_deep_link,
+      <if test="auditValue != null" >
+        audit_value,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="massage != null" >
+        massage,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -135,14 +143,20 @@
       <if test="id != null" >
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="path != null" >
-        #{path,jdbcType=VARCHAR},
+      <if test="creativeId != null" >
+        #{creativeId,jdbcType=VARCHAR},
       </if>
-      <if test="anidDeepLink != null" >
-        #{anidDeepLink,jdbcType=VARCHAR},
+      <if test="adxId != null" >
+        #{adxId,jdbcType=VARCHAR},
       </if>
-      <if test="iosDeepLink != null" >
-        #{iosDeepLink,jdbcType=VARCHAR},
+      <if test="auditValue != null" >
+        #{auditValue,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="massage != null" >
+        #{massage,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
@@ -152,26 +166,32 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.LandPageModelExample" resultType="java.lang.Integer" >
-    select count(*) from pap_t_landpage
+  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModelExample" resultType="java.lang.Integer" >
+    select count(*) from pap_t_creative_audit
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map" >
-    update pap_t_landpage
+    update pap_t_creative_audit
     <set >
       <if test="record.id != null" >
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.path != null" >
-        path = #{record.path,jdbcType=VARCHAR},
+      <if test="record.creativeId != null" >
+        creative_id = #{record.creativeId,jdbcType=VARCHAR},
       </if>
-      <if test="record.anidDeepLink != null" >
-        anid_deep_link = #{record.anidDeepLink,jdbcType=VARCHAR},
+      <if test="record.adxId != null" >
+        adx_id = #{record.adxId,jdbcType=VARCHAR},
       </if>
-      <if test="record.iosDeepLink != null" >
-        ios_deep_link = #{record.iosDeepLink,jdbcType=VARCHAR},
+      <if test="record.auditValue != null" >
+        audit_value = #{record.auditValue,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.massage != null" >
+        massage = #{record.massage,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -185,28 +205,36 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map" >
-    update pap_t_landpage
+    update pap_t_creative_audit
     set id = #{record.id,jdbcType=VARCHAR},
-      path = #{record.path,jdbcType=VARCHAR},
-      anid_deep_link = #{record.anidDeepLink,jdbcType=VARCHAR},
-      ios_deep_link = #{record.iosDeepLink,jdbcType=VARCHAR},
+      creative_id = #{record.creativeId,jdbcType=VARCHAR},
+      adx_id = #{record.adxId,jdbcType=VARCHAR},
+      audit_value = #{record.auditValue,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=VARCHAR},
+      massage = #{record.massage,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    update pap_t_landpage
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel" >
+    update pap_t_creative_audit
     <set >
-      <if test="path != null" >
-        path = #{path,jdbcType=VARCHAR},
+      <if test="creativeId != null" >
+        creative_id = #{creativeId,jdbcType=VARCHAR},
       </if>
-      <if test="anidDeepLink != null" >
-        anid_deep_link = #{anidDeepLink,jdbcType=VARCHAR},
+      <if test="adxId != null" >
+        adx_id = #{adxId,jdbcType=VARCHAR},
       </if>
-      <if test="iosDeepLink != null" >
-        ios_deep_link = #{iosDeepLink,jdbcType=VARCHAR},
+      <if test="auditValue != null" >
+        audit_value = #{auditValue,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="massage != null" >
+        massage = #{massage,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -217,11 +245,13 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.LandPageModel" >
-    update pap_t_landpage
-    set path = #{path,jdbcType=VARCHAR},
-      anid_deep_link = #{anidDeepLink,jdbcType=VARCHAR},
-      ios_deep_link = #{iosDeepLink,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel" >
+    update pap_t_creative_audit
+    set creative_id = #{creativeId,jdbcType=VARCHAR},
+      adx_id = #{adxId,jdbcType=VARCHAR},
+      audit_value = #{auditValue,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR},
+      massage = #{massage,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}

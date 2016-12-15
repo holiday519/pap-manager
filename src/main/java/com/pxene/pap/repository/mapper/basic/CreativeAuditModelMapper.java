@@ -1,0 +1,30 @@
+package com.pxene.pap.repository.mapper.basic;
+
+import com.pxene.pap.domain.model.basic.CreativeAuditModel;
+import com.pxene.pap.domain.model.basic.CreativeAuditModelExample;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface CreativeAuditModelMapper {
+    int countByExample(CreativeAuditModelExample example);
+
+    int deleteByExample(CreativeAuditModelExample example);
+
+    int deleteByPrimaryKey(String id);
+
+    int insert(CreativeAuditModel record);
+
+    int insertSelective(CreativeAuditModel record);
+
+    List<CreativeAuditModel> selectByExample(CreativeAuditModelExample example);
+
+    CreativeAuditModel selectByPrimaryKey(String id);
+
+    int updateByExampleSelective(@Param("record") CreativeAuditModel record, @Param("example") CreativeAuditModelExample example);
+
+    int updateByExample(@Param("record") CreativeAuditModel record, @Param("example") CreativeAuditModelExample example);
+
+    int updateByPrimaryKeySelective(CreativeAuditModel record);
+
+    int updateByPrimaryKey(CreativeAuditModel record);
+}

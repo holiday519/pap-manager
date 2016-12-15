@@ -7,8 +7,6 @@ public class LandPageModel {
 
     private String path;
 
-    private String landingUrl;
-
     private String anidDeepLink;
 
     private String iosDeepLink;
@@ -31,14 +29,6 @@ public class LandPageModel {
 
     public void setPath(String path) {
         this.path = path == null ? null : path.trim();
-    }
-
-    public String getLandingUrl() {
-        return landingUrl;
-    }
-
-    public void setLandingUrl(String landingUrl) {
-        this.landingUrl = landingUrl == null ? null : landingUrl.trim();
     }
 
     public String getAnidDeepLink() {

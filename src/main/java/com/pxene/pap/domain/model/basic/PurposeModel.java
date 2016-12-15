@@ -9,6 +9,8 @@ public class PurposeModel {
 
     private String name;
 
+    private String escrowUrl;
+
     private String landpageId;
 
     private String downloadId;
@@ -41,6 +43,14 @@ public class PurposeModel {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
+    }
+
+    public String getEscrowUrl() {
+        return escrowUrl;
+    }
+
+    public void setEscrowUrl(String escrowUrl) {
+        this.escrowUrl = escrowUrl == null ? null : escrowUrl.trim();
     }
 
     public String getLandpageId() {

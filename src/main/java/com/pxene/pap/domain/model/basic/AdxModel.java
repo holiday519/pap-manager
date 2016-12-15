@@ -2,12 +2,16 @@ package com.pxene.pap.domain.model.basic;
 
 import java.util.Date;
 
-public class VideoTypeModel {
+public class AdxModel {
     private String id;
 
     private String name;
 
-    private String code;
+    private String impressionUrl;
+
+    private String clickUrl;
+
+    private String auditUrl;
 
     private String remark;
 
@@ -31,12 +35,28 @@ public class VideoTypeModel {
         this.name = name == null ? null : name.trim();
     }
 
-    public String getCode() {
-        return code;
+    public String getImpressionUrl() {
+        return impressionUrl;
     }
 
-    public void setCode(String code) {
-        this.code = code == null ? null : code.trim();
+    public void setImpressionUrl(String impressionUrl) {
+        this.impressionUrl = impressionUrl == null ? null : impressionUrl.trim();
+    }
+
+    public String getClickUrl() {
+        return clickUrl;
+    }
+
+    public void setClickUrl(String clickUrl) {
+        this.clickUrl = clickUrl == null ? null : clickUrl.trim();
+    }
+
+    public String getAuditUrl() {
+        return auditUrl;
+    }
+
+    public void setAuditUrl(String auditUrl) {
+        this.auditUrl = auditUrl == null ? null : auditUrl.trim();
     }
 
     public String getRemark() {

@@ -7,9 +7,9 @@ public class MonitorModel {
 
     private String campaignId;
 
-    private String impression;
+    private String impressionUrl;
 
-    private String click;
+    private String clickUrl;
 
     private Date createTime;
 
@@ -31,20 +31,20 @@ public class MonitorModel {
         this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
-    public String getImpression() {
-        return impression;
+    public String getImpressionUrl() {
+        return impressionUrl;
     }
 
-    public void setImpression(String impression) {
-        this.impression = impression == null ? null : impression.trim();
+    public void setImpressionUrl(String impressionUrl) {
+        this.impressionUrl = impressionUrl == null ? null : impressionUrl.trim();
     }
 
-    public String getClick() {
-        return click;
+    public String getClickUrl() {
+        return clickUrl;
     }
 
-    public void setClick(String click) {
-        this.click = click == null ? null : click.trim();
+    public void setClickUrl(String clickUrl) {
+        this.clickUrl = clickUrl == null ? null : clickUrl.trim();
     }
 
     public Date getCreateTime() {

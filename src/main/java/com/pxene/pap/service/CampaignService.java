@@ -398,12 +398,12 @@ public class CampaignService {
 				if (urls != null && urls.size() > 0 && urls.get(0) != null
 						&& !"".equals(urls.get(0))) {
 					String impressionUrl = urls.get(0);
-					monitor.setImpression(impressionUrl);
+					monitor.setImpressionUrl((impressionUrl));
 				}
 				if (urls != null && urls.size() > 1 && urls.get(1) != null
 						&& !"".equals(urls.get(1))) {
 					String clickUrl = urls.get(1);
-					monitor.setClick(clickUrl);
+					monitor.setClickUrl(clickUrl);
 				}
 				monitorMapper.insertSelective(monitor);
 			}
