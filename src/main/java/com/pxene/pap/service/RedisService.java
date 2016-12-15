@@ -7,8 +7,6 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
-import net.sf.json.JSONObject;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +14,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
+import com.pxene.pap.domain.model.basic.AdxModel;
+import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.domain.model.basic.CreativeModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
+import com.pxene.pap.domain.model.basic.view.CampaignTargetModel;
+import com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeImageModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeImageModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample;
@@ -31,10 +33,12 @@ import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
 import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
+import com.pxene.pap.repository.mapper.basic.AdxModelMapper;
 import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
 import com.pxene.pap.repository.mapper.basic.CreativeMaterialModelMapper;
 import com.pxene.pap.repository.mapper.basic.CreativeModelMapper;
 import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
+import com.pxene.pap.repository.mapper.basic.view.CampaignTargetModelMapper;
 import com.pxene.pap.repository.mapper.basic.view.CreativeImageModelMapper;
 import com.pxene.pap.repository.mapper.basic.view.CreativeInfoflowModelMapper;
 import com.pxene.pap.repository.mapper.basic.view.CreativeVideoModelMapper;
@@ -48,16 +52,13 @@ public class RedisService {
 	 */
 	private static final String MONITOR_TEMPLATES = "var imgdc{index} = new Image();imgdc{index}.src = '{imonitorurl}';window[new Date()] = imgdc{index};";
 	private static final Map<String, Integer[]> TARGET_CODES = new HashMap<String, Integer[]>();// 定向标志位
-
     static {
-        TARGET_CODES.put("geo", new Integer[]{0x0, 0x1, 0x2, 0x3});
+        TARGET_CODES.put("region", new Integer[]{0x0, 0x1, 0x2, 0x3});
         TARGET_CODES.put("network", new Integer[]{0x0, 0x4, 0x8, 0xc});
         TARGET_CODES.put("os", new Integer[]{0x0, 0x10, 0x20, 0x30});
-        TARGET_CODES.put("provider", new Integer[]{0x0, 0x40, 0x80, 0xc0});
+        TARGET_CODES.put("operator", new Integer[]{0x0, 0x40, 0x80, 0xc0});
         TARGET_CODES.put("device", new Integer[]{0x0, 0x100, 0x200, 0x300});
-        TARGET_CODES.put("wblist", new Integer[]{0x0, 0x1, 0x2, 0x3});
-        TARGET_CODES.put("cat", new Integer[]{0x0, 0x1, 0x2, 0x3});
-        TARGET_CODES.put("make", new Integer[]{0x0, 0x400, 0x800, 0xc00});
+        TARGET_CODES.put("brand", new Integer[]{0x0, 0x400, 0x800, 0xc00});
     }
 	
 	@Autowired
@@ -86,6 +87,12 @@ public class RedisService {
 	
 	@Autowired
 	private ImageSizeTypeModelMapper imageSizeTypeMapper;
+	
+	@Autowired
+	private CampaignTargetModelMapper campaignTargetMapper;
+	
+	@Autowired
+	private AdxModelMapper adxMapper;
 	
 	@Transactional
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
@@ -147,7 +154,16 @@ public class RedisService {
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", model.getType());
 			creativeObj.addProperty("ftype", model.getFtype());
-			model.getPrice();//此处需要给每个adx填写价格——————————————
+			AdxModelExample adxEcample = new AdxModelExample();
+			List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+			JsonArray priceAdx = new JsonArray();
+			for(AdxModel adx : adxs){
+				JsonObject adxObj = new JsonObject();
+				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
+				adxObj.addProperty("price", model.getPrice());
+				priceAdx.add(adxObj);
+			}
+			creativeObj.addProperty("price_adx", priceAdx.toString());
 			creativeObj.addProperty("ctype", model.getCtype());
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
@@ -176,7 +192,7 @@ public class RedisService {
             model.getSourceUrl();//此处需要修改—————————————————图片地址路径需要加上
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             
-			creativeObj.addProperty("exts", "");
+			creativeObj.addProperty("exts", "");//adx属性——————————————
 			
 		}
 	}
@@ -199,7 +215,16 @@ public class RedisService {
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", model.getType());
 			creativeObj.addProperty("ftype", model.getFtype());
-			model.getPrice();//此处需要给每个adx填写价格——————————————
+			AdxModelExample adxEcample = new AdxModelExample();
+			List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+			JsonArray priceAdx = new JsonArray();
+			for(AdxModel adx : adxs){
+				JsonObject adxObj = new JsonObject();
+				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
+				adxObj.addProperty("price", model.getPrice());
+				priceAdx.add(adxObj);
+			}
+			creativeObj.addProperty("price_adx", priceAdx.toString());
 			creativeObj.addProperty("ctype", model.getCtype());
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
@@ -228,7 +253,7 @@ public class RedisService {
             model.getSourceUrl();//此处需要修改——————————————————图片地址路径需要加上
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             
-			creativeObj.addProperty("exts", "");
+			creativeObj.addProperty("exts", "");//adx属性——————————————
 			
 		}
 	}
@@ -251,7 +276,16 @@ public class RedisService {
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", model.getType());
 			creativeObj.addProperty("ftype", model.getFtype());
-			model.getPrice();//此处需要给每个adx填写价格——————————————
+			AdxModelExample adxEcample = new AdxModelExample();
+			List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+			JsonArray priceAdx = new JsonArray();
+			for(AdxModel adx : adxs){
+				JsonObject adxObj = new JsonObject();
+				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
+				adxObj.addProperty("price", model.getPrice());
+				priceAdx.add(adxObj);
+			}
+			creativeObj.addProperty("price_adx", priceAdx.toString());
 			creativeObj.addProperty("ctype", model.getCtype());
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
@@ -299,7 +333,6 @@ public class RedisService {
 				someImage[4] = image5;
 			}
 			if (imgs == 1) {
-				
 				ImageSizeTypeModel ist = selectImages(oneImag);
 				creativeObj.addProperty("w", GlobalUtil.parseInt(ist.getWidth(),0));
 				creativeObj.addProperty("h", GlobalUtil.parseInt(ist.getHeight(),0));
@@ -335,9 +368,9 @@ public class RedisService {
             creativeObj.addProperty("title", GlobalUtil.parseString(model.getTitle(),""));
             creativeObj.addProperty("description", GlobalUtil.parseString(model.getDescription(),""));
             creativeObj.addProperty("rating", GlobalUtil.parseString(model.getRating(),""));
-            creativeObj.addProperty("ctatext", "");//数据库缺少此字段——————————————
+            creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtatext(),""));
             
-			creativeObj.addProperty("exts", "");
+			creativeObj.addProperty("exts", "");//adx属性——————————————————
 			
 		}
 	}
@@ -381,42 +414,139 @@ public class RedisService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void writeGroupInfoToRedis(String campaignId) throws Exception {
+	public void writeCampaignInfoToRedis(String campaignId) throws Exception {
 		CampaignModel campaignModel = campaignMapper.selectByPrimaryKey(campaignId);
 		String ProjectId = campaignModel.getProjectId();
 		ProjectModel projectModel = projectMapper.selectByPrimaryKey(ProjectId);
 		String advertiserId = projectModel.getAdvertiserId();
 		AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(advertiserId);
-		JsonObject groupInfo = new JsonObject();
+		JsonObject campaignInfo = new JsonObject();
 		JsonArray catArr = new JsonArray();
 		JsonArray adxArr = new JsonArray();
 		JsonArray auctiontypeArr = new JsonArray();
-		int industryId = Integer.parseInt(advertiserModel.getIndustryId());//此处需要int类型，数据库确实36为uuid——————————————
+		int industryId = Integer.parseInt(advertiserModel.getIndustryId());
 		catArr.add(industryId);
-		groupInfo.addProperty("cat", catArr.toString());
-		groupInfo.addProperty("advcat", industryId);
+		campaignInfo.addProperty("cat", catArr.toString());
+		campaignInfo.addProperty("advcat", industryId);
 		String adomain = GlobalUtil.parseString(advertiserModel.getSiteUrl(),"");
-		groupInfo.addProperty("adomain", adomain.replace("http://www.", "").replace("www.", ""));
-		//添加投放adx————————————————————
-		//添加“auctiontype”（将广告主审核返回值添加到相应adx）————————————————————
+		campaignInfo.addProperty("adomain", adomain.replace("http://www.", "").replace("www.", ""));
+		AdxModelExample adxEcample = new AdxModelExample();
+		List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+		for (AdxModel adx : adxs) {
+			//投放adx
+			JsonObject adxObj = new JsonObject();
+			adxArr.add(Integer.parseInt(adx.getId()));
+			//adx竞价列表
+			adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
+			adxObj.addProperty("at", 0);//竞价方式  ；0代表RTB
+			auctiontypeArr.add(adxObj);
+		}
+		campaignInfo.addProperty("adx", adxArr.toString());
+		campaignInfo.addProperty("auctiontype", auctiontypeArr.toString());
+		campaignInfo.addProperty("redirect", 0);//不重定向创意的curl
+		campaignInfo.addProperty("effectmonitor", 1);//需要效果监测
 		
-		groupInfo.addProperty("redirect", 0);//不重定向创意的curl
-		groupInfo.addProperty("effectmonitor", 1);//需要效果监测
-		
-		groupInfo.addProperty("exts", "");//adx对应需要的值————————————————————————
-		
+		campaignInfo.addProperty("exts", "");//adx对应需要的值————————————————————————
 	}
 	
-	public void writeGroupTargetToRedis(String campaignId) throws Exception {
-		JsonObject targetJSON = new JsonObject(); // 项目定向信息
-		JsonObject deviceJSON = new JsonObject(); // 设备信息定向
-		JsonObject appJSON = new JsonObject(); // 应用程序信息定向
-		JsonObject impJSON = new JsonObject(); // 广告位展现形式定向
-
-		
+	/**
+	 * 活动定向写入redis
+	 * @param campaignId
+	 * @param adType 
+	 * @throws Exception
+	 */
+	public void writeCampaignTargetToRedis(String campaignId, JsonArray adType) throws Exception {
+		JsonObject targetJson = new JsonObject(); // 项目定向信息
+		JsonObject deviceJson = new JsonObject(); // 设备信息定向
+		CampaignTargetModelExample example = new CampaignTargetModelExample();
+		example.createCriteria().andIdEqualTo(campaignId);
+		List<CampaignTargetModel> targets = campaignTargetMapper.selectByExampleWithBLOBs(example);
+		if (targets != null && !targets.isEmpty()) {
+			int flag = 0;
+			CampaignTargetModel target = targets.get(0);
+			targetJson.addProperty("groupid", campaignId);
+			JsonArray region = targetStringToJsonArrayWithInt(target.getRegionId());
+			JsonArray network = targetStringToJsonArrayWithInt(target.getNetwork());
+			JsonArray os = targetStringToJsonArrayWithInt(target.getOs());
+			JsonArray operator = targetStringToJsonArrayWithInt(target.getOperator());
+			JsonArray device = targetStringToJsonArrayWithInt(target.getDevice());
+			JsonArray brand = targetStringToJsonArrayWithInt(target.getBrandId());
+			if (region.size() > 0) {
+				flag = flag | TARGET_CODES.get("region")[1];
+				deviceJson.addProperty("regioncode", region.toString());
+			}
+			if (network.size() > 0) {
+				flag = flag | TARGET_CODES.get("network")[1];
+				deviceJson.addProperty("connectiontype", network.toString());
+			}
+			if (os.size() > 0) {
+				flag = flag | TARGET_CODES.get("os")[1];
+				deviceJson.addProperty("os", os.toString());
+			}
+			if (operator.size() > 0) {
+				flag = flag | TARGET_CODES.get("operator")[1];
+				deviceJson.addProperty("carrier", operator.toString());
+			}
+			if (device.size() > 0) {
+				flag = flag | TARGET_CODES.get("device")[1];
+				deviceJson.addProperty("devicetype", device.toString());
+			}
+			if (brand.size() > 0) {
+				flag = flag | TARGET_CODES.get("brand")[1];
+				deviceJson.addProperty("make", brand.toString());
+			}
+			targetJson.addProperty("device", deviceJson.toString());
+			// app定向
+			JsonObject appJson = createAppTargetJson(target.getAppId());
+			if (appJson != null) {
+				targetJson.addProperty("app", appJson.toString());
+			}
+			targetJson.toString();//写入redis————————————————————
+		}
 	}
 	
-	public void writeGroupFrequencyToRedis(String campaignId) throws Exception {
+	/**
+	 * 创建app定向写入redis的json对象
+	 * @param appTarget
+	 * @return
+	 * @throws Exception
+	 */
+	private JsonObject createAppTargetJson(String appTarget) throws Exception {
+		if (appTarget == null || "".equals(appTarget)) {
+			return null;
+		}
+		JsonObject appJson = new JsonObject();
+		String[] apps = appTarget.split(",");
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxMapper.selectByExample(adxExample);
+		JsonArray idArr = new JsonArray();
+		for (AdxModel adx : adxs) {
+			JsonObject idObj = new JsonObject();
+			idObj.addProperty("adx", Integer.parseInt(adx.getId()));
+			JsonArray appids = new JsonArray();
+			for (String app : apps) {
+				if (app.split("##")[0] == adx.getId()) {
+					appids.add(app.split("##")[1]);
+				}
+			}
+			int flag = 0;
+			if (appids.size() > 0) {
+				flag = 1;
+			}
+			idObj.addProperty("flag", flag);
+			idObj.addProperty("wlist", appids.toString());
+			idArr.add(idObj);
+		}
+		appJson.addProperty("id", idArr.toString());
+		return appJson;
+	}
+	
+	/**
+	 * 频次信息写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void writeCampaignFrequencyToRedis(String campaignId) throws Exception {
 		
 		
 	}
@@ -432,19 +562,19 @@ public class RedisService {
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeMapper.selectByExample(creativeExample);
 		JsonArray mapidJson = new JsonArray();
-		if(creatives !=null && !creatives.isEmpty()){
-			//查询创意对应的关联关系mapid
-			for(CreativeModel creative : creatives){
+		if (creatives != null && !creatives.isEmpty()) {
+			// 查询创意对应的关联关系mapid
+			for (CreativeModel creative : creatives) {
 				String creativeId = creative.getId();
 				CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
 				cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
 				List<CreativeMaterialModel> list = creativeMaterialMapper.selectByExample(cmExample);
-				if(list==null || list.isEmpty()){
+				if (list == null || list.isEmpty()) {
 					continue;
 				}
-				for(CreativeMaterialModel cm : list){
+				for (CreativeMaterialModel cm : list) {
 					String mapId = cm.getId();
-					if(mapId!=null && !"".endsWith(mapId)){
+					if (mapId != null && !"".endsWith(mapId)) {
 						mapidJson.add(mapId);
 					}
 				}
@@ -454,5 +584,21 @@ public class RedisService {
 		//将mapid数组放入redis————————————————————————
 	}
 	
-	
+	/**
+	 * 将字符串合格化成json数组（用于活动定向信息处理）
+	 * @param targetString
+	 * @return
+	 */
+	private JsonArray targetStringToJsonArrayWithInt(String targetString) {
+		if (targetString == null || "".equals(targetString)) {
+			return new JsonArray();
+		} else {
+			String[] targets = targetString.split(",");
+			JsonArray jsonArray = new JsonArray();
+			for (String str : targets) {
+				jsonArray.add(str);
+			}
+			return jsonArray;
+		}
+	}
 }

@@ -11,6 +11,8 @@ public class InfoFlowModel {
 
     private String description;
 
+    private String ctaDescription;
+
     private String icon;
 
     private String image1;
@@ -23,11 +25,13 @@ public class InfoFlowModel {
 
     private String image5;
 
+    private Integer appStar;
+
     private String remark;
 
-    private Date createtime;
+    private Date createTime;
 
-    private Date updatetime;
+    private Date updateTime;
 
     public String getId() {
         return id;
@@ -59,6 +63,14 @@ public class InfoFlowModel {
 
     public void setDescription(String description) {
         this.description = description == null ? null : description.trim();
+    }
+
+    public String getCtaDescription() {
+        return ctaDescription;
+    }
+
+    public void setCtaDescription(String ctaDescription) {
+        this.ctaDescription = ctaDescription == null ? null : ctaDescription.trim();
     }
 
     public String getIcon() {
@@ -109,6 +121,14 @@ public class InfoFlowModel {
         this.image5 = image5 == null ? null : image5.trim();
     }
 
+    public Integer getAppStar() {
+        return appStar;
+    }
+
+    public void setAppStar(Integer appStar) {
+        this.appStar = appStar;
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -117,19 +137,19 @@ public class InfoFlowModel {
         this.remark = remark == null ? null : remark.trim();
     }
 
-    public Date getCreatetime() {
-        return createtime;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public Date getUpdatetime() {
-        return updatetime;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }
