@@ -11,6 +11,10 @@ public class IllegalArgumentException extends BaseException
     {
         super(HttpStatus.BAD_REQUEST, BizExceptionEnum.IllegalArgumentException.getCode(), BizExceptionEnum.IllegalArgumentException.getMsg());
     }
+    public IllegalArgumentException(String bizErrorMsg)
+    {
+        super(HttpStatus.BAD_REQUEST, BizExceptionEnum.IllegalArgumentException.getCode(), bizErrorMsg);
+    }
     public IllegalArgumentException(int bizErrorCode, String bizErrorMsg)
     {
         super(HttpStatus.BAD_REQUEST, bizErrorCode, bizErrorMsg);

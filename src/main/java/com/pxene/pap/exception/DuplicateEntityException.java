@@ -11,6 +11,10 @@ public class DuplicateEntityException extends BaseException
     {
         super(HttpStatus.BAD_REQUEST, BizExceptionEnum.EntityAlreadyExistsException.getCode(), BizExceptionEnum.EntityAlreadyExistsException.getMsg());
     }
+    public DuplicateEntityException(String bizErrorMsg)
+    {
+        super(HttpStatus.BAD_REQUEST, BizExceptionEnum.EntityAlreadyExistsException.getCode(), bizErrorMsg);
+    }
     public DuplicateEntityException(int bizErrorCode, String bizErrorMsg)
     {
         super(HttpStatus.BAD_REQUEST, bizErrorCode, bizErrorMsg);

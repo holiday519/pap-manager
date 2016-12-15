@@ -11,6 +11,10 @@ public class UserNotFoundAuthException extends BaseException
     {
         super(HttpStatus.UNAUTHORIZED, BizExceptionEnum.UserNotFoundException.getCode(), BizExceptionEnum.UserNotFoundException.getMsg());
     }
+    public UserNotFoundAuthException(String bizErrorMsg)
+    {
+        super(HttpStatus.UNAUTHORIZED, BizExceptionEnum.UserNotFoundException.getCode(), bizErrorMsg);
+    }
     public UserNotFoundAuthException(int bizErrorCode, String bizErrorMsg)
     {
         super(HttpStatus.UNAUTHORIZED, bizErrorCode, bizErrorMsg);

@@ -11,6 +11,10 @@ public class PasswordIncorrectAuthException extends BaseException
     {
         super(HttpStatus.UNAUTHORIZED, BizExceptionEnum.PasswordIncorrectException.getCode(), BizExceptionEnum.PasswordIncorrectException.getMsg());
     }
+    public PasswordIncorrectAuthException(String bizErrorMsg)
+    {
+        super(HttpStatus.UNAUTHORIZED, BizExceptionEnum.PasswordIncorrectException.getCode(), bizErrorMsg);
+    }
     public PasswordIncorrectAuthException(int bizErrorCode, String bizErrorMsg)
     {
         super(HttpStatus.UNAUTHORIZED, bizErrorCode, bizErrorMsg);

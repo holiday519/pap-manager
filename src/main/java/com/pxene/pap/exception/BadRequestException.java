@@ -11,6 +11,10 @@ public class BadRequestException extends BaseException
     {
         super(HttpStatus.BAD_REQUEST, BizExceptionEnum.BadRequestException.getCode(), BizExceptionEnum.BadRequestException.getMsg());
     }
+    public BadRequestException(String bizErrorMsg)
+    {
+        super(HttpStatus.BAD_REQUEST, BizExceptionEnum.BadRequestException.getCode(), bizErrorMsg);
+    }
     public BadRequestException(int bizErrorCode, String bizErrorMsg)
     {
         super(HttpStatus.BAD_REQUEST, bizErrorCode, bizErrorMsg);
