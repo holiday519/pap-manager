@@ -22,6 +22,7 @@ public class LogRecordAspect
     private static final String PARAM_TEMPLATE = "{0}({1}) : {2}";
     private static final Logger LOGGER = LoggerFactory.getLogger(LogRecordAspect.class);
     
+    
     @Pointcut("execution(* com.pxene.pap.web.*.*Controller.*(..))")
     public void executeController()
     {
@@ -36,53 +37,6 @@ public class LogRecordAspect
     public void executeControllerOrService()
     {
     }
-    
-    
-    /*
-    @Around("executeController()")
-    public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable
-    {
-        RequestAttributes ra = RequestContextHolder.getRequestAttributes();
-        ServletRequestAttributes sra = (ServletRequestAttributes) ra;
-        HttpServletRequest request = sra.getRequest();
-        
-        String ip = request.getRemoteAddr();
-        String url = request.getRequestURL().toString();
-        String method = request.getMethod();
-        String uri = request.getRequestURI();
-        String queryString = request.getQueryString();
-        String classAndMethod = joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName();
-        String args = Arrays.toString(joinPoint.getArgs());
-        
-        LOGGER.info("请求开始, 各个参数, ip: {}, url: {}, method: {}, uri: {}, params: {}", ip, url, method, uri, queryString);
-        LOGGER.info("classAndMethod is {}, args is {}", classAndMethod, args);
-        
-        
-        String method = request.getMethod();
-        String params = "";
-        
-        if ("POST".equals(method) || "PUT".equals(method) || "PATCH".equals(method))
-        {
-            Object[] paramsArray = joinPoint.getArgs();
-            for (Object paramsObj : paramsArray)
-            {
-                System.out.println(paramsObj.getClass().getName());
-            }
-            params = Arrays.toString(paramsArray);
-        }
-        else
-        {
-            Map<?, ?> paramsMap = (Map<?, ?>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-            params = paramsMap.toString();
-        }
-        
-        // result的值就是被拦截方法的返回值
-        Object result = joinPoint.proceed();
-        Gson gson = new Gson();
-        LOGGER.info("请求结束，controller的返回值是 " + gson.toJson(result));
-        return result;
-    }
-    */
     
     @Around(value = "executeControllerOrService()")
     public Object recordRequestParamsAndResult(ProceedingJoinPoint joinPoint) throws Throwable
@@ -100,7 +54,7 @@ public class LogRecordAspect
         {
             String paramName = paramsNames[i];
             Object paramValue = paramsValues[i];
-            String paramType = paramValue.getClass().getSimpleName();
+            String paramType = (paramValue == null) ? null : paramValue.getClass().getSimpleName();
             String paramStr = MessageFormat.format(PARAM_TEMPLATE, paramName, paramType, paramValue);
             paramsBuilder.append(paramStr);
             

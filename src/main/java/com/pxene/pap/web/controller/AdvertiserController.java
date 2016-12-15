@@ -4,9 +4,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -21,15 +20,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
-import com.pxene.pap.domain.model.basic.AdvertiserModel;
+import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.AdvertiserService;
 
 @Controller
 public class AdvertiserController
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdvertiserController.class);
-    
     @Autowired
     private AdvertiserService advertiserService;
     
@@ -42,7 +39,7 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String addAdvertiser(@RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
+    public String addAdvertiser(@Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
         advertiserService.saveAdvertiser(advertiser);
         return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "id", advertiser.getId(), response);
@@ -65,7 +62,6 @@ public class AdvertiserController
     }
     
     
-    
     /**
      * 根据ID编辑指定的广告主（全部更新）。
      * @param id        广告主ID
@@ -74,18 +70,16 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String updateAdvertiser(@PathVariable String id, @RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
+    public String updateAdvertiser(@PathVariable String id, @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received path params id {}, body param advertiser {}.", id, advertiser);
+        advertiserService.updateAdvertiser(id, advertiser);
         
-        AdvertiserModel updatedAdvertiser = advertiserService.updateAdvertiser(id, advertiser);
-        
-        return ResponseUtils.sendReponse(HttpStatusCode.OK, updatedAdvertiser, response);
+        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
     }
     
     
     /**
-     * 根据ID编辑指定的广告主（部分更析）。
+     * 根据ID编辑指定的广告主（部分更新）。
      * @param id            广告主ID
      * @param advertiser    广告主DTO
      * @param response
@@ -94,11 +88,11 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserModel advertiser, HttpServletResponse response) throws Exception
+    public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
-        AdvertiserModel updatedAdvertiser = advertiserService.pathUpdateAdvertiser(id, advertiser);
+        advertiserService.patchUpdateAdvertiser(id, advertiser);
         
-        return ResponseUtils.sendReponse(HttpStatusCode.OK, updatedAdvertiser, response);
+        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
     }
     
     
@@ -112,7 +106,7 @@ public class AdvertiserController
     @ResponseBody
     public String getAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        AdvertiserModel advertiser = advertiserService.findAdvertiserById(id);
+        AdvertiserBean advertiser = advertiserService.findAdvertiserById(id);
         
         return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
     }
@@ -134,7 +128,7 @@ public class AdvertiserController
             pager = PageHelper.startPage(pageNO, pageSize);
         }
         
-        List<AdvertiserModel> advertisers = advertiserService.listAdvertisers(name);
+        List<AdvertiserBean> advertisers = advertiserService.listAdvertisers(name);
         
         PaginationResult result = new PaginationResult(advertisers, pager);
         return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);

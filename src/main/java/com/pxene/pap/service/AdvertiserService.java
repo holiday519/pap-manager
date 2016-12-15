@@ -1,15 +1,19 @@
 package com.pxene.pap.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample.Criteria;
@@ -28,6 +32,8 @@ import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
 @Service
 public class AdvertiserService
 {
+    private static final ModelMapper MODEL_MAPPER = new ModelMapper();
+    
     @Autowired
     private AdvertiserModelMapper advertiserMapper;
 
@@ -35,12 +41,14 @@ public class AdvertiserService
     private ProjectModelMapper projectMapper;
     
     
-    public AdvertiserModel saveAdvertiser(AdvertiserModel advertiser)
+    public void saveAdvertiser(AdvertiserBean advertiserBean)
     {
-        advertiser.setId(UUID.randomUUID().toString());
+        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        advertiserModel.setId(UUID.randomUUID().toString());
+        
         try
         {
-            int affectedRows = advertiserMapper.insertSelective(advertiser);
+            int affectedRows = advertiserMapper.insertSelective(advertiserModel);
             if (affectedRows <= 0)
             {
                 throw new BadRequestException();
@@ -53,7 +61,8 @@ public class AdvertiserService
                 throw new DuplicateEntityException();
             }
         }
-        return advertiser;
+        
+        BeanUtils.copyProperties(advertiserModel, advertiserBean);
     }
 
 
@@ -79,20 +88,20 @@ public class AdvertiserService
         }
     }
 
-    public AdvertiserModel findAdvertiserById(String id) throws Exception
+    public AdvertiserBean findAdvertiserById(String id) throws Exception
     {
-        AdvertiserModel advertiser = advertiserMapper.selectByPrimaryKey(id);
+        AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(id);
         
-        if (advertiser == null)
+        if (advertiserModel == null)
         {
             throw new NotFoundException();
         }
         
-        return advertiser;
+        return MODEL_MAPPER.map(advertiserModel, AdvertiserBean.class);
     }
 
 
-    public List<AdvertiserModel> listAdvertisers(String name) throws Exception
+    public List<AdvertiserBean> listAdvertisers(String name) throws Exception
     {
         AdvertiserModelExample example = new AdvertiserModelExample();
         Criteria criteria = example.createCriteria();
@@ -102,51 +111,121 @@ public class AdvertiserService
             criteria.andNameLike(name);
         }
         
-        List<AdvertiserModel> advertisers = advertiserMapper.selectByExample(example);
+        List<AdvertiserModel> advertiserModels = advertiserMapper.selectByExample(example);
+        List<AdvertiserBean> advertiserList = new ArrayList<AdvertiserBean>();
         
-        if (advertisers == null || advertisers.size() <= 0)
+        if (advertiserModels == null || advertiserModels.size() <= 0)
         {
             throw new NotFoundException();
         }
+        else
+        {
+            for (AdvertiserModel advertiserModel : advertiserModels)
+            {
+                advertiserList.add(MODEL_MAPPER.map(advertiserModel, AdvertiserBean.class));
+            }
+        }
         
-        return advertisers;
+        return advertiserList;
     }
 
 
-    public AdvertiserModel pathUpdateAdvertiser(String id, AdvertiserModel advertiser) throws Exception
+    /**
+     * @param id
+     * @param advertiserBean
+     * @throws Exception
+     */
+    public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
-        AdvertiserModelExample example = new AdvertiserModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andIdEqualTo(id);
-        
-        if (!StringUtils.isEmpty(advertiser.getId()))
+        if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
         {
             throw new IllegalArgumentException();
         }
         
-        int affectedRows = advertiserMapper.updateByExampleSelective(advertiser, example);
-        if (affectedRows > 0)
+        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        
+        AdvertiserModelExample example = new AdvertiserModelExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(id);
+        
+        try
         {
-            return advertiserMapper.selectByPrimaryKey(id);
+            int affectedRows = advertiserMapper.updateByExampleSelective(advertiserModel, example);
+            if (affectedRows > 0)
+            {
+                BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
+            }
+            else
+            {
+                throw new UpdateErrorException();
+            }
         }
-        else
+        catch (Exception exception)
         {
-            throw new UpdateErrorException();
+            if (exception instanceof DuplicateKeyException)
+            {
+                throw new DuplicateEntityException();
+            }
         }
     }
     
-    public AdvertiserModel updateAdvertiser(String id, AdvertiserModel advertiser) throws Exception
+    public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
-        advertiser.setId(id);
+        if (StringUtils.isEmpty(id))
+        {
+            throw new IllegalArgumentException();
+        }
         
-        int affectedRows = advertiserMapper.updateByPrimaryKey(advertiser);
-        if (affectedRows > 0)
+        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        advertiserModel.setId(id);
+        
+        try
         {
-            return advertiserMapper.selectByPrimaryKey(id);
+            int affectedRows = advertiserMapper.updateByPrimaryKey(advertiserModel);
+            if (affectedRows > 0)
+            {
+                BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
+            }
+            else
+            {
+                throw new UpdateErrorException();
+            }
         }
-        else
+        catch (Exception exception)
         {
-            throw new UpdateErrorException();
+            if (exception instanceof DuplicateKeyException)
+            {
+                throw new DuplicateEntityException();
+            }
         }
-    } 
+    }
+    
+    public static class AdvertiserModelList
+    {
+        List<AdvertiserModel> advertiserModels;
+        
+        
+        public List<AdvertiserModel> getAdvertiserModels()
+        {
+            return advertiserModels;
+        }
+        public void setAdvertiserModels(List<AdvertiserModel> advertiserModels)
+        {
+            this.advertiserModels = advertiserModels;
+        }
+    }
+    public static class AdvertiserBeanList
+    {
+        List<AdvertiserBean> advertiserBeans;
+        
+        
+        public List<AdvertiserBean> getAdvertiserBeans()
+        {
+            return advertiserBeans;
+        }
+        public void setAdvertiserBeans(List<AdvertiserBean> advertiserBeans)
+        {
+            this.advertiserBeans = advertiserBeans;
+        }
+    }
 }
