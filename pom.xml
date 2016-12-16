@@ -150,6 +150,12 @@
             <artifactId>modelmapper</artifactId>
             <version>0.7.7</version>
         </dependency>
+        
+        <!-- httpclient: network operation -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
     </dependencies>
     
     

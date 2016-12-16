@@ -13,6 +13,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
@@ -23,7 +24,6 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.exception.UnknownException;
 import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
 import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
 
@@ -41,6 +41,7 @@ public class AdvertiserService
     
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
     {
+        // 将传输对象映射成数据库Model，并设置UUID
         AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(UUID.randomUUID().toString());
         
@@ -50,9 +51,11 @@ public class AdvertiserService
         }
         catch (DuplicateKeyException exception)
         {
+            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
             throw new DuplicateEntityException();
         }
         
+        // 将DAO创建的新对象复制回传输对象中
         BeanUtils.copyProperties(advertiserModel, advertiserBean);
     }
 
@@ -60,6 +63,13 @@ public class AdvertiserService
     @Transactional
     public void deleteAdvertiser(String id) throws Exception
     {
+        // 删除操作要求绑定到PathVariable的资源ID必须非空
+        if (StringUtils.isEmpty(id))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
         if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
         {
@@ -71,9 +81,10 @@ public class AdvertiserService
         
         List<ProjectModel> projects = projectMapper.selectByExample(example);
         
+        // 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
         if (projects != null && !projects.isEmpty())
         {
-            throw new IllegalStateException("广告主还有创建成功的项目，不能删除。");
+            throw new IllegalStateException(PhrasesConstant.ADVERVISER_HAS_PROJECTS);
         }
         else
         {
@@ -81,15 +92,95 @@ public class AdvertiserService
         }
     }
 
-    public AdvertiserBean findAdvertiserById(String id) throws Exception
+    @Transactional
+    public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
-        AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(id);
+     // 更新操作要求绑定到PathVariable的资源ID必须非空、要求绑定到RequestBody中的资源ID必须为空
+        if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
+        {
+            throw new IllegalArgumentException();
+        }
         
-        if (advertiserModel == null)
+        // 操作前先查询一次数据库，判断指定的资源是否存在
+        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
         {
             throw new NotFoundException();
         }
         
+        // 将传输对象映射成数据库Model
+        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        
+        AdvertiserModelExample example = new AdvertiserModelExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andIdEqualTo(id);
+        
+        try
+        {
+            advertiserMapper.updateByExampleSelective(advertiserModel, example);
+            
+            // 将DAO编辑后的新对象复制回传输对象中
+            BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
+        }
+        catch (DuplicateKeyException exception)
+        {
+            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
+            throw new DuplicateEntityException();
+        }
+    }
+
+
+    @Transactional
+    public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
+    {
+        // 更新操作要求绑定到PathVariable的资源ID必须非空、要求绑定到RequestBody中的资源ID必须为空
+        if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        // 操作前先查询一次数据库，判断指定的资源是否存在
+        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        {
+            throw new NotFoundException();
+        }
+        
+        // 将传输对象映射成数据库Model
+        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        advertiserModel.setId(id);
+        
+        try
+        {
+            advertiserMapper.updateByPrimaryKey(advertiserModel);
+            
+            // 将DAO编辑后的新对象复制回传输对象中
+            BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
+        }
+        catch (DuplicateKeyException exception)
+        {
+            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
+            throw new DuplicateEntityException();
+        }
+    }
+
+
+    public AdvertiserBean findAdvertiserById(String id) throws Exception
+    {
+        // 查询操作要求绑定到PathVariable的资源ID必须非空
+        if (StringUtils.isEmpty(id))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(id);
+        
+        if (advertiserModel == null || StringUtils.isEmpty(advertiserModel.getId()))
+        {
+            throw new NotFoundException();
+        }
+        
+        // 将DAO创建的新对象复制回传输对象中
         return MODEL_MAPPER.map(advertiserModel, AdvertiserBean.class);
     }
 
@@ -99,6 +190,7 @@ public class AdvertiserService
         AdvertiserModelExample example = new AdvertiserModelExample();
         Criteria criteria = example.createCriteria();
         
+        // 根据用户名进行过滤（可选）
         if (!StringUtils.isEmpty(name))
         {
             criteria.andNameLike(name);
@@ -113,6 +205,7 @@ public class AdvertiserService
         }
         else
         {
+            // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
             for (AdvertiserModel advertiserModel : advertiserModels)
             {
                 advertiserList.add(MODEL_MAPPER.map(advertiserModel, AdvertiserBean.class));
@@ -120,75 +213,5 @@ public class AdvertiserService
         }
         
         return advertiserList;
-    }
-
-
-    @Transactional
-    public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
-    {
-        if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
-        {
-            throw new IllegalArgumentException();
-        }
-        
-        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
-        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
-        {
-            throw new NotFoundException();
-        }
-        
-        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
-        
-        AdvertiserModelExample example = new AdvertiserModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andIdEqualTo(id);
-        
-        try
-        {
-            int affectedRows = advertiserMapper.updateByExampleSelective(advertiserModel, example);
-            if (affectedRows > -1)
-            {
-                BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
-            }
-            else
-            {
-                throw new UnknownException();
-            }
-        }
-        catch (Exception exception)
-        {
-            if (exception instanceof DuplicateKeyException)
-            {
-                throw new DuplicateEntityException();
-            }
-        }
-    }
-    
-    @Transactional
-    public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
-    {
-        if (StringUtils.isEmpty(id))
-        {
-            throw new IllegalArgumentException();
-        }
-        
-        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
-        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
-        {
-            throw new NotFoundException();
-        }
-        
-        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
-        advertiserModel.setId(id);
-        
-        try
-        {
-            advertiserMapper.updateByPrimaryKey(advertiserModel);
-            BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            throw new DuplicateEntityException();
-        }
     }
 }
