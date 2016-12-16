@@ -75,26 +75,19 @@ public class ResponseUtils
         return null;
     }
     
-    public static String sendReponse(int code, Object o, HttpServletResponse response)
+    public static String sendReponse(int code, Object o, HttpServletResponse response) throws JsonProcessingException
     {
         if (o != null)
         {
             response.setStatus(code);
-            try
-            {
-                ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.setSerializationInclusion(Include.NON_NULL);
-                return objectMapper.writeValueAsString(o);
-            }
-            catch (JsonProcessingException e)
-            {
-                e.printStackTrace();
-                return null;
-            }
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(Include.NON_NULL);
+            return objectMapper.writeValueAsString(o);
         }
         else
         {
-            return "";
+            throw new IllegalArgumentException();
         }
     }
     public static String sendReponse(int code, String val, HttpServletResponse response)
