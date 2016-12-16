@@ -72,6 +72,11 @@ public class RedisUtils
         stringRedisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);
     }
     
+    public void set(String key, Object object)
+    {
+        stringRedisTemplate.opsForValue().set(key, String.valueOf(object));
+    }
+    
     public String get(Object key)
     {
         return stringRedisTemplate.opsForValue().get(key);
