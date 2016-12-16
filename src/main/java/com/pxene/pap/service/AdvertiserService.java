@@ -63,12 +63,6 @@ public class AdvertiserService
     @Transactional
     public void deleteAdvertiser(String id) throws Exception
     {
-        // 删除操作要求绑定到PathVariable的资源ID必须非空
-        if (StringUtils.isEmpty(id))
-        {
-            throw new IllegalArgumentException();
-        }
-        
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
         if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
@@ -95,8 +89,8 @@ public class AdvertiserService
     @Transactional
     public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
-     // 更新操作要求绑定到PathVariable的资源ID必须非空、要求绑定到RequestBody中的资源ID必须为空
-        if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
+        // 更新操作要求绑定到RequestBody中的资源ID必须为空
+        if (!StringUtils.isEmpty(advertiserBean.getId()))
         {
             throw new IllegalArgumentException();
         }
@@ -133,8 +127,8 @@ public class AdvertiserService
     @Transactional
     public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
-        // 更新操作要求绑定到PathVariable的资源ID必须非空、要求绑定到RequestBody中的资源ID必须为空
-        if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
+        // 更新操作要求绑定到RequestBody中的资源ID必须为空
+        if (!StringUtils.isEmpty(advertiserBean.getId()))
         {
             throw new IllegalArgumentException();
         }
@@ -167,12 +161,6 @@ public class AdvertiserService
 
     public AdvertiserBean findAdvertiserById(String id) throws Exception
     {
-        // 查询操作要求绑定到PathVariable的资源ID必须非空
-        if (StringUtils.isEmpty(id))
-        {
-            throw new IllegalArgumentException();
-        }
-        
         AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(id);
         
         if (advertiserModel == null || StringUtils.isEmpty(advertiserModel.getId()))
