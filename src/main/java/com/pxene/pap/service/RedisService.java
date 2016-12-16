@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.GlobalUtil;
+import com.pxene.pap.common.RedisUtils;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
@@ -47,20 +49,6 @@ import com.pxene.pap.repository.mapper.basic.view.ImageSizeTypeModelMapper;
 @Service
 public class RedisService {
 
-	/**
-	 * 检测地址模版
-	 */
-	private static final String MONITOR_TEMPLATES = "var imgdc{index} = new Image();imgdc{index}.src = '{imonitorurl}';window[new Date()] = imgdc{index};";
-	private static final Map<String, Integer[]> TARGET_CODES = new HashMap<String, Integer[]>();// 定向标志位
-    static {
-        TARGET_CODES.put("region", new Integer[]{0x0, 0x1, 0x2, 0x3});
-        TARGET_CODES.put("network", new Integer[]{0x0, 0x4, 0x8, 0xc});
-        TARGET_CODES.put("os", new Integer[]{0x0, 0x10, 0x20, 0x30});
-        TARGET_CODES.put("operator", new Integer[]{0x0, 0x40, 0x80, 0xc0});
-        TARGET_CODES.put("device", new Integer[]{0x0, 0x100, 0x200, 0x300});
-        TARGET_CODES.put("brand", new Integer[]{0x0, 0x400, 0x800, 0xc00});
-    }
-	
 	@Autowired
 	private AdvertiserModelMapper advertiserMapper;
 	
@@ -93,6 +81,9 @@ public class RedisService {
 	
 	@Autowired
 	private AdxModelMapper adxMapper;
+	
+	@Autowired
+	private RedisUtils redisUtils;
 	
 	@Transactional
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
@@ -181,7 +172,7 @@ public class RedisService {
             String monitorcode = "";
             for (int i = 0; i < tempImonitorUrl.length; i++) {
                 imoUrlStr.add(tempImonitorUrl[i]);
-                monitorcode += MONITOR_TEMPLATES.replace("{index}", "" + i).replace("{imonitorurl}", tempImonitorUrl[i]);
+                monitorcode += RedisKeyConstant.MONITOR_TEMPLATES.replace("{index}", "" + i).replace("{imonitorurl}", tempImonitorUrl[i]);
             }
             for (int j = 0; j < tempCmonitorUrl.length; j++) {
                 cmoUrlStr.add(tempCmonitorUrl[j]);
@@ -242,7 +233,7 @@ public class RedisService {
             String monitorcode = "";
             for (int i = 0; i < tempImonitorUrl.length; i++) {
                 imoUrlStr.add(tempImonitorUrl[i]);
-                monitorcode += MONITOR_TEMPLATES.replace("{index}", "" + i).replace("{imonitorurl}", tempImonitorUrl[i]);
+                monitorcode += RedisKeyConstant.MONITOR_TEMPLATES.replace("{index}", "" + i).replace("{imonitorurl}", tempImonitorUrl[i]);
             }
             for (int j = 0; j < tempCmonitorUrl.length; j++) {
                 cmoUrlStr.add(tempCmonitorUrl[j]);
@@ -356,7 +347,7 @@ public class RedisService {
             String monitorcode = "";
             for (int i = 0; i < tempImonitorUrl.length; i++) {
                 imoUrlStr.add(tempImonitorUrl[i]);
-                monitorcode += MONITOR_TEMPLATES.replace("{index}", "" + i).replace("{imonitorurl}", tempImonitorUrl[i]);
+                monitorcode += RedisKeyConstant.MONITOR_TEMPLATES.replace("{index}", "" + i).replace("{imonitorurl}", tempImonitorUrl[i]);
             }
             for (int j = 0; j < tempCmonitorUrl.length; j++) {
                 cmoUrlStr.add(tempCmonitorUrl[j]);
@@ -472,27 +463,27 @@ public class RedisService {
 			JsonArray device = targetStringToJsonArrayWithInt(target.getDevice());
 			JsonArray brand = targetStringToJsonArrayWithInt(target.getBrandId());
 			if (region.size() > 0) {
-				flag = flag | TARGET_CODES.get("region")[1];
+				flag = flag | RedisKeyConstant.TARGET_CODES.get("region")[1];
 				deviceJson.addProperty("regioncode", region.toString());
 			}
 			if (network.size() > 0) {
-				flag = flag | TARGET_CODES.get("network")[1];
+				flag = flag | RedisKeyConstant.TARGET_CODES.get("network")[1];
 				deviceJson.addProperty("connectiontype", network.toString());
 			}
 			if (os.size() > 0) {
-				flag = flag | TARGET_CODES.get("os")[1];
+				flag = flag | RedisKeyConstant.TARGET_CODES.get("os")[1];
 				deviceJson.addProperty("os", os.toString());
 			}
 			if (operator.size() > 0) {
-				flag = flag | TARGET_CODES.get("operator")[1];
+				flag = flag | RedisKeyConstant.TARGET_CODES.get("operator")[1];
 				deviceJson.addProperty("carrier", operator.toString());
 			}
 			if (device.size() > 0) {
-				flag = flag | TARGET_CODES.get("device")[1];
+				flag = flag | RedisKeyConstant.TARGET_CODES.get("device")[1];
 				deviceJson.addProperty("devicetype", device.toString());
 			}
 			if (brand.size() > 0) {
-				flag = flag | TARGET_CODES.get("brand")[1];
+				flag = flag | RedisKeyConstant.TARGET_CODES.get("brand")[1];
 				deviceJson.addProperty("make", brand.toString());
 			}
 			targetJson.addProperty("device", deviceJson.toString());
@@ -501,7 +492,7 @@ public class RedisService {
 			if (appJson != null) {
 				targetJson.addProperty("app", appJson.toString());
 			}
-			targetJson.toString();//写入redis————————————————————
+			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET, targetJson.toString());
 		}
 	}
 	
@@ -581,7 +572,6 @@ public class RedisService {
 			}
 		}
 		mapidJson.toString();
-		//将mapid数组放入redis————————————————————————
 	}
 	
 	/**

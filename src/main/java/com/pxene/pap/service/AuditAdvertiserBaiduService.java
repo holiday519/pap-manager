@@ -2,9 +2,7 @@ package com.pxene.pap.service;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -29,27 +27,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
+import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.repository.mapper.basic.AdvertiserAuditModelMapper;
 import com.pxene.pap.repository.mapper.basic.AdxModelMapper;
 
 public class AuditAdvertiserBaiduService {
 	
-    // 百度广告主上传资质接口地址
-    public static final String BAIDU_UPLOAD_QUALIFICATION = "https://api.es.baidu.com/v1/advertiser/uploadQualification";
-    
     @Autowired
     private AdxModelMapper adxMapper;
+    
     @Autowired
     private AdvertiserAuditModelMapper advAuditMapper;
     
-	public Map<String,String> audit(AdvertiserBean bean) throws Exception{
-		AdxModel adxModel = adxMapper.selectByPrimaryKey("8");
-		String aexamineurl = adxModel.getAexamineUrl();//广告主审核
+    /**
+     * 审核和重复审核接口
+     * auditType 传值 ："add","edit";请勿任意传值
+     * @param bean
+     * @param auditType
+     * @return
+     * @throws Exception
+     */
+	public void auditAndEdit(AdvertiserBean bean,String auditType) throws Exception {
+		AdxModel adxModel = adxMapper.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
+		String aexamineurl = adxModel.getAexamineUrl();//广告主审核地址
+		String qexamineurl = adxModel.getQexamineUrl();//资质审核地址
+		String aupdateurl = adxModel.getAupdateUrl();//广告主更新地址
+		String qupdateurl = adxModel.getQupdateUrl();//资质更新地址
     	String privateKey = adxModel.getPrivateKey();//取出adx的私密key
     	Gson gson = new Gson();
     	//将私密key转成json格式
@@ -69,21 +77,40 @@ public class AuditAdvertiserBaiduService {
 		String licenseNO = bean.getLicenseNo();
 		if ((licenseURL == null || "".equals(licenseURL))
 				&& (accountURL == null || "".equals(accountURL))) {
-			throw new Exception();// "baidu广告主提交第三方审核错误：原因：需要上传资质文件"
+			throw new Exception();// "baidu广告主提交第三方审核错误：原因：需要上传资质文件"// ——————————————
 		}
 		if (licenseNO == null || "".equals(licenseNO)) {
-			throw new Exception();// "baidu广告主提交第三方审核错误：原因：资质编号不可为空"
+			throw new Exception();// "baidu广告主提交第三方审核错误：原因：资质编号不可为空"// ——————————————
 		}
 		String advertiserId = bean.getId();
-		//生成一个数字型随机数（数字id）
-		long num = (long)Math.floor((new Random()).nextDouble() * 1000000000D);
 		//将请求参数插入到广告主审核表中
 		AdvertiserAuditModel model = new AdvertiserAuditModel();
 		model.setId(UUID.randomUUID().toString());
 		model.setAdvertiserId(advertiserId);
-		model.setAuditValue(String.valueOf(num));
+		
 		model.setStatus("00");
-		advAuditMapper.insertSelective(model);
+		//生成一个数字型随机数（数字id）
+		long num;
+		//如果auditType是“edit”时，走编辑逻辑；
+		if ("edit".equals(auditType)) {
+			// 重新提交时，如果数据库中已有提交值，那么就直接用，如果没有 就像第一次提交一样，添加到数据库中
+			AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+			ex.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+			List<AdvertiserAuditModel> list = advAuditMapper.selectByExample(ex);
+			if (list == null || list.isEmpty()) {
+				num = (long) Math
+						.floor((new Random()).nextDouble() * 1000000000D);
+				model.setAuditValue(String.valueOf(num));
+				advAuditMapper.insertSelective(model);
+			} else {
+				num = Long.parseLong(list.get(0).getAuditValue());
+			}
+			// 如果auditType值不是“edit”，走添加逻辑
+		} else {
+			num = (long) Math.floor((new Random()).nextDouble() * 1000000000D);
+			model.setAuditValue(String.valueOf(num));
+			advAuditMapper.insertSelective(model);
+		}
 		//request参数——广告主提交第三方审核
 		JsonObject param = new JsonObject();
 		JsonArray request = new JsonArray();
@@ -99,7 +126,13 @@ public class AuditAdvertiserBaiduService {
 		param.addProperty("request", request.toString());
 		param.addProperty("authHeader", authHeader.toString());
 		//发送post请求
-		Map<String, String> map = post(aexamineurl, param.toString());
+		Map<String, String> map; 
+		//如果auditType是“edit”，调用编辑请求；否则调用添加请求
+		if ("edit".equals(auditType)) {
+			map = post(aupdateurl, param.toString());
+		} else {
+			map = post(aexamineurl, param.toString());
+		}
 		//返回结构中取出reslut
 		String result = map.get("result");
 		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
@@ -123,6 +156,7 @@ public class AuditAdvertiserBaiduService {
 		if (accountURL != null && !"".equals(accountURL)) {
 			imgUrls.add(accountURL);
 		}
+		//request参数——资质提交第三方审核
         mainLinceObj.addProperty("type", type);
         mainLinceObj.addProperty("name", bean.getCompany());
         mainLinceObj.addProperty("number", licenseNO);
@@ -134,10 +168,16 @@ public class AuditAdvertiserBaiduService {
         zParam.addProperty("qualifications", qualifications.toString());
         zParam.addProperty("authHeader", authHeader.toString());
         //请求资质审核接口
-        Map<String, String> resultMap = post(BAIDU_UPLOAD_QUALIFICATION, param.toString());
+        Map<String, String> resultMap;
+        //如果auditType是“edit”，调用编辑请求；否则调用添加请求
+        if ("edit".equals(auditType)) {
+        	resultMap = post(qupdateurl, zParam.toString());
+		} else {
+			resultMap = post(qexamineurl, zParam.toString());
+		}
         String zResult = resultMap.get("reslut");
-        JsonObject zJsonMap = gson.fromJson(result, new JsonObject().getClass());
-      //查询状态
+        JsonObject zJsonMap = gson.fromJson(zResult, new JsonObject().getClass());
+        //查询状态
         int zStatus = zJsonMap.get("status").getAsInt();
         //状态 0 表示成功
 		if (0 == zStatus) {
@@ -147,9 +187,96 @@ public class AuditAdvertiserBaiduService {
 				//成功
 			}
 		}
-		return null;
 	}
 	
+	/**
+	 * 同步广告主第三方审核状态
+	 * @param advertiserId
+	 * @throws Exception
+	 */
+	public void synchronize(String advertiserId) throws Exception {
+		AdxModel adxModel = adxMapper.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
+		String aexamineresultUrl = adxModel.getAexamineresultUrl();
+		String privateKey = adxModel.getPrivateKey();//取出adx的私密key
+    	Gson gson = new Gson();
+    	//将私密key转成json格式
+    	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
+		if (json.get("dspId") == null || json.get("token") == null) {
+			throw new Exception();//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+		}
+		String dspId = json.get("dspId").toString();
+		String token = json.get("token").toString();
+		//组成“请求头”
+    	JsonObject authHeader = new JsonObject();
+    	authHeader.addProperty("dspId", dspId);
+    	authHeader.addProperty("token", token);
+    	AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+		ex.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+		List<AdvertiserAuditModel> list = advAuditMapper.selectByExample(ex);
+		AdvertiserAuditModel advAuditModel = list.get(0);
+		long num = Long.parseLong(advAuditModel.getAuditValue());
+		JsonArray adver = new JsonArray();//广告主数字Id数组
+		adver.add(num);
+		JsonObject obj = new JsonObject();//请求参数
+		obj.addProperty("authHeader", authHeader.toString());
+		obj.addProperty("advertiserIds", adver.toString());
+		//发送同步请求
+		Map<String, String> map = post(aexamineresultUrl, obj.toString());
+		//返回结构中取出reslut
+		String result = map.get("result");
+		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
+		//获取状态
+		int status = jsonMap.get("status").getAsInt();
+		//0代表同步成功；如果成功获取同步信息,存入数据库
+		if (0 == status) {
+			JsonObject responseObj = jsonMap.getAsJsonObject("response");
+			//审核状态值
+			int state = responseObj.get("state").getAsInt();
+			//审核错误、失败原因
+			String refuseReason = responseObj.get("refuseReason").getAsString();
+			//审核结构
+			String statu = null;//状态（要存数据库的状态）
+            String message = null;//（错误信息）
+			if (state == 0) {
+				statu = "01";// 审核通过
+			} else if (state == 1) {
+				statu = "00";// 待审核
+			} else if (state == 2) {
+				message = refuseReason;
+				statu = "02";// 审核未通过
+			} else if (state == 3) {
+				if (refuseReason != null) {
+					message = refuseReason;
+				} else {
+					message = "因为资质或信息不全，广告主未发起状态检查";
+				}
+				statu = "02";// 审核未通过
+			}
+			AdvertiserAuditModelExample advAudEx = new AdvertiserAuditModelExample();
+			advAudEx.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE).andAdvertiserIdEqualTo(advertiserId);
+			AdvertiserAuditModel advAudModel = new AdvertiserAuditModel();
+			advAudModel.setStatus(statu);
+			advAudModel.setMessage(message);
+			//更新广告主审核表信息
+			advAuditMapper.updateByExampleSelective(advAudModel, advAudEx);
+		} else {
+		//广告主同步第三方审核状态执行失败;将错误信息存入数据库
+			JsonArray errors = jsonMap.getAsJsonArray("errors");
+			JsonObject error = errors.get(0).getAsJsonObject();
+			String message = error.get("message").getAsString();
+			AdvertiserAuditModelExample advAudEx = new AdvertiserAuditModelExample();
+			advAudEx.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE).andAdvertiserIdEqualTo(advertiserId);
+			AdvertiserAuditModel advAudModel = new AdvertiserAuditModel();
+			advAudModel.setMessage(message);
+			//更新广告主审核表信息
+			advAuditMapper.updateByExampleSelective(advAudModel, advAudEx);
+			// 是否需要抛出异常？抛的话上方插入操作回滚？——————————————
+		}
+	}
+	
+	/**
+	 * 发送请求
+	 */
 	public Map<String, String> post(String url,String param) throws Exception {
 		HttpPost httpost = new HttpPost(url);
 		httpost.setHeader("Content-Type", "application/json;charset=utf-8");

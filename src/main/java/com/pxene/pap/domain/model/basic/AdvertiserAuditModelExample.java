@@ -455,73 +455,73 @@ public class AdvertiserAuditModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andMassageIsNull() {
-            addCriterion("massage is null");
+        public Criteria andMessageIsNull() {
+            addCriterion("message is null");
             return (Criteria) this;
         }
 
-        public Criteria andMassageIsNotNull() {
-            addCriterion("massage is not null");
+        public Criteria andMessageIsNotNull() {
+            addCriterion("message is not null");
             return (Criteria) this;
         }
 
-        public Criteria andMassageEqualTo(String value) {
-            addCriterion("massage =", value, "massage");
+        public Criteria andMessageEqualTo(String value) {
+            addCriterion("message =", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageNotEqualTo(String value) {
-            addCriterion("massage <>", value, "massage");
+        public Criteria andMessageNotEqualTo(String value) {
+            addCriterion("message <>", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageGreaterThan(String value) {
-            addCriterion("massage >", value, "massage");
+        public Criteria andMessageGreaterThan(String value) {
+            addCriterion("message >", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageGreaterThanOrEqualTo(String value) {
-            addCriterion("massage >=", value, "massage");
+        public Criteria andMessageGreaterThanOrEqualTo(String value) {
+            addCriterion("message >=", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageLessThan(String value) {
-            addCriterion("massage <", value, "massage");
+        public Criteria andMessageLessThan(String value) {
+            addCriterion("message <", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageLessThanOrEqualTo(String value) {
-            addCriterion("massage <=", value, "massage");
+        public Criteria andMessageLessThanOrEqualTo(String value) {
+            addCriterion("message <=", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageLike(String value) {
-            addCriterion("massage like", value, "massage");
+        public Criteria andMessageLike(String value) {
+            addCriterion("message like", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageNotLike(String value) {
-            addCriterion("massage not like", value, "massage");
+        public Criteria andMessageNotLike(String value) {
+            addCriterion("message not like", value, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageIn(List<String> values) {
-            addCriterion("massage in", values, "massage");
+        public Criteria andMessageIn(List<String> values) {
+            addCriterion("message in", values, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageNotIn(List<String> values) {
-            addCriterion("massage not in", values, "massage");
+        public Criteria andMessageNotIn(List<String> values) {
+            addCriterion("message not in", values, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageBetween(String value1, String value2) {
-            addCriterion("massage between", value1, value2, "massage");
+        public Criteria andMessageBetween(String value1, String value2) {
+            addCriterion("message between", value1, value2, "message");
             return (Criteria) this;
         }
 
-        public Criteria andMassageNotBetween(String value1, String value2) {
-            addCriterion("massage not between", value1, value2, "massage");
+        public Criteria andMessageNotBetween(String value1, String value2) {
+            addCriterion("message not between", value1, value2, "message");
             return (Criteria) this;
         }
 

@@ -13,7 +13,7 @@ public class CreativeAuditModel {
 
     private String status;
 
-    private String massage;
+    private String message;
 
     private Date createTime;
 
@@ -59,12 +59,12 @@ public class CreativeAuditModel {
         this.status = status == null ? null : status.trim();
     }
 
-    public String getMassage() {
-        return massage;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMassage(String massage) {
-        this.massage = massage == null ? null : massage.trim();
+    public void setMessage(String message) {
+        this.message = message == null ? null : message.trim();
     }
 
     public Date getCreateTime() {
