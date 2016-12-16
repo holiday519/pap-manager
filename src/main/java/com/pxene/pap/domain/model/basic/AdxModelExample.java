@@ -385,73 +385,773 @@ public class AdxModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlIsNull() {
-            addCriterion("audit_url is null");
+        public Criteria andAexamineUrlIsNull() {
+            addCriterion("aexamine_url is null");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlIsNotNull() {
-            addCriterion("audit_url is not null");
+        public Criteria andAexamineUrlIsNotNull() {
+            addCriterion("aexamine_url is not null");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlEqualTo(String value) {
-            addCriterion("audit_url =", value, "auditUrl");
+        public Criteria andAexamineUrlEqualTo(String value) {
+            addCriterion("aexamine_url =", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlNotEqualTo(String value) {
-            addCriterion("audit_url <>", value, "auditUrl");
+        public Criteria andAexamineUrlNotEqualTo(String value) {
+            addCriterion("aexamine_url <>", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlGreaterThan(String value) {
-            addCriterion("audit_url >", value, "auditUrl");
+        public Criteria andAexamineUrlGreaterThan(String value) {
+            addCriterion("aexamine_url >", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("audit_url >=", value, "auditUrl");
+        public Criteria andAexamineUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("aexamine_url >=", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlLessThan(String value) {
-            addCriterion("audit_url <", value, "auditUrl");
+        public Criteria andAexamineUrlLessThan(String value) {
+            addCriterion("aexamine_url <", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlLessThanOrEqualTo(String value) {
-            addCriterion("audit_url <=", value, "auditUrl");
+        public Criteria andAexamineUrlLessThanOrEqualTo(String value) {
+            addCriterion("aexamine_url <=", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlLike(String value) {
-            addCriterion("audit_url like", value, "auditUrl");
+        public Criteria andAexamineUrlLike(String value) {
+            addCriterion("aexamine_url like", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlNotLike(String value) {
-            addCriterion("audit_url not like", value, "auditUrl");
+        public Criteria andAexamineUrlNotLike(String value) {
+            addCriterion("aexamine_url not like", value, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlIn(List<String> values) {
-            addCriterion("audit_url in", values, "auditUrl");
+        public Criteria andAexamineUrlIn(List<String> values) {
+            addCriterion("aexamine_url in", values, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlNotIn(List<String> values) {
-            addCriterion("audit_url not in", values, "auditUrl");
+        public Criteria andAexamineUrlNotIn(List<String> values) {
+            addCriterion("aexamine_url not in", values, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlBetween(String value1, String value2) {
-            addCriterion("audit_url between", value1, value2, "auditUrl");
+        public Criteria andAexamineUrlBetween(String value1, String value2) {
+            addCriterion("aexamine_url between", value1, value2, "aexamineUrl");
             return (Criteria) this;
         }
 
-        public Criteria andAuditUrlNotBetween(String value1, String value2) {
-            addCriterion("audit_url not between", value1, value2, "auditUrl");
+        public Criteria andAexamineUrlNotBetween(String value1, String value2) {
+            addCriterion("aexamine_url not between", value1, value2, "aexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlIsNull() {
+            addCriterion("aexamineresult_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlIsNotNull() {
+            addCriterion("aexamineresult_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlEqualTo(String value) {
+            addCriterion("aexamineresult_url =", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlNotEqualTo(String value) {
+            addCriterion("aexamineresult_url <>", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlGreaterThan(String value) {
+            addCriterion("aexamineresult_url >", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("aexamineresult_url >=", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlLessThan(String value) {
+            addCriterion("aexamineresult_url <", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlLessThanOrEqualTo(String value) {
+            addCriterion("aexamineresult_url <=", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlLike(String value) {
+            addCriterion("aexamineresult_url like", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlNotLike(String value) {
+            addCriterion("aexamineresult_url not like", value, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlIn(List<String> values) {
+            addCriterion("aexamineresult_url in", values, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlNotIn(List<String> values) {
+            addCriterion("aexamineresult_url not in", values, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlBetween(String value1, String value2) {
+            addCriterion("aexamineresult_url between", value1, value2, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineresultUrlNotBetween(String value1, String value2) {
+            addCriterion("aexamineresult_url not between", value1, value2, "aexamineresultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlIsNull() {
+            addCriterion("aupdate_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlIsNotNull() {
+            addCriterion("aupdate_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlEqualTo(String value) {
+            addCriterion("aupdate_url =", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlNotEqualTo(String value) {
+            addCriterion("aupdate_url <>", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlGreaterThan(String value) {
+            addCriterion("aupdate_url >", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("aupdate_url >=", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlLessThan(String value) {
+            addCriterion("aupdate_url <", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlLessThanOrEqualTo(String value) {
+            addCriterion("aupdate_url <=", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlLike(String value) {
+            addCriterion("aupdate_url like", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlNotLike(String value) {
+            addCriterion("aupdate_url not like", value, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlIn(List<String> values) {
+            addCriterion("aupdate_url in", values, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlNotIn(List<String> values) {
+            addCriterion("aupdate_url not in", values, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlBetween(String value1, String value2) {
+            addCriterion("aupdate_url between", value1, value2, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAupdateUrlNotBetween(String value1, String value2) {
+            addCriterion("aupdate_url not between", value1, value2, "aupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlIsNull() {
+            addCriterion("qexamine_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlIsNotNull() {
+            addCriterion("qexamine_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlEqualTo(String value) {
+            addCriterion("qexamine_url =", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlNotEqualTo(String value) {
+            addCriterion("qexamine_url <>", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlGreaterThan(String value) {
+            addCriterion("qexamine_url >", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("qexamine_url >=", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlLessThan(String value) {
+            addCriterion("qexamine_url <", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlLessThanOrEqualTo(String value) {
+            addCriterion("qexamine_url <=", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlLike(String value) {
+            addCriterion("qexamine_url like", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlNotLike(String value) {
+            addCriterion("qexamine_url not like", value, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlIn(List<String> values) {
+            addCriterion("qexamine_url in", values, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlNotIn(List<String> values) {
+            addCriterion("qexamine_url not in", values, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlBetween(String value1, String value2) {
+            addCriterion("qexamine_url between", value1, value2, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQexamineUrlNotBetween(String value1, String value2) {
+            addCriterion("qexamine_url not between", value1, value2, "qexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlIsNull() {
+            addCriterion("qupdate_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlIsNotNull() {
+            addCriterion("qupdate_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlEqualTo(String value) {
+            addCriterion("qupdate_url =", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlNotEqualTo(String value) {
+            addCriterion("qupdate_url <>", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlGreaterThan(String value) {
+            addCriterion("qupdate_url >", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("qupdate_url >=", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlLessThan(String value) {
+            addCriterion("qupdate_url <", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlLessThanOrEqualTo(String value) {
+            addCriterion("qupdate_url <=", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlLike(String value) {
+            addCriterion("qupdate_url like", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlNotLike(String value) {
+            addCriterion("qupdate_url not like", value, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlIn(List<String> values) {
+            addCriterion("qupdate_url in", values, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlNotIn(List<String> values) {
+            addCriterion("qupdate_url not in", values, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlBetween(String value1, String value2) {
+            addCriterion("qupdate_url between", value1, value2, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andQupdateUrlNotBetween(String value1, String value2) {
+            addCriterion("qupdate_url not between", value1, value2, "qupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlIsNull() {
+            addCriterion("cexamine_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlIsNotNull() {
+            addCriterion("cexamine_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlEqualTo(String value) {
+            addCriterion("cexamine_url =", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlNotEqualTo(String value) {
+            addCriterion("cexamine_url <>", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlGreaterThan(String value) {
+            addCriterion("cexamine_url >", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("cexamine_url >=", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlLessThan(String value) {
+            addCriterion("cexamine_url <", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlLessThanOrEqualTo(String value) {
+            addCriterion("cexamine_url <=", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlLike(String value) {
+            addCriterion("cexamine_url like", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlNotLike(String value) {
+            addCriterion("cexamine_url not like", value, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlIn(List<String> values) {
+            addCriterion("cexamine_url in", values, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlNotIn(List<String> values) {
+            addCriterion("cexamine_url not in", values, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlBetween(String value1, String value2) {
+            addCriterion("cexamine_url between", value1, value2, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineUrlNotBetween(String value1, String value2) {
+            addCriterion("cexamine_url not between", value1, value2, "cexamineUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlIsNull() {
+            addCriterion("cexamine_result_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlIsNotNull() {
+            addCriterion("cexamine_result_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlEqualTo(String value) {
+            addCriterion("cexamine_result_url =", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlNotEqualTo(String value) {
+            addCriterion("cexamine_result_url <>", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlGreaterThan(String value) {
+            addCriterion("cexamine_result_url >", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("cexamine_result_url >=", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlLessThan(String value) {
+            addCriterion("cexamine_result_url <", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlLessThanOrEqualTo(String value) {
+            addCriterion("cexamine_result_url <=", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlLike(String value) {
+            addCriterion("cexamine_result_url like", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlNotLike(String value) {
+            addCriterion("cexamine_result_url not like", value, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlIn(List<String> values) {
+            addCriterion("cexamine_result_url in", values, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlNotIn(List<String> values) {
+            addCriterion("cexamine_result_url not in", values, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlBetween(String value1, String value2) {
+            addCriterion("cexamine_result_url between", value1, value2, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineResultUrlNotBetween(String value1, String value2) {
+            addCriterion("cexamine_result_url not between", value1, value2, "cexamineResultUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlIsNull() {
+            addCriterion("cupdate_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlIsNotNull() {
+            addCriterion("cupdate_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlEqualTo(String value) {
+            addCriterion("cupdate_url =", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlNotEqualTo(String value) {
+            addCriterion("cupdate_url <>", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlGreaterThan(String value) {
+            addCriterion("cupdate_url >", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("cupdate_url >=", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlLessThan(String value) {
+            addCriterion("cupdate_url <", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlLessThanOrEqualTo(String value) {
+            addCriterion("cupdate_url <=", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlLike(String value) {
+            addCriterion("cupdate_url like", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlNotLike(String value) {
+            addCriterion("cupdate_url not like", value, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlIn(List<String> values) {
+            addCriterion("cupdate_url in", values, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlNotIn(List<String> values) {
+            addCriterion("cupdate_url not in", values, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlBetween(String value1, String value2) {
+            addCriterion("cupdate_url between", value1, value2, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andCupdateUrlNotBetween(String value1, String value2) {
+            addCriterion("cupdate_url not between", value1, value2, "cupdateUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagIsNull() {
+            addCriterion("aexamine_flag is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagIsNotNull() {
+            addCriterion("aexamine_flag is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagEqualTo(String value) {
+            addCriterion("aexamine_flag =", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagNotEqualTo(String value) {
+            addCriterion("aexamine_flag <>", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagGreaterThan(String value) {
+            addCriterion("aexamine_flag >", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagGreaterThanOrEqualTo(String value) {
+            addCriterion("aexamine_flag >=", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagLessThan(String value) {
+            addCriterion("aexamine_flag <", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagLessThanOrEqualTo(String value) {
+            addCriterion("aexamine_flag <=", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagLike(String value) {
+            addCriterion("aexamine_flag like", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagNotLike(String value) {
+            addCriterion("aexamine_flag not like", value, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagIn(List<String> values) {
+            addCriterion("aexamine_flag in", values, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagNotIn(List<String> values) {
+            addCriterion("aexamine_flag not in", values, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagBetween(String value1, String value2) {
+            addCriterion("aexamine_flag between", value1, value2, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andAexamineFlagNotBetween(String value1, String value2) {
+            addCriterion("aexamine_flag not between", value1, value2, "aexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagIsNull() {
+            addCriterion("cexamine_flag is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagIsNotNull() {
+            addCriterion("cexamine_flag is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagEqualTo(String value) {
+            addCriterion("cexamine_flag =", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagNotEqualTo(String value) {
+            addCriterion("cexamine_flag <>", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagGreaterThan(String value) {
+            addCriterion("cexamine_flag >", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagGreaterThanOrEqualTo(String value) {
+            addCriterion("cexamine_flag >=", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagLessThan(String value) {
+            addCriterion("cexamine_flag <", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagLessThanOrEqualTo(String value) {
+            addCriterion("cexamine_flag <=", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagLike(String value) {
+            addCriterion("cexamine_flag like", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagNotLike(String value) {
+            addCriterion("cexamine_flag not like", value, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagIn(List<String> values) {
+            addCriterion("cexamine_flag in", values, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagNotIn(List<String> values) {
+            addCriterion("cexamine_flag not in", values, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagBetween(String value1, String value2) {
+            addCriterion("cexamine_flag between", value1, value2, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andCexamineFlagNotBetween(String value1, String value2) {
+            addCriterion("cexamine_flag not between", value1, value2, "cexamineFlag");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyIsNull() {
+            addCriterion("private_key is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyIsNotNull() {
+            addCriterion("private_key is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyEqualTo(String value) {
+            addCriterion("private_key =", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyNotEqualTo(String value) {
+            addCriterion("private_key <>", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyGreaterThan(String value) {
+            addCriterion("private_key >", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyGreaterThanOrEqualTo(String value) {
+            addCriterion("private_key >=", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyLessThan(String value) {
+            addCriterion("private_key <", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyLessThanOrEqualTo(String value) {
+            addCriterion("private_key <=", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyLike(String value) {
+            addCriterion("private_key like", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyNotLike(String value) {
+            addCriterion("private_key not like", value, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyIn(List<String> values) {
+            addCriterion("private_key in", values, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyNotIn(List<String> values) {
+            addCriterion("private_key not in", values, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyBetween(String value1, String value2) {
+            addCriterion("private_key between", value1, value2, "privateKey");
+            return (Criteria) this;
+        }
+
+        public Criteria andPrivateKeyNotBetween(String value1, String value2) {
+            addCriterion("private_key not between", value1, value2, "privateKey");
             return (Criteria) this;
         }
 

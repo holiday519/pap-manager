@@ -6,7 +6,17 @@
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="impression_url" property="impressionUrl" jdbcType="VARCHAR" />
     <result column="click_url" property="clickUrl" jdbcType="VARCHAR" />
-    <result column="audit_url" property="auditUrl" jdbcType="VARCHAR" />
+    <result column="aexamine_url" property="aexamineUrl" jdbcType="VARCHAR" />
+    <result column="aexamineresult_url" property="aexamineresultUrl" jdbcType="VARCHAR" />
+    <result column="aupdate_url" property="aupdateUrl" jdbcType="VARCHAR" />
+    <result column="qexamine_url" property="qexamineUrl" jdbcType="VARCHAR" />
+    <result column="qupdate_url" property="qupdateUrl" jdbcType="VARCHAR" />
+    <result column="cexamine_url" property="cexamineUrl" jdbcType="VARCHAR" />
+    <result column="cexamine_result_url" property="cexamineResultUrl" jdbcType="VARCHAR" />
+    <result column="cupdate_url" property="cupdateUrl" jdbcType="VARCHAR" />
+    <result column="aexamine_flag" property="aexamineFlag" jdbcType="VARCHAR" />
+    <result column="cexamine_flag" property="cexamineFlag" jdbcType="VARCHAR" />
+    <result column="private_key" property="privateKey" jdbcType="VARCHAR" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
@@ -70,7 +80,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, name, impression_url, click_url, audit_url, remark, create_time, update_time
+    id, name, impression_url, click_url, aexamine_url, aexamineresult_url, aupdate_url, 
+    qexamine_url, qupdate_url, cexamine_url, cexamine_result_url, cupdate_url, aexamine_flag, 
+    cexamine_flag, private_key, remark, create_time, update_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" >
     select
@@ -105,11 +117,19 @@
   </delete>
   <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AdxModel" >
     insert into pap_t_adx (id, name, impression_url, 
-      click_url, audit_url, remark, 
-      create_time, update_time)
+      click_url, aexamine_url, aexamineresult_url, 
+      aupdate_url, qexamine_url, qupdate_url, 
+      cexamine_url, cexamine_result_url, cupdate_url, 
+      aexamine_flag, cexamine_flag, private_key, 
+      remark, create_time, update_time
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{impressionUrl,jdbcType=VARCHAR}, 
-      #{clickUrl,jdbcType=VARCHAR}, #{auditUrl,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      #{clickUrl,jdbcType=VARCHAR}, #{aexamineUrl,jdbcType=VARCHAR}, #{aexamineresultUrl,jdbcType=VARCHAR}, 
+      #{aupdateUrl,jdbcType=VARCHAR}, #{qexamineUrl,jdbcType=VARCHAR}, #{qupdateUrl,jdbcType=VARCHAR}, 
+      #{cexamineUrl,jdbcType=VARCHAR}, #{cexamineResultUrl,jdbcType=VARCHAR}, #{cupdateUrl,jdbcType=VARCHAR}, 
+      #{aexamineFlag,jdbcType=VARCHAR}, #{cexamineFlag,jdbcType=VARCHAR}, #{privateKey,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel" >
     insert into pap_t_adx
@@ -126,8 +146,38 @@
       <if test="clickUrl != null" >
         click_url,
       </if>
-      <if test="auditUrl != null" >
-        audit_url,
+      <if test="aexamineUrl != null" >
+        aexamine_url,
+      </if>
+      <if test="aexamineresultUrl != null" >
+        aexamineresult_url,
+      </if>
+      <if test="aupdateUrl != null" >
+        aupdate_url,
+      </if>
+      <if test="qexamineUrl != null" >
+        qexamine_url,
+      </if>
+      <if test="qupdateUrl != null" >
+        qupdate_url,
+      </if>
+      <if test="cexamineUrl != null" >
+        cexamine_url,
+      </if>
+      <if test="cexamineResultUrl != null" >
+        cexamine_result_url,
+      </if>
+      <if test="cupdateUrl != null" >
+        cupdate_url,
+      </if>
+      <if test="aexamineFlag != null" >
+        aexamine_flag,
+      </if>
+      <if test="cexamineFlag != null" >
+        cexamine_flag,
+      </if>
+      <if test="privateKey != null" >
+        private_key,
       </if>
       <if test="remark != null" >
         remark,
@@ -152,8 +202,38 @@
       <if test="clickUrl != null" >
         #{clickUrl,jdbcType=VARCHAR},
       </if>
-      <if test="auditUrl != null" >
-        #{auditUrl,jdbcType=VARCHAR},
+      <if test="aexamineUrl != null" >
+        #{aexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineresultUrl != null" >
+        #{aexamineresultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aupdateUrl != null" >
+        #{aupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qexamineUrl != null" >
+        #{qexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qupdateUrl != null" >
+        #{qupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineUrl != null" >
+        #{cexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineResultUrl != null" >
+        #{cexamineResultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cupdateUrl != null" >
+        #{cupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineFlag != null" >
+        #{aexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineFlag != null" >
+        #{cexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="privateKey != null" >
+        #{privateKey,jdbcType=VARCHAR},
       </if>
       <if test="remark != null" >
         #{remark,jdbcType=VARCHAR},
@@ -187,8 +267,38 @@
       <if test="record.clickUrl != null" >
         click_url = #{record.clickUrl,jdbcType=VARCHAR},
       </if>
-      <if test="record.auditUrl != null" >
-        audit_url = #{record.auditUrl,jdbcType=VARCHAR},
+      <if test="record.aexamineUrl != null" >
+        aexamine_url = #{record.aexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aexamineresultUrl != null" >
+        aexamineresult_url = #{record.aexamineresultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aupdateUrl != null" >
+        aupdate_url = #{record.aupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qexamineUrl != null" >
+        qexamine_url = #{record.qexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qupdateUrl != null" >
+        qupdate_url = #{record.qupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cexamineUrl != null" >
+        cexamine_url = #{record.cexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cexamineResultUrl != null" >
+        cexamine_result_url = #{record.cexamineResultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cupdateUrl != null" >
+        cupdate_url = #{record.cupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aexamineFlag != null" >
+        aexamine_flag = #{record.aexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cexamineFlag != null" >
+        cexamine_flag = #{record.cexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.privateKey != null" >
+        private_key = #{record.privateKey,jdbcType=VARCHAR},
       </if>
       <if test="record.remark != null" >
         remark = #{record.remark,jdbcType=VARCHAR},
@@ -210,7 +320,17 @@
       name = #{record.name,jdbcType=VARCHAR},
       impression_url = #{record.impressionUrl,jdbcType=VARCHAR},
       click_url = #{record.clickUrl,jdbcType=VARCHAR},
-      audit_url = #{record.auditUrl,jdbcType=VARCHAR},
+      aexamine_url = #{record.aexamineUrl,jdbcType=VARCHAR},
+      aexamineresult_url = #{record.aexamineresultUrl,jdbcType=VARCHAR},
+      aupdate_url = #{record.aupdateUrl,jdbcType=VARCHAR},
+      qexamine_url = #{record.qexamineUrl,jdbcType=VARCHAR},
+      qupdate_url = #{record.qupdateUrl,jdbcType=VARCHAR},
+      cexamine_url = #{record.cexamineUrl,jdbcType=VARCHAR},
+      cexamine_result_url = #{record.cexamineResultUrl,jdbcType=VARCHAR},
+      cupdate_url = #{record.cupdateUrl,jdbcType=VARCHAR},
+      aexamine_flag = #{record.aexamineFlag,jdbcType=VARCHAR},
+      cexamine_flag = #{record.cexamineFlag,jdbcType=VARCHAR},
+      private_key = #{record.privateKey,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
@@ -230,8 +350,38 @@
       <if test="clickUrl != null" >
         click_url = #{clickUrl,jdbcType=VARCHAR},
       </if>
-      <if test="auditUrl != null" >
-        audit_url = #{auditUrl,jdbcType=VARCHAR},
+      <if test="aexamineUrl != null" >
+        aexamine_url = #{aexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineresultUrl != null" >
+        aexamineresult_url = #{aexamineresultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aupdateUrl != null" >
+        aupdate_url = #{aupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qexamineUrl != null" >
+        qexamine_url = #{qexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qupdateUrl != null" >
+        qupdate_url = #{qupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineUrl != null" >
+        cexamine_url = #{cexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineResultUrl != null" >
+        cexamine_result_url = #{cexamineResultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cupdateUrl != null" >
+        cupdate_url = #{cupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineFlag != null" >
+        aexamine_flag = #{aexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineFlag != null" >
+        cexamine_flag = #{cexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="privateKey != null" >
+        private_key = #{privateKey,jdbcType=VARCHAR},
       </if>
       <if test="remark != null" >
         remark = #{remark,jdbcType=VARCHAR},
@@ -250,7 +400,17 @@
     set name = #{name,jdbcType=VARCHAR},
       impression_url = #{impressionUrl,jdbcType=VARCHAR},
       click_url = #{clickUrl,jdbcType=VARCHAR},
-      audit_url = #{auditUrl,jdbcType=VARCHAR},
+      aexamine_url = #{aexamineUrl,jdbcType=VARCHAR},
+      aexamineresult_url = #{aexamineresultUrl,jdbcType=VARCHAR},
+      aupdate_url = #{aupdateUrl,jdbcType=VARCHAR},
+      qexamine_url = #{qexamineUrl,jdbcType=VARCHAR},
+      qupdate_url = #{qupdateUrl,jdbcType=VARCHAR},
+      cexamine_url = #{cexamineUrl,jdbcType=VARCHAR},
+      cexamine_result_url = #{cexamineResultUrl,jdbcType=VARCHAR},
+      cupdate_url = #{cupdateUrl,jdbcType=VARCHAR},
+      aexamine_flag = #{aexamineFlag,jdbcType=VARCHAR},
+      cexamine_flag = #{cexamineFlag,jdbcType=VARCHAR},
+      private_key = #{privateKey,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}

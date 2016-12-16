@@ -11,7 +11,27 @@ public class AdxModel {
 
     private String clickUrl;
 
-    private String auditUrl;
+    private String aexamineUrl;
+
+    private String aexamineresultUrl;
+
+    private String aupdateUrl;
+
+    private String qexamineUrl;
+
+    private String qupdateUrl;
+
+    private String cexamineUrl;
+
+    private String cexamineResultUrl;
+
+    private String cupdateUrl;
+
+    private String aexamineFlag;
+
+    private String cexamineFlag;
+
+    private String privateKey;
 
     private String remark;
 
@@ -51,12 +71,92 @@ public class AdxModel {
         this.clickUrl = clickUrl == null ? null : clickUrl.trim();
     }
 
-    public String getAuditUrl() {
-        return auditUrl;
+    public String getAexamineUrl() {
+        return aexamineUrl;
     }
 
-    public void setAuditUrl(String auditUrl) {
-        this.auditUrl = auditUrl == null ? null : auditUrl.trim();
+    public void setAexamineUrl(String aexamineUrl) {
+        this.aexamineUrl = aexamineUrl == null ? null : aexamineUrl.trim();
+    }
+
+    public String getAexamineresultUrl() {
+        return aexamineresultUrl;
+    }
+
+    public void setAexamineresultUrl(String aexamineresultUrl) {
+        this.aexamineresultUrl = aexamineresultUrl == null ? null : aexamineresultUrl.trim();
+    }
+
+    public String getAupdateUrl() {
+        return aupdateUrl;
+    }
+
+    public void setAupdateUrl(String aupdateUrl) {
+        this.aupdateUrl = aupdateUrl == null ? null : aupdateUrl.trim();
+    }
+
+    public String getQexamineUrl() {
+        return qexamineUrl;
+    }
+
+    public void setQexamineUrl(String qexamineUrl) {
+        this.qexamineUrl = qexamineUrl == null ? null : qexamineUrl.trim();
+    }
+
+    public String getQupdateUrl() {
+        return qupdateUrl;
+    }
+
+    public void setQupdateUrl(String qupdateUrl) {
+        this.qupdateUrl = qupdateUrl == null ? null : qupdateUrl.trim();
+    }
+
+    public String getCexamineUrl() {
+        return cexamineUrl;
+    }
+
+    public void setCexamineUrl(String cexamineUrl) {
+        this.cexamineUrl = cexamineUrl == null ? null : cexamineUrl.trim();
+    }
+
+    public String getCexamineResultUrl() {
+        return cexamineResultUrl;
+    }
+
+    public void setCexamineResultUrl(String cexamineResultUrl) {
+        this.cexamineResultUrl = cexamineResultUrl == null ? null : cexamineResultUrl.trim();
+    }
+
+    public String getCupdateUrl() {
+        return cupdateUrl;
+    }
+
+    public void setCupdateUrl(String cupdateUrl) {
+        this.cupdateUrl = cupdateUrl == null ? null : cupdateUrl.trim();
+    }
+
+    public String getAexamineFlag() {
+        return aexamineFlag;
+    }
+
+    public void setAexamineFlag(String aexamineFlag) {
+        this.aexamineFlag = aexamineFlag == null ? null : aexamineFlag.trim();
+    }
+
+    public String getCexamineFlag() {
+        return cexamineFlag;
+    }
+
+    public void setCexamineFlag(String cexamineFlag) {
+        this.cexamineFlag = cexamineFlag == null ? null : cexamineFlag.trim();
+    }
+
+    public String getPrivateKey() {
+        return privateKey;
+    }
+
+    public void setPrivateKey(String privateKey) {
+        this.privateKey = privateKey == null ? null : privateKey.trim();
     }
 
     public String getRemark() {
