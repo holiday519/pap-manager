@@ -67,6 +67,7 @@ public class JwtUtils
         accessToken.setIssuedAt(nowMillis);
         accessToken.setTokenType("Bearer");
         accessToken.setUsername(username);
+        accessToken.setUserid(userid);
         return accessToken;
     }
 

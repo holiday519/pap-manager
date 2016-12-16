@@ -15,6 +15,7 @@ import com.pxene.pap.common.RedisUtils;
 import com.pxene.pap.domain.beans.AccessToken;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.domain.model.basic.UserModelExample;
+import com.pxene.pap.exception.DeleteErrorException;
 import com.pxene.pap.repository.mapper.basic.UserModelMapper;
 
 @Service
@@ -106,5 +107,17 @@ public class TokenService
             e.printStackTrace();
         }
         return accessToken;
+    }
+
+    public void deleteToken(String userid)
+    {
+        try
+        {
+            redisUtils.delete(userid);
+        }
+        catch (Exception e)
+        {
+            throw new DeleteErrorException();
+        }
     }
 }

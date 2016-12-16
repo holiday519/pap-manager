@@ -4,13 +4,12 @@ import javax.security.auth.message.AuthException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,8 +28,6 @@ import com.pxene.pap.service.TokenService;
 @Controller
 public class TokenController
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TokenController.class);
-    
     @Autowired
     private TokenService tokenService;
     
@@ -47,8 +44,6 @@ public class TokenController
     @ResponseBody
     public String authenticate(@RequestBody UserModel user, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        LOGGER.debug("Received body params User {}.", user);
-        
         String username = user.getName();
         String password = user.getPassword();
         
@@ -83,5 +78,14 @@ public class TokenController
             // 密码不正确
             throw new PasswordIncorrectAuthException();
         }
+    }
+    
+    @RequestMapping(value = "/tokens/{userid}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteToken(@PathVariable(required = true) String userid, HttpServletResponse response) throws Exception
+    {
+        tokenService.deleteToken(userid);
+        response.setStatus(HttpStatusCode.NO_CONTENT);
+        return;
     }
 }

@@ -19,13 +19,11 @@ import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample.Criteria;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
-import com.pxene.pap.exception.BadRequestException;
-import com.pxene.pap.exception.DeleteErrorException;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.exception.UpdateErrorException;
+import com.pxene.pap.exception.UnknownException;
 import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
 import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
 
@@ -41,25 +39,18 @@ public class AdvertiserService
     private ProjectModelMapper projectMapper;
     
     
-    public void saveAdvertiser(AdvertiserBean advertiserBean)
+    public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
     {
         AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(UUID.randomUUID().toString());
         
         try
         {
-            int affectedRows = advertiserMapper.insertSelective(advertiserModel);
-            if (affectedRows <= 0)
-            {
-                throw new BadRequestException();
-            }
+            advertiserMapper.insertSelective(advertiserModel);
         }
-        catch (Exception exception)
+        catch (DuplicateKeyException exception)
         {
-            if (exception instanceof DuplicateKeyException)
-            {
-                throw new DuplicateEntityException();
-            }
+            throw new DuplicateEntityException();
         }
         
         BeanUtils.copyProperties(advertiserModel, advertiserBean);
@@ -69,6 +60,12 @@ public class AdvertiserService
     @Transactional
     public void deleteAdvertiser(String id) throws Exception
     {
+        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        {
+            throw new NotFoundException();
+        }
+        
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andAdvertiserIdEqualTo(id);
         
@@ -80,11 +77,7 @@ public class AdvertiserService
         }
         else
         {
-            int affectedRows = advertiserMapper.deleteByPrimaryKey(id);
-            if (affectedRows <= 0)
-            {
-                throw new DeleteErrorException();
-            }
+            advertiserMapper.deleteByPrimaryKey(id);
         }
     }
 
@@ -130,16 +123,18 @@ public class AdvertiserService
     }
 
 
-    /**
-     * @param id
-     * @param advertiserBean
-     * @throws Exception
-     */
+    @Transactional
     public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
         if (StringUtils.isEmpty(id) || !StringUtils.isEmpty(advertiserBean.getId()))
         {
             throw new IllegalArgumentException();
+        }
+        
+        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        {
+            throw new NotFoundException();
         }
         
         AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
@@ -151,13 +146,13 @@ public class AdvertiserService
         try
         {
             int affectedRows = advertiserMapper.updateByExampleSelective(advertiserModel, example);
-            if (affectedRows > 0)
+            if (affectedRows > -1)
             {
                 BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
             }
             else
             {
-                throw new UpdateErrorException();
+                throw new UnknownException();
             }
         }
         catch (Exception exception)
@@ -169,6 +164,7 @@ public class AdvertiserService
         }
     }
     
+    @Transactional
     public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
         if (StringUtils.isEmpty(id))
@@ -176,56 +172,23 @@ public class AdvertiserService
             throw new IllegalArgumentException();
         }
         
+        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        {
+            throw new NotFoundException();
+        }
+        
         AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(id);
         
         try
         {
-            int affectedRows = advertiserMapper.updateByPrimaryKey(advertiserModel);
-            if (affectedRows > 0)
-            {
-                BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
-            }
-            else
-            {
-                throw new UpdateErrorException();
-            }
+            advertiserMapper.updateByPrimaryKey(advertiserModel);
+            BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
         }
-        catch (Exception exception)
+        catch (DuplicateKeyException exception)
         {
-            if (exception instanceof DuplicateKeyException)
-            {
-                throw new DuplicateEntityException();
-            }
-        }
-    }
-    
-    public static class AdvertiserModelList
-    {
-        List<AdvertiserModel> advertiserModels;
-        
-        
-        public List<AdvertiserModel> getAdvertiserModels()
-        {
-            return advertiserModels;
-        }
-        public void setAdvertiserModels(List<AdvertiserModel> advertiserModels)
-        {
-            this.advertiserModels = advertiserModels;
-        }
-    }
-    public static class AdvertiserBeanList
-    {
-        List<AdvertiserBean> advertiserBeans;
-        
-        
-        public List<AdvertiserBean> getAdvertiserBeans()
-        {
-            return advertiserBeans;
-        }
-        public void setAdvertiserBeans(List<AdvertiserBean> advertiserBeans)
-        {
-            this.advertiserBeans = advertiserBeans;
+            throw new DuplicateEntityException();
         }
     }
 }
