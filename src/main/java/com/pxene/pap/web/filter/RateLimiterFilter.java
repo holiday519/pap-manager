@@ -24,7 +24,6 @@ import org.springframework.util.StringUtils;
 
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
-import com.pxene.pap.repository.TokenDao;
 
 
 /**
@@ -33,7 +32,7 @@ import com.pxene.pap.repository.TokenDao;
  */
 public class RateLimiterFilter implements Filter
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TokenDao.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimiterFilter.class);
     
     private RateLimiter limiter = null;
     
