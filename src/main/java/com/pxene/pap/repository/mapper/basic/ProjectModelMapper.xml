@@ -6,8 +6,10 @@
     <result column="advertiser_id" property="advertiserId" jdbcType="VARCHAR" />
     <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="total_budget" property="totalBudget" jdbcType="INTEGER" />
-    <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="kpi_id" property="kpiId" jdbcType="VARCHAR" />
+    <result column="value" property="value" jdbcType="INTEGER" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
   </resultMap>
@@ -70,7 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, advertiser_id, name, total_budget, remark, status, create_time, update_time
+    id, advertiser_id, name, total_budget, status, kpi_id, value, remark, create_time, 
+    update_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.ProjectModelExample" >
     select
@@ -105,11 +108,13 @@
   </delete>
   <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.ProjectModel" >
     insert into pap_t_project (id, advertiser_id, name, 
-      total_budget, remark, status, 
-      create_time, update_time)
+      total_budget, status, kpi_id, 
+      value, remark, create_time, 
+      update_time)
     values (#{id,jdbcType=VARCHAR}, #{advertiserId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{totalBudget,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      #{totalBudget,jdbcType=INTEGER}, #{status,jdbcType=VARCHAR}, #{kpiId,jdbcType=VARCHAR}, 
+      #{value,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.ProjectModel" >
     insert into pap_t_project
@@ -126,11 +131,17 @@
       <if test="totalBudget != null" >
         total_budget,
       </if>
-      <if test="remark != null" >
-        remark,
-      </if>
       <if test="status != null" >
         status,
+      </if>
+      <if test="kpiId != null" >
+        kpi_id,
+      </if>
+      <if test="value != null" >
+        value,
+      </if>
+      <if test="remark != null" >
+        remark,
       </if>
       <if test="createTime != null" >
         create_time,
@@ -152,11 +163,17 @@
       <if test="totalBudget != null" >
         #{totalBudget,jdbcType=INTEGER},
       </if>
-      <if test="remark != null" >
-        #{remark,jdbcType=VARCHAR},
-      </if>
       <if test="status != null" >
         #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="kpiId != null" >
+        #{kpiId,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null" >
+        #{value,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
@@ -187,11 +204,17 @@
       <if test="record.totalBudget != null" >
         total_budget = #{record.totalBudget,jdbcType=INTEGER},
       </if>
-      <if test="record.remark != null" >
-        remark = #{record.remark,jdbcType=VARCHAR},
-      </if>
       <if test="record.status != null" >
         status = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.kpiId != null" >
+        kpi_id = #{record.kpiId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.value != null" >
+        value = #{record.value,jdbcType=INTEGER},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -210,8 +233,10 @@
       advertiser_id = #{record.advertiserId,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       total_budget = #{record.totalBudget,jdbcType=INTEGER},
-      remark = #{record.remark,jdbcType=VARCHAR},
       status = #{record.status,jdbcType=VARCHAR},
+      kpi_id = #{record.kpiId,jdbcType=VARCHAR},
+      value = #{record.value,jdbcType=INTEGER},
+      remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
@@ -230,11 +255,17 @@
       <if test="totalBudget != null" >
         total_budget = #{totalBudget,jdbcType=INTEGER},
       </if>
-      <if test="remark != null" >
-        remark = #{remark,jdbcType=VARCHAR},
-      </if>
       <if test="status != null" >
         status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="kpiId != null" >
+        kpi_id = #{kpiId,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null" >
+        value = #{value,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -250,8 +281,10 @@
     set advertiser_id = #{advertiserId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       total_budget = #{totalBudget,jdbcType=INTEGER},
-      remark = #{remark,jdbcType=VARCHAR},
       status = #{status,jdbcType=VARCHAR},
+      kpi_id = #{kpiId,jdbcType=VARCHAR},
+      value = #{value,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}

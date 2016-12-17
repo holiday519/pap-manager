@@ -375,76 +375,6 @@ public class ProjectModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andRemarkIsNull() {
-            addCriterion("remark is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkIsNotNull() {
-            addCriterion("remark is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkEqualTo(String value) {
-            addCriterion("remark =", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkNotEqualTo(String value) {
-            addCriterion("remark <>", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkGreaterThan(String value) {
-            addCriterion("remark >", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkGreaterThanOrEqualTo(String value) {
-            addCriterion("remark >=", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkLessThan(String value) {
-            addCriterion("remark <", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkLessThanOrEqualTo(String value) {
-            addCriterion("remark <=", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkLike(String value) {
-            addCriterion("remark like", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkNotLike(String value) {
-            addCriterion("remark not like", value, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkIn(List<String> values) {
-            addCriterion("remark in", values, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkNotIn(List<String> values) {
-            addCriterion("remark not in", values, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkBetween(String value1, String value2) {
-            addCriterion("remark between", value1, value2, "remark");
-            return (Criteria) this;
-        }
-
-        public Criteria andRemarkNotBetween(String value1, String value2) {
-            addCriterion("remark not between", value1, value2, "remark");
-            return (Criteria) this;
-        }
-
         public Criteria andStatusIsNull() {
             addCriterion("status is null");
             return (Criteria) this;
@@ -512,6 +442,206 @@ public class ProjectModelExample {
 
         public Criteria andStatusNotBetween(String value1, String value2) {
             addCriterion("status not between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdIsNull() {
+            addCriterion("kpi_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdIsNotNull() {
+            addCriterion("kpi_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdEqualTo(String value) {
+            addCriterion("kpi_id =", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdNotEqualTo(String value) {
+            addCriterion("kpi_id <>", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdGreaterThan(String value) {
+            addCriterion("kpi_id >", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdGreaterThanOrEqualTo(String value) {
+            addCriterion("kpi_id >=", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdLessThan(String value) {
+            addCriterion("kpi_id <", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdLessThanOrEqualTo(String value) {
+            addCriterion("kpi_id <=", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdLike(String value) {
+            addCriterion("kpi_id like", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdNotLike(String value) {
+            addCriterion("kpi_id not like", value, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdIn(List<String> values) {
+            addCriterion("kpi_id in", values, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdNotIn(List<String> values) {
+            addCriterion("kpi_id not in", values, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdBetween(String value1, String value2) {
+            addCriterion("kpi_id between", value1, value2, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andKpiIdNotBetween(String value1, String value2) {
+            addCriterion("kpi_id not between", value1, value2, "kpiId");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueIsNull() {
+            addCriterion("value is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueIsNotNull() {
+            addCriterion("value is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueEqualTo(Integer value) {
+            addCriterion("value =", value, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueNotEqualTo(Integer value) {
+            addCriterion("value <>", value, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueGreaterThan(Integer value) {
+            addCriterion("value >", value, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueGreaterThanOrEqualTo(Integer value) {
+            addCriterion("value >=", value, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueLessThan(Integer value) {
+            addCriterion("value <", value, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueLessThanOrEqualTo(Integer value) {
+            addCriterion("value <=", value, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueIn(List<Integer> values) {
+            addCriterion("value in", values, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueNotIn(List<Integer> values) {
+            addCriterion("value not in", values, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueBetween(Integer value1, Integer value2) {
+            addCriterion("value between", value1, value2, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andValueNotBetween(Integer value1, Integer value2) {
+            addCriterion("value not between", value1, value2, "value");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNull() {
+            addCriterion("remark is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNotNull() {
+            addCriterion("remark is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkEqualTo(String value) {
+            addCriterion("remark =", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotEqualTo(String value) {
+            addCriterion("remark <>", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThan(String value) {
+            addCriterion("remark >", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThanOrEqualTo(String value) {
+            addCriterion("remark >=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThan(String value) {
+            addCriterion("remark <", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThanOrEqualTo(String value) {
+            addCriterion("remark <=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLike(String value) {
+            addCriterion("remark like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotLike(String value) {
+            addCriterion("remark not like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIn(List<String> values) {
+            addCriterion("remark in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotIn(List<String> values) {
+            addCriterion("remark not in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkBetween(String value1, String value2) {
+            addCriterion("remark between", value1, value2, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotBetween(String value1, String value2) {
+            addCriterion("remark not between", value1, value2, "remark");
             return (Criteria) this;
         }
 

@@ -11,9 +11,13 @@ public class ProjectModel {
 
     private Integer totalBudget;
 
-    private String remark;
-
     private String status;
+
+    private String kpiId;
+
+    private Integer value;
+
+    private String remark;
 
     private Date createTime;
 
@@ -51,20 +55,36 @@ public class ProjectModel {
         this.totalBudget = totalBudget;
     }
 
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark == null ? null : remark.trim();
-    }
-
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status == null ? null : status.trim();
+    }
+
+    public String getKpiId() {
+        return kpiId;
+    }
+
+    public void setKpiId(String kpiId) {
+        this.kpiId = kpiId == null ? null : kpiId.trim();
+    }
+
+    public Integer getValue() {
+        return value;
+    }
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
     }
 
     public Date getCreateTime() {

@@ -99,8 +99,7 @@ public class AuditAdvertiserBaiduService {
 			ex.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			List<AdvertiserAuditModel> list = advAuditMapper.selectByExample(ex);
 			if (list == null || list.isEmpty()) {
-				num = (long) Math
-						.floor((new Random()).nextDouble() * 1000000000D);
+				num = (long) Math.floor((new Random()).nextDouble() * 1000000000D);
 				model.setAuditValue(String.valueOf(num));
 				advAuditMapper.insertSelective(model);
 			} else {
@@ -203,7 +202,7 @@ public class AuditAdvertiserBaiduService {
     	//将私密key转成json格式
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
 		if (json.get("dspId") == null || json.get("token") == null) {
-			throw new Exception();//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
 		String dspId = json.get("dspId").getAsString();
 		String token = json.get("token").getAsString();

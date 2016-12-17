@@ -25,14 +25,14 @@ public class InformationFlowController {
 	@Autowired
 	private InfomationFlowService infomationFlowService;
 	
-	@RequestMapping(value="/info",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/info", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createInfoFlow(@Valid @RequestBody InformationFlowBean bean, HttpServletResponse response) throws Exception {
 		infomationFlowService.createInformationFlow(bean);
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id",bean.getId(), response);
 	}
 	
-	@RequestMapping(value="/info/{id}",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/info/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String updateInfoFlow(@PathVariable String id, @RequestBody InformationFlowBean bean, HttpServletResponse response) throws Exception {
 		infomationFlowService.updateInformationFlow(id, bean);

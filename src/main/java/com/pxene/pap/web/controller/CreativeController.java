@@ -23,21 +23,21 @@ public class CreativeController {
 	@Autowired
 	private CreativeService creativeService;
 	
-	@RequestMapping(value="/creative",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createProject(@Valid @RequestBody CreativeBean bean,HttpServletResponse response) throws Exception {
+	public String createProject(@Valid @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
 		creativeService.createCreative(bean);
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", bean.getId(), response);
 	}
 	
-	@RequestMapping(value="/creative/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String updateProject(@PathVariable String id, @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, bean);
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
 	}
 	
-	@RequestMapping(value="/creative/{id}",method = RequestMethod.DELETE)
+	@RequestMapping(value = "/creative/{id}",method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		creativeService.deleteCreative(id);

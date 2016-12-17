@@ -24,7 +24,7 @@ public class VideoController {
 	@Autowired
 	private VideoService videoService;
 	
-	@RequestMapping(value="/video",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/video/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String updateVideo(@PathVariable String id, @RequestBody VideoBean bean, HttpServletResponse response) throws Exception {
 		videoService.updateVideo(id, bean);

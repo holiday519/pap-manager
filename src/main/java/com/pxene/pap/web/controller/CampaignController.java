@@ -37,7 +37,7 @@ public class CampaignController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/campaign",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createCampaign(@Valid @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.createCampaign(bean);
@@ -89,7 +89,7 @@ public class CampaignController {
 	/**
 	 * 查询活动列表
 	 * @param name
-	 * @param pageNO
+	 * @param pageNo
 	 * @param pageSize
 	 * @param request
 	 * @param response
@@ -98,10 +98,10 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
-		if (pageNO != null && pageSize != null) {
-			pager = PageHelper.startPage(pageNO, pageSize);
+		if (pageNo != null && pageSize != null) {
+			pager = PageHelper.startPage(pageNo, pageSize);
 		}
         
 		List<CampaignBean> selectCampaigns = campaignService.selectCampaigns(name);
