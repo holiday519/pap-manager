@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -63,7 +62,7 @@ public class AdvertiserService extends BaseService
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
-        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        if (advertiserInDB == null)
         {
             throw new NotFoundException();
         }
@@ -95,7 +94,7 @@ public class AdvertiserService extends BaseService
         
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
-        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        if (advertiserInDB == null)
         {
             throw new NotFoundException();
         }
@@ -110,7 +109,6 @@ public class AdvertiserService extends BaseService
         try
         {
             advertiserMapper.updateByExampleSelective(advertiserModel, example);
-            
             // 将DAO编辑后的新对象复制回传输对象中
             BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
         }
@@ -133,7 +131,7 @@ public class AdvertiserService extends BaseService
         
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
-        if (advertiserInDB == null || StringUtils.isEmpty(advertiserInDB.getId()))
+        if (advertiserInDB == null)
         {
             throw new NotFoundException();
         }
@@ -161,7 +159,7 @@ public class AdvertiserService extends BaseService
     {
         AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(id);
         
-        if (advertiserModel == null || StringUtils.isEmpty(advertiserModel.getId()))
+        if (advertiserModel == null)
         {
             throw new NotFoundException();
         }

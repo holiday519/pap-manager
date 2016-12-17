@@ -52,7 +52,7 @@ public class CampaignController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/campaign/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String updateCampaign(@PathVariable String id, @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.updateCampaign(id, bean);
@@ -65,7 +65,7 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/campaign/{id}",method = RequestMethod.DELETE)
+	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
 		campaignService.deleteCampaign(id);
@@ -79,7 +79,7 @@ public class CampaignController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/campaign/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		CampaignBean bean = campaignService.selectCampaign(id);
@@ -96,7 +96,7 @@ public class CampaignController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/campaign",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;

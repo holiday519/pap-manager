@@ -37,7 +37,7 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/project",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/project", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createProject(@Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
 		
@@ -52,9 +52,9 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/project/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/project/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateProject(@PathVariable String id, @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
+	public String updateProject(@PathVariable String id, @Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
 		
 		projectService.updateProject(id, bean);
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
@@ -67,7 +67,7 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/project/{id}",method = RequestMethod.DELETE)
+	@RequestMapping(value="/project/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
@@ -82,7 +82,7 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/project/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/project/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
@@ -100,7 +100,7 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/project",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/project", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

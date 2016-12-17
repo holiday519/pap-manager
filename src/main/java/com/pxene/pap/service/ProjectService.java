@@ -53,7 +53,6 @@ public class ProjectService extends BaseService {
 		try {
 			String id = UUID.randomUUID().toString();
 			model.setId(id);
-
 			// project-kpi 添加关联表数据
 			String kpiId = bean.getKpiId();
 			ProjectKpiModel kpiModel = new ProjectKpiModel();
@@ -63,7 +62,6 @@ public class ProjectService extends BaseService {
 			kpiModel.setProjectId(id);
 			kpiModel.setValue(value);
 			projectKpiMapper.insertSelective(kpiModel);
-
 			// 添加项目信息
 			projectMapper.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
@@ -85,7 +83,7 @@ public class ProjectService extends BaseService {
 		}
 
 		ProjectModel projectInDB = projectMapper.selectByPrimaryKey(id);
-		if (projectInDB == null || StringUtils.isEmpty(projectInDB.getId())) {
+		if (projectInDB == null) {
 			throw new NotFoundException();
 		}
 
@@ -118,7 +116,7 @@ public class ProjectService extends BaseService {
 	@Transactional
 	public void deleteProject(String id) throws Exception {
 		ProjectModel projectInDB = projectMapper.selectByPrimaryKey(id);
-		if (projectInDB ==null || StringUtils.isEmpty(projectInDB.getId())) {
+		if (projectInDB == null) {
 			throw new NotFoundException();
 		}
 		
@@ -127,6 +125,7 @@ public class ProjectService extends BaseService {
 		example.createCriteria().andProjectIdEqualTo(id);
 		List<CampaignModel> list = campaignMapper.selectByExample(example);
 		if (list != null && !list.isEmpty()) {
+			// TODO 不级联删除
 			for (CampaignModel model : list) {
 				String campaignId = model.getId();
 				// 执行活动删除方法
@@ -148,7 +147,7 @@ public class ProjectService extends BaseService {
 	 */
     public ProjectBean selectProject(String id) throws Exception {
         ProjectModel model = projectMapper.selectByPrimaryKey(id);
-        if (model ==null || StringUtils.isEmpty(model.getId())) {
+        if (model == null) {
         	throw new NotFoundException();
         }
         
@@ -192,13 +191,13 @@ public class ProjectService extends BaseService {
      * @param projectId
      * @return
      */
-    private ProjectBean addKpiIdAndValueToBean (ProjectBean bean ,String projectId) {
+    private ProjectBean addKpiIdAndValueToBean(ProjectBean bean, String projectId) {
     	
     	ProjectKpiModelExample example = new ProjectKpiModelExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         List<ProjectKpiModel> list = projectKpiMapper.selectByExample(example);
         //一对一；只取第1条
-        if (list !=null && !list.isEmpty()) {
+        if (list != null && !list.isEmpty()) {
         	bean.setKpiId(list.get(0).getKpiId());
         	bean.setValue(list.get(0).getValue());
         }
