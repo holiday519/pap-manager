@@ -28,10 +28,8 @@ import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
 import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
 
 @Service
-public class AdvertiserService
+public class AdvertiserService extends BaseService
 {
-    private static final ModelMapper MODEL_MAPPER = new ModelMapper();
-    
     @Autowired
     private AdvertiserModelMapper advertiserMapper;
 
@@ -42,7 +40,7 @@ public class AdvertiserService
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
     {
         // 将传输对象映射成数据库Model，并设置UUID
-        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(UUID.randomUUID().toString());
         
         try
@@ -103,7 +101,7 @@ public class AdvertiserService
         }
         
         // 将传输对象映射成数据库Model
-        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
         
         AdvertiserModelExample example = new AdvertiserModelExample();
         Criteria criteria = example.createCriteria();
@@ -141,7 +139,7 @@ public class AdvertiserService
         }
         
         // 将传输对象映射成数据库Model
-        AdvertiserModel advertiserModel = MODEL_MAPPER.map(advertiserBean, AdvertiserModel.class);
+        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(id);
         
         try
@@ -169,7 +167,7 @@ public class AdvertiserService
         }
         
         // 将DAO创建的新对象复制回传输对象中
-        return MODEL_MAPPER.map(advertiserModel, AdvertiserBean.class);
+        return modelMapper.map(advertiserModel, AdvertiserBean.class);
     }
 
 
@@ -196,7 +194,7 @@ public class AdvertiserService
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
             for (AdvertiserModel advertiserModel : advertiserModels)
             {
-                advertiserList.add(MODEL_MAPPER.map(advertiserModel, AdvertiserBean.class));
+                advertiserList.add(modelMapper.map(advertiserModel, AdvertiserBean.class));
             }
         }
         

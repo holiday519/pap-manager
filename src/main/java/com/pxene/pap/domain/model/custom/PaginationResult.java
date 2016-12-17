@@ -59,7 +59,7 @@ public class PaginationResult
     {
         private int page;
         private int pageSize;
-        private long totcal;
+        private long total;
         
         
         public int getPage()
@@ -78,29 +78,25 @@ public class PaginationResult
         {
             this.pageSize = pageSize;
         }
-        public long getTotcal()
-        {
-            return totcal;
-        }
-        public void setTotcal(long totcal)
-        {
-            this.totcal = totcal;
-        }
-        
-        
-        public Pager(int page, int pageSize, long totcal)
+        public long getTotal() {
+			return total;
+		}
+		public void setTotal(long total) {
+			this.total = total;
+		}
+		public Pager(int page, int pageSize, long total)
         {
             super();
             this.page = page;
             this.pageSize = pageSize;
-            this.totcal = totcal;
+            this.total = total;
         }
         
         
         @Override
         public String toString()
         {
-            return "Pager [page=" + page + ", pageSize=" + pageSize + ", totcal=" + totcal + "]";
+            return "Pager [page=" + page + ", pageSize=" + pageSize + ", total=" + total + "]";
         }
     }
 }

@@ -2,6 +2,7 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 import java.util.List;
+
 /**
  * 活动
  */
@@ -26,19 +27,19 @@ public class CampaignBean {
 	/**
 	 * 总预算
 	 */
-	private int totalBudget;
+	private Integer totalBudget;
 	/**
 	 * 日预算
 	 */
-	private int dailyBudget;
+	private Integer dailyBudget;
 	/**
 	 * 日展现
 	 */
-	private int dailyImpression;
+	private Integer dailyImpression;
 	/**
 	 * 日点击
 	 */
-	private int dailyClick;
+	private Integer dailyClick;
 	/**
 	 * 备注
 	 */
@@ -96,7 +97,7 @@ public class CampaignBean {
 	 */
 	private List<String> appTarget;
 	/**
-	 *控制对象 
+	 * 控制对象
 	 */
 	private String controlObj;
 	/**
@@ -106,8 +107,8 @@ public class CampaignBean {
 	/**
 	 * 频次
 	 */
-	private int frequency;
-	
+	private Integer frequency;
+
 	List<MonitorBean> monitors;
 
 	public String getId() {
@@ -142,35 +143,35 @@ public class CampaignBean {
 		this.type = type;
 	}
 
-	public int getTotalBudget() {
+	public Integer getTotalBudget() {
 		return totalBudget;
 	}
 
-	public void setTotalBudget(int totalBudget) {
+	public void setTotalBudget(Integer totalBudget) {
 		this.totalBudget = totalBudget;
 	}
 
-	public int getDailyBudget() {
+	public Integer getDailyBudget() {
 		return dailyBudget;
 	}
 
-	public void setDailyBudget(int dailyBudget) {
+	public void setDailyBudget(Integer dailyBudget) {
 		this.dailyBudget = dailyBudget;
 	}
 
-	public int getDailyImpression() {
+	public Integer getDailyImpression() {
 		return dailyImpression;
 	}
 
-	public void setDailyImpression(int dailyImpression) {
+	public void setDailyImpression(Integer dailyImpression) {
 		this.dailyImpression = dailyImpression;
 	}
 
-	public int getDailyClick() {
+	public Integer getDailyClick() {
 		return dailyClick;
 	}
 
-	public void setDailyClick(int dailyClick) {
+	public void setDailyClick(Integer dailyClick) {
 		this.dailyClick = dailyClick;
 	}
 
@@ -302,11 +303,11 @@ public class CampaignBean {
 		this.timeType = timeType;
 	}
 
-	public int getFrequency() {
+	public Integer getFrequency() {
 		return frequency;
 	}
 
-	public void setFrequency(int frequency) {
+	public void setFrequency(Integer frequency) {
 		this.frequency = frequency;
 	}
 
@@ -335,5 +336,5 @@ public class CampaignBean {
 				+ controlObj + ", timeType=" + timeType + ", frequency="
 				+ frequency + ", monitors=" + monitors + "]";
 	}
-	
+
 }

@@ -1,13 +1,17 @@
 package com.pxene.pap.service;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.MonitorBean;
@@ -24,7 +28,6 @@ import com.pxene.pap.domain.model.basic.CreativeModelExample;
 import com.pxene.pap.domain.model.basic.DeviceTargetModel;
 import com.pxene.pap.domain.model.basic.DeviceTargetModelExample;
 import com.pxene.pap.domain.model.basic.FrequencyModel;
-import com.pxene.pap.domain.model.basic.FrequencyModelExample;
 import com.pxene.pap.domain.model.basic.MonitorModel;
 import com.pxene.pap.domain.model.basic.MonitorModelExample;
 import com.pxene.pap.domain.model.basic.NetworkTargetModel;
@@ -37,6 +40,11 @@ import com.pxene.pap.domain.model.basic.RegionTargetModel;
 import com.pxene.pap.domain.model.basic.RegionTargetModelExample;
 import com.pxene.pap.domain.model.basic.TimeTargetModel;
 import com.pxene.pap.domain.model.basic.TimeTargetModelExample;
+import com.pxene.pap.domain.model.basic.view.CampaignTargetModel;
+import com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample;
+import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.mapper.basic.AdTypeTargetModelMapper;
 import com.pxene.pap.repository.mapper.basic.AppTargetModelMapper;
 import com.pxene.pap.repository.mapper.basic.BrandTargetModelMapper;
@@ -50,9 +58,10 @@ import com.pxene.pap.repository.mapper.basic.OperatorTargetModelMapper;
 import com.pxene.pap.repository.mapper.basic.OsTargetModelMapper;
 import com.pxene.pap.repository.mapper.basic.RegionTargetModelMapper;
 import com.pxene.pap.repository.mapper.basic.TimeTargetModelMapper;
+import com.pxene.pap.repository.mapper.basic.view.CampaignTargetModelMapper;
 
 @Service
-public class CampaignService {
+public class CampaignService extends BaseService{
 	
 	@Autowired
 	private CampaignModelMapper campaignMapper; 
@@ -96,6 +105,9 @@ public class CampaignService {
 	@Autowired
 	private AppTargetModelMapper appTargetMapper;
 	
+	@Autowired
+	private CampaignTargetModelMapper campaignTargetMapper;
+	
 	/**
 	 * 创建活动
 	 * @param bean
@@ -103,61 +115,40 @@ public class CampaignService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String createCampaign(CampaignBean bean) throws Exception {
+	public void createCampaign(CampaignBean bean) throws Exception {
 		
-		String name = bean.getName();
-		CampaignModelExample example = new CampaignModelExample();
-		example.createCriteria().andNameEqualTo(name);
-		List<CampaignModel> list = campaignMapper.selectByExample(example);
-		if (!list.isEmpty()) {
-			return "活动名称重复";
-		}
+		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		String id = UUID.randomUUID().toString();
-		bean.setId(id);
-		String projectId = bean.getProjectId();
-		String type = bean.getType();
-		Integer totalBudget = bean.getTotalBudget();
-		Integer dailyBudget = bean.getDailyBudget();
-		Integer dailyImpression = bean.getDailyImpression();
-		Integer dailyClick = bean.getDailyClick();
-		Date startDate = bean.getStartDate();
-		Date endDate = bean.getEndDate();
-		String frequencyId = UUID.randomUUID().toString();
-		String controlObj = bean.getControlObj();
-		String timeType = bean.getTimeType();
-		int frequency = bean.getFrequency();
-		//频次信息
-		FrequencyModel frequencyModel = new FrequencyModel();
-		frequencyModel.setId(frequencyId);
-		frequencyModel.setControlObj(controlObj);
-		frequencyModel.setTimeType(timeType);
-		frequencyModel.setFrequency(frequency);
-		frequencyMapper.insertSelective(frequencyModel);
-		//定向信息
-		addCampaignTarget(bean);
-		//点击、展现监测地址
-		addCampaignMonitor(bean);
-		//基本信息
-		CampaignModel campaign = new CampaignModel();
-		campaign.setId(id);
-		campaign.setProjectId(projectId);
-		campaign.setName(name);
-		campaign.setType(type);
-		campaign.setStartDate(startDate);
-		campaign.setEndDate(endDate);
-		campaign.setTotalBudget(totalBudget);
-		campaign.setDailyBudget(dailyBudget);
-		campaign.setDailyImpression(dailyImpression);
-		campaign.setDailyClick(dailyClick);
-		campaign.setStatus("00");
-		campaign.setFrequencyId(frequencyId);
-		int basicNum = campaignMapper.insertSelective(campaign);
-
-		if (basicNum > 0) {
-			return id;
-		}else{
-			return "活动创建失败";
+		bean.setId(id);//此处放入ID，添加活动相关联信息时用到
+		campaignModel.setId(id);
+		
+		try {
+				
+			String frequencyId = UUID.randomUUID().toString();
+			String controlObj = bean.getControlObj();
+			String timeType = bean.getTimeType();
+			int frequency = bean.getFrequency();
+			//添加频次信息
+			FrequencyModel frequencyModel = new FrequencyModel();
+			frequencyModel.setId(frequencyId);
+			frequencyModel.setControlObj(controlObj);
+			frequencyModel.setTimeType(timeType);
+			frequencyModel.setFrequency(frequency);
+			frequencyMapper.insertSelective(frequencyModel);
+			//添加定向信息
+			addCampaignTarget(bean);
+			//添加点击、展现监测地址
+			addCampaignMonitor(bean);
+			//添加频次ID
+			campaignModel.setFrequencyId(frequencyId);
+			
+			//添加活动基本信息
+			campaignMapper.insertSelective(campaignModel);
+			
+		} catch (DuplicateKeyException exception) {
+			throw new DuplicateEntityException();
 		}
+		BeanUtils.copyProperties(campaignModel, bean);
 	}
 	
 	/**
@@ -167,64 +158,47 @@ public class CampaignService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String updateCampaign(CampaignBean bean) throws Exception {
+	public void updateCampaign(String id ,CampaignBean bean) throws Exception {
 		
-		String id = bean.getId();
-		String name = bean.getName();
-		CampaignModelExample example = new CampaignModelExample();
-		example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
-		List<CampaignModel> list = campaignMapper.selectByExample(example);
-		if (!list.isEmpty()) {
-			return "活动名称重复";
+		if (!StringUtils.isEmpty(bean.getId())) {
+			throw new IllegalArgumentException();
 		}
-		String projectId = bean.getProjectId();
-		String type = bean.getType();
-		Integer totalBudget = bean.getTotalBudget();
-		Integer dailyBudget = bean.getDailyBudget();
-		Integer dailyImpression = bean.getDailyImpression();
-		Integer dailyClick = bean.getDailyClick();
-		Date startDate = bean.getStartDate();
-		Date endDate = bean.getEndDate();
-		String frequencyId = bean.getFrequencyId();
-		String controlObj = bean.getControlObj();
-		String timeType = bean.getTimeType();
-		String status = bean.getStatus();
-		int frequency = bean.getFrequency();
-		//修改频次信息
-		FrequencyModel frequencyModel = new FrequencyModel();
-		frequencyModel.setId(frequencyId);
-		frequencyModel.setControlObj(controlObj);
-		frequencyModel.setTimeType(timeType);
-		frequencyModel.setFrequency(frequency);
-		frequencyMapper.updateByPrimaryKeySelective(frequencyModel);
 		
-		//删除定向信息
-		deletCampaignTarget(id);
-		//重新添加定向信息
-		addCampaignTarget(bean);
-		//删除点击、展现监测地址
-		deleteCampaignMonitor(id);
-		//重新添加点击、展现监测地址
-		addCampaignMonitor(bean);
-		//修改基本信息
-		CampaignModel campaign = new CampaignModel();
-		campaign.setId(id);
-		campaign.setProjectId(projectId);
-		campaign.setName(name);
-		campaign.setType(type);
-		campaign.setStartDate(startDate);
-		campaign.setEndDate(endDate);
-		campaign.setTotalBudget(totalBudget);
-		campaign.setDailyBudget(dailyBudget);
-		campaign.setDailyImpression(dailyImpression);
-		campaign.setDailyClick(dailyClick);
-		campaign.setStatus(status);
-		campaign.setFrequencyId(frequencyId);
-		int basicNum = campaignMapper.updateByPrimaryKeySelective(campaign);
-		if (basicNum > -1) {
-			return id;
-		}else{
-			return "活动编辑失败";
+		CampaignModel campaignInDB = campaignMapper.selectByPrimaryKey(id);
+		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
+			throw new NotFoundException();
+		}
+		
+		bean.setId(id);//bean中放入ID，用于更新关联关系表中数据
+		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
+		
+		try {
+			//频次数据
+			String frequencyId = bean.getFrequencyId();
+			String controlObj = bean.getControlObj();
+			String timeType = bean.getTimeType();
+			int frequency = bean.getFrequency();
+			//修改频次信息
+			FrequencyModel frequencyModel = new FrequencyModel();
+			frequencyModel.setId(frequencyId);
+			frequencyModel.setControlObj(controlObj);
+			frequencyModel.setTimeType(timeType);
+			frequencyModel.setFrequency(frequency);
+			frequencyMapper.updateByPrimaryKeySelective(frequencyModel);
+			
+			//删除定向信息
+			deletCampaignTarget(id);
+			//重新添加定向信息
+			addCampaignTarget(bean);
+			//删除点击、展现监测地址
+			deleteCampaignMonitor(id);
+			//重新添加点击、展现监测地址
+			addCampaignMonitor(bean);
+			
+			//修改基本信息
+			campaignMapper.updateByPrimaryKeySelective(campaignModel);
+		} catch (DuplicateKeyException exception) {
+			throw new DuplicateEntityException();
 		}
 	}
 	
@@ -439,7 +413,12 @@ public class CampaignService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public int deleteCampaign(String campaignId) throws Exception {
+	public void deleteCampaign(String campaignId) throws Exception {
+		CampaignModel campaignInDB = campaignMapper.selectByPrimaryKey(campaignId);
+		if (campaignInDB ==null || StringUtils.isEmpty(campaignInDB.getId())) {
+			throw new NotFoundException();
+		}
+		
 		//先查询出活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -458,9 +437,113 @@ public class CampaignService {
 		//删除频次信息
 		deletefrequency(campaignId);
 		//删除活动
-		int num = creativeMapper.deleteByPrimaryKey(campaignId);
-		return num;
+		creativeMapper.deleteByPrimaryKey(campaignId);
 	}
 	
+	/**
+	 * 根据id查询活动
+	 * @param campaignId
+	 * @return
+	 */
+	public CampaignBean selectCampaign(String campaignId)  throws Exception {
+		CampaignModel model = campaignMapper.selectByPrimaryKey(campaignId);
+		if (model ==null || StringUtils.isEmpty(model.getId())) {
+        	throw new NotFoundException();
+        }
+		CampaignBean bean = modelMapper.map(model, CampaignBean.class);
+		CampaignBean campaignBean = addParamToCampaign(bean, campaignId);
+		return campaignBean;
+	}
+	
+	/**
+	 * 查询活动列表
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 */
+	public List<CampaignBean> selectCampaigns(String name) throws Exception {
+		CampaignModelExample example = new CampaignModelExample();
+		if(!StringUtils.isEmpty(name)){
+			example.createCriteria().andNameLike("%" + name + "%");
+		}
 		
+		List<CampaignModel> campaigns = campaignMapper.selectByExample(example);
+		List<CampaignBean> beans = new ArrayList<CampaignBean>();
+		
+		if (campaigns == null || campaigns.isEmpty()) {
+			throw new NotFoundException();
+		}
+		
+		for (CampaignModel campaign : campaigns) {
+			CampaignBean map = modelMapper.map(campaign, CampaignBean.class);
+			CampaignBean bean = addParamToCampaign(map, campaign.getId());
+			beans.add(bean);
+		}
+		
+		return beans;
+	}
+	
+	/**
+	 * 查询活动相关属性
+	 * @param bean
+	 * @param campaignId
+	 * @return
+	 */
+	private CampaignBean addParamToCampaign(CampaignBean bean, String campaignId) {
+		CampaignTargetModelExample example = new CampaignTargetModelExample();
+		example.createCriteria().andIdEqualTo(campaignId);
+		// 查询定向信息
+		List<CampaignTargetModel> list = campaignTargetMapper.selectByExampleWithBLOBs(example);
+		if (list != null && !list.isEmpty()) {
+			CampaignTargetModel model = list.get(0);
+			bean.setRegionTarget(formatTargetStringToList(model.getRegionId()));
+			bean.setAdtypeTarget(formatTargetStringToList(model.getAdType()));
+			bean.setTimeTarget(formatTargetStringToList(model.getTimeId()));
+			bean.setNetworkTarget(formatTargetStringToList(model.getNetwork()));
+			bean.setOperatorTarget(formatTargetStringToList(model.getOperator()));
+			bean.setDeviceTarget(formatTargetStringToList(model.getDevice()));
+			bean.setOsTarget(formatTargetStringToList(model.getOs()));
+			bean.setBrandTarget(formatTargetStringToList(model.getBrandId()));
+			bean.setAppTarget(formatTargetStringToList(model.getAppId()));
+		}
+		// 查询频次信息
+		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
+			FrequencyModel frequency = frequencyMapper.selectByPrimaryKey(bean.getFrequencyId());
+			bean.setControlObj(frequency.getControlObj());
+			bean.setFrequency(frequency.getFrequency());
+			bean.setTimeType(frequency.getTimeType());
+		}
+		// 查询检测地址
+		MonitorModelExample monitorExample = new MonitorModelExample();
+		monitorExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<MonitorModel> monitors = monitorMapper.selectByExample(monitorExample);
+		//如果没有查到点击展现地址数据，直接返回
+		if (monitors != null && !monitors.isEmpty()) {
+			List<MonitorBean> monitorList = new ArrayList<MonitorBean>();
+			for (MonitorModel mo : monitors) {
+				MonitorBean monitorBean = new MonitorBean();
+				List<String> mlist = new ArrayList<String>();
+				mlist.add(mo.getImpressionUrl());
+				mlist.add(mo.getClickUrl());
+				monitorBean.setUrls(mlist);
+				monitorList.add(monitorBean);
+			}
+			bean.setMonitors(monitorList);
+		}
+		return bean;
+	}
+	
+	/**
+	 * 将字符串形式定向转成list("1,2,3"==》list)
+	 * @param target
+	 * @return
+	 */
+	private static List<String> formatTargetStringToList(String target){
+		if(!StringUtils.isEmpty(target)){
+			String [] targets = target.split(",");
+			List<String> targetList = Arrays.asList(targets);
+			return targetList;
+		}
+		return null;//空字符串返回null
+	}
 }

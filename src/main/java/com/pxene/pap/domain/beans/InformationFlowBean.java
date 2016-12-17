@@ -52,6 +52,7 @@ public class InformationFlowBean {
 	 * APP评分
 	 */
 	private String appStar;
+	
 	public String getId() {
 		return id;
 	}

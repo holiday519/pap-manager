@@ -4,13 +4,17 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.VideoBean;
+import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.domain.model.basic.VideoModel;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.mapper.basic.VideoModelMapper;
 
 @Service
-public class VideoService {
+public class VideoService extends BaseService {
 	
 	@Autowired
 	private VideoModelMapper videoMapper;
@@ -22,30 +26,21 @@ public class VideoService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String updateVideo(VideoBean bean) throws Exception{
-		String uuid = bean.getUuid();
-    	String name = bean.getName();
-    	String path = bean.getPath();
-    	String imageId = bean.getImageId();
-    	String type = bean.getType();
-    	String size = bean.getSize();
-    	Float volume = bean.getVolume();
-    	Integer timeLength = bean.getTimelength();
-    	VideoModel video = new VideoModel();
-    	video.setId(uuid);
-    	video.setName(name);
-    	video.setPath(path);
-    	video.setTypeId(type);
-    	video.setSizeId(size);
-    	video.setPath(path);
-    	video.setVolume(volume);
-    	video.setTimeLength(timeLength);
-    	video.setImageId(imageId);
-    	int num = videoMapper.updateByPrimaryKeySelective(video);
-    	if (num > -1) {
-    		return bean.getUuid();
-    	}
-    	return "操作失败";
+	public void updateVideo(String id, VideoBean bean) throws Exception {
+		if (!StringUtils.isEmpty(bean.getUuid())) {
+			throw new IllegalArgumentException();
+		}
+
+		VideoModel creativeInDB = videoMapper.selectByPrimaryKey(id);
+		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
+			throw new NotFoundException();
+		}
+
+		String size = bean.getSize();
+		VideoModel video = modelMapper.map(bean, VideoModel.class);
+		video.setId(id);
+		video.setSizeId(size);
+		videoMapper.updateByPrimaryKeySelective(video);
 	}
 	 
 }

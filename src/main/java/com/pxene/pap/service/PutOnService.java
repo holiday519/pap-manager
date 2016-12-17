@@ -8,7 +8,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mysql.fabric.xmlrpc.base.Array;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
 import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
@@ -31,9 +30,9 @@ public class PutOnService {
 		if (campaignIds == null || campaignIds.isEmpty()) {
 			throw new Exception();
 		}
-		for (String campaignid : campaignIds) {
-
-		}
+//		for (String campaignid : campaignIds) {
+//
+//		}
 	}
 
 	@Transactional

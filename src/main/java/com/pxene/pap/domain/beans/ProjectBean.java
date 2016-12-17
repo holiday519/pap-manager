@@ -1,5 +1,9 @@
 package com.pxene.pap.domain.beans;
 
+import javax.validation.constraints.NotNull;
+
+import com.pxene.pap.constant.PhrasesConstant;
+
 /**
  * 项目
  */
@@ -16,10 +20,12 @@ public class ProjectBean {
 	/**
 	 * 名称
 	 */
+	@NotNull(message = PhrasesConstant.INVALID_CAMPAIGN_NAME)
 	private String name;
 	/**
 	 * 总预算
 	 */
+	@NotNull(message = PhrasesConstant.INVALID_TOTAL_BUDGET)
 	private Integer totalBudget;
 	/**
 	 * 备注
@@ -37,13 +43,14 @@ public class ProjectBean {
 	/**
 	 * KPI指标value
 	 */
-	private Integer Value;
+	private Integer value;
 	
+
 	public Integer getValue() {
-		return Value;
+		return value;
 	}
 	public void setValue(Integer value) {
-		Value = value;
+		this.value = value;
 	}
 	public String getId() {
 		return id;
@@ -93,7 +100,7 @@ public class ProjectBean {
 		return "ProjectBean [id=" + id + ", advertiserId=" + advertiserId
 				+ ", name=" + name + ", totalBudget=" + totalBudget
 				+ ", remark=" + remark + ", status=" + status + ", kpiId="
-				+ kpiId + ", Value=" + Value + "]";
+				+ kpiId + ", value=" + value + "]";
 	}
 
 	

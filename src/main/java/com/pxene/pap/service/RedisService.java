@@ -1,9 +1,7 @@
 package com.pxene.pap.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -34,6 +32,7 @@ import com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
 import com.pxene.pap.repository.mapper.basic.AdxModelMapper;
 import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
@@ -87,15 +86,15 @@ public class RedisService {
 	
 	@Transactional
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
-		// 查询推广组下创意
+		// 查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeMapper.selectByExample(creativeExample);
 		// 创意id数组
 		List<String> creativeIds = new ArrayList<String>();
-		//如果推广组下无创意，
+		//如果活动下无创意
 		if(creatives == null || creatives.isEmpty()){
-			throw new Exception();
+			throw new NotFoundException();
 		}
 		// 将查询出来的创意id放入创意id数组
 		for (CreativeModel creative : creatives) {

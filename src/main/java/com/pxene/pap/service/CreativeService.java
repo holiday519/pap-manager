@@ -6,19 +6,23 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.mapper.basic.CreativeMaterialModelMapper;
 import com.pxene.pap.repository.mapper.basic.CreativeModelMapper;
 import com.pxene.pap.repository.mapper.basic.InfoFlowModelMapper;
 
 @Service
-public class CreativeService {
+public class CreativeService extends BaseService {
 	
 	@Autowired
 	private CreativeModelMapper creativeMapper;
@@ -36,24 +40,16 @@ public class CreativeService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String createCreative(CreativeBean bean) throws Exception {
+	public void createCreative(CreativeBean bean) throws Exception {
+		
+		CreativeModel model = modelMapper.map(bean, CreativeModel.class);
 		String creativeId = UUID.randomUUID().toString();
 		bean.setId(creativeId);
-		String campaignId = bean.getCampaignId();
-		String name = bean.getName();
 		//添加创意——素材关联关系
 		addCreativeMaterial(bean);
 		//创意表数据添加
-		CreativeModel creative = new CreativeModel();
-		creative.setId(creativeId);
-		creative.setCampaignId(campaignId);
-		creative.setName(name);
-		int num = creativeMapper.insertSelective(creative);
-		if (num > 0) {
-			return "创意创建成功";
-		}else{
-			return "创意创建失败";
-		}
+		creativeMapper.insertSelective(model);
+		BeanUtils.copyProperties(model, bean);
 	}
 	
 	/**
@@ -63,25 +59,24 @@ public class CreativeService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String updateCreative(CreativeBean bean) throws Exception {
-		String creativeId = bean.getId();
-		String campaignId = bean.getCampaignId();
-		String name = bean.getName();
+	public void updateCreative(String creativeId, CreativeBean bean) throws Exception {
+		if (!StringUtils.isEmpty(bean.getId())) {
+			throw new IllegalArgumentException();
+		}
+		
+		CreativeModel creativeInDB = creativeMapper.selectByPrimaryKey(creativeId);
+		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
+			throw new NotFoundException();
+		}
+		
+		bean.setId(creativeId);
+		CreativeModel creative = modelMapper.map(bean, CreativeModel.class);
 		//先删除关联关系
 		deleteCreativeMaterial(creativeId);
 		//添加创意——素材关联关系
 		addCreativeMaterial(bean);
 		//创意表数据添加
-		CreativeModel creative = new CreativeModel();
-		creative.setId(creativeId);
-		creative.setCampaignId(campaignId);
-		creative.setName(name);
-		int num = creativeMapper.updateByPrimaryKeySelective(creative);
-		if (num > -1) {
-			return creativeId;
-		}else{
-			return "创意编辑失败";
-		}
+		creativeMapper.updateByPrimaryKeySelective(creative);
 	}
 	
 	/**
@@ -123,7 +118,12 @@ public class CreativeService {
 	}
 	
 	@Transactional
-	public int deleteCreative(String creativeId) throws Exception {
+	public void deleteCreative(String creativeId) throws Exception {
+		CreativeModel creativeInDB = creativeMapper.selectByPrimaryKey(creativeId);
+		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
+			throw new NotFoundException();
+		}
+		
 		CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
 		cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
 		// 删除信息流创意；图片和视频不用删除
@@ -137,7 +137,6 @@ public class CreativeService {
 		// 删除关联关系表中数据
 		creativeMaterialMapper.deleteByExample(cmExample);
 		// 删除创意数据
-		int num = creativeMapper.deleteByPrimaryKey(creativeId);
-		return num;
+		creativeMapper.deleteByPrimaryKey(creativeId);
 	}
 }

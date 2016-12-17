@@ -33,6 +33,7 @@ import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdxModel;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.mapper.basic.AdvertiserAuditModelMapper;
 import com.pxene.pap.repository.mapper.basic.AdxModelMapper;
 
@@ -63,10 +64,10 @@ public class AuditAdvertiserBaiduService {
     	//将私密key转成json格式
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
 		if (json.get("dspId") == null || json.get("token") == null) {
-			throw new Exception();//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
-		String dspId = json.get("dspId").toString();
-		String token = json.get("token").toString();
+		String dspId = json.get("dspId").getAsString();
+		String token = json.get("token").getAsString();
 		//组成“请求头”
     	JsonObject authHeader = new JsonObject();
     	authHeader.addProperty("dspId", dspId);
@@ -77,10 +78,10 @@ public class AuditAdvertiserBaiduService {
 		String licenseNO = bean.getLicenseNo();
 		if ((licenseURL == null || "".equals(licenseURL))
 				&& (accountURL == null || "".equals(accountURL))) {
-			throw new Exception();// "baidu广告主提交第三方审核错误：原因：需要上传资质文件"// ——————————————
+			throw new NotFoundException("baidu广告主提交第三方审核错误;原因：需要上传资质文件");
 		}
 		if (licenseNO == null || "".equals(licenseNO)) {
-			throw new Exception();// "baidu广告主提交第三方审核错误：原因：资质编号不可为空"// ——————————————
+			throw new NotFoundException("baidu广告主提交第三方审核错误;原因：资质编号不可为空");
 		}
 		String advertiserId = bean.getId();
 		//将请求参数插入到广告主审核表中
@@ -204,8 +205,8 @@ public class AuditAdvertiserBaiduService {
 		if (json.get("dspId") == null || json.get("token") == null) {
 			throw new Exception();//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
-		String dspId = json.get("dspId").toString();
-		String token = json.get("token").toString();
+		String dspId = json.get("dspId").getAsString();
+		String token = json.get("token").getAsString();
 		//组成“请求头”
     	JsonObject authHeader = new JsonObject();
     	authHeader.addProperty("dspId", dspId);

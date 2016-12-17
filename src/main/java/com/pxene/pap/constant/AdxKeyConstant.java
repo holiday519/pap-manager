@@ -2,7 +2,7 @@ package com.pxene.pap.constant;
 
 public class AdxKeyConstant {
 
-	public static final String ADX_tanx_VALUE = "1";
+	public static final String ADX_TANX_VALUE = "1";
 	
 	public static final String ADX_BAIDU_VALUE = "8";
 	

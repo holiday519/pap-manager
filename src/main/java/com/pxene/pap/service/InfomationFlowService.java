@@ -6,13 +6,16 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.InformationFlowBean;
 import com.pxene.pap.domain.model.basic.InfoFlowModel;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.mapper.basic.InfoFlowModelMapper;
 
 @Service
-public class InfomationFlowService {
+public class InfomationFlowService extends BaseService{
 	
 	@Autowired
 	private InfoFlowModelMapper infoMapper;
@@ -24,33 +27,10 @@ public class InfomationFlowService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String createInformationFlow(InformationFlowBean bean) throws Exception{
-		String id = UUID.randomUUID().toString();
-		String name = bean.getName();
-		String title = bean.getTitle();
-		String description = bean.getDescription();
-		String icon = bean.getIcon();
-		String image1 = bean.getImage1();
-		String image2 = bean.getImage2();
-		String image3 = bean.getImage3();
-		String image4 = bean.getImage4();
-		String image5 = bean.getImage5();
-		InfoFlowModel info = new InfoFlowModel();
-		info.setId(id);
-		info.setName(name);
-		info.setTitle(title);
-		info.setDescription(description);
-		info.setIcon(icon);
-		info.setImage1(image1);
-		info.setImage2(image2);
-		info.setImage3(image3);
-		info.setImage4(image4);
-		info.setImage5(image5);
-		int num = infoMapper.insertSelective(info);
-		if (num > 0) {
-			return id;
-		}
-		return "操作失败";
+	public void createInformationFlow(InformationFlowBean bean) throws Exception{
+		bean.setId(UUID.randomUUID().toString());
+		InfoFlowModel info = modelMapper.map(bean, InfoFlowModel.class);
+		infoMapper.insertSelective(info);
 	}
 	
 	/**
@@ -60,33 +40,19 @@ public class InfomationFlowService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String updateInformationFlow(InformationFlowBean bean) throws Exception{
-		String id = bean.getId();
-		String name = bean.getName();
-		String title = bean.getTitle();
-		String description = bean.getDescription();
-		String icon = bean.getIcon();
-		String image1 = bean.getImage1();
-		String image2 = bean.getImage2();
-		String image3 = bean.getImage3();
-		String image4 = bean.getImage4();
-		String image5 = bean.getImage5();
-		InfoFlowModel info = new InfoFlowModel();
-		info.setId(id);
-		info.setName(name);
-		info.setTitle(title);
-		info.setDescription(description);
-		info.setIcon(icon);
-		info.setImage1(image1);
-		info.setImage2(image2);
-		info.setImage3(image3);
-		info.setImage4(image4);
-		info.setImage5(image5);
-		int num = infoMapper.updateByPrimaryKeySelective(info);
-		if (num > 0) {
-			return id;
+	public void updateInformationFlow(String id, InformationFlowBean bean) throws Exception{
+		if (!StringUtils.isEmpty(bean.getId())) {
+			throw new IllegalArgumentException();
 		}
-		return "操作失败";
+
+		InfoFlowModel infoFlowInDB = infoMapper.selectByPrimaryKey(id);
+		if (infoFlowInDB ==null || StringUtils.isEmpty(infoFlowInDB.getId())) {
+			throw new NotFoundException();
+		}
+		
+		bean.setId(id);
+		InfoFlowModel info = modelMapper.map(bean, InfoFlowModel.class);
+		infoMapper.updateByPrimaryKeySelective(info);
 	}
 	
 	/**

@@ -22,35 +22,35 @@ public class CampaignDao {
 
 	@Transactional
 	public int createCampaignBasic(CampaignBean bean) throws Exception {
-		String id = bean.getId();
-		String projectId = bean.getProjectId();
-		String name = bean.getName();
-		String type = bean.getType();
-		Integer totalBudget = bean.getTotalBudget();
-		Integer dailyBudget = bean.getDailyBudget();
-		Integer dailyImpression = bean.getDailyImpression();
-		Integer dailyClick = bean.getDailyClick();
-		Date startDate = bean.getStartDate();
-		Date endDate = bean.getEndDate();
-		String status = bean.getStatus();
-		
-		List<MonitorBean> monitors = bean.getMonitors();
-		for (MonitorBean mnt : monitors) {
-			List<String> urls = mnt.getUrls();
-			String monitorId = UUID.randomUUID().toString();
-			String impressionUrl = urls.get(0);
-			String clickUrl = urls.get(1);
-			String monitorSql = "insert into pap_t_monitor (id,campaignid,impression,click) values (?,?,?,?)";
-			jdbcTemplate.update(monitorSql,monitorId,id,impressionUrl,clickUrl);
-		}
-
-		// 插入活动基本信息
-		String sql = "insert into pap_t_campaign (id,projectid,name,type,totalbudget,"
-				+ "dailybudget,dailyimpression,dailyclick,status,startdate,enddate)"
-				+ " values(?,?,?,?,?,?,?,?,?,?,?)";
-		int num = jdbcTemplate.update(sql, id, projectId, name, type,
-				totalBudget, dailyBudget,dailyImpression, dailyClick, status, startDate,endDate);
-		return num;
+//		String id = bean.getId();
+//		String projectId = bean.getProjectId();
+//		String name = bean.getName();
+//		String type = bean.getType();
+//		Integer totalBudget = bean.getTotalBudget();
+//		Integer dailyBudget = bean.getDailyBudget();
+//		Integer dailyImpression = bean.getDailyImpression();
+//		Integer dailyClick = bean.getDailyClick();
+//		Date startDate = bean.getStartDate();
+//		Date endDate = bean.getEndDate();
+//		String status = bean.getStatus();
+//		
+//		List<MonitorBean> monitors = bean.getMonitors();
+//		for (MonitorBean mnt : monitors) {
+//			List<String> urls = mnt.getUrls();
+//			String monitorId = UUID.randomUUID().toString();
+//			String impressionUrl = urls.get(0);
+//			String clickUrl = urls.get(1);
+//			String monitorSql = "insert into pap_t_monitor (id,campaignid,impression,click) values (?,?,?,?)";
+//			jdbcTemplate.update(monitorSql,monitorId,id,impressionUrl,clickUrl);
+//		}
+//
+//		// 插入活动基本信息
+//		String sql = "insert into pap_t_campaign (id,projectid,name,type,totalbudget,"
+//				+ "dailybudget,dailyimpression,dailyclick,status,startdate,enddate)"
+//				+ " values(?,?,?,?,?,?,?,?,?,?,?)";
+//		int num = jdbcTemplate.update(sql, id, projectId, name, type,
+//				totalBudget, dailyBudget,dailyImpression, dailyClick, status, startDate,endDate);
+		return 0;
 	}
 
 	/**
