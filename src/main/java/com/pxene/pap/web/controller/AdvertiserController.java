@@ -120,12 +120,12 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNO, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
-        if (pageNO != null && pageSize != null)
+        if (pageNo != null && pageSize != null)
         {
-            pager = PageHelper.startPage(pageNO, pageSize);
+            pager = PageHelper.startPage(pageNo, pageSize);
         }
         
         List<AdvertiserBean> advertisers = advertiserService.listAdvertisers(name);

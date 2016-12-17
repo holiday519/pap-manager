@@ -177,7 +177,7 @@ public class AdvertiserService extends BaseService
         // 根据用户名进行过滤（可选）
         if (!StringUtils.isEmpty(name))
         {
-            criteria.andNameLike(name);
+            criteria.andNameLike("%" + name + "%");
         }
         
         List<AdvertiserModel> advertiserModels = advertiserMapper.selectByExample(example);

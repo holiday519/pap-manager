@@ -57,18 +57,18 @@ public class PaginationResult
     
     public class Pager
     {
-        private int page;
+        private int pageNo;
         private int pageSize;
         private long total;
         
         
-        public int getPage()
+        public int getPageNo()
         {
-            return page;
+            return pageNo;
         }
-        public void setPage(int page)
+        public void setPageNo(int page)
         {
-            this.page = page;
+            this.pageNo = page;
         }
         public int getPageSize()
         {
@@ -87,7 +87,7 @@ public class PaginationResult
 		public Pager(int page, int pageSize, long total)
         {
             super();
-            this.page = page;
+            this.pageNo = page;
             this.pageSize = pageSize;
             this.total = total;
         }
@@ -96,7 +96,7 @@ public class PaginationResult
         @Override
         public String toString()
         {
-            return "Pager [page=" + page + ", pageSize=" + pageSize + ", total=" + total + "]";
+            return "Pager [pageNo=" + pageNo + ", pageSize=" + pageSize + ", total=" + total + "]";
         }
     }
 }
