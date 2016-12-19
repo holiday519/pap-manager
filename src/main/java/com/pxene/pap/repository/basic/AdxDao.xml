@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.basic.AdxDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AdxModel">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="impression_url" jdbcType="VARCHAR" property="impressionUrl" />
+    <result column="click_url" jdbcType="VARCHAR" property="clickUrl" />
+    <result column="aexamine_url" jdbcType="VARCHAR" property="aexamineUrl" />
+    <result column="aexamineresult_url" jdbcType="VARCHAR" property="aexamineresultUrl" />
+    <result column="aupdate_url" jdbcType="VARCHAR" property="aupdateUrl" />
+    <result column="qexamine_url" jdbcType="VARCHAR" property="qexamineUrl" />
+    <result column="qupdate_url" jdbcType="VARCHAR" property="qupdateUrl" />
+    <result column="cexamine_url" jdbcType="VARCHAR" property="cexamineUrl" />
+    <result column="cexamine_result_url" jdbcType="VARCHAR" property="cexamineResultUrl" />
+    <result column="cupdate_url" jdbcType="VARCHAR" property="cupdateUrl" />
+    <result column="aexamine_flag" jdbcType="VARCHAR" property="aexamineFlag" />
+    <result column="cexamine_flag" jdbcType="VARCHAR" property="cexamineFlag" />
+    <result column="private_key" jdbcType="VARCHAR" property="privateKey" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name, impression_url, click_url, aexamine_url, aexamineresult_url, aupdate_url, 
+    qexamine_url, qupdate_url, cexamine_url, cexamine_result_url, cupdate_url, aexamine_flag, 
+    cexamine_flag, private_key, remark, create_time, update_time
+  </sql>
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_t_adx
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from pap_t_adx
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from pap_t_adx
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample">
+    delete from pap_t_adx
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+    insert into pap_t_adx (id, name, impression_url, 
+      click_url, aexamine_url, aexamineresult_url, 
+      aupdate_url, qexamine_url, qupdate_url, 
+      cexamine_url, cexamine_result_url, cupdate_url, 
+      aexamine_flag, cexamine_flag, private_key, 
+      remark, create_time, update_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{impressionUrl,jdbcType=VARCHAR}, 
+      #{clickUrl,jdbcType=VARCHAR}, #{aexamineUrl,jdbcType=VARCHAR}, #{aexamineresultUrl,jdbcType=VARCHAR}, 
+      #{aupdateUrl,jdbcType=VARCHAR}, #{qexamineUrl,jdbcType=VARCHAR}, #{qupdateUrl,jdbcType=VARCHAR}, 
+      #{cexamineUrl,jdbcType=VARCHAR}, #{cexamineResultUrl,jdbcType=VARCHAR}, #{cupdateUrl,jdbcType=VARCHAR}, 
+      #{aexamineFlag,jdbcType=VARCHAR}, #{cexamineFlag,jdbcType=VARCHAR}, #{privateKey,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+    insert into pap_t_adx
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="impressionUrl != null">
+        impression_url,
+      </if>
+      <if test="clickUrl != null">
+        click_url,
+      </if>
+      <if test="aexamineUrl != null">
+        aexamine_url,
+      </if>
+      <if test="aexamineresultUrl != null">
+        aexamineresult_url,
+      </if>
+      <if test="aupdateUrl != null">
+        aupdate_url,
+      </if>
+      <if test="qexamineUrl != null">
+        qexamine_url,
+      </if>
+      <if test="qupdateUrl != null">
+        qupdate_url,
+      </if>
+      <if test="cexamineUrl != null">
+        cexamine_url,
+      </if>
+      <if test="cexamineResultUrl != null">
+        cexamine_result_url,
+      </if>
+      <if test="cupdateUrl != null">
+        cupdate_url,
+      </if>
+      <if test="aexamineFlag != null">
+        aexamine_flag,
+      </if>
+      <if test="cexamineFlag != null">
+        cexamine_flag,
+      </if>
+      <if test="privateKey != null">
+        private_key,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="impressionUrl != null">
+        #{impressionUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="clickUrl != null">
+        #{clickUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineUrl != null">
+        #{aexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineresultUrl != null">
+        #{aexamineresultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aupdateUrl != null">
+        #{aupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qexamineUrl != null">
+        #{qexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qupdateUrl != null">
+        #{qupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineUrl != null">
+        #{cexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineResultUrl != null">
+        #{cexamineResultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cupdateUrl != null">
+        #{cupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineFlag != null">
+        #{aexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineFlag != null">
+        #{cexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="privateKey != null">
+        #{privateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_adx
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update pap_t_adx
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.impressionUrl != null">
+        impression_url = #{record.impressionUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.clickUrl != null">
+        click_url = #{record.clickUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aexamineUrl != null">
+        aexamine_url = #{record.aexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aexamineresultUrl != null">
+        aexamineresult_url = #{record.aexamineresultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aupdateUrl != null">
+        aupdate_url = #{record.aupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qexamineUrl != null">
+        qexamine_url = #{record.qexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qupdateUrl != null">
+        qupdate_url = #{record.qupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cexamineUrl != null">
+        cexamine_url = #{record.cexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cexamineResultUrl != null">
+        cexamine_result_url = #{record.cexamineResultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cupdateUrl != null">
+        cupdate_url = #{record.cupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.aexamineFlag != null">
+        aexamine_flag = #{record.aexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.cexamineFlag != null">
+        cexamine_flag = #{record.cexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="record.privateKey != null">
+        private_key = #{record.privateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update pap_t_adx
+    set id = #{record.id,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      impression_url = #{record.impressionUrl,jdbcType=VARCHAR},
+      click_url = #{record.clickUrl,jdbcType=VARCHAR},
+      aexamine_url = #{record.aexamineUrl,jdbcType=VARCHAR},
+      aexamineresult_url = #{record.aexamineresultUrl,jdbcType=VARCHAR},
+      aupdate_url = #{record.aupdateUrl,jdbcType=VARCHAR},
+      qexamine_url = #{record.qexamineUrl,jdbcType=VARCHAR},
+      qupdate_url = #{record.qupdateUrl,jdbcType=VARCHAR},
+      cexamine_url = #{record.cexamineUrl,jdbcType=VARCHAR},
+      cexamine_result_url = #{record.cexamineResultUrl,jdbcType=VARCHAR},
+      cupdate_url = #{record.cupdateUrl,jdbcType=VARCHAR},
+      aexamine_flag = #{record.aexamineFlag,jdbcType=VARCHAR},
+      cexamine_flag = #{record.cexamineFlag,jdbcType=VARCHAR},
+      private_key = #{record.privateKey,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+    update pap_t_adx
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="impressionUrl != null">
+        impression_url = #{impressionUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="clickUrl != null">
+        click_url = #{clickUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineUrl != null">
+        aexamine_url = #{aexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineresultUrl != null">
+        aexamineresult_url = #{aexamineresultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aupdateUrl != null">
+        aupdate_url = #{aupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qexamineUrl != null">
+        qexamine_url = #{qexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qupdateUrl != null">
+        qupdate_url = #{qupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineUrl != null">
+        cexamine_url = #{cexamineUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineResultUrl != null">
+        cexamine_result_url = #{cexamineResultUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="cupdateUrl != null">
+        cupdate_url = #{cupdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="aexamineFlag != null">
+        aexamine_flag = #{aexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="cexamineFlag != null">
+        cexamine_flag = #{cexamineFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="privateKey != null">
+        private_key = #{privateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+    update pap_t_adx
+    set name = #{name,jdbcType=VARCHAR},
+      impression_url = #{impressionUrl,jdbcType=VARCHAR},
+      click_url = #{clickUrl,jdbcType=VARCHAR},
+      aexamine_url = #{aexamineUrl,jdbcType=VARCHAR},
+      aexamineresult_url = #{aexamineresultUrl,jdbcType=VARCHAR},
+      aupdate_url = #{aupdateUrl,jdbcType=VARCHAR},
+      qexamine_url = #{qexamineUrl,jdbcType=VARCHAR},
+      qupdate_url = #{qupdateUrl,jdbcType=VARCHAR},
+      cexamine_url = #{cexamineUrl,jdbcType=VARCHAR},
+      cexamine_result_url = #{cexamineResultUrl,jdbcType=VARCHAR},
+      cupdate_url = #{cupdateUrl,jdbcType=VARCHAR},
+      aexamine_flag = #{aexamineFlag,jdbcType=VARCHAR},
+      cexamine_flag = #{cexamineFlag,jdbcType=VARCHAR},
+      private_key = #{privateKey,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

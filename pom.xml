@@ -191,7 +191,7 @@
 	                    </dependency>
 	                </dependencies>
 	                <configuration>
-	                    <configurationFile>src/main/resources/config/sql/generatorConfig.xml</configurationFile>
+	                    <configurationFile>src/main/resources/generatorConfig.xml</configurationFile>
 	                    <verbose>true</verbose>
 	                    <overwrite>true</overwrite>
 	                </configuration>
