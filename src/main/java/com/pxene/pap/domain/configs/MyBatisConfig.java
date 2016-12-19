@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.TransactionManagementConfigure
 import com.github.pagehelper.PageHelper;
 
 @Configuration
-@MapperScan("com.pxene.pap.repository.mapper") 
+@MapperScan("com.pxene.pap.repository") 
 @EnableTransactionManagement
 public class MyBatisConfig implements TransactionManagementConfigurer
 {
@@ -51,7 +51,7 @@ public class MyBatisConfig implements TransactionManagementConfigurer
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try
         {
-            bean.setMapperLocations(resolver.getResources("classpath:com/pxene/pap/repository/mapper/**/*.xml"));
+            bean.setMapperLocations(resolver.getResources("classpath:com/pxene/pap/repository/**/*.xml"));
             return bean.getObject();
         }
         catch (Exception e)

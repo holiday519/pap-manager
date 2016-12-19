@@ -20,9 +20,6 @@ public class AccessToken implements Serializable
     @JsonProperty("issued_at")
     private long issuedAt;
     
-    @JsonProperty("username")
-    private String username;
-    
     @JsonProperty("userid")
     private String userid;
     
@@ -59,14 +56,6 @@ public class AccessToken implements Serializable
     {
         this.issuedAt = issuedAt;
     }
-    public String getUsername()
-    {
-        return username;
-    }
-    public void setUsername(String username)
-    {
-        this.username = username;
-    }
     public String getUserid()
     {
         return userid;
@@ -80,6 +69,6 @@ public class AccessToken implements Serializable
     @Override
     public String toString()
     {
-        return "AccessToken [accessToken=" + accessToken + ", tokenType=" + tokenType + ", expiresAt=" + expiresAt + ", issuedAt=" + issuedAt + ", username=" + username + ", userid=" + userid + "]";
+        return "AccessToken [accessToken=" + accessToken + ", tokenType=" + tokenType + ", expiresAt=" + expiresAt + ", issuedAt=" + issuedAt + ", userid=" + userid + "]";
     }
 }
