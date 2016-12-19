@@ -61,7 +61,7 @@ public class TokenService
     public AccessToken generateToken(UserModel user)
     {
         // 根据用户ID、用户名、签发时间、到期时间等信息来生成Token
-        AccessToken accessToken = JwtUtils.createJWT(String.valueOf(user.getId()), user.getName(), tokenExpiresSecond * 1000, tokenSecret);
+        AccessToken accessToken = JwtUtils.createJWT(String.valueOf(user.getId()), tokenExpiresSecond * 1000, tokenSecret);
         
         return accessToken;
     }

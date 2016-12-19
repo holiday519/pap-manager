@@ -15,12 +15,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtUtils
 {
-    public static AccessToken createJWT(String userid, String username, long ttlMillis, String secret)
+    public static AccessToken createJWT(String userid, long ttlMillis, String secret)
     {
-        return createJWT(userid, username, null, null, null, ttlMillis, secret);
+        return createJWT(userid, null, null, null, ttlMillis, secret);
     }
     
-    public static AccessToken createJWT(String userid, String username, String issuer, String subject, String audience, long ttlMillis, String secret)
+    public static AccessToken createJWT(String userid, String issuer, String subject, String audience, long ttlMillis, String secret)
     {
         // 当前时间戳
         long nowMillis = System.currentTimeMillis();
@@ -40,7 +40,6 @@ public class JwtUtils
         JwtBuilder builder = Jwts.builder();
         builder.setHeaderParam("typ", "JWT");
         builder.claim("userid", userid);
-        builder.claim("username", username);
         builder.setIssuer(issuer);                          // #-> 非必需。issuer: 请求实体，可以是发起请求的用户的信息，也可是jwt的签发者。
         builder.setSubject(subject);                        // #-> 非必需。subject: 该JWT所面向的用户.
         builder.setAudience(audience);                      // #-> 非必需。audience: 接收该JWT的一方。
@@ -66,7 +65,6 @@ public class JwtUtils
         accessToken.setExpiresAt(expiresAt);
         accessToken.setIssuedAt(nowMillis);
         accessToken.setTokenType("Bearer");
-        accessToken.setUsername(username);
         accessToken.setUserid(userid);
         return accessToken;
     }
