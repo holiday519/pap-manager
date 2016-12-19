@@ -16,13 +16,13 @@ import com.pxene.pap.domain.beans.AccessToken;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.domain.model.basic.UserModelExample;
 import com.pxene.pap.exception.DeleteErrorException;
-import com.pxene.pap.repository.mapper.basic.UserModelMapper;
+import com.pxene.pap.repository.basic.UserDao;
 
 @Service
 public class TokenService
 {
     @Autowired
-    private UserModelMapper userMapper;
+    private UserDao userDao;
     
     @Autowired
     private RedisUtils redisUtils;
@@ -46,7 +46,7 @@ public class TokenService
         UserModelExample example = new UserModelExample();
         example.createCriteria().andNameEqualTo(username);
         
-        List<UserModel> selectResult = userMapper.selectByExample(example);
+        List<UserModel> selectResult = userDao.selectByExample(example);
         
         if (selectResult != null && !selectResult.isEmpty())
         {

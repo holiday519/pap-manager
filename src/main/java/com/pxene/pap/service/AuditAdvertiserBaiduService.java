@@ -34,16 +34,16 @@ import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.AdvertiserAuditModelMapper;
-import com.pxene.pap.repository.mapper.basic.AdxModelMapper;
+import com.pxene.pap.repository.basic.AdvertiserAuditDao;
+import com.pxene.pap.repository.basic.AdxDao;
 
 public class AuditAdvertiserBaiduService {
 	
     @Autowired
-    private AdxModelMapper adxMapper;
+    private AdxDao adxDao;
     
     @Autowired
-    private AdvertiserAuditModelMapper advAuditMapper;
+    private AdvertiserAuditDao advAuditDao;
     
     /**
      * 审核和重复审核接口
@@ -54,7 +54,7 @@ public class AuditAdvertiserBaiduService {
      * @throws Exception
      */
 	public void auditAndEdit(AdvertiserBean bean,String auditType) throws Exception {
-		AdxModel adxModel = adxMapper.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
+		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
 		String aexamineurl = adxModel.getAexamineUrl();//广告主审核地址
 		String qexamineurl = adxModel.getQexamineUrl();//资质审核地址
 		String aupdateurl = adxModel.getAupdateUrl();//广告主更新地址
@@ -88,7 +88,6 @@ public class AuditAdvertiserBaiduService {
 		AdvertiserAuditModel model = new AdvertiserAuditModel();
 		model.setId(UUID.randomUUID().toString());
 		model.setAdvertiserId(advertiserId);
-		
 		model.setStatus("00");
 		//生成一个数字型随机数（数字id）
 		long num;
@@ -97,11 +96,11 @@ public class AuditAdvertiserBaiduService {
 			// 重新提交时，如果数据库中已有提交值，那么就直接用，如果没有 就像第一次提交一样，添加到数据库中
 			AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
 			ex.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
-			List<AdvertiserAuditModel> list = advAuditMapper.selectByExample(ex);
+			List<AdvertiserAuditModel> list = advAuditDao.selectByExample(ex);
 			if (list == null || list.isEmpty()) {
 				num = (long) Math.floor((new Random()).nextDouble() * 1000000000D);
 				model.setAuditValue(String.valueOf(num));
-				advAuditMapper.insertSelective(model);
+				advAuditDao.insertSelective(model);
 			} else {
 				num = Long.parseLong(list.get(0).getAuditValue());
 			}
@@ -109,7 +108,7 @@ public class AuditAdvertiserBaiduService {
 		} else {
 			num = (long) Math.floor((new Random()).nextDouble() * 1000000000D);
 			model.setAuditValue(String.valueOf(num));
-			advAuditMapper.insertSelective(model);
+			advAuditDao.insertSelective(model);
 		}
 		//request参数——广告主提交第三方审核
 		JsonObject param = new JsonObject();
@@ -195,7 +194,7 @@ public class AuditAdvertiserBaiduService {
 	 * @throws Exception
 	 */
 	public void synchronize(String advertiserId) throws Exception {
-		AdxModel adxModel = adxMapper.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
+		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
 		String aexamineresultUrl = adxModel.getAexamineresultUrl();
 		String privateKey = adxModel.getPrivateKey();//取出adx的私密key
     	Gson gson = new Gson();
@@ -212,7 +211,7 @@ public class AuditAdvertiserBaiduService {
     	authHeader.addProperty("token", token);
     	AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
 		ex.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
-		List<AdvertiserAuditModel> list = advAuditMapper.selectByExample(ex);
+		List<AdvertiserAuditModel> list = advAuditDao.selectByExample(ex);
 		AdvertiserAuditModel advAuditModel = list.get(0);
 		long num = Long.parseLong(advAuditModel.getAuditValue());
 		JsonArray adver = new JsonArray();//广告主数字Id数组
@@ -258,7 +257,7 @@ public class AuditAdvertiserBaiduService {
 			advAudModel.setStatus(statu);
 			advAudModel.setMessage(message);
 			//更新广告主审核表信息
-			advAuditMapper.updateByExampleSelective(advAudModel, advAudEx);
+			advAuditDao.updateByExampleSelective(advAudModel, advAudEx);
 		} else {
 		//广告主同步第三方审核状态执行失败;将错误信息存入数据库
 			JsonArray errors = jsonMap.getAsJsonArray("errors");
@@ -269,7 +268,7 @@ public class AuditAdvertiserBaiduService {
 			AdvertiserAuditModel advAudModel = new AdvertiserAuditModel();
 			advAudModel.setMessage(message);
 			//更新广告主审核表信息
-			advAuditMapper.updateByExampleSelective(advAudModel, advAudEx);
+			advAuditDao.updateByExampleSelective(advAudModel, advAudEx);
 			// 是否需要抛出异常？抛的话上方插入操作回滚？——————————————
 		}
 	}

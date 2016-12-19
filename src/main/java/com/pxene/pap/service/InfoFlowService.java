@@ -12,13 +12,13 @@ import com.pxene.pap.domain.beans.InfoFlowBean;
 import com.pxene.pap.domain.model.basic.InfoFlowModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.InfoFlowModelMapper;
+import com.pxene.pap.repository.basic.InfoFlowDao;
 
 @Service
 public class InfoFlowService extends BaseService{
 	
 	@Autowired
-	private InfoFlowModelMapper infoMapper;
+	private InfoFlowDao infoDao;
 	
 	/**
 	 * 创建信息流
@@ -30,7 +30,7 @@ public class InfoFlowService extends BaseService{
 	public void createInfoFlow(InfoFlowBean bean) throws Exception{
 		bean.setId(UUID.randomUUID().toString());
 		InfoFlowModel info = modelMapper.map(bean, InfoFlowModel.class);
-		infoMapper.insertSelective(info);
+		infoDao.insertSelective(info);
 	}
 	
 	/**
@@ -45,14 +45,14 @@ public class InfoFlowService extends BaseService{
 			throw new IllegalArgumentException();
 		}
 
-		InfoFlowModel infoFlowInDB = infoMapper.selectByPrimaryKey(id);
+		InfoFlowModel infoFlowInDB = infoDao.selectByPrimaryKey(id);
 		if (infoFlowInDB ==null || StringUtils.isEmpty(infoFlowInDB.getId())) {
 			throw new NotFoundException();
 		}
 		
 		bean.setId(id);
 		InfoFlowModel info = modelMapper.map(bean, InfoFlowModel.class);
-		infoMapper.updateByPrimaryKeySelective(info);
+		infoDao.updateByPrimaryKeySelective(info);
 	}
 	
 	/**
@@ -62,7 +62,7 @@ public class InfoFlowService extends BaseService{
 	 */
 	@Transactional
 	public int deleteInfoFlow(String id)  throws Exception{
-		int num = infoMapper.deleteByPrimaryKey(id);
+		int num = infoDao.deleteByPrimaryKey(id);
 		return num;
 	}
 	

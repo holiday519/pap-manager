@@ -20,17 +20,17 @@ import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
-import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
+import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
 public class ProjectService extends BaseService {
 	
 	@Autowired
-	private ProjectModelMapper projectMapper;
+	private ProjectDao projectDao;
 	
 	@Autowired
-	private CampaignModelMapper campaignMapper;
+	private CampaignDao campaignDao;
 	
 	@Autowired
 	private CampaignService campaignService;
@@ -48,7 +48,7 @@ public class ProjectService extends BaseService {
 		try {
 			model.setId(id);
 			// 添加项目信息
-			projectMapper.insertSelective(model);
+			projectDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
@@ -67,7 +67,7 @@ public class ProjectService extends BaseService {
 			throw new IllegalArgumentException();
 		}
 
-		ProjectModel projectInDB = projectMapper.selectByPrimaryKey(id);
+		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
 			throw new NotFoundException();
 		}
@@ -77,7 +77,7 @@ public class ProjectService extends BaseService {
 
 		try {
 			// 修改项目信息
-			projectMapper.updateByPrimaryKeySelective(projectModel);
+			projectDao.updateByPrimaryKeySelective(projectModel);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
@@ -91,7 +91,7 @@ public class ProjectService extends BaseService {
 	 */
 	@Transactional
 	public void deleteProject(String id) throws Exception {
-		ProjectModel projectInDB = projectMapper.selectByPrimaryKey(id);
+		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
 			throw new NotFoundException();
 		}
@@ -99,12 +99,12 @@ public class ProjectService extends BaseService {
 		//查询出项目下活动
 		CampaignModelExample example = new CampaignModelExample();
 		example.createCriteria().andProjectIdEqualTo(id);
-		List<CampaignModel> list = campaignMapper.selectByExample(example);
+		List<CampaignModel> list = campaignDao.selectByExample(example);
 		if (list != null && !list.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
 		
-		projectMapper.deleteByPrimaryKey(id);
+		projectDao.deleteByPrimaryKey(id);
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class ProjectService extends BaseService {
 	 * @return
 	 */
     public ProjectBean selectProject(String id) throws Exception {
-        ProjectModel model = projectMapper.selectByPrimaryKey(id);
+        ProjectModel model = projectDao.selectByPrimaryKey(id);
         if (model == null) {
         	throw new NotFoundException();
         }
@@ -137,7 +137,7 @@ public class ProjectService extends BaseService {
 			example.createCriteria().andNameLike("%" + name + "%");
 		}
 		
-		List<ProjectModel> projects = projectMapper.selectByExample(example);
+		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 		
 		if (projects == null || projects.isEmpty()) {

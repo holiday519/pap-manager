@@ -45,68 +45,68 @@ import com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.AdTypeTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.AppTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.BrandTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
-import com.pxene.pap.repository.mapper.basic.CreativeModelMapper;
-import com.pxene.pap.repository.mapper.basic.DeviceTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.FrequencyModelMapper;
-import com.pxene.pap.repository.mapper.basic.MonitorModelMapper;
-import com.pxene.pap.repository.mapper.basic.NetworkTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.OperatorTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.OsTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.RegionTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.TimeTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.view.CampaignTargetModelMapper;
+import com.pxene.pap.repository.basic.AdTypeTargetDao;
+import com.pxene.pap.repository.basic.AppTargetDao;
+import com.pxene.pap.repository.basic.BrandTargetDao;
+import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.DeviceTargetDao;
+import com.pxene.pap.repository.basic.FrequencyDao;
+import com.pxene.pap.repository.basic.MonitorDao;
+import com.pxene.pap.repository.basic.NetworkTargetDao;
+import com.pxene.pap.repository.basic.OperatorTargetDao;
+import com.pxene.pap.repository.basic.OsTargetDao;
+import com.pxene.pap.repository.basic.RegionTargetDao;
+import com.pxene.pap.repository.basic.TimeTargetDao;
+import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
 public class CampaignService extends BaseService{
 	
 	@Autowired
-	private CampaignModelMapper campaignMapper; 
+	private CampaignDao campaignDao; 
 	
 	@Autowired
 	private CreativeService creativeService; 
 	
 	@Autowired
-	private CreativeModelMapper creativeMapper; 
+	private CreativeDao creativeDao; 
 	
 	@Autowired
-	private MonitorModelMapper monitorMapper;
+	private MonitorDao monitorDao;
 	
 	@Autowired
-	private FrequencyModelMapper frequencyMapper;
+	private FrequencyDao frequencyDao;
 	
 	@Autowired
-	private RegionTargetModelMapper regionTargetMapper;
+	private RegionTargetDao regionTargetDao;
 	
 	@Autowired
-	private AdTypeTargetModelMapper adtypeTargetMapper;
+	private AdTypeTargetDao adtypeTargetDao;
 	
 	@Autowired
-	private TimeTargetModelMapper timeTargetMapper;
+	private TimeTargetDao timeTargetDao;
 	
 	@Autowired
-	private NetworkTargetModelMapper networkTargetMapper;
+	private NetworkTargetDao networkTargetDao;
 	
 	@Autowired
-	private OperatorTargetModelMapper operatorTargetMapper;
+	private OperatorTargetDao operatorTargetDao;
 	
 	@Autowired
-	private DeviceTargetModelMapper deviceTargetMapper;
+	private DeviceTargetDao deviceTargetDao;
 	
 	@Autowired
-	private OsTargetModelMapper osTargetMapper;
+	private OsTargetDao osTargetDao;
 	
 	@Autowired
-	private BrandTargetModelMapper brandTargetMapper;
+	private BrandTargetDao brandTargetDao;
 	
 	@Autowired
-	private AppTargetModelMapper appTargetMapper;
+	private AppTargetDao appTargetDao;
 	
 	@Autowired
-	private CampaignTargetModelMapper campaignTargetMapper;
+	private CampaignTargetDao campaignTargetDao;
 	
 	/**
 	 * 创建活动
@@ -134,7 +134,7 @@ public class CampaignService extends BaseService{
 			frequencyModel.setControlObj(controlObj);
 			frequencyModel.setTimeType(timeType);
 			frequencyModel.setFrequency(frequency);
-			frequencyMapper.insertSelective(frequencyModel);
+			frequencyDao.insertSelective(frequencyModel);
 			//添加定向信息
 			addCampaignTarget(bean);
 			//添加点击、展现监测地址
@@ -143,7 +143,7 @@ public class CampaignService extends BaseService{
 			campaignModel.setFrequencyId(frequencyId);
 			
 			//添加活动基本信息
-			campaignMapper.insertSelective(campaignModel);
+			campaignDao.insertSelective(campaignModel);
 			
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
@@ -164,7 +164,7 @@ public class CampaignService extends BaseService{
 			throw new IllegalArgumentException();
 		}
 		
-		CampaignModel campaignInDB = campaignMapper.selectByPrimaryKey(id);
+		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
 			throw new NotFoundException();
 		}
@@ -184,7 +184,7 @@ public class CampaignService extends BaseService{
 			frequencyModel.setControlObj(controlObj);
 			frequencyModel.setTimeType(timeType);
 			frequencyModel.setFrequency(frequency);
-			frequencyMapper.updateByPrimaryKeySelective(frequencyModel);
+			frequencyDao.updateByPrimaryKeySelective(frequencyModel);
 			
 			//删除定向信息
 			deleteCampaignTarget(id);
@@ -196,7 +196,7 @@ public class CampaignService extends BaseService{
 			addCampaignMonitor(bean);
 			
 			//修改基本信息
-			campaignMapper.updateByPrimaryKeySelective(campaignModel);
+			campaignDao.updateByPrimaryKeySelective(campaignModel);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
@@ -225,7 +225,7 @@ public class CampaignService extends BaseService{
 				region.setId(UUID.randomUUID().toString());
 				region.setCampaignId(id);
 				region.setRegionId(regionId);
-				regionTargetMapper.insertSelective(region);
+				regionTargetDao.insertSelective(region);
 			}
 		}
 		if (adTypeTarget != null && !adTypeTarget.isEmpty()) {
@@ -235,7 +235,7 @@ public class CampaignService extends BaseService{
 				adType.setId(UUID.randomUUID().toString());
 				adType.setCampaignId(id);
 				adType.setAdType(adTypeId);
-				adtypeTargetMapper.insertSelective(adType);
+				adtypeTargetDao.insertSelective(adType);
 			}
 		}
 		if (timeTarget != null && !timeTarget.isEmpty()) {
@@ -245,7 +245,7 @@ public class CampaignService extends BaseService{
 				time.setId(UUID.randomUUID().toString());
 				time.setCampaignId(id);
 				time.setTimeId(timeId);
-				timeTargetMapper.insertSelective(time);
+				timeTargetDao.insertSelective(time);
 			}
 		}
 		if (networkTarget != null && !networkTarget.isEmpty()) {
@@ -255,7 +255,7 @@ public class CampaignService extends BaseService{
 				network.setId(UUID.randomUUID().toString());
 				network.setCampaignId(id);
 				network.setNetwork(networkid);
-				networkTargetMapper.insertSelective(network);
+				networkTargetDao.insertSelective(network);
 			}
 		}
 		if (operatorTarget != null && !operatorTarget.isEmpty()) {
@@ -265,7 +265,7 @@ public class CampaignService extends BaseService{
 				operator.setId(UUID.randomUUID().toString());
 				operator.setCampaignId(id);
 				operator.setOperator(operatorId);
-				operatorTargetMapper.insertSelective(operator);
+				operatorTargetDao.insertSelective(operator);
 			}
 		}
 		if (deviceTarget != null && !deviceTarget.isEmpty()) {
@@ -275,7 +275,7 @@ public class CampaignService extends BaseService{
 				device.setId(UUID.randomUUID().toString());
 				device.setCampaignId(id);
 				device.setDevice(deviceId);
-				deviceTargetMapper.insertSelective(device);
+				deviceTargetDao.insertSelective(device);
 			}
 		}
 		if (osTarget != null && !osTarget.isEmpty()) {
@@ -285,7 +285,7 @@ public class CampaignService extends BaseService{
 				os.setId(UUID.randomUUID().toString());
 				os.setCampaignId(id);
 				os.setOs(osId);
-				osTargetMapper.insertSelective(os);
+				osTargetDao.insertSelective(os);
 			}
 		}
 		if (brandTarget != null && !brandTarget.isEmpty()) {
@@ -295,7 +295,7 @@ public class CampaignService extends BaseService{
 				brand.setId(UUID.randomUUID().toString());
 				brand.setCampaignId(id);
 				brand.setBrandId(brandId);
-				brandTargetMapper.insertSelective(brand);
+				brandTargetDao.insertSelective(brand);
 			}
 		}
 		if (appTarget != null && !appTarget.isEmpty()) {
@@ -305,7 +305,7 @@ public class CampaignService extends BaseService{
 				app.setId(UUID.randomUUID().toString());
 				app.setCampaignId(id);
 				app.setAppId(appId);
-				appTargetMapper.insertSelective(app);
+				appTargetDao.insertSelective(app);
 			}
 		}
 	}
@@ -319,39 +319,39 @@ public class CampaignService extends BaseService{
 		//删除地域定向
 		RegionTargetModelExample region = new RegionTargetModelExample();
 		region.createCriteria().andCampaignIdEqualTo(campaignId);
-		regionTargetMapper.deleteByExample(region);
+		regionTargetDao.deleteByExample(region);
 		//删除广告类型定向
 		AdTypeTargetModelExample adType = new AdTypeTargetModelExample();
 		adType.createCriteria().andCampaignIdEqualTo(campaignId);
-		adtypeTargetMapper.deleteByExample(adType);
+		adtypeTargetDao.deleteByExample(adType);
 		//删除时间定向
 		TimeTargetModelExample time = new TimeTargetModelExample();
 		time.createCriteria().andCampaignIdEqualTo(campaignId);
-		timeTargetMapper.deleteByExample(time);
+		timeTargetDao.deleteByExample(time);
 		//删除网络定向
 		NetworkTargetModelExample network = new NetworkTargetModelExample();
 		network.createCriteria().andCampaignIdEqualTo(campaignId);
-		networkTargetMapper.deleteByExample(network);
+		networkTargetDao.deleteByExample(network);
 		//删除运营商定向
 		OperatorTargetModelExample op = new OperatorTargetModelExample();
 		op.createCriteria().andCampaignIdEqualTo(campaignId);
-		operatorTargetMapper.deleteByExample(op);
+		operatorTargetDao.deleteByExample(op);
 		//删除设备定向
 		DeviceTargetModelExample device = new DeviceTargetModelExample();
 		device.createCriteria().andCampaignIdEqualTo(campaignId);
-		deviceTargetMapper.deleteByExample(device);
+		deviceTargetDao.deleteByExample(device);
 		//删除系统定向
 		OsTargetModelExample os = new OsTargetModelExample();
 		os.createCriteria().andCampaignIdEqualTo(campaignId);
-		osTargetMapper.deleteByExample(os);
+		osTargetDao.deleteByExample(os);
 		//删除品牌定向
 		BrandTargetModelExample brand = new BrandTargetModelExample();
 		brand.createCriteria().andCampaignIdEqualTo(campaignId);
-		brandTargetMapper.deleteByExample(brand);
+		brandTargetDao.deleteByExample(brand);
 		//删除APP定向
 		AppTargetModelExample app = new AppTargetModelExample();
 		app.createCriteria().andCampaignIdEqualTo(campaignId);
-		appTargetMapper.deleteByExample(app);
+		appTargetDao.deleteByExample(app);
 	}
 	
 	/**
@@ -379,7 +379,7 @@ public class CampaignService extends BaseService{
 					String clickUrl = urls.get(1);
 					monitor.setClickUrl(clickUrl);
 				}
-				monitorMapper.insertSelective(monitor);
+				monitorDao.insertSelective(monitor);
 			}
 		}
 	}
@@ -392,7 +392,7 @@ public class CampaignService extends BaseService{
 	public void deleteCampaignMonitor(String campaignId) throws Exception {
 		MonitorModelExample example = new MonitorModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
-		monitorMapper.deleteByExample(example);
+		monitorDao.deleteByExample(example);
 	}
 	
 	/**
@@ -402,8 +402,8 @@ public class CampaignService extends BaseService{
 	 */
 	@Transactional
 	public void deletefrequency(String campaignId) throws Exception {
-		CampaignModel campaignModel = campaignMapper.selectByPrimaryKey(campaignId);
-		frequencyMapper.deleteByPrimaryKey(campaignModel.getFrequencyId());
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+		frequencyDao.deleteByPrimaryKey(campaignModel.getFrequencyId());
 	}
 	
 	/**
@@ -414,7 +414,7 @@ public class CampaignService extends BaseService{
 	 */
 	@Transactional
 	public void deleteCampaign(String campaignId) throws Exception {
-		CampaignModel campaignInDB = campaignMapper.selectByPrimaryKey(campaignId);
+		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(campaignId);
 		if (campaignInDB ==null || StringUtils.isEmpty(campaignInDB.getId())) {
 			throw new NotFoundException();
 		}
@@ -422,7 +422,7 @@ public class CampaignService extends BaseService{
 		//先查询出活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> list = creativeMapper.selectByExample(creativeExample);
+		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
 			for (CreativeModel cModel : list) {
 				String creativeId = cModel.getId();
@@ -437,7 +437,7 @@ public class CampaignService extends BaseService{
 		//删除频次信息
 		deletefrequency(campaignId);
 		//删除活动
-		creativeMapper.deleteByPrimaryKey(campaignId);
+		creativeDao.deleteByPrimaryKey(campaignId);
 	}
 	
 	/**
@@ -446,7 +446,7 @@ public class CampaignService extends BaseService{
 	 * @return
 	 */
 	public CampaignBean selectCampaign(String campaignId)  throws Exception {
-		CampaignModel model = campaignMapper.selectByPrimaryKey(campaignId);
+		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 		if (model ==null || StringUtils.isEmpty(model.getId())) {
         	throw new NotFoundException();
         }
@@ -467,7 +467,7 @@ public class CampaignService extends BaseService{
 			example.createCriteria().andNameLike("%" + name + "%");
 		}
 		
-		List<CampaignModel> campaigns = campaignMapper.selectByExample(example);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
 		List<CampaignBean> beans = new ArrayList<CampaignBean>();
 		
 		if (campaigns == null || campaigns.isEmpty()) {
@@ -493,7 +493,7 @@ public class CampaignService extends BaseService{
 		CampaignTargetModelExample example = new CampaignTargetModelExample();
 		example.createCriteria().andIdEqualTo(campaignId);
 		// 查询定向信息
-		List<CampaignTargetModel> list = campaignTargetMapper.selectByExampleWithBLOBs(example);
+		List<CampaignTargetModel> list = campaignTargetDao.selectByExampleWithBLOBs(example);
 		if (list != null && !list.isEmpty()) {
 			CampaignTargetModel model = list.get(0);
 			bean.setRegionTarget(formatTargetStringToList(model.getRegionId()));
@@ -508,7 +508,7 @@ public class CampaignService extends BaseService{
 		}
 		// 查询频次信息
 		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
-			FrequencyModel frequency = frequencyMapper.selectByPrimaryKey(bean.getFrequencyId());
+			FrequencyModel frequency = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
 			bean.setControlObj(frequency.getControlObj());
 			bean.setFrequency(frequency.getFrequency());
 			bean.setTimeType(frequency.getTimeType());
@@ -516,7 +516,7 @@ public class CampaignService extends BaseService{
 		// 查询检测地址
 		MonitorModelExample monitorExample = new MonitorModelExample();
 		monitorExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<MonitorModel> monitors = monitorMapper.selectByExample(monitorExample);
+		List<MonitorModel> monitors = monitorDao.selectByExample(monitorExample);
 		//如果没有查到点击展现地址数据，直接返回
 		if (monitors != null && !monitors.isEmpty()) {
 			List<MonitorBean> monitorList = new ArrayList<MonitorBean>();

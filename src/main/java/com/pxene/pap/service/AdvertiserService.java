@@ -23,17 +23,17 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
-import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
+import com.pxene.pap.repository.basic.AdvertiserDao;
+import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
 public class AdvertiserService extends BaseService
 {
     @Autowired
-    private AdvertiserModelMapper advertiserMapper;
+    private AdvertiserDao advertiserDao;
 
     @Autowired
-    private ProjectModelMapper projectMapper;
+    private ProjectDao projectDao;
     
     
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
@@ -44,7 +44,7 @@ public class AdvertiserService extends BaseService
         
         try
         {
-            advertiserMapper.insertSelective(advertiserModel);
+            advertiserDao.insertSelective(advertiserModel);
         }
         catch (DuplicateKeyException exception)
         {
@@ -61,7 +61,7 @@ public class AdvertiserService extends BaseService
     public void deleteAdvertiser(String id) throws Exception
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
-        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
             throw new NotFoundException();
@@ -70,7 +70,7 @@ public class AdvertiserService extends BaseService
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andAdvertiserIdEqualTo(id);
         
-        List<ProjectModel> projects = projectMapper.selectByExample(example);
+        List<ProjectModel> projects = projectDao.selectByExample(example);
         
         // 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
         if (projects != null && !projects.isEmpty())
@@ -79,7 +79,7 @@ public class AdvertiserService extends BaseService
         }
         else
         {
-            advertiserMapper.deleteByPrimaryKey(id);
+            advertiserDao.deleteByPrimaryKey(id);
         }
     }
 
@@ -93,7 +93,7 @@ public class AdvertiserService extends BaseService
         }
         
         // 操作前先查询一次数据库，判断指定的资源是否存在
-        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
             throw new NotFoundException();
@@ -108,9 +108,9 @@ public class AdvertiserService extends BaseService
         
         try
         {
-            advertiserMapper.updateByExampleSelective(advertiserModel, example);
+            advertiserDao.updateByExampleSelective(advertiserModel, example);
             // 将DAO编辑后的新对象复制回传输对象中
-            BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
+            BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
         }
         catch (DuplicateKeyException exception)
         {
@@ -130,7 +130,7 @@ public class AdvertiserService extends BaseService
         }
         
         // 操作前先查询一次数据库，判断指定的资源是否存在
-        AdvertiserModel advertiserInDB = advertiserMapper.selectByPrimaryKey(id);
+        AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
             throw new NotFoundException();
@@ -142,10 +142,10 @@ public class AdvertiserService extends BaseService
         
         try
         {
-            advertiserMapper.updateByPrimaryKey(advertiserModel);
+            advertiserDao.updateByPrimaryKey(advertiserModel);
             
             // 将DAO编辑后的新对象复制回传输对象中
-            BeanUtils.copyProperties(advertiserMapper.selectByPrimaryKey(id), advertiserBean);
+            BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
         }
         catch (DuplicateKeyException exception)
         {
@@ -157,7 +157,7 @@ public class AdvertiserService extends BaseService
 
     public AdvertiserBean findAdvertiserById(String id) throws Exception
     {
-        AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(id);
+        AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
         
         if (advertiserModel == null)
         {
@@ -180,7 +180,7 @@ public class AdvertiserService extends BaseService
             criteria.andNameLike("%" + name + "%");
         }
         
-        List<AdvertiserModel> advertiserModels = advertiserMapper.selectByExample(example);
+        List<AdvertiserModel> advertiserModels = advertiserDao.selectByExample(example);
         List<AdvertiserBean> advertiserList = new ArrayList<AdvertiserBean>();
         
         if (advertiserModels == null || advertiserModels.size() <= 0)

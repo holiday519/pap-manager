@@ -10,17 +10,17 @@ import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
-import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
-import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
+import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
 public class PutOnService {
 
 	@Autowired
-	private CampaignModelMapper campaignMapper;
+	private CampaignDao campaignDao;
 	
 	@Autowired
-	private ProjectModelMapper projectMapper;
+	private ProjectDao projectDao;
 	
 	@Autowired
 	private RedisService redisService;
@@ -43,7 +43,7 @@ public class PutOnService {
 		for (String projectId : projectIds) {
 			CampaignModelExample example = new CampaignModelExample();
 			example.createCriteria().andProjectIdEqualTo(projectId);
-			List<CampaignModel> campaigns = campaignMapper.selectByExample(example);
+			List<CampaignModel> campaigns = campaignDao.selectByExample(example);
 			if (campaigns == null || campaigns.isEmpty()) {
 				continue;
 			}

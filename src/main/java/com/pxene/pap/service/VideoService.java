@@ -7,17 +7,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.VideoBean;
-import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.domain.model.basic.VideoModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.VideoModelMapper;
+import com.pxene.pap.repository.basic.VideoDao;
 
 @Service
 public class VideoService extends BaseService {
 	
 	@Autowired
-	private VideoModelMapper videoMapper;
+	private VideoDao videoDao;
 	
 	/**
 	 * 修改视频信息
@@ -31,7 +30,7 @@ public class VideoService extends BaseService {
 			throw new IllegalArgumentException();
 		}
 
-		VideoModel creativeInDB = videoMapper.selectByPrimaryKey(id);
+		VideoModel creativeInDB = videoDao.selectByPrimaryKey(id);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
 			throw new NotFoundException();
 		}
@@ -40,7 +39,7 @@ public class VideoService extends BaseService {
 		VideoModel video = modelMapper.map(bean, VideoModel.class);
 		video.setId(id);
 		video.setSizeId(size);
-		videoMapper.updateByPrimaryKeySelective(video);
+		videoDao.updateByPrimaryKeySelective(video);
 	}
 	 
 }

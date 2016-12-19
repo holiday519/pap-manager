@@ -17,21 +17,21 @@ import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.CreativeMaterialModelMapper;
-import com.pxene.pap.repository.mapper.basic.CreativeModelMapper;
-import com.pxene.pap.repository.mapper.basic.InfoFlowModelMapper;
+import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.CreativeMaterialDao;
+import com.pxene.pap.repository.basic.InfoFlowDao;
 
 @Service
 public class CreativeService extends BaseService {
 	
 	@Autowired
-	private CreativeModelMapper creativeMapper;
+	private CreativeDao creativeDao;
 	
 	@Autowired
-	private InfoFlowModelMapper infoFlowModelMapper;
+	private InfoFlowDao infoFlowDao;
 	
 	@Autowired
-	private CreativeMaterialModelMapper creativeMaterialMapper;
+	private CreativeMaterialDao creativeMaterialDao;
 	
 	/**
 	 * 创建创意
@@ -48,7 +48,7 @@ public class CreativeService extends BaseService {
 		//添加创意——素材关联关系
 		addCreativeMaterial(bean);
 		//创意表数据添加
-		creativeMapper.insertSelective(model);
+		creativeDao.insertSelective(model);
 		BeanUtils.copyProperties(model, bean);
 	}
 	
@@ -64,7 +64,7 @@ public class CreativeService extends BaseService {
 			throw new IllegalArgumentException();
 		}
 		
-		CreativeModel creativeInDB = creativeMapper.selectByPrimaryKey(creativeId);
+		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
 			throw new NotFoundException();
 		}
@@ -76,7 +76,7 @@ public class CreativeService extends BaseService {
 		//添加创意——素材关联关系
 		addCreativeMaterial(bean);
 		//创意表数据添加
-		creativeMapper.updateByPrimaryKeySelective(creative);
+		creativeDao.updateByPrimaryKeySelective(creative);
 	}
 	
 	/**
@@ -87,7 +87,7 @@ public class CreativeService extends BaseService {
 	public void  deleteCreativeMaterial(String creativeId) throws Exception {
 		CreativeMaterialModelExample example = new CreativeMaterialModelExample();
 		example.createCriteria().andCreativeIdEqualTo(creativeId);
-		creativeMaterialMapper.deleteByExample(example);
+		creativeMaterialDao.deleteByExample(example);
 	}
 	
 	/**
@@ -112,14 +112,14 @@ public class CreativeService extends BaseService {
 				cmModel.setMaterialId(materialId);
 				cmModel.setCreativeType(type);
 				cmModel.setPrice(new BigDecimal(price));
-				creativeMaterialMapper.insertSelective(cmModel);
+				creativeMaterialDao.insertSelective(cmModel);
 			}
 		}
 	}
 	
 	@Transactional
 	public void deleteCreative(String creativeId) throws Exception {
-		CreativeModel creativeInDB = creativeMapper.selectByPrimaryKey(creativeId);
+		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
 			throw new NotFoundException();
 		}
@@ -127,16 +127,16 @@ public class CreativeService extends BaseService {
 		CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
 		cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
 		// 删除信息流创意；图片和视频不用删除
-		List<CreativeMaterialModel> cmList = creativeMaterialMapper.selectByExample(cmExample);
+		List<CreativeMaterialModel> cmList = creativeMaterialDao.selectByExample(cmExample);
 		if (cmList != null && !cmList.isEmpty()) {
 			for (CreativeMaterialModel cm : cmList) {
 				String cmId = cm.getMaterialId();
-				infoFlowModelMapper.deleteByPrimaryKey(cmId);
+				infoFlowDao.deleteByPrimaryKey(cmId);
 			}
 		}
 		// 删除关联关系表中数据
-		creativeMaterialMapper.deleteByExample(cmExample);
+		creativeMaterialDao.deleteByExample(cmExample);
 		// 删除创意数据
-		creativeMapper.deleteByPrimaryKey(creativeId);
+		creativeDao.deleteByPrimaryKey(creativeId);
 	}
 }

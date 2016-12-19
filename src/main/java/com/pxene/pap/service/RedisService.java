@@ -33,53 +33,53 @@ import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
 import com.pxene.pap.exception.NotFoundException;
-import com.pxene.pap.repository.mapper.basic.AdvertiserModelMapper;
-import com.pxene.pap.repository.mapper.basic.AdxModelMapper;
-import com.pxene.pap.repository.mapper.basic.CampaignModelMapper;
-import com.pxene.pap.repository.mapper.basic.CreativeMaterialModelMapper;
-import com.pxene.pap.repository.mapper.basic.CreativeModelMapper;
-import com.pxene.pap.repository.mapper.basic.ProjectModelMapper;
-import com.pxene.pap.repository.mapper.basic.view.CampaignTargetModelMapper;
-import com.pxene.pap.repository.mapper.basic.view.CreativeImageModelMapper;
-import com.pxene.pap.repository.mapper.basic.view.CreativeInfoflowModelMapper;
-import com.pxene.pap.repository.mapper.basic.view.CreativeVideoModelMapper;
-import com.pxene.pap.repository.mapper.basic.view.ImageSizeTypeModelMapper;
+import com.pxene.pap.repository.basic.AdvertiserDao;
+import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.CreativeMaterialDao;
+import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.view.CampaignTargetDao;
+import com.pxene.pap.repository.basic.view.CreativeImageDao;
+import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
+import com.pxene.pap.repository.basic.view.CreativeVideoDao;
+import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 
 @Service
 public class RedisService {
 
 	@Autowired
-	private AdvertiserModelMapper advertiserMapper;
+	private AdvertiserDao advertiserDao;
 	
 	@Autowired
-	private CampaignModelMapper campaignMapper;
+	private CampaignDao campaignDao;
 	
 	@Autowired
-	private ProjectModelMapper projectMapper;
+	private ProjectDao projectDao;
 	
 	@Autowired
-	private CreativeModelMapper creativeMapper;
+	private CreativeDao creativeDao;
 	
 	@Autowired
-	private CreativeMaterialModelMapper creativeMaterialMapper;
+	private CreativeMaterialDao creativeMaterialDao;
 	
 	@Autowired
-	private CreativeImageModelMapper creativeImageMapper;
+	private CreativeImageDao creativeImageDao;
 	
 	@Autowired
-	private CreativeVideoModelMapper creativeVideoMapper;
+	private CreativeVideoDao creativeVideoDao;
 	
 	@Autowired
-	private CreativeInfoflowModelMapper creativeInfoflowMapper;
+	private CreativeInfoflowDao creativeInfoflowDao;
 	
 	@Autowired
-	private ImageSizeTypeModelMapper imageSizeTypeMapper;
+	private ImageSizeTypeDao imageSizeTypeDao;
 	
 	@Autowired
-	private CampaignTargetModelMapper campaignTargetMapper;
+	private CampaignTargetDao campaignTargetDao;
 	
 	@Autowired
-	private AdxModelMapper adxMapper;
+	private AdxDao adxDao;
 	
 	@Autowired
 	private RedisUtils redisUtils;
@@ -89,7 +89,7 @@ public class RedisService {
 		// 查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeMapper.selectByExample(creativeExample);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		// 创意id数组
 		List<String> creativeIds = new ArrayList<String>();
 		//如果活动下无创意
@@ -107,7 +107,7 @@ public class RedisService {
 		if (!creativeIds.isEmpty()) {
 			CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
 			mapExample.createCriteria().andCreativeIdIn(creativeIds);
-			List<CreativeMaterialModel> mapModels = creativeMaterialMapper.selectByExample(mapExample);
+			List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
 			if (mapModels != null && !mapModels.isEmpty()) {
 				for (CreativeMaterialModel mapModel : mapModels) {
 					String mapId = mapModel.getId();
@@ -134,7 +134,7 @@ public class RedisService {
 	public void writeImgCreativeInfoToRedis(String mapId) throws Exception {
 		CreativeImageModelExample imageExaple = new CreativeImageModelExample();
 		imageExaple.createCriteria().andMapIdEqualTo(mapId);
-		List<CreativeImageModelWithBLOBs> list = creativeImageMapper.selectByExampleWithBLOBs(imageExaple);
+		List<CreativeImageModelWithBLOBs> list = creativeImageDao.selectByExampleWithBLOBs(imageExaple);
 		if (list == null || list.isEmpty()) {
 			throw new Exception();
 		}
@@ -145,7 +145,7 @@ public class RedisService {
 			creativeObj.addProperty("type", model.getType());
 			creativeObj.addProperty("ftype", model.getFtype());
 			AdxModelExample adxEcample = new AdxModelExample();
-			List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
@@ -195,7 +195,7 @@ public class RedisService {
 	public void writeVideoCreativeInfoToRedis(String mapId) throws Exception {
 		CreativeVideoModelExample videoExaple = new CreativeVideoModelExample();
 		videoExaple.createCriteria().andMapIdEqualTo(mapId);
-		List<CreativeVideoModelWithBLOBs> list = creativeVideoMapper.selectByExampleWithBLOBs(videoExaple);
+		List<CreativeVideoModelWithBLOBs> list = creativeVideoDao.selectByExampleWithBLOBs(videoExaple);
 		if (list == null || list.isEmpty()) {
 			throw new Exception();
 		}
@@ -206,7 +206,7 @@ public class RedisService {
 			creativeObj.addProperty("type", model.getType());
 			creativeObj.addProperty("ftype", model.getFtype());
 			AdxModelExample adxEcample = new AdxModelExample();
-			List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
@@ -256,7 +256,7 @@ public class RedisService {
 	public void writeInfoCreativeInfoToRedis(String mapId) throws Exception {
 		CreativeInfoflowModelExample infoExaple = new CreativeInfoflowModelExample();
 		infoExaple.createCriteria().andMapIdEqualTo(mapId);
-		List<CreativeInfoflowModelWithBLOBs> list = creativeInfoflowMapper.selectByExampleWithBLOBs(infoExaple);
+		List<CreativeInfoflowModelWithBLOBs> list = creativeInfoflowDao.selectByExampleWithBLOBs(infoExaple);
 		if (list == null || list.isEmpty()) {
 			throw new Exception();
 		}
@@ -267,7 +267,7 @@ public class RedisService {
 			creativeObj.addProperty("type", model.getType());
 			creativeObj.addProperty("ftype", model.getFtype());
 			AdxModelExample adxEcample = new AdxModelExample();
-			List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
@@ -388,7 +388,7 @@ public class RedisService {
 	private ImageSizeTypeModel selectImages(String imageId) throws Exception {
 		ImageSizeTypeModelExample example = new ImageSizeTypeModelExample();
 		example.createCriteria().andIdEqualTo(imageId);
-		List<ImageSizeTypeModel> list = imageSizeTypeMapper.selectByExample(example);
+		List<ImageSizeTypeModel> list = imageSizeTypeDao.selectByExample(example);
 		if (list == null || list.isEmpty()) {
 			return null;
 		}else{
@@ -405,11 +405,11 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void writeCampaignInfoToRedis(String campaignId) throws Exception {
-		CampaignModel campaignModel = campaignMapper.selectByPrimaryKey(campaignId);
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		String ProjectId = campaignModel.getProjectId();
-		ProjectModel projectModel = projectMapper.selectByPrimaryKey(ProjectId);
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(ProjectId);
 		String advertiserId = projectModel.getAdvertiserId();
-		AdvertiserModel advertiserModel = advertiserMapper.selectByPrimaryKey(advertiserId);
+		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(advertiserId);
 		JsonObject campaignInfo = new JsonObject();
 		JsonArray catArr = new JsonArray();
 		JsonArray adxArr = new JsonArray();
@@ -421,7 +421,7 @@ public class RedisService {
 		String adomain = GlobalUtil.parseString(advertiserModel.getSiteUrl(),"");
 		campaignInfo.addProperty("adomain", adomain.replace("http://www.", "").replace("www.", ""));
 		AdxModelExample adxEcample = new AdxModelExample();
-		List<AdxModel> adxs = adxMapper.selectByExample(adxEcample);
+		List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 		for (AdxModel adx : adxs) {
 			//投放adx
 			JsonObject adxObj = new JsonObject();
@@ -450,7 +450,7 @@ public class RedisService {
 		JsonObject deviceJson = new JsonObject(); // 设备信息定向
 		CampaignTargetModelExample example = new CampaignTargetModelExample();
 		example.createCriteria().andIdEqualTo(campaignId);
-		List<CampaignTargetModel> targets = campaignTargetMapper.selectByExampleWithBLOBs(example);
+		List<CampaignTargetModel> targets = campaignTargetDao.selectByExampleWithBLOBs(example);
 		if (targets != null && !targets.isEmpty()) {
 			int flag = 0;
 			CampaignTargetModel target = targets.get(0);
@@ -508,7 +508,7 @@ public class RedisService {
 		JsonObject appJson = new JsonObject();
 		String[] apps = appTarget.split(",");
 		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxMapper.selectByExample(adxExample);
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		JsonArray idArr = new JsonArray();
 		for (AdxModel adx : adxs) {
 			JsonObject idObj = new JsonObject();
@@ -550,7 +550,7 @@ public class RedisService {
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeMapper.selectByExample(creativeExample);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		JsonArray mapidJson = new JsonArray();
 		if (creatives != null && !creatives.isEmpty()) {
 			// 查询创意对应的关联关系mapid
@@ -558,7 +558,7 @@ public class RedisService {
 				String creativeId = creative.getId();
 				CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
 				cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
-				List<CreativeMaterialModel> list = creativeMaterialMapper.selectByExample(cmExample);
+				List<CreativeMaterialModel> list = creativeMaterialDao.selectByExample(cmExample);
 				if (list == null || list.isEmpty()) {
 					continue;
 				}
