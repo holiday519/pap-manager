@@ -187,7 +187,7 @@ public class CampaignService extends BaseService{
 			frequencyMapper.updateByPrimaryKeySelective(frequencyModel);
 			
 			//删除定向信息
-			deletCampaignTarget(id);
+			deleteCampaignTarget(id);
 			//重新添加定向信息
 			addCampaignTarget(bean);
 			//删除点击、展现监测地址
@@ -315,7 +315,7 @@ public class CampaignService extends BaseService{
 	 * @param campaignId
 	 */
 	@Transactional
-	public void deletCampaignTarget(String campaignId)  throws Exception {
+	public void deleteCampaignTarget(String campaignId)  throws Exception {
 		//删除地域定向
 		RegionTargetModelExample region = new RegionTargetModelExample();
 		region.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -433,7 +433,7 @@ public class CampaignService extends BaseService{
 		//删除检测地址
 		deleteCampaignMonitor(campaignId);
 		//删除定向
-		deletCampaignTarget(campaignId);
+		deleteCampaignTarget(campaignId);
 		//删除频次信息
 		deletefrequency(campaignId);
 		//删除活动
