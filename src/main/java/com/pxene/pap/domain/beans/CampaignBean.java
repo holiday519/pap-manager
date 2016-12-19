@@ -3,6 +3,8 @@ package com.pxene.pap.domain.beans;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * 活动
  */

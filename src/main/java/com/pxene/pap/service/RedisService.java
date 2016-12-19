@@ -491,7 +491,7 @@ public class RedisService {
 			if (appJson != null) {
 				targetJson.addProperty("app", appJson.toString());
 			}
-			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET, targetJson.toString());
+			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
 	}
 	
@@ -570,7 +570,7 @@ public class RedisService {
 				}
 			}
 		}
-		mapidJson.toString();
+		redisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, mapidJson.toString());
 	}
 	
 	/**

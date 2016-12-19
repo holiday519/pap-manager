@@ -655,6 +655,76 @@ public class CreativeInfoflowModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andDownloadUrlIsNull() {
+            addCriterion("download_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIsNotNull() {
+            addCriterion("download_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlEqualTo(String value) {
+            addCriterion("download_url =", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotEqualTo(String value) {
+            addCriterion("download_url <>", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlGreaterThan(String value) {
+            addCriterion("download_url >", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("download_url >=", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLessThan(String value) {
+            addCriterion("download_url <", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLessThanOrEqualTo(String value) {
+            addCriterion("download_url <=", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLike(String value) {
+            addCriterion("download_url like", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotLike(String value) {
+            addCriterion("download_url not like", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIn(List<String> values) {
+            addCriterion("download_url in", values, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotIn(List<String> values) {
+            addCriterion("download_url not in", values, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlBetween(String value1, String value2) {
+            addCriterion("download_url between", value1, value2, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotBetween(String value1, String value2) {
+            addCriterion("download_url not between", value1, value2, "downloadUrl");
+            return (Criteria) this;
+        }
+
         public Criteria andCurlIsNull() {
             addCriterion("curl is null");
             return (Criteria) this;
@@ -945,62 +1015,52 @@ public class CreativeInfoflowModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andRatingEqualTo(String value) {
+        public Criteria andRatingEqualTo(Integer value) {
             addCriterion("rating =", value, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingNotEqualTo(String value) {
+        public Criteria andRatingNotEqualTo(Integer value) {
             addCriterion("rating <>", value, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingGreaterThan(String value) {
+        public Criteria andRatingGreaterThan(Integer value) {
             addCriterion("rating >", value, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingGreaterThanOrEqualTo(String value) {
+        public Criteria andRatingGreaterThanOrEqualTo(Integer value) {
             addCriterion("rating >=", value, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingLessThan(String value) {
+        public Criteria andRatingLessThan(Integer value) {
             addCriterion("rating <", value, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingLessThanOrEqualTo(String value) {
+        public Criteria andRatingLessThanOrEqualTo(Integer value) {
             addCriterion("rating <=", value, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingLike(String value) {
-            addCriterion("rating like", value, "rating");
-            return (Criteria) this;
-        }
-
-        public Criteria andRatingNotLike(String value) {
-            addCriterion("rating not like", value, "rating");
-            return (Criteria) this;
-        }
-
-        public Criteria andRatingIn(List<String> values) {
+        public Criteria andRatingIn(List<Integer> values) {
             addCriterion("rating in", values, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingNotIn(List<String> values) {
+        public Criteria andRatingNotIn(List<Integer> values) {
             addCriterion("rating not in", values, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingBetween(String value1, String value2) {
+        public Criteria andRatingBetween(Integer value1, Integer value2) {
             addCriterion("rating between", value1, value2, "rating");
             return (Criteria) this;
         }
 
-        public Criteria andRatingNotBetween(String value1, String value2) {
+        public Criteria andRatingNotBetween(Integer value1, Integer value2) {
             addCriterion("rating not between", value1, value2, "rating");
             return (Criteria) this;
         }

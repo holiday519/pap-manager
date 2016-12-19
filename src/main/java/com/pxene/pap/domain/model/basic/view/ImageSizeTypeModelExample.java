@@ -594,52 +594,62 @@ public class ImageSizeTypeModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCodeEqualTo(Integer value) {
+        public Criteria andCodeEqualTo(String value) {
             addCriterion("code =", value, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotEqualTo(Integer value) {
+        public Criteria andCodeNotEqualTo(String value) {
             addCriterion("code <>", value, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeGreaterThan(Integer value) {
+        public Criteria andCodeGreaterThan(String value) {
             addCriterion("code >", value, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeGreaterThanOrEqualTo(Integer value) {
+        public Criteria andCodeGreaterThanOrEqualTo(String value) {
             addCriterion("code >=", value, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeLessThan(Integer value) {
+        public Criteria andCodeLessThan(String value) {
             addCriterion("code <", value, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeLessThanOrEqualTo(Integer value) {
+        public Criteria andCodeLessThanOrEqualTo(String value) {
             addCriterion("code <=", value, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeIn(List<Integer> values) {
+        public Criteria andCodeLike(String value) {
+            addCriterion("code like", value, "code");
+            return (Criteria) this;
+        }
+
+        public Criteria andCodeNotLike(String value) {
+            addCriterion("code not like", value, "code");
+            return (Criteria) this;
+        }
+
+        public Criteria andCodeIn(List<String> values) {
             addCriterion("code in", values, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotIn(List<Integer> values) {
+        public Criteria andCodeNotIn(List<String> values) {
             addCriterion("code not in", values, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeBetween(Integer value1, Integer value2) {
+        public Criteria andCodeBetween(String value1, String value2) {
             addCriterion("code between", value1, value2, "code");
             return (Criteria) this;
         }
 
-        public Criteria andCodeNotBetween(Integer value1, Integer value2) {
+        public Criteria andCodeNotBetween(String value1, String value2) {
             addCriterion("code not between", value1, value2, "code");
             return (Criteria) this;
         }

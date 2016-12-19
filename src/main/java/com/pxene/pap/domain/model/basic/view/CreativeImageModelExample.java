@@ -385,52 +385,62 @@ public class CreativeImageModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andFtypeEqualTo(Integer value) {
+        public Criteria andFtypeEqualTo(String value) {
             addCriterion("ftype =", value, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeNotEqualTo(Integer value) {
+        public Criteria andFtypeNotEqualTo(String value) {
             addCriterion("ftype <>", value, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeGreaterThan(Integer value) {
+        public Criteria andFtypeGreaterThan(String value) {
             addCriterion("ftype >", value, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeGreaterThanOrEqualTo(Integer value) {
+        public Criteria andFtypeGreaterThanOrEqualTo(String value) {
             addCriterion("ftype >=", value, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeLessThan(Integer value) {
+        public Criteria andFtypeLessThan(String value) {
             addCriterion("ftype <", value, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeLessThanOrEqualTo(Integer value) {
+        public Criteria andFtypeLessThanOrEqualTo(String value) {
             addCriterion("ftype <=", value, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeIn(List<Integer> values) {
+        public Criteria andFtypeLike(String value) {
+            addCriterion("ftype like", value, "ftype");
+            return (Criteria) this;
+        }
+
+        public Criteria andFtypeNotLike(String value) {
+            addCriterion("ftype not like", value, "ftype");
+            return (Criteria) this;
+        }
+
+        public Criteria andFtypeIn(List<String> values) {
             addCriterion("ftype in", values, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeNotIn(List<Integer> values) {
+        public Criteria andFtypeNotIn(List<String> values) {
             addCriterion("ftype not in", values, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeBetween(Integer value1, Integer value2) {
+        public Criteria andFtypeBetween(String value1, String value2) {
             addCriterion("ftype between", value1, value2, "ftype");
             return (Criteria) this;
         }
 
-        public Criteria andFtypeNotBetween(Integer value1, Integer value2) {
+        public Criteria andFtypeNotBetween(String value1, String value2) {
             addCriterion("ftype not between", value1, value2, "ftype");
             return (Criteria) this;
         }
@@ -902,6 +912,76 @@ public class CreativeImageModelExample {
 
         public Criteria andLandingUrlNotBetween(String value1, String value2) {
             addCriterion("landing_url not between", value1, value2, "landingUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIsNull() {
+            addCriterion("download_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIsNotNull() {
+            addCriterion("download_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlEqualTo(String value) {
+            addCriterion("download_url =", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotEqualTo(String value) {
+            addCriterion("download_url <>", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlGreaterThan(String value) {
+            addCriterion("download_url >", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("download_url >=", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLessThan(String value) {
+            addCriterion("download_url <", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLessThanOrEqualTo(String value) {
+            addCriterion("download_url <=", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLike(String value) {
+            addCriterion("download_url like", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotLike(String value) {
+            addCriterion("download_url not like", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIn(List<String> values) {
+            addCriterion("download_url in", values, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotIn(List<String> values) {
+            addCriterion("download_url not in", values, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlBetween(String value1, String value2) {
+            addCriterion("download_url between", value1, value2, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotBetween(String value1, String value2) {
+            addCriterion("download_url not between", value1, value2, "downloadUrl");
             return (Criteria) this;
         }
 

@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeInfoflowDao {
-    int countByExample(CreativeInfoflowModelExample example);
+    long countByExample(CreativeInfoflowModelExample example);
 
     int deleteByExample(CreativeInfoflowModelExample example);
 

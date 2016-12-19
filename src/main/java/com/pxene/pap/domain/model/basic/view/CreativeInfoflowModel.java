@@ -19,6 +19,8 @@ public class CreativeInfoflowModel {
 
     private String apkName;
 
+    private String downloadUrl;
+
     private String curl;
 
     private String landingUrl;
@@ -27,7 +29,7 @@ public class CreativeInfoflowModel {
 
     private String description;
 
-    private String rating;
+    private Integer rating;
 
     private String ctatext;
 
@@ -109,6 +111,14 @@ public class CreativeInfoflowModel {
         this.apkName = apkName == null ? null : apkName.trim();
     }
 
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl == null ? null : downloadUrl.trim();
+    }
+
     public String getCurl() {
         return curl;
     }
@@ -141,12 +151,12 @@ public class CreativeInfoflowModel {
         this.description = description == null ? null : description.trim();
     }
 
-    public String getRating() {
+    public Integer getRating() {
         return rating;
     }
 
-    public void setRating(String rating) {
-        this.rating = rating == null ? null : rating.trim();
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 
     public String getCtatext() {
@@ -211,5 +221,37 @@ public class CreativeInfoflowModel {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId == null ? null : projectId.trim();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", mapId=").append(mapId);
+        sb.append(", campaignId=").append(campaignId);
+        sb.append(", price=").append(price);
+        sb.append(", type=").append(type);
+        sb.append(", ftype=").append(ftype);
+        sb.append(", ctype=").append(ctype);
+        sb.append(", bundle=").append(bundle);
+        sb.append(", apkName=").append(apkName);
+        sb.append(", downloadUrl=").append(downloadUrl);
+        sb.append(", curl=").append(curl);
+        sb.append(", landingUrl=").append(landingUrl);
+        sb.append(", title=").append(title);
+        sb.append(", description=").append(description);
+        sb.append(", rating=").append(rating);
+        sb.append(", ctatext=").append(ctatext);
+        sb.append(", icon=").append(icon);
+        sb.append(", image1=").append(image1);
+        sb.append(", image2=").append(image2);
+        sb.append(", image3=").append(image3);
+        sb.append(", image4=").append(image4);
+        sb.append(", image5=").append(image5);
+        sb.append(", projectId=").append(projectId);
+        sb.append("]");
+        return sb.toString();
     }
 }

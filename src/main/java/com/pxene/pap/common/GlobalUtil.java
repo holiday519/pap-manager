@@ -1,5 +1,13 @@
 package com.pxene.pap.common;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 public class GlobalUtil {
 	public static String parseString(String s, String v) {
 	    if (s == null) {
@@ -56,4 +64,28 @@ public class GlobalUtil {
 		}
 		return Integer.parseInt(String.valueOf(s));
 	}
+	
+	/**
+	 * 根据图片地址获取图片内容
+	 * @param url
+	 * @return
+	 * @throws Exception
+	 */
+	public static byte[] getImageContent(String url) throws Exception {
+		HttpGet httpGet = new HttpGet(url);
+		HttpClient client = new DefaultHttpClient();
+		HttpResponse response = client.execute(httpGet);  
+		
+		InputStream content = response.getEntity().getContent();
+		ByteArrayOutputStream swapStream = new ByteArrayOutputStream();
+		byte[] buff = new byte[100];
+		int rc = 0;
+		while ((rc = content.read(buff, 0, 100)) > 0) 
+		{
+			swapStream.write(buff, 0, rc);
+		}
+		byte[] in2b = swapStream.toByteArray();
+		return in2b;
+	}
+	
 }

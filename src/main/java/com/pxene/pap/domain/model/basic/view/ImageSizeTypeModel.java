@@ -15,7 +15,7 @@ public class ImageSizeTypeModel {
 
     private String typeName;
 
-    private Integer code;
+    private String code;
 
     private String sizeName;
 
@@ -79,12 +79,12 @@ public class ImageSizeTypeModel {
         this.typeName = typeName == null ? null : typeName.trim();
     }
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
+    public void setCode(String code) {
+        this.code = code == null ? null : code.trim();
     }
 
     public String getSizeName() {
@@ -109,5 +109,26 @@ public class ImageSizeTypeModel {
 
     public void setHeight(Integer height) {
         this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", name=").append(name);
+        sb.append(", path=").append(path);
+        sb.append(", typeId=").append(typeId);
+        sb.append(", sizeId=").append(sizeId);
+        sb.append(", volume=").append(volume);
+        sb.append(", typeName=").append(typeName);
+        sb.append(", code=").append(code);
+        sb.append(", sizeName=").append(sizeName);
+        sb.append(", width=").append(width);
+        sb.append(", height=").append(height);
+        sb.append("]");
+        return sb.toString();
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeImageDao {
-    int countByExample(CreativeImageModelExample example);
+    long countByExample(CreativeImageModelExample example);
 
     int deleteByExample(CreativeImageModelExample example);
 

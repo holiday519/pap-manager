@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 public interface ImageSizeTypeDao {
-    int countByExample(ImageSizeTypeModelExample example);
+    long countByExample(ImageSizeTypeModelExample example);
 
     int deleteByExample(ImageSizeTypeModelExample example);
 

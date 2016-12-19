@@ -11,7 +11,7 @@ public class CreativeImageModel {
 
     private String type;
 
-    private Integer ftype;
+    private String ftype;
 
     private String ctype;
 
@@ -26,6 +26,8 @@ public class CreativeImageModel {
     private String curl;
 
     private String landingUrl;
+
+    private String downloadUrl;
 
     private String sourceUrl;
 
@@ -63,12 +65,12 @@ public class CreativeImageModel {
         this.type = type == null ? null : type.trim();
     }
 
-    public Integer getFtype() {
+    public String getFtype() {
         return ftype;
     }
 
-    public void setFtype(Integer ftype) {
-        this.ftype = ftype;
+    public void setFtype(String ftype) {
+        this.ftype = ftype == null ? null : ftype.trim();
     }
 
     public String getCtype() {
@@ -127,6 +129,14 @@ public class CreativeImageModel {
         this.landingUrl = landingUrl == null ? null : landingUrl.trim();
     }
 
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl == null ? null : downloadUrl.trim();
+    }
+
     public String getSourceUrl() {
         return sourceUrl;
     }
@@ -141,5 +151,30 @@ public class CreativeImageModel {
 
     public void setProjectId(String projectId) {
         this.projectId = projectId == null ? null : projectId.trim();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", mapId=").append(mapId);
+        sb.append(", campaignId=").append(campaignId);
+        sb.append(", price=").append(price);
+        sb.append(", type=").append(type);
+        sb.append(", ftype=").append(ftype);
+        sb.append(", ctype=").append(ctype);
+        sb.append(", bundle=").append(bundle);
+        sb.append(", apkName=").append(apkName);
+        sb.append(", w=").append(w);
+        sb.append(", h=").append(h);
+        sb.append(", curl=").append(curl);
+        sb.append(", landingUrl=").append(landingUrl);
+        sb.append(", downloadUrl=").append(downloadUrl);
+        sb.append(", sourceUrl=").append(sourceUrl);
+        sb.append(", projectId=").append(projectId);
+        sb.append("]");
+        return sb.toString();
     }
 }
