@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY) 
 public class ResponseResultBean
 {
-    private int code;
+    private Integer code;
     private String message;
     private Object data;
     
@@ -15,7 +15,7 @@ public class ResponseResultBean
     {
         return code;
     }
-    public void setCode(int code)
+    public void setCode(Integer code)
     {
         this.code = code;
     }
@@ -41,7 +41,7 @@ public class ResponseResultBean
     {
         super();
     }
-    public ResponseResultBean(int code)
+    public ResponseResultBean(Integer code)
     {
         super();
         this.code = code;
@@ -51,13 +51,13 @@ public class ResponseResultBean
         super();
         this.message = message;
     }
-    public ResponseResultBean(int code, String message)
+    public ResponseResultBean(Integer code, String message)
     {
         super();
         this.code = code;
         this.message = message;
     }
-    public ResponseResultBean(int code, String message, Object data)
+    public ResponseResultBean(Integer code, String message, Object data)
     {
         super();
         this.code = code;

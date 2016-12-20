@@ -32,18 +32,19 @@ public class FileUtils
     }
     
     
-    public static MediaBean uploadFile(String uploadDir, MultipartFile file)
+    public static MediaBean uploadFile(String uploadDir, String fileName, MultipartFile file)
     {
         MediaBean result = null;
         
         try
         {
             String name = file.getOriginalFilename();
-            String path = uploadDir + name;
             String contentType = file.getContentType();
+            String fileExtension = getFileExtensionByDot(name);
             float volume = file.getSize() / 1024.0f;
             int width = 0;
             int height = 0;
+            String path = uploadDir + fileName + "." + fileExtension;
             
             if (contentType.startsWith("image"))
             {
@@ -71,7 +72,7 @@ public class FileUtils
             // 设置基本属性
             result.setName(name);
             result.setPath(path);
-            result.setType(getFileExtension(contentType));
+            result.setType(fileExtension);
             result.setVolume(volume);
             
             // 上传至本地
@@ -87,16 +88,20 @@ public class FileUtils
     
     
     
-    
-    public static String getFileExtension(String contentType)
+    public static String getFileExtensionByContentType(String contentType)
     {
-        if (contentType.contains("/"))
+        return getFileExtension("/", contentType);
+    }
+    public static String getFileExtensionByDot(String contentType)
+    {
+        return getFileExtension(".", contentType);
+    }
+    public static String getFileExtension(String seperator, String source)
+    {
+        String[] tokenizeToStringArray = StringUtils.tokenizeToStringArray(source, seperator, true, true);
+        if (tokenizeToStringArray.length >= 2)
         {
-            String[] tokenizeToStringArray = StringUtils.tokenizeToStringArray(contentType, "/", true, true);
-            if (tokenizeToStringArray.length == 2)
-            {
-                return tokenizeToStringArray[1];
-            }
+            return tokenizeToStringArray[tokenizeToStringArray.length-1];
         }
         return null;
     }

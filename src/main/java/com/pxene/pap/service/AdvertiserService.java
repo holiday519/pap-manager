@@ -35,7 +35,11 @@ public class AdvertiserService extends BaseService
     @Autowired
     private ProjectDao projectDao;
     
+    @Autowired
+    private FileService fileService;
     
+    
+    @Transactional
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
     {
         // 将传输对象映射成数据库Model，并设置UUID
@@ -44,6 +48,9 @@ public class AdvertiserService extends BaseService
         
         try
         {
+            // 拷贝临时文件至正式目录中
+            fileService.copyTempToFormal(advertiserModel);
+            
             advertiserDao.insertSelective(advertiserModel);
         }
         catch (DuplicateKeyException exception)
@@ -108,6 +115,9 @@ public class AdvertiserService extends BaseService
         
         try
         {
+            // 拷贝临时文件至正式目录中
+            fileService.copyTempToFormal(advertiserModel);
+            
             advertiserDao.updateByExampleSelective(advertiserModel, example);
             // 将DAO编辑后的新对象复制回传输对象中
             BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
@@ -142,6 +152,9 @@ public class AdvertiserService extends BaseService
         
         try
         {
+            // 拷贝临时文件至正式目录中
+            fileService.copyTempToFormal(advertiserModel);
+            
             advertiserDao.updateByPrimaryKey(advertiserModel);
             
             // 将DAO编辑后的新对象复制回传输对象中

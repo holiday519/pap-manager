@@ -3,7 +3,7 @@ package com.pxene.pap.domain.beans;
 
 public class MediaBean
 {
-    private String uuid;
+    private String id;
     private String name;
     private String type;
     private String path;
@@ -12,13 +12,13 @@ public class MediaBean
     private String size;
     
     
-    public String getUuid()
+    public String getId()
     {
-        return uuid;
+        return id;
     }
-    public void setUuid(String uuid)
+    public void setId(String id)
     {
-        this.uuid = uuid;
+        this.id = id;
     }
     public String getName()
     {
@@ -66,11 +66,8 @@ public class MediaBean
 	}
 	
 	@Override
-	public String toString() {
-		return "MediaBean [uuid=" + uuid + ", name=" + name + ", type=" + type
-				+ ", path=" + path + ", uploader=" + uploader + ", volume="
-				+ volume + ", size=" + size + "]";
-	}
-
-
+    public String toString()
+    {
+        return "MediaBean [id=" + id + ", name=" + name + ", type=" + type + ", path=" + path + ", uploader=" + uploader + ", volume=" + volume + ", size=" + size + "]";
+    }
 }

@@ -28,37 +28,26 @@ public class AdvertiserBean
     
     private String qq;
     
-    @JsonProperty(value = "industry_id")
     private String industryId;
     
-    @JsonProperty(value = "brand_name")
     private String brandName;
     
-    @JsonProperty(value = "license_no")
     private String licenseNo;
     
-    @JsonProperty(value = "organization_no")
     private String organizationNo;
     
-    @JsonProperty(value = "logo_path")
     private String logoPath;
     
-    @JsonProperty(value = "icp_path")
     private String icpPath;
     
-    @JsonProperty(value = "organization_path")
     private String organizationPath;
     
-    @JsonProperty(value = "license_path")
     private String licensePath;
     
-    @JsonProperty(value = "account_path")
     private String accountPath;
     
-    @JsonProperty(value = "site_url")
     private String siteUrl;
     
-    @JsonProperty(value = "site_name")
     private String siteName;
     
     @Email
@@ -117,11 +106,11 @@ public class AdvertiserBean
     {
         this.phone = phone;
     }
-    public String getQq()
+    public String getQQ()
     {
         return qq;
     }
-    public void setQq(String qq)
+    public void setQQ(String qq)
     {
         this.qq = qq;
     }

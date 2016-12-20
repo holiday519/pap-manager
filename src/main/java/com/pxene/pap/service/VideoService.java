@@ -26,7 +26,7 @@ public class VideoService extends BaseService {
 	 */
 	@Transactional
 	public void updateVideo(String id, VideoBean bean) throws Exception {
-		if (!StringUtils.isEmpty(bean.getUuid())) {
+		if (!StringUtils.isEmpty(bean.getId())) {
 			throw new IllegalArgumentException();
 		}
 
