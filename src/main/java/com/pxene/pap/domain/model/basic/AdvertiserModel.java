@@ -17,19 +17,21 @@ public class AdvertiserModel {
 
     private String industryId;
 
+    private String brandName;
+
     private String licenseNo;
 
     private String organizationNo;
 
-    private String logoUrl;
+    private String logoPath;
 
-    private String icpUrl;
+    private String icpPath;
 
-    private String organizationUrl;
+    private String organizationPath;
 
-    private String licenseUrl;
+    private String licensePath;
 
-    private String accountUrl;
+    private String accountPath;
 
     private String siteUrl;
 
@@ -103,6 +105,14 @@ public class AdvertiserModel {
         this.industryId = industryId == null ? null : industryId.trim();
     }
 
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName == null ? null : brandName.trim();
+    }
+
     public String getLicenseNo() {
         return licenseNo;
     }
@@ -119,44 +129,44 @@ public class AdvertiserModel {
         this.organizationNo = organizationNo == null ? null : organizationNo.trim();
     }
 
-    public String getLogoUrl() {
-        return logoUrl;
+    public String getLogoPath() {
+        return logoPath;
     }
 
-    public void setLogoUrl(String logoUrl) {
-        this.logoUrl = logoUrl == null ? null : logoUrl.trim();
+    public void setLogoPath(String logoPath) {
+        this.logoPath = logoPath == null ? null : logoPath.trim();
     }
 
-    public String getIcpUrl() {
-        return icpUrl;
+    public String getIcpPath() {
+        return icpPath;
     }
 
-    public void setIcpUrl(String icpUrl) {
-        this.icpUrl = icpUrl == null ? null : icpUrl.trim();
+    public void setIcpPath(String icpPath) {
+        this.icpPath = icpPath == null ? null : icpPath.trim();
     }
 
-    public String getOrganizationUrl() {
-        return organizationUrl;
+    public String getOrganizationPath() {
+        return organizationPath;
     }
 
-    public void setOrganizationUrl(String organizationUrl) {
-        this.organizationUrl = organizationUrl == null ? null : organizationUrl.trim();
+    public void setOrganizationPath(String organizationPath) {
+        this.organizationPath = organizationPath == null ? null : organizationPath.trim();
     }
 
-    public String getLicenseUrl() {
-        return licenseUrl;
+    public String getLicensePath() {
+        return licensePath;
     }
 
-    public void setLicenseUrl(String licenseUrl) {
-        this.licenseUrl = licenseUrl == null ? null : licenseUrl.trim();
+    public void setLicensePath(String licensePath) {
+        this.licensePath = licensePath == null ? null : licensePath.trim();
     }
 
-    public String getAccountUrl() {
-        return accountUrl;
+    public String getAccountPath() {
+        return accountPath;
     }
 
-    public void setAccountUrl(String accountUrl) {
-        this.accountUrl = accountUrl == null ? null : accountUrl.trim();
+    public void setAccountPath(String accountPath) {
+        this.accountPath = accountPath == null ? null : accountPath.trim();
     }
 
     public String getSiteUrl() {
@@ -236,13 +246,14 @@ public class AdvertiserModel {
         sb.append(", phone=").append(phone);
         sb.append(", qq=").append(qq);
         sb.append(", industryId=").append(industryId);
+        sb.append(", brandName=").append(brandName);
         sb.append(", licenseNo=").append(licenseNo);
         sb.append(", organizationNo=").append(organizationNo);
-        sb.append(", logoUrl=").append(logoUrl);
-        sb.append(", icpUrl=").append(icpUrl);
-        sb.append(", organizationUrl=").append(organizationUrl);
-        sb.append(", licenseUrl=").append(licenseUrl);
-        sb.append(", accountUrl=").append(accountUrl);
+        sb.append(", logoPath=").append(logoPath);
+        sb.append(", icpPath=").append(icpPath);
+        sb.append(", organizationPath=").append(organizationPath);
+        sb.append(", licensePath=").append(licensePath);
+        sb.append(", accountPath=").append(accountPath);
         sb.append(", siteUrl=").append(siteUrl);
         sb.append(", siteName=").append(siteName);
         sb.append(", email=").append(email);

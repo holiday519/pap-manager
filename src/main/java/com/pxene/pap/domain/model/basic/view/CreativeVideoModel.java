@@ -19,6 +19,8 @@ public class CreativeVideoModel {
 
     private String apkName;
 
+    private String appDescription;
+
     private Integer w;
 
     private Integer h;
@@ -97,6 +99,14 @@ public class CreativeVideoModel {
         this.apkName = apkName == null ? null : apkName.trim();
     }
 
+    public String getAppDescription() {
+        return appDescription;
+    }
+
+    public void setAppDescription(String appDescription) {
+        this.appDescription = appDescription == null ? null : appDescription.trim();
+    }
+
     public Integer getW() {
         return w;
     }
@@ -167,6 +177,7 @@ public class CreativeVideoModel {
         sb.append(", ctype=").append(ctype);
         sb.append(", bundle=").append(bundle);
         sb.append(", apkName=").append(apkName);
+        sb.append(", appDescription=").append(appDescription);
         sb.append(", w=").append(w);
         sb.append(", h=").append(h);
         sb.append(", curl=").append(curl);

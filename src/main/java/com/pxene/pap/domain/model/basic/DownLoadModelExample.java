@@ -525,6 +525,76 @@ public class DownLoadModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andAppDescriptionIsNull() {
+            addCriterion("app_description is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionIsNotNull() {
+            addCriterion("app_description is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionEqualTo(String value) {
+            addCriterion("app_description =", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionNotEqualTo(String value) {
+            addCriterion("app_description <>", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionGreaterThan(String value) {
+            addCriterion("app_description >", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionGreaterThanOrEqualTo(String value) {
+            addCriterion("app_description >=", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionLessThan(String value) {
+            addCriterion("app_description <", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionLessThanOrEqualTo(String value) {
+            addCriterion("app_description <=", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionLike(String value) {
+            addCriterion("app_description like", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionNotLike(String value) {
+            addCriterion("app_description not like", value, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionIn(List<String> values) {
+            addCriterion("app_description in", values, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionNotIn(List<String> values) {
+            addCriterion("app_description not in", values, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionBetween(String value1, String value2) {
+            addCriterion("app_description between", value1, value2, "appDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andAppDescriptionNotBetween(String value1, String value2) {
+            addCriterion("app_description not between", value1, value2, "appDescription");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;

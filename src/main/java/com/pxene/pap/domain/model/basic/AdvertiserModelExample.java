@@ -595,6 +595,76 @@ public class AdvertiserModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andBrandNameIsNull() {
+            addCriterion("brand_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameIsNotNull() {
+            addCriterion("brand_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameEqualTo(String value) {
+            addCriterion("brand_name =", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameNotEqualTo(String value) {
+            addCriterion("brand_name <>", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameGreaterThan(String value) {
+            addCriterion("brand_name >", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameGreaterThanOrEqualTo(String value) {
+            addCriterion("brand_name >=", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameLessThan(String value) {
+            addCriterion("brand_name <", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameLessThanOrEqualTo(String value) {
+            addCriterion("brand_name <=", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameLike(String value) {
+            addCriterion("brand_name like", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameNotLike(String value) {
+            addCriterion("brand_name not like", value, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameIn(List<String> values) {
+            addCriterion("brand_name in", values, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameNotIn(List<String> values) {
+            addCriterion("brand_name not in", values, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameBetween(String value1, String value2) {
+            addCriterion("brand_name between", value1, value2, "brandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andBrandNameNotBetween(String value1, String value2) {
+            addCriterion("brand_name not between", value1, value2, "brandName");
+            return (Criteria) this;
+        }
+
         public Criteria andLicenseNoIsNull() {
             addCriterion("license_no is null");
             return (Criteria) this;
@@ -735,353 +805,353 @@ public class AdvertiserModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlIsNull() {
-            addCriterion("logo_url is null");
+        public Criteria andLogoPathIsNull() {
+            addCriterion("logo_path is null");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlIsNotNull() {
-            addCriterion("logo_url is not null");
+        public Criteria andLogoPathIsNotNull() {
+            addCriterion("logo_path is not null");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlEqualTo(String value) {
-            addCriterion("logo_url =", value, "logoUrl");
+        public Criteria andLogoPathEqualTo(String value) {
+            addCriterion("logo_path =", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlNotEqualTo(String value) {
-            addCriterion("logo_url <>", value, "logoUrl");
+        public Criteria andLogoPathNotEqualTo(String value) {
+            addCriterion("logo_path <>", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlGreaterThan(String value) {
-            addCriterion("logo_url >", value, "logoUrl");
+        public Criteria andLogoPathGreaterThan(String value) {
+            addCriterion("logo_path >", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("logo_url >=", value, "logoUrl");
+        public Criteria andLogoPathGreaterThanOrEqualTo(String value) {
+            addCriterion("logo_path >=", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlLessThan(String value) {
-            addCriterion("logo_url <", value, "logoUrl");
+        public Criteria andLogoPathLessThan(String value) {
+            addCriterion("logo_path <", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlLessThanOrEqualTo(String value) {
-            addCriterion("logo_url <=", value, "logoUrl");
+        public Criteria andLogoPathLessThanOrEqualTo(String value) {
+            addCriterion("logo_path <=", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlLike(String value) {
-            addCriterion("logo_url like", value, "logoUrl");
+        public Criteria andLogoPathLike(String value) {
+            addCriterion("logo_path like", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlNotLike(String value) {
-            addCriterion("logo_url not like", value, "logoUrl");
+        public Criteria andLogoPathNotLike(String value) {
+            addCriterion("logo_path not like", value, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlIn(List<String> values) {
-            addCriterion("logo_url in", values, "logoUrl");
+        public Criteria andLogoPathIn(List<String> values) {
+            addCriterion("logo_path in", values, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlNotIn(List<String> values) {
-            addCriterion("logo_url not in", values, "logoUrl");
+        public Criteria andLogoPathNotIn(List<String> values) {
+            addCriterion("logo_path not in", values, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlBetween(String value1, String value2) {
-            addCriterion("logo_url between", value1, value2, "logoUrl");
+        public Criteria andLogoPathBetween(String value1, String value2) {
+            addCriterion("logo_path between", value1, value2, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andLogoUrlNotBetween(String value1, String value2) {
-            addCriterion("logo_url not between", value1, value2, "logoUrl");
+        public Criteria andLogoPathNotBetween(String value1, String value2) {
+            addCriterion("logo_path not between", value1, value2, "logoPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlIsNull() {
-            addCriterion("icp_url is null");
+        public Criteria andIcpPathIsNull() {
+            addCriterion("icp_path is null");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlIsNotNull() {
-            addCriterion("icp_url is not null");
+        public Criteria andIcpPathIsNotNull() {
+            addCriterion("icp_path is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlEqualTo(String value) {
-            addCriterion("icp_url =", value, "icpUrl");
+        public Criteria andIcpPathEqualTo(String value) {
+            addCriterion("icp_path =", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlNotEqualTo(String value) {
-            addCriterion("icp_url <>", value, "icpUrl");
+        public Criteria andIcpPathNotEqualTo(String value) {
+            addCriterion("icp_path <>", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlGreaterThan(String value) {
-            addCriterion("icp_url >", value, "icpUrl");
+        public Criteria andIcpPathGreaterThan(String value) {
+            addCriterion("icp_path >", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("icp_url >=", value, "icpUrl");
+        public Criteria andIcpPathGreaterThanOrEqualTo(String value) {
+            addCriterion("icp_path >=", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlLessThan(String value) {
-            addCriterion("icp_url <", value, "icpUrl");
+        public Criteria andIcpPathLessThan(String value) {
+            addCriterion("icp_path <", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlLessThanOrEqualTo(String value) {
-            addCriterion("icp_url <=", value, "icpUrl");
+        public Criteria andIcpPathLessThanOrEqualTo(String value) {
+            addCriterion("icp_path <=", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlLike(String value) {
-            addCriterion("icp_url like", value, "icpUrl");
+        public Criteria andIcpPathLike(String value) {
+            addCriterion("icp_path like", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlNotLike(String value) {
-            addCriterion("icp_url not like", value, "icpUrl");
+        public Criteria andIcpPathNotLike(String value) {
+            addCriterion("icp_path not like", value, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlIn(List<String> values) {
-            addCriterion("icp_url in", values, "icpUrl");
+        public Criteria andIcpPathIn(List<String> values) {
+            addCriterion("icp_path in", values, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlNotIn(List<String> values) {
-            addCriterion("icp_url not in", values, "icpUrl");
+        public Criteria andIcpPathNotIn(List<String> values) {
+            addCriterion("icp_path not in", values, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlBetween(String value1, String value2) {
-            addCriterion("icp_url between", value1, value2, "icpUrl");
+        public Criteria andIcpPathBetween(String value1, String value2) {
+            addCriterion("icp_path between", value1, value2, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andIcpUrlNotBetween(String value1, String value2) {
-            addCriterion("icp_url not between", value1, value2, "icpUrl");
+        public Criteria andIcpPathNotBetween(String value1, String value2) {
+            addCriterion("icp_path not between", value1, value2, "icpPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlIsNull() {
-            addCriterion("organization_url is null");
+        public Criteria andOrganizationPathIsNull() {
+            addCriterion("organization_path is null");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlIsNotNull() {
-            addCriterion("organization_url is not null");
+        public Criteria andOrganizationPathIsNotNull() {
+            addCriterion("organization_path is not null");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlEqualTo(String value) {
-            addCriterion("organization_url =", value, "organizationUrl");
+        public Criteria andOrganizationPathEqualTo(String value) {
+            addCriterion("organization_path =", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlNotEqualTo(String value) {
-            addCriterion("organization_url <>", value, "organizationUrl");
+        public Criteria andOrganizationPathNotEqualTo(String value) {
+            addCriterion("organization_path <>", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlGreaterThan(String value) {
-            addCriterion("organization_url >", value, "organizationUrl");
+        public Criteria andOrganizationPathGreaterThan(String value) {
+            addCriterion("organization_path >", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("organization_url >=", value, "organizationUrl");
+        public Criteria andOrganizationPathGreaterThanOrEqualTo(String value) {
+            addCriterion("organization_path >=", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlLessThan(String value) {
-            addCriterion("organization_url <", value, "organizationUrl");
+        public Criteria andOrganizationPathLessThan(String value) {
+            addCriterion("organization_path <", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlLessThanOrEqualTo(String value) {
-            addCriterion("organization_url <=", value, "organizationUrl");
+        public Criteria andOrganizationPathLessThanOrEqualTo(String value) {
+            addCriterion("organization_path <=", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlLike(String value) {
-            addCriterion("organization_url like", value, "organizationUrl");
+        public Criteria andOrganizationPathLike(String value) {
+            addCriterion("organization_path like", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlNotLike(String value) {
-            addCriterion("organization_url not like", value, "organizationUrl");
+        public Criteria andOrganizationPathNotLike(String value) {
+            addCriterion("organization_path not like", value, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlIn(List<String> values) {
-            addCriterion("organization_url in", values, "organizationUrl");
+        public Criteria andOrganizationPathIn(List<String> values) {
+            addCriterion("organization_path in", values, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlNotIn(List<String> values) {
-            addCriterion("organization_url not in", values, "organizationUrl");
+        public Criteria andOrganizationPathNotIn(List<String> values) {
+            addCriterion("organization_path not in", values, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlBetween(String value1, String value2) {
-            addCriterion("organization_url between", value1, value2, "organizationUrl");
+        public Criteria andOrganizationPathBetween(String value1, String value2) {
+            addCriterion("organization_path between", value1, value2, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andOrganizationUrlNotBetween(String value1, String value2) {
-            addCriterion("organization_url not between", value1, value2, "organizationUrl");
+        public Criteria andOrganizationPathNotBetween(String value1, String value2) {
+            addCriterion("organization_path not between", value1, value2, "organizationPath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlIsNull() {
-            addCriterion("license_url is null");
+        public Criteria andLicensePathIsNull() {
+            addCriterion("license_path is null");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlIsNotNull() {
-            addCriterion("license_url is not null");
+        public Criteria andLicensePathIsNotNull() {
+            addCriterion("license_path is not null");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlEqualTo(String value) {
-            addCriterion("license_url =", value, "licenseUrl");
+        public Criteria andLicensePathEqualTo(String value) {
+            addCriterion("license_path =", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlNotEqualTo(String value) {
-            addCriterion("license_url <>", value, "licenseUrl");
+        public Criteria andLicensePathNotEqualTo(String value) {
+            addCriterion("license_path <>", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlGreaterThan(String value) {
-            addCriterion("license_url >", value, "licenseUrl");
+        public Criteria andLicensePathGreaterThan(String value) {
+            addCriterion("license_path >", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("license_url >=", value, "licenseUrl");
+        public Criteria andLicensePathGreaterThanOrEqualTo(String value) {
+            addCriterion("license_path >=", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlLessThan(String value) {
-            addCriterion("license_url <", value, "licenseUrl");
+        public Criteria andLicensePathLessThan(String value) {
+            addCriterion("license_path <", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlLessThanOrEqualTo(String value) {
-            addCriterion("license_url <=", value, "licenseUrl");
+        public Criteria andLicensePathLessThanOrEqualTo(String value) {
+            addCriterion("license_path <=", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlLike(String value) {
-            addCriterion("license_url like", value, "licenseUrl");
+        public Criteria andLicensePathLike(String value) {
+            addCriterion("license_path like", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlNotLike(String value) {
-            addCriterion("license_url not like", value, "licenseUrl");
+        public Criteria andLicensePathNotLike(String value) {
+            addCriterion("license_path not like", value, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlIn(List<String> values) {
-            addCriterion("license_url in", values, "licenseUrl");
+        public Criteria andLicensePathIn(List<String> values) {
+            addCriterion("license_path in", values, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlNotIn(List<String> values) {
-            addCriterion("license_url not in", values, "licenseUrl");
+        public Criteria andLicensePathNotIn(List<String> values) {
+            addCriterion("license_path not in", values, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlBetween(String value1, String value2) {
-            addCriterion("license_url between", value1, value2, "licenseUrl");
+        public Criteria andLicensePathBetween(String value1, String value2) {
+            addCriterion("license_path between", value1, value2, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andLicenseUrlNotBetween(String value1, String value2) {
-            addCriterion("license_url not between", value1, value2, "licenseUrl");
+        public Criteria andLicensePathNotBetween(String value1, String value2) {
+            addCriterion("license_path not between", value1, value2, "licensePath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlIsNull() {
-            addCriterion("account_url is null");
+        public Criteria andAccountPathIsNull() {
+            addCriterion("account_path is null");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlIsNotNull() {
-            addCriterion("account_url is not null");
+        public Criteria andAccountPathIsNotNull() {
+            addCriterion("account_path is not null");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlEqualTo(String value) {
-            addCriterion("account_url =", value, "accountUrl");
+        public Criteria andAccountPathEqualTo(String value) {
+            addCriterion("account_path =", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlNotEqualTo(String value) {
-            addCriterion("account_url <>", value, "accountUrl");
+        public Criteria andAccountPathNotEqualTo(String value) {
+            addCriterion("account_path <>", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlGreaterThan(String value) {
-            addCriterion("account_url >", value, "accountUrl");
+        public Criteria andAccountPathGreaterThan(String value) {
+            addCriterion("account_path >", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlGreaterThanOrEqualTo(String value) {
-            addCriterion("account_url >=", value, "accountUrl");
+        public Criteria andAccountPathGreaterThanOrEqualTo(String value) {
+            addCriterion("account_path >=", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlLessThan(String value) {
-            addCriterion("account_url <", value, "accountUrl");
+        public Criteria andAccountPathLessThan(String value) {
+            addCriterion("account_path <", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlLessThanOrEqualTo(String value) {
-            addCriterion("account_url <=", value, "accountUrl");
+        public Criteria andAccountPathLessThanOrEqualTo(String value) {
+            addCriterion("account_path <=", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlLike(String value) {
-            addCriterion("account_url like", value, "accountUrl");
+        public Criteria andAccountPathLike(String value) {
+            addCriterion("account_path like", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlNotLike(String value) {
-            addCriterion("account_url not like", value, "accountUrl");
+        public Criteria andAccountPathNotLike(String value) {
+            addCriterion("account_path not like", value, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlIn(List<String> values) {
-            addCriterion("account_url in", values, "accountUrl");
+        public Criteria andAccountPathIn(List<String> values) {
+            addCriterion("account_path in", values, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlNotIn(List<String> values) {
-            addCriterion("account_url not in", values, "accountUrl");
+        public Criteria andAccountPathNotIn(List<String> values) {
+            addCriterion("account_path not in", values, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlBetween(String value1, String value2) {
-            addCriterion("account_url between", value1, value2, "accountUrl");
+        public Criteria andAccountPathBetween(String value1, String value2) {
+            addCriterion("account_path between", value1, value2, "accountPath");
             return (Criteria) this;
         }
 
-        public Criteria andAccountUrlNotBetween(String value1, String value2) {
-            addCriterion("account_url not between", value1, value2, "accountUrl");
+        public Criteria andAccountPathNotBetween(String value1, String value2) {
+            addCriterion("account_path not between", value1, value2, "accountPath");
             return (Criteria) this;
         }
 

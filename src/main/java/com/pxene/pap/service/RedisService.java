@@ -13,10 +13,14 @@ import com.google.gson.JsonObject;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.RedisUtils;
 import com.pxene.pap.constant.RedisKeyConstant;
+import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
+import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.CampaignModel;
+import com.pxene.pap.domain.model.basic.CreativeAuditModel;
+import com.pxene.pap.domain.model.basic.CreativeAuditModelExample;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
@@ -33,9 +37,11 @@ import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
 import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ProjectDao;
@@ -83,6 +89,12 @@ public class RedisService {
 	
 	@Autowired
 	private RedisUtils redisUtils;
+	
+	@Autowired
+	private AdvertiserAuditDao advertiserAuditDao;
+	
+	@Autowired
+	private CreativeAuditDao creativeAuditDao;
 	
 	@Transactional
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
@@ -179,11 +191,12 @@ public class RedisService {
             creativeObj.addProperty("imonitorurl", imoUrlStr.toString());
             creativeObj.addProperty("cmonitorurl", cmoUrlStr.toString());
             creativeObj.addProperty("monitorcode", monitorcode);
-            model.getSourceUrl();//此处需要修改—————————————————图片地址路径需要加上
+            creativeObj.addProperty("sourceurl", model.getSourceUrl());//此处需要修改—————————————————图片地址路径需要加上
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
-            
-			creativeObj.addProperty("exts", "");//adx属性——————————————
-			
+            //获取Exts
+    		JsonArray exts = getCreativeExts(mapId);
+			creativeObj.addProperty("exts", exts.toString());
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO, exts.toString().replaceAll("//", ""));
 		}
 	}
 	
@@ -240,11 +253,12 @@ public class RedisService {
             creativeObj.addProperty("imonitorurl", imoUrlStr.toString());
             creativeObj.addProperty("cmonitorurl", cmoUrlStr.toString());
             creativeObj.addProperty("monitorcode", monitorcode);
-            model.getSourceUrl();//此处需要修改——————————————————图片地址路径需要加上
+            creativeObj.addProperty("sourceurl", model.getSourceUrl());//此处需要修改——————————————————图片地址路径需要加上
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
-            
-			creativeObj.addProperty("exts", "");//adx属性——————————————
-			
+          //获取Exts
+    		JsonArray exts = getCreativeExts(mapId);
+			creativeObj.addProperty("exts", exts.toString());
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO, exts.toString().replaceAll("//", ""));
 		}
 	}
 	
@@ -359,9 +373,10 @@ public class RedisService {
             creativeObj.addProperty("description", GlobalUtil.parseString(model.getDescription(),""));
             creativeObj.addProperty("rating", GlobalUtil.parseString(model.getRating(),""));
             creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtatext(),""));
-            
-			creativeObj.addProperty("exts", "");//adx属性——————————————————
-			
+            //获取Exts
+    		JsonArray exts = getCreativeExts(mapId);
+			creativeObj.addProperty("exts", exts.toString());
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO, exts.toString().replaceAll("//", ""));
 		}
 	}
 	
@@ -435,8 +450,10 @@ public class RedisService {
 		campaignInfo.addProperty("auctiontype", auctiontypeArr.toString());
 		campaignInfo.addProperty("redirect", 0);//不重定向创意的curl
 		campaignInfo.addProperty("effectmonitor", 1);//需要效果监测
-		
-		campaignInfo.addProperty("exts", "");//adx对应需要的值————————————————————————
+		//获取Exts
+		JsonArray exts = getCampaignExts(campaignId);
+		campaignInfo.addProperty("exts", exts.toString());
+		redisUtils.set(RedisKeyConstant.CAMPAIGN_INFO, campaignInfo.toString().replaceAll("//", ""));
 	}
 	
 	/**
@@ -491,7 +508,7 @@ public class RedisService {
 			if (appJson != null) {
 				targetJson.addProperty("app", appJson.toString());
 			}
-			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
+			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString().replaceAll("//", ""));
 		}
 	}
 	
@@ -578,7 +595,7 @@ public class RedisService {
 	 * @param targetString
 	 * @return
 	 */
-	private JsonArray targetStringToJsonArrayWithInt(String targetString) {
+	private JsonArray targetStringToJsonArrayWithInt(String targetString) throws Exception {
 		if (targetString == null || "".equals(targetString)) {
 			return new JsonArray();
 		} else {
@@ -589,5 +606,77 @@ public class RedisService {
 			}
 			return jsonArray;
 		}
+	}
+	
+	/**
+	 * 获取推广组对应的各个adx审核值（exts）
+	 * @param campaignId
+	 * @return
+	 * @throws Exception
+	 */
+	private JsonArray getCampaignExts(String campaignId) throws Exception {
+		JsonArray exts = new JsonArray();
+		//查询项目ID
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+		String projectId = campaignModel.getProjectId();
+		//查询广告主ID
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+		String advertiserId = projectModel.getAdvertiserId();
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//查询各个adx审核Value
+		JsonObject ext = null;
+		for (AdxModel adx : adxs) {
+			ext = new JsonObject();
+			String adxId = adx.getId();
+			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+			example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(adxId);
+			List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(example);
+			if (list != null && !list.isEmpty()) {
+				AdvertiserAuditModel model = list.get(0);
+				String auditValue = model.getAuditValue();
+				ext.addProperty("adx", Integer.parseInt(adxId));
+				ext.addProperty("advid", auditValue);
+				exts.add(ext);
+			}
+		}
+		if (exts.size() > 0) {
+			return exts;
+		}
+		return new JsonArray();
+	}
+	
+	/**
+	 * 根据mapId 查询创意的审核值
+	 * @param mapId
+	 * @return
+	 * @throws Exception
+	 */
+	private JsonArray getCreativeExts(String mapId) throws Exception {
+		JsonArray exts = new JsonArray();
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//查询各个adx审核Value
+		JsonObject ext = null;
+		for (AdxModel adx : adxs) {
+			ext = new JsonObject();
+			String adxId = adx.getId();
+			CreativeAuditModelExample example = new CreativeAuditModelExample();
+			example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(mapId);
+			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+			if (list != null && !list.isEmpty()) {
+				CreativeAuditModel model = list.get(0);
+				String auditValue = model.getAuditValue();
+				ext.addProperty("adx", Integer.parseInt(adxId));
+				ext.addProperty("advid", auditValue);
+				exts.add(ext);
+			}
+		}
+		if (exts.size() > 0) {
+			return exts;
+		}
+		return new JsonArray();
 	}
 }

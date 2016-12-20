@@ -15,6 +15,8 @@ public class DownLoadModel {
 
     private String appPkgName;
 
+    private String appDescription;
+
     private Date createTime;
 
     private Date updateTime;
@@ -67,6 +69,14 @@ public class DownLoadModel {
         this.appPkgName = appPkgName == null ? null : appPkgName.trim();
     }
 
+    public String getAppDescription() {
+        return appDescription;
+    }
+
+    public void setAppDescription(String appDescription) {
+        this.appDescription = appDescription == null ? null : appDescription.trim();
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -95,6 +105,7 @@ public class DownLoadModel {
         sb.append(", appName=").append(appName);
         sb.append(", appId=").append(appId);
         sb.append(", appPkgName=").append(appPkgName);
+        sb.append(", appDescription=").append(appDescription);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

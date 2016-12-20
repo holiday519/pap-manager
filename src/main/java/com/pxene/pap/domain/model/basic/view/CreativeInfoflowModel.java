@@ -25,6 +25,8 @@ public class CreativeInfoflowModel {
 
     private String landingUrl;
 
+    private String appDescription;
+
     private String title;
 
     private String description;
@@ -135,6 +137,14 @@ public class CreativeInfoflowModel {
         this.landingUrl = landingUrl == null ? null : landingUrl.trim();
     }
 
+    public String getAppDescription() {
+        return appDescription;
+    }
+
+    public void setAppDescription(String appDescription) {
+        this.appDescription = appDescription == null ? null : appDescription.trim();
+    }
+
     public String getTitle() {
         return title;
     }
@@ -240,6 +250,7 @@ public class CreativeInfoflowModel {
         sb.append(", downloadUrl=").append(downloadUrl);
         sb.append(", curl=").append(curl);
         sb.append(", landingUrl=").append(landingUrl);
+        sb.append(", appDescription=").append(appDescription);
         sb.append(", title=").append(title);
         sb.append(", description=").append(description);
         sb.append(", rating=").append(rating);
