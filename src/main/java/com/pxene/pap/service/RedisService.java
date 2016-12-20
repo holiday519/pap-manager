@@ -165,7 +165,7 @@ public class RedisService {
 				adxObj.addProperty("price", model.getPrice());
 				priceAdx.add(adxObj);
 			}
-			creativeObj.addProperty("price_adx", priceAdx.toString());
+			creativeObj.add("price_adx", priceAdx);
 			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
@@ -188,17 +188,15 @@ public class RedisService {
             for (int j = 0; j < tempCmonitorUrl.length; j++) {
                 cmoUrlStr.add(tempCmonitorUrl[j]);
             }
-            creativeObj.addProperty("imonitorurl", imoUrlStr.toString());
-            creativeObj.addProperty("cmonitorurl", cmoUrlStr.toString());
+            creativeObj.add("imonitorurl", imoUrlStr);
+            creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
             creativeObj.addProperty("sourceurl", model.getSourceUrl());//此处需要修改—————————————————图片地址路径需要加上
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
-			creativeObj.addProperty("exts", exts.toString());
-			System.out.println(RedisKeyConstant.CREATIVE_INFO + mapId);
-			System.out.println(creativeObj.toString());
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString().replace("\\", ""));
+			creativeObj.add("exts", exts);
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
 		}
 	}
 	
@@ -229,7 +227,7 @@ public class RedisService {
 				adxObj.addProperty("price", model.getPrice());
 				priceAdx.add(adxObj);
 			}
-			creativeObj.addProperty("price_adx", priceAdx.toString());
+			creativeObj.add("price_adx", priceAdx);
 			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
@@ -252,15 +250,15 @@ public class RedisService {
             for (int j = 0; j < tempCmonitorUrl.length; j++) {
                 cmoUrlStr.add(tempCmonitorUrl[j]);
             }
-            creativeObj.addProperty("imonitorurl", imoUrlStr.toString());
-            creativeObj.addProperty("cmonitorurl", cmoUrlStr.toString());
+            creativeObj.add("imonitorurl", imoUrlStr);
+            creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
             creativeObj.addProperty("sourceurl", model.getSourceUrl());//此处需要修改——————————————————图片地址路径需要加上
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
           //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
-			creativeObj.addProperty("exts", exts.toString());
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString().replace("\\", ""));
+			creativeObj.add("exts", exts);
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
 		}
 	}
 	
@@ -291,7 +289,7 @@ public class RedisService {
 				adxObj.addProperty("price", model.getPrice());
 				priceAdx.add(adxObj);
 			}
-			creativeObj.addProperty("price_adx", priceAdx.toString());
+			creativeObj.add("price_adx", priceAdx);
 			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
@@ -300,7 +298,7 @@ public class RedisService {
 			String icon = model.getIcon();
 			if (icon != null) {
 				JsonObject iconJson = getImageJson(icon);
-				creativeObj.addProperty(icon, iconJson.toString());
+				creativeObj.add(icon, iconJson);
 			}
 			String image1 = model.getImage1();
 			String image2 = model.getImage2();
@@ -350,7 +348,7 @@ public class RedisService {
 					// sourceurl需要拼接图片服务器地址——————————————
 					bigImages.add(selectImages(str).toString());
 				}
-				creativeObj.addProperty("imgs", bigImages.toString());
+				creativeObj.add("imgs", bigImages);
 			}
 			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getCurl(),""));
 			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandingUrl(),""));
@@ -367,8 +365,8 @@ public class RedisService {
             for (int j = 0; j < tempCmonitorUrl.length; j++) {
                 cmoUrlStr.add(tempCmonitorUrl[j]);
             }
-            creativeObj.addProperty("imonitorurl", imoUrlStr.toString());
-            creativeObj.addProperty("cmonitorurl", cmoUrlStr.toString());
+            creativeObj.add("imonitorurl", imoUrlStr);
+            creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             creativeObj.addProperty("title", GlobalUtil.parseString(model.getTitle(),""));
@@ -377,8 +375,8 @@ public class RedisService {
             creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtatext(),""));
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
-			creativeObj.addProperty("exts", exts.toString());
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString().replace("\\", ""));
+			creativeObj.add("exts", exts);
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
 		}
 	}
 	
@@ -433,7 +431,7 @@ public class RedisService {
 		JsonArray auctiontypeArr = new JsonArray();
 		int industryId = Integer.parseInt(advertiserModel.getIndustryId());
 		catArr.add(industryId);
-		campaignInfo.addProperty("cat", catArr.toString());
+		campaignInfo.add("cat", catArr);
 		campaignInfo.addProperty("advcat", industryId);
 		String adomain = GlobalUtil.parseString(advertiserModel.getSiteUrl(),"");
 		campaignInfo.addProperty("adomain", adomain.replace("http://www.", "").replace("www.", ""));
@@ -448,14 +446,14 @@ public class RedisService {
 			adxObj.addProperty("at", 0);//竞价方式  ；0代表RTB
 			auctiontypeArr.add(adxObj);
 		}
-		campaignInfo.addProperty("adx", adxArr.toString());
-		campaignInfo.addProperty("auctiontype", auctiontypeArr.toString());
+		campaignInfo.add("adx", adxArr);
+		campaignInfo.add("auctiontype", auctiontypeArr);
 		campaignInfo.addProperty("redirect", 0);//不重定向创意的curl
 		campaignInfo.addProperty("effectmonitor", 1);//需要效果监测
 		//获取Exts
 		JsonArray exts = getCampaignExts(campaignId);
-		campaignInfo.addProperty("exts", exts.toString());
-		redisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignInfo.toString().replace("\\", ""));
+		campaignInfo.add("exts", exts);
+		redisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignInfo.toString());
 	}
 	
 	/**
@@ -482,35 +480,35 @@ public class RedisService {
 			JsonArray brand = targetStringToJsonArrayWithInt(target.getBrandId());
 			if (region.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("region")[1];
-				deviceJson.addProperty("regioncode", region.toString());
+				deviceJson.add("regioncode", region);
 			}
 			if (network.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("network")[1];
-				deviceJson.addProperty("connectiontype", network.toString());
+				deviceJson.add("connectiontype", network);
 			}
 			if (os.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("os")[1];
-				deviceJson.addProperty("os", os.toString());
+				deviceJson.add("os", os);
 			}
 			if (operator.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("operator")[1];
-				deviceJson.addProperty("carrier", operator.toString());
+				deviceJson.add("carrier", operator);
 			}
 			if (device.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("device")[1];
-				deviceJson.addProperty("devicetype", device.toString());
+				deviceJson.add("devicetype", device);
 			}
 			if (brand.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("brand")[1];
-				deviceJson.addProperty("make", brand.toString());
+				deviceJson.add("make", brand);
 			}
-			targetJson.addProperty("device", deviceJson.toString());
+			targetJson.add("device", deviceJson);
 			// app定向
 			JsonObject appJson = createAppTargetJson(target.getAppId());
 			if (appJson != null) {
-				targetJson.addProperty("app", appJson.toString());
+				targetJson.add("app", appJson);
 			}
-			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString().replace("\\", ""));
+			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
 	}
 	
@@ -543,10 +541,10 @@ public class RedisService {
 				flag = 1;
 			}
 			idObj.addProperty("flag", flag);
-			idObj.addProperty("wlist", appids.toString());
+			idObj.add("wlist", appids);
 			idArr.add(idObj);
 		}
-		appJson.addProperty("id", idArr.toString());
+		appJson.add("id", idArr);
 		return appJson;
 	}
 	

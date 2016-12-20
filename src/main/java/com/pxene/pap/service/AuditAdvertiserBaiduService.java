@@ -127,8 +127,8 @@ public class AuditAdvertiserBaiduService {
 		advObj.addProperty("telephone", bean.getPhone());
 		advObj.addProperty("address", bean.getAddress());
 		request.add(advObj);
-		param.addProperty("request", request.toString());
-		param.addProperty("authHeader", authHeader.toString());
+		param.add("request", request);
+		param.add("authHeader", authHeader);
 		//发送post请求
 		Map<String, String> map; 
 		//如果auditType是“edit”，调用编辑请求；否则调用添加请求
@@ -165,12 +165,12 @@ public class AuditAdvertiserBaiduService {
         mainLinceObj.addProperty("name", bean.getCompany());
         mainLinceObj.addProperty("number", licenseNO);
         mainLinceObj.addProperty("validDate", validDate);
-        mainLinceObj.addProperty("imgUrls", imgUrls.toString());
+        mainLinceObj.add("imgUrls", imgUrls);
         qualificationObj.addProperty("advertiserId", num);
-        qualificationObj.addProperty("mainLincence", mainLinceObj.toString());
+        qualificationObj.add("mainLincence", mainLinceObj);
         qualifications.add(qualificationObj);
-        zParam.addProperty("qualifications", qualifications.toString());
-        zParam.addProperty("authHeader", authHeader.toString());
+        zParam.add("qualifications", qualifications);
+        zParam.add("authHeader", authHeader);
         //请求资质审核接口
         Map<String, String> resultMap;
         //如果auditType是“edit”，调用编辑请求；否则调用添加请求
@@ -188,7 +188,7 @@ public class AuditAdvertiserBaiduService {
 			JsonObject zObj = zJsonMap.getAsJsonObject("qualificationStatuses");
 			int zStatu = zObj.get("status").getAsInt();
 			if (0 == zStatu) {
-				//成功
+				//成功——————————————
 			}
 		}
 	}
@@ -230,8 +230,8 @@ public class AuditAdvertiserBaiduService {
 		JsonArray adver = new JsonArray();//广告主数字Id数组
 		adver.add(num);
 		JsonObject obj = new JsonObject();//请求参数
-		obj.addProperty("authHeader", authHeader.toString());
-		obj.addProperty("advertiserIds", adver.toString());
+		obj.add("authHeader", authHeader);
+		obj.add("advertiserIds", adver);
 		//发送同步请求
 		Map<String, String> map = post(aexamineresultUrl, obj.toString());
 		//返回结构中取出reslut

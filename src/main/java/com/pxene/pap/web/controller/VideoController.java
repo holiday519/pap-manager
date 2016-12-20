@@ -40,9 +40,9 @@ public class VideoController {
 	@ResponseBody
 	public String deleteVideo(@PathVariable String id, HttpServletResponse response) throws Exception {
 //		//测试redis
-//		redisService.writeImgCreativeInfoToRedis(id);
+//		redisService.writeCampaignInfoToRedis(id);
 		//测试审核
-		auditService.audit(id);
+//		auditService.audit(id);
 		return null;
 	}
 

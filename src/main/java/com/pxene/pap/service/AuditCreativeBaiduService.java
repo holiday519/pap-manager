@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -16,7 +15,6 @@ import org.springframework.util.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
@@ -180,15 +178,7 @@ public class AuditCreativeBaiduService {
 		//广告主审核数字key
 		Long advertiserIdValue = getAdvAuditValueByMapId(mapId);
 		//创意审核key
-		Long creativeIdvalue = (long) Math.floor((new Random()).nextDouble() * 1000000000D);//————————————————————
-		//创意审核表中插入数据
-		CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
-		creativeAuditModel.setId(UUID.randomUUID().toString());
-		creativeAuditModel.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
-		creativeAuditModel.setAuditValue(String.valueOf(creativeIdvalue));
-		creativeAuditModel.setCreativeId(mapId);
-		creativeAuditModel.setStatus("00");
-		creativeAuditDao.insertSelective(creativeAuditModel);
+		long creativeIdvalue = getCrativeAuditValueByMapId(mapId);
 		
 		JsonObject creative = new JsonObject();//创意信息
 		//流量类型 默认为Mobile流量——只支持图片、图文
@@ -213,14 +203,9 @@ public class AuditCreativeBaiduService {
 		} else {
 			throw new NotFoundException("百度创意提交第三方审核执行失败！原因：获取图片尺寸异常！");
 		}
-		String ftype = creativeImage.getFtype();
 		String sourceUrl = creativeImage.getSourceUrl();
-		if ("2".equals(ftype) || "3".equals(ftype)) {// 不止2、3（此处需要根据图片格式的code待定）——————————————————（jpg、png、gif、swf四种格式都需要）
-//			byte[] imgContent = GlobalUtil.getImageContent(sourceUrl);
-//			creative.addProperty("binaryData", new String(imgContent));// 创意二进制数据
-		}
-		creative.addProperty("Width", width);
-		creative.addProperty("Height", height);
+		creative.addProperty("width", width);
+		creative.addProperty("height", height);
 		creative.addProperty("creativeUrl", sourceUrl);// ————————————————————图片服务器地址
 
 		// 点击链接targetUrl
@@ -238,8 +223,8 @@ public class AuditCreativeBaiduService {
 		if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
 			imot.add("http://cl2.pxene.com" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
 		}
-		creative.addProperty("monitorUrls", imot.toString());
-		creative.addProperty("creativeTradeId", 60);// 此处需要进行调整，创意所属广告行业——————————————————
+		creative.add("monitorUrls", imot);
+		creative.addProperty("creativeTradeId", 5401);// 此处需要进行调整，创意所属广告行业——————————————————
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
@@ -257,7 +242,7 @@ public class AuditCreativeBaiduService {
 		} else if ("e".equals(promotiontype)) {
 			interactiveStyle = 0;
 		}
-		creative.addProperty("Type", typeValue);
+		creative.addProperty("type", typeValue);
 		creative.addProperty("interactiveStyle", interactiveStyle);
 		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
 		if (!StringUtils.isEmpty(creativeImage.getLandingUrl())) {//到达页面
@@ -274,9 +259,8 @@ public class AuditCreativeBaiduService {
 		JsonArray creatives = new JsonArray();
 		creatives.add(creative);
 		JsonObject param = new JsonObject();
-		param.addProperty("authHeader", authHeader.toString());
-		param.addProperty("request", creatives.toString());
-		System.out.println(param.toString());
+		param.add("authHeader", authHeader);
+		param.add("request", creatives);
 		//发送请求
 		Map<String, String> map = auditAdvertiserBaiduService.post(cexamineurl, param.toString());
 		//返回结构中取出reslut
@@ -284,13 +268,12 @@ public class AuditCreativeBaiduService {
 		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
 		//查询状态
         int status = jsonMap.get("status").getAsInt();
-        String statucode = jsonMap.get("statucode").getAsString();
-		if ("200".equals(statucode) && status == 0) {
+		if (status == 0) {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
 			mod.setStatus("03");
-			creativeAuditDao.updateByExampleSelective(creativeAuditModel, ex);
+			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：" + jsonMap.get("message").getAsString());
 		}
@@ -329,15 +312,7 @@ public class AuditCreativeBaiduService {
 		//广告主审核数字key
 		Long advertiserIdValue = getAdvAuditValueByMapId(mapId);
 		//创意审核key
-		Long creativeIdvalue = (long) Math.floor((new Random()).nextDouble() * 1000000000D);//————————————————————
-		//创意审核表中插入数据
-		CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
-		creativeAuditModel.setId(UUID.randomUUID().toString());
-		creativeAuditModel.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
-		creativeAuditModel.setAuditValue(String.valueOf(creativeIdvalue));
-		creativeAuditModel.setCreativeId(mapId);
-		creativeAuditModel.setStatus("00");
-		creativeAuditDao.insertSelective(creativeAuditModel);
+		long creativeIdvalue = getCrativeAuditValueByMapId(mapId);
 		
 		JsonObject creative = new JsonObject();//创意信息
 		//流量类型 默认为Mobile流量——只支持图片、图文
@@ -355,24 +330,22 @@ public class AuditCreativeBaiduService {
 		}
 		String title = creativeInfo.getTitle();//标题
 		String description = creativeInfo.getDescription();//描述
-		String brandname = getAdvertiserBrandNameByMapId(mapId);//品牌名称（广告主表字段）
+		String brandName = getAdvertiserBrandNameByMapId(mapId);//品牌名称（广告主表字段）
 		if (StringUtils.isEmpty(title) || title.length() >= 18) {
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：信息流广告推广标题最长支持18个中文字！" );
 		}
 		if (StringUtils.isEmpty(description) || description.length() >= 50) {
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：信息流广告必须包含推广描述，且最长支持50个中文字！" );
 		}
-		if (StringUtils.isEmpty(brandname) || brandname.length() >= 14) {
+		if (StringUtils.isEmpty(brandName) || brandName.length() >= 14) {
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：广告主品牌名称必须填写，且最长支持14个中文字！" );
 		}
 		creative.addProperty("title", title);
 		creative.addProperty("description", description);
-		creative.addProperty("brandname", brandname);
-		creative.addProperty("Style", 5); //5：APP 图文信息流 （adviewType 必须为2）
+		creative.addProperty("brandName", brandName);
+		creative.addProperty("style", 5); //5：APP 图文信息流 （adviewType 必须为2）
 		//原生图片信息——有顺序
-		List<String> creativeUrls = new ArrayList<>();
-		//图文创意二进制数据列表——有顺序
-		List<byte[]> binaryDatas = new ArrayList<>();
+		JsonArray creativeUrls = new JsonArray();
 		String icon = creativeInfo.getIcon();
 		String image1 = creativeInfo.getImage1();
 		if(!StringUtils.isEmpty(icon)){
@@ -385,10 +358,6 @@ public class AuditCreativeBaiduService {
 			}
 			String path = imageModel.getPath();
 			creativeUrls.add(path);//图片地址——————————————
-			if ("2".equals(imageModel.getCode()) || "3".equals(imageModel.getCode())) {// 不止2、3（此处需要根据图片格式的code待定）——————————————————（jpg、png、gif、swf四种格式都需要）
-				byte[] content = GlobalUtil.getImageContent(path);
-				binaryDatas.add(content);
-			}
 		}
 		if(!StringUtils.isEmpty(image1)){
 			ImageSizeTypeModelExample istExample = new ImageSizeTypeModelExample();
@@ -400,13 +369,8 @@ public class AuditCreativeBaiduService {
 			}
 			String path = imageModel.getPath();
 			creativeUrls.add(path);//图片地址——————————————
-			if ("2".equals(imageModel.getCode()) || "3".equals(imageModel.getCode())) {// 不止2、3（此处需要根据图片格式的code待定）——————————————————（jpg、png、gif、swf四种格式都需要）
-				byte[] content = GlobalUtil.getImageContent(path);
-				binaryDatas.add(content);
-			}
 		}
-		creative.addProperty("binaryDatas", binaryDatas.toString());
-		creative.addProperty("creativeUrls", creativeUrls.toString());
+		creative.add("creativeUrls", creativeUrls);
 		
 		// 点击链接targetUrl
 		String encodeUrl = URLEncoder.encode(creativeInfo.getCurl(), "UTF-8");
@@ -423,8 +387,8 @@ public class AuditCreativeBaiduService {
 		if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
 			imot.add("点击地址" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
 		}
-		creative.addProperty("monitorUrls", imot.toString());
-		creative.addProperty("creativeTradeId", 2);// 此处需要进行调整，创意所属广告行业——————————————————
+		creative.add("monitorUrls", imot);
+		creative.addProperty("creativeTradeId", 5401);// 此处需要进行调整，创意所属广告行业——————————————————
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
@@ -442,7 +406,7 @@ public class AuditCreativeBaiduService {
 		} else if ("e".equals(promotiontype)) {
 			interactiveStyle = 0;
 		}
-		creative.addProperty("Type", typeValue);
+		creative.addProperty("type", typeValue);
 		creative.addProperty("interactiveStyle", interactiveStyle);
 		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
 		if (!StringUtils.isEmpty(creativeInfo.getLandingUrl())) {
@@ -468,13 +432,12 @@ public class AuditCreativeBaiduService {
 		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
 		//查询状态
         int status = jsonMap.get("status").getAsInt();
-        String statucode = jsonMap.get("statucode").getAsString();
-		if ("200".equals(statucode) && status == 0) {
+		if (status == 0) {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
 			mod.setStatus("03");
-			creativeAuditDao.updateByExampleSelective(creativeAuditModel, ex);
+			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：" + jsonMap.get("message").getAsString());
 		}
@@ -618,7 +581,7 @@ public class AuditCreativeBaiduService {
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		String advertiserId = projectModel.getAdvertiserId();
 		//查询广告主的品牌名称
-		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(projectId);
+		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(advertiserId);
 		String brandName = advertiserModel.getBrandName();
 		
 		return brandName;
@@ -642,5 +605,34 @@ public class AuditCreativeBaiduService {
 		return type;
 	}
 	
+	/**
+	 * 获取审核Value
+	 * @param mapId
+	 * @return
+	 */
+	private long getCrativeAuditValueByMapId(String mapId) {
+		//创意审核key
+		Long creativeIdvalue = 0L;
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		example.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+		if (list == null || list.isEmpty()) {
+			creativeIdvalue = (long) Math.floor((new Random()).nextDouble() * 1000000000D);
+			// 创意审核表中插入数据
+			CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
+			creativeAuditModel.setId(UUID.randomUUID().toString());
+			creativeAuditModel.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
+			creativeAuditModel.setAuditValue(String.valueOf(creativeIdvalue));
+			creativeAuditModel.setCreativeId(mapId);
+			creativeAuditModel.setStatus("00");
+			creativeAuditDao.insertSelective(creativeAuditModel);
+		} else {
+			CreativeAuditModel model = list.get(0);
+			if (!StringUtils.isEmpty(model.getAuditValue())) {
+				creativeIdvalue = Long.parseLong(model.getAuditValue());
+			}
+		}
+		return creativeIdvalue;
+	}
 
 }

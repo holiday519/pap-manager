@@ -9,13 +9,17 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.PurposeBean;
 import com.pxene.pap.domain.model.basic.DownLoadModel;
 import com.pxene.pap.domain.model.basic.LandPageModel;
 import com.pxene.pap.domain.model.basic.PurposeModel;
 import com.pxene.pap.domain.model.basic.PurposeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.DownLoadDao;
 import com.pxene.pap.repository.basic.LandPageDao;
 import com.pxene.pap.repository.basic.PurposeDao;
@@ -50,33 +54,19 @@ public class PurposeService extends BaseService {
 		}
 		//创建落地页信息
 		if (landpagePath != null && !"".equals(landpagePath)) {
-			String anidDeepLink = bean.getAnidDeepLink();
-			String iosDeepLink = bean.getIosDeepLink();
 			String landPageId = UUID.randomUUID().toString();
-			LandPageModel landPageModel = new LandPageModel();
+			LandPageModel landPageModel = modelMapper.map(bean, LandPageModel.class);
 			landPageModel.setId(landPageId);
 			landPageModel.setPath(landpagePath);
-			landPageModel.setAnidDeepLink(anidDeepLink);
-			landPageModel.setIosDeepLink(iosDeepLink);
 			landPageDao.insertSelective(landPageModel);
 			purposeModel.setLandpageId(landPageId);
 		}
 		//创建app下载信息
 		if (downloadPath != null && !"".equals(downloadPath)) {
 			String downLoadId = UUID.randomUUID().toString();
-			String appOs = bean.getAppOs();
-			String appName = bean.getAppName();
-			String appId = bean.getAppId();
-			String appPkgName = bean.getAppPkgName();
-			String appDescription = bean.getAppDescription();
-			DownLoadModel downLoadModel = new DownLoadModel();
+			DownLoadModel downLoadModel = modelMapper.map(bean, DownLoadModel.class);
 			downLoadModel.setId(downLoadId);
 			downLoadModel.setPath(downloadPath);
-			downLoadModel.setAppOs(appOs);
-			downLoadModel.setAppName(appName);
-			downLoadModel.setAppId(appId);
-			downLoadModel.setAppDescription(appDescription);
-			downLoadModel.setAppPkgName(appPkgName);
 			downLoadDao.insertSelective(downLoadModel);
 			purposeModel.setDownloadId(downLoadId);
 		}
@@ -98,22 +88,27 @@ public class PurposeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String  updatePurpose(PurposeBean bean) throws Exception {
-		String id = bean.getId();
+	public void updatePurpose(String id,PurposeBean bean) throws Exception {
+		if (!StringUtils.isEmpty(bean.getId())) {
+			throw new IllegalArgumentException();
+		}
+		
+		PurposeModel purposeInDB = purposeDao.selectByPrimaryKey(id);
+		if (purposeInDB == null) {
+			throw new NotFoundException();
+		}
+		
 		String campaignId = bean.getCampaignId();
 		String name = bean.getName();
-		if (id == null || "".equals(id)) {
-			return "活动目标ID不能为空！";
-		}
 		PurposeModelExample example = new PurposeModelExample();
 		example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
 		List<PurposeModel> list = purposeDao.selectByExample(example);
 		if(list!=null && !list.isEmpty()){
-			return "活动目标名称重复";
+			throw new IllegalStateException("活动目标名称重复");
 		}
 		PurposeModel oldModel = purposeDao.selectByPrimaryKey(id);
 		if (oldModel == null) {
-			return "活动目标ID错误！";
+			throw new IllegalStateException("活动目标ID错误！");
 		}
 		String escrowUrl = bean.getEscrowUrl();
 		String oldLandpageId = oldModel.getLandpageId();
@@ -123,11 +118,11 @@ public class PurposeService extends BaseService {
 		
 		if ((landpagePath == null || "".equals(landpagePath))
 				&& (downloadPath == null || "".equals(downloadPath))) {
-			return "必须选择落地页或APP下载其中一种！";
+			throw new IllegalStateException("必须选择落地页或APP下载其中一种！");
 		}
 		if ((landpagePath == null || "".equals(landpagePath))
 				&& (downloadPath == null || "".equals(downloadPath))) {
-			return "只能选择落地页或APP下载其中一种！";
+			throw new IllegalStateException("只能选择落地页或APP下载其中一种！");
 		}
 		
 		PurposeModel purposeModel = new PurposeModel();
@@ -137,20 +132,8 @@ public class PurposeService extends BaseService {
 			if (landpagePath==null || "".equals(landpagePath)) {
 				//编辑APP下载
 				String downLoadId = bean.getDownloadId();
-				String path = bean.getDownloadPath();
-				String appOs = bean.getAppOs();
-				String appName = bean.getAppName();
-				String appId = bean.getAppId();
-				String appPkgName = bean.getAppPkgName();
-				String appDescription = bean.getAppDescription();
-				DownLoadModel downLoad = new DownLoadModel();
+				DownLoadModel downLoad = modelMapper.map(bean, DownLoadModel.class);
 				downLoad.setId(downLoadId);
-				downLoad.setPath(path);
-				downLoad.setAppOs(appOs);
-				downLoad.setAppName(appName);
-				downLoad.setAppId(appId);
-				downLoad.setAppPkgName(appPkgName);
-				downLoad.setAppDescription(appDescription);
 				downLoadDao.updateByPrimaryKeySelective(downLoad);
 				purposeModel.setDownloadId(downLoadId);
 			}else{
@@ -161,13 +144,9 @@ public class PurposeService extends BaseService {
 				
 				String landPageId = UUID.randomUUID().toString();
 				String path = bean.getLandpagePath();
-				String anidDeepLink = bean.getAnidDeepLink();
-				String iosDeepLink = bean.getIosDeepLink();
-				LandPageModel landPageModel = new LandPageModel();
+				LandPageModel landPageModel = modelMapper.map(bean, LandPageModel.class);
 				landPageModel.setId(landPageId);
 				landPageModel.setPath(path);
-				landPageModel.setAnidDeepLink(anidDeepLink);
-				landPageModel.setIosDeepLink(iosDeepLink);
 				landPageDao.insertSelective(landPageModel);
 				purposeModel.setLandpageId(landPageId);
 			}
@@ -176,15 +155,11 @@ public class PurposeService extends BaseService {
 			if (downloadPath==null || "".equals(downloadPath)) {
 				//编辑落地页
 				String landPageId = bean.getLandpageId();
-				String anidDeepLink = bean.getAnidDeepLink();
-				String iosDeepLink = bean.getIosDeepLink();
 				String path = bean.getLandpagePath();
-				LandPageModel landPage = new LandPageModel();
-				landPage.setId(landPageId);
-				landPage.setPath(path);
-				landPage.setAnidDeepLink(anidDeepLink);
-				landPage.setIosDeepLink(iosDeepLink);
-				landPageDao.updateByPrimaryKeySelective(landPage);
+				LandPageModel landPageModel = modelMapper.map(bean, LandPageModel.class);
+				landPageModel.setId(landPageId);
+				landPageModel.setPath(path);
+				landPageDao.updateByPrimaryKeySelective(landPageModel);
 				purposeModel.setLandpageId(landPageId);
 			}else{
 				//删除落地页；添加APP下载
@@ -193,20 +168,8 @@ public class PurposeService extends BaseService {
 				purposeModel.setLandpageId(null);
 				
 				String downLoadId = UUID.randomUUID().toString();
-				String path = bean.getDownloadPath();
-				String appOs = bean.getAppOs();
-				String appName = bean.getAppName();
-				String appId = bean.getAppId();
-				String appPkgName = bean.getAppPkgName();
-				String appDescription = bean.getAppDescription();
-				DownLoadModel downLoadMoel = new DownLoadModel();
+				DownLoadModel downLoadMoel = modelMapper.map(bean, DownLoadModel.class);
 				downLoadMoel.setId(downLoadId);
-				downLoadMoel.setPath(path);
-				downLoadMoel.setAppOs(appOs);
-				downLoadMoel.setAppName(appName);
-				downLoadMoel.setAppId(appId);
-				downLoadMoel.setAppPkgName(appPkgName);
-				downLoadMoel.setAppDescription(appDescription);
 				downLoadDao.insertSelective(downLoadMoel);
 				purposeModel.setDownloadId(downLoadId);
 			}
@@ -216,11 +179,11 @@ public class PurposeService extends BaseService {
 		purposeModel.setEscrowUrl(escrowUrl);
 		purposeModel.setId(id);
 		//此处调用方法如果字段为NULL则更新成NULL（updateByPrimaryKeySelective方法会忽略掉NULL，导致数据更新成null失败）
-		int num = purposeDao.updateByPrimaryKey(purposeModel);
-		if (num > -1) {
-			return "目标地址编辑成功";
+		try {
+			purposeDao.updateByPrimaryKey(purposeModel);
+		} catch (DuplicateKeyException exception) {
+			throw new DuplicateEntityException();
 		}
-		return "目标地址编辑失败";
 	}
 	
 	/**
@@ -230,18 +193,53 @@ public class PurposeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public int  deletePurpose(PurposeBean bean) throws Exception {
-		String id = bean.getId();
-		String landpageId = bean.getLandpageId();
-		String downloadId = bean.getDownloadId();
-		if (landpageId != null) {
+	public void deletePurpose(String id) throws Exception {
+		
+		PurposeModel purposeInDB = purposeDao.selectByPrimaryKey(id);
+		if (purposeInDB == null) {
+			throw new NotFoundException();
+		}
+		
+		String landpageId = purposeInDB.getLandpageId();
+		String downloadId = purposeInDB.getDownloadId();
+		if (!StringUtils.isEmpty(landpageId)) {
 			landPageDao.deleteByPrimaryKey(landpageId);
 		}
-		if (downloadId != null) {
+		if (!StringUtils.isEmpty(downloadId)) {
 			downLoadDao.deleteByPrimaryKey(downloadId);
 		}
-		int num = purposeDao.deleteByPrimaryKey(id);
-		return num;
+		purposeDao.deleteByPrimaryKey(id);
 	}
 	
+	/**
+	 * 根据ID查询活动目标
+	 * @param id
+	 * @return
+	 */
+	public PurposeBean selectPurpose(String id) {
+		PurposeModel model = purposeDao.selectByPrimaryKey(id);
+		if (model == null) {
+        	throw new NotFoundException();
+        }
+        
+		PurposeBean bean = modelMapper.map(model, PurposeBean.class);
+		
+		return bean;
+		
+	}
+	
+	private PurposeBean getPurposeParam (PurposeBean bean) {
+		String landpageId = bean.getLandpageId();
+		String downloadId = bean.getDownloadId();
+		if (!StringUtils.isEmpty(landpageId)) {
+			landPageDao.deleteByPrimaryKey(landpageId);
+		}
+		if (!StringUtils.isEmpty(downloadId)) {
+			downLoadDao.deleteByPrimaryKey(downloadId);
+		}
+		
+		
+		
+		return null;
+	}
 }
