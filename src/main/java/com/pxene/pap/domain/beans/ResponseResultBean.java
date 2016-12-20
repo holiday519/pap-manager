@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_EMPTY) 
-public class ResponseResult
+public class ResponseResultBean
 {
     private int code;
     private String message;
@@ -37,27 +37,27 @@ public class ResponseResult
     }
     
     
-    public ResponseResult()
+    public ResponseResultBean()
     {
         super();
     }
-    public ResponseResult(int code)
+    public ResponseResultBean(int code)
     {
         super();
         this.code = code;
     }
-    public ResponseResult(String message)
+    public ResponseResultBean(String message)
     {
         super();
         this.message = message;
     }
-    public ResponseResult(int code, String message)
+    public ResponseResultBean(int code, String message)
     {
         super();
         this.code = code;
         this.message = message;
     }
-    public ResponseResult(int code, String message, Object data)
+    public ResponseResultBean(int code, String message, Object data)
     {
         super();
         this.code = code;

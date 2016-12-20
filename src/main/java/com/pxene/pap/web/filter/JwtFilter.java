@@ -22,8 +22,8 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxene.pap.common.TokenUtils;
 import com.pxene.pap.constant.HttpStatusCode;
-import com.pxene.pap.domain.beans.AccessToken;
-import com.pxene.pap.domain.beans.ResponseResult;
+import com.pxene.pap.domain.beans.AccessTokenBean;
+import com.pxene.pap.domain.beans.ResponseResultBean;
 import com.pxene.pap.service.TokenService;
 
 public class JwtFilter implements Filter
@@ -58,7 +58,7 @@ public class JwtFilter implements Filter
             {
                 String userId = TokenUtils.parseUserIdInToken(env, token.trim());
                 
-                AccessToken accessToken = tokenService.getToken(userId);
+                AccessTokenBean accessToken = tokenService.getToken(userId);
                 if (accessToken != null)  
                 {
                     if (new Date(accessToken.getExpiresAt()).after(new Date()))
@@ -83,7 +83,7 @@ public class JwtFilter implements Filter
         httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         
         ObjectMapper mapper = new ObjectMapper();
-        ResponseResult result = new ResponseResult();
+        ResponseResultBean result = new ResponseResultBean();
         result.setCode(HttpServletResponse.SC_UNAUTHORIZED);
         result.setMessage(msg);
         httpResponse.getWriter().write(mapper.writeValueAsString(result));

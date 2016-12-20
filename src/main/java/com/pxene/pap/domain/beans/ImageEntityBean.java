@@ -1,6 +1,6 @@
 package com.pxene.pap.domain.beans;
 
-public class VideoEntity extends FileEntity
+public class ImageEntityBean extends FileEntityBean
 {
     private String videotmplid;
     private int timelength;

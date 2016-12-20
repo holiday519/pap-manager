@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
-import com.pxene.pap.domain.beans.AccessToken;
+import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.PasswordIncorrectAuthException;
@@ -66,7 +66,7 @@ public class TokenController
         if (!StringUtils.isEmpty(passwordInDB) && md5Password.equals(passwordInDB))
         {
             // 生成accessToken
-            AccessToken token = tokenService.generateToken(userInDB);
+            AccessTokenBean token = tokenService.generateToken(userInDB);
             
             // 将新生成的Token保存至Redis中（同时设定TTL）
             tokenService.saveToken(token);

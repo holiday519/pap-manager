@@ -2,7 +2,7 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
-public class FileEntity
+public class FileEntityBean
 {
     private String id;
     private String name;

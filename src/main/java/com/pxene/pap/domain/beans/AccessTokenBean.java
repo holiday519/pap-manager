@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class AccessToken implements Serializable
+public class AccessTokenBean implements Serializable
 {
     private static final long serialVersionUID = 1L;
 

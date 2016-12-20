@@ -6,7 +6,7 @@ import java.util.Date;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
-import com.pxene.pap.domain.beans.AccessToken;
+import com.pxene.pap.domain.beans.AccessTokenBean;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -15,12 +15,12 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtUtils
 {
-    public static AccessToken createJWT(String userid, long ttlMillis, String secret)
+    public static AccessTokenBean createJWT(String userid, long ttlMillis, String secret)
     {
         return createJWT(userid, null, null, null, ttlMillis, secret);
     }
     
-    public static AccessToken createJWT(String userid, String issuer, String subject, String audience, long ttlMillis, String secret)
+    public static AccessTokenBean createJWT(String userid, String issuer, String subject, String audience, long ttlMillis, String secret)
     {
         // 当前时间戳
         long nowMillis = System.currentTimeMillis();
@@ -60,7 +60,7 @@ public class JwtUtils
         // 生成JWT
         String compact = builder.compact();
         
-        AccessToken accessToken = new AccessToken();
+        AccessTokenBean accessToken = new AccessTokenBean();
         accessToken.setAccessToken(compact);
         accessToken.setExpiresAt(expiresAt);
         accessToken.setIssuedAt(nowMillis);

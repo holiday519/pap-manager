@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.domain.beans.ArgumentInvalidResult;
-import com.pxene.pap.domain.beans.ResponseResult;
+import com.pxene.pap.domain.beans.ResponseResultBean;
 import com.pxene.pap.exception.BaseException;
 
 /**
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler
     
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ResponseResult handleException(Exception exception, HttpServletResponse response)
+    public ResponseResultBean handleException(Exception exception, HttpServletResponse response)
     {
         if (!(exception instanceof BaseException))
         {
@@ -46,12 +46,12 @@ public class GlobalExceptionHandler
                 List<ArgumentInvalidResult> invalidArguments = getBindResultErrors(exception);
                 
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
-                return new ResponseResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), invalidArguments);
+                return new ResponseResultBean(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), invalidArguments);
             }
             
             LOGGER.error(exception.toString());
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return new ResponseResult(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name());
+            return new ResponseResultBean(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name());
         }
         else
         {
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler
             String bizStatusMsg = baseException.getMessage();
 
             response.setStatus(httpStatusCode);
-            return new ResponseResult(bizStatusCode == 0 ? httpStatusCode : bizStatusCode, StringUtils.isEmpty(bizStatusMsg) ? httpStatusMsg : bizStatusMsg);
+            return new ResponseResultBean(bizStatusCode == 0 ? httpStatusCode : bizStatusCode, StringUtils.isEmpty(bizStatusMsg) ? httpStatusMsg : bizStatusMsg);
         }
     }
     

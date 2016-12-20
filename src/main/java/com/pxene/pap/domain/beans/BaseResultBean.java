@@ -1,6 +1,6 @@
 package com.pxene.pap.domain.beans;
 
-public class BaseResult
+public class BaseResultBean
 {
     private int code;
     private String message;

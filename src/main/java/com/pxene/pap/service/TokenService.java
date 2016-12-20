@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxene.pap.common.JwtUtils;
 import com.pxene.pap.common.RedisUtils;
-import com.pxene.pap.domain.beans.AccessToken;
+import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.domain.model.basic.UserModelExample;
 import com.pxene.pap.exception.DeleteErrorException;
@@ -58,19 +58,19 @@ public class TokenService
         }
     }
     
-    public AccessToken generateToken(UserModel user)
+    public AccessTokenBean generateToken(UserModel user)
     {
         // 根据用户ID、用户名、签发时间、到期时间等信息来生成Token
-        AccessToken accessToken = JwtUtils.createJWT(String.valueOf(user.getId()), tokenExpiresSecond * 1000, tokenSecret);
+        AccessTokenBean accessToken = JwtUtils.createJWT(String.valueOf(user.getId()), tokenExpiresSecond * 1000, tokenSecret);
         
         return accessToken;
     }
     
-    public void saveToken(AccessToken token)
+    public void saveToken(AccessTokenBean token)
     {
         saveToken(token, tokenExpiresSecond);
     }
-    public void saveToken(AccessToken token, long timeout)
+    public void saveToken(AccessTokenBean token, long timeout)
     {
         ObjectMapper mapper = new ObjectMapper();
         try
@@ -84,7 +84,7 @@ public class TokenService
         }
     }
     
-    public AccessToken getToken(String username)
+    public AccessTokenBean getToken(String username)
     {
         if (StringUtils.isEmpty(username))
         {
@@ -92,7 +92,7 @@ public class TokenService
         }
         
         ObjectMapper mapper = new ObjectMapper();
-        AccessToken accessToken = null;
+        AccessTokenBean accessToken = null;
         try
         {
             String content = redisUtils.get(username);
@@ -100,7 +100,7 @@ public class TokenService
             {
                 return null;
             }
-            accessToken = mapper.readValue(content, AccessToken.class);
+            accessToken = mapper.readValue(content, AccessTokenBean.class);
         }
         catch (IOException e)
         {
