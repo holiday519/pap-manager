@@ -1,5 +1,6 @@
 package com.pxene.pap.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -223,23 +224,57 @@ public class PurposeService extends BaseService {
         }
         
 		PurposeBean bean = modelMapper.map(model, PurposeBean.class);
-		
-		return bean;
-		
+		PurposeBean reslutBean = getPurposeParam(bean);
+		return reslutBean;
 	}
 	
+	/**
+	 * 查询活动目标列表
+	 * @param name
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PurposeBean> selectPurposes(String name) throws Exception {
+		List<PurposeBean> reslut = new ArrayList<PurposeBean>();
+		PurposeModelExample example = new PurposeModelExample();
+		example.createCriteria().andNameEqualTo(name);
+		List<PurposeModel> list = purposeDao.selectByExample(example);
+		if (list == null || list.isEmpty()) {
+			throw new NotFoundException();
+		}
+		
+		for (PurposeModel mol : list) {
+			PurposeBean bean = modelMapper.map(mol, PurposeBean.class);
+			reslut.add(getPurposeParam(bean));
+		}
+		
+		return reslut;
+	}
+	
+	
+	/**
+	 * 查询活动目标相关信息
+	 * @param bean
+	 * @return
+	 */
 	private PurposeBean getPurposeParam (PurposeBean bean) {
 		String landpageId = bean.getLandpageId();
 		String downloadId = bean.getDownloadId();
 		if (!StringUtils.isEmpty(landpageId)) {
-			landPageDao.deleteByPrimaryKey(landpageId);
+			LandPageModel landPageModel = landPageDao.selectByPrimaryKey(landpageId);
+			bean.setLandpagePath(landPageModel.getPath());
+			bean.setAnidDeepLink(landPageModel.getAnidDeepLink());
+			bean.setIosDeepLink(landPageModel.getIosDeepLink());
 		}
 		if (!StringUtils.isEmpty(downloadId)) {
-			downLoadDao.deleteByPrimaryKey(downloadId);
+			DownLoadModel loadModel = downLoadDao.selectByPrimaryKey(downloadId);
+			bean.setAppDescription(loadModel.getAppDescription());
+			bean.setAppName(loadModel.getAppName());
+			bean.setAppOs(loadModel.getAppOs());
+			bean.setAppPkgName(loadModel.getAppPkgName());
+			bean.setAppId(loadModel.getAppId());
+			bean.setDownloadPath(loadModel.getPath());
 		}
-		
-		
-		
-		return null;
+		return bean;
 	}
 }
