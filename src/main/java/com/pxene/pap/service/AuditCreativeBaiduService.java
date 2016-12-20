@@ -19,6 +19,7 @@ import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
+import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CreativeAuditModel;
@@ -35,6 +36,7 @@ import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
 import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
+import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
@@ -57,6 +59,9 @@ public class AuditCreativeBaiduService {
 	
 	@Autowired
 	private ProjectDao projectDao;
+	
+	@Autowired
+	private AdvertiserDao advertiserDao;
 	
     @Autowired
     private AdvertiserAuditDao advertiserAuditDao;
@@ -158,7 +163,7 @@ public class AuditCreativeBaiduService {
 		//调用接口----百度第一次审核  与再次审核还用这个字段  但是值在再次审核时更新了
 		String cexamineurl = "";
 		if ("edit".equals(type)) {
-			cexamineurl = adxModel.getQupdateUrl();
+			cexamineurl = adxModel.getCupdateUrl();
 		} else {
 			cexamineurl = adxModel.getCexamineUrl();
 		}
@@ -242,7 +247,7 @@ public class AuditCreativeBaiduService {
 			interactiveStyle = 2;
 			Float appPackageSize = 0F;
 			creative.addProperty("appName", creativeImage.getApkName());// 应用名称
-			 creative.addProperty("appDesc", creativeImage.getAppDescription());//应用介绍
+			creative.addProperty("appDesc", creativeImage.getAppDescription());//应用介绍
 			creative.addProperty("downloadUrl", creativeImage.getDownloadUrl());// 下载包地址
 			creative.addProperty("appPackageSize", appPackageSize);// 应用大小
 		} else if ("b".equals(promotiontype)) {
@@ -306,7 +311,7 @@ public class AuditCreativeBaiduService {
 		//调用接口----百度第一次审核  与再次审核还用这个字段  但是值在再次审核时更新了
 		String cexamineurl = "";
 		if ("edit".equals(type)) {
-			cexamineurl = adxModel.getQupdateUrl();
+			cexamineurl = adxModel.getCupdateUrl();
 		} else {
 			cexamineurl = adxModel.getCexamineUrl();
 		}
@@ -348,16 +353,19 @@ public class AuditCreativeBaiduService {
 		}
 		String title = creativeInfo.getTitle();//标题
 		String description = creativeInfo.getDescription();//描述
-		//String brandname————————————品牌名称（广告主表字段）
+		String brandname = getAdvertiserBrandNameByMapId(mapId);//品牌名称（广告主表字段）
 		if (StringUtils.isEmpty(title) || title.length() >= 18) {
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：信息流广告推广标题最长支持18个中文字！" );
 		}
 		if (StringUtils.isEmpty(description) || description.length() >= 50) {
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：信息流广告必须包含推广描述，且最长支持50个中文字！" );
 		}
-//		if (StringUtils.isEmpty(brandname) || remark.length() >= 14) {
-//			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：广告主品牌名称必须填写，且最长支持14个中文字！" );
-//		}
+		if (StringUtils.isEmpty(brandname) || brandname.length() >= 14) {
+			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：广告主品牌名称必须填写，且最长支持14个中文字！" );
+		}
+		creative.addProperty("title", title);
+		creative.addProperty("description", description);
+		creative.addProperty("brandname", brandname);
 		creative.addProperty("Style", 5); //5：APP 图文信息流 （adviewType 必须为2）
 		//原生图片信息——有顺序
 		List<String> creativeUrls = new ArrayList<>();
@@ -422,10 +430,10 @@ public class AuditCreativeBaiduService {
 		if ("a".equals(promotiontype)) {
 			interactiveStyle = 2;
 			Float appPackageSize = 0F;
-			creative.addProperty("", creativeInfo.getApkName());// 应用名称
-			// creative.addProperty(creativeImage.getAppdesc());//应用介绍——————————————数据库并无此字段；
+			creative.addProperty("appName", creativeInfo.getApkName());// 应用名称
+			creative.addProperty("appDesc", creativeInfo.getAppDescription());//应用介绍
 			creative.addProperty("downloadUrl", creativeInfo.getDownloadUrl());// 下载包地址
-			creative.addProperty("", appPackageSize);// 应用大小——————数据库并无此字段；原本也默认0
+			creative.addProperty("appPackageSize", appPackageSize);// 应用大小
 		} else if ("b".equals(promotiontype)) {
 			interactiveStyle = 0;
 			// 拨打电话暂时无法使用
@@ -538,7 +546,7 @@ public class AuditCreativeBaiduService {
 			CreativeAuditModelExample example = new CreativeAuditModelExample();
 			example.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel model = new CreativeAuditModel();
-			model.setStatus(creativeAdxStatus);//————————————
+			model.setStatus(creativeAdxStatus);//—————状态值待确定———————
 			model.setMessage(refuseReasonStr);
 			creativeAuditDao.updateByExample(model, example);
 		}else{
@@ -586,6 +594,32 @@ public class AuditCreativeBaiduService {
 			}
 		}
 		return value;
+	}
+	
+	/**
+	 * 查询创意对应广告主的品牌名称
+	 * @param mapId
+	 * @return
+	 * @throws Exception
+	 */
+	public String getAdvertiserBrandNameByMapId (String mapId) throws Exception {
+		//查询创意ID
+		CreativeMaterialModel creativeMaterialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
+		String creativeId = creativeMaterialModel.getCreativeId();
+		//查询活动ID
+		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+		String campaignId = creativeModel.getCampaignId();
+		//查询项目ID
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+		String projectId = campaignModel.getProjectId();
+		//查询广告主ID
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+		String advertiserId = projectModel.getAdvertiserId();
+		//查询广告主的品牌名称
+		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(projectId);
+		String brandName = advertiserModel.getBrandName();
+		
+		return brandName;
 	}
 	/**
 	 * 查询创意对应活动的活动类型

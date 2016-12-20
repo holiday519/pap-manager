@@ -45,6 +45,11 @@ public class PurposeBean {
 	 * APP下载地址
 	 */
 	private String downloadPath;
+	
+	/**
+	 * APP描述
+	 */
+	private String appDescription;
 	/**
 	 * APP系统
 	 */
@@ -62,6 +67,12 @@ public class PurposeBean {
 	 */
 	private String appPkgName;
 	
+	public String getAppDescription() {
+		return appDescription;
+	}
+	public void setAppDescription(String appDescription) {
+		this.appDescription = appDescription;
+	}
 	public String getId() {
 		return id;
 	}
@@ -153,9 +164,8 @@ public class PurposeBean {
 				+ ", landpageId=" + landpageId + ", downloadId=" + downloadId
 				+ ", landpagePath=" + landpagePath + ", anidDeepLink="
 				+ anidDeepLink + ", iosDeepLink=" + iosDeepLink
-				+ ", downloadPath=" + downloadPath + ", appOs=" + appOs
-				+ ", appName=" + appName + ", appId=" + appId + ", appPkgName="
-				+ appPkgName + "]";
+				+ ", downloadPath=" + downloadPath + ", appDescription="
+				+ appDescription + ", appOs=" + appOs + ", appName=" + appName
+				+ ", appId=" + appId + ", appPkgName=" + appPkgName + "]";
 	}
-	
 }

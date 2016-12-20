@@ -20,8 +20,6 @@ import com.pxene.pap.service.PurposeService;
 @Controller
 public class PurposeController {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PurposeController.class);
-	
 	@Autowired
 	private PurposeService purposeService;
 	

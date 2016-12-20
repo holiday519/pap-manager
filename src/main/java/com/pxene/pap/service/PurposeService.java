@@ -74,12 +74,14 @@ public class PurposeService {
 			String appName = bean.getAppName();
 			String appId = bean.getAppId();
 			String appPkgName = bean.getAppPkgName();
+			String appDescription = bean.getAppDescription();
 			DownLoadModel downLoadModel = new DownLoadModel();
 			downLoadModel.setId(downLoadId);
 			downLoadModel.setPath(downloadPath);
 			downLoadModel.setAppOs(appOs);
 			downLoadModel.setAppName(appName);
 			downLoadModel.setAppId(appId);
+			downLoadModel.setAppDescription(appDescription);
 			downLoadModel.setAppPkgName(appPkgName);
 			downLoadDao.insertSelective(downLoadModel);
 			purposeModel.setDownloadId(downLoadId);
@@ -147,6 +149,7 @@ public class PurposeService {
 				String appName = bean.getAppName();
 				String appId = bean.getAppId();
 				String appPkgName = bean.getAppPkgName();
+				String appDescription = bean.getAppDescription();
 				DownLoadModel downLoad = new DownLoadModel();
 				downLoad.setId(downLoadId);
 				downLoad.setPath(path);
@@ -154,6 +157,7 @@ public class PurposeService {
 				downLoad.setAppName(appName);
 				downLoad.setAppId(appId);
 				downLoad.setAppPkgName(appPkgName);
+				downLoad.setAppDescription(appDescription);
 				downLoadDao.updateByPrimaryKeySelective(downLoad);
 				purposeModel.setDownloadId(downLoadId);
 			}else{
@@ -201,6 +205,7 @@ public class PurposeService {
 				String appName = bean.getAppName();
 				String appId = bean.getAppId();
 				String appPkgName = bean.getAppPkgName();
+				String appDescription = bean.getAppDescription();
 				DownLoadModel downLoadMoel = new DownLoadModel();
 				downLoadMoel.setId(downLoadId);
 				downLoadMoel.setPath(path);
@@ -208,6 +213,7 @@ public class PurposeService {
 				downLoadMoel.setAppName(appName);
 				downLoadMoel.setAppId(appId);
 				downLoadMoel.setAppPkgName(appPkgName);
+				downLoadMoel.setAppDescription(appDescription);
 				downLoadDao.insertSelective(downLoadMoel);
 				purposeModel.setDownloadId(downLoadId);
 			}
