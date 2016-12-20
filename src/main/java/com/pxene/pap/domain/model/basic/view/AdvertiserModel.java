@@ -1,4 +1,4 @@
-package com.pxene.pap.domain.model.basic;
+package com.pxene.pap.domain.model.basic.view;
 
 import java.util.Date;
 

@@ -31,26 +31,29 @@ public class AdvertiserBean
     @JsonProperty(value = "industry_id")
     private String industryId;
     
+    @JsonProperty(value = "brand_name")
+    private String brandName;
+    
     @JsonProperty(value = "license_no")
     private String licenseNo;
     
     @JsonProperty(value = "organization_no")
     private String organizationNo;
     
-    @JsonProperty(value = "logo_url")
-    private String logoUrl;
+    @JsonProperty(value = "logo_path")
+    private String logoPath;
     
-    @JsonProperty(value = "icp_url")
-    private String icpUrl;
+    @JsonProperty(value = "icp_path")
+    private String icpPath;
     
-    @JsonProperty(value = "organization_url")
-    private String organizationUrl;
+    @JsonProperty(value = "organization_path")
+    private String organizationPath;
     
-    @JsonProperty(value = "license_url")
-    private String licenseUrl;
+    @JsonProperty(value = "license_path")
+    private String licensePath;
     
-    @JsonProperty(value = "account_url")
-    private String accountUrl;
+    @JsonProperty(value = "account_path")
+    private String accountPath;
     
     @JsonProperty(value = "site_url")
     private String siteUrl;
@@ -80,180 +83,168 @@ public class AdvertiserBean
     }
     public void setId(String id)
     {
-        this.id = id == null ? null : id.trim();
+        this.id = id;
     }
-    
     public String getName()
     {
         return name;
     }
     public void setName(String name)
     {
-        this.name = name == null ? null : name.trim();
+        this.name = name;
     }
-    
     public String getCompany()
     {
         return company;
     }
     public void setCompany(String company)
     {
-        this.company = company == null ? null : company.trim();
+        this.company = company;
     }
-    
     public String getContact()
     {
         return contact;
     }
     public void setContact(String contact)
     {
-        this.contact = contact == null ? null : contact.trim();
+        this.contact = contact;
     }
-    
     public String getPhone()
     {
         return phone;
     }
     public void setPhone(String phone)
     {
-        this.phone = phone == null ? null : phone.trim();
+        this.phone = phone;
     }
-    
-    public String getQQ()
+    public String getQq()
     {
         return qq;
     }
-    public void setQQ(String qq)
+    public void setQq(String qq)
     {
-        this.qq = qq == null ? null : qq.trim();
+        this.qq = qq;
     }
-    
     public String getIndustryId()
     {
         return industryId;
     }
     public void setIndustryId(String industryId)
     {
-        this.industryId = industryId == null ? null : industryId.trim();
+        this.industryId = industryId;
     }
-    
+    public String getBrandName()
+    {
+        return brandName;
+    }
+    public void setBrandName(String brandName)
+    {
+        this.brandName = brandName;
+    }
     public String getLicenseNo()
     {
         return licenseNo;
     }
     public void setLicenseNo(String licenseNo)
     {
-        this.licenseNo = licenseNo == null ? null : licenseNo.trim();
+        this.licenseNo = licenseNo;
     }
-    
     public String getOrganizationNo()
     {
         return organizationNo;
     }
     public void setOrganizationNo(String organizationNo)
     {
-        this.organizationNo = organizationNo == null ? null : organizationNo.trim();
+        this.organizationNo = organizationNo;
     }
-    
-    public String getLogoUrl()
+    public String getLogoPath()
     {
-        return logoUrl;
+        return logoPath;
     }
-    public void setLogoUrl(String logoUrl)
+    public void setLogoPath(String logoPath)
     {
-        this.logoUrl = logoUrl == null ? null : logoUrl.trim();
+        this.logoPath = logoPath;
     }
-    
-    public String getIcpUrl()
+    public String getIcpPath()
     {
-        return icpUrl;
+        return icpPath;
     }
-    public void setIcpUrl(String icpUrl)
+    public void setIcpPath(String icpPath)
     {
-        this.icpUrl = icpUrl == null ? null : icpUrl.trim();
+        this.icpPath = icpPath;
     }
-    
-    public String getOrganizationUrl()
+    public String getOrganizationPath()
     {
-        return organizationUrl;
+        return organizationPath;
     }
-    public void setOrganizationUrl(String organizationUrl)
+    public void setOrganizationPath(String organizationPath)
     {
-        this.organizationUrl = organizationUrl == null ? null : organizationUrl.trim();
+        this.organizationPath = organizationPath;
     }
-    
-    public String getLicenseUrl()
+    public String getLicensePath()
     {
-        return licenseUrl;
+        return licensePath;
     }
-    public void setLicenseUrl(String licenseUrl)
+    public void setLicensePath(String licensePath)
     {
-        this.licenseUrl = licenseUrl == null ? null : licenseUrl.trim();
+        this.licensePath = licensePath;
     }
-    
-    public String getAccountUrl()
+    public String getAccountPath()
     {
-        return accountUrl;
+        return accountPath;
     }
-    public void setAccountUrl(String accountUrl)
+    public void setAccountPath(String accountPath)
     {
-        this.accountUrl = accountUrl == null ? null : accountUrl.trim();
+        this.accountPath = accountPath;
     }
-    
     public String getSiteUrl()
     {
         return siteUrl;
     }
     public void setSiteUrl(String siteUrl)
     {
-        this.siteUrl = siteUrl == null ? null : siteUrl.trim();
+        this.siteUrl = siteUrl;
     }
-    
     public String getSiteName()
     {
         return siteName;
     }
     public void setSiteName(String siteName)
     {
-        this.siteName = siteName == null ? null : siteName.trim();
+        this.siteName = siteName;
     }
-    
     public String getEmail()
     {
         return email;
     }
     public void setEmail(String email)
     {
-        this.email = email == null ? null : email.trim();
+        this.email = email;
     }
-    
     public String getZip()
     {
         return zip;
     }
     public void setZip(String zip)
     {
-        this.zip = zip == null ? null : zip.trim();
+        this.zip = zip;
     }
-    
     public String getAddress()
     {
         return address;
     }
     public void setAddress(String address)
     {
-        this.address = address == null ? null : address.trim();
+        this.address = address;
     }
-    
     public String getRemark()
     {
         return remark;
     }
     public void setRemark(String remark)
     {
-        this.remark = remark == null ? null : remark.trim();
+        this.remark = remark;
     }
-    
     public Date getCreateTime()
     {
         return createTime;
@@ -262,7 +253,6 @@ public class AdvertiserBean
     {
         this.createTime = createTime;
     }
-    
     public Date getUpdateTime()
     {
         return updateTime;
@@ -271,14 +261,14 @@ public class AdvertiserBean
     {
         this.updateTime = updateTime;
     }
-
+    
     
     @Override
     public String toString()
     {
-        return "AdvertiserBean [id=" + id + ", name=" + name + ", company=" + company + ", contact=" + contact + ", phone=" + phone + ", qq=" + qq + ", industryId=" + industryId + ", licenseNo="
-                + licenseNo + ", organizationNo=" + organizationNo + ", logoUrl=" + logoUrl + ", icpUrl=" + icpUrl + ", organizationUrl=" + organizationUrl + ", licenseUrl=" + licenseUrl
-                + ", accountUrl=" + accountUrl + ", siteUrl=" + siteUrl + ", siteName=" + siteName + ", email=" + email + ", zip=" + zip + ", address=" + address + ", remark=" + remark
-                + ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
+        return "AdvertiserBean [id=" + id + ", name=" + name + ", company=" + company + ", contact=" + contact + ", phone=" + phone + ", qq=" + qq + ", industryId=" + industryId + ", brandName="
+                + brandName + ", licenseNo=" + licenseNo + ", organizationNo=" + organizationNo + ", logoPath=" + logoPath + ", icpPath=" + icpPath + ", organizationPath=" + organizationPath
+                + ", licensePath=" + licensePath + ", accountPath=" + accountPath + ", siteUrl=" + siteUrl + ", siteName=" + siteName + ", email=" + email + ", zip=" + zip + ", address=" + address
+                + ", remark=" + remark + ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
     }
 }

@@ -75,8 +75,8 @@ public class AuditAdvertiserBaiduService {
     	authHeader.addProperty("dspId", dspId);
     	authHeader.addProperty("token", token);
 		
-		String licenseURL = bean.getLicenseUrl();
-		String accountURL = bean.getAccountUrl();
+		String licenseURL = bean.getLicensePath();
+		String accountURL = bean.getAccountPath();
 		String licenseNO = bean.getLicenseNo();
 		if ((licenseURL == null || "".equals(licenseURL))
 				&& (accountURL == null || "".equals(accountURL))) {
