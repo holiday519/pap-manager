@@ -424,11 +424,7 @@ public class CampaignService extends BaseService{
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
-			for (CreativeModel cModel : list) {
-				String creativeId = cModel.getId();
-				// 调用创意删除方法（方法内会删除关联关系）
-				creativeService.deleteCreative(creativeId);
-			}
+			throw new IllegalArgumentException();
 		}
 		//删除检测地址
 		deleteCampaignMonitor(campaignId);
@@ -437,7 +433,7 @@ public class CampaignService extends BaseService{
 		//删除频次信息
 		deletefrequency(campaignId);
 		//删除活动
-		creativeDao.deleteByPrimaryKey(campaignId);
+		campaignDao.deleteByPrimaryKey(campaignId);
 	}
 	
 	/**

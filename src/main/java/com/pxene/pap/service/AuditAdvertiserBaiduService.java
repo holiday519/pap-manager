@@ -13,6 +13,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.transaction.Transactional;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -25,6 +26,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -38,6 +40,7 @@ import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdxDao;
 
+@Service
 public class AuditAdvertiserBaiduService {
 	
     @Autowired
@@ -68,7 +71,7 @@ public class AuditAdvertiserBaiduService {
 		if (json.get("dspId") == null || json.get("token") == null) {
 			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
-		String dspId = json.get("dspId").getAsString();
+		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
 		//组成“请求头”
     	JsonObject authHeader = new JsonObject();
@@ -206,7 +209,7 @@ public class AuditAdvertiserBaiduService {
 		if (json.get("dspId") == null || json.get("token") == null) {
 			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
-		String dspId = json.get("dspId").getAsString();
+		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
 		//组成“请求头”
     	JsonObject authHeader = new JsonObject();
@@ -289,6 +292,7 @@ public class AuditAdvertiserBaiduService {
 		HttpPost httpost = new HttpPost(url);
 		httpost.setHeader("Content-Type", "application/json;charset=utf-8");
 		httpost.setHeader("Accept", "application/json;charset=utf-8");
+		//将"\\\"替换成"\"
 		StringEntity input = new StringEntity(param, "UTF-8");
 		input.setContentType("application/json;charset=utf-8");
 		Map<String, String> map = new HashMap<String, String>();
@@ -296,8 +300,12 @@ public class AuditAdvertiserBaiduService {
 		DefaultHttpClient httpClient = getHttpClient(true);
 		HttpResponse response = httpClient.execute(httpost);
 		int statuCode = response.getStatusLine().getStatusCode();
+		for(Header her  : response.getAllHeaders()) {
+			System.out.println(her.toString());
+		}
 		HttpEntity entity = response.getEntity();
 		String body = EntityUtils.toString(entity);
+		System.out.println(body);
 		map.put("result", body);
 		map.put("code", param);
 		map.put("statucode", statuCode + "");

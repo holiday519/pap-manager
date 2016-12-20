@@ -154,8 +154,8 @@ public class RedisService {
 			JsonObject creativeObj = new JsonObject();
 			creativeObj.addProperty("mapid", model.getMapId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
-			creativeObj.addProperty("type", model.getType());
-			creativeObj.addProperty("ftype", model.getFtype());
+			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
+			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
 			AdxModelExample adxEcample = new AdxModelExample();
 			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
@@ -166,7 +166,7 @@ public class RedisService {
 				priceAdx.add(adxObj);
 			}
 			creativeObj.addProperty("price_adx", priceAdx.toString());
-			creativeObj.addProperty("ctype", model.getCtype());
+			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
 				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
@@ -196,7 +196,9 @@ public class RedisService {
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.addProperty("exts", exts.toString());
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO, exts.toString().replaceAll("//", ""));
+			System.out.println(RedisKeyConstant.CREATIVE_INFO + mapId);
+			System.out.println(creativeObj.toString());
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString().replace("\\", ""));
 		}
 	}
 	
@@ -216,8 +218,8 @@ public class RedisService {
 			JsonObject creativeObj = new JsonObject();
 			creativeObj.addProperty("mapid", model.getMapId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
-			creativeObj.addProperty("type", model.getType());
-			creativeObj.addProperty("ftype", model.getFtype());
+			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
+			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
 			AdxModelExample adxEcample = new AdxModelExample();
 			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
@@ -228,7 +230,7 @@ public class RedisService {
 				priceAdx.add(adxObj);
 			}
 			creativeObj.addProperty("price_adx", priceAdx.toString());
-			creativeObj.addProperty("ctype", model.getCtype());
+			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
 				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
@@ -258,7 +260,7 @@ public class RedisService {
           //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.addProperty("exts", exts.toString());
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO, exts.toString().replaceAll("//", ""));
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString().replace("\\", ""));
 		}
 	}
 	
@@ -278,8 +280,8 @@ public class RedisService {
 			JsonObject creativeObj = new JsonObject();
 			creativeObj.addProperty("mapid", model.getMapId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
-			creativeObj.addProperty("type", model.getType());
-			creativeObj.addProperty("ftype", model.getFtype());
+			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
+			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
 			AdxModelExample adxEcample = new AdxModelExample();
 			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
@@ -290,7 +292,7 @@ public class RedisService {
 				priceAdx.add(adxObj);
 			}
 			creativeObj.addProperty("price_adx", priceAdx.toString());
-			creativeObj.addProperty("ctype", model.getCtype());
+			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
 			if ("2".equals(model.getCtype())) {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
 				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(), ""));
@@ -376,7 +378,7 @@ public class RedisService {
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.addProperty("exts", exts.toString());
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO, exts.toString().replaceAll("//", ""));
+			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString().replace("\\", ""));
 		}
 	}
 	
@@ -390,7 +392,7 @@ public class RedisService {
 		ImageSizeTypeModel model = selectImages(imageId);
 		json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
 		json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
-		json.addProperty("ftype", model.getCode());
+		json.addProperty("ftype", Integer.parseInt(model.getCode()));
 		json.addProperty("sourceurl", model.getPath());
 		return json;
 	}
@@ -453,7 +455,7 @@ public class RedisService {
 		//获取Exts
 		JsonArray exts = getCampaignExts(campaignId);
 		campaignInfo.addProperty("exts", exts.toString());
-		redisUtils.set(RedisKeyConstant.CAMPAIGN_INFO, campaignInfo.toString().replaceAll("//", ""));
+		redisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignInfo.toString().replace("\\", ""));
 	}
 	
 	/**
@@ -462,7 +464,7 @@ public class RedisService {
 	 * @param adType 
 	 * @throws Exception
 	 */
-	public void writeCampaignTargetToRedis(String campaignId, JsonArray adType) throws Exception {
+	public void writeCampaignTargetToRedis(String campaignId) throws Exception {
 		JsonObject targetJson = new JsonObject(); // 项目定向信息
 		JsonObject deviceJson = new JsonObject(); // 设备信息定向
 		CampaignTargetModelExample example = new CampaignTargetModelExample();
@@ -508,7 +510,7 @@ public class RedisService {
 			if (appJson != null) {
 				targetJson.addProperty("app", appJson.toString());
 			}
-			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString().replaceAll("//", ""));
+			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString().replace("\\", ""));
 		}
 	}
 	
@@ -563,7 +565,7 @@ public class RedisService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void WriteMapidToRedis (String campaignId) throws Exception {
+	public void WriteMapidToRedis(String campaignId) throws Exception {
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -602,7 +604,7 @@ public class RedisService {
 			String[] targets = targetString.split(",");
 			JsonArray jsonArray = new JsonArray();
 			for (String str : targets) {
-				jsonArray.add(str);
+				jsonArray.add(Integer.parseInt(str));
 			}
 			return jsonArray;
 		}
@@ -670,7 +672,7 @@ public class RedisService {
 				CreativeAuditModel model = list.get(0);
 				String auditValue = model.getAuditValue();
 				ext.addProperty("adx", Integer.parseInt(adxId));
-				ext.addProperty("advid", auditValue);
+				ext.addProperty("id", auditValue);
 				exts.add(ext);
 			}
 		}

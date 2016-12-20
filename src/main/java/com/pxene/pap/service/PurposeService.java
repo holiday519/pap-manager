@@ -5,7 +5,9 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.PurposeBean;
@@ -13,12 +15,13 @@ import com.pxene.pap.domain.model.basic.DownLoadModel;
 import com.pxene.pap.domain.model.basic.LandPageModel;
 import com.pxene.pap.domain.model.basic.PurposeModel;
 import com.pxene.pap.domain.model.basic.PurposeModelExample;
+import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.repository.basic.DownLoadDao;
 import com.pxene.pap.repository.basic.LandPageDao;
 import com.pxene.pap.repository.basic.PurposeDao;
 
 @Service
-public class PurposeService {
+public class PurposeService extends BaseService {
 
 	@Autowired
 	private PurposeDao purposeDao;
@@ -36,24 +39,15 @@ public class PurposeService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String  createPurpose(PurposeBean bean) throws Exception {
+	public void  createPurpose(PurposeBean bean) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String campaignId = bean.getCampaignId();
-		String name = bean.getName();
-		PurposeModelExample example = new PurposeModelExample();
-		example.createCriteria().andNameEqualTo(name);
-		List<PurposeModel> list = purposeDao.selectByExample(example);
-		if(list!=null && !list.isEmpty()){
-			return "活动目标名称重复";
-		}
+		PurposeModel purposeModel = modelMapper.map(bean, PurposeModel.class);
 		String landpagePath = bean.getLandpagePath();
 		String downloadPath = bean.getDownloadPath();
-		String escrowUrl = bean.getEscrowUrl();
 		if ((landpagePath == null || "".equals(landpagePath))
 				&& (downloadPath == null || "".equals(downloadPath))) {
-			return "必须选择落地页或APP下载其中一个！";
+			throw new IllegalStateException("必须选择落地页或APP下载其中一个！");
 		}
-		PurposeModel purposeModel = new PurposeModel();
 		//创建落地页信息
 		if (landpagePath != null && !"".equals(landpagePath)) {
 			String anidDeepLink = bean.getAnidDeepLink();
@@ -87,15 +81,14 @@ public class PurposeService {
 			purposeModel.setDownloadId(downLoadId);
 		}
 		//创建目标地址
-		purposeModel.setId(id);
-		purposeModel.setCampaignId(campaignId);
-		purposeModel.setName(name);
-		purposeModel.setEscrowUrl(escrowUrl);
-		int num = purposeDao.insertSelective(purposeModel);
-		if (num > 0) {
-			return "目标地址创建成功";
+		try {
+			purposeModel.setId(id);
+			// 添加项目信息
+			purposeDao.insertSelective(purposeModel);
+		} catch (DuplicateKeyException exception) {
+			throw new DuplicateEntityException();
 		}
-		return "目标地址创建失败";
+		BeanUtils.copyProperties(purposeModel, bean);
 	}
 	
 	/**

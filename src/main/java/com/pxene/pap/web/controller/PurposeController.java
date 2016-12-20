@@ -25,19 +25,14 @@ public class PurposeController {
 	
 	@RequestMapping(value = "/purpose", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String createProject(@RequestBody PurposeBean bean, HttpServletResponse response){
-		String str;
-		try {
-			str = purposeService.createPurpose(bean);
-			return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", str, response);
-		} catch (Exception e) {
-			return ResponseUtils.sendHttp500(response);
-		}
+    public String createProject(@RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
+		purposeService.createPurpose(bean);
+		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", bean.getId(), response);
 	}
 	
 	@RequestMapping(value = "/purpose", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateProject(@RequestBody PurposeBean bean, HttpServletResponse response){
+	public String updateProject(@RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
 		String str;
 		try {
 			str = purposeService.updatePurpose(bean);
@@ -49,7 +44,7 @@ public class PurposeController {
 	
 	@RequestMapping(value="/purpose",method = RequestMethod.DELETE,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String deleteProject(@RequestBody PurposeBean bean, HttpServletResponse response){
+	public String deleteProject(@RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
 		try {
 			purposeService.deletePurpose(bean);
 			return ResponseUtils.sendReponse(HttpStatusCode.OK, "执行完毕", response);

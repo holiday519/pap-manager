@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.Gson;
@@ -48,7 +49,7 @@ import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
 import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 
-
+@Service
 public class AuditCreativeBaiduService {
 
 	@Autowired
@@ -174,7 +175,7 @@ public class AuditCreativeBaiduService {
 			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
     	//将私密key转成json格式
-		String dspId = json.get("dspId").getAsString();
+		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
 		//广告主审核数字key
 		Long advertiserIdValue = getAdvAuditValueByMapId(mapId);
@@ -215,8 +216,8 @@ public class AuditCreativeBaiduService {
 		String ftype = creativeImage.getFtype();
 		String sourceUrl = creativeImage.getSourceUrl();
 		if ("2".equals(ftype) || "3".equals(ftype)) {// 不止2、3（此处需要根据图片格式的code待定）——————————————————（jpg、png、gif、swf四种格式都需要）
-			byte[] imgContent = GlobalUtil.getImageContent(sourceUrl);
-			creative.addProperty("binaryData", new String(imgContent));// 创意二进制数据
+//			byte[] imgContent = GlobalUtil.getImageContent(sourceUrl);
+//			creative.addProperty("binaryData", new String(imgContent));// 创意二进制数据
 		}
 		creative.addProperty("Width", width);
 		creative.addProperty("Height", height);
@@ -224,7 +225,7 @@ public class AuditCreativeBaiduService {
 
 		// 点击链接targetUrl
 		String encodeUrl = URLEncoder.encode(creativeImage.getCurl(), "UTF-8");
-		String targetUrl = "点击地址" + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页——————需要点击地址————————————
+		String targetUrl = "http://cl2.pxene.com" + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页——————需要点击地址————————————
 		creative.addProperty("targetUrl", targetUrl);
 		String imonitorUrl = creativeImage.getImonitorUrl();
 		String[] imonitors = imonitorUrl.split("##");
@@ -235,10 +236,10 @@ public class AuditCreativeBaiduService {
 			}
 		}
 		if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
-			imot.add("点击地址" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
+			imot.add("http://cl2.pxene.com" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
 		}
 		creative.addProperty("monitorUrls", imot.toString());
-		creative.addProperty("creativeTradeId", 2);// 此处需要进行调整，创意所属广告行业——————————————————
+		creative.addProperty("creativeTradeId", 60);// 此处需要进行调整，创意所属广告行业——————————————————
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
@@ -259,7 +260,7 @@ public class AuditCreativeBaiduService {
 		creative.addProperty("Type", typeValue);
 		creative.addProperty("interactiveStyle", interactiveStyle);
 		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
-		if (StringUtils.isEmpty(creativeImage.getLandingUrl())) {//到达页面
+		if (!StringUtils.isEmpty(creativeImage.getLandingUrl())) {//到达页面
 			creative.addProperty("landingPage", creativeImage.getLandingUrl());
 		} else {
 			creative.addProperty("landingPage", creativeImage.getDownloadUrl());
@@ -275,6 +276,7 @@ public class AuditCreativeBaiduService {
 		JsonObject param = new JsonObject();
 		param.addProperty("authHeader", authHeader.toString());
 		param.addProperty("request", creatives.toString());
+		System.out.println(param.toString());
 		//发送请求
 		Map<String, String> map = auditAdvertiserBaiduService.post(cexamineurl, param.toString());
 		//返回结构中取出reslut
@@ -322,7 +324,7 @@ public class AuditCreativeBaiduService {
 			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
     	//将私密key转成json格式
-		String dspId = json.get("dspId").getAsString();
+		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
 		//广告主审核数字key
 		Long advertiserIdValue = getAdvAuditValueByMapId(mapId);
@@ -440,10 +442,10 @@ public class AuditCreativeBaiduService {
 		} else if ("e".equals(promotiontype)) {
 			interactiveStyle = 0;
 		}
-		creative.addProperty("type", typeValue);
+		creative.addProperty("Type", typeValue);
 		creative.addProperty("interactiveStyle", interactiveStyle);
 		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
-		if (StringUtils.isEmpty(creativeInfo.getLandingUrl())) {
+		if (!StringUtils.isEmpty(creativeInfo.getLandingUrl())) {
 			creative.addProperty("downloadUrl", creativeInfo.getLandingUrl());
 		} else {
 			creative.addProperty("downloadUrl", creativeInfo.getDownloadUrl());
@@ -493,7 +495,7 @@ public class AuditCreativeBaiduService {
 		if (json.get("dspId") == null || json.get("token") == null) {
 			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
-		String dspId = json.get("dspId").getAsString();
+		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
 		//组成“请求头”
     	JsonObject authHeader = new JsonObject();
