@@ -55,7 +55,7 @@ import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 @Service
 public class RedisService {
 
-	private static String upload;
+	private static String image_url;
 	
 	@Autowired
 	public RedisService(Environment env)
@@ -63,7 +63,7 @@ public class RedisService {
 		/**
 		 * 获取图片上传路径
 		 */
-		upload = env.getProperty("pap.fileserver.upload.dir");
+		image_url = env.getProperty("pap.fileserver.url.prefix");
 	}
 	
 	@Autowired
@@ -234,7 +234,7 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("sourceurl", upload + model.getSourceUrl());
+            creativeObj.addProperty("sourceurl", image_url + model.getSourceUrl());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
@@ -296,7 +296,7 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("sourceurl", upload + model.getSourceUrl());
+            creativeObj.addProperty("sourceurl", image_url + model.getSourceUrl());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
           //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
@@ -384,12 +384,12 @@ public class RedisService {
 				creativeObj.addProperty("w", GlobalUtil.parseInt(ist.getWidth(),0));
 				creativeObj.addProperty("h", GlobalUtil.parseInt(ist.getHeight(),0));
 				creativeObj.addProperty("ftype", ist.getCode());
-				creativeObj.addProperty("sourceurl", upload + ist.getPath());
+				creativeObj.addProperty("sourceurl", image_url + ist.getPath());
 			} else if (imgs > 1) {
 				JsonArray bigImages = new JsonArray(); 
 				for(String str : someImage){
 					
-					bigImages.add(upload + selectImages(str).toString());
+					bigImages.add(image_url + selectImages(str).toString());
 				}
 				creativeObj.add("imgs", bigImages);
 			}

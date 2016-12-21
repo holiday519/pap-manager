@@ -202,7 +202,7 @@ public class CreativeService extends BaseService {
 		String dir = upload + "creative/image";
 		ImageBean imageBean = (ImageBean) FileUtils.uploadFile(dir, id, file);
 		String name = imageBean.getName();
-		String path = imageBean.getPath();
+		String path = imageBean.getPath().replace(upload, "");
 		String type = imageBean.getType();
 		Float volume = imageBean.getVolume();
 		ImageTypeModelExample itExample = new ImageTypeModelExample();
@@ -247,7 +247,7 @@ public class CreativeService extends BaseService {
 		String dir = upload + "creative/video";
 		VideoBean videoBean = (VideoBean) FileUtils.uploadFile(dir, id, file);
 		String name = videoBean.getName();
-		String path = videoBean.getPath();
+		String path = videoBean.getPath().replace(upload, "");
 		String type = videoBean.getType();
 		Float volume = videoBean.getVolume();
 		String size = videoBean.getSize();//视频图片的id
