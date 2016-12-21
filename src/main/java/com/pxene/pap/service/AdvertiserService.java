@@ -3,9 +3,7 @@ package com.pxene.pap.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -46,8 +44,6 @@ public class AdvertiserService extends BaseService
     
     private final String UPLOAD_DIR;
     
-    private final String SERVER_URL;
-    
     private static final String TEMP_DIR = "temp/";
     
     private static final String FORMAL_DIR = "formal/";
@@ -56,9 +52,7 @@ public class AdvertiserService extends BaseService
     public AdvertiserService(Environment env)
     {
     	UPLOAD_DIR = env.getProperty("pap.fileserver.upload.dir");
-    	SERVER_URL = env.getProperty("pap.fileserver.url.prefix");
     }
-    
     
     @Transactional
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
@@ -232,15 +226,12 @@ public class AdvertiserService extends BaseService
         return advertiserList;
     }
     
-    public Map<String, String> uploadQualification(MultipartFile file) throws Exception {
+    public String uploadQualification(MultipartFile file) throws Exception {
     	MediaBean uploadedFile = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
-    	Map<String, String> result = new HashMap<String, String>();
+    	// 图片绝对路径
     	String path = uploadedFile.getPath();
-    	String url = path.replace(UPLOAD_DIR, SERVER_URL);
-    	result.put("path", path);
-    	result.put("url", url);
-    	
-    	return result;
+    	// 返回相对路径
+    	return path.replace(UPLOAD_DIR, "");
     }
     
     private void copyTempToFormal(AdvertiserBean advertiserBean) throws Exception
@@ -255,44 +246,34 @@ public class AdvertiserService extends BaseService
         
         try
         {
-        	int logoIndex = logoPath.lastIndexOf("/");
-            if (logoIndex >= 0 && logoPath.contains(TEMP_DIR))
+            if (logoPath.contains(TEMP_DIR))
             {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(logoPath), destDir);
-                String fileName = logoPath.substring(logoIndex + 1); 
-                advertiserBean.setLogoPath(destDir + fileName);
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
+                advertiserBean.setLogoPath(logoPath.replace(TEMP_DIR, FORMAL_DIR));
             }
             
-            int accountIndex = accountPath.lastIndexOf("/");
-            if (accountIndex >= 0 && accountPath.contains(TEMP_DIR))
+            if (accountPath.contains(TEMP_DIR))
             {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(accountPath), destDir);
-                String fileName = accountPath.substring(accountIndex + 1);
-                advertiserBean.setAccountPath(destDir + fileName);
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
+                advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
             }
             
-            int licenseIndex = licensePath.lastIndexOf("/");
-            if (licenseIndex >= 0 && licensePath.contains(TEMP_DIR))
+            if (licensePath.contains(TEMP_DIR))
             {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(licensePath), destDir);
-                String fileName = licensePath.substring(licenseIndex + 1);
-                advertiserBean.setLicensePath(destDir + fileName);
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
+                advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
             }
             
-            int organizationIndex = organizationPath.lastIndexOf("/");
-            if (organizationIndex >= 0 && organizationPath.contains(TEMP_DIR))
+            if (organizationPath.contains(TEMP_DIR))
             {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(organizationPath), destDir);
-                String fileName = organizationPath.substring(organizationIndex + 1);
-                advertiserBean.setOrganizationPath(destDir + fileName);
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
+                advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
             }
             
-            int icpIndex = icpPath.lastIndexOf("/");
-            if (icpIndex >= 0 && icpPath.contains(TEMP_DIR))
+            if (icpPath.contains(TEMP_DIR))
             {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(icpPath), destDir);
-                String fileName = icpPath.substring(icpIndex + 1);
-                advertiserBean.setIcpPath(destDir + fileName);
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
+                advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));
             }
         }
         catch (FileNotFoundException exception)
