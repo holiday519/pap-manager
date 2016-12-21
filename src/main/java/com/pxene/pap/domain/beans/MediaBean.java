@@ -3,12 +3,29 @@ package com.pxene.pap.domain.beans;
 
 public class MediaBean
 {
+	/**
+	 * id
+	 */
     private String id;
+    /**
+	 * 名称
+	 */
     private String name;
+    /**
+	 * 类型
+	 */
     private String type;
+    /**
+	 * 路径
+	 */
     private String path;
-    private String uploader;
+    /**
+	 * 大小
+	 */
     private Float volume;
+    /**
+	 * 尺寸
+	 */
     private String size;
     
     
@@ -44,14 +61,6 @@ public class MediaBean
     {
         this.path = path;
     }
-    public String getUploader()
-    {
-        return uploader;
-    }
-    public void setUploader(String uploader)
-    {
-        this.uploader = uploader;
-    }
 	public Float getVolume() {
 		return volume;
 	}
@@ -64,10 +73,10 @@ public class MediaBean
 	public void setSize(String size) {
 		this.size = size;
 	}
-	
 	@Override
-    public String toString()
-    {
-        return "MediaBean [id=" + id + ", name=" + name + ", type=" + type + ", path=" + path + ", uploader=" + uploader + ", volume=" + volume + ", size=" + size + "]";
-    }
+	public String toString() {
+		return "MediaBean [id=" + id + ", name=" + name + ", type=" + type
+				+ ", path=" + path + ", volume=" + volume + ", size=" + size
+				+ "]";
+	}
 }

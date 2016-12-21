@@ -2,9 +2,21 @@ package com.pxene.pap.domain.beans;
 
 public class VideoBean extends MediaBean
 {
+	/**
+	 * 宽
+	 */
     private int width;
+    /**
+	 * 高
+	 */
     private int height;
+    /**
+	 * 时长
+	 */
     private int timelength;
+    /**
+	 * 图片Id
+	 */
     private String imageId;
     
     

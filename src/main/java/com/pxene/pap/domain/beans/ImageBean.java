@@ -2,7 +2,13 @@ package com.pxene.pap.domain.beans;
 
 public class ImageBean extends MediaBean
 {
+	/**
+	 * 宽
+	 */
     private int width;
+    /**
+	 * 高
+	 */
     private int height;
     
     

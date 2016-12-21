@@ -31,7 +31,7 @@ public class CreativeBean {
 	 * 创意类型数组
 	 */
 	private List<String> creativeType;
-
+	
 	public String getId() {
 		return id;
 	}
