@@ -54,9 +54,9 @@ public class PurposeController {
 	 */
 	@RequestMapping(value = "/purpose/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updatePurpose(@PathVariable String id, @Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
+	public void updatePurpose(@PathVariable String id, @Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
 		purposeService.updatePurpose(id, bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 	
 	/**

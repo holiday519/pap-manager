@@ -50,9 +50,9 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateCreative(@PathVariable String id, @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
+	public void updateCreative(@PathVariable String id, @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 	
 	/**

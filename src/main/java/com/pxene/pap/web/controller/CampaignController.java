@@ -54,9 +54,9 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateCampaign(@PathVariable String id, @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
+	public void updateCampaign(@PathVariable String id, @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.updateCampaign(id, bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 	
 	/**

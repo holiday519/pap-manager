@@ -32,9 +32,9 @@ public class VideoController {
 	
 	@RequestMapping(value = "/video/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateVideo(@PathVariable String id, @RequestBody VideoBean bean, HttpServletResponse response) throws Exception {
+	public void updateVideo(@PathVariable String id, @RequestBody VideoBean bean, HttpServletResponse response) throws Exception {
 		videoService.updateVideo(id, bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean,response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 	@RequestMapping(value = "/video/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody

@@ -84,10 +84,10 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public void selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
 		ProjectBean projectBean = projectService.selectProject(id);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, projectBean, response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 	
 	/**

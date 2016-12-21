@@ -32,9 +32,9 @@ public class InfoFlowController {
 	
 	@RequestMapping(value="/infoflow/{id}",method = RequestMethod.PATCH,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateInfoFlow(@PathVariable String id, @RequestBody InfoFlowBean bean, HttpServletResponse response) throws Exception {
+	public void updateInfoFlow(@PathVariable String id, @RequestBody InfoFlowBean bean, HttpServletResponse response) throws Exception {
 		infoFlowService.updateInfoFlow(id, bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 
 }
