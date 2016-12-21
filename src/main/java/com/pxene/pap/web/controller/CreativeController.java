@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.CreativeBean;
-import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.service.CreativeService;
 
 @Controller

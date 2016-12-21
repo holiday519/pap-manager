@@ -12,7 +12,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.PurposeBean;
 import com.pxene.pap.domain.model.basic.DownLoadModel;
 import com.pxene.pap.domain.model.basic.LandPageModel;

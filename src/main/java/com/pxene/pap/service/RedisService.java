@@ -37,7 +37,6 @@ import com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
-import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
