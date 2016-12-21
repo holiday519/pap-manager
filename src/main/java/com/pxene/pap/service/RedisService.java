@@ -63,7 +63,7 @@ public class RedisService {
 		/**
 		 * 获取图片上传路径
 		 */
-		upload = env.getProperty("pap.fileserver.upload");
+		upload = env.getProperty("pap.fileserver.upload.dir");
 	}
 	
 	@Autowired

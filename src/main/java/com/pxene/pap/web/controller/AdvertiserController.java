@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -143,8 +144,8 @@ public class AdvertiserController
     @RequestMapping(value = "/advertiser/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String uploadQualification(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-    	String path = advertiserService.uploadQualification(file);
+    	Map<String, String> result = advertiserService.uploadQualification(file);
     	
-    	return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "path", path, response);
+    	return ResponseUtils.sendReponse(HttpStatusCode.CREATED, result, response);
     }
 }

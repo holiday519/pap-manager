@@ -3,7 +3,9 @@ package com.pxene.pap.service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -44,6 +46,8 @@ public class AdvertiserService extends BaseService
     
     private final String UPLOAD_DIR;
     
+    private final String SERVER_URL;
+    
     private static final String TEMP_DIR = "temp/";
     
     private static final String FORMAL_DIR = "formal/";
@@ -51,7 +55,8 @@ public class AdvertiserService extends BaseService
     @Autowired
     public AdvertiserService(Environment env)
     {
-    	UPLOAD_DIR = env.getProperty("pap.fileserver.upload");
+    	UPLOAD_DIR = env.getProperty("pap.fileserver.upload.dir");
+    	SERVER_URL = env.getProperty("pap.fileserver.url.prefix");
     }
     
     
@@ -227,11 +232,16 @@ public class AdvertiserService extends BaseService
         return advertiserList;
     }
     
-    public String uploadQualification(MultipartFile file) throws Exception {
+    public Map<String, String> uploadQualification(MultipartFile file) throws Exception {
     	MediaBean uploadedFile = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
-    	return uploadedFile.getPath();
+    	Map<String, String> result = new HashMap<String, String>();
+    	String path = uploadedFile.getPath();
+    	String url = path.replace(UPLOAD_DIR, SERVER_URL);
+    	result.put("path", path);
+    	result.put("url", url);
+    	
+    	return result;
     }
-    
     
     private void copyTempToFormal(AdvertiserBean advertiserBean) throws Exception
     {
