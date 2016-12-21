@@ -3,16 +3,17 @@ package com.pxene.pap.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.RedisUtils;
 import com.pxene.pap.constant.RedisKeyConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
@@ -54,6 +55,17 @@ import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 @Service
 public class RedisService {
 
+	private static String upload;
+	
+	@Autowired
+	public RedisService(Environment env)
+	{
+		/**
+		 * 获取图片上传路径
+		 */
+		upload = env.getProperty("pap.fileserver.upload");
+	}
+	
 	@Autowired
 	private AdvertiserDao advertiserDao;
 	
@@ -95,8 +107,39 @@ public class RedisService {
 	
 	@Autowired
 	private CreativeAuditDao creativeAuditDao;
+
+	/**
+	 * 将活动ID 写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void writeCampaignIds(String campaignId) throws Exception {
+		String ids = redisUtils.get(RedisKeyConstant.CAMPAIGN_IDS);
+		JsonObject idObj = new JsonObject();
+		JsonArray idArray = new JsonArray();
+		if (ids == null) {
+			idArray.add(campaignId);
+			idObj.add("groupids", idArray);
+		} else {
+			Gson gson = new Gson();
+			idObj = gson.fromJson(ids, new JsonObject().getClass());
+			idArray = idObj.get("groupids").getAsJsonArray();
+			// 判断是否已经含有当前campaignID
+			boolean flag = false;
+			for (int i = 0; i < idArray.size(); i++) {
+				if (campaignId.equals(idArray.get(i).getAsString())) {
+					flag = true;
+					break;
+				}
+			}
+			if (!flag) {
+				idArray.add(campaignId);
+				idObj.add("groupids", idArray);
+			}
+		}
+		redisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+	}
 	
-	@Transactional
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
 		// 查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
@@ -104,16 +147,13 @@ public class RedisService {
 		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		// 创意id数组
 		List<String> creativeIds = new ArrayList<String>();
-		//如果活动下无创意
+		//如果活动下无可投创意
 		if(creatives == null || creatives.isEmpty()){
-			throw new NotFoundException();
+			return;
 		}
 		// 将查询出来的创意id放入创意id数组
 		for (CreativeModel creative : creatives) {
-			String creativeId = creative.getId();
-			if (creativeId != null && !creativeId.isEmpty()) {
-				creativeIds.add(creativeId);
-			}
+			creativeIds.add(creative.getId());
 		}
 		// 根据创意id数组查询创意所对应的关联关系表数据
 		if (!creativeIds.isEmpty()) {
@@ -123,16 +163,19 @@ public class RedisService {
 			if (mapModels != null && !mapModels.isEmpty()) {
 				for (CreativeMaterialModel mapModel : mapModels) {
 					String mapId = mapModel.getId();
-					String creativeType = mapModel.getCreativeType();
-					// 图片创意
-					if ("1".equals(creativeType)) {
-						writeImgCreativeInfoToRedis(mapId);
-					// 视频创意
-					} else if ("2".equals(creativeType)) {
-						writeVideoCreativeInfoToRedis(mapId);
-					// 信息流创意
-					} else if ("3".equals(creativeType)) {
-						writeInfoCreativeInfoToRedis(mapId);
+					//审核通过的创意才可以投放
+					if (getAuditSuccessMapId(mapId)) {
+						String creativeType = mapModel.getCreativeType();
+						// 图片创意
+						if ("1".equals(creativeType)) {
+							writeImgCreativeInfoToRedis(mapId);
+							// 视频创意
+						} else if ("2".equals(creativeType)) {
+							writeVideoCreativeInfoToRedis(mapId);
+							// 信息流创意
+						} else if ("3".equals(creativeType)) {
+							writeInfoCreativeInfoToRedis(mapId);
+						}
 					}
 				}
 			}
@@ -191,7 +234,7 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("sourceurl", model.getSourceUrl());//此处需要修改—————————————————图片地址路径需要加上
+            creativeObj.addProperty("sourceurl", upload + model.getSourceUrl());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
@@ -253,7 +296,7 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("sourceurl", model.getSourceUrl());//此处需要修改——————————————————图片地址路径需要加上
+            creativeObj.addProperty("sourceurl", upload + model.getSourceUrl());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
           //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
@@ -341,12 +384,12 @@ public class RedisService {
 				creativeObj.addProperty("w", GlobalUtil.parseInt(ist.getWidth(),0));
 				creativeObj.addProperty("h", GlobalUtil.parseInt(ist.getHeight(),0));
 				creativeObj.addProperty("ftype", ist.getCode());
-				creativeObj.addProperty("sourceurl", ist.getPath());//需要拼接图片服务器地址——————————————
+				creativeObj.addProperty("sourceurl", upload + ist.getPath());
 			} else if (imgs > 1) {
 				JsonArray bigImages = new JsonArray(); 
 				for(String str : someImage){
-					// sourceurl需要拼接图片服务器地址——————————————
-					bigImages.add(selectImages(str).toString());
+					
+					bigImages.add(upload + selectImages(str).toString());
 				}
 				creativeObj.add("imgs", bigImages);
 			}
@@ -559,7 +602,7 @@ public class RedisService {
 	}
 	
 	/**
-	 * 推广组下创意ID写入redis
+	 * 活动下创意ID写入redis
 	 * @param campaignId
 	 * @throws Exception
 	 */
@@ -581,7 +624,8 @@ public class RedisService {
 				}
 				for (CreativeMaterialModel cm : list) {
 					String mapId = cm.getId();
-					if (mapId != null && !"".endsWith(mapId)) {
+					//审核通过的创意才可以投放
+					if (getAuditSuccessMapId(mapId)) {
 						mapidJson.add(mapId);
 					}
 				}
@@ -609,7 +653,7 @@ public class RedisService {
 	}
 	
 	/**
-	 * 获取推广组对应的各个adx审核值（exts）
+	 * 获取活动对应的各个adx审核值（exts）
 	 * @param campaignId
 	 * @return
 	 * @throws Exception
@@ -678,5 +722,21 @@ public class RedisService {
 			return exts;
 		}
 		return new JsonArray();
+	}
+	
+	/**
+	 * 判断mapId是否通过了第三方审核
+	 * @param mapId
+	 * @return true：是；false：否
+	 */
+	private boolean getAuditSuccessMapId(String mapId) {
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		example.createCriteria().andCreativeIdEqualTo(mapId)
+				.andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+		if (list != null && !list.isEmpty()) {
+			return false;
+		}
+		return true;
 	}
 }

@@ -52,7 +52,7 @@ public class CreativeService extends BaseService {
 		/**
 		 * 获取图片上传路径
 		 */
-		upload = env.getProperty("pxene.pap.fileserver.upload");
+		upload = env.getProperty("pap.fileserver.upload");
 	}
 	
 	@Autowired
@@ -199,7 +199,7 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public String addImage(MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = upload + "/creative/image";
+		String dir = upload + "creative/image";
 		ImageBean imageBean = (ImageBean) FileUtils.uploadFile(dir, id, file);
 		String name = imageBean.getName();
 		String path = imageBean.getPath();
@@ -209,7 +209,7 @@ public class CreativeService extends BaseService {
 		itExample.createCriteria().andNameEqualTo(type);
 		//查询typeID
 		List<ImageTypeModel> imageTypes = imageTypeDao.selectByExample(itExample);
-		if (imageTypes==null || imageTypes.isEmpty()) {
+		if (imageTypes == null || imageTypes.isEmpty()) {
 			throw new NotFoundException();
 		}
 		String typeId = null;
@@ -244,7 +244,7 @@ public class CreativeService extends BaseService {
 	 */
 	public String addVideo(MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = upload + "/creative/video";
+		String dir = upload + "creative/video";
 		VideoBean videoBean = (VideoBean) FileUtils.uploadFile(dir, id, file);
 		String name = videoBean.getName();
 		String path = videoBean.getPath();
@@ -256,7 +256,7 @@ public class CreativeService extends BaseService {
 		videoExample.createCriteria().andNameEqualTo(type);
 		//查询typeID
 		List<VideoTypeModel> videoTypes = videoTypeDao.selectByExample(videoExample);
-		if (videoTypes==null || videoTypes.isEmpty()) {
+		if (videoTypes == null || videoTypes.isEmpty()) {
 			throw new NotFoundException();
 		}
 		String typeId = null;

@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
@@ -297,7 +298,7 @@ public class AuditCreativeBaiduService {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
-			mod.setStatus("03");
+			mod.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
 			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
@@ -465,7 +466,7 @@ public class AuditCreativeBaiduService {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
-			mod.setStatus("03");
+			mod.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
 			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
@@ -534,11 +535,11 @@ public class AuditCreativeBaiduService {
 			
 			String creativeAdxStatus;
 			if(state == 0){
-				creativeAdxStatus = "00";//审核通过
+				creativeAdxStatus = StatusConstant.CREATIVE_AUDIT_SUCCESS;//审核通过
 			}else if(state == 2){
-				creativeAdxStatus = "09";//审核不通过
+				creativeAdxStatus = StatusConstant.CREATIVE_AUDIT_FAILURE;//审核不通过
 			}else {
-				creativeAdxStatus = "10";//审核中
+				creativeAdxStatus = StatusConstant.CREATIVE_AUDIT_WATING;//审核中
 			}
 			CreativeAuditModelExample example = new CreativeAuditModelExample();
 			example.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
@@ -656,7 +657,7 @@ public class AuditCreativeBaiduService {
 			creativeAuditModel.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
 			creativeAuditModel.setAuditValue(String.valueOf(creativeIdvalue));
 			creativeAuditModel.setCreativeId(mapId);
-			creativeAuditModel.setStatus("00");
+			creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 			creativeAuditDao.insertSelective(creativeAuditModel);
 		} else {
 			CreativeAuditModel model = list.get(0);

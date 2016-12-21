@@ -44,6 +44,7 @@ public class VideoController {
 		//测试审核
 //		auditService.audit(id);
 //		auditService.synchronize(id);
+//		redisService.writeCampaignIds(id);
 		return null;
 	}
 

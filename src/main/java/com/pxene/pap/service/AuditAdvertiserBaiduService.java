@@ -13,7 +13,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.transaction.Transactional;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -32,6 +31,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
@@ -93,7 +93,7 @@ public class AuditAdvertiserBaiduService {
 		AdvertiserAuditModel model = new AdvertiserAuditModel();
 		model.setId(UUID.randomUUID().toString());
 		model.setAdvertiserId(advertiserId);
-		model.setStatus("00");//————————————————————
+		model.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
 		//生成一个数字型随机数（数字id）
 		long num;
 		//如果auditType是“edit”时，走编辑逻辑；
@@ -250,19 +250,19 @@ public class AuditAdvertiserBaiduService {
 			String statu = null;//状态（要存数据库的状态）
             String message = null;//（错误信息）
 			if (state == 0) {
-				statu = "01";// 审核通过
+				statu = StatusConstant.ADVERTISER_AUDIT_SUCCESS;// 审核通过
 			} else if (state == 1) {
-				statu = "00";// 待审核
+				statu = StatusConstant.ADVERTISER_AUDIT_WATING;// 待审核
 			} else if (state == 2) {
 				message = refuseReason;
-				statu = "02";// 审核未通过
+				statu = StatusConstant.ADVERTISER_AUDIT_FAILURE;// 审核未通过
 			} else if (state == 3) {
 				if (refuseReason != null) {
 					message = refuseReason;
 				} else {
 					message = "因为资质或信息不全，广告主未发起状态检查";
 				}
-				statu = "02";// 审核未通过
+				statu = StatusConstant.ADVERTISER_AUDIT_FAILURE;// 审核未通过
 			}
 			AdvertiserAuditModelExample advAudEx = new AdvertiserAuditModelExample();
 			advAudEx.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE).andAdvertiserIdEqualTo(advertiserId);
@@ -300,12 +300,8 @@ public class AuditAdvertiserBaiduService {
 		DefaultHttpClient httpClient = getHttpClient(true);
 		HttpResponse response = httpClient.execute(httpost);
 		int statuCode = response.getStatusLine().getStatusCode();
-		for(Header her  : response.getAllHeaders()) {
-			System.out.println(her.toString());
-		}
 		HttpEntity entity = response.getEntity();
 		String body = EntityUtils.toString(entity);
-		System.out.println(body);
 		map.put("result", body);
 		map.put("code", param);
 		map.put("statucode", statuCode + "");
