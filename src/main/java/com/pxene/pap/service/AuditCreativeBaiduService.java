@@ -117,6 +117,7 @@ public class AuditCreativeBaiduService {
 		}
 		
 	}
+	
 	/**
 	 * 重新审核
 	 * @param creativeId
@@ -149,8 +150,31 @@ public class AuditCreativeBaiduService {
 				}
 			}
 		}
-		
 	}
+	
+	/**
+	 * 同步创意
+	 * @param creativeId
+	 * @throws Exception
+	 */
+	public void synchronizeCreative(String creativeId) throws Exception {
+		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
+		if (creativeInDB==null || StringUtils.isEmpty(creativeInDB.getId())) {
+			throw new NotFoundException();
+		}
+		//查询创意下的各个mapid,分别进行同步
+		CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
+		mapExample.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
+		
+		if (mapModels != null && !mapModels.isEmpty()) {
+			for (CreativeMaterialModel mapModel : mapModels) {
+				String mapId = mapModel.getId();
+				synchronize(mapId);
+			}
+		}
+	}
+	
 	/**
 	 * 审核图片创意
 	 * @param mapId
@@ -268,14 +292,18 @@ public class AuditCreativeBaiduService {
 		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
 		//查询状态
         int status = jsonMap.get("status").getAsInt();
-		if (status == 0) {
+        int satusCode = Integer.parseInt(map.get("statucode"));
+		if (satusCode==200 && status == 0) {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
 			mod.setStatus("03");
 			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
-			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：" + jsonMap.get("message").getAsString());
+			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
+			JsonObject error = errors.get(0).getAsJsonObject();
+			String message = error.get("message").toString();
+			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：" + message);
 		}
 	}
 	/**
@@ -432,14 +460,18 @@ public class AuditCreativeBaiduService {
 		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
 		//查询状态
         int status = jsonMap.get("status").getAsInt();
-		if (status == 0) {
+        int satusCode = Integer.parseInt(map.get("statucode"));
+		if (satusCode==200 && status == 0) {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
 			mod.setStatus("03");
 			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
-			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：" + jsonMap.get("message").getAsString());
+			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
+			JsonObject error = errors.get(0).getAsJsonObject();
+			String message = error.get("message").toString();
+			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：" + message);
 		}
 	}
 
@@ -450,7 +482,7 @@ public class AuditCreativeBaiduService {
 	 */
 	public void synchronize(String mapId) throws Exception {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
-		String aexamineresultUrl = adxModel.getAexamineresultUrl();
+		String aexamineresultUrl = adxModel.getCexamineResultUrl();
 		String privateKey = adxModel.getPrivateKey();//取出adx的私密key
     	Gson gson = new Gson();
     	//将私密key转成json格式
@@ -480,8 +512,8 @@ public class AuditCreativeBaiduService {
 		JsonArray values = new JsonArray();
 		values.add(Long.parseLong(auditValue));
 		JsonObject obj = new JsonObject();
-		obj.addProperty("authHeader", authHeader.toString());
-		obj.addProperty("creativeIds", values.toString());
+		obj.add("authHeader", authHeader);
+		obj.add("creativeIds", values);
 		//发送同步请求
 		Map<String, String> map = auditAdvertiserBaiduService.post(aexamineresultUrl, obj.toString());
 		//返回结构中取出reslut
@@ -489,15 +521,15 @@ public class AuditCreativeBaiduService {
 		JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
 		//获取状态
 		int status = jsonMap.get("status").getAsInt();
-		String statucode = jsonMap.get("statucode").getAsString();
-		if ("200".equals(statucode) && status == 0) {
+		int satusCode = Integer.parseInt(map.get("statucode"));
+		if (satusCode==200 && status == 0) {
 			int state = 1;
 			String refuseReasonStr = "";
 			JsonArray array = jsonMap.get("response").getAsJsonArray();
 			if (array !=null && array.size() >0 ) {
 				JsonObject jsonObj = array.get(0).getAsJsonObject();
 				state = jsonObj.get("state").getAsInt();
-				refuseReasonStr = jsonObj.get("refuseReason").getAsString();
+				refuseReasonStr = jsonObj.get("refuseReason").getAsJsonArray();
 			}
 			
 			String creativeAdxStatus;
@@ -513,15 +545,15 @@ public class AuditCreativeBaiduService {
 			CreativeAuditModel model = new CreativeAuditModel();
 			model.setStatus(creativeAdxStatus);//—————状态值待确定———————
 			model.setMessage(refuseReasonStr);
-			creativeAuditDao.updateByExample(model, example);
+			creativeAuditDao.updateByExampleSelective(model, example);
 		}else{
 			CreativeAuditModelExample example = new CreativeAuditModelExample();
 			example.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel model = new CreativeAuditModel();
-			JsonArray errors = jsonMap.get("error").getAsJsonArray();
+			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
 			JsonObject error = errors.get(0).getAsJsonObject();
-			String massage = error.get("massage").getAsString();
-			model.setMessage(massage);
+			String message = error.get("message").toString();
+			model.setMessage(message);
 			creativeAuditDao.updateByExample(model, example);
 		}
 	}

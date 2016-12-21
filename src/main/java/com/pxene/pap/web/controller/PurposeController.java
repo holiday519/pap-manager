@@ -65,9 +65,9 @@ public class PurposeController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value="/purpose",method = RequestMethod.DELETE)
+	@RequestMapping(value="/purpose/{id}",method = RequestMethod.DELETE)
 	@ResponseBody
-	public void deletePurpose(@RequestBody String id, HttpServletResponse response) throws Exception {
+	public void deletePurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
 		purposeService.deletePurpose(id);
 		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
@@ -98,7 +98,7 @@ public class PurposeController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/project", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/purpose", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectPurposes(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		

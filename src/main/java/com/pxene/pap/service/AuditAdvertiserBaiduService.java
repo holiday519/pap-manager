@@ -273,7 +273,7 @@ public class AuditAdvertiserBaiduService {
 			advertiserAuditDao.updateByExampleSelective(advAudModel, advAudEx);
 		} else {
 		//广告主同步第三方审核状态执行失败;将错误信息存入数据库
-			JsonArray errors = jsonMap.getAsJsonArray("errors");
+			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
 			JsonObject error = errors.get(0).getAsJsonObject();
 			String message = error.get("message").getAsString();
 			AdvertiserAuditModelExample advAudEx = new AdvertiserAuditModelExample();
