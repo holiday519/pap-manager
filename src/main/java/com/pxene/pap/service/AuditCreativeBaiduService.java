@@ -529,7 +529,7 @@ public class AuditCreativeBaiduService {
 			if (array !=null && array.size() >0 ) {
 				JsonObject jsonObj = array.get(0).getAsJsonObject();
 				state = jsonObj.get("state").getAsInt();
-				refuseReasonStr = jsonObj.get("refuseReason").getAsJsonArray();
+				refuseReasonStr = jsonObj.get("refuseReason").toString();
 			}
 			
 			String creativeAdxStatus;
