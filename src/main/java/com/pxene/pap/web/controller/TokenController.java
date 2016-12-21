@@ -1,7 +1,6 @@
 package com.pxene.pap.web.controller;
 
 import javax.security.auth.message.AuthException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AccessTokenBean;
+import com.pxene.pap.domain.beans.AuthBean;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.PasswordIncorrectAuthException;
@@ -31,7 +31,6 @@ public class TokenController
     @Autowired
     private TokenService tokenService;
     
-    
     /**
      * 根据用户名、密码获取AccessToken。
      * @param user      包含用户名和用户密码的请求载荷，必填
@@ -40,33 +39,33 @@ public class TokenController
      * @return
      * @throws AuthException 
      */
-    @RequestMapping(value = "/auth/tokens", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/auth", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String authenticate(@RequestBody UserModel user, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String login(@RequestBody AuthBean authBean, HttpServletResponse response) throws Exception
     {
-        String username = user.getName();
-        String password = user.getPassword();
+        String userName = authBean.getUserName();
+        String password = authBean.getPassword();
         
         // 校验请求参数
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
+        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password))
         {
             throw new IllegalArgumentException();
         }
         
         String md5Password = DigestUtils.md5DigestAsHex(password.getBytes());
-        UserModel userInDB = (UserModel) tokenService.loadUserByUsername(username);
+        UserModel userModel = (UserModel) tokenService.loadUserByUsername(userName);
         
         // 校验用户是否存在
-        if (userInDB == null)
+        if (userModel == null)
         {
             throw new UserNotFoundAuthException();
         }
         
-        String passwordInDB = userInDB.getPassword();
+        String passwordInDB = userModel.getPassword();
         if (!StringUtils.isEmpty(passwordInDB) && md5Password.equals(passwordInDB))
         {
             // 生成accessToken
-            AccessTokenBean token = tokenService.generateToken(userInDB);
+            AccessTokenBean token = tokenService.generateToken(userModel);
             
             // 将新生成的Token保存至Redis中（同时设定TTL）
             tokenService.saveToken(token);
@@ -80,12 +79,11 @@ public class TokenController
         }
     }
     
-    @RequestMapping(value = "/tokens/{userid}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/auth/{userId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteToken(@PathVariable(required = true) String userid, HttpServletResponse response) throws Exception
+    public void logout(@PathVariable(required = true) String userId, HttpServletResponse response) throws Exception
     {
-        tokenService.deleteToken(userid);
+        tokenService.deleteToken(userId);
         response.setStatus(HttpStatusCode.NO_CONTENT);
-        return;
     }
 }

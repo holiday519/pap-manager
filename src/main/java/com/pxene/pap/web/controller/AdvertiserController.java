@@ -58,7 +58,6 @@ public class AdvertiserController
     {
         advertiserService.deleteAdvertiser(id);
         response.setStatus(HttpStatusCode.NO_CONTENT);
-        return;
     }
     
     
