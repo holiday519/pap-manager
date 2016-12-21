@@ -43,14 +43,13 @@ public class ProjectBean {
 	/**
 	 * KPI指标value
 	 */
-	private Integer value;
+	private Integer kpiVal;
 	
-
-	public Integer getValue() {
-		return value;
+	public Integer getKpiVal() {
+		return kpiVal;
 	}
-	public void setValue(Integer value) {
-		this.value = value;
+	public void setKpiVal(Integer kpiVal) {
+		this.kpiVal = kpiVal;
 	}
 	public String getId() {
 		return id;
@@ -100,8 +99,7 @@ public class ProjectBean {
 		return "ProjectBean [id=" + id + ", advertiserId=" + advertiserId
 				+ ", name=" + name + ", totalBudget=" + totalBudget
 				+ ", remark=" + remark + ", status=" + status + ", kpiId="
-				+ kpiId + ", value=" + value + "]";
+				+ kpiId + ", kpiVal=" + kpiVal + "]";
 	}
-
 	
 }

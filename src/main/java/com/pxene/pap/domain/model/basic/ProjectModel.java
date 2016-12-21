@@ -15,7 +15,7 @@ public class ProjectModel {
 
     private String kpiId;
 
-    private Integer value;
+    private Integer kpiVal;
 
     private String remark;
 
@@ -71,12 +71,12 @@ public class ProjectModel {
         this.kpiId = kpiId == null ? null : kpiId.trim();
     }
 
-    public Integer getValue() {
-        return value;
+    public Integer getKpiVal() {
+        return kpiVal;
     }
 
-    public void setValue(Integer value) {
-        this.value = value;
+    public void setKpiVal(Integer kpiVal) {
+        this.kpiVal = kpiVal;
     }
 
     public String getRemark() {
@@ -101,5 +101,25 @@ public class ProjectModel {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", advertiserId=").append(advertiserId);
+        sb.append(", name=").append(name);
+        sb.append(", totalBudget=").append(totalBudget);
+        sb.append(", status=").append(status);
+        sb.append(", kpiId=").append(kpiId);
+        sb.append(", kpiVal=").append(kpiVal);
+        sb.append(", remark=").append(remark);
+        sb.append(", createTime=").append(createTime);
+        sb.append(", updateTime=").append(updateTime);
+        sb.append("]");
+        return sb.toString();
     }
 }

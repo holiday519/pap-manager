@@ -515,63 +515,63 @@ public class ProjectModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andValueIsNull() {
-            addCriterion("value is null");
+        public Criteria andKpiValIsNull() {
+            addCriterion("kpi_val is null");
             return (Criteria) this;
         }
 
-        public Criteria andValueIsNotNull() {
-            addCriterion("value is not null");
+        public Criteria andKpiValIsNotNull() {
+            addCriterion("kpi_val is not null");
             return (Criteria) this;
         }
 
-        public Criteria andValueEqualTo(Integer value) {
-            addCriterion("value =", value, "value");
+        public Criteria andKpiValEqualTo(Integer value) {
+            addCriterion("kpi_val =", value, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueNotEqualTo(Integer value) {
-            addCriterion("value <>", value, "value");
+        public Criteria andKpiValNotEqualTo(Integer value) {
+            addCriterion("kpi_val <>", value, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueGreaterThan(Integer value) {
-            addCriterion("value >", value, "value");
+        public Criteria andKpiValGreaterThan(Integer value) {
+            addCriterion("kpi_val >", value, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueGreaterThanOrEqualTo(Integer value) {
-            addCriterion("value >=", value, "value");
+        public Criteria andKpiValGreaterThanOrEqualTo(Integer value) {
+            addCriterion("kpi_val >=", value, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueLessThan(Integer value) {
-            addCriterion("value <", value, "value");
+        public Criteria andKpiValLessThan(Integer value) {
+            addCriterion("kpi_val <", value, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueLessThanOrEqualTo(Integer value) {
-            addCriterion("value <=", value, "value");
+        public Criteria andKpiValLessThanOrEqualTo(Integer value) {
+            addCriterion("kpi_val <=", value, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueIn(List<Integer> values) {
-            addCriterion("value in", values, "value");
+        public Criteria andKpiValIn(List<Integer> values) {
+            addCriterion("kpi_val in", values, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueNotIn(List<Integer> values) {
-            addCriterion("value not in", values, "value");
+        public Criteria andKpiValNotIn(List<Integer> values) {
+            addCriterion("kpi_val not in", values, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueBetween(Integer value1, Integer value2) {
-            addCriterion("value between", value1, value2, "value");
+        public Criteria andKpiValBetween(Integer value1, Integer value2) {
+            addCriterion("kpi_val between", value1, value2, "kpiVal");
             return (Criteria) this;
         }
 
-        public Criteria andValueNotBetween(Integer value1, Integer value2) {
-            addCriterion("value not between", value1, value2, "value");
+        public Criteria andKpiValNotBetween(Integer value1, Integer value2) {
+            addCriterion("kpi_val not between", value1, value2, "kpiVal");
             return (Criteria) this;
         }
 

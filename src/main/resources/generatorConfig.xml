@@ -21,18 +21,18 @@
         </javaTypeResolver>
         
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.pxene.pap.domain.model.basic.view" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.pxene.pap.domain.model.basic" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="com.pxene.pap.repository.basic.view" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="com.pxene.pap.repository.basic" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         
         <!-- 生成DAO的包名和位置 -->  
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.pxene.pap.repository.basic.view" targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.pxene.pap.repository.basic" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
         
@@ -69,7 +69,7 @@
 <!-- 		<table tableName="pap_t_networktarget" domainObjectName="NetworkTargetModel" mapperName="NetworkTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_operatortarget" domainObjectName="OperatorTargetModel" mapperName="OperatorTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_ostarget" domainObjectName="OsTargetModel" mapperName="OsTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-<!-- 		<table tableName="pap_t_project" domainObjectName="ProjectModel" mapperName="ProjectDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+		<table tableName="pap_t_project" domainObjectName="ProjectModel" mapperName="ProjectDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
 <!-- 		<table tableName="pap_t_purpose" domainObjectName="PurposeModel" mapperName="PurposeDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_region" domainObjectName="RegionModel" mapperName="RegionDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_regiontarget" domainObjectName="RegionTargetModel" mapperName="RegionTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
@@ -82,7 +82,7 @@
 <!-- 		<table tableName="pap_t_videotmpl" domainObjectName="VideoTmplModel" mapperName="VideoTmplDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_videotmpl_videotype" domainObjectName="VideoTmplTypeModel" mapperName="VideoTmplTypeDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_videotype" domainObjectName="VideoTypeModel" mapperName="VideoTypeDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-    	<table tableName="pap_v_image_size_type" domainObjectName="ImageSizeTypeModel" mapperName="ImageSizeTypeDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+<!--     	<table tableName="pap_v_image_size_type" domainObjectName="ImageSizeTypeModel" mapperName="ImageSizeTypeDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!--     	<table tableName="pap_v_creative_image" domainObjectName="CreativeImageModel" mapperName="CreativeImageDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_creative_video" domainObjectName="CreativeVideoModel" mapperName="CreativeVideoDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_creative_infoflow" domainObjectName="CreativeInfoflowModel" mapperName="CreativeInfoflowDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
