@@ -70,11 +70,10 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String updateAdvertiser(@PathVariable String id, @Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
+    public void updateAdvertiser(@PathVariable String id, @Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
         advertiserService.updateAdvertiser(id, advertiser);
-        
-        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
+        response.setStatus(HttpStatusCode.NO_CONTENT);
     }
     
     

@@ -178,7 +178,7 @@ public class AdvertiserService extends BaseService
         }
         
         // 将DAO编辑后的新对象复制回传输对象中
-        BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
+        //BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
     }
 
 
