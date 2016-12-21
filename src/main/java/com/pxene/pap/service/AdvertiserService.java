@@ -1,5 +1,7 @@
 package com.pxene.pap.service;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,17 +10,22 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
+import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample.Criteria;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
+import com.pxene.pap.exception.BadRequestException;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStateException;
@@ -35,22 +42,30 @@ public class AdvertiserService extends BaseService
     @Autowired
     private ProjectDao projectDao;
     
+    private final String UPLOAD_DIR;
+    
+    private static final String TEMP_DIR = "temp/";
+    
+    private static final String FORMAL_DIR = "formal/";
+    
     @Autowired
-    private FileService fileService;
+    public AdvertiserService(Environment env)
+    {
+    	UPLOAD_DIR = env.getProperty("pap.fileserver.upload");
+    }
     
     
     @Transactional
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
     {
-        // 将传输对象映射成数据库Model，并设置UUID
+        // 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
+    	copyTempToFormal(advertiserBean);
+    	// 将path替换成正式目录
         AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(UUID.randomUUID().toString());
         
         try
         {
-            // 拷贝临时文件至正式目录中
-            fileService.copyTempToFormal(advertiserModel);
-            
             advertiserDao.insertSelective(advertiserModel);
         }
         catch (DuplicateKeyException exception)
@@ -87,47 +102,49 @@ public class AdvertiserService extends BaseService
         else
         {
             advertiserDao.deleteByPrimaryKey(id);
+            // 删除广告主下的资质图片
+            removeImages(id);
         }
     }
 
-    @Transactional
-    public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
-    {
-        // 更新操作要求绑定到RequestBody中的资源ID必须为空
-        if (!StringUtils.isEmpty(advertiserBean.getId()))
-        {
-            throw new IllegalArgumentException();
-        }
-        
-        // 操作前先查询一次数据库，判断指定的资源是否存在
-        AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
-        if (advertiserInDB == null)
-        {
-            throw new NotFoundException();
-        }
-        
-        // 将传输对象映射成数据库Model
-        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
-        
-        AdvertiserModelExample example = new AdvertiserModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andIdEqualTo(id);
-        
-        try
-        {
-            // 拷贝临时文件至正式目录中
-            fileService.copyTempToFormal(advertiserModel);
-            
-            advertiserDao.updateByExampleSelective(advertiserModel, example);
-            // 将DAO编辑后的新对象复制回传输对象中
-            BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-    }
+//    @Transactional
+//    public void patchUpdateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
+//    {
+//        // 更新操作要求绑定到RequestBody中的资源ID必须为空
+//        if (!StringUtils.isEmpty(advertiserBean.getId()))
+//        {
+//            throw new IllegalArgumentException();
+//        }
+//        
+//        // 操作前先查询一次数据库，判断指定的资源是否存在
+//        AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
+//        if (advertiserInDB == null)
+//        {
+//            throw new NotFoundException();
+//        }
+//        
+//        // 将传输对象映射成数据库Model
+//        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
+//        
+//        AdvertiserModelExample example = new AdvertiserModelExample();
+//        Criteria criteria = example.createCriteria();
+//        criteria.andIdEqualTo(id);
+//        
+//        try
+//        {
+//            // 拷贝临时文件至正式目录中
+//            copyTempToFormal(advertiserModel);
+//            
+//            advertiserDao.updateByExampleSelective(advertiserModel, example);
+//            // 将DAO编辑后的新对象复制回传输对象中
+//            BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
+//        }
+//        catch (DuplicateKeyException exception)
+//        {
+//            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
+//            throw new DuplicateEntityException();
+//        }
+//    }
 
 
     @Transactional
@@ -146,25 +163,23 @@ public class AdvertiserService extends BaseService
             throw new NotFoundException();
         }
         
+        copyTempToFormal(advertiserBean);
         // 将传输对象映射成数据库Model
         AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(id);
         
         try
         {
-            // 拷贝临时文件至正式目录中
-            fileService.copyTempToFormal(advertiserModel);
-            
             advertiserDao.updateByPrimaryKey(advertiserModel);
-            
-            // 将DAO编辑后的新对象复制回传输对象中
-            BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
         }
         catch (DuplicateKeyException exception)
         {
             // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
             throw new DuplicateEntityException();
         }
+        
+        // 将DAO编辑后的新对象复制回传输对象中
+        BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
     }
 
 
@@ -211,4 +226,97 @@ public class AdvertiserService extends BaseService
         
         return advertiserList;
     }
+    
+    public String uploadQualification(MultipartFile file) throws Exception {
+    	MediaBean uploadedFile = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+    	return uploadedFile.getPath();
+    }
+    
+    
+    private void copyTempToFormal(AdvertiserBean advertiserBean) throws Exception
+    {
+        String logoPath = advertiserBean.getLogoPath();
+        String accountPath = advertiserBean.getAccountPath();
+        String licensePath = advertiserBean.getLicensePath();
+        String organizationPath = advertiserBean.getOrganizationPath();
+        String icpPath = advertiserBean.getIcpPath();
+        
+        File destDir = new File(UPLOAD_DIR + FORMAL_DIR);
+        
+        try
+        {
+        	int logoIndex = logoPath.lastIndexOf("/");
+            if (logoIndex >= 0 && logoPath.contains(TEMP_DIR))
+            {
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(logoPath), destDir);
+                String fileName = logoPath.substring(logoIndex + 1); 
+                advertiserBean.setLogoPath(destDir + fileName);
+            }
+            
+            int accountIndex = accountPath.lastIndexOf("/");
+            if (accountIndex >= 0 && accountPath.contains(TEMP_DIR))
+            {
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(accountPath), destDir);
+                String fileName = accountPath.substring(accountIndex + 1);
+                advertiserBean.setAccountPath(destDir + fileName);
+            }
+            
+            int licenseIndex = licensePath.lastIndexOf("/");
+            if (licenseIndex >= 0 && licensePath.contains(TEMP_DIR))
+            {
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(licensePath), destDir);
+                String fileName = licensePath.substring(licenseIndex + 1);
+                advertiserBean.setLicensePath(destDir + fileName);
+            }
+            
+            int organizationIndex = organizationPath.lastIndexOf("/");
+            if (organizationIndex >= 0 && organizationPath.contains(TEMP_DIR))
+            {
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(organizationPath), destDir);
+                String fileName = organizationPath.substring(organizationIndex + 1);
+                advertiserBean.setOrganizationPath(destDir + fileName);
+            }
+            
+            int icpIndex = icpPath.lastIndexOf("/");
+            if (icpIndex >= 0 && icpPath.contains(TEMP_DIR))
+            {
+                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(icpPath), destDir);
+                String fileName = icpPath.substring(icpIndex + 1);
+                advertiserBean.setIcpPath(destDir + fileName);
+            }
+        }
+        catch (FileNotFoundException exception)
+        {
+            throw new BadRequestException(exception.getMessage());
+        }
+    }
+    
+    private void removeImages(String advertiserId) {
+    	// 查询出广告主下的图片
+    	AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(advertiserId);
+    	String logoPath = advertiserModel.getLogoPath();
+        String accountPath = advertiserModel.getAccountPath();
+        String licensePath = advertiserModel.getLicensePath();
+        String organizationPath = advertiserModel.getOrganizationPath();
+        String icpPath = advertiserModel.getIcpPath();
+        
+        // 删除
+        if (StringUtils.isEmpty(logoPath)) {
+        	org.apache.commons.io.FileUtils.deleteQuietly(new File(logoPath));
+        }
+        if (StringUtils.isEmpty(accountPath)) {
+        	org.apache.commons.io.FileUtils.deleteQuietly(new File(accountPath));
+        }
+        if (StringUtils.isEmpty(licensePath)) {
+        	org.apache.commons.io.FileUtils.deleteQuietly(new File(licensePath));
+        }
+        if (StringUtils.isEmpty(organizationPath)) {
+        	org.apache.commons.io.FileUtils.deleteQuietly(new File(organizationPath));
+        }
+        if (StringUtils.isEmpty(icpPath)) {
+        	org.apache.commons.io.FileUtils.deleteQuietly(new File(icpPath));
+        }
+    	
+    }
+    
 }
