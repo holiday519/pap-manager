@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -29,7 +31,6 @@ public class AdvertiserController
 {
     @Autowired
     private AdvertiserService advertiserService;
-    
     
     /**
      * 添加广告主。
@@ -85,14 +86,14 @@ public class AdvertiserController
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
-    {
-        advertiserService.patchUpdateAdvertiser(id, advertiser);
-        
-        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
-    }
+//    @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    @ResponseBody
+//    public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
+//    {
+//        advertiserService.patchUpdateAdvertiser(id, advertiser);
+//        
+//        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
+//    }
     
     
     /**
@@ -131,5 +132,19 @@ public class AdvertiserController
         
         PaginationResult result = new PaginationResult(advertisers, pager);
         return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
+    }
+    
+    /**
+     * 上传广告主资质图片。
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/advertiser/upload", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String uploadQualification(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
+    	String path = advertiserService.uploadQualification(file);
+    	
+    	return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "path", path, response);
     }
 }
