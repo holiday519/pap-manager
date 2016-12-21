@@ -2,35 +2,28 @@ package com.pxene.pap.domain.beans;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class AccessTokenBean implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    @JsonProperty("token")
-    private String accessToken;
+    private String token;
     
-    @JsonProperty("token_type")
     private String tokenType;
     
-    @JsonProperty("expires_at")
     private long expiresAt;
     
-    @JsonProperty("issued_at")
     private long issuedAt;
     
-    @JsonProperty("userid")
     private String userid;
     
     
-    public String getAccessToken()
+    public String getToken()
     {
-        return accessToken;
+        return token;
     }
-    public void setAccessToken(String accessToken)
+    public void setToken(String token)
     {
-        this.accessToken = accessToken;
+        this.token = token;
     }
     public String getTokenType()
     {
@@ -69,6 +62,6 @@ public class AccessTokenBean implements Serializable
     @Override
     public String toString()
     {
-        return "AccessToken [accessToken=" + accessToken + ", tokenType=" + tokenType + ", expiresAt=" + expiresAt + ", issuedAt=" + issuedAt + ", userid=" + userid + "]";
+        return "AccessToken [accessToken=" + token + ", tokenType=" + tokenType + ", expiresAt=" + expiresAt + ", issuedAt=" + issuedAt + ", userid=" + userid + "]";
     }
 }

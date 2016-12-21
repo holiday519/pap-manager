@@ -61,7 +61,7 @@ public class JwtUtils
         String compact = builder.compact();
         
         AccessTokenBean accessToken = new AccessTokenBean();
-        accessToken.setAccessToken(compact);
+        accessToken.setToken(compact);
         accessToken.setExpiresAt(expiresAt);
         accessToken.setIssuedAt(nowMillis);
         accessToken.setTokenType("Bearer");

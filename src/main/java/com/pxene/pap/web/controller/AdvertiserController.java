@@ -37,7 +37,7 @@ public class AdvertiserController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/advertisers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String addAdvertiser(@Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
@@ -52,13 +52,12 @@ public class AdvertiserController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     public void deleteAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
         advertiserService.deleteAdvertiser(id);
         response.setStatus(HttpStatusCode.NO_CONTENT);
-        return;
     }
     
     
@@ -68,7 +67,7 @@ public class AdvertiserController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String updateAdvertiser(@PathVariable String id, @Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
@@ -86,7 +85,7 @@ public class AdvertiserController
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
@@ -102,7 +101,7 @@ public class AdvertiserController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/advertisers/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String getAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
