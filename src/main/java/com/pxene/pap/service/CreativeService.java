@@ -311,6 +311,11 @@ public class CreativeService extends BaseService {
 		return id;
 	}
 
+	/**
+	 * 创意提交第三方审核
+	 * @param id
+	 * @throws Exception
+	 */
 	public void auditCreative(String id) throws Exception {
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
 		if (creativeModel == null) {
@@ -331,6 +336,11 @@ public class CreativeService extends BaseService {
 		}
 	}
 
+	/**
+	 * 同步创意第三方审核结果
+	 * @param id
+	 * @throws Exception
+	 */
 	public void synchronize(String id) throws Exception {
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
 		if (creativeModel == null) {

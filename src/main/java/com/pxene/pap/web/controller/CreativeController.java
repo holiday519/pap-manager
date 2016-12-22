@@ -96,7 +96,7 @@ public class CreativeController {
 	}
 	
 	/**
-     * 广告主提交第三方审核
+     * 创意提交第三方审核
      * @param id
      * @param response
      * @throws Exception
@@ -109,7 +109,7 @@ public class CreativeController {
     }
     
     /**
-     * 同步广告主第三方审核结果
+     * 同步创意第三方审核结果
      * @param id
      * @param response
      * @throws Exception
