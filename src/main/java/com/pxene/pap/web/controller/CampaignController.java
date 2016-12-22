@@ -109,4 +109,17 @@ public class CampaignController {
 		PaginationResult result = new PaginationResult(selectCampaigns, pager);
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
 	}
+	
+	/**
+	 * 投放活动
+	 * @param campaignIds
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign_PutOn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void putOnByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
+		campaignService.putOnCampaign(campaignIds);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
+	}
 }

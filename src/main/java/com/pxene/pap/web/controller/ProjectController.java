@@ -114,4 +114,17 @@ public class ProjectController {
 		PaginationResult result = new PaginationResult(selectProjects, pager);
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
 	}
+	
+	/**
+	 * 投放项目
+	 * @param projectIds
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/projectPutOn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void putOnProject(@RequestBody List<String> projectIds, HttpServletResponse response) throws Exception {
+		projectService.putOnProject(projectIds);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
+	}
 }

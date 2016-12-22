@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.MonitorBean;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
@@ -37,6 +38,7 @@ import com.pxene.pap.domain.model.basic.OperatorTargetModel;
 import com.pxene.pap.domain.model.basic.OperatorTargetModelExample;
 import com.pxene.pap.domain.model.basic.OsTargetModel;
 import com.pxene.pap.domain.model.basic.OsTargetModelExample;
+import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.RegionTargetModel;
 import com.pxene.pap.domain.model.basic.RegionTargetModelExample;
 import com.pxene.pap.domain.model.basic.TimeTargetModel;
@@ -44,7 +46,6 @@ import com.pxene.pap.domain.model.basic.TimeTargetModelExample;
 import com.pxene.pap.domain.model.basic.view.CampaignTargetModel;
 import com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
@@ -57,15 +58,19 @@ import com.pxene.pap.repository.basic.MonitorDao;
 import com.pxene.pap.repository.basic.NetworkTargetDao;
 import com.pxene.pap.repository.basic.OperatorTargetDao;
 import com.pxene.pap.repository.basic.OsTargetDao;
+import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
-public class CampaignService extends BaseService{
+public class CampaignService extends PutOnService{
 	
 	@Autowired
 	private CampaignDao campaignDao; 
+	
+	@Autowired
+	private ProjectDao projectDao; 
 	
 	@Autowired
 	private CreativeService creativeService; 
@@ -538,4 +543,29 @@ public class CampaignService extends BaseService{
 		}
 		return null;//空字符串返回null
 	}
+	
+	/**
+	 * 按照活动投放
+	 * @param campaignIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void putOnCampaign(List<String> campaignIds) throws Exception {
+		if (campaignIds == null || campaignIds.isEmpty()) {
+			throw new NotFoundException();
+		}
+		for (String campaignId : campaignIds) {
+			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+			campaignModel.setStatus(StatusConstant.CAMPAIGN_START);
+			String projectId = campaignModel.getProjectId();
+			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+			
+			if (StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
+				//投放
+				putOn(campaignId);
+				campaignDao.updateByPrimaryKeySelective(campaignModel);
+			}
+		}
+	}
+	
 }

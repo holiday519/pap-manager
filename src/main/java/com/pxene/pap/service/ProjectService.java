@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
@@ -25,7 +26,7 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
-public class ProjectService extends BaseService {
+public class ProjectService extends PutOnService {
 	
 	@Autowired
 	private ProjectDao projectDao;
@@ -149,5 +150,35 @@ public class ProjectService extends BaseService {
     	return beans;
     }
     
+	/**
+	 * 按照项目投放
+	 * @param projectIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void putOnProject(List<String> projectIds) throws Exception {
+		if (projectIds == null || projectIds.isEmpty()) {
+			throw new NotFoundException();
+		}
+		
+		for (String projectId : projectIds) {
+			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+			projectModel.setStatus(StatusConstant.PROJECT_START);
+			CampaignModelExample example = new CampaignModelExample();
+			example.createCriteria().andProjectIdEqualTo(projectId);
+			List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+			if (campaigns == null || campaigns.isEmpty()) {
+				continue;
+			}
+			for (CampaignModel campaign : campaigns) {
+				if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())) {
+					//投放
+					putOn(campaign.getId());
+				}
+			}
+			//项目投放之后修改状态
+			projectDao.updateByPrimaryKeySelective(projectModel);
+		}
+	}
 	
 }
