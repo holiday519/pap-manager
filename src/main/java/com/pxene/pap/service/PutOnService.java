@@ -28,4 +28,14 @@ public class PutOnService extends BaseService{
 		//写入活动频次信息   dsp_groupid_frequencycapping_*
 //		redisService.writeCampaignFrequencyToRedis(campaignId);
 	}
+	
+	/**
+	 * 暂停
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void pause(String campaignId) throws Exception {
+		//从redis中删除投放中的活动id
+		redisService.deleteCampaignId(campaignId);
+	}
 }

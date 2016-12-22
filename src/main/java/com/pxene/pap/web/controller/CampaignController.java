@@ -116,10 +116,23 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaign_PutOn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign_putOn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void putOnByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
 		campaignService.putOnCampaign(campaignIds);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
+	}
+	
+	/**
+	 * 暂停活动
+	 * @param campaignIds
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign_pause", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void pauseByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
+		campaignService.pauseCampaign(campaignIds);
 		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 }

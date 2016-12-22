@@ -44,6 +44,7 @@ public class VideoController {
 //		auditService.audit(id);
 //		auditService.synchronize(id);
 //		redisService.writeCampaignIds(id);
+		redisService.deleteCampaignId(id);
 		return null;
 	}
 

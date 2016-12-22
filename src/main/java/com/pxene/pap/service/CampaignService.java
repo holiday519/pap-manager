@@ -556,13 +556,43 @@ public class CampaignService extends PutOnService{
 		}
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
-			campaignModel.setStatus(StatusConstant.CAMPAIGN_START);
-			String projectId = campaignModel.getProjectId();
-			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-			
-			if (StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
-				//投放
-				putOn(campaignId);
+			if (campaignModel != null) {
+				String projectId = campaignModel.getProjectId();
+				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+				if (StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
+					// 投放
+					putOn(campaignId);
+				}
+				//改变数据库状态
+				campaignModel.setStatus(StatusConstant.CAMPAIGN_START);
+				campaignDao.updateByPrimaryKeySelective(campaignModel);
+			}
+		}
+	}
+	
+	/**
+	 * 按照活动暂停
+	 * @param campaignIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void pauseCampaign(List<String> campaignIds) throws Exception {
+		if (campaignIds == null || campaignIds.isEmpty()) {
+			throw new NotFoundException();
+		}
+		for (String campaignId : campaignIds) {
+			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+			if (campaignModel != null) {
+				String projectId = campaignModel.getProjectId();
+				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+				//投放中的才变成暂停
+				if (StatusConstant.CAMPAIGN_START.equals(campaignModel.getStatus())
+						&& StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
+					//移除redis中key
+					pause(campaignId);
+				}
+				//改变数据库状态
+				campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 				campaignDao.updateByPrimaryKeySelective(campaignModel);
 			}
 		}

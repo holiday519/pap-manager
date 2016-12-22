@@ -728,7 +728,7 @@ public class RedisService {
 	 * @param mapId
 	 * @return true：是；false：否
 	 */
-	private boolean getAuditSuccessMapId(String mapId) {
+	private boolean getAuditSuccessMapId(String mapId) throws Exception {
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		example.createCriteria().andCreativeIdEqualTo(mapId)
 				.andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
@@ -737,5 +737,31 @@ public class RedisService {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * 从投放中活动中删除当前活动
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignId(String campaignId) throws Exception {
+		String ids = redisUtils.get(RedisKeyConstant.CAMPAIGN_IDS);
+		JsonObject idObj = new JsonObject();
+		JsonArray idArray = new JsonArray();
+		//如果 有 pap_campaignids Key 
+		if (ids != null && !ids.isEmpty()) {
+			Gson gson = new Gson();
+			idObj = gson.fromJson(ids, new JsonObject().getClass());
+			idArray = idObj.get("groupids").getAsJsonArray();
+			// 判断是否已经含有当前campaignID
+			for (int i = 0; i < idArray.size(); i++) {
+				if (campaignId.equals(idArray.get(i).getAsString())) {
+					//删除key
+					idArray.remove(i);
+					break;
+				}
+			}
+			redisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+		}
 	}
 }
