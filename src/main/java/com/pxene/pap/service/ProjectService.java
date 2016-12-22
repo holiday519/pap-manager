@@ -12,13 +12,14 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
@@ -97,7 +98,7 @@ public class ProjectService extends BaseService {
 		example.createCriteria().andProjectIdEqualTo(id);
 		List<CampaignModel> list = campaignDao.selectByExample(example);
 		if (list != null && !list.isEmpty()) {
-			throw new IllegalArgumentException();
+			throw new IllegalStateException(PhrasesConstant.PROJECT_HAS_CAMPAIGN);
 		}
 		
 		projectDao.deleteByPrimaryKey(id);

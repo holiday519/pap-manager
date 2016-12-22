@@ -41,10 +41,6 @@ public class InfoFlowService extends BaseService{
 	 */
 	@Transactional
 	public void updateInfoFlow(String id, InfoFlowBean bean) throws Exception{
-		if (!StringUtils.isEmpty(bean.getId())) {
-			throw new IllegalArgumentException();
-		}
-
 		InfoFlowModel infoFlowInDB = infoDao.selectByPrimaryKey(id);
 		if (infoFlowInDB ==null || StringUtils.isEmpty(infoFlowInDB.getId())) {
 			throw new NotFoundException();

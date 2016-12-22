@@ -13,6 +13,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.MonitorBean;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
@@ -159,11 +160,6 @@ public class CampaignService extends BaseService{
 	 */
 	@Transactional
 	public void updateCampaign(String id ,CampaignBean bean) throws Exception {
-		
-		if (!StringUtils.isEmpty(bean.getId())) {
-			throw new IllegalArgumentException();
-		}
-		
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
 			throw new NotFoundException();
@@ -424,7 +420,7 @@ public class CampaignService extends BaseService{
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
-			throw new IllegalArgumentException();
+			throw new IllegalStateException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 		}
 		//删除检测地址
 		deleteCampaignMonitor(campaignId);

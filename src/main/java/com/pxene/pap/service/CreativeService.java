@@ -106,10 +106,6 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void updateCreative(String creativeId, CreativeBean bean) throws Exception {
-		if (!StringUtils.isEmpty(bean.getId())) {
-			throw new IllegalArgumentException();
-		}
-		
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
 			throw new NotFoundException();
