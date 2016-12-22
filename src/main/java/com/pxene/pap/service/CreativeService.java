@@ -15,9 +15,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.VideoBean;
+import com.pxene.pap.domain.model.basic.AdxModel;
+import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
@@ -30,8 +33,8 @@ import com.pxene.pap.domain.model.basic.VideoModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageDao;
@@ -75,6 +78,12 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private SizeDao sizeDao;
+	
+	@Autowired
+	private AdxDao adxDao;
+	
+	@Autowired
+	private AuditCreativeBaiduService auditCreativeBaiduService;
 	
 	@Autowired
 	private ImageDao imageDao;
@@ -300,5 +309,45 @@ public class CreativeService extends BaseService {
 			id = mol.getId();
 		}
 		return id;
+	}
+
+	public void auditCreative(String id) throws Exception {
+		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
+		if (creativeModel == null) {
+			throw new NotFoundException();
+		}
+		
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//审核创意
+		for (AdxModel adx : adxs) {
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+				//百度
+				auditCreativeBaiduService.audit(id);
+			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
+				
+			}
+		}
+	}
+
+	public void synchronize(String id) throws Exception {
+		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
+		if (creativeModel == null) {
+			throw new NotFoundException();
+		}
+		
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//同步结果
+		for (AdxModel adx : adxs) {
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+				//百度
+				auditCreativeBaiduService.synchronize(id);
+			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
+				
+			}
+		}
 	}
 }

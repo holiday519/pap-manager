@@ -50,7 +50,7 @@ public class AuditAdvertiserBaiduService {
     private AdvertiserAuditDao advertiserAuditDao;
     
     /**
-     * 审核和重复审核接口
+     * 百度广告主审核和重复审核接口
      * auditType 传值 ："add","edit";请勿任意传值
      * @param bean
      * @param auditType
@@ -58,7 +58,7 @@ public class AuditAdvertiserBaiduService {
      * @throws Exception
      */
     @Transactional
-	public void auditAndEdit(AdvertiserBean bean,String auditType) throws Exception {
+	public void auditAndEdit(AdvertiserBean bean, String auditType) throws Exception {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
 		String aexamineurl = adxModel.getAexamineUrl();//广告主审核地址
 		String qexamineurl = adxModel.getQexamineUrl();//资质审核地址
@@ -288,7 +288,7 @@ public class AuditAdvertiserBaiduService {
 	/**
 	 * 发送请求
 	 */
-	public Map<String, String> post(String url,String param) throws Exception {
+	public Map<String, String> post(String url, String param) throws Exception {
 		HttpPost httpost = new HttpPost(url);
 		httpost.setHeader("Content-Type", "application/json;charset=utf-8");
 		httpost.setHeader("Accept", "application/json;charset=utf-8");

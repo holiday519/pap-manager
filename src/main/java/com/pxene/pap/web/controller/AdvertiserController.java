@@ -25,12 +25,16 @@ import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.AdvertiserService;
+import com.pxene.pap.service.AuditAdvertiserBaiduService;
 
 @Controller
 public class AdvertiserController
 {
     @Autowired
     private AdvertiserService advertiserService;
+    
+    @Autowired
+    private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
     
     /**
      * 添加广告主。
@@ -145,5 +149,31 @@ public class AdvertiserController
     	String path = advertiserService.uploadQualification(file);
     	
     	return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "path", path, response);
+    }
+    
+    /**
+     * 广告主提交第三方审核
+     * @param id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/advertiser_audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void auditAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
+    	advertiserService.auditAdvertiser(id);
+    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    }
+    
+    /**
+     * 同步广告主第三方审核结果
+     * @param id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/advertiser_synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void synchronizeAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
+    	advertiserService.synchronize(id);
+    	response.setStatus(HttpStatusCode.NO_CONTENT);
     }
 }

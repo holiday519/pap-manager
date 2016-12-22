@@ -17,19 +17,26 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.MediaBean;
+import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
+import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.AdxModel;
+import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.BadRequestException;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
+import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
@@ -37,7 +44,15 @@ public class AdvertiserService extends BaseService
 {
     @Autowired
     private AdvertiserDao advertiserDao;
+    
+    @Autowired
+    private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
 
+    @Autowired
+    private AdxDao adxDao;
+    
+    private AdvertiserAuditDao advertiserAuditDao;
+    
     @Autowired
     private ProjectDao projectDao;
     
@@ -308,5 +323,68 @@ public class AdvertiserService extends BaseService
         }
     	
     }
+
+    /**
+     * 广告主提交第三方审核
+     * @param id
+     * @throws Exception
+     */
+    @Transactional
+	public void auditAdvertiser(String id) throws Exception {
+		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
+		if (advertiserModel == null) {
+			throw new NotFoundException();
+		}
+		//将属性复制到bean中
+		AdvertiserBean advertiserBean = new AdvertiserBean();
+		BeanUtils.copyProperties(advertiserModel, advertiserBean);
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//广告主审核
+		for (AdxModel adx : adxs) {
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {//百度
+				//查询是否已经提交过审核
+				AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+				ex.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+				List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
+				if (list == null || list.isEmpty()) {
+					//百度广告主第一次审核
+					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "add");
+				} else {
+					//百度广告主重新审核
+					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "edit");
+				}
+			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
+				
+			}
+		}
+
+	}
+    
+    /**
+     * 同步广告主第三方审核结果
+     * @param id
+     * @throws Exception
+     */
+    @Transactional
+	public void synchronize(String id) throws Exception {
+		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
+		if (advertiserModel == null) {
+			throw new NotFoundException();
+		}
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//同步结果
+		for (AdxModel adx : adxs) {
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+				//百度
+				auditAdvertiserBaiduService.synchronize(id);
+			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
+				
+			}
+		}
+	}
     
 }

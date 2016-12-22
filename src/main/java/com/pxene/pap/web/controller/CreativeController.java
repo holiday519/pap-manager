@@ -95,4 +95,29 @@ public class CreativeController {
 		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", id, response);
 	}
 	
+	/**
+     * 广告主提交第三方审核
+     * @param id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/creative_audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void auditCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
+    	creativeService.auditCreative(id);
+    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    }
+    
+    /**
+     * 同步广告主第三方审核结果
+     * @param id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/creative_synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void synchronizeCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
+    	creativeService.synchronize(id);
+    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    }
 }

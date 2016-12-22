@@ -102,55 +102,28 @@ public class AuditCreativeBaiduService {
 		
 		if (mapModels != null && !mapModels.isEmpty()) {
 			for (CreativeMaterialModel mapModel : mapModels) {
+				CreativeAuditModelExample example = new CreativeAuditModelExample();
+				example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+				List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+				String type = "add";
+				if (list == null || list.isEmpty()) {
+					type = "edit";
+				}
 				String mapId = mapModel.getId();
 				String creativeType = mapModel.getCreativeType();
 				// 图片创意
 				if ("1".equals(creativeType)) {
-					auditImgCreative(mapId, "add");
+					auditImgCreative(mapId, type);
 				// 视频创意
 				} else if ("2".equals(creativeType)) {
 //					auditVideoCreative(mapId);
 				// 信息流创意
 				} else if ("3".equals(creativeType)) {
-					auditInfoCreative(mapId, "add");
+					auditInfoCreative(mapId, type);
 				}
 			}
 		}
 		
-	}
-	
-	/**
-	 * 重新审核
-	 * @param creativeId
-	 * @throws Exception
-	 */
-	public void auditEdit(String creativeId) throws Exception {
-		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
-		if (creativeInDB==null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new NotFoundException();
-		}
-		//查询创意下的各个mapid,分别进行审核
-		CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
-		mapExample.createCriteria().andCreativeIdEqualTo(creativeId);
-		List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
-		
-		if (mapModels != null && !mapModels.isEmpty()) {
-			for (CreativeMaterialModel mapModel : mapModels) {
-				String mapId = mapModel.getId();
-				String creativeType = mapModel.getCreativeType();
-				// 图片创意
-				if ("1".equals(creativeType)) {
-					auditImgCreative(mapId, "edit");
-					// 视频创意
-				} else if ("2".equals(creativeType)) {
-					//暂无视频创意
-//					auditVideoCreative(mapId);/
-					// 信息流创意
-				} else if ("3".equals(creativeType)) {
-					auditInfoCreative(mapId, "edit");
-				}
-			}
-		}
 	}
 	
 	/**
