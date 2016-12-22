@@ -13,7 +13,7 @@ import redis.clients.jedis.JedisPoolConfig;
 
 public class JedisUtils {
 	
-	private static JedisPool jedisPool = null;
+	private static JedisPool jedisPool;
 
 	// 缓存生存时间 
 	private static final int expire = 60000;
@@ -50,8 +50,8 @@ public class JedisUtils {
 	/**
 	 * 回收jedis
 	 */
-	public static void close() {
-		jedisPool.close();
+	public static void close(Jedis jedis) {
+		jedis.close();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class JedisUtils {
 		}
 		Jedis jedis = getJedis();
 		jedis.expire(key, seconds);
-		close();
+		close(jedis);
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class JedisUtils {
 			return;
 		Jedis jedis = getJedis();
 		jedis.set(key, value);
-		close();
+		close(jedis);
 	}
 
 	public static void set(String key, Object value) {
@@ -86,7 +86,7 @@ public class JedisUtils {
 			return;
 		Jedis jedis = getJedis();
 		jedis.set(key.getBytes(), SerializeUtils.serialize(value));
-		close();
+		close(jedis);
 	}
 
 	public static void set(String key, int value) {
@@ -142,7 +142,7 @@ public class JedisUtils {
 			return null;
 		Jedis jedis = getJedis();
 		String value = jedis.get(key);
-		close();
+		close(jedis);
 		return value;
 	}
 
@@ -155,7 +155,7 @@ public class JedisUtils {
 		}
 		byte[] bits = jedis.get(key.getBytes());
 		Object obj = SerializeUtils.unserialize(bits);
-		close();
+		close(jedis);
 		return obj;
 	}
 
@@ -164,7 +164,7 @@ public class JedisUtils {
 		if (jedis.get(key) != null) {
 			jedis.del(key);
 		}
-		close();
+		close(jedis);
 	}
 	
 	public static String[] getKeys(String pattern) {
@@ -179,7 +179,7 @@ public class JedisUtils {
 			keys[index] = key;
 			index ++;
 		}
-		close();
+		close(jedis);
 		return keys;
 	}
 	
@@ -193,38 +193,38 @@ public class JedisUtils {
 				jedis.del(keys);
 			}
 		}
-		close();
+		close(jedis);
 	}
 	
 	public static Set<String> sget(String key) {
 		Jedis jedis = getJedis();
-		close();
+		close(jedis);
 		return jedis.smembers(key);
 	}
 	
 	public static void sset(String key, String... members) {
 		Jedis jedis = getJedis();
 		jedis.sadd(key, members);
-		close();
+		close(jedis);
 	}
 	
 	public static boolean sismember(String key, String member) {
 		Jedis jedis = getJedis();
 		boolean res = jedis.sismember(key, member);
-		close();
+		close(jedis);
 		return res;
 	}
 	
 	public static void sdelete(String key, String... members) {
 		Jedis jedis = getJedis();
 		jedis.srem(key, members);
-		close();
+		close(jedis);
 	}
 	
 	public static void hset(String key, Map<String, String> value) {
 		Jedis jedis = getJedis();
 		jedis.hmset(key, value);
-		close();
+		close(jedis);
 	}
 	
 	public static void hdelete(String key) {
@@ -232,7 +232,7 @@ public class JedisUtils {
 		if (jedis.hgetAll(key) != null) {
 			jedis.del(key);
 		}
-		close();
+		close(jedis);
 	}
 	
 	public static boolean isBlank(String str) {
@@ -242,7 +242,7 @@ public class JedisUtils {
 	public static boolean exists(String key) {
 		Jedis jedis = getJedis();
 		boolean isexist = jedis.exists(key);
-		close();
+		close(jedis);
 		return isexist;
 	}
 	
