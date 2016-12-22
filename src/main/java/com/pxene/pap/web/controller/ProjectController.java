@@ -54,10 +54,10 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String updateProject(@PathVariable String id, @Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
+	public void updateProject(@PathVariable String id, @Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
 		
 		projectService.updateProject(id, bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
+		response.setStatus(HttpStatusCode.NO_CONTENT);
 	}
 	
 	/**
@@ -84,10 +84,10 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
 		ProjectBean projectBean = projectService.selectProject(id);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		return ResponseUtils.sendReponse(HttpStatusCode.OK, projectBean, response);
 	}
 	
 	/**
