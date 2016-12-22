@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.PurposeBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.PurposeService;
@@ -41,7 +41,7 @@ public class PurposeController {
     @ResponseBody
     public String createPurpose(@Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
 		purposeService.createPurpose(bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "id", bean.getId(), response);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class PurposeController {
 	@ResponseBody
 	public void updatePurpose(@PathVariable String id, @Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
 		purposeService.updatePurpose(id, bean);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class PurposeController {
 	@ResponseBody
 	public void deletePurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
 		purposeService.deletePurpose(id);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class PurposeController {
 	public String selectPurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
 		PurposeBean purposeBean = purposeService.selectPurpose(id);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, purposeBean, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), purposeBean, response);
 	}
 	
 	/**
@@ -110,6 +110,6 @@ public class PurposeController {
 		List<PurposeBean> selectPurposes = purposeService.selectPurposes(name);
 		
 		PaginationResult result = new PaginationResult(selectPurposes, pager);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 }

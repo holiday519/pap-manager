@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.CampaignService;
@@ -41,7 +41,7 @@ public class CampaignController {
 	@ResponseBody
 	public String createCampaign(@Valid @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.createCampaign(bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", bean.getId(), response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", bean.getId(), response);
 	}
 	
 	/**
@@ -56,7 +56,7 @@ public class CampaignController {
 	@ResponseBody
 	public void updateCampaign(@PathVariable String id, @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.updateCampaign(id, bean);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -69,7 +69,7 @@ public class CampaignController {
 	@ResponseBody
 	public void deleteCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
 		campaignService.deleteCampaign(id);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class CampaignController {
 	@ResponseBody
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		CampaignBean bean = campaignService.selectCampaign(id);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, bean, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
 	
 	/**
@@ -107,7 +107,7 @@ public class CampaignController {
 		List<CampaignBean> selectCampaigns = campaignService.selectCampaigns(name);
 		
 		PaginationResult result = new PaginationResult(selectCampaigns, pager);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
 	/**
@@ -120,7 +120,7 @@ public class CampaignController {
     @ResponseBody
     public void putOnByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
 		campaignService.putOnCampaign(campaignIds);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -133,6 +133,6 @@ public class CampaignController {
 	@ResponseBody
 	public void pauseByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
 		campaignService.pauseCampaign(campaignIds);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }

@@ -15,7 +15,6 @@ import com.pxene.pap.common.JwtUtils;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.domain.model.basic.UserModelExample;
-import com.pxene.pap.exception.DeleteErrorException;
 import com.pxene.pap.repository.basic.UserDao;
 
 @Service
@@ -108,13 +107,6 @@ public class TokenService
 
     public void deleteToken(String userid)
     {
-        try
-        {
-            JedisUtils.delete(userid);
-        }
-        catch (Exception e)
-        {
-            throw new DeleteErrorException();
-        }
+    	JedisUtils.delete(userid);
     }
 }

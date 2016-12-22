@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.AdvertiserService;
@@ -47,7 +47,7 @@ public class AdvertiserController
     public String addAdvertiser(@Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
         advertiserService.saveAdvertiser(advertiser);
-        return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "id", advertiser.getId(), response);
+        return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", advertiser.getId(), response);
     }
     
     
@@ -62,7 +62,7 @@ public class AdvertiserController
     public void deleteAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
         advertiserService.deleteAdvertiser(id);
-        response.setStatus(HttpStatusCode.NO_CONTENT);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     
@@ -77,7 +77,7 @@ public class AdvertiserController
     public void updateAdvertiser(@PathVariable String id, @Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
         advertiserService.updateAdvertiser(id, advertiser);
-        response.setStatus(HttpStatusCode.NO_CONTENT);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     
@@ -111,7 +111,7 @@ public class AdvertiserController
     {
         AdvertiserBean advertiser = advertiserService.findAdvertiserById(id);
         
-        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), advertiser, response);
     }
     
     
@@ -134,7 +134,7 @@ public class AdvertiserController
         List<AdvertiserBean> advertisers = advertiserService.listAdvertisers(name);
         
         PaginationResult result = new PaginationResult(advertisers, pager);
-        return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     /**
@@ -148,7 +148,7 @@ public class AdvertiserController
     public String uploadQualification(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
     	String path = advertiserService.uploadQualification(file);
     	
-    	return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "path", path, response);
+    	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
     }
     
     /**
@@ -161,7 +161,7 @@ public class AdvertiserController
     @ResponseBody
     public void auditAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
     	advertiserService.auditAdvertiser(id);
-    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     /**
@@ -174,6 +174,6 @@ public class AdvertiserController
     @ResponseBody
     public void synchronizeAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
     	advertiserService.synchronize(id);
-    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }

@@ -31,7 +31,7 @@ import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalStateException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
@@ -97,7 +97,7 @@ public class AdvertiserService extends BaseService
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
-            throw new NotFoundException();
+            throw new ResourceNotFoundException();
         }
         
         ProjectModelExample example = new ProjectModelExample();
@@ -171,7 +171,7 @@ public class AdvertiserService extends BaseService
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
-            throw new NotFoundException();
+            throw new ResourceNotFoundException();
         }
         
         copyTempToFormal(advertiserBean);
@@ -200,7 +200,7 @@ public class AdvertiserService extends BaseService
         
         if (advertiserModel == null)
         {
-            throw new NotFoundException();
+            throw new ResourceNotFoundException();
         }
         
         // 将DAO创建的新对象复制回传输对象中
@@ -224,7 +224,7 @@ public class AdvertiserService extends BaseService
         
         if (advertiserModels == null || advertiserModels.size() <= 0)
         {
-            throw new NotFoundException();
+            throw new ResourceNotFoundException();
         }
         else
         {
@@ -324,7 +324,7 @@ public class AdvertiserService extends BaseService
 	public void auditAdvertiser(String id) throws Exception {
 		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
 		if (advertiserModel == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		//将属性复制到bean中
 		AdvertiserBean advertiserBean = new AdvertiserBean();
@@ -362,7 +362,7 @@ public class AdvertiserService extends BaseService
 	public void synchronize(String id) throws Exception {
 		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
 		if (advertiserModel == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		//查询adx列表
 		AdxModelExample adxExample = new AdxModelExample();

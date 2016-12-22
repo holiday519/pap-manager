@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pxene.pap.domain.beans.ArgumentInvalidResult;
 import com.pxene.pap.domain.beans.ResponseResultBean;
 import com.pxene.pap.exception.BaseException;
+import com.pxene.pap.exception.ServerFailureException;
+import com.pxene.pap.exception.IllegalArgumentException;
 
 /**
  * 全局异常处理类：针对所有的Controller抛出的异常。
@@ -46,12 +47,12 @@ public class GlobalExceptionHandler
                 List<ArgumentInvalidResult> invalidArguments = getBindResultErrors(exception);
                 
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
-                return new ResponseResultBean(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), invalidArguments);
+                return new ResponseResultBean(IllegalArgumentException.ERROR_CODE, IllegalArgumentException.ERROR_MSG, invalidArguments);
             }
             
             LOGGER.error(exception.toString());
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return new ResponseResultBean(HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name());
+            return new ResponseResultBean(ServerFailureException.ERROR_CODE, ServerFailureException.ERROR_MSG);
         }
         else
         {
@@ -59,13 +60,13 @@ public class GlobalExceptionHandler
             LOGGER.debug(baseException.toString());
             
             int httpStatusCode = baseException.getHttpStatus().value();
-            String httpStatusMsg = baseException.getHttpStatus().name();
+//            String httpStatusMsg = baseException.getHttpStatus().name();
             
             int bizStatusCode = baseException.getCode();
             String bizStatusMsg = baseException.getMessage();
 
             response.setStatus(httpStatusCode);
-            return new ResponseResultBean(bizStatusCode == 0 ? httpStatusCode : bizStatusCode, StringUtils.isEmpty(bizStatusMsg) ? httpStatusMsg : bizStatusMsg);
+            return new ResponseResultBean(bizStatusCode, bizStatusMsg);
         }
     }
     

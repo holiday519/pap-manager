@@ -36,7 +36,7 @@ import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdxModel;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdxDao;
 
@@ -69,7 +69,7 @@ public class AuditAdvertiserBaiduService {
     	//将私密key转成json格式
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
 		if (json.get("dspId") == null || json.get("token") == null) {
-			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
 		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
@@ -83,10 +83,10 @@ public class AuditAdvertiserBaiduService {
 		String licenseNO = bean.getLicenseNo();
 		if ((licenseURL == null || "".equals(licenseURL))
 				&& (accountURL == null || "".equals(accountURL))) {
-			throw new NotFoundException("baidu广告主提交第三方审核错误;原因：需要上传资质文件");
+			throw new ResourceNotFoundException("baidu广告主提交第三方审核错误;原因：需要上传资质文件");
 		}
 		if (licenseNO == null || "".equals(licenseNO)) {
-			throw new NotFoundException("baidu广告主提交第三方审核错误;原因：资质编号不可为空");
+			throw new ResourceNotFoundException("baidu广告主提交第三方审核错误;原因：资质编号不可为空");
 		}
 		String advertiserId = bean.getId();
 		//将请求参数插入到广告主审核表中
@@ -207,7 +207,7 @@ public class AuditAdvertiserBaiduService {
     	//将私密key转成json格式
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
 		if (json.get("dspId") == null || json.get("token") == null) {
-			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
 		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
@@ -224,7 +224,7 @@ public class AuditAdvertiserBaiduService {
 				advAuditModel = adv;
 			}
 		} else {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		long num = Long.parseLong(advAuditModel.getAuditValue());
 		JsonArray adver = new JsonArray();//广告主数字Id数组

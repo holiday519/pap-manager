@@ -46,7 +46,7 @@ import com.pxene.pap.domain.model.basic.TimeTargetModelExample;
 import com.pxene.pap.domain.model.basic.view.CampaignTargetModel;
 import com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
@@ -167,7 +167,7 @@ public class CampaignService extends PutOnService{
 	public void updateCampaign(String id ,CampaignBean bean) throws Exception {
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		bean.setId(id);//bean中放入ID，用于更新关联关系表中数据
@@ -417,7 +417,7 @@ public class CampaignService extends PutOnService{
 	public void deleteCampaign(String campaignId) throws Exception {
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(campaignId);
 		if (campaignInDB ==null || StringUtils.isEmpty(campaignInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		//先查询出活动下创意
@@ -445,7 +445,7 @@ public class CampaignService extends PutOnService{
 	public CampaignBean selectCampaign(String campaignId)  throws Exception {
 		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 		if (model ==null || StringUtils.isEmpty(model.getId())) {
-        	throw new NotFoundException();
+        	throw new ResourceNotFoundException();
         }
 		CampaignBean bean = modelMapper.map(model, CampaignBean.class);
 		CampaignBean campaignBean = addParamToCampaign(bean, campaignId);
@@ -468,7 +468,7 @@ public class CampaignService extends PutOnService{
 		List<CampaignBean> beans = new ArrayList<CampaignBean>();
 		
 		if (campaigns == null || campaigns.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		for (CampaignModel campaign : campaigns) {
@@ -552,7 +552,7 @@ public class CampaignService extends PutOnService{
 	@Transactional
 	public void putOnCampaign(List<String> campaignIds) throws Exception {
 		if (campaignIds == null || campaignIds.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
@@ -578,7 +578,7 @@ public class CampaignService extends PutOnService{
 	@Transactional
 	public void pauseCampaign(List<String> campaignIds) throws Exception {
 		if (campaignIds == null || campaignIds.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);

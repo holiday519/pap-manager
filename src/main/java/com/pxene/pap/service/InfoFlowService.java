@@ -11,7 +11,7 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.domain.beans.InfoFlowBean;
 import com.pxene.pap.domain.model.basic.InfoFlowModel;
 import com.pxene.pap.exception.IllegalArgumentException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.InfoFlowDao;
 
 @Service
@@ -43,7 +43,7 @@ public class InfoFlowService extends BaseService{
 	public void updateInfoFlow(String id, InfoFlowBean bean) throws Exception{
 		InfoFlowModel infoFlowInDB = infoDao.selectByPrimaryKey(id);
 		if (infoFlowInDB ==null || StringUtils.isEmpty(infoFlowInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		bean.setId(id);

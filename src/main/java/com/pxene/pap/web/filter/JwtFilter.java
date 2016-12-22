@@ -15,15 +15,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxene.pap.common.TokenUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.beans.ResponseResultBean;
+import com.pxene.pap.exception.BaseException;
+import com.pxene.pap.exception.TokenInvalidException;
+import com.pxene.pap.exception.TokenOverdueException;
 import com.pxene.pap.service.TokenService;
 
 public class JwtFilter implements Filter
@@ -46,7 +49,7 @@ public class JwtFilter implements Filter
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
     {
-        String msg = HttpStatusCode.STR_UNAUTHORIZED;
+        BaseException exception = null;
         
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         
@@ -68,26 +71,27 @@ public class JwtFilter implements Filter
                     }
                     else
                     {
-                        msg = "Token has expired.";
+                    	exception = new TokenOverdueException();
                     }
                 }
                 else
                 {
-                    msg = "Invalid token.";
+                	exception = new TokenInvalidException();
                 }
             }
         }
         
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
         
         ObjectMapper mapper = new ObjectMapper();
         ResponseResultBean result = new ResponseResultBean();
-        result.setCode(HttpServletResponse.SC_UNAUTHORIZED);
-        result.setMessage(msg);
+        if (exception != null) {
+        	result.setCode(exception.getCode());
+            result.setMessage(exception.getMessage());
+        }
         httpResponse.getWriter().write(mapper.writeValueAsString(result));
-        return;
     }
     
     @Override

@@ -4,6 +4,7 @@ import javax.security.auth.message.AuthException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.DigestUtils;
@@ -15,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.beans.AuthBean;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.exception.IllegalArgumentException;
-import com.pxene.pap.exception.PasswordIncorrectAuthException;
-import com.pxene.pap.exception.UserNotFoundAuthException;
+import com.pxene.pap.exception.PasswordIncorrectException;
+import com.pxene.pap.exception.UserNotExistException;
 import com.pxene.pap.service.TokenService;
 
 
@@ -58,7 +58,7 @@ public class TokenController
         // 校验用户是否存在
         if (userModel == null)
         {
-            throw new UserNotFoundAuthException();
+            throw new UserNotExistException();
         }
         
         String passwordInDB = userModel.getPassword();
@@ -70,12 +70,12 @@ public class TokenController
             // 将新生成的Token保存至Redis中（同时设定TTL）
             tokenService.saveToken(token);
             
-            return ResponseUtils.sendReponse(HttpStatusCode.CREATED, token, response);
+            return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), token, response);
         }
         else
         {
             // 密码不正确
-            throw new PasswordIncorrectAuthException();
+            throw new PasswordIncorrectException();
         }
     }
     
@@ -84,6 +84,6 @@ public class TokenController
     public void logout(@PathVariable(required = true) String userId, HttpServletResponse response) throws Exception
     {
         tokenService.deleteToken(userId);
-        response.setStatus(HttpStatusCode.NO_CONTENT);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }

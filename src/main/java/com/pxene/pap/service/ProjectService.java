@@ -21,7 +21,7 @@ import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalStateException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
@@ -67,7 +67,7 @@ public class ProjectService extends PutOnService {
 	public void updateProject(String id, ProjectBean bean) throws Exception {
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 
 		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
@@ -91,7 +91,7 @@ public class ProjectService extends PutOnService {
 	public void deleteProject(String id) throws Exception {
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		//查询出项目下活动
@@ -113,7 +113,7 @@ public class ProjectService extends PutOnService {
     public ProjectBean selectProject(String id) throws Exception {
         ProjectModel model = projectDao.selectByPrimaryKey(id);
         if (model == null) {
-        	throw new NotFoundException();
+        	throw new ResourceNotFoundException();
         }
         
         ProjectBean bean = modelMapper.map(model, ProjectBean.class);
@@ -139,7 +139,7 @@ public class ProjectService extends PutOnService {
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 		
 		if (projects == null || projects.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		for (ProjectModel mod : projects) {
@@ -158,7 +158,7 @@ public class ProjectService extends PutOnService {
 	@Transactional
 	public void putOnProject(List<String> projectIds) throws Exception {
 		if (projectIds == null || projectIds.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		for (String projectId : projectIds) {
@@ -191,7 +191,7 @@ public class ProjectService extends PutOnService {
 	@Transactional
 	public void pauseProject(List<String> projectIds) throws Exception {
 		if (projectIds == null || projectIds.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		for (String projectId : projectIds) {

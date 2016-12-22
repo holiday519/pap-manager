@@ -36,7 +36,7 @@ import com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
@@ -99,7 +99,7 @@ public class AuditCreativeBaiduService {
 	public void audit(String creativeId) throws Exception {
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB==null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		//查询创意下的各个mapid,分别进行审核
 		CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
@@ -140,7 +140,7 @@ public class AuditCreativeBaiduService {
 	public void synchronizeCreative(String creativeId) throws Exception {
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB==null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		//查询创意下的各个mapid,分别进行同步
 		CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
@@ -174,7 +174,7 @@ public class AuditCreativeBaiduService {
     	Gson gson = new Gson();
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
     	if (json.get("dspId") == null || json.get("token") == null) {
-			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
     	//将私密key转成json格式
 		Long dspId = json.get("dspId").getAsLong();
@@ -205,7 +205,7 @@ public class AuditCreativeBaiduService {
 			width = creativeImage.getW();
 			height = creativeImage.getH();
 		} else {
-			throw new NotFoundException("百度创意提交第三方审核执行失败！原因：获取图片尺寸异常！");
+			throw new ResourceNotFoundException("百度创意提交第三方审核执行失败！原因：获取图片尺寸异常！");
 		}
 		String sourceUrl = creativeImage.getSourceUrl();
 		creative.addProperty("width", width);
@@ -315,7 +315,7 @@ public class AuditCreativeBaiduService {
     	Gson gson = new Gson();
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
     	if (json.get("dspId") == null || json.get("token") == null) {
-			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
     	//将私密key转成json格式
 		Long dspId = json.get("dspId").getAsLong();
@@ -474,7 +474,7 @@ public class AuditCreativeBaiduService {
     	//将私密key转成json格式
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
 		if (json.get("dspId") == null || json.get("token") == null) {
-			throw new NotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
 		}
 		Long dspId = json.get("dspId").getAsLong();
 		String token = json.get("token").getAsString();
@@ -492,7 +492,7 @@ public class AuditCreativeBaiduService {
 				auditModel = cre;
 			}
 		} else {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		String auditValue = auditModel.getAuditValue();
 		JsonArray values = new JsonArray();

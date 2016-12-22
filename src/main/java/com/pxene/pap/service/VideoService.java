@@ -9,7 +9,7 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.model.basic.VideoModel;
 import com.pxene.pap.exception.IllegalArgumentException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.VideoDao;
 
 @Service
@@ -28,7 +28,7 @@ public class VideoService extends BaseService {
 	public void updateVideo(String id, VideoBean bean) throws Exception {
 		VideoModel creativeInDB = videoDao.selectByPrimaryKey(id);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 
 		String size = bean.getSize();

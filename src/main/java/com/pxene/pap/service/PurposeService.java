@@ -19,7 +19,7 @@ import com.pxene.pap.domain.model.basic.PurposeModel;
 import com.pxene.pap.domain.model.basic.PurposeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.DownLoadDao;
 import com.pxene.pap.repository.basic.LandPageDao;
 import com.pxene.pap.repository.basic.PurposeDao;
@@ -95,7 +95,7 @@ public class PurposeService extends BaseService {
 		
 		PurposeModel purposeInDB = purposeDao.selectByPrimaryKey(id);
 		if (purposeInDB == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		String campaignId = bean.getCampaignId();
@@ -197,7 +197,7 @@ public class PurposeService extends BaseService {
 		
 		PurposeModel purposeInDB = purposeDao.selectByPrimaryKey(id);
 		if (purposeInDB == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		String landpageId = purposeInDB.getLandpageId();
@@ -219,7 +219,7 @@ public class PurposeService extends BaseService {
 	public PurposeBean selectPurpose(String id) {
 		PurposeModel model = purposeDao.selectByPrimaryKey(id);
 		if (model == null) {
-        	throw new NotFoundException();
+        	throw new ResourceNotFoundException();
         }
         
 		PurposeBean bean = modelMapper.map(model, PurposeBean.class);
@@ -239,7 +239,7 @@ public class PurposeService extends BaseService {
 		example.createCriteria().andNameEqualTo(name);
 		List<PurposeModel> list = purposeDao.selectByExample(example);
 		if (list == null || list.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		for (PurposeModel mol : list) {

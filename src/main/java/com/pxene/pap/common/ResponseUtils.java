@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -14,7 +15,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.pxene.pap.constant.HttpStatusCode;
 
 
 public class ResponseUtils
@@ -60,7 +60,7 @@ public class ResponseUtils
     {
         if (result != null && result.hasErrors())
         {
-            response.setStatus(HttpStatusCode.BAD_REQUEST);
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
             
             List<ObjectError> allErrors = result.getAllErrors();
             List<String> allErrorMsgs = new ArrayList<>(allErrors.size());
@@ -112,11 +112,11 @@ public class ResponseUtils
     
     public static String sendHttp400(HttpServletResponse response)
     {
-        return sendResponse(null, null, HttpStatusCode.BAD_REQUEST, HttpStatusCode.STR_BAD_REQUEST, response);
+        return sendResponse(null, null, HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), response);
     }
     
     public static String sendHttp500(HttpServletResponse response)
     {
-        return sendResponse(null, null, HttpStatusCode.INTERNAL_SERVER_ERROR, HttpStatusCode.STR_INTERNAL_SERVER_ERROR, response);
+        return sendResponse(null, null, HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.name(), response);
     }
 }

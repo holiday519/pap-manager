@@ -33,7 +33,7 @@ import com.pxene.pap.domain.model.basic.VideoModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.NotFoundException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
@@ -117,7 +117,7 @@ public class CreativeService extends BaseService {
 	public void updateCreative(String creativeId, CreativeBean bean) throws Exception {
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		bean.setId(creativeId);
@@ -177,7 +177,7 @@ public class CreativeService extends BaseService {
 	public void deleteCreative(String creativeId) throws Exception {
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
 		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
@@ -215,7 +215,7 @@ public class CreativeService extends BaseService {
 		//查询typeID
 		List<ImageTypeModel> imageTypes = imageTypeDao.selectByExample(itExample);
 		if (imageTypes == null || imageTypes.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		String typeId = null;
 		for (ImageTypeModel mol : imageTypes) {
@@ -262,7 +262,7 @@ public class CreativeService extends BaseService {
 		//查询typeID
 		List<VideoTypeModel> videoTypes = videoTypeDao.selectByExample(videoExample);
 		if (videoTypes == null || videoTypes.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		String typeId = null;
 		for (VideoTypeModel mol : videoTypes) {
@@ -302,7 +302,7 @@ public class CreativeService extends BaseService {
 		sizeExample.createCriteria().andHeightEqualTo(height).andWidthEqualTo(width);
 		List<SizeModel> sizes = sizeDao.selectByExample(sizeExample);
 		if (sizes==null || sizes.isEmpty()) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		String id = null;
 		for (SizeModel mol : sizes) {
@@ -319,7 +319,7 @@ public class CreativeService extends BaseService {
 	public void auditCreative(String id) throws Exception {
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
 		if (creativeModel == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		//查询adx列表
@@ -344,7 +344,7 @@ public class CreativeService extends BaseService {
 	public void synchronize(String id) throws Exception {
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
 		if (creativeModel == null) {
-			throw new NotFoundException();
+			throw new ResourceNotFoundException();
 		}
 		
 		//查询adx列表

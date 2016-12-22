@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.ProjectService;
@@ -42,7 +42,7 @@ public class ProjectController {
 	public String createProject(@Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
 		
 		projectService.createProject(bean);
-        return ResponseUtils.sendReponse(HttpStatusCode.CREATED, "id", bean.getId(), response);
+        return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class ProjectController {
 	public void updateProject(@PathVariable String id, @Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
 		
 		projectService.updateProject(id, bean);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -72,7 +72,7 @@ public class ProjectController {
 	public void deleteProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
 		projectService.deleteProject(id);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -87,7 +87,7 @@ public class ProjectController {
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
 		ProjectBean projectBean = projectService.selectProject(id);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, projectBean, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), projectBean, response);
 	}
 	
 	/**
@@ -112,7 +112,7 @@ public class ProjectController {
 		List<ProjectBean> selectProjects = projectService.selectProjects(name);
 		
 		PaginationResult result = new PaginationResult(selectProjects, pager);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, result, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
 	/**
@@ -125,7 +125,7 @@ public class ProjectController {
 	@ResponseBody
 	public void putOnProject(@RequestBody List<String> projectIds, HttpServletResponse response) throws Exception {
 		projectService.putOnProject(projectIds);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -138,6 +138,6 @@ public class ProjectController {
 	@ResponseBody
 	public void pauseProject(@RequestBody List<String> projectIds, HttpServletResponse response) throws Exception {
 		projectService.pauseProject(projectIds);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }

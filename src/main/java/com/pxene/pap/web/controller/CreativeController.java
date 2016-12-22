@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.HttpStatusCode;
 import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.service.CreativeService;
 
@@ -36,7 +36,7 @@ public class CreativeController {
 	@ResponseBody
 	public String createCreative(@Valid @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
 		creativeService.createCreative(bean);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", bean.getId(), response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", bean.getId(), response);
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public class CreativeController {
 	@ResponseBody
 	public void updateCreative(@PathVariable String id, @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, bean);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -64,7 +64,7 @@ public class CreativeController {
 	@ResponseBody
 	public void deleteCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
 		creativeService.deleteCreative(id);
-		response.setStatus(HttpStatusCode.NO_CONTENT);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class CreativeController {
 	@ResponseBody
 	public String addImage(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
 		String id = creativeService.addImage(file);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", id, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", id, response);
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class CreativeController {
 	@ResponseBody
 	public String addVideo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
 		String id = creativeService.addVideo(file);
-		return ResponseUtils.sendReponse(HttpStatusCode.OK, "id", id, response);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", id, response);
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class CreativeController {
     @ResponseBody
     public void auditCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
     	creativeService.auditCreative(id);
-    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     /**
@@ -118,6 +118,6 @@ public class CreativeController {
     @ResponseBody
     public void synchronizeCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
     	creativeService.synchronize(id);
-    	response.setStatus(HttpStatusCode.NO_CONTENT);
+    	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }
