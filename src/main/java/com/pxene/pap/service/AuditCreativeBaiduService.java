@@ -27,6 +27,8 @@ import com.pxene.pap.domain.model.basic.CreativeAuditModelExample;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
+import com.pxene.pap.domain.model.basic.IndustryAdxModel;
+import com.pxene.pap.domain.model.basic.IndustryAdxModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.view.CreativeImageModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeImageModelWithBLOBs;
@@ -42,6 +44,7 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
+import com.pxene.pap.repository.basic.IndustryAdxDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
@@ -86,6 +89,9 @@ public class AuditCreativeBaiduService {
 	
 	@Autowired
 	private ImageSizeTypeDao imageSizeTypeDao;
+	
+	@Autowired
+	private IndustryAdxDao industryAdxDao;
 	
 	@Autowired
 	private AdxDao adxDao;
@@ -222,7 +228,10 @@ public class AuditCreativeBaiduService {
 			imot.add("http://cl2.pxene.com" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
 		}
 		creative.add("monitorUrls", imot);
-		creative.addProperty("creativeTradeId", 5401);// 此处需要进行调整，创意所属广告行业——————————————————
+		String creativeTradeId = getIndustry(getAdvertiserByMapId(mapId).getIndustryId());
+		if (!StringUtils.isEmpty(creativeTradeId)) {
+			creative.addProperty("creativeTradeId", Integer.parseInt(creativeTradeId));
+		}
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
@@ -332,7 +341,7 @@ public class AuditCreativeBaiduService {
 		}
 		String title = creativeInfo.getTitle();//标题
 		String description = creativeInfo.getDescription();//描述
-		String brandName = getAdvertiserBrandNameByMapId(mapId);//品牌名称（广告主表字段）
+		String brandName = getAdvertiserByMapId(mapId).getBrandName();//品牌名称（广告主表字段）
 		if (StringUtils.isEmpty(title) || title.length() >= 18) {
 			throw new IllegalStateException("百度创意提交第三方审核执行失败！原因：信息流广告推广标题最长支持18个中文字！" );
 		}
@@ -376,7 +385,7 @@ public class AuditCreativeBaiduService {
 		
 		// 点击链接targetUrl
 		String encodeUrl = URLEncoder.encode(creativeInfo.getCurl(), "UTF-8");
-		String targetUrl = "点击地址" + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页——————需要点击地址————————————
+		String targetUrl = "http://cl2.pxene.com" + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页——————需要点击地址————————————
 		creative.addProperty("targetUrl", targetUrl);
 		String imonitorUrl = creativeInfo.getImonitorUrl();
 		String[] imonitors = imonitorUrl.split("##");
@@ -387,10 +396,13 @@ public class AuditCreativeBaiduService {
 			}
 		}
 		if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
-			imot.add("点击地址" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
+			imot.add("http://cl2.pxene.com" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
 		}
 		creative.add("monitorUrls", imot);
-		creative.addProperty("creativeTradeId", 5401);// 此处需要进行调整，创意所属广告行业——————————————————
+		String creativeTradeId = getIndustry(getAdvertiserByMapId(mapId).getIndustryId());
+		if (!StringUtils.isEmpty(creativeTradeId)) {
+			creative.addProperty("creativeTradeId", Integer.parseInt(creativeTradeId));
+		}
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
@@ -517,7 +529,7 @@ public class AuditCreativeBaiduService {
 			CreativeAuditModelExample example = new CreativeAuditModelExample();
 			example.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel model = new CreativeAuditModel();
-			model.setStatus(creativeAdxStatus);//—————状态值待确定———————
+			model.setStatus(creativeAdxStatus);
 			model.setMessage(refuseReasonStr);
 			creativeAuditDao.updateByExampleSelective(model, example);
 		}else{
@@ -568,12 +580,12 @@ public class AuditCreativeBaiduService {
 	}
 	
 	/**
-	 * 查询创意对应广告主的品牌名称
+	 * 查询创意对应广告主
 	 * @param mapId
 	 * @return
 	 * @throws Exception
 	 */
-	public String getAdvertiserBrandNameByMapId (String mapId) throws Exception {
+	public AdvertiserModel getAdvertiserByMapId (String mapId) throws Exception {
 		//查询创意ID
 		CreativeMaterialModel creativeMaterialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
 		String creativeId = creativeMaterialModel.getCreativeId();
@@ -586,11 +598,10 @@ public class AuditCreativeBaiduService {
 		//查询广告主ID
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		String advertiserId = projectModel.getAdvertiserId();
-		//查询广告主的品牌名称
+		//查询广告主
 		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(advertiserId);
-		String brandName = advertiserModel.getBrandName();
 		
-		return brandName;
+		return advertiserModel;
 	}
 	/**
 	 * 查询创意对应活动的活动类型
@@ -616,7 +627,7 @@ public class AuditCreativeBaiduService {
 	 * @param mapId
 	 * @return
 	 */
-	private long getCrativeAuditValueByMapId(String mapId) {
+	private long getCrativeAuditValueByMapId(String mapId) throws Exception {
 		//创意审核key
 		Long creativeIdvalue = 0L;
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
@@ -639,6 +650,24 @@ public class AuditCreativeBaiduService {
 			}
 		}
 		return creativeIdvalue;
+	}
+	
+	/**
+	 * 获取广告主对应的行业ID
+	 * @param industryId
+	 * @return
+	 */
+	private String getIndustry(String industryId) throws Exception {
+		IndustryAdxModelExample example = new IndustryAdxModelExample();
+		example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE)
+			.andIndustryIdEqualTo(industryId);
+		List<IndustryAdxModel> list = industryAdxDao.selectByExample(example);
+		String code = null;
+		if(list!=null && !list.isEmpty()){
+			IndustryAdxModel model = list.get(0);
+			code = model.getIndustryCode();
+		}
+		return code;
 	}
 
 }
