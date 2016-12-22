@@ -82,7 +82,7 @@ public class CreativeController {
 	}
 	
 	/**
-	 * 上传视频图片
+	 * 上传视频
 	 * @param bean
 	 * @param response
 	 * @return
