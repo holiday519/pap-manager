@@ -5,9 +5,6 @@ public enum BizExceptionEnum
     // 未知错误
     UnknowException(101, "Unknown exception"),
     
-    // 请求无效
-    BadRequestException(102, "Request invalid"),
-    
     // 请求参数不正确
     IllegalArgumentException(103, "Request parameter incorrect"),
     

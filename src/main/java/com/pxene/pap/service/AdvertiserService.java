@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +29,6 @@ import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
-import com.pxene.pap.exception.BadRequestException;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
@@ -258,41 +256,34 @@ public class AdvertiserService extends BaseService
         
         File destDir = new File(UPLOAD_DIR + FORMAL_DIR);
         
-        try
+        if (logoPath.contains(TEMP_DIR))
         {
-            if (logoPath.contains(TEMP_DIR))
-            {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
-                advertiserBean.setLogoPath(logoPath.replace(TEMP_DIR, FORMAL_DIR));
-            }
-            
-            if (accountPath.contains(TEMP_DIR))
-            {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
-                advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
-            }
-            
-            if (licensePath.contains(TEMP_DIR))
-            {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
-                advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
-            }
-            
-            if (organizationPath.contains(TEMP_DIR))
-            {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
-                advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
-            }
-            
-            if (icpPath.contains(TEMP_DIR))
-            {
-                org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
-                advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));
-            }
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
+            advertiserBean.setLogoPath(logoPath.replace(TEMP_DIR, FORMAL_DIR));
         }
-        catch (FileNotFoundException exception)
+        
+        if (accountPath.contains(TEMP_DIR))
         {
-            throw new BadRequestException(exception.getMessage());
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
+            advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
+        }
+        
+        if (licensePath.contains(TEMP_DIR))
+        {
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
+            advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
+        }
+        
+        if (organizationPath.contains(TEMP_DIR))
+        {
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
+            advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
+        }
+        
+        if (icpPath.contains(TEMP_DIR))
+        {
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
+            advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));
         }
     }
     

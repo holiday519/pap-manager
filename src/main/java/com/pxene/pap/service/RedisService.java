@@ -11,7 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.GlobalUtil;
-import com.pxene.pap.common.RedisUtils;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
@@ -99,9 +99,6 @@ public class RedisService {
 	private AdxDao adxDao;
 	
 	@Autowired
-	private RedisUtils redisUtils;
-	
-	@Autowired
 	private AdvertiserAuditDao advertiserAuditDao;
 	
 	@Autowired
@@ -113,7 +110,7 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void writeCampaignIds(String campaignId) throws Exception {
-		String ids = redisUtils.get(RedisKeyConstant.CAMPAIGN_IDS);
+		String ids = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_IDS);
 		JsonObject idObj = new JsonObject();
 		JsonArray idArray = new JsonArray();
 		if (ids == null) {
@@ -136,7 +133,7 @@ public class RedisService {
 				idObj.add("groupids", idArray);
 			}
 		}
-		redisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 	}
 	
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
@@ -238,7 +235,7 @@ public class RedisService {
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.add("exts", exts);
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
 		}
 	}
 	
@@ -300,7 +297,7 @@ public class RedisService {
           //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.add("exts", exts);
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
 		}
 	}
 	
@@ -418,7 +415,7 @@ public class RedisService {
             //获取Exts
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.add("exts", exts);
-			redisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
 		}
 	}
 	
@@ -495,7 +492,7 @@ public class RedisService {
 		//获取Exts
 		JsonArray exts = getCampaignExts(campaignId);
 		campaignInfo.add("exts", exts);
-		redisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignInfo.toString());
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignInfo.toString());
 	}
 	
 	/**
@@ -550,7 +547,7 @@ public class RedisService {
 			if (appJson != null) {
 				targetJson.add("app", appJson);
 			}
-			redisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
 	}
 	
@@ -630,7 +627,7 @@ public class RedisService {
 				}
 			}
 		}
-		redisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, mapidJson.toString());
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, mapidJson.toString());
 	}
 	
 	/**
@@ -745,7 +742,7 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void deleteCampaignId(String campaignId) throws Exception {
-		String ids = redisUtils.get(RedisKeyConstant.CAMPAIGN_IDS);
+		String ids = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_IDS);
 		JsonObject idObj = new JsonObject();
 		JsonArray idArray = new JsonArray();
 		//如果 有 pap_campaignids Key 
@@ -761,7 +758,7 @@ public class RedisService {
 					break;
 				}
 			}
-			redisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 		}
 	}
 }

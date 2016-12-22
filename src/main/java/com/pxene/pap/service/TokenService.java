@@ -10,8 +10,8 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.JwtUtils;
-import com.pxene.pap.common.RedisUtils;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.model.basic.UserModel;
 import com.pxene.pap.domain.model.basic.UserModelExample;
@@ -23,9 +23,6 @@ public class TokenService
 {
     @Autowired
     private UserDao userDao;
-    
-    @Autowired
-    private RedisUtils redisUtils;
     
     private String tokenSecret;
     private String tokenExpiresSecondStr;
@@ -76,7 +73,7 @@ public class TokenService
         try
         {
             String tokenStr = mapper.writeValueAsString(token);
-            redisUtils.set(token.getUserid(), tokenStr, timeout);
+            JedisUtils.set(token.getUserid(), tokenStr);
         }
         catch (JsonProcessingException e)
         {
@@ -95,7 +92,7 @@ public class TokenService
         AccessTokenBean accessToken = null;
         try
         {
-            String content = redisUtils.get(username);
+            String content = JedisUtils.getStr(username);
             if (StringUtils.isEmpty(content))
             {
                 return null;
@@ -113,7 +110,7 @@ public class TokenService
     {
         try
         {
-            redisUtils.delete(userid);
+            JedisUtils.delete(userid);
         }
         catch (Exception e)
         {
