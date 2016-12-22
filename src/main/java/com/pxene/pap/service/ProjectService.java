@@ -62,11 +62,7 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void updateProject(String id, ProjectBean bean) throws Exception{
-		if (!StringUtils.isEmpty(bean.getId())) {
-			throw new IllegalArgumentException();
-		}
-
+	public void updateProject(String id, ProjectBean bean) throws Exception {
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
 			throw new NotFoundException();
