@@ -45,8 +45,8 @@ public class ProjectService extends BaseService {
 	public void createProject(ProjectBean bean) throws Exception{
 		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
 		String id = UUID.randomUUID().toString();
+		model.setId(id);
 		try {
-			model.setId(id);
 			// 添加项目信息
 			projectDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
@@ -68,12 +68,12 @@ public class ProjectService extends BaseService {
 			throw new NotFoundException();
 		}
 
-		ProjectModel projectModel = modelMapper.map(bean, ProjectModel.class);
-		projectModel.setId(id);
+		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
+		model.setId(id);
 
 		try {
 			// 修改项目信息
-			projectDao.updateByPrimaryKeySelective(projectModel);
+			projectDao.updateByPrimaryKeySelective(model);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
