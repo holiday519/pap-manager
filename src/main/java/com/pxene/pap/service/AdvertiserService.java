@@ -27,7 +27,6 @@ import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.BadRequestException;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStateException;
 import com.pxene.pap.exception.NotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
@@ -149,11 +148,11 @@ public class AdvertiserService extends BaseService
     @Transactional
     public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
     {
-        // 更新操作要求绑定到RequestBody中的资源ID必须为空
-        if (!StringUtils.isEmpty(advertiserBean.getId()))
-        {
-            throw new IllegalArgumentException();
-        }
+//        // 更新操作要求绑定到RequestBody中的资源ID必须为空
+//        if (!StringUtils.isEmpty(advertiserBean.getId()))
+//        {
+//            throw new IllegalArgumentException();
+//        }
         
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
