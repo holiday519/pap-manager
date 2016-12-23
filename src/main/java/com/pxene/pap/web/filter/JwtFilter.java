@@ -57,28 +57,29 @@ public class JwtFilter implements Filter
         if (!StringUtils.isEmpty(token) && token.startsWith(BEARER))
         {
             token = token.substring(token.indexOf(BEARER) + 6);
-            if (!StringUtils.isEmpty(token))
+            String userId = TokenUtils.parseUserIdInToken(env, token.trim());
+            
+            AccessTokenBean accessToken = tokenService.getToken(userId);
+            if (accessToken != null)  
             {
-                String userId = TokenUtils.parseUserIdInToken(env, token.trim());
-                
-                AccessTokenBean accessToken = tokenService.getToken(userId);
-                if (accessToken != null)  
+                if (new Date(accessToken.getExpiresAt()).after(new Date()))
                 {
-                    if (new Date(accessToken.getExpiresAt()).after(new Date()))
-                    {
-                        chain.doFilter(request, response);
-                        return;
-                    }
-                    else
-                    {
-                    	exception = new TokenOverdueException();
-                    }
+                    chain.doFilter(request, response);
+                    return;
                 }
                 else
                 {
-                	exception = new TokenInvalidException();
+                	exception = new TokenOverdueException();
                 }
             }
+            else
+            {
+            	exception = new TokenInvalidException();
+            }
+        }
+        else 
+        {
+        	exception = new TokenInvalidException();
         }
         
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -87,10 +88,8 @@ public class JwtFilter implements Filter
         
         ObjectMapper mapper = new ObjectMapper();
         ResponseResultBean result = new ResponseResultBean();
-        if (exception != null) {
-        	result.setCode(exception.getCode());
-            result.setMessage(exception.getMessage());
-        }
+    	result.setCode(exception.getCode());
+        result.setMessage(exception.getMessage());
         httpResponse.getWriter().write(mapper.writeValueAsString(result));
     }
     
@@ -99,4 +98,5 @@ public class JwtFilter implements Filter
     {
         
     }
+    
 }
