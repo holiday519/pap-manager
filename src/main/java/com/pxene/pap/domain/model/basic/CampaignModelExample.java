@@ -592,66 +592,6 @@ public class CampaignModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andDailyBudgetIsNull() {
-            addCriterion("daily_budget is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetIsNotNull() {
-            addCriterion("daily_budget is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetEqualTo(Integer value) {
-            addCriterion("daily_budget =", value, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetNotEqualTo(Integer value) {
-            addCriterion("daily_budget <>", value, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetGreaterThan(Integer value) {
-            addCriterion("daily_budget >", value, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetGreaterThanOrEqualTo(Integer value) {
-            addCriterion("daily_budget >=", value, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetLessThan(Integer value) {
-            addCriterion("daily_budget <", value, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetLessThanOrEqualTo(Integer value) {
-            addCriterion("daily_budget <=", value, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetIn(List<Integer> values) {
-            addCriterion("daily_budget in", values, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetNotIn(List<Integer> values) {
-            addCriterion("daily_budget not in", values, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetBetween(Integer value1, Integer value2) {
-            addCriterion("daily_budget between", value1, value2, "dailyBudget");
-            return (Criteria) this;
-        }
-
-        public Criteria andDailyBudgetNotBetween(Integer value1, Integer value2) {
-            addCriterion("daily_budget not between", value1, value2, "dailyBudget");
-            return (Criteria) this;
-        }
-
         public Criteria andDailyImpressionIsNull() {
             addCriterion("daily_impression is null");
             return (Criteria) this;
