@@ -189,6 +189,11 @@ public class AuditAdvertiserBaiduService {
 			int zStatu = zObj.get("status").getAsInt();
 			if (0 == zStatu) {
 				//成功——————————————
+				AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+				example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+				AdvertiserAuditModel aModel = new AdvertiserAuditModel();
+				aModel.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
+				advertiserAuditDao.updateByExample(aModel, example);
 			}
 		}
 	}

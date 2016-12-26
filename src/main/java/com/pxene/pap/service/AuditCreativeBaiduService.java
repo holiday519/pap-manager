@@ -9,6 +9,7 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -95,6 +96,17 @@ public class AuditCreativeBaiduService {
 	
 	@Autowired
 	private AdxDao adxDao;
+	
+	private static String image_url;
+	
+	@Autowired
+	public AuditCreativeBaiduService(Environment env)
+	{
+		/**
+		 * 获取图片上传路径
+		 */
+		image_url = env.getProperty("pap.fileserver.url.prefix");
+	}
 	
 	public void audit(String creativeId) throws Exception {
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
@@ -210,7 +222,7 @@ public class AuditCreativeBaiduService {
 		String sourceUrl = creativeImage.getSourceUrl();
 		creative.addProperty("width", width);
 		creative.addProperty("height", height);
-		creative.addProperty("creativeUrl", sourceUrl);// ————————————————————图片服务器地址
+		creative.addProperty("creativeUrl", image_url + sourceUrl);
 
 		// 点击链接targetUrl
 		String encodeUrl = URLEncoder.encode(creativeImage.getCurl(), "UTF-8");
@@ -368,7 +380,7 @@ public class AuditCreativeBaiduService {
 				imageModel = mol;
 			}
 			String path = imageModel.getPath();
-			creativeUrls.add(path);//图片地址——————————————
+			creativeUrls.add(image_url + path);
 		}
 		if(!StringUtils.isEmpty(image1)){
 			ImageSizeTypeModelExample istExample = new ImageSizeTypeModelExample();
@@ -379,7 +391,7 @@ public class AuditCreativeBaiduService {
 				imageModel = mol;
 			}
 			String path = imageModel.getPath();
-			creativeUrls.add(path);//图片地址——————————————
+			creativeUrls.add(image_url + path);
 		}
 		creative.add("creativeUrls", creativeUrls);
 		
