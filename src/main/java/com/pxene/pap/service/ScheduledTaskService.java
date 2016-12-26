@@ -12,9 +12,9 @@ public class ScheduledTaskService
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     
     
-    @Scheduled(cron = "0 */1 * * * *")
-    public void reportCurrentTime()
-    {
-        System.out.println("在指定时间 " + dateFormat.format(new Date()) + "执行");
-    }
+//    @Scheduled(cron = "0 */1 * * * *")
+//    public void reportCurrentTime()
+//    {
+//        System.out.println("在指定时间 " + dateFormat.format(new Date()) + "执行");
+//    }
 }

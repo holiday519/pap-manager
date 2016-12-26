@@ -16,7 +16,9 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
-import com.pxene.pap.domain.beans.MonitorBean;
+import com.pxene.pap.domain.beans.CampaignBean.Frequency;
+import com.pxene.pap.domain.beans.CampaignBean.Monitor;
+import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModelExample;
 import com.pxene.pap.domain.model.basic.AppTargetModel;
@@ -129,17 +131,11 @@ public class CampaignService extends PutOnService{
 		campaignModel.setId(id);
 		
 		try {
-				
 			String frequencyId = UUID.randomUUID().toString();
-			String controlObj = bean.getControlObj();
-			String timeType = bean.getTimeType();
-			int frequency = bean.getFrequency();
+			Frequency frequency = bean.getFrequency();
 			//添加频次信息
-			FrequencyModel frequencyModel = new FrequencyModel();
+			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 			frequencyModel.setId(frequencyId);
-			frequencyModel.setControlObj(controlObj);
-			frequencyModel.setTimeType(timeType);
-			frequencyModel.setFrequency(frequency);
 			frequencyDao.insertSelective(frequencyModel);
 			//添加定向信息
 			addCampaignTarget(bean);
@@ -147,7 +143,7 @@ public class CampaignService extends PutOnService{
 			addCampaignMonitor(bean);
 			//添加频次ID
 			campaignModel.setFrequencyId(frequencyId);
-			
+			campaignModel.setStatus(StatusConstant.CAMPAIGN_WATING);
 			//添加活动基本信息
 			campaignDao.insertSelective(campaignModel);
 			
@@ -174,19 +170,33 @@ public class CampaignService extends PutOnService{
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		
 		try {
-			//频次数据
-			String frequencyId = bean.getFrequencyId();
-			String controlObj = bean.getControlObj();
-			String timeType = bean.getTimeType();
-			int frequency = bean.getFrequency();
-			//修改频次信息
-			FrequencyModel frequencyModel = new FrequencyModel();
-			frequencyModel.setId(frequencyId);
-			frequencyModel.setControlObj(controlObj);
-			frequencyModel.setTimeType(timeType);
-			frequencyModel.setFrequency(frequency);
-			frequencyDao.updateByPrimaryKeySelective(frequencyModel);
-			
+			//删除频次信息***
+			deletefrequency(id);
+			//频次数据---如果以前有修改即可；若果以前没有，那就新建
+			Frequency frequency = bean.getFrequency();
+			String frequencyId = campaignInDB.getFrequencyId();
+			if(StringUtils.isEmpty(frequencyId)){
+				//以前就是null；如果现在还是null那就不处理，现在不是null添加
+				frequencyId = UUID.randomUUID().toString();
+				if (frequency != null) {
+					// 添加频次信息
+					FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+					frequencyModel.setId(frequencyId);
+					frequencyDao.insertSelective(frequencyModel);
+				}
+			}else{
+				//以前就不是null；如果现在是null就删除frequencyId；如果现在不是null就修改frequencyId对应的频次信息
+				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+				if (frequency != null) {
+					//修改频次信息
+					frequencyModel.setId(frequencyId);
+					frequencyDao.updateByPrimaryKeySelective(frequencyModel);
+				} else {
+					//删除频次后将活动表中FrequencyId变成空
+					campaignModel.setFrequencyId("");
+				}
+				
+			}
 			//删除定向信息
 			deleteCampaignTarget(id);
 			//重新添加定向信息
@@ -195,7 +205,6 @@ public class CampaignService extends PutOnService{
 			deleteCampaignMonitor(id);
 			//重新添加点击、展现监测地址
 			addCampaignMonitor(bean);
-			
 			//修改基本信息
 			campaignDao.updateByPrimaryKeySelective(campaignModel);
 		} catch (DuplicateKeyException exception) {
@@ -209,17 +218,21 @@ public class CampaignService extends PutOnService{
 	 */
 	@Transactional
 	public void addCampaignTarget(CampaignBean bean) throws Exception {
+		Target target = bean.getTarget();
+		if (target == null) {
+			return;
+		}
 		String id = bean.getId();
-		List<String> regionTarget = bean.getRegionTarget();//地域
-		List<String> adTypeTarget = bean.getAdtypeTarget();//广告类型
-		List<String> timeTarget = bean.getTimeTarget();//时间
-		List<String> networkTarget = bean.getNetworkTarget();//网络
-		List<String> operatorTarget = bean.getOperatorTarget();//运营商
-		List<String> deviceTarget = bean.getDeviceTarget();//设备
-		List<String> osTarget = bean.getOsTarget();//系统
-		List<String> brandTarget = bean.getBrandTarget();//品牌
-		List<String> appTarget = bean.getAppTarget();//app
-		if (regionTarget != null && !regionTarget.isEmpty()) {
+		String[] regionTarget = target.getRegion();//地域
+		String[] adTypeTarget = target.getAdtype();//广告类型
+		String[] timeTarget = target.getTime();//时间
+		String[] networkTarget = target.getNetwork();//网络
+		String[] operatorTarget = target.getOperator();//运营商
+		String[] deviceTarget = target.getDevice();//设备
+		String[] osTarget = target.getOs();//系统
+		String[] brandTarget = target.getBrand();//品牌
+		String[] appTarget = target.getApp();//app
+		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region;
 			for (String regionId : regionTarget) {
 				region = new RegionTargetModel();
@@ -229,7 +242,7 @@ public class CampaignService extends PutOnService{
 				regionTargetDao.insertSelective(region);
 			}
 		}
-		if (adTypeTarget != null && !adTypeTarget.isEmpty()) {
+		if (adTypeTarget != null && adTypeTarget.length > 0) {
 			AdTypeTargetModel adType;
 			for (String adTypeId : adTypeTarget) {
 				adType = new AdTypeTargetModel();
@@ -239,7 +252,7 @@ public class CampaignService extends PutOnService{
 				adtypeTargetDao.insertSelective(adType);
 			}
 		}
-		if (timeTarget != null && !timeTarget.isEmpty()) {
+		if (timeTarget != null && timeTarget.length > 0) {
 			TimeTargetModel time;
 			for (String timeId : timeTarget) {
 				time = new TimeTargetModel();
@@ -249,7 +262,7 @@ public class CampaignService extends PutOnService{
 				timeTargetDao.insertSelective(time);
 			}
 		}
-		if (networkTarget != null && !networkTarget.isEmpty()) {
+		if (networkTarget != null && networkTarget.length > 0) {
 			NetworkTargetModel network;
 			for (String networkid : networkTarget) {
 				network = new NetworkTargetModel();
@@ -259,7 +272,7 @@ public class CampaignService extends PutOnService{
 				networkTargetDao.insertSelective(network);
 			}
 		}
-		if (operatorTarget != null && !operatorTarget.isEmpty()) {
+		if (operatorTarget != null && operatorTarget.length > 0) {
 			OperatorTargetModel operator;
 			for (String operatorId : operatorTarget) {
 				operator = new OperatorTargetModel();
@@ -269,7 +282,7 @@ public class CampaignService extends PutOnService{
 				operatorTargetDao.insertSelective(operator);
 			}
 		}
-		if (deviceTarget != null && !deviceTarget.isEmpty()) {
+		if (deviceTarget != null && deviceTarget.length > 0) {
 			DeviceTargetModel device;
 			for (String deviceId : deviceTarget) {
 				device = new DeviceTargetModel();
@@ -279,7 +292,7 @@ public class CampaignService extends PutOnService{
 				deviceTargetDao.insertSelective(device);
 			}
 		}
-		if (osTarget != null && !osTarget.isEmpty()) {
+		if (osTarget != null && osTarget.length > 0) {
 			OsTargetModel os;
 			for (String osId : osTarget) {
 				os = new OsTargetModel();
@@ -289,7 +302,7 @@ public class CampaignService extends PutOnService{
 				osTargetDao.insertSelective(os);
 			}
 		}
-		if (brandTarget != null && !brandTarget.isEmpty()) {
+		if (brandTarget != null && brandTarget.length > 0) {
 			BrandTargetModel brand;
 			for (String brandId : brandTarget) {
 				brand = new BrandTargetModel();
@@ -299,7 +312,7 @@ public class CampaignService extends PutOnService{
 				brandTargetDao.insertSelective(brand);
 			}
 		}
-		if (appTarget != null && !appTarget.isEmpty()) {
+		if (appTarget != null && appTarget.length > 0) {
 			AppTargetModel app;
 			for (String appId : appTarget) {
 				app = new AppTargetModel();
@@ -361,25 +374,14 @@ public class CampaignService extends PutOnService{
 	 */
 	@Transactional
 	public void addCampaignMonitor(CampaignBean bean) throws Exception {
-		String id = bean.getId();
-		List<MonitorBean> monitors = bean.getMonitors();
+		List<Monitor> monitors = bean.getMonitors();
 		if (monitors != null && !monitors.isEmpty()) {
-			for (MonitorBean mnt : monitors) {
-				List<String> urls = mnt.getUrls();
+			String id = bean.getId();
+			for (Monitor mnt : monitors) {
 				String monitorId = UUID.randomUUID().toString();
-				MonitorModel monitor = new MonitorModel();
+				MonitorModel monitor = modelMapper.map(mnt, MonitorModel.class);
 				monitor.setId(monitorId);
 				monitor.setCampaignId(id);
-				if (urls != null && urls.size() > 0 && urls.get(0) != null
-						&& !"".equals(urls.get(0))) {
-					String impressionUrl = urls.get(0);
-					monitor.setImpressionUrl((impressionUrl));
-				}
-				if (urls != null && urls.size() > 1 && urls.get(1) != null
-						&& !"".equals(urls.get(1))) {
-					String clickUrl = urls.get(1);
-					monitor.setClickUrl(clickUrl);
-				}
 				monitorDao.insertSelective(monitor);
 			}
 		}
@@ -493,37 +495,39 @@ public class CampaignService extends PutOnService{
 		List<CampaignTargetModel> list = campaignTargetDao.selectByExampleWithBLOBs(example);
 		if (list != null && !list.isEmpty()) {
 			CampaignTargetModel model = list.get(0);
-			bean.setRegionTarget(formatTargetStringToList(model.getRegionId()));
-			bean.setAdtypeTarget(formatTargetStringToList(model.getAdType()));
-			bean.setTimeTarget(formatTargetStringToList(model.getTimeId()));
-			bean.setNetworkTarget(formatTargetStringToList(model.getNetwork()));
-			bean.setOperatorTarget(formatTargetStringToList(model.getOperator()));
-			bean.setDeviceTarget(formatTargetStringToList(model.getDevice()));
-			bean.setOsTarget(formatTargetStringToList(model.getOs()));
-			bean.setBrandTarget(formatTargetStringToList(model.getBrandId()));
-			bean.setAppTarget(formatTargetStringToList(model.getAppId()));
+			Target target = bean.new Target();
+			target.setRegion(formatTargetStringToArray(model.getRegionId()));
+			target.setAdtype(formatTargetStringToArray(model.getAdType()));
+			target.setTime(formatTargetStringToArray(model.getTimeId()));
+			target.setNetwork(formatTargetStringToArray(model.getNetwork()));
+			target.setOperator(formatTargetStringToArray(model.getOperator()));
+			target.setDevice(formatTargetStringToArray(model.getDevice()));
+			target.setOs(formatTargetStringToArray(model.getOs()));
+			target.setBrand(formatTargetStringToArray(model.getBrandId()));
+			target.setApp(formatTargetStringToArray(model.getAppId()));
+			bean.setTarget(target);
 		}
 		// 查询频次信息
 		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
-			FrequencyModel frequency = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
-			bean.setControlObj(frequency.getControlObj());
-			bean.setFrequency(frequency.getFrequency());
-			bean.setTimeType(frequency.getTimeType());
+			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
+			Frequency frequency = bean.new Frequency();
+			frequency.setControlObj(frequencyModel.getControlObj());
+			frequency.setNumber(frequencyModel.getNumber());
+			frequency.setTimeType(frequencyModel.getTimeType());
+			bean.setFrequency(frequency);
 		}
 		// 查询检测地址
 		MonitorModelExample monitorExample = new MonitorModelExample();
 		monitorExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<MonitorModel> monitors = monitorDao.selectByExample(monitorExample);
-		//如果没有查到点击展现地址数据，直接返回
+		// 如果没有查到点击展现地址数据，直接返回
 		if (monitors != null && !monitors.isEmpty()) {
-			List<MonitorBean> monitorList = new ArrayList<MonitorBean>();
+			List<Monitor> monitorList = new ArrayList<Monitor>();
 			for (MonitorModel mo : monitors) {
-				MonitorBean monitorBean = new MonitorBean();
-				List<String> mlist = new ArrayList<String>();
-				mlist.add(mo.getImpressionUrl());
-				mlist.add(mo.getClickUrl());
-				monitorBean.setUrls(mlist);
-				monitorList.add(monitorBean);
+				Monitor monitor = bean.new Monitor();
+				monitor.setImpressionUrl(mo.getImpressionUrl());
+				monitor.setClickUrl(mo.getClickUrl());
+				monitorList.add(monitor);
 			}
 			bean.setMonitors(monitorList);
 		}
@@ -531,15 +535,14 @@ public class CampaignService extends PutOnService{
 	}
 	
 	/**
-	 * 将字符串形式定向转成list("1,2,3"==》list)
+	 * 将字符串形式定向转成数组("1,2,3"==》[1,2,3])
 	 * @param target
 	 * @return
 	 */
-	private static List<String> formatTargetStringToList(String target){
+	private static String[] formatTargetStringToArray(String target){
 		if(!StringUtils.isEmpty(target)){
 			String [] targets = target.split(",");
-			List<String> targetList = Arrays.asList(targets);
-			return targetList;
+			return targets;
 		}
 		return null;//空字符串返回null
 	}

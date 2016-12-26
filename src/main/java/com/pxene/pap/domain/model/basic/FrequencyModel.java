@@ -9,7 +9,7 @@ public class FrequencyModel {
 
     private String timeType;
 
-    private Integer frequency;
+    private Integer number;
 
     private Date createTime;
 
@@ -39,12 +39,12 @@ public class FrequencyModel {
         this.timeType = timeType == null ? null : timeType.trim();
     }
 
-    public Integer getFrequency() {
-        return frequency;
+    public Integer getNumber() {
+        return number;
     }
 
-    public void setFrequency(Integer frequency) {
-        this.frequency = frequency;
+    public void setNumber(Integer number) {
+        this.number = number;
     }
 
     public Date getCreateTime() {
@@ -72,7 +72,7 @@ public class FrequencyModel {
         sb.append(", id=").append(id);
         sb.append(", controlObj=").append(controlObj);
         sb.append(", timeType=").append(timeType);
-        sb.append(", frequency=").append(frequency);
+        sb.append(", number=").append(number);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

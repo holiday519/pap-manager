@@ -315,63 +315,63 @@ public class FrequencyModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyIsNull() {
-            addCriterion("frequency is null");
+        public Criteria andNumberIsNull() {
+            addCriterion("number is null");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyIsNotNull() {
-            addCriterion("frequency is not null");
+        public Criteria andNumberIsNotNull() {
+            addCriterion("number is not null");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyEqualTo(Integer value) {
-            addCriterion("frequency =", value, "frequency");
+        public Criteria andNumberEqualTo(Integer value) {
+            addCriterion("number =", value, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyNotEqualTo(Integer value) {
-            addCriterion("frequency <>", value, "frequency");
+        public Criteria andNumberNotEqualTo(Integer value) {
+            addCriterion("number <>", value, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyGreaterThan(Integer value) {
-            addCriterion("frequency >", value, "frequency");
+        public Criteria andNumberGreaterThan(Integer value) {
+            addCriterion("number >", value, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyGreaterThanOrEqualTo(Integer value) {
-            addCriterion("frequency >=", value, "frequency");
+        public Criteria andNumberGreaterThanOrEqualTo(Integer value) {
+            addCriterion("number >=", value, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyLessThan(Integer value) {
-            addCriterion("frequency <", value, "frequency");
+        public Criteria andNumberLessThan(Integer value) {
+            addCriterion("number <", value, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyLessThanOrEqualTo(Integer value) {
-            addCriterion("frequency <=", value, "frequency");
+        public Criteria andNumberLessThanOrEqualTo(Integer value) {
+            addCriterion("number <=", value, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyIn(List<Integer> values) {
-            addCriterion("frequency in", values, "frequency");
+        public Criteria andNumberIn(List<Integer> values) {
+            addCriterion("number in", values, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyNotIn(List<Integer> values) {
-            addCriterion("frequency not in", values, "frequency");
+        public Criteria andNumberNotIn(List<Integer> values) {
+            addCriterion("number not in", values, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyBetween(Integer value1, Integer value2) {
-            addCriterion("frequency between", value1, value2, "frequency");
+        public Criteria andNumberBetween(Integer value1, Integer value2) {
+            addCriterion("number between", value1, value2, "number");
             return (Criteria) this;
         }
 
-        public Criteria andFrequencyNotBetween(Integer value1, Integer value2) {
-            addCriterion("frequency not between", value1, value2, "frequency");
+        public Criteria andNumberNotBetween(Integer value1, Integer value2) {
+            addCriterion("number not between", value1, value2, "number");
             return (Criteria) this;
         }
 

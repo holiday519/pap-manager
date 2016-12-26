@@ -29,10 +29,6 @@ public class CampaignBean {
 	 */
 	private Integer totalBudget;
 	/**
-	 * 日预算
-	 */
-	private Integer dailyBudget;
-	/**
 	 * 日展现
 	 */
 	private Integer dailyImpression;
@@ -49,10 +45,6 @@ public class CampaignBean {
 	 */
 	private String status;
 	/**
-	 * 频次id
-	 */
-	private String frequencyId;
-	/**
 	 * 开始时间
 	 */
 	private Date startDate;
@@ -60,56 +52,215 @@ public class CampaignBean {
 	 * 结束时间
 	 */
 	private Date endDate;
+	
 	/**
-	 * 地域定向
+	 * 频次Id
 	 */
-	private List<String> regionTarget;
+	private String frequencyId;
+	
 	/**
-	 * 广告类型定向
+	 * 定向
+	 *
 	 */
-	private List<String> adtypeTarget;
-	/**
-	 * 时间定向
-	 */
-	private List<String> timeTarget;
-	/**
-	 * 网络定向
-	 */
-	private List<String> networkTarget;
-	/**
-	 * 运营商定向
-	 */
-	private List<String> operatorTarget;
-	/**
-	 * 设备定向
-	 */
-	private List<String> deviceTarget;
-	/**
-	 * 系统定向
-	 */
-	private List<String> osTarget;
-	/**
-	 * 品牌定向
-	 */
-	private List<String> brandTarget;
-	/**
-	 * app定向
-	 */
-	private List<String> appTarget;
-	/**
-	 * 控制对象
-	 */
-	private String controlObj;
-	/**
-	 * 时间类型
-	 */
-	private String timeType;
+	private Target target;
+	
+	public class Target{
+		
+		/**
+		 * 地域定向
+		 */
+		private String[] region;
+		/**
+		 * 广告类型定向
+		 */
+		private String[] adtype;
+		/**
+		 * 时间定向
+		 */
+		private String[] time;
+		/**
+		 * 网络定向
+		 */
+		private String[] network;
+		/**
+		 * 运营商定向
+		 */
+		private String[] operator;
+		/**
+		 * 设备定向
+		 */
+		private String[] device;
+		/**
+		 * 系统定向
+		 */
+		private String[] os;
+		/**
+		 * 品牌定向
+		 */
+		private String[] brand;
+		/**
+		 * app定向
+		 */
+		private String[] app;
+		
+		public String[] getRegion() {
+			return region;
+		}
+		
+		public void setRegion(String[] region) {
+			this.region = region;
+		}
+
+		public String[] getAdtype() {
+			return adtype;
+		}
+
+		public void setAdtype(String[] adtype) {
+			this.adtype = adtype;
+		}
+
+		public String[] getTime() {
+			return time;
+		}
+
+		public void setTime(String[] time) {
+			this.time = time;
+		}
+
+		public String[] getNetwork() {
+			return network;
+		}
+
+		public void setNetwork(String[] network) {
+			this.network = network;
+		}
+
+		public String[] getOperator() {
+			return operator;
+		}
+
+		public void setOperator(String[] operator) {
+			this.operator = operator;
+		}
+
+		public String[] getDevice() {
+			return device;
+		}
+
+		public void setDevice(String[] device) {
+			this.device = device;
+		}
+
+		public String[] getOs() {
+			return os;
+		}
+
+		public void setOs(String[] os) {
+			this.os = os;
+		}
+
+		public String[] getBrand() {
+			return brand;
+		}
+
+		public void setBrand(String[] brand) {
+			this.brand = brand;
+		}
+
+		public String[] getApp() {
+			return app;
+		}
+
+		public void setApp(String[] app) {
+			this.app = app;
+		}
+
+		@Override
+		public String toString() {
+			return "Target [region=" + region + ", adtype=" + adtype
+					+ ", time=" + time + ", network=" + network + ", operator="
+					+ operator + ", device=" + device + ", os=" + os
+					+ ", brand=" + brand + ", app=" + app + "]";
+		}
+	}
+	
 	/**
 	 * 频次
 	 */
-	private Integer frequency;
+	private Frequency frequency;
+	
+	public class Frequency {
+		
+		/**
+		 * 控制对象
+		 */
+		private String controlObj;
+		/**
+		 * 时间类型
+		 */
+		private String timeType;
+		/**
+		 * 频次
+		 */
+		private Integer number;
+		
+		public String getControlObj() {
+			return controlObj;
+		}
+		public void setControlObj(String controlObj) {
+			this.controlObj = controlObj;
+		}
+		public String getTimeType() {
+			return timeType;
+		}
+		public void setTimeType(String timeType) {
+			this.timeType = timeType;
+		}
+		public Integer getNumber() {
+			return number;
+		}
+		public void setNumber(Integer number) {
+			this.number = number;
+		}
+		@Override
+		public String toString() {
+			return "Frequency [controlObj=" + controlObj + ", timeType="
+					+ timeType + ", number=" + number + "]";
+		}
+	}
 
-	List<MonitorBean> monitors;
+	/**
+	 * 监测地址
+	 */
+	private List<Monitor> monitors;
+	
+	public class Monitor{
+		/**
+		 * 展现监测地址
+		 */
+		private String impressionUrl;
+		/**
+		 * 点击监测地址
+		 */
+		private String clickUrl;
+		public String getImpressionUrl() {
+			return impressionUrl;
+		}
+		public void setImpressionUrl(String impressionUrl) {
+			this.impressionUrl = impressionUrl;
+		}
+		public String getClickUrl() {
+			return clickUrl;
+		}
+		public void setClickUrl(String clickUrl) {
+			this.clickUrl = clickUrl;
+		}
+		@Override
+		public String toString() {
+			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
+					+ clickUrl + "]";
+		}
+	}
 
 	public String getId() {
 		return id;
@@ -151,14 +302,6 @@ public class CampaignBean {
 		this.totalBudget = totalBudget;
 	}
 
-	public Integer getDailyBudget() {
-		return dailyBudget;
-	}
-
-	public void setDailyBudget(Integer dailyBudget) {
-		this.dailyBudget = dailyBudget;
-	}
-
 	public Integer getDailyImpression() {
 		return dailyImpression;
 	}
@@ -191,14 +334,6 @@ public class CampaignBean {
 		this.status = status;
 	}
 
-	public String getFrequencyId() {
-		return frequencyId;
-	}
-
-	public void setFrequencyId(String frequencyId) {
-		this.frequencyId = frequencyId;
-	}
-
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -215,126 +350,48 @@ public class CampaignBean {
 		this.endDate = endDate;
 	}
 
-	public List<String> getRegionTarget() {
-		return regionTarget;
+	public Target getTarget() {
+		return target;
 	}
 
-	public void setRegionTarget(List<String> regionTarget) {
-		this.regionTarget = regionTarget;
+	public void setTarget(Target target) {
+		this.target = target;
 	}
 
-	public List<String> getAdtypeTarget() {
-		return adtypeTarget;
-	}
-
-	public void setAdtypeTarget(List<String> adtypeTarget) {
-		this.adtypeTarget = adtypeTarget;
-	}
-
-	public List<String> getTimeTarget() {
-		return timeTarget;
-	}
-
-	public void setTimeTarget(List<String> timeTarget) {
-		this.timeTarget = timeTarget;
-	}
-
-	public List<String> getNetworkTarget() {
-		return networkTarget;
-	}
-
-	public void setNetworkTarget(List<String> networkTarget) {
-		this.networkTarget = networkTarget;
-	}
-
-	public List<String> getOperatorTarget() {
-		return operatorTarget;
-	}
-
-	public void setOperatorTarget(List<String> operatorTarget) {
-		this.operatorTarget = operatorTarget;
-	}
-
-	public List<String> getDeviceTarget() {
-		return deviceTarget;
-	}
-
-	public void setDeviceTarget(List<String> deviceTarget) {
-		this.deviceTarget = deviceTarget;
-	}
-
-	public List<String> getOsTarget() {
-		return osTarget;
-	}
-
-	public void setOsTarget(List<String> osTarget) {
-		this.osTarget = osTarget;
-	}
-
-	public List<String> getBrandTarget() {
-		return brandTarget;
-	}
-
-	public void setBrandTarget(List<String> brandTarget) {
-		this.brandTarget = brandTarget;
-	}
-
-	public List<String> getAppTarget() {
-		return appTarget;
-	}
-
-	public void setAppTarget(List<String> appTarget) {
-		this.appTarget = appTarget;
-	}
-
-	public String getControlObj() {
-		return controlObj;
-	}
-
-	public void setControlObj(String controlObj) {
-		this.controlObj = controlObj;
-	}
-
-	public String getTimeType() {
-		return timeType;
-	}
-
-	public void setTimeType(String timeType) {
-		this.timeType = timeType;
-	}
-
-	public Integer getFrequency() {
+	public Frequency getFrequency() {
 		return frequency;
 	}
 
-	public void setFrequency(Integer frequency) {
+	public void setFrequency(Frequency frequency) {
 		this.frequency = frequency;
 	}
 
-	public List<MonitorBean> getMonitors() {
+	public List<Monitor> getMonitors() {
 		return monitors;
 	}
 
-	public void setMonitors(List<MonitorBean> monitors) {
+	public void setMonitors(List<Monitor> monitors) {
 		this.monitors = monitors;
+	}
+
+	public String getFrequencyId() {
+		return frequencyId;
+	}
+
+	public void setFrequencyId(String frequencyId) {
+		this.frequencyId = frequencyId;
 	}
 
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
 				+ ", name=" + name + ", type=" + type + ", totalBudget="
-				+ totalBudget + ", dailyBudget=" + dailyBudget
-				+ ", dailyImpression=" + dailyImpression + ", dailyClick="
-				+ dailyClick + ", remark=" + remark + ", status=" + status
-				+ ", frequencyId=" + frequencyId + ", startDate=" + startDate
-				+ ", endDate=" + endDate + ", regionTarget=" + regionTarget
-				+ ", adtypeTarget=" + adtypeTarget + ", timeTarget="
-				+ timeTarget + ", networkTarget=" + networkTarget
-				+ ", operatorTarget=" + operatorTarget + ", deviceTarget="
-				+ deviceTarget + ", osTarget=" + osTarget + ", brandTarget="
-				+ brandTarget + ", appTarget=" + appTarget + ", controlObj="
-				+ controlObj + ", timeType=" + timeType + ", frequency="
-				+ frequency + ", monitors=" + monitors + "]";
+				+ totalBudget + ", dailyImpression=" + dailyImpression
+				+ ", dailyClick=" + dailyClick + ", remark=" + remark
+				+ ", status=" + status + ", startDate=" + startDate
+				+ ", endDate=" + endDate + ", frequencyId=" + frequencyId
+				+ ", target=" + target + ", frequency=" + frequency
+				+ ", monitors=" + monitors + "]";
 	}
 
 }
