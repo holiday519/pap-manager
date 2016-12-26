@@ -1,7 +1,6 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * 活动
@@ -64,7 +63,7 @@ public class CampaignBean {
 	 */
 	private Target target;
 	
-	public class Target{
+	public class Target {
 		
 		/**
 		 * 地域定向
@@ -232,35 +231,36 @@ public class CampaignBean {
 	/**
 	 * 监测地址
 	 */
-	private List<Monitor> monitors;
+	private String[] monitors;
 	
-	public class Monitor{
-		/**
-		 * 展现监测地址
-		 */
-		private String impressionUrl;
-		/**
-		 * 点击监测地址
-		 */
-		private String clickUrl;
-		public String getImpressionUrl() {
-			return impressionUrl;
-		}
-		public void setImpressionUrl(String impressionUrl) {
-			this.impressionUrl = impressionUrl;
-		}
-		public String getClickUrl() {
-			return clickUrl;
-		}
-		public void setClickUrl(String clickUrl) {
-			this.clickUrl = clickUrl;
-		}
-		@Override
-		public String toString() {
-			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
-					+ clickUrl + "]";
-		}
-	}
+//	public class Monitor {
+//		/**
+//		 * 展现监测地址
+//		 */
+//		private String impressionUrl;
+//		/**
+//		 * 点击监测地址
+//		 */
+//		private String clickUrl;
+//		
+//		public String getImpressionUrl() {
+//			return impressionUrl;
+//		}
+//		public void setImpressionUrl(String impressionUrl) {
+//			this.impressionUrl = impressionUrl;
+//		}
+//		public String getClickUrl() {
+//			return clickUrl;
+//		}
+//		public void setClickUrl(String clickUrl) {
+//			this.clickUrl = clickUrl;
+//		}
+//		@Override
+//		public String toString() {
+//			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
+//					+ clickUrl + "]";
+//		}
+//	}
 
 	public String getId() {
 		return id;
@@ -366,11 +366,11 @@ public class CampaignBean {
 		this.frequency = frequency;
 	}
 
-	public List<Monitor> getMonitors() {
+	public String[] getMonitors() {
 		return monitors;
 	}
 
-	public void setMonitors(List<Monitor> monitors) {
+	public void setMonitors(String[] monitors) {
 		this.monitors = monitors;
 	}
 
@@ -395,3 +395,4 @@ public class CampaignBean {
 	}
 
 }
+

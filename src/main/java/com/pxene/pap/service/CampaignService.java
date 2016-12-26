@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +16,6 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
-import com.pxene.pap.domain.beans.CampaignBean.Monitor;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModelExample;
@@ -374,14 +372,18 @@ public class CampaignService extends PutOnService{
 	 */
 	@Transactional
 	public void addCampaignMonitor(CampaignBean bean) throws Exception {
-		List<Monitor> monitors = bean.getMonitors();
-		if (monitors != null && !monitors.isEmpty()) {
+		String[] monitors = bean.getMonitors();
+		if (monitors != null && monitors.length > 0) {
 			String id = bean.getId();
-			for (Monitor mnt : monitors) {
+			for (String mnt : monitors) {
 				String monitorId = UUID.randomUUID().toString();
-				MonitorModel monitor = modelMapper.map(mnt, MonitorModel.class);
+				//MonitorModel monitor = modelMapper.map(mnt, MonitorModel.class);
+				MonitorModel monitor = new MonitorModel();
 				monitor.setId(monitorId);
 				monitor.setCampaignId(id);
+				String[] urls = mnt.split(",");
+				monitor.setImpressionUrl(urls[0]);
+				monitor.setClickUrl(urls[1]);
 				monitorDao.insertSelective(monitor);
 			}
 		}
@@ -519,17 +521,15 @@ public class CampaignService extends PutOnService{
 		// 查询检测地址
 		MonitorModelExample monitorExample = new MonitorModelExample();
 		monitorExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<MonitorModel> monitors = monitorDao.selectByExample(monitorExample);
+		List<MonitorModel> monitorList = monitorDao.selectByExample(monitorExample);
 		// 如果没有查到点击展现地址数据，直接返回
-		if (monitors != null && !monitors.isEmpty()) {
-			List<Monitor> monitorList = new ArrayList<Monitor>();
-			for (MonitorModel mo : monitors) {
-				Monitor monitor = bean.new Monitor();
-				monitor.setImpressionUrl(mo.getImpressionUrl());
-				monitor.setClickUrl(mo.getClickUrl());
-				monitorList.add(monitor);
+		if (monitorList != null && !monitorList.isEmpty()) {
+			String[] monitors = new String[monitorList.size()];
+			for (int i=0; i<monitors.length; i++) {
+				MonitorModel model = monitorList.get(i);
+				monitors[i] = model.getImpressionUrl() + "," + model.getClickUrl();
 			}
-			bean.setMonitors(monitorList);
+			bean.setMonitors(monitors);
 		}
 		return bean;
 	}
