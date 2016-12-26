@@ -121,20 +121,20 @@ public class ProjectController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/project_putOn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/launch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void putOnProject(@RequestBody List<String> projectIds, HttpServletResponse response) throws Exception {
-		projectService.putOnProject(projectIds);
+		projectService.launchProject(projectIds);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
-	 * 投放项目
+	 * 暂停项目
 	 * @param projectIds
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/project_pause", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/pause", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void pauseProject(@RequestBody List<String> projectIds, HttpServletResponse response) throws Exception {
 		projectService.pauseProject(projectIds);

@@ -116,10 +116,10 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaign_putOn", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign/launch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void putOnByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
-		campaignService.putOnCampaign(campaignIds);
+		campaignService.launchCampaign(campaignIds);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -129,7 +129,7 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaign_pause", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaign/pause", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void pauseByCampaign(@RequestBody List<String> campaignIds, HttpServletResponse response) throws Exception {
 		campaignService.pauseCampaign(campaignIds);

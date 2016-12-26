@@ -14,7 +14,7 @@ public class PutOnService extends BaseService{
 	 * @param campaignIds
 	 * @throws Exception
 	 */
-	public void putOn(String campaignId) throws Exception {
+	public void launch(String campaignId) throws Exception {
 		//写入活动下的创意基本信息   dsp_mapid_*
 		redisService.writeCreativeInfoToRedis(campaignId);
 		//写入活动下的创意ID  dsp_group_mapids_*

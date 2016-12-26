@@ -550,7 +550,7 @@ public class CampaignService extends PutOnService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void putOnCampaign(List<String> campaignIds) throws Exception {
+	public void launchCampaign(List<String> campaignIds) throws Exception {
 		if (campaignIds == null || campaignIds.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
@@ -561,7 +561,7 @@ public class CampaignService extends PutOnService{
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 				if (StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
 					// 投放
-					putOn(campaignId);
+					launch(campaignId);
 				}
 				//改变数据库状态
 				campaignModel.setStatus(StatusConstant.CAMPAIGN_START);

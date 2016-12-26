@@ -157,7 +157,7 @@ public class AdvertiserController
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser_audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void auditAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
     	advertiserService.auditAdvertiser(id);
@@ -170,7 +170,7 @@ public class AdvertiserController
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser_synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void synchronizeAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
     	advertiserService.synchronize(id);

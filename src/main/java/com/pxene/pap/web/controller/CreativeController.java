@@ -74,7 +74,7 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creative_image", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative/image", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String addImage(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
 		String id = creativeService.addImage(file);
@@ -88,7 +88,7 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creative_video", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative/video", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String addVideo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
 		String id = creativeService.addVideo(file);
@@ -101,7 +101,7 @@ public class CreativeController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/creative_audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/creative/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void auditCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
     	creativeService.auditCreative(id);
@@ -114,7 +114,7 @@ public class CreativeController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/creative_synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/creative/synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void synchronizeCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
     	creativeService.synchronize(id);

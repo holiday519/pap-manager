@@ -156,7 +156,7 @@ public class ProjectService extends PutOnService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void putOnProject(List<String> projectIds) throws Exception {
+	public void launchProject(List<String> projectIds) throws Exception {
 		if (projectIds == null || projectIds.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
@@ -173,7 +173,7 @@ public class ProjectService extends PutOnService {
 				for (CampaignModel campaign : campaigns) {
 					if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())) {
 						//投放
-						putOn(campaign.getId());
+						launch(campaign.getId());
 					}
 				}
 				//项目投放之后修改状态
@@ -212,6 +212,39 @@ public class ProjectService extends PutOnService {
 				}
 				//项目投放之后修改状态
 				projectModel.setStatus(StatusConstant.PROJECT_PAUSE);
+				projectDao.updateByPrimaryKeySelective(projectModel);
+			}
+		}
+	}
+	
+	/**
+	 * 结束项目
+	 * @param projectIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void stopProject(List<String> projectIds) throws Exception {
+		if (projectIds == null || projectIds.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		
+		for (String projectId : projectIds) {
+			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+			if (projectModel != null) {
+				CampaignModelExample example = new CampaignModelExample();
+				example.createCriteria().andProjectIdEqualTo(projectId);
+				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+				if (campaigns == null || campaigns.isEmpty()) {
+					continue;
+				}
+				for (CampaignModel campaign : campaigns) {
+					if (StatusConstant.CAMPAIGN_COLSE.equals(campaign.getStatus())) {
+						//移除redis中key
+						pause(campaign.getId());
+					}
+				}
+				//项目投放之后修改状态
+				projectModel.setStatus(StatusConstant.PROJECT_COLSE);
 				projectDao.updateByPrimaryKeySelective(projectModel);
 			}
 		}
