@@ -112,9 +112,9 @@ public class AdvertiserService extends BaseService
         }
         else
         {
+        	// 删除广告主下的资质图片
+        	removeImages(id);
             advertiserDao.deleteByPrimaryKey(id);
-            // 删除广告主下的资质图片
-            removeImages(id);
         }
     }
 

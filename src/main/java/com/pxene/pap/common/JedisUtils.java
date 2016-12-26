@@ -246,8 +246,4 @@ public class JedisUtils {
 		return isexist;
 	}
 	
-	public static void main(String[] args) {
-		
-	}
-	
 }
