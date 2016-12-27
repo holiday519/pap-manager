@@ -30,7 +30,7 @@ import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalStateException;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
@@ -108,7 +108,7 @@ public class AdvertiserService extends BaseService
         // 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
         if (projects != null && !projects.isEmpty())
         {
-            throw new IllegalStateException(PhrasesConstant.ADVERVISER_HAS_PROJECTS);
+            throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAS_PROJECTS);
         }
         else
         {

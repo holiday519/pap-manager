@@ -17,7 +17,7 @@ public class StatusConstant {
 	/**
 	 * 项目状态：已关闭
 	 */
-	public static final String PROJECT_COLSE = "04";
+	public static final String PROJECT_CLOSE = "04";
 	/**
 	 * 活动状态：未开启
 	 */
@@ -33,7 +33,7 @@ public class StatusConstant {
 	/**
 	 * 活动状态：已关闭
 	 */
-	public static final String CAMPAIGN_COLSE = "04";
+	public static final String CAMPAIGN_CLOSE = "04";
 	
 	/**
 	 * 广告主审核状态 ：审核中

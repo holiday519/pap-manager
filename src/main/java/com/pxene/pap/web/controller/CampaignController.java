@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignBean;
+import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.CampaignService;
 
@@ -39,9 +42,23 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createCampaign(@Valid @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
+	public String createCampaign(@Valid @RequestBody CampaignInfoBean bean, HttpServletResponse response) throws Exception {
 		campaignService.createCampaign(bean);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", bean.getId(), response);
+	}
+	
+	/**
+	 * 设置活动定向（新增和修改）
+	 * @param bean
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign/target/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void createCampaignTarget(@PathVariable String id, @RequestBody CampaignTargetBean bean, HttpServletResponse response) throws Exception {
+		campaignService.createCampaignTarget(id, bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
@@ -54,8 +71,23 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateCampaign(@PathVariable String id, @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
+	public void updateCampaign(@PathVariable String id, @RequestBody CampaignInfoBean bean, HttpServletResponse response) throws Exception {
 		campaignService.updateCampaign(id, bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 修改活动状态
+	 * @param id
+	 * @param bean
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign/status/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateCampaignStatus(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+		campaignService.updateCampaignStatus(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

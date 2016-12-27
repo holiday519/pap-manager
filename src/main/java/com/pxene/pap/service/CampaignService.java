@@ -2,11 +2,11 @@ package com.pxene.pap.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,11 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.CampaignInfoBean;
+import com.pxene.pap.domain.beans.CampaignInfoBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean;
-import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
+import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModelExample;
 import com.pxene.pap.domain.model.basic.AppTargetModel;
@@ -46,6 +48,8 @@ import com.pxene.pap.domain.model.basic.TimeTargetModelExample;
 import com.pxene.pap.domain.model.basic.view.CampaignTargetModel;
 import com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
@@ -121,7 +125,7 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createCampaign(CampaignBean bean) throws Exception {
+	public void createCampaign(CampaignInfoBean bean) throws Exception {
 		
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		String id = UUID.randomUUID().toString();
@@ -135,8 +139,6 @@ public class CampaignService extends LaunchService{
 			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 			frequencyModel.setId(frequencyId);
 			frequencyDao.insertSelective(frequencyModel);
-			//添加定向信息
-			addCampaignTarget(bean);
 			//添加点击、展现监测地址
 			addCampaignMonitor(bean);
 			//添加频次ID
@@ -148,7 +150,7 @@ public class CampaignService extends LaunchService{
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
-		BeanUtils.copyProperties(campaignModel, bean);
+//		BeanUtils.copyProperties(campaignModel, bean);
 	}
 	
 	/**
@@ -158,7 +160,7 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void updateCampaign(String id ,CampaignBean bean) throws Exception {
+	public void updateCampaign(String id ,CampaignInfoBean bean) throws Exception {
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
 			throw new ResourceNotFoundException();
@@ -195,10 +197,6 @@ public class CampaignService extends LaunchService{
 				}
 				
 			}
-			//删除定向信息
-			deleteCampaignTarget(id);
-			//重新添加定向信息
-			addCampaignTarget(bean);
 			//删除点击、展现监测地址
 			deleteCampaignMonitor(id);
 			//重新添加点击、展现监测地址
@@ -211,25 +209,62 @@ public class CampaignService extends LaunchService{
 	}
 	
 	/**
+	 * 修改活动状态
+	 * @param id
+	 * @param action
+	 * @throws Exception
+	 */
+	@Transactional
+	public void updateCampaignStatus(String id, Map<String, String> map) throws Exception {
+		if (StringUtils.isEmpty(map.get("action"))) {
+			throw new IllegalArgumentException();
+		}
+		String action = map.get("action").toString();
+		String status = "";
+		if ("01".equals(action)) {
+			status = StatusConstant.CAMPAIGN_START;
+		} else if ("02".equals(action)) {
+			status = StatusConstant.CAMPAIGN_PAUSE;
+		}else {
+			throw new IllegalStatusException();
+		}
+		CampaignModel model = new CampaignModel();
+		model.setId(id);
+		model.setStatus(status);
+		campaignDao.updateByPrimaryKeySelective(model);
+	}
+	
+	/**
+	 * 设置活动定向，新增和修改
+	 * @param id
+	 * @param bean
+	 * @throws Exception
+	 */
+	@Transactional
+	public void createCampaignTarget(String id, CampaignTargetBean bean) throws Exception {
+		bean.setId(id);
+		//删除掉定向
+		deleteCampaignTarget(id);
+		//添加定向
+		addCampaignTarget(bean);
+	}
+	
+	/**
 	 * 添加活动定向
 	 * @param bean
 	 */
 	@Transactional
-	public void addCampaignTarget(CampaignBean bean) throws Exception {
-		Target target = bean.getTarget();
-		if (target == null) {
-			return;
-		}
+	public void addCampaignTarget(CampaignTargetBean bean) throws Exception {
 		String id = bean.getId();
-		String[] regionTarget = target.getRegion();//地域
-		String[] adTypeTarget = target.getAdtype();//广告类型
-		String[] timeTarget = target.getTime();//时间
-		String[] networkTarget = target.getNetwork();//网络
-		String[] operatorTarget = target.getOperator();//运营商
-		String[] deviceTarget = target.getDevice();//设备
-		String[] osTarget = target.getOs();//系统
-		String[] brandTarget = target.getBrand();//品牌
-		String[] appTarget = target.getApp();//app
+		String[] regionTarget = bean.getRegion();//地域
+		String[] adTypeTarget = bean.getAdType();//广告类型
+		String[] timeTarget = bean.getTime();//时间
+		String[] networkTarget = bean.getNetwork();//网络
+		String[] operatorTarget = bean.getOperator();//运营商
+		String[] deviceTarget = bean.getDevice();//设备
+		String[] osTarget = bean.getOs();//系统
+		String[] brandTarget = bean.getBrand();//品牌
+		String[] appTarget = bean.getApp();//app
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region;
 			for (String regionId : regionTarget) {
@@ -371,7 +406,7 @@ public class CampaignService extends LaunchService{
 	 * @param bean
 	 */
 	@Transactional
-	public void addCampaignMonitor(CampaignBean bean) throws Exception {
+	public void addCampaignMonitor(CampaignInfoBean bean) throws Exception {
 		String[] monitors = bean.getMonitors();
 		if (monitors != null && monitors.length > 0) {
 			String id = bean.getId();
@@ -429,7 +464,7 @@ public class CampaignService extends LaunchService{
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
-			throw new IllegalStateException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
+			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 		}
 		//删除检测地址
 		deleteCampaignMonitor(campaignId);
@@ -451,9 +486,9 @@ public class CampaignService extends LaunchService{
 		if (model ==null || StringUtils.isEmpty(model.getId())) {
         	throw new ResourceNotFoundException();
         }
-		CampaignBean bean = modelMapper.map(model, CampaignBean.class);
-		CampaignBean campaignBean = addParamToCampaign(bean, campaignId);
-		return campaignBean;
+		CampaignBean map = modelMapper.map(model, CampaignBean.class);
+		CampaignBean bean = addParamToCampaign(map, model.getId());
+		return bean;
 	}
 	
 	/**
@@ -499,7 +534,7 @@ public class CampaignService extends LaunchService{
 			CampaignTargetModel model = list.get(0);
 			Target target = bean.new Target();
 			target.setRegion(formatTargetStringToArray(model.getRegionId()));
-			target.setAdtype(formatTargetStringToArray(model.getAdType()));
+			target.setAdType(formatTargetStringToArray(model.getAdType()));
 			target.setTime(formatTargetStringToArray(model.getTimeId()));
 			target.setNetwork(formatTargetStringToArray(model.getNetwork()));
 			target.setOperator(formatTargetStringToArray(model.getOperator()));
@@ -512,7 +547,7 @@ public class CampaignService extends LaunchService{
 		// 查询频次信息
 		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
 			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
-			Frequency frequency = bean.new Frequency();
+			com.pxene.pap.domain.beans.CampaignBean.Frequency frequency = bean.new Frequency();
 			frequency.setControlObj(frequencyModel.getControlObj());
 			frequency.setNumber(frequencyModel.getNumber());
 			frequency.setTimeType(frequencyModel.getTimeType());

@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -55,8 +56,21 @@ public class ProjectController {
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void updateProject(@PathVariable String id, @Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
-		
 		projectService.updateProject(id, bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 编辑项目状态
+	 * @param bean
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/project/status/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateProjectStatus(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response) throws Exception {
+		projectService.updateProjectStatus(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

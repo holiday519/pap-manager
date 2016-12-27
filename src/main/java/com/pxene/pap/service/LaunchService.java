@@ -91,7 +91,7 @@ public class LaunchService extends BaseService{
 		//查询投放中和等待中的项目
 		ProjectModelExample projectExample = new ProjectModelExample();
 		projectExample.createCriteria()
-				.andStatusNotEqualTo(StatusConstant.PROJECT_COLSE)
+				.andStatusNotEqualTo(StatusConstant.CAMPAIGN_CLOSE)
 				.andStatusNotEqualTo(StatusConstant.PROJECT_PAUSE);
 		List<ProjectModel> projects = projectDao.selectByExample(projectExample);
 		//查询非“已结束”的活动
@@ -99,7 +99,7 @@ public class LaunchService extends BaseService{
 			String projectId = project.getId();
 			CampaignModelExample campaignExammple = new CampaignModelExample();
 			campaignExammple.createCriteria().andProjectIdEqualTo(projectId)
-					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_COLSE);
+					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_CLOSE);
 			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExammple);
 			if (campaigns == null) {
 				continue;
@@ -112,7 +112,7 @@ public class LaunchService extends BaseService{
 				boolean stopFlag = false;//是否停止项目标识
 				//活动除了已停止状态 都需要判断是否到达结束时间，到达结束时间的一律改成已停止 并且删除redis投放key
 				if (currentDay.equals(dayOfChange)) {
-					campaign.setStatus(StatusConstant.CAMPAIGN_COLSE);
+					campaign.setStatus(StatusConstant.CAMPAIGN_CLOSE);
 					campaignDao.updateByPrimaryKey(campaign);
 					redisService.removeCampaignIds(id);
 					stopFlag = true;

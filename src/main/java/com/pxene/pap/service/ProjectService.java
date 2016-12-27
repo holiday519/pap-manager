@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -20,7 +21,8 @@ import com.pxene.pap.domain.model.basic.CampaignModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalStateException;
+import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
@@ -82,6 +84,33 @@ public class ProjectService extends LaunchService {
 	}
 	
 	/**
+	 * 修改项目状态
+	 * @param id
+	 * @param map
+	 */
+	@Transactional
+	public void updateProjectStatus(String id, Map<String, String> map) {
+		if (StringUtils.isEmpty(map.get("action"))) {
+			throw new IllegalArgumentException();
+		}
+		String action = map.get("action").toString();
+		String status = "";
+		if ("01".equals(action)) {
+			status = StatusConstant.CAMPAIGN_START;
+		} else if ("02".equals(action)) {
+			status = StatusConstant.CAMPAIGN_PAUSE;
+		} else if ("03".equals(action)) {
+			status = StatusConstant.CAMPAIGN_CLOSE;
+		}else {
+			throw new IllegalStatusException();
+		}
+		ProjectModel model = new ProjectModel();
+		model.setId(id);
+		model.setStatus(status);
+		projectDao.updateByPrimaryKeySelective(model);
+	}
+	
+	/**
 	 * 删除项目
 	 * @param projectId
 	 * @return
@@ -99,7 +128,7 @@ public class ProjectService extends LaunchService {
 		example.createCriteria().andProjectIdEqualTo(id);
 		List<CampaignModel> list = campaignDao.selectByExample(example);
 		if (list != null && !list.isEmpty()) {
-			throw new IllegalStateException(PhrasesConstant.PROJECT_HAS_CAMPAIGN);
+			throw new IllegalStatusException(PhrasesConstant.PROJECT_HAS_CAMPAIGN);
 		}
 		
 		projectDao.deleteByPrimaryKey(id);
@@ -238,13 +267,13 @@ public class ProjectService extends LaunchService {
 					continue;
 				}
 				for (CampaignModel campaign : campaigns) {
-					if (StatusConstant.CAMPAIGN_COLSE.equals(campaign.getStatus())) {
+					if (StatusConstant.CAMPAIGN_CLOSE.equals(campaign.getStatus())) {
 						//移除redis中key
 						pause(campaign.getId());
 					}
 				}
 				//项目投放之后修改状态
-				projectModel.setStatus(StatusConstant.PROJECT_COLSE);
+				projectModel.setStatus(StatusConstant.CAMPAIGN_CLOSE);
 				projectDao.updateByPrimaryKeySelective(projectModel);
 			}
 		}
