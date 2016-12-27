@@ -1,11 +1,12 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
- * 活动所有信息
+ * 活动
  */
-public class CampaignBean {
+public class CampaignInfoBean {
 
 	/**
 	 * 活动id
@@ -58,132 +59,6 @@ public class CampaignBean {
 	private String frequencyId;
 	
 	/**
-	 * 定向
-	 *
-	 */
-	private Target target;
-	
-	public class Target {
-		
-		/**
-		 * 地域定向
-		 */
-		private String[] region;
-		/**
-		 * 广告类型定向
-		 */
-		private String[] adType;
-		/**
-		 * 时间定向
-		 */
-		private String[] time;
-		/**
-		 * 网络定向
-		 */
-		private String[] network;
-		/**
-		 * 运营商定向
-		 */
-		private String[] operator;
-		/**
-		 * 设备定向
-		 */
-		private String[] device;
-		/**
-		 * 系统定向
-		 */
-		private String[] os;
-		/**
-		 * 品牌定向
-		 */
-		private String[] brand;
-		/**
-		 * app定向
-		 */
-		private String[] app;
-		
-		public String[] getRegion() {
-			return region;
-		}
-		
-		public void setRegion(String[] region) {
-			this.region = region;
-		}
-
-		public String[] getAdType() {
-			return adType;
-		}
-
-		public void setAdType(String[] adType) {
-			this.adType = adType;
-		}
-
-		public String[] getTime() {
-			return time;
-		}
-
-		public void setTime(String[] time) {
-			this.time = time;
-		}
-
-		public String[] getNetwork() {
-			return network;
-		}
-
-		public void setNetwork(String[] network) {
-			this.network = network;
-		}
-
-		public String[] getOperator() {
-			return operator;
-		}
-
-		public void setOperator(String[] operator) {
-			this.operator = operator;
-		}
-
-		public String[] getDevice() {
-			return device;
-		}
-
-		public void setDevice(String[] device) {
-			this.device = device;
-		}
-
-		public String[] getOs() {
-			return os;
-		}
-
-		public void setOs(String[] os) {
-			this.os = os;
-		}
-
-		public String[] getBrand() {
-			return brand;
-		}
-
-		public void setBrand(String[] brand) {
-			this.brand = brand;
-		}
-
-		public String[] getApp() {
-			return app;
-		}
-
-		public void setApp(String[] app) {
-			this.app = app;
-		}
-
-		@Override
-		public String toString() {
-			return "Target [region=" + region + ", adType=" + adType
-					+ ", time=" + time + ", network=" + network + ", operator="
-					+ operator + ", device=" + device + ", os=" + os
-					+ ", brand=" + brand + ", app=" + app + "]";
-		}
-	}
-	
-	/**
 	 * 频次
 	 */
 	private Frequency frequency;
@@ -232,35 +107,6 @@ public class CampaignBean {
 	 * 监测地址
 	 */
 	private String[] monitors;
-	
-//	public class Monitor {
-//		/**
-//		 * 展现监测地址
-//		 */
-//		private String impressionUrl;
-//		/**
-//		 * 点击监测地址
-//		 */
-//		private String clickUrl;
-//		
-//		public String getImpressionUrl() {
-//			return impressionUrl;
-//		}
-//		public void setImpressionUrl(String impressionUrl) {
-//			this.impressionUrl = impressionUrl;
-//		}
-//		public String getClickUrl() {
-//			return clickUrl;
-//		}
-//		public void setClickUrl(String clickUrl) {
-//			this.clickUrl = clickUrl;
-//		}
-//		@Override
-//		public String toString() {
-//			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
-//					+ clickUrl + "]";
-//		}
-//	}
 
 	public String getId() {
 		return id;
@@ -350,12 +196,12 @@ public class CampaignBean {
 		this.endDate = endDate;
 	}
 
-	public Target getTarget() {
-		return target;
+	public String getFrequencyId() {
+		return frequencyId;
 	}
 
-	public void setTarget(Target target) {
-		this.target = target;
+	public void setFrequencyId(String frequencyId) {
+		this.frequencyId = frequencyId;
 	}
 
 	public Frequency getFrequency() {
@@ -374,14 +220,6 @@ public class CampaignBean {
 		this.monitors = monitors;
 	}
 
-	public String getFrequencyId() {
-		return frequencyId;
-	}
-
-	public void setFrequencyId(String frequencyId) {
-		this.frequencyId = frequencyId;
-	}
-
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
@@ -390,9 +228,8 @@ public class CampaignBean {
 				+ ", dailyClick=" + dailyClick + ", remark=" + remark
 				+ ", status=" + status + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", frequencyId=" + frequencyId
-				+ ", target=" + target + ", frequency=" + frequency
-				+ ", monitors=" + monitors + "]";
+				+ ", frequency=" + frequency + ", monitors="
+				+ Arrays.toString(monitors) + "]";
 	}
-
 }
 
