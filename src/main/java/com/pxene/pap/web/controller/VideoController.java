@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.service.AuditCreativeBaiduService;
+import com.pxene.pap.service.LaunchService;
 import com.pxene.pap.service.RedisService;
 import com.pxene.pap.service.VideoService;
 
@@ -25,6 +26,9 @@ public class VideoController {
 	
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private LaunchService launchService;
 	
 	@Autowired
 	private AuditCreativeBaiduService auditService;
@@ -44,7 +48,7 @@ public class VideoController {
 //		auditService.audit(id);
 //		auditService.synchronize(id);
 //		redisService.writeCampaignIds(id);
-		redisService.deleteCampaignId(id);
+		launchService.launchByTime();
 		return null;
 	}
 

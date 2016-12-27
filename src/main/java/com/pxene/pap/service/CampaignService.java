@@ -64,7 +64,7 @@ import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
-public class CampaignService extends PutOnService{
+public class CampaignService extends LaunchService{
 	
 	@Autowired
 	private CampaignDao campaignDao; 

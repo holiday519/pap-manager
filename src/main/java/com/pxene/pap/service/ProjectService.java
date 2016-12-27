@@ -26,7 +26,7 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
-public class ProjectService extends PutOnService {
+public class ProjectService extends LaunchService {
 	
 	@Autowired
 	private ProjectDao projectDao;

@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -136,6 +138,42 @@ public class RedisService {
 		JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 	}
 	
+	/**
+	 * 将活动ID 从redis 移除
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void removeCampaignIds(String campaignId) throws Exception {
+		String ids = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+		JsonObject idObj = new JsonObject();
+		JsonArray idArray = new JsonArray();
+		if (!StringUtils.isEmpty(ids)) {
+			Gson gson = new Gson();
+			idObj = gson.fromJson(ids, new JsonObject().getClass());
+			idArray = idObj.get("groupids").getAsJsonArray();
+			// 判断是否已经含有当前campaignID
+			boolean flag = false;
+			int n = 0;
+			for (int i = 0; i < idArray.size(); i++) {
+				if (campaignId.equals(idArray.get(i).getAsString())) {
+					flag = true;
+					n = i;
+					break;
+				}
+			}
+			if (flag) {
+				idArray.remove(n);
+				idObj.add("groupids", idArray);
+			}
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+		}
+	}
+	
+	/**
+	 * 创意基本信息写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
 		// 查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
@@ -177,6 +215,7 @@ public class RedisService {
 			}
 		}
 	}
+	
 	/**
 	 * 图片创意信息写入redis
 	 * @param mapId
@@ -602,7 +641,7 @@ public class RedisService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void WriteMapidToRedis(String campaignId) throws Exception {
+	public void writeMapidToRedis(String campaignId) throws Exception {
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
