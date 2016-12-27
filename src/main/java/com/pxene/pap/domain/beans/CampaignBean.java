@@ -63,7 +63,7 @@ public class CampaignBean {
 	 */
 	private Target target;
 	
-	public class Target {
+	public static class Target {
 		
 		/**
 		 * 地域定向
@@ -188,7 +188,7 @@ public class CampaignBean {
 	 */
 	private Frequency frequency;
 	
-	public class Frequency {
+	public static class Frequency {
 		
 		/**
 		 * 控制对象
@@ -231,36 +231,36 @@ public class CampaignBean {
 	/**
 	 * 监测地址
 	 */
-	private String[] monitors;
+	private Monitor[] monitors;
 	
-//	public class Monitor {
-//		/**
-//		 * 展现监测地址
-//		 */
-//		private String impressionUrl;
-//		/**
-//		 * 点击监测地址
-//		 */
-//		private String clickUrl;
-//		
-//		public String getImpressionUrl() {
-//			return impressionUrl;
-//		}
-//		public void setImpressionUrl(String impressionUrl) {
-//			this.impressionUrl = impressionUrl;
-//		}
-//		public String getClickUrl() {
-//			return clickUrl;
-//		}
-//		public void setClickUrl(String clickUrl) {
-//			this.clickUrl = clickUrl;
-//		}
-//		@Override
-//		public String toString() {
-//			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
-//					+ clickUrl + "]";
-//		}
-//	}
+	public static class Monitor {
+		/**
+		 * 展现监测地址
+		 */
+		private String impressionUrl;
+		/**
+		 * 点击监测地址
+		 */
+		private String clickUrl;
+		
+		public String getImpressionUrl() {
+			return impressionUrl;
+		}
+		public void setImpressionUrl(String impressionUrl) {
+			this.impressionUrl = impressionUrl;
+		}
+		public String getClickUrl() {
+			return clickUrl;
+		}
+		public void setClickUrl(String clickUrl) {
+			this.clickUrl = clickUrl;
+		}
+		@Override
+		public String toString() {
+			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
+					+ clickUrl + "]";
+		}
+	}
 
 	public String getId() {
 		return id;
@@ -366,11 +366,11 @@ public class CampaignBean {
 		this.frequency = frequency;
 	}
 
-	public String[] getMonitors() {
+	public Monitor[] getMonitors() {
 		return monitors;
 	}
 
-	public void setMonitors(String[] monitors) {
+	public void setMonitors(Monitor[] monitors) {
 		this.monitors = monitors;
 	}
 

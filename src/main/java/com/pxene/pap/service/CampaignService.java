@@ -18,6 +18,7 @@ import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignInfoBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
+import com.pxene.pap.domain.beans.CampaignInfoBean.Monitor;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
 import com.pxene.pap.domain.model.basic.AdTypeTargetModelExample;
@@ -407,18 +408,14 @@ public class CampaignService extends LaunchService{
 	 */
 	@Transactional
 	public void addCampaignMonitor(CampaignInfoBean bean) throws Exception {
-		String[] monitors = bean.getMonitors();
+		Monitor[] monitors = bean.getMonitors();
 		if (monitors != null && monitors.length > 0) {
 			String id = bean.getId();
-			for (String mnt : monitors) {
+			for (Monitor mnt : monitors) {
 				String monitorId = UUID.randomUUID().toString();
-				//MonitorModel monitor = modelMapper.map(mnt, MonitorModel.class);
-				MonitorModel monitor = new MonitorModel();
+				MonitorModel monitor = modelMapper.map(mnt, MonitorModel.class);
 				monitor.setId(monitorId);
 				monitor.setCampaignId(id);
-				String[] urls = mnt.split(",");
-				monitor.setImpressionUrl(urls[0]);
-				monitor.setClickUrl(urls[1]);
 				monitorDao.insertSelective(monitor);
 			}
 		}
@@ -532,7 +529,7 @@ public class CampaignService extends LaunchService{
 		List<CampaignTargetModel> list = campaignTargetDao.selectByExampleWithBLOBs(example);
 		if (list != null && !list.isEmpty()) {
 			CampaignTargetModel model = list.get(0);
-			Target target = bean.new Target();
+			Target target = new Target();
 			target.setRegion(formatTargetStringToArray(model.getRegionId()));
 			target.setAdType(formatTargetStringToArray(model.getAdType()));
 			target.setTime(formatTargetStringToArray(model.getTimeId()));
@@ -547,7 +544,7 @@ public class CampaignService extends LaunchService{
 		// 查询频次信息
 		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
 			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
-			com.pxene.pap.domain.beans.CampaignBean.Frequency frequency = bean.new Frequency();
+			com.pxene.pap.domain.beans.CampaignBean.Frequency frequency = new com.pxene.pap.domain.beans.CampaignBean.Frequency();
 			frequency.setControlObj(frequencyModel.getControlObj());
 			frequency.setNumber(frequencyModel.getNumber());
 			frequency.setTimeType(frequencyModel.getTimeType());
@@ -559,10 +556,11 @@ public class CampaignService extends LaunchService{
 		List<MonitorModel> monitorList = monitorDao.selectByExample(monitorExample);
 		// 如果没有查到点击展现地址数据，直接返回
 		if (monitorList != null && !monitorList.isEmpty()) {
-			String[] monitors = new String[monitorList.size()];
+			com.pxene.pap.domain.beans.CampaignBean.Monitor[] monitors = new com.pxene.pap.domain.beans.CampaignBean.Monitor[monitorList.size()];
 			for (int i=0; i<monitors.length; i++) {
 				MonitorModel model = monitorList.get(i);
-				monitors[i] = model.getImpressionUrl() + "," + model.getClickUrl();
+				monitors[i].setImpressionUrl(model.getImpressionUrl());
+				monitors[i].setClickUrl(model.getClickUrl());
 			}
 			bean.setMonitors(monitors);
 		}

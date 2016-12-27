@@ -1,6 +1,5 @@
 package com.pxene.pap.domain.beans;
 
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -63,7 +62,7 @@ public class CampaignInfoBean {
 	 */
 	private Frequency frequency;
 	
-	public class Frequency {
+	public static class Frequency {
 		
 		/**
 		 * 控制对象
@@ -106,7 +105,29 @@ public class CampaignInfoBean {
 	/**
 	 * 监测地址
 	 */
-	private String[] monitors;
+	private Monitor[] monitors;
+	
+	public static class Monitor {
+		private String impressionUrl;
+		private String clickUrl;
+		public String getImpressionUrl() {
+			return impressionUrl;
+		}
+		public void setImpressionUrl(String impressionUrl) {
+			this.impressionUrl = impressionUrl;
+		}
+		public String getClickUrl() {
+			return clickUrl;
+		}
+		public void setClickUrl(String clickUrl) {
+			this.clickUrl = clickUrl;
+		}
+		@Override
+		public String toString() {
+			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
+					+ clickUrl + "]";
+		}
+	}
 
 	public String getId() {
 		return id;
@@ -212,11 +233,11 @@ public class CampaignInfoBean {
 		this.frequency = frequency;
 	}
 
-	public String[] getMonitors() {
+	public Monitor[] getMonitors() {
 		return monitors;
 	}
 
-	public void setMonitors(String[] monitors) {
+	public void setMonitors(Monitor[] monitors) {
 		this.monitors = monitors;
 	}
 
@@ -229,7 +250,7 @@ public class CampaignInfoBean {
 				+ ", status=" + status + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", frequencyId=" + frequencyId
 				+ ", frequency=" + frequency + ", monitors="
-				+ Arrays.toString(monitors) + "]";
+				+ monitors + "]";
 	}
 }
 
