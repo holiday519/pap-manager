@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.pxene.pap.domain.beans.CreativeAddBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.service.AuditCreativeBaiduService;
 import com.pxene.pap.service.LaunchService;
@@ -39,16 +40,29 @@ public class VideoController {
 		videoService.updateVideo(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	@RequestMapping(value = "/video/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@RequestMapping(value = "/video/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public String deleteVideo(@PathVariable String id, HttpServletResponse response) throws Exception {
+////		//测试redis
+////		redisService.writeCampaignInfoToRedis(id);
+//		//测试审核
+////		auditService.audit(id);
+////		auditService.synchronize(id);
+////		redisService.writeCampaignIds(id);
+//		launchService.launchByTime();
+//		return null;
+//	}
+	@RequestMapping(value = "/video/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String deleteVideo(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public String deleteVideo(@PathVariable String id, @RequestBody CreativeAddBean bean, HttpServletResponse response) throws Exception {
 //		//测试redis
 //		redisService.writeCampaignInfoToRedis(id);
 		//测试审核
 //		auditService.audit(id);
 //		auditService.synchronize(id);
 //		redisService.writeCampaignIds(id);
-		launchService.launchByTime();
+		System.out.println(bean.getCampaignId());
+//		launchService.launchByTime();
 		return null;
 	}
 

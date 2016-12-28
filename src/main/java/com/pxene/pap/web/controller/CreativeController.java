@@ -16,7 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.CreativeBean;
+import com.pxene.pap.domain.beans.CreativeAddBean;
+import com.pxene.pap.domain.beans.CreativeUpdateBean;
 import com.pxene.pap.service.CreativeService;
 
 @Controller
@@ -34,7 +35,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createCreative(@Valid @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
+	public String createCreative(@Valid @RequestBody CreativeAddBean bean, HttpServletResponse response) throws Exception {
 		creativeService.createCreative(bean);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", bean.getId(), response);
 	}
@@ -49,7 +50,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateCreative(@PathVariable String id, @RequestBody CreativeBean bean, HttpServletResponse response) throws Exception {
+	public void updateCreative(@PathVariable String id, @RequestBody CreativeUpdateBean bean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}

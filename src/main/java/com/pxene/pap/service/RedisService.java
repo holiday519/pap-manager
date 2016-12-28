@@ -373,16 +373,16 @@ public class RedisService {
 				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
 				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(), ""));
 			}
-			String icon = model.getIcon();
+			String icon = model.getIconId();
 			if (icon != null) {
 				JsonObject iconJson = getImageJson(icon);
 				creativeObj.add(icon, iconJson);
 			}
-			String image1 = model.getImage1();
-			String image2 = model.getImage2();
-			String image3 = model.getImage3();
-			String image4 = model.getImage4();
-			String image5 = model.getImage5();
+			String image1 = model.getImage1Id();
+			String image2 = model.getImage2Id();
+			String image3 = model.getImage3Id();
+			String image4 = model.getImage4Id();
+			String image5 = model.getImage5Id();
 			int imgs = 0;
 			//记录图片id（多张信息流大图）
 			String []someImage = new String[5];

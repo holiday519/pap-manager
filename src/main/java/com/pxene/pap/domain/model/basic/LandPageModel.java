@@ -1,19 +1,21 @@
 package com.pxene.pap.domain.model.basic;
 
-import java.util.Date;
-
 public class LandPageModel {
     private String id;
 
-    private String path;
+    private String campaignId;
+
+    private String name;
+
+    private String url;
 
     private String anidDeepLink;
 
     private String iosDeepLink;
 
-    private Date createTime;
+    private String monitorUrl;
 
-    private Date updateTime;
+    private String remark;
 
     public String getId() {
         return id;
@@ -23,12 +25,28 @@ public class LandPageModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getPath() {
-        return path;
+    public String getCampaignId() {
+        return campaignId;
     }
 
-    public void setPath(String path) {
-        this.path = path == null ? null : path.trim();
+    public void setCampaignId(String campaignId) {
+        this.campaignId = campaignId == null ? null : campaignId.trim();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name == null ? null : name.trim();
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url == null ? null : url.trim();
     }
 
     public String getAnidDeepLink() {
@@ -47,20 +65,20 @@ public class LandPageModel {
         this.iosDeepLink = iosDeepLink == null ? null : iosDeepLink.trim();
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public String getMonitorUrl() {
+        return monitorUrl;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setMonitorUrl(String monitorUrl) {
+        this.monitorUrl = monitorUrl == null ? null : monitorUrl.trim();
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setRemark(String remark) {
+        this.remark = remark == null ? null : remark.trim();
     }
 
     @Override
@@ -70,11 +88,13 @@ public class LandPageModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", path=").append(path);
+        sb.append(", campaignId=").append(campaignId);
+        sb.append(", name=").append(name);
+        sb.append(", url=").append(url);
         sb.append(", anidDeepLink=").append(anidDeepLink);
         sb.append(", iosDeepLink=").append(iosDeepLink);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
+        sb.append(", monitorUrl=").append(monitorUrl);
+        sb.append(", remark=").append(remark);
         sb.append("]");
         return sb.toString();
     }

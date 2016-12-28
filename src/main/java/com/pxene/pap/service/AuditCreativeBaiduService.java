@@ -369,8 +369,8 @@ public class AuditCreativeBaiduService {
 		creative.addProperty("style", 5); //5：APP 图文信息流 （adviewType 必须为2）
 		//原生图片信息——有顺序
 		JsonArray creativeUrls = new JsonArray();
-		String icon = creativeInfo.getIcon();
-		String image1 = creativeInfo.getImage1();
+		String icon = creativeInfo.getIconId();
+		String image1 = creativeInfo.getImage1Id();
 		if(!StringUtils.isEmpty(icon)){
 			ImageSizeTypeModelExample istExample = new ImageSizeTypeModelExample();
 			istExample.createCriteria().andIdEqualTo(icon);

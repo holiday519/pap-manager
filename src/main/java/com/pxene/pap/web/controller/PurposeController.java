@@ -27,89 +27,89 @@ import com.pxene.pap.service.PurposeService;
 @Controller
 public class PurposeController {
 
-	@Autowired
-	private PurposeService purposeService;
-	
-	/**
-	 * 添加活动目标
-	 * @param bean
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/purpose", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String createPurpose(@Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
-		purposeService.createPurpose(bean);
-		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
-	}
-	
-	/**
-	 * 编辑活动目标
-	 * @param id
-	 * @param bean
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/purpose/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public void updatePurpose(@PathVariable String id, @Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
-		purposeService.updatePurpose(id, bean);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}
-	
-	/**
-	 * 删除活动目标
-	 * @param id
-	 * @param response
-	 * @throws Exception
-	 */
-	@RequestMapping(value="/purpose/{id}",method = RequestMethod.DELETE)
-	@ResponseBody
-	public void deletePurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
-		purposeService.deletePurpose(id);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}
-	
-	/**
-	 * 根据ID查询活动目标
-	 * @param id
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	
-	@RequestMapping(value = "/purpose/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String selectPurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
-		
-		PurposeBean purposeBean = purposeService.selectPurpose(id);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), purposeBean, response);
-	}
-	
-	/**
-	 * 查询活动目标列表
-	 * @param name
-	 * @param pageNo
-	 * @param pageSize
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/purpose", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String selectPurposes(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		Page<Object> pager = null;
-        if (pageNo != null && pageSize != null){
-            pager = PageHelper.startPage(pageNo, pageSize);
-        }
-        
-		List<PurposeBean> selectPurposes = purposeService.selectPurposes(name);
-		
-		PaginationResult result = new PaginationResult(selectPurposes, pager);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-	}
+//	@Autowired
+//	private PurposeService purposeService;
+//	
+//	/**
+//	 * 添加活动目标
+//	 * @param bean
+//	 * @param response
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	@RequestMapping(value = "/purpose", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    @ResponseBody
+//    public String createPurpose(@Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
+//		purposeService.createPurpose(bean);
+//		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
+//	}
+//	
+//	/**
+//	 * 编辑活动目标
+//	 * @param id
+//	 * @param bean
+//	 * @param response
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	@RequestMapping(value = "/purpose/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public void updatePurpose(@PathVariable String id, @Valid @RequestBody PurposeBean bean, HttpServletResponse response) throws Exception {
+//		purposeService.updatePurpose(id, bean);
+//		response.setStatus(HttpStatus.NO_CONTENT.value());
+//	}
+//	
+//	/**
+//	 * 删除活动目标
+//	 * @param id
+//	 * @param response
+//	 * @throws Exception
+//	 */
+//	@RequestMapping(value="/purpose/{id}",method = RequestMethod.DELETE)
+//	@ResponseBody
+//	public void deletePurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
+//		purposeService.deletePurpose(id);
+//		response.setStatus(HttpStatus.NO_CONTENT.value());
+//	}
+//	
+//	/**
+//	 * 根据ID查询活动目标
+//	 * @param id
+//	 * @param response
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	
+//	@RequestMapping(value = "/purpose/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public String selectPurpose(@PathVariable String id, HttpServletResponse response) throws Exception {
+//		
+//		PurposeBean purposeBean = purposeService.selectPurpose(id);
+//		return ResponseUtils.sendReponse(HttpStatus.OK.value(), purposeBean, response);
+//	}
+//	
+//	/**
+//	 * 查询活动目标列表
+//	 * @param name
+//	 * @param pageNo
+//	 * @param pageSize
+//	 * @param request
+//	 * @param response
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	@RequestMapping(value = "/purpose", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public String selectPurposes(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		
+//		Page<Object> pager = null;
+//        if (pageNo != null && pageSize != null){
+//            pager = PageHelper.startPage(pageNo, pageSize);
+//        }
+//        
+//		List<PurposeBean> selectPurposes = purposeService.selectPurposes(name);
+//		
+//		PaginationResult result = new PaginationResult(selectPurposes, pager);
+//		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+//	}
 }

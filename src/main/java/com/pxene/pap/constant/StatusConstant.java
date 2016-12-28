@@ -59,5 +59,18 @@ public class StatusConstant {
 	 * 创意审核状态 ：审核不通过
 	 */
 	public static final String CREATIVE_AUDIT_FAILURE = "02";
+	/**
+	 * 创意类型 ： 图片
+	 */
+	public static final String CREATIVE_TYPE_IMAGE = "1";
+	/**
+	 * 创意类型 ： 视频
+	 */
+	public static final String CREATIVE_TYPE_VIDEO = "2";
+	/**
+	 * 创意类型 ： 信息流
+	 */
+	public static final String CREATIVE_TYPE_INFOFLOW = "3";
+	
 	
 }

@@ -35,17 +35,17 @@ public class CreativeInfoflowModel {
 
     private String ctatext;
 
-    private String icon;
+    private String iconId;
 
-    private String image1;
+    private String image1Id;
 
-    private String image2;
+    private String image2Id;
 
-    private String image3;
+    private String image3Id;
 
-    private String image4;
+    private String image4Id;
 
-    private String image5;
+    private String image5Id;
 
     private String projectId;
 
@@ -177,52 +177,52 @@ public class CreativeInfoflowModel {
         this.ctatext = ctatext == null ? null : ctatext.trim();
     }
 
-    public String getIcon() {
-        return icon;
+    public String getIconId() {
+        return iconId;
     }
 
-    public void setIcon(String icon) {
-        this.icon = icon == null ? null : icon.trim();
+    public void setIconId(String iconId) {
+        this.iconId = iconId == null ? null : iconId.trim();
     }
 
-    public String getImage1() {
-        return image1;
+    public String getImage1Id() {
+        return image1Id;
     }
 
-    public void setImage1(String image1) {
-        this.image1 = image1 == null ? null : image1.trim();
+    public void setImage1Id(String image1Id) {
+        this.image1Id = image1Id == null ? null : image1Id.trim();
     }
 
-    public String getImage2() {
-        return image2;
+    public String getImage2Id() {
+        return image2Id;
     }
 
-    public void setImage2(String image2) {
-        this.image2 = image2 == null ? null : image2.trim();
+    public void setImage2Id(String image2Id) {
+        this.image2Id = image2Id == null ? null : image2Id.trim();
     }
 
-    public String getImage3() {
-        return image3;
+    public String getImage3Id() {
+        return image3Id;
     }
 
-    public void setImage3(String image3) {
-        this.image3 = image3 == null ? null : image3.trim();
+    public void setImage3Id(String image3Id) {
+        this.image3Id = image3Id == null ? null : image3Id.trim();
     }
 
-    public String getImage4() {
-        return image4;
+    public String getImage4Id() {
+        return image4Id;
     }
 
-    public void setImage4(String image4) {
-        this.image4 = image4 == null ? null : image4.trim();
+    public void setImage4Id(String image4Id) {
+        this.image4Id = image4Id == null ? null : image4Id.trim();
     }
 
-    public String getImage5() {
-        return image5;
+    public String getImage5Id() {
+        return image5Id;
     }
 
-    public void setImage5(String image5) {
-        this.image5 = image5 == null ? null : image5.trim();
+    public void setImage5Id(String image5Id) {
+        this.image5Id = image5Id == null ? null : image5Id.trim();
     }
 
     public String getProjectId() {
@@ -255,12 +255,12 @@ public class CreativeInfoflowModel {
         sb.append(", description=").append(description);
         sb.append(", rating=").append(rating);
         sb.append(", ctatext=").append(ctatext);
-        sb.append(", icon=").append(icon);
-        sb.append(", image1=").append(image1);
-        sb.append(", image2=").append(image2);
-        sb.append(", image3=").append(image3);
-        sb.append(", image4=").append(image4);
-        sb.append(", image5=").append(image5);
+        sb.append(", iconId=").append(iconId);
+        sb.append(", image1Id=").append(image1Id);
+        sb.append(", image2Id=").append(image2Id);
+        sb.append(", image3Id=").append(image3Id);
+        sb.append(", image4Id=").append(image4Id);
+        sb.append(", image5Id=").append(image5Id);
         sb.append(", projectId=").append(projectId);
         sb.append("]");
         return sb.toString();
