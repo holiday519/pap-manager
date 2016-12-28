@@ -245,10 +245,10 @@ public class RedisService {
 			}
 			creativeObj.add("price_adx", priceAdx);
 			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
-			if ("2".equals(model.getCtype())) {
-				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
-				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
-			}
+//			if ("2".equals(model.getCtype())) {
+//				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
+//				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
+//			}
 			creativeObj.addProperty("w", GlobalUtil.parseInt(model.getW(),0));
 			creativeObj.addProperty("h", GlobalUtil.parseInt(model.getH(),0));
 			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getCurl(),""));
@@ -307,10 +307,10 @@ public class RedisService {
 			}
 			creativeObj.add("price_adx", priceAdx);
 			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
-			if ("2".equals(model.getCtype())) {
-				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
-				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
-			}
+//			if ("2".equals(model.getCtype())) {
+//				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
+//				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
+//			}
 			creativeObj.addProperty("w", GlobalUtil.parseInt(model.getW(),0));
 			creativeObj.addProperty("h", GlobalUtil.parseInt(model.getH(),0));
 			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getCurl(),""));
@@ -357,7 +357,7 @@ public class RedisService {
 			creativeObj.addProperty("mapid", model.getMapId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
-			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
+//			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
 			AdxModelExample adxEcample = new AdxModelExample();
 			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
 			JsonArray priceAdx = new JsonArray();
@@ -369,10 +369,10 @@ public class RedisService {
 			}
 			creativeObj.add("price_adx", priceAdx);
 			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
-			if ("2".equals(model.getCtype())) {
-				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
-				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(), ""));
-			}
+//			if ("2".equals(model.getCtype())) {
+//				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
+//				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(), ""));
+//			}
 			String icon = model.getIconId();
 			if (icon != null) {
 				JsonObject iconJson = getImageJson(icon);
@@ -423,8 +423,8 @@ public class RedisService {
 			} else if (imgs > 1) {
 				JsonArray bigImages = new JsonArray(); 
 				for(String str : someImage){
-					
-					bigImages.add(image_url + selectImages(str).toString());
+					JsonObject bObj = getImageJson(str);
+					bigImages.add(bObj);
 				}
 				creativeObj.add("imgs", bigImages);
 			}
@@ -466,10 +466,12 @@ public class RedisService {
 	private JsonObject getImageJson(String imageId) throws Exception {
 		JsonObject json = new JsonObject();
 		ImageSizeTypeModel model = selectImages(imageId);
-		json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
-		json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
-		json.addProperty("ftype", Integer.parseInt(model.getCode()));
-		json.addProperty("sourceurl", model.getPath());
+		if (model != null) {
+			json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
+			json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
+			json.addProperty("ftype", Integer.parseInt(model.getCode()));
+			json.addProperty("sourceurl", image_url + model.getPath());
+		}
 		return json;
 	}
 	

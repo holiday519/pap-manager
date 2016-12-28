@@ -1,5 +1,6 @@
 package com.pxene.pap.domain.model.basic;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -332,52 +333,52 @@ public class CampaignCostModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCostEqualTo(Integer value) {
+        public Criteria andCostEqualTo(BigDecimal value) {
             addCriterion("cost =", value, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostNotEqualTo(Integer value) {
+        public Criteria andCostNotEqualTo(BigDecimal value) {
             addCriterion("cost <>", value, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostGreaterThan(Integer value) {
+        public Criteria andCostGreaterThan(BigDecimal value) {
             addCriterion("cost >", value, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostGreaterThanOrEqualTo(Integer value) {
+        public Criteria andCostGreaterThanOrEqualTo(BigDecimal value) {
             addCriterion("cost >=", value, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostLessThan(Integer value) {
+        public Criteria andCostLessThan(BigDecimal value) {
             addCriterion("cost <", value, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostLessThanOrEqualTo(Integer value) {
+        public Criteria andCostLessThanOrEqualTo(BigDecimal value) {
             addCriterion("cost <=", value, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostIn(List<Integer> values) {
+        public Criteria andCostIn(List<BigDecimal> values) {
             addCriterion("cost in", values, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostNotIn(List<Integer> values) {
+        public Criteria andCostNotIn(List<BigDecimal> values) {
             addCriterion("cost not in", values, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostBetween(Integer value1, Integer value2) {
+        public Criteria andCostBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("cost between", value1, value2, "cost");
             return (Criteria) this;
         }
 
-        public Criteria andCostNotBetween(Integer value1, Integer value2) {
+        public Criteria andCostNotBetween(BigDecimal value1, BigDecimal value2) {
             addCriterion("cost not between", value1, value2, "cost");
             return (Criteria) this;
         }

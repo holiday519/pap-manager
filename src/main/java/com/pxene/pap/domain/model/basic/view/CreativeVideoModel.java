@@ -15,12 +15,6 @@ public class CreativeVideoModel {
 
     private String ctype;
 
-    private String bundle;
-
-    private String apkName;
-
-    private String appDescription;
-
     private Integer w;
 
     private Integer h;
@@ -28,8 +22,6 @@ public class CreativeVideoModel {
     private String curl;
 
     private String landingUrl;
-
-    private String downloadUrl;
 
     private String sourceUrl;
 
@@ -83,30 +75,6 @@ public class CreativeVideoModel {
         this.ctype = ctype == null ? null : ctype.trim();
     }
 
-    public String getBundle() {
-        return bundle;
-    }
-
-    public void setBundle(String bundle) {
-        this.bundle = bundle == null ? null : bundle.trim();
-    }
-
-    public String getApkName() {
-        return apkName;
-    }
-
-    public void setApkName(String apkName) {
-        this.apkName = apkName == null ? null : apkName.trim();
-    }
-
-    public String getAppDescription() {
-        return appDescription;
-    }
-
-    public void setAppDescription(String appDescription) {
-        this.appDescription = appDescription == null ? null : appDescription.trim();
-    }
-
     public Integer getW() {
         return w;
     }
@@ -139,14 +107,6 @@ public class CreativeVideoModel {
         this.landingUrl = landingUrl == null ? null : landingUrl.trim();
     }
 
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl == null ? null : downloadUrl.trim();
-    }
-
     public String getSourceUrl() {
         return sourceUrl;
     }
@@ -175,14 +135,10 @@ public class CreativeVideoModel {
         sb.append(", type=").append(type);
         sb.append(", ftype=").append(ftype);
         sb.append(", ctype=").append(ctype);
-        sb.append(", bundle=").append(bundle);
-        sb.append(", apkName=").append(apkName);
-        sb.append(", appDescription=").append(appDescription);
         sb.append(", w=").append(w);
         sb.append(", h=").append(h);
         sb.append(", curl=").append(curl);
         sb.append(", landingUrl=").append(landingUrl);
-        sb.append(", downloadUrl=").append(downloadUrl);
         sb.append(", sourceUrl=").append(sourceUrl);
         sb.append(", projectId=").append(projectId);
         sb.append("]");

@@ -1,5 +1,6 @@
 package com.pxene.pap.domain.model.basic;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class CampaignCostModel {
@@ -9,7 +10,7 @@ public class CampaignCostModel {
 
     private Date date;
 
-    private Integer cost;
+    private BigDecimal cost;
 
     private Date createtime;
 
@@ -39,11 +40,11 @@ public class CampaignCostModel {
         this.date = date;
     }
 
-    public Integer getCost() {
+    public BigDecimal getCost() {
         return cost;
     }
 
-    public void setCost(Integer cost) {
+    public void setCost(BigDecimal cost) {
         this.cost = cost;
     }
 

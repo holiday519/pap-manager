@@ -15,17 +15,9 @@ public class CreativeInfoflowModel {
 
     private String ctype;
 
-    private String bundle;
-
-    private String apkName;
-
-    private String downloadUrl;
-
     private String curl;
 
     private String landingUrl;
-
-    private String appDescription;
 
     private String title;
 
@@ -97,30 +89,6 @@ public class CreativeInfoflowModel {
         this.ctype = ctype == null ? null : ctype.trim();
     }
 
-    public String getBundle() {
-        return bundle;
-    }
-
-    public void setBundle(String bundle) {
-        this.bundle = bundle == null ? null : bundle.trim();
-    }
-
-    public String getApkName() {
-        return apkName;
-    }
-
-    public void setApkName(String apkName) {
-        this.apkName = apkName == null ? null : apkName.trim();
-    }
-
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl == null ? null : downloadUrl.trim();
-    }
-
     public String getCurl() {
         return curl;
     }
@@ -135,14 +103,6 @@ public class CreativeInfoflowModel {
 
     public void setLandingUrl(String landingUrl) {
         this.landingUrl = landingUrl == null ? null : landingUrl.trim();
-    }
-
-    public String getAppDescription() {
-        return appDescription;
-    }
-
-    public void setAppDescription(String appDescription) {
-        this.appDescription = appDescription == null ? null : appDescription.trim();
     }
 
     public String getTitle() {
@@ -245,12 +205,8 @@ public class CreativeInfoflowModel {
         sb.append(", type=").append(type);
         sb.append(", ftype=").append(ftype);
         sb.append(", ctype=").append(ctype);
-        sb.append(", bundle=").append(bundle);
-        sb.append(", apkName=").append(apkName);
-        sb.append(", downloadUrl=").append(downloadUrl);
         sb.append(", curl=").append(curl);
         sb.append(", landingUrl=").append(landingUrl);
-        sb.append(", appDescription=").append(appDescription);
         sb.append(", title=").append(title);
         sb.append(", description=").append(description);
         sb.append(", rating=").append(rating);

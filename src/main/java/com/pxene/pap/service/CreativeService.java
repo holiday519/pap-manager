@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.github.pagehelper.util.StringUtil;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CreativeAddBean;
 import com.pxene.pap.domain.beans.CreativeAddBean.BaseImageBean;
@@ -431,6 +432,9 @@ public class CreativeService extends BaseService {
 		if (mediaBean instanceof ImageBean){
 			ImageBean imageBean = (ImageBean) FileUtils.checkFile(file);
 			ImageTmplModel tmplModel = imageTmplDao.selectByPrimaryKey(tmplId);
+			if (tmplModel==null) {
+				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
+			}
 			String sizeId = tmplModel.getSizeId();
 			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
 			Integer tmplWidth = sizeModel.getWidth();//模版宽限制
@@ -449,6 +453,9 @@ public class CreativeService extends BaseService {
 		}else if (mediaBean instanceof VideoBean) {
 			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
 			VideoTmplModel tmplModel = videoTmplDao.selectByPrimaryKey(tmplId);
+			if (tmplModel==null) {
+				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
+			}
 			String sizeId = tmplModel.getSizeId();
 			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
 			Integer tmplWidth = sizeModel.getWidth();//模版宽限制

@@ -247,28 +247,28 @@ public class AuditCreativeBaiduService {
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
-		String promotiontype = getCampaignPromotionTypeByMapId(mapId);
-		if ("a".equals(promotiontype)) {
-			interactiveStyle = 2;
-			Float appPackageSize = 0F;
-			creative.addProperty("appName", creativeImage.getApkName());// 应用名称
-			creative.addProperty("appDesc", creativeImage.getAppDescription());//应用介绍
-			creative.addProperty("downloadUrl", creativeImage.getDownloadUrl());// 下载包地址
-			creative.addProperty("appPackageSize", appPackageSize);// 应用大小
-		} else if ("b".equals(promotiontype)) {
-			interactiveStyle = 0;
-			// 拨打电话暂时无法使用
-		} else if ("e".equals(promotiontype)) {
-			interactiveStyle = 0;
-		}
+//		String promotiontype = getCampaignPromotionTypeByMapId(mapId);
+//		if ("a".equals(promotiontype)) {
+//			interactiveStyle = 2;
+//			Float appPackageSize = 0F;
+//			creative.addProperty("appName", creativeImage.getApkName());// 应用名称
+//			creative.addProperty("appDesc", creativeImage.getAppDescription());//应用介绍
+//			creative.addProperty("downloadUrl", creativeImage.getDownloadUrl());// 下载包地址
+//			creative.addProperty("appPackageSize", appPackageSize);// 应用大小
+//		} else if ("b".equals(promotiontype)) {
+//			interactiveStyle = 0;
+//			// 拨打电话暂时无法使用
+//		} else if ("e".equals(promotiontype)) {
+//			interactiveStyle = 0;
+//		}
 		creative.addProperty("type", typeValue);
 		creative.addProperty("interactiveStyle", interactiveStyle);
-		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
-		if (!StringUtils.isEmpty(creativeImage.getLandingUrl())) {//到达页面
+//		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
+//		if (!StringUtils.isEmpty(creativeImage.getLandingUrl())) {//到达页面
 			creative.addProperty("landingPage", creativeImage.getLandingUrl());
-		} else {
-			creative.addProperty("landingPage", creativeImage.getDownloadUrl());
-		}
+//		} else {
+//			creative.addProperty("landingPage", creativeImage.getDownloadUrl());
+//		}
 		// 组成“请求头”
 		JsonObject authHeader = new JsonObject();
 		authHeader.addProperty("dspId", dspId);
@@ -418,28 +418,28 @@ public class AuditCreativeBaiduService {
 		creative.addProperty("advertiserId", advertiserIdValue);
 		// 创意的互动样式interactiveStyle（0：无 1：电话直拨 2：点击下载）
 		int interactiveStyle = 0;
-		String promotiontype = getCampaignPromotionTypeByMapId(mapId);
-		if ("a".equals(promotiontype)) {
-			interactiveStyle = 2;
-			Float appPackageSize = 0F;
-			creative.addProperty("appName", creativeInfo.getApkName());// 应用名称
-			creative.addProperty("appDesc", creativeInfo.getAppDescription());//应用介绍
-			creative.addProperty("downloadUrl", creativeInfo.getDownloadUrl());// 下载包地址
-			creative.addProperty("appPackageSize", appPackageSize);// 应用大小
-		} else if ("b".equals(promotiontype)) {
-			interactiveStyle = 0;
-			// 拨打电话暂时无法使用
-		} else if ("e".equals(promotiontype)) {
-			interactiveStyle = 0;
-		}
+//		String promotiontype = getCampaignPromotionTypeByMapId(mapId);
+//		if ("a".equals(promotiontype)) {
+//			interactiveStyle = 2;
+//			Float appPackageSize = 0F;
+//			creative.addProperty("appName", creativeInfo.getApkName());// 应用名称
+//			creative.addProperty("appDesc", creativeInfo.getAppDescription());//应用介绍
+//			creative.addProperty("downloadUrl", creativeInfo.getDownloadUrl());// 下载包地址
+//			creative.addProperty("appPackageSize", appPackageSize);// 应用大小
+//		} else if ("b".equals(promotiontype)) {
+//			interactiveStyle = 0;
+//			// 拨打电话暂时无法使用
+//		} else if ("e".equals(promotiontype)) {
+//			interactiveStyle = 0;
+//		}
 		creative.addProperty("type", typeValue);
 		creative.addProperty("interactiveStyle", interactiveStyle);
-		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
-		if (!StringUtils.isEmpty(creativeInfo.getLandingUrl())) {
+//		// 如果是跳转页面添加落地页跳转地址；否则添加app下载地址
+//		if (!StringUtils.isEmpty(creativeInfo.getLandingUrl())) {
 			creative.addProperty("downloadUrl", creativeInfo.getLandingUrl());
-		} else {
-			creative.addProperty("downloadUrl", creativeInfo.getDownloadUrl());
-		}
+//		} else {
+//			creative.addProperty("downloadUrl", creativeInfo.getDownloadUrl());
+//		}
 		// 组成“请求头”
 		JsonObject authHeader = new JsonObject();
 		authHeader.addProperty("dspId", dspId);
