@@ -13,37 +13,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import com.pxene.pap.domain.beans.AppDataHourBean;
-import com.pxene.pap.domain.beans.AppDataHourViewBean;
-import com.pxene.pap.domain.model.basic.AppDataHourModel;
-import com.pxene.pap.domain.model.basic.view.AppDataHourViewModel;
-import com.pxene.pap.domain.model.basic.view.AppDataHourViewModelExample;
-import com.pxene.pap.domain.model.basic.view.AppDataHourViewModelExample.Criteria;
+import com.pxene.pap.domain.beans.RegionDataHourBean;
+import com.pxene.pap.domain.beans.RegionDataHourViewBean;
+import com.pxene.pap.domain.model.basic.RegionDataHourModel;
+import com.pxene.pap.domain.model.basic.view.RegionDataHourViewModel;
+import com.pxene.pap.domain.model.basic.view.RegionDataHourViewModelExample;
+import com.pxene.pap.domain.model.basic.view.RegionDataHourViewModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
-import com.pxene.pap.repository.basic.AppDataHourDao;
-import com.pxene.pap.repository.basic.view.AppDataHourViewDao;
+import com.pxene.pap.repository.basic.RegionDataHourDao;
+import com.pxene.pap.repository.basic.view.RegionDataHourViewDao;
 
 @Service
-public class AppDataHourService extends BaseService
+public class RegionDataHourService extends BaseService
 {
     @Autowired
-    private AppDataHourDao appDataHourDao;
+    private RegionDataHourDao regionDataHourDao;
     
     @Autowired
-    private AppDataHourViewDao appDataHourViewDao;
+    private RegionDataHourViewDao regionDataHourViewDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
     
     @Transactional
-    public void saveAppDataHour(AppDataHourBean appDataDayBean)
+    public void saveRegionDataHour(RegionDataHourBean bean)
     {
-        AppDataHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppDataHourModel.class);
+        RegionDataHourModel model = modelMapper.map(bean, RegionDataHourModel.class);
         
         try
         {
-            appDataHourDao.insertSelective(appDataDayModel);
+            regionDataHourDao.insertSelective(model);
         }
         catch (DuplicateKeyException exception)
         {
@@ -52,27 +52,27 @@ public class AppDataHourService extends BaseService
         }
         
         // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataDayModel, appDataDayBean);
+        BeanUtils.copyProperties(model, bean);
         
     }
 
     @Transactional
-    public void updateAppDataHour(Integer id, AppDataHourBean appDataDayBean)
+    public void updateRegionDataHour(Integer id, RegionDataHourBean bean)
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
-        AppDataHourModel appDataDayInDB = appDataHourDao.selectByPrimaryKey(id);
-        if (appDataDayInDB == null)
+        RegionDataHourModel dataInDB = regionDataHourDao.selectByPrimaryKey(id);
+        if (dataInDB == null)
         {
             throw new ResourceNotFoundException();
         }
         
         // 将传输对象映射成数据库Model
-        AppDataHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppDataHourModel.class);
-        appDataDayModel.setId(id);
+        RegionDataHourModel model = modelMapper.map(bean, RegionDataHourModel.class);
+        model.setId(id);
         
         try
         {
-            appDataHourDao.updateByPrimaryKey(appDataDayModel);
+            regionDataHourDao.updateByPrimaryKey(model);
         }
         catch (DuplicateKeyException exception)
         {
@@ -81,35 +81,35 @@ public class AppDataHourService extends BaseService
         }
         
         // 将DAO编辑后的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataHourDao.selectByPrimaryKey(id), appDataDayBean);
+        BeanUtils.copyProperties(regionDataHourDao.selectByPrimaryKey(id), bean);
     }
 
     
     @Transactional
-    public List<AppDataHourViewBean> listAppDataHour(String campaignId, long beginTime, long endTime)
+    public List<RegionDataHourViewBean> listRegionDataHour(String campaignId, long beginTime, long endTime)
     {
-        AppDataHourViewModelExample example = new AppDataHourViewModelExample();
+        RegionDataHourViewModelExample example = new RegionDataHourViewModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<AppDataHourViewModel> appDataHourModels = appDataHourViewDao.selectByExample(example);
-        List<AppDataHourViewBean> appDataHourList = new ArrayList<AppDataHourViewBean>();
+        List<RegionDataHourViewModel> models = regionDataHourViewDao.selectByExample(example);
+        List<RegionDataHourViewBean> list = new ArrayList<RegionDataHourViewBean>();
         
-        if (appDataHourModels == null || appDataHourModels.size() <= 0)
+        if (models == null || models.size() <= 0)
         {
             throw new ResourceNotFoundException();
         }
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (AppDataHourViewModel appDataHourModel : appDataHourModels)
+            for (RegionDataHourViewModel model : models)
             {
-                appDataHourList.add(modelMapper.map(appDataHourModel, AppDataHourViewBean.class));
+                list.add(modelMapper.map(model, RegionDataHourViewBean.class));
             }
         }
         
-        return appDataHourList;
+        return list;
     }
     
 }

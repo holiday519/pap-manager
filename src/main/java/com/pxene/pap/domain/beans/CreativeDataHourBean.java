@@ -1,17 +1,18 @@
-package com.pxene.pap.domain.model.basic;
+package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
-public class AppDataHourModel {
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+public class CreativeDataHourBean {
     private Integer id;
 
-    private String appId;
+    private String creativeId;
 
     private String campaignId;
-
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date datetime;
-
-    private Long bidAmount;
 
     private Long winAmount;
 
@@ -35,12 +36,12 @@ public class AppDataHourModel {
         this.id = id;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getCreativeId() {
+        return creativeId;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId == null ? null : appId.trim();
+    public void setCreativeId(String creativeId) {
+        this.creativeId = creativeId == null ? null : creativeId.trim();
     }
 
     public String getCampaignId() {
@@ -57,14 +58,6 @@ public class AppDataHourModel {
 
     public void setDatetime(Date datetime) {
         this.datetime = datetime;
-    }
-
-    public Long getBidAmount() {
-        return bidAmount;
-    }
-
-    public void setBidAmount(Long bidAmount) {
-        this.bidAmount = bidAmount;
     }
 
     public Long getWinAmount() {
@@ -130,10 +123,9 @@ public class AppDataHourModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", appId=").append(appId);
+        sb.append(", creativeId=").append(creativeId);
         sb.append(", campaignId=").append(campaignId);
         sb.append(", datetime=").append(datetime);
-        sb.append(", bidAmount=").append(bidAmount);
         sb.append(", winAmount=").append(winAmount);
         sb.append(", impressionAmount=").append(impressionAmount);
         sb.append(", clickAmount=").append(clickAmount);

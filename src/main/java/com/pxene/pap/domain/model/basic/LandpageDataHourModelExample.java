@@ -485,66 +485,6 @@ public class LandpageDataHourModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andArrivalRateIsNull() {
-            addCriterion("arrival_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIsNotNull() {
-            addCriterion("arrival_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateEqualTo(Float value) {
-            addCriterion("arrival_rate =", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotEqualTo(Float value) {
-            addCriterion("arrival_rate <>", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateGreaterThan(Float value) {
-            addCriterion("arrival_rate >", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("arrival_rate >=", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateLessThan(Float value) {
-            addCriterion("arrival_rate <", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateLessThanOrEqualTo(Float value) {
-            addCriterion("arrival_rate <=", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIn(List<Float> values) {
-            addCriterion("arrival_rate in", values, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotIn(List<Float> values) {
-            addCriterion("arrival_rate not in", values, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateBetween(Float value1, Float value2) {
-            addCriterion("arrival_rate between", value1, value2, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotBetween(Float value1, Float value2) {
-            addCriterion("arrival_rate not between", value1, value2, "arrivalRate");
-            return (Criteria) this;
-        }
-
         public Criteria andUniqueAmountIsNull() {
             addCriterion("unique_amount is null");
             return (Criteria) this;
@@ -722,66 +662,6 @@ public class LandpageDataHourModelExample {
 
         public Criteria andJumpAmountNotBetween(Long value1, Long value2) {
             addCriterion("jump_amount not between", value1, value2, "jumpAmount");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateIsNull() {
-            addCriterion("jump_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateIsNotNull() {
-            addCriterion("jump_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateEqualTo(Float value) {
-            addCriterion("jump_rate =", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateNotEqualTo(Float value) {
-            addCriterion("jump_rate <>", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateGreaterThan(Float value) {
-            addCriterion("jump_rate >", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("jump_rate >=", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateLessThan(Float value) {
-            addCriterion("jump_rate <", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateLessThanOrEqualTo(Float value) {
-            addCriterion("jump_rate <=", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateIn(List<Float> values) {
-            addCriterion("jump_rate in", values, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateNotIn(List<Float> values) {
-            addCriterion("jump_rate not in", values, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateBetween(Float value1, Float value2) {
-            addCriterion("jump_rate between", value1, value2, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateNotBetween(Float value1, Float value2) {
-            addCriterion("jump_rate not between", value1, value2, "jumpRate");
             return (Criteria) this;
         }
 

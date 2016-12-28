@@ -512,66 +512,6 @@ public class RegionDataDayModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andWinRateIsNull() {
-            addCriterion("win_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateIsNotNull() {
-            addCriterion("win_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateEqualTo(Float value) {
-            addCriterion("win_rate =", value, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateNotEqualTo(Float value) {
-            addCriterion("win_rate <>", value, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateGreaterThan(Float value) {
-            addCriterion("win_rate >", value, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("win_rate >=", value, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateLessThan(Float value) {
-            addCriterion("win_rate <", value, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateLessThanOrEqualTo(Float value) {
-            addCriterion("win_rate <=", value, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateIn(List<Float> values) {
-            addCriterion("win_rate in", values, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateNotIn(List<Float> values) {
-            addCriterion("win_rate not in", values, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateBetween(Float value1, Float value2) {
-            addCriterion("win_rate between", value1, value2, "winRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andWinRateNotBetween(Float value1, Float value2) {
-            addCriterion("win_rate not between", value1, value2, "winRate");
-            return (Criteria) this;
-        }
-
         public Criteria andImpressionAmountIsNull() {
             addCriterion("impression_amount is null");
             return (Criteria) this;
@@ -629,66 +569,6 @@ public class RegionDataDayModelExample {
 
         public Criteria andImpressionAmountNotBetween(Long value1, Long value2) {
             addCriterion("impression_amount not between", value1, value2, "impressionAmount");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateIsNull() {
-            addCriterion("impression_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateIsNotNull() {
-            addCriterion("impression_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateEqualTo(Float value) {
-            addCriterion("impression_rate =", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateNotEqualTo(Float value) {
-            addCriterion("impression_rate <>", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateGreaterThan(Float value) {
-            addCriterion("impression_rate >", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("impression_rate >=", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateLessThan(Float value) {
-            addCriterion("impression_rate <", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateLessThanOrEqualTo(Float value) {
-            addCriterion("impression_rate <=", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateIn(List<Float> values) {
-            addCriterion("impression_rate in", values, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateNotIn(List<Float> values) {
-            addCriterion("impression_rate not in", values, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateBetween(Float value1, Float value2) {
-            addCriterion("impression_rate between", value1, value2, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateNotBetween(Float value1, Float value2) {
-            addCriterion("impression_rate not between", value1, value2, "impressionRate");
             return (Criteria) this;
         }
 
@@ -752,66 +632,6 @@ public class RegionDataDayModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andClickRateIsNull() {
-            addCriterion("click_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateIsNotNull() {
-            addCriterion("click_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateEqualTo(Float value) {
-            addCriterion("click_rate =", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateNotEqualTo(Float value) {
-            addCriterion("click_rate <>", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateGreaterThan(Float value) {
-            addCriterion("click_rate >", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("click_rate >=", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateLessThan(Float value) {
-            addCriterion("click_rate <", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateLessThanOrEqualTo(Float value) {
-            addCriterion("click_rate <=", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateIn(List<Float> values) {
-            addCriterion("click_rate in", values, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateNotIn(List<Float> values) {
-            addCriterion("click_rate not in", values, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateBetween(Float value1, Float value2) {
-            addCriterion("click_rate between", value1, value2, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateNotBetween(Float value1, Float value2) {
-            addCriterion("click_rate not between", value1, value2, "clickRate");
-            return (Criteria) this;
-        }
-
         public Criteria andArrivalAmountIsNull() {
             addCriterion("arrival_amount is null");
             return (Criteria) this;
@@ -869,66 +689,6 @@ public class RegionDataDayModelExample {
 
         public Criteria andArrivalAmountNotBetween(Long value1, Long value2) {
             addCriterion("arrival_amount not between", value1, value2, "arrivalAmount");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIsNull() {
-            addCriterion("arrival_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIsNotNull() {
-            addCriterion("arrival_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateEqualTo(Float value) {
-            addCriterion("arrival_rate =", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotEqualTo(Float value) {
-            addCriterion("arrival_rate <>", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateGreaterThan(Float value) {
-            addCriterion("arrival_rate >", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("arrival_rate >=", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateLessThan(Float value) {
-            addCriterion("arrival_rate <", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateLessThanOrEqualTo(Float value) {
-            addCriterion("arrival_rate <=", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIn(List<Float> values) {
-            addCriterion("arrival_rate in", values, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotIn(List<Float> values) {
-            addCriterion("arrival_rate not in", values, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateBetween(Float value1, Float value2) {
-            addCriterion("arrival_rate between", value1, value2, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotBetween(Float value1, Float value2) {
-            addCriterion("arrival_rate not between", value1, value2, "arrivalRate");
             return (Criteria) this;
         }
 
@@ -1109,66 +869,6 @@ public class RegionDataDayModelExample {
 
         public Criteria andJumpAmountNotBetween(Long value1, Long value2) {
             addCriterion("jump_amount not between", value1, value2, "jumpAmount");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateIsNull() {
-            addCriterion("jump_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateIsNotNull() {
-            addCriterion("jump_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateEqualTo(Float value) {
-            addCriterion("jump_rate =", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateNotEqualTo(Float value) {
-            addCriterion("jump_rate <>", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateGreaterThan(Float value) {
-            addCriterion("jump_rate >", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("jump_rate >=", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateLessThan(Float value) {
-            addCriterion("jump_rate <", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateLessThanOrEqualTo(Float value) {
-            addCriterion("jump_rate <=", value, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateIn(List<Float> values) {
-            addCriterion("jump_rate in", values, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateNotIn(List<Float> values) {
-            addCriterion("jump_rate not in", values, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateBetween(Float value1, Float value2) {
-            addCriterion("jump_rate between", value1, value2, "jumpRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andJumpRateNotBetween(Float value1, Float value2) {
-            addCriterion("jump_rate not between", value1, value2, "jumpRate");
             return (Criteria) this;
         }
 

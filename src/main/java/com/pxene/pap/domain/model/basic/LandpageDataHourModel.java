@@ -15,15 +15,11 @@ public class LandpageDataHourModel {
 
     private Long arrivalAmount;
 
-    private Float arrivalRate;
-
     private Long uniqueAmount;
 
     private Long residentTime;
 
     private Long jumpAmount;
-
-    private Float jumpRate;
 
     private Date createtime;
 
@@ -77,14 +73,6 @@ public class LandpageDataHourModel {
         this.arrivalAmount = arrivalAmount;
     }
 
-    public Float getArrivalRate() {
-        return arrivalRate;
-    }
-
-    public void setArrivalRate(Float arrivalRate) {
-        this.arrivalRate = arrivalRate;
-    }
-
     public Long getUniqueAmount() {
         return uniqueAmount;
     }
@@ -107,14 +95,6 @@ public class LandpageDataHourModel {
 
     public void setJumpAmount(Long jumpAmount) {
         this.jumpAmount = jumpAmount;
-    }
-
-    public Float getJumpRate() {
-        return jumpRate;
-    }
-
-    public void setJumpRate(Float jumpRate) {
-        this.jumpRate = jumpRate;
     }
 
     public Date getCreatetime() {
@@ -145,11 +125,9 @@ public class LandpageDataHourModel {
         sb.append(", datetime=").append(datetime);
         sb.append(", clickAmount=").append(clickAmount);
         sb.append(", arrivalAmount=").append(arrivalAmount);
-        sb.append(", arrivalRate=").append(arrivalRate);
         sb.append(", uniqueAmount=").append(uniqueAmount);
         sb.append(", residentTime=").append(residentTime);
         sb.append(", jumpAmount=").append(jumpAmount);
-        sb.append(", jumpRate=").append(jumpRate);
         sb.append(", createtime=").append(createtime);
         sb.append(", updatetime=").append(updatetime);
         sb.append("]");

@@ -13,37 +13,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import com.pxene.pap.domain.beans.AppDataHourBean;
-import com.pxene.pap.domain.beans.AppDataHourViewBean;
-import com.pxene.pap.domain.model.basic.AppDataHourModel;
-import com.pxene.pap.domain.model.basic.view.AppDataHourViewModel;
-import com.pxene.pap.domain.model.basic.view.AppDataHourViewModelExample;
-import com.pxene.pap.domain.model.basic.view.AppDataHourViewModelExample.Criteria;
+import com.pxene.pap.domain.beans.CreativeDataHourBean;
+import com.pxene.pap.domain.beans.CreativeDataHourViewBean;
+import com.pxene.pap.domain.model.basic.CreativeDataHourModel;
+import com.pxene.pap.domain.model.basic.view.CreativeDataHourViewModel;
+import com.pxene.pap.domain.model.basic.view.CreativeDataHourViewModelExample;
+import com.pxene.pap.domain.model.basic.view.CreativeDataHourViewModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
-import com.pxene.pap.repository.basic.AppDataHourDao;
-import com.pxene.pap.repository.basic.view.AppDataHourViewDao;
+import com.pxene.pap.repository.basic.CreativeDataHourDao;
+import com.pxene.pap.repository.basic.view.CreativeDataHourViewDao;
 
 @Service
-public class AppDataHourService extends BaseService
+public class CreativeDataHourService extends BaseService
 {
     @Autowired
-    private AppDataHourDao appDataHourDao;
+    private CreativeDataHourDao creativeDataHourDao;
     
     @Autowired
-    private AppDataHourViewDao appDataHourViewDao;
+    private CreativeDataHourViewDao creativeDataHourViewDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
     
     @Transactional
-    public void saveAppDataHour(AppDataHourBean appDataDayBean)
+    public void saveCreativeDataHour(CreativeDataHourBean bean)
     {
-        AppDataHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppDataHourModel.class);
+        CreativeDataHourModel model = modelMapper.map(bean, CreativeDataHourModel.class);
         
         try
         {
-            appDataHourDao.insertSelective(appDataDayModel);
+            creativeDataHourDao.insertSelective(model);
         }
         catch (DuplicateKeyException exception)
         {
@@ -52,27 +52,27 @@ public class AppDataHourService extends BaseService
         }
         
         // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataDayModel, appDataDayBean);
+        BeanUtils.copyProperties(model, bean);
         
     }
 
     @Transactional
-    public void updateAppDataHour(Integer id, AppDataHourBean appDataDayBean)
+    public void updateCreativeDataHour(Integer id, CreativeDataHourBean bean)
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
-        AppDataHourModel appDataDayInDB = appDataHourDao.selectByPrimaryKey(id);
-        if (appDataDayInDB == null)
+        CreativeDataHourModel dataInDB = creativeDataHourDao.selectByPrimaryKey(id);
+        if (dataInDB == null)
         {
             throw new ResourceNotFoundException();
         }
         
         // 将传输对象映射成数据库Model
-        AppDataHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppDataHourModel.class);
-        appDataDayModel.setId(id);
+        CreativeDataHourModel model = modelMapper.map(bean, CreativeDataHourModel.class);
+        model.setId(id);
         
         try
         {
-            appDataHourDao.updateByPrimaryKey(appDataDayModel);
+            creativeDataHourDao.updateByPrimaryKey(model);
         }
         catch (DuplicateKeyException exception)
         {
@@ -81,35 +81,35 @@ public class AppDataHourService extends BaseService
         }
         
         // 将DAO编辑后的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataHourDao.selectByPrimaryKey(id), appDataDayBean);
+        BeanUtils.copyProperties(creativeDataHourDao.selectByPrimaryKey(id), bean);
     }
 
     
     @Transactional
-    public List<AppDataHourViewBean> listAppDataHour(String campaignId, long beginTime, long endTime)
+    public List<CreativeDataHourViewBean> listCreativeDataHour(String campaignId, long beginTime, long endTime)
     {
-        AppDataHourViewModelExample example = new AppDataHourViewModelExample();
+        CreativeDataHourViewModelExample example = new CreativeDataHourViewModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<AppDataHourViewModel> appDataHourModels = appDataHourViewDao.selectByExample(example);
-        List<AppDataHourViewBean> appDataHourList = new ArrayList<AppDataHourViewBean>();
+        List<CreativeDataHourViewModel> models = creativeDataHourViewDao.selectByExample(example);
+        List<CreativeDataHourViewBean> list = new ArrayList<CreativeDataHourViewBean>();
         
-        if (appDataHourModels == null || appDataHourModels.size() <= 0)
+        if (models == null || models.size() <= 0)
         {
             throw new ResourceNotFoundException();
         }
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (AppDataHourViewModel appDataHourModel : appDataHourModels)
+            for (CreativeDataHourViewModel model : models)
             {
-                appDataHourList.add(modelMapper.map(appDataHourModel, AppDataHourViewBean.class));
+                list.add(modelMapper.map(model, CreativeDataHourViewBean.class));
             }
         }
         
-        return appDataHourList;
+        return list;
     }
     
 }

@@ -1,27 +1,28 @@
-package com.pxene.pap.domain.model.basic;
+package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
-public class AppDataHourModel {
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+public class LandpageDataHourBean {
     private Integer id;
 
-    private String appId;
+    private String landpageId;
 
     private String campaignId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date datetime;
-
-    private Long bidAmount;
-
-    private Long winAmount;
-
-    private Long impressionAmount;
 
     private Long clickAmount;
 
     private Long arrivalAmount;
 
     private Long uniqueAmount;
+
+    private Long residentTime;
+
+    private Long jumpAmount;
 
     private Date createtime;
 
@@ -35,12 +36,12 @@ public class AppDataHourModel {
         this.id = id;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getLandpageId() {
+        return landpageId;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId == null ? null : appId.trim();
+    public void setLandpageId(String landpageId) {
+        this.landpageId = landpageId == null ? null : landpageId.trim();
     }
 
     public String getCampaignId() {
@@ -57,30 +58,6 @@ public class AppDataHourModel {
 
     public void setDatetime(Date datetime) {
         this.datetime = datetime;
-    }
-
-    public Long getBidAmount() {
-        return bidAmount;
-    }
-
-    public void setBidAmount(Long bidAmount) {
-        this.bidAmount = bidAmount;
-    }
-
-    public Long getWinAmount() {
-        return winAmount;
-    }
-
-    public void setWinAmount(Long winAmount) {
-        this.winAmount = winAmount;
-    }
-
-    public Long getImpressionAmount() {
-        return impressionAmount;
-    }
-
-    public void setImpressionAmount(Long impressionAmount) {
-        this.impressionAmount = impressionAmount;
     }
 
     public Long getClickAmount() {
@@ -107,6 +84,22 @@ public class AppDataHourModel {
         this.uniqueAmount = uniqueAmount;
     }
 
+    public Long getResidentTime() {
+        return residentTime;
+    }
+
+    public void setResidentTime(Long residentTime) {
+        this.residentTime = residentTime;
+    }
+
+    public Long getJumpAmount() {
+        return jumpAmount;
+    }
+
+    public void setJumpAmount(Long jumpAmount) {
+        this.jumpAmount = jumpAmount;
+    }
+
     public Date getCreatetime() {
         return createtime;
     }
@@ -130,15 +123,14 @@ public class AppDataHourModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", appId=").append(appId);
+        sb.append(", landpageId=").append(landpageId);
         sb.append(", campaignId=").append(campaignId);
         sb.append(", datetime=").append(datetime);
-        sb.append(", bidAmount=").append(bidAmount);
-        sb.append(", winAmount=").append(winAmount);
-        sb.append(", impressionAmount=").append(impressionAmount);
         sb.append(", clickAmount=").append(clickAmount);
         sb.append(", arrivalAmount=").append(arrivalAmount);
         sb.append(", uniqueAmount=").append(uniqueAmount);
+        sb.append(", residentTime=").append(residentTime);
+        sb.append(", jumpAmount=").append(jumpAmount);
         sb.append(", createtime=").append(createtime);
         sb.append(", updatetime=").append(updatetime);
         sb.append("]");

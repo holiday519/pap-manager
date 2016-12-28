@@ -22,11 +22,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AppDataHourBean;
+import com.pxene.pap.domain.beans.AppDataHourViewBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.AppDataHourService;
 
 /**
- * APP数据-天
+ * APP数据-小时
  * @author ningyu
  */
 @Controller
@@ -67,22 +68,6 @@ public class AppDataHourController
     
     
     /**
-     * 根据ID查询指定的App数据。
-     * @param id        App数据ID
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/appDataHour/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String getAppDataHour(@PathVariable Integer id, HttpServletResponse response) throws Exception
-    {
-        AppDataHourBean appDataHour = appDataHourService.findAppDataHourById(id);
-        
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), appDataHour, response);
-    }
-    
-    
-    /**
      * 列出App数据。
      * @param request
      * @param response
@@ -90,7 +75,7 @@ public class AppDataHourController
      */
     @RequestMapping(value = "/appDataHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAppDataHour(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listAppDataHour(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
         if (pageNo != null && pageSize != null)
@@ -98,7 +83,7 @@ public class AppDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<AppDataHourBean> appDataHourList = appDataHourService.listAppDataHour();
+        List<AppDataHourViewBean> appDataHourList = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
         
         PaginationResult result = new PaginationResult(appDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

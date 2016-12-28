@@ -1,18 +1,18 @@
-package com.pxene.pap.domain.model.basic;
+package com.pxene.pap.domain.model.basic.view;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
-public class LandpageDataDayModelExample {
+public class LandpageDataHourViewModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public LandpageDataDayModelExample() {
+    public LandpageDataHourViewModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -104,32 +104,6 @@ public class LandpageDataDayModelExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
-        }
-
-        protected void addCriterionForJDBCDate(String condition, Date value, String property) {
-            if (value == null) {
-                throw new RuntimeException("Value for " + property + " cannot be null");
-            }
-            addCriterion(condition, new java.sql.Date(value.getTime()), property);
-        }
-
-        protected void addCriterionForJDBCDate(String condition, List<Date> values, String property) {
-            if (values == null || values.size() == 0) {
-                throw new RuntimeException("Value list for " + property + " cannot be null or empty");
-            }
-            List<java.sql.Date> dateList = new ArrayList<java.sql.Date>();
-            Iterator<Date> iter = values.iterator();
-            while (iter.hasNext()) {
-                dateList.add(new java.sql.Date(iter.next().getTime()));
-            }
-            addCriterion(condition, dateList, property);
-        }
-
-        protected void addCriterionForJDBCDate(String condition, Date value1, Date value2, String property) {
-            if (value1 == null || value2 == null) {
-                throw new RuntimeException("Between values for " + property + " cannot be null");
-            }
-            addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
         }
 
         public Criteria andIdIsNull() {
@@ -332,483 +306,483 @@ public class LandpageDataDayModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andDateIsNull() {
-            addCriterion("date is null");
+        public Criteria andDatetimeIsNull() {
+            addCriterion("datetime is null");
             return (Criteria) this;
         }
 
-        public Criteria andDateIsNotNull() {
-            addCriterion("date is not null");
+        public Criteria andDatetimeIsNotNull() {
+            addCriterion("datetime is not null");
             return (Criteria) this;
         }
 
-        public Criteria andDateEqualTo(Date value) {
-            addCriterionForJDBCDate("date =", value, "date");
+        public Criteria andDatetimeEqualTo(Date value) {
+            addCriterion("datetime =", value, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateNotEqualTo(Date value) {
-            addCriterionForJDBCDate("date <>", value, "date");
+        public Criteria andDatetimeNotEqualTo(Date value) {
+            addCriterion("datetime <>", value, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateGreaterThan(Date value) {
-            addCriterionForJDBCDate("date >", value, "date");
+        public Criteria andDatetimeGreaterThan(Date value) {
+            addCriterion("datetime >", value, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateGreaterThanOrEqualTo(Date value) {
-            addCriterionForJDBCDate("date >=", value, "date");
+        public Criteria andDatetimeGreaterThanOrEqualTo(Date value) {
+            addCriterion("datetime >=", value, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateLessThan(Date value) {
-            addCriterionForJDBCDate("date <", value, "date");
+        public Criteria andDatetimeLessThan(Date value) {
+            addCriterion("datetime <", value, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateLessThanOrEqualTo(Date value) {
-            addCriterionForJDBCDate("date <=", value, "date");
+        public Criteria andDatetimeLessThanOrEqualTo(Date value) {
+            addCriterion("datetime <=", value, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateIn(List<Date> values) {
-            addCriterionForJDBCDate("date in", values, "date");
+        public Criteria andDatetimeIn(List<Date> values) {
+            addCriterion("datetime in", values, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateNotIn(List<Date> values) {
-            addCriterionForJDBCDate("date not in", values, "date");
+        public Criteria andDatetimeNotIn(List<Date> values) {
+            addCriterion("datetime not in", values, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateBetween(Date value1, Date value2) {
-            addCriterionForJDBCDate("date between", value1, value2, "date");
+        public Criteria andDatetimeBetween(Date value1, Date value2) {
+            addCriterion("datetime between", value1, value2, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andDateNotBetween(Date value1, Date value2) {
-            addCriterionForJDBCDate("date not between", value1, value2, "date");
+        public Criteria andDatetimeNotBetween(Date value1, Date value2) {
+            addCriterion("datetime not between", value1, value2, "datetime");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountIsNull() {
-            addCriterion("click_amount is null");
+        public Criteria andClickAmountSumIsNull() {
+            addCriterion("click_amount_sum is null");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountIsNotNull() {
-            addCriterion("click_amount is not null");
+        public Criteria andClickAmountSumIsNotNull() {
+            addCriterion("click_amount_sum is not null");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountEqualTo(Long value) {
-            addCriterion("click_amount =", value, "clickAmount");
+        public Criteria andClickAmountSumEqualTo(BigDecimal value) {
+            addCriterion("click_amount_sum =", value, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountNotEqualTo(Long value) {
-            addCriterion("click_amount <>", value, "clickAmount");
+        public Criteria andClickAmountSumNotEqualTo(BigDecimal value) {
+            addCriterion("click_amount_sum <>", value, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountGreaterThan(Long value) {
-            addCriterion("click_amount >", value, "clickAmount");
+        public Criteria andClickAmountSumGreaterThan(BigDecimal value) {
+            addCriterion("click_amount_sum >", value, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountGreaterThanOrEqualTo(Long value) {
-            addCriterion("click_amount >=", value, "clickAmount");
+        public Criteria andClickAmountSumGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("click_amount_sum >=", value, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountLessThan(Long value) {
-            addCriterion("click_amount <", value, "clickAmount");
+        public Criteria andClickAmountSumLessThan(BigDecimal value) {
+            addCriterion("click_amount_sum <", value, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountLessThanOrEqualTo(Long value) {
-            addCriterion("click_amount <=", value, "clickAmount");
+        public Criteria andClickAmountSumLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("click_amount_sum <=", value, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountIn(List<Long> values) {
-            addCriterion("click_amount in", values, "clickAmount");
+        public Criteria andClickAmountSumIn(List<BigDecimal> values) {
+            addCriterion("click_amount_sum in", values, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountNotIn(List<Long> values) {
-            addCriterion("click_amount not in", values, "clickAmount");
+        public Criteria andClickAmountSumNotIn(List<BigDecimal> values) {
+            addCriterion("click_amount_sum not in", values, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountBetween(Long value1, Long value2) {
-            addCriterion("click_amount between", value1, value2, "clickAmount");
+        public Criteria andClickAmountSumBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("click_amount_sum between", value1, value2, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andClickAmountNotBetween(Long value1, Long value2) {
-            addCriterion("click_amount not between", value1, value2, "clickAmount");
+        public Criteria andClickAmountSumNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("click_amount_sum not between", value1, value2, "clickAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountIsNull() {
-            addCriterion("arrival_amount is null");
+        public Criteria andArrivalAmountSumIsNull() {
+            addCriterion("arrival_amount_sum is null");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountIsNotNull() {
-            addCriterion("arrival_amount is not null");
+        public Criteria andArrivalAmountSumIsNotNull() {
+            addCriterion("arrival_amount_sum is not null");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountEqualTo(Long value) {
-            addCriterion("arrival_amount =", value, "arrivalAmount");
+        public Criteria andArrivalAmountSumEqualTo(BigDecimal value) {
+            addCriterion("arrival_amount_sum =", value, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountNotEqualTo(Long value) {
-            addCriterion("arrival_amount <>", value, "arrivalAmount");
+        public Criteria andArrivalAmountSumNotEqualTo(BigDecimal value) {
+            addCriterion("arrival_amount_sum <>", value, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountGreaterThan(Long value) {
-            addCriterion("arrival_amount >", value, "arrivalAmount");
+        public Criteria andArrivalAmountSumGreaterThan(BigDecimal value) {
+            addCriterion("arrival_amount_sum >", value, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountGreaterThanOrEqualTo(Long value) {
-            addCriterion("arrival_amount >=", value, "arrivalAmount");
+        public Criteria andArrivalAmountSumGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("arrival_amount_sum >=", value, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountLessThan(Long value) {
-            addCriterion("arrival_amount <", value, "arrivalAmount");
+        public Criteria andArrivalAmountSumLessThan(BigDecimal value) {
+            addCriterion("arrival_amount_sum <", value, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountLessThanOrEqualTo(Long value) {
-            addCriterion("arrival_amount <=", value, "arrivalAmount");
+        public Criteria andArrivalAmountSumLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("arrival_amount_sum <=", value, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountIn(List<Long> values) {
-            addCriterion("arrival_amount in", values, "arrivalAmount");
+        public Criteria andArrivalAmountSumIn(List<BigDecimal> values) {
+            addCriterion("arrival_amount_sum in", values, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountNotIn(List<Long> values) {
-            addCriterion("arrival_amount not in", values, "arrivalAmount");
+        public Criteria andArrivalAmountSumNotIn(List<BigDecimal> values) {
+            addCriterion("arrival_amount_sum not in", values, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountBetween(Long value1, Long value2) {
-            addCriterion("arrival_amount between", value1, value2, "arrivalAmount");
+        public Criteria andArrivalAmountSumBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("arrival_amount_sum between", value1, value2, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andArrivalAmountNotBetween(Long value1, Long value2) {
-            addCriterion("arrival_amount not between", value1, value2, "arrivalAmount");
+        public Criteria andArrivalAmountSumNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("arrival_amount_sum not between", value1, value2, "arrivalAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountIsNull() {
-            addCriterion("unique_amount is null");
+        public Criteria andArrivalRateIsNull() {
+            addCriterion("arrival_rate is null");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountIsNotNull() {
-            addCriterion("unique_amount is not null");
+        public Criteria andArrivalRateIsNotNull() {
+            addCriterion("arrival_rate is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountEqualTo(Long value) {
-            addCriterion("unique_amount =", value, "uniqueAmount");
+        public Criteria andArrivalRateEqualTo(BigDecimal value) {
+            addCriterion("arrival_rate =", value, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountNotEqualTo(Long value) {
-            addCriterion("unique_amount <>", value, "uniqueAmount");
+        public Criteria andArrivalRateNotEqualTo(BigDecimal value) {
+            addCriterion("arrival_rate <>", value, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountGreaterThan(Long value) {
-            addCriterion("unique_amount >", value, "uniqueAmount");
+        public Criteria andArrivalRateGreaterThan(BigDecimal value) {
+            addCriterion("arrival_rate >", value, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountGreaterThanOrEqualTo(Long value) {
-            addCriterion("unique_amount >=", value, "uniqueAmount");
+        public Criteria andArrivalRateGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("arrival_rate >=", value, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountLessThan(Long value) {
-            addCriterion("unique_amount <", value, "uniqueAmount");
+        public Criteria andArrivalRateLessThan(BigDecimal value) {
+            addCriterion("arrival_rate <", value, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountLessThanOrEqualTo(Long value) {
-            addCriterion("unique_amount <=", value, "uniqueAmount");
+        public Criteria andArrivalRateLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("arrival_rate <=", value, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountIn(List<Long> values) {
-            addCriterion("unique_amount in", values, "uniqueAmount");
+        public Criteria andArrivalRateIn(List<BigDecimal> values) {
+            addCriterion("arrival_rate in", values, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountNotIn(List<Long> values) {
-            addCriterion("unique_amount not in", values, "uniqueAmount");
+        public Criteria andArrivalRateNotIn(List<BigDecimal> values) {
+            addCriterion("arrival_rate not in", values, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountBetween(Long value1, Long value2) {
-            addCriterion("unique_amount between", value1, value2, "uniqueAmount");
+        public Criteria andArrivalRateBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("arrival_rate between", value1, value2, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andUniqueAmountNotBetween(Long value1, Long value2) {
-            addCriterion("unique_amount not between", value1, value2, "uniqueAmount");
+        public Criteria andArrivalRateNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("arrival_rate not between", value1, value2, "arrivalRate");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeIsNull() {
-            addCriterion("resident_time is null");
+        public Criteria andUniqueAmountSumIsNull() {
+            addCriterion("unique_amount_sum is null");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeIsNotNull() {
-            addCriterion("resident_time is not null");
+        public Criteria andUniqueAmountSumIsNotNull() {
+            addCriterion("unique_amount_sum is not null");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeEqualTo(Long value) {
-            addCriterion("resident_time =", value, "residentTime");
+        public Criteria andUniqueAmountSumEqualTo(BigDecimal value) {
+            addCriterion("unique_amount_sum =", value, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeNotEqualTo(Long value) {
-            addCriterion("resident_time <>", value, "residentTime");
+        public Criteria andUniqueAmountSumNotEqualTo(BigDecimal value) {
+            addCriterion("unique_amount_sum <>", value, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeGreaterThan(Long value) {
-            addCriterion("resident_time >", value, "residentTime");
+        public Criteria andUniqueAmountSumGreaterThan(BigDecimal value) {
+            addCriterion("unique_amount_sum >", value, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("resident_time >=", value, "residentTime");
+        public Criteria andUniqueAmountSumGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("unique_amount_sum >=", value, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeLessThan(Long value) {
-            addCriterion("resident_time <", value, "residentTime");
+        public Criteria andUniqueAmountSumLessThan(BigDecimal value) {
+            addCriterion("unique_amount_sum <", value, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeLessThanOrEqualTo(Long value) {
-            addCriterion("resident_time <=", value, "residentTime");
+        public Criteria andUniqueAmountSumLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("unique_amount_sum <=", value, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeIn(List<Long> values) {
-            addCriterion("resident_time in", values, "residentTime");
+        public Criteria andUniqueAmountSumIn(List<BigDecimal> values) {
+            addCriterion("unique_amount_sum in", values, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeNotIn(List<Long> values) {
-            addCriterion("resident_time not in", values, "residentTime");
+        public Criteria andUniqueAmountSumNotIn(List<BigDecimal> values) {
+            addCriterion("unique_amount_sum not in", values, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeBetween(Long value1, Long value2) {
-            addCriterion("resident_time between", value1, value2, "residentTime");
+        public Criteria andUniqueAmountSumBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("unique_amount_sum between", value1, value2, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andResidentTimeNotBetween(Long value1, Long value2) {
-            addCriterion("resident_time not between", value1, value2, "residentTime");
+        public Criteria andUniqueAmountSumNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("unique_amount_sum not between", value1, value2, "uniqueAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountIsNull() {
-            addCriterion("jump_amount is null");
+        public Criteria andResidentTimeSumIsNull() {
+            addCriterion("resident_time_sum is null");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountIsNotNull() {
-            addCriterion("jump_amount is not null");
+        public Criteria andResidentTimeSumIsNotNull() {
+            addCriterion("resident_time_sum is not null");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountEqualTo(Long value) {
-            addCriterion("jump_amount =", value, "jumpAmount");
+        public Criteria andResidentTimeSumEqualTo(BigDecimal value) {
+            addCriterion("resident_time_sum =", value, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountNotEqualTo(Long value) {
-            addCriterion("jump_amount <>", value, "jumpAmount");
+        public Criteria andResidentTimeSumNotEqualTo(BigDecimal value) {
+            addCriterion("resident_time_sum <>", value, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountGreaterThan(Long value) {
-            addCriterion("jump_amount >", value, "jumpAmount");
+        public Criteria andResidentTimeSumGreaterThan(BigDecimal value) {
+            addCriterion("resident_time_sum >", value, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountGreaterThanOrEqualTo(Long value) {
-            addCriterion("jump_amount >=", value, "jumpAmount");
+        public Criteria andResidentTimeSumGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("resident_time_sum >=", value, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountLessThan(Long value) {
-            addCriterion("jump_amount <", value, "jumpAmount");
+        public Criteria andResidentTimeSumLessThan(BigDecimal value) {
+            addCriterion("resident_time_sum <", value, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountLessThanOrEqualTo(Long value) {
-            addCriterion("jump_amount <=", value, "jumpAmount");
+        public Criteria andResidentTimeSumLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("resident_time_sum <=", value, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountIn(List<Long> values) {
-            addCriterion("jump_amount in", values, "jumpAmount");
+        public Criteria andResidentTimeSumIn(List<BigDecimal> values) {
+            addCriterion("resident_time_sum in", values, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountNotIn(List<Long> values) {
-            addCriterion("jump_amount not in", values, "jumpAmount");
+        public Criteria andResidentTimeSumNotIn(List<BigDecimal> values) {
+            addCriterion("resident_time_sum not in", values, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountBetween(Long value1, Long value2) {
-            addCriterion("jump_amount between", value1, value2, "jumpAmount");
+        public Criteria andResidentTimeSumBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("resident_time_sum between", value1, value2, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andJumpAmountNotBetween(Long value1, Long value2) {
-            addCriterion("jump_amount not between", value1, value2, "jumpAmount");
+        public Criteria andResidentTimeSumNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("resident_time_sum not between", value1, value2, "residentTimeSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeIsNull() {
-            addCriterion("createtime is null");
+        public Criteria andJumpAmountSumIsNull() {
+            addCriterion("jump_amount_sum is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeIsNotNull() {
-            addCriterion("createtime is not null");
+        public Criteria andJumpAmountSumIsNotNull() {
+            addCriterion("jump_amount_sum is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeEqualTo(Date value) {
-            addCriterion("createtime =", value, "createtime");
+        public Criteria andJumpAmountSumEqualTo(BigDecimal value) {
+            addCriterion("jump_amount_sum =", value, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeNotEqualTo(Date value) {
-            addCriterion("createtime <>", value, "createtime");
+        public Criteria andJumpAmountSumNotEqualTo(BigDecimal value) {
+            addCriterion("jump_amount_sum <>", value, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeGreaterThan(Date value) {
-            addCriterion("createtime >", value, "createtime");
+        public Criteria andJumpAmountSumGreaterThan(BigDecimal value) {
+            addCriterion("jump_amount_sum >", value, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeGreaterThanOrEqualTo(Date value) {
-            addCriterion("createtime >=", value, "createtime");
+        public Criteria andJumpAmountSumGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("jump_amount_sum >=", value, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeLessThan(Date value) {
-            addCriterion("createtime <", value, "createtime");
+        public Criteria andJumpAmountSumLessThan(BigDecimal value) {
+            addCriterion("jump_amount_sum <", value, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeLessThanOrEqualTo(Date value) {
-            addCriterion("createtime <=", value, "createtime");
+        public Criteria andJumpAmountSumLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("jump_amount_sum <=", value, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeIn(List<Date> values) {
-            addCriterion("createtime in", values, "createtime");
+        public Criteria andJumpAmountSumIn(List<BigDecimal> values) {
+            addCriterion("jump_amount_sum in", values, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeNotIn(List<Date> values) {
-            addCriterion("createtime not in", values, "createtime");
+        public Criteria andJumpAmountSumNotIn(List<BigDecimal> values) {
+            addCriterion("jump_amount_sum not in", values, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeBetween(Date value1, Date value2) {
-            addCriterion("createtime between", value1, value2, "createtime");
+        public Criteria andJumpAmountSumBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("jump_amount_sum between", value1, value2, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andCreatetimeNotBetween(Date value1, Date value2) {
-            addCriterion("createtime not between", value1, value2, "createtime");
+        public Criteria andJumpAmountSumNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("jump_amount_sum not between", value1, value2, "jumpAmountSum");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeIsNull() {
-            addCriterion("updatetime is null");
+        public Criteria andJumpRateIsNull() {
+            addCriterion("jump_rate is null");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeIsNotNull() {
-            addCriterion("updatetime is not null");
+        public Criteria andJumpRateIsNotNull() {
+            addCriterion("jump_rate is not null");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeEqualTo(Date value) {
-            addCriterion("updatetime =", value, "updatetime");
+        public Criteria andJumpRateEqualTo(BigDecimal value) {
+            addCriterion("jump_rate =", value, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeNotEqualTo(Date value) {
-            addCriterion("updatetime <>", value, "updatetime");
+        public Criteria andJumpRateNotEqualTo(BigDecimal value) {
+            addCriterion("jump_rate <>", value, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeGreaterThan(Date value) {
-            addCriterion("updatetime >", value, "updatetime");
+        public Criteria andJumpRateGreaterThan(BigDecimal value) {
+            addCriterion("jump_rate >", value, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeGreaterThanOrEqualTo(Date value) {
-            addCriterion("updatetime >=", value, "updatetime");
+        public Criteria andJumpRateGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("jump_rate >=", value, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeLessThan(Date value) {
-            addCriterion("updatetime <", value, "updatetime");
+        public Criteria andJumpRateLessThan(BigDecimal value) {
+            addCriterion("jump_rate <", value, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeLessThanOrEqualTo(Date value) {
-            addCriterion("updatetime <=", value, "updatetime");
+        public Criteria andJumpRateLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("jump_rate <=", value, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeIn(List<Date> values) {
-            addCriterion("updatetime in", values, "updatetime");
+        public Criteria andJumpRateIn(List<BigDecimal> values) {
+            addCriterion("jump_rate in", values, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeNotIn(List<Date> values) {
-            addCriterion("updatetime not in", values, "updatetime");
+        public Criteria andJumpRateNotIn(List<BigDecimal> values) {
+            addCriterion("jump_rate not in", values, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeBetween(Date value1, Date value2) {
-            addCriterion("updatetime between", value1, value2, "updatetime");
+        public Criteria andJumpRateBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("jump_rate between", value1, value2, "jumpRate");
             return (Criteria) this;
         }
 
-        public Criteria andUpdatetimeNotBetween(Date value1, Date value2) {
-            addCriterion("updatetime not between", value1, value2, "updatetime");
+        public Criteria andJumpRateNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("jump_rate not between", value1, value2, "jumpRate");
             return (Criteria) this;
         }
     }

@@ -485,66 +485,6 @@ public class CreativeDataHourModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andImpressionRateIsNull() {
-            addCriterion("impression_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateIsNotNull() {
-            addCriterion("impression_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateEqualTo(Float value) {
-            addCriterion("impression_rate =", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateNotEqualTo(Float value) {
-            addCriterion("impression_rate <>", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateGreaterThan(Float value) {
-            addCriterion("impression_rate >", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("impression_rate >=", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateLessThan(Float value) {
-            addCriterion("impression_rate <", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateLessThanOrEqualTo(Float value) {
-            addCriterion("impression_rate <=", value, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateIn(List<Float> values) {
-            addCriterion("impression_rate in", values, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateNotIn(List<Float> values) {
-            addCriterion("impression_rate not in", values, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateBetween(Float value1, Float value2) {
-            addCriterion("impression_rate between", value1, value2, "impressionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andImpressionRateNotBetween(Float value1, Float value2) {
-            addCriterion("impression_rate not between", value1, value2, "impressionRate");
-            return (Criteria) this;
-        }
-
         public Criteria andClickAmountIsNull() {
             addCriterion("click_amount is null");
             return (Criteria) this;
@@ -605,66 +545,6 @@ public class CreativeDataHourModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andClickRateIsNull() {
-            addCriterion("click_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateIsNotNull() {
-            addCriterion("click_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateEqualTo(Float value) {
-            addCriterion("click_rate =", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateNotEqualTo(Float value) {
-            addCriterion("click_rate <>", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateGreaterThan(Float value) {
-            addCriterion("click_rate >", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("click_rate >=", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateLessThan(Float value) {
-            addCriterion("click_rate <", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateLessThanOrEqualTo(Float value) {
-            addCriterion("click_rate <=", value, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateIn(List<Float> values) {
-            addCriterion("click_rate in", values, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateNotIn(List<Float> values) {
-            addCriterion("click_rate not in", values, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateBetween(Float value1, Float value2) {
-            addCriterion("click_rate between", value1, value2, "clickRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andClickRateNotBetween(Float value1, Float value2) {
-            addCriterion("click_rate not between", value1, value2, "clickRate");
-            return (Criteria) this;
-        }
-
         public Criteria andArrivalAmountIsNull() {
             addCriterion("arrival_amount is null");
             return (Criteria) this;
@@ -722,66 +602,6 @@ public class CreativeDataHourModelExample {
 
         public Criteria andArrivalAmountNotBetween(Long value1, Long value2) {
             addCriterion("arrival_amount not between", value1, value2, "arrivalAmount");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIsNull() {
-            addCriterion("arrival_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIsNotNull() {
-            addCriterion("arrival_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateEqualTo(Float value) {
-            addCriterion("arrival_rate =", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotEqualTo(Float value) {
-            addCriterion("arrival_rate <>", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateGreaterThan(Float value) {
-            addCriterion("arrival_rate >", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateGreaterThanOrEqualTo(Float value) {
-            addCriterion("arrival_rate >=", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateLessThan(Float value) {
-            addCriterion("arrival_rate <", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateLessThanOrEqualTo(Float value) {
-            addCriterion("arrival_rate <=", value, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateIn(List<Float> values) {
-            addCriterion("arrival_rate in", values, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotIn(List<Float> values) {
-            addCriterion("arrival_rate not in", values, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateBetween(Float value1, Float value2) {
-            addCriterion("arrival_rate between", value1, value2, "arrivalRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andArrivalRateNotBetween(Float value1, Float value2) {
-            addCriterion("arrival_rate not between", value1, value2, "arrivalRate");
             return (Criteria) this;
         }
 
