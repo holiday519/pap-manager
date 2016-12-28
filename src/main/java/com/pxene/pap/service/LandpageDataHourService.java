@@ -14,6 +14,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.LandpageDataHourBean;
+import com.pxene.pap.domain.beans.LandpageDataHourViewBean;
 import com.pxene.pap.domain.model.basic.LandpageDataHourModel;
 import com.pxene.pap.domain.model.basic.view.LandpageDataHourViewModel;
 import com.pxene.pap.domain.model.basic.view.LandpageDataHourViewModelExample;
@@ -85,26 +86,26 @@ public class LandpageDataHourService extends BaseService
 
     
     @Transactional
-    public List<LandpageDataHourBean> listLandpageDataHour(String campaignId, long beginTime, long endTime)
+    public List<LandpageDataHourViewBean> listLandpageDataHour(String campaignId, long beginTime, long endTime)
     {
         LandpageDataHourViewModelExample example = new LandpageDataHourViewModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<LandpageDataHourViewModel> landpageDataHourModels = landpageDataHourViewDao.selectByExample(example);
-        List<LandpageDataHourBean> landpageDataHourList = new ArrayList<LandpageDataHourBean>();
+        List<LandpageDataHourViewModel> models = landpageDataHourViewDao.selectByExample(example);
+        List<LandpageDataHourViewBean> landpageDataHourList = new ArrayList<LandpageDataHourViewBean>();
         
-        if (landpageDataHourModels == null || landpageDataHourModels.size() <= 0)
+        if (models == null || models.size() <= 0)
         {
             throw new ResourceNotFoundException();
         }
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (LandpageDataHourViewModel landpageDataHourModel : landpageDataHourModels)
+            for (LandpageDataHourViewModel model : models)
             {
-                landpageDataHourList.add(modelMapper.map(landpageDataHourModel, LandpageDataHourBean.class));
+                landpageDataHourList.add(modelMapper.map(model, LandpageDataHourViewBean.class));
             }
         }
         
