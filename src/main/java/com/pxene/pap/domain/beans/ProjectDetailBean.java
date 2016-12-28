@@ -3,42 +3,81 @@ package com.pxene.pap.domain.beans;
 import java.math.BigDecimal;
 
 public class ProjectDetailBean {
+	/**
+	 * id
+	 */
 	private String id;
-
+	/**
+	 * 名称
+	 */
     private String name;
-
+    /**
+	 * 总预算
+	 */
     private Integer totalBudget;
-
+    /**
+	 * Kpi指标值
+	 */
     private Integer kpiVal;
-
+    /**
+	 * 备注
+	 */
     private String remark;
-
+    /**
+	 * 状态
+	 */
     private String status;
-
+    /**
+	 * 广告主Id
+	 */
     private String advertiserId;
-
+    /**
+	 * 广告主名称
+	 */
     private String advertiserName;
-
+    /**
+	 * 行业id
+	 */
     private String industryId;
-
+    /**
+	 * 行业名称
+	 */
     private String industryName;
-
+    /**
+	 * kpi指标ID
+	 */
     private String kpiId;
-
+    /**
+	 * kpi指标名称
+	 */
     private String kpiName;
-
+    /**
+	 * 中标量
+	 */
     private BigDecimal winAmount;
-
+    /**
+	 * 展现量
+	 */
     private BigDecimal impressionAmount;
-
+    /**
+	 * 点击量
+	 */
     private BigDecimal clickAmount;
-
+    /**
+	 * 点击率
+	 */
     private BigDecimal clickRate;
-
+    /**
+	 * 到达量
+	 */
     private BigDecimal arrivalAmount;
-
+    /**
+	 * 独立访客数
+	 */
     private BigDecimal uniqueAmount;
-
+    /**
+	 * 花费
+	 */
     private BigDecimal cost;
 
 	public String getId() {
