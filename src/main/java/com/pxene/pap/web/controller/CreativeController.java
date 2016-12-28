@@ -69,31 +69,17 @@ public class CreativeController {
 	}
 
 	/**
-	 * 上传创意图片
+	 * 上传素材
 	 * @param bean
 	 * @param response
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creative/image", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative/upload", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String addImage(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-//		String id = creativeService.addImage(file);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", "", response);
-	}
-	
-	/**
-	 * 上传视频
-	 * @param bean
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/creative/video", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String addVideo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-//		String id = creativeService.addVideo(file);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", "", response);
+	public String addMaterial(@RequestPart(value = "file", required = true) MultipartFile file, @RequestBody String tmplId, HttpServletResponse response) throws Exception {
+		String id = creativeService.addMaterial(tmplId, file);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", id, response);
 	}
 	
 	/**

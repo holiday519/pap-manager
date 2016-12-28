@@ -43,6 +43,7 @@ import com.pxene.pap.domain.model.basic.InfoFlowModel;
 import com.pxene.pap.domain.model.basic.SizeModel;
 import com.pxene.pap.domain.model.basic.SizeModelExample;
 import com.pxene.pap.domain.model.basic.VideoModel;
+import com.pxene.pap.domain.model.basic.VideoTmplModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -423,8 +424,9 @@ public class CreativeService extends BaseService {
 	 * @param file
 	 * @throws Exception
 	 */
-	public void addMaterial(String tmplId, MultipartFile file) throws Exception {
+	public String addMaterial(String tmplId, MultipartFile file) throws Exception {
 		MediaBean mediaBean = FileUtils.checkFile(file);
+		String id = "";
 		
 		if (mediaBean instanceof ImageBean){
 			ImageBean imageBean = (ImageBean) FileUtils.checkFile(file);
@@ -442,11 +444,31 @@ public class CreativeService extends BaseService {
 				throw new IllegalArgumentException();
 			}
 			
-			
+			id = addImage(imageBean, file);
 			
 		}else if (mediaBean instanceof VideoBean) {
 			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
+			VideoTmplModel tmplModel = videoTmplDao.selectByPrimaryKey(tmplId);
+			String sizeId = tmplModel.getSizeId();
+			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			Integer tmplWidth = sizeModel.getWidth();//模版宽限制
+			Integer tmplHeight = sizeModel.getHeight();//模版高限制
+			Float maxVolume = tmplModel.getMaxVolume();//模版最大体积限制
+			Integer maxTimelength = tmplModel.getMaxTimelength();//模版最大时长
+			int height = videoBean.getHeight();//文件高
+			int width = videoBean.getWidth();//文件宽
+			Float volume = videoBean.getVolume();//文件体积限制
+			int timelength = videoBean.getTimelength();//文件时长
+			
+			if (tmplWidth < width || tmplHeight < height || maxVolume < volume || maxTimelength < timelength) {
+				throw new IllegalArgumentException();
+			}
+			
+			id = addVideo(videoBean, file);
+			
 		}
+		
+		return id;
 	}
 	
 	
