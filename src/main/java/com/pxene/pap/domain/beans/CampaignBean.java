@@ -1,5 +1,6 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -27,6 +28,10 @@ public class CampaignBean {
 	 * 总预算
 	 */
 	private Integer totalBudget;
+	/**
+	 * 日预算
+	 */
+	private Integer dailyBudget;
 	/**
 	 * 日展现
 	 */
@@ -382,16 +387,25 @@ public class CampaignBean {
 		this.frequencyId = frequencyId;
 	}
 
+	public Integer getDailyBudget() {
+		return dailyBudget;
+	}
+
+	public void setDailyBudget(Integer dailyBudget) {
+		this.dailyBudget = dailyBudget;
+	}
+
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
 				+ ", name=" + name + ", type=" + type + ", totalBudget="
-				+ totalBudget + ", dailyImpression=" + dailyImpression
-				+ ", dailyClick=" + dailyClick + ", remark=" + remark
-				+ ", status=" + status + ", startDate=" + startDate
-				+ ", endDate=" + endDate + ", frequencyId=" + frequencyId
-				+ ", target=" + target + ", frequency=" + frequency
-				+ ", monitors=" + monitors + "]";
+				+ totalBudget + ", dailyBudget=" + dailyBudget
+				+ ", dailyImpression=" + dailyImpression + ", dailyClick="
+				+ dailyClick + ", remark=" + remark + ", status=" + status
+				+ ", startDate=" + startDate + ", endDate=" + endDate
+				+ ", frequencyId=" + frequencyId + ", target=" + target
+				+ ", frequency=" + frequency + ", monitors="
+				+ Arrays.toString(monitors) + "]";
 	}
 
 }

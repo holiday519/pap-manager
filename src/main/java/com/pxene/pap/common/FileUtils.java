@@ -31,49 +31,21 @@ public class FileUtils
         return convFile;
     }
     
-    
-    public static MediaBean uploadFile(String uploadDir, String fileName, MultipartFile file)
+    /**
+     * 上传文件
+     * @param uploadDir
+     * @param fileName
+     * @param file
+     * @return path
+     */
+    public static String uploadFile(String uploadDir, String fileName, MultipartFile file)
     {
-        MediaBean result = null;
-        
+        String path = null;
         try
         {
             String name = file.getOriginalFilename();
-            String contentType = file.getContentType();
             String fileExtension = getFileExtensionByDot(name);
-            float volume = file.getSize() / 1024.0f;
-            int width = 0;
-            int height = 0;
-            String path = uploadDir + fileName + "." + fileExtension;
-            
-            if (contentType.startsWith("image"))
-            {
-                BufferedImage sourceImg = ImageIO.read(file.getInputStream());
-                width = sourceImg.getWidth();
-                height = sourceImg.getHeight();
-                
-                result = new ImageBean(width, height);
-            }
-            else if (contentType.startsWith("video"))
-            {
-                Encoder encoder = new Encoder();
-                
-                File convFile = com.pxene.pap.common.FileUtils.convert(file);
-                
-                MultimediaInfo multimediaInfo = encoder.getInfo(convFile);
-                int timeLength = new BigDecimal((double) multimediaInfo.getDuration()/1000).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();// 视频时长
-                VideoSize videoSize = multimediaInfo.getVideo().getSize();
-                width = videoSize.getWidth();
-                height = videoSize.getHeight();
-                
-                result = new VideoBean(width, height, timeLength);
-            }
-            
-            // 设置基本属性
-            result.setName(name);
-            result.setPath(path);
-            result.setType(fileExtension);
-            result.setVolume(volume);
+            path = uploadDir + fileName + "." + fileExtension;
             
             // 上传至本地
             org.apache.commons.io.FileUtils.writeByteArrayToFile(new File(path), file.getBytes(), false);
@@ -83,7 +55,62 @@ public class FileUtils
             e.printStackTrace();
             return null;
         }
-        return result;
+        return path;
+    }
+    
+    /**
+     * 检查上传素材属性
+     * @param file
+     * @return
+     */
+    public static MediaBean checkFile(MultipartFile file)
+    {
+    	MediaBean result = null;
+    	
+    	try
+    	{
+    		String name = file.getOriginalFilename();
+    		String contentType = file.getContentType();
+    		String fileExtension = getFileExtensionByDot(name);
+    		float volume = file.getSize() / 1024.0f;
+    		int width = 0;
+    		int height = 0;
+    		
+    		if (contentType.startsWith("image"))
+    		{
+    			BufferedImage sourceImg = ImageIO.read(file.getInputStream());
+    			width = sourceImg.getWidth();
+    			height = sourceImg.getHeight();
+    			
+    			result = new ImageBean(width, height);
+    		}
+    		else if (contentType.startsWith("video"))
+    		{
+    			Encoder encoder = new Encoder();
+    			
+    			File convFile = com.pxene.pap.common.FileUtils.convert(file);
+    			
+    			MultimediaInfo multimediaInfo = encoder.getInfo(convFile);
+    			int timeLength = new BigDecimal((double) multimediaInfo.getDuration()/1000).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();// 视频时长
+    			VideoSize videoSize = multimediaInfo.getVideo().getSize();
+    			width = videoSize.getWidth();
+    			height = videoSize.getHeight();
+    			
+    			result = new VideoBean(width, height, timeLength);
+    		}
+    		
+    		// 设置基本属性
+    		result.setName(name);
+    		result.setType(fileExtension);
+    		result.setVolume(volume);
+    		
+    	}
+    	catch (Exception e)
+    	{
+    		e.printStackTrace();
+    		return null;
+    	}
+    	return result;
     }
     
     

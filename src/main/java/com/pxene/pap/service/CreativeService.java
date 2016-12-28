@@ -12,7 +12,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.util.StringUtil;
@@ -29,6 +28,7 @@ import com.pxene.pap.domain.beans.CreativeUpdateBean.Image.Add;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.InfoFlow;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.Video;
 import com.pxene.pap.domain.beans.ImageBean;
+import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
@@ -36,6 +36,7 @@ import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
 import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.domain.model.basic.ImageModel;
+import com.pxene.pap.domain.model.basic.ImageTmplModel;
 import com.pxene.pap.domain.model.basic.ImageTypeModel;
 import com.pxene.pap.domain.model.basic.ImageTypeModelExample;
 import com.pxene.pap.domain.model.basic.InfoFlowModel;
@@ -45,15 +46,18 @@ import com.pxene.pap.domain.model.basic.VideoModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModel;
 import com.pxene.pap.domain.model.basic.VideoTypeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageDao;
+import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.ImageTypeDao;
 import com.pxene.pap.repository.basic.InfoFlowDao;
 import com.pxene.pap.repository.basic.SizeDao;
 import com.pxene.pap.repository.basic.VideoDao;
+import com.pxene.pap.repository.basic.VideoTmplDao;
 import com.pxene.pap.repository.basic.VideoTypeDao;
 
 @Service
@@ -99,6 +103,12 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private ImageDao imageDao;
+	
+	@Autowired
+	private ImageTmplDao imageTmplDao;
+	
+	@Autowired
+	private VideoTmplDao videoTmplDao;
 	
 	/**
 	 * 创建创意
@@ -408,17 +418,52 @@ public class CreativeService extends BaseService {
 	}
 
 	/**
+	 * 添加素材用
+	 * @param tmplId
+	 * @param file
+	 * @throws Exception
+	 */
+	public void addMaterial(String tmplId, MultipartFile file) throws Exception {
+		MediaBean mediaBean = FileUtils.checkFile(file);
+		
+		if (mediaBean instanceof ImageBean){
+			ImageBean imageBean = (ImageBean) FileUtils.checkFile(file);
+			ImageTmplModel tmplModel = imageTmplDao.selectByPrimaryKey(tmplId);
+			String sizeId = tmplModel.getSizeId();
+			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			Integer tmplWidth = sizeModel.getWidth();//模版宽限制
+			Integer tmplHeight = sizeModel.getHeight();//模版高限制
+			Float maxVolume = tmplModel.getMaxVolume();//模版最大体积限制
+			int height = imageBean.getHeight();//文件高
+			int width = imageBean.getWidth();//文件宽
+			Float volume = imageBean.getVolume();//文件体积限制
+			
+			if (tmplWidth < width || tmplHeight < height || maxVolume < volume) {
+				throw new IllegalArgumentException();
+			}
+			
+			
+			
+		}else if (mediaBean instanceof VideoBean) {
+			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
+		}
+	}
+	
+	
+	/**
 	 * 上传图片
+	 * @param imageBean
 	 * @param file
 	 * @return
+	 * @throws Exception
 	 */
 	@Transactional
-	public String addImage(MultipartFile file) throws Exception {
+	public String addImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
 		String dir = upload + "creative/image";
-		ImageBean imageBean = (ImageBean) FileUtils.uploadFile(dir, id, file);
+		String path = FileUtils.uploadFile(dir, id, file);//上传
 		String name = imageBean.getName();
-		String path = imageBean.getPath().replace(upload, "");
+//		String path = imageBean.getPath().replace(upload, "");
 		String type = imageBean.getType();
 		Float volume = imageBean.getVolume();
 		ImageTypeModelExample itExample = new ImageTypeModelExample();
@@ -440,7 +485,7 @@ public class CreativeService extends BaseService {
 		ImageModel model = new ImageModel();
 		model.setId(id);
 		model.setName(name);
-		model.setPath(path);
+		model.setPath(path.replace(upload, ""));
 		model.setVolume(volume);
 		model.setTypeId(typeId);
 		model.setSizeId(sizeId);
@@ -454,16 +499,17 @@ public class CreativeService extends BaseService {
 	
 	/**
 	 * 添加视频
+	 * @param videoBean
 	 * @param file
 	 * @return
 	 * @throws Exception
 	 */
-	public String addVideo(MultipartFile file) throws Exception {
+	public String addVideo(VideoBean videoBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
 		String dir = upload + "creative/video";
-		VideoBean videoBean = (VideoBean) FileUtils.uploadFile(dir, id, file);
+		String path = FileUtils.uploadFile(dir, id, file);//上传
 		String name = videoBean.getName();
-		String path = videoBean.getPath().replace(upload, "");
+//		String path = videoBean.getPath().replace(upload, "");
 		String type = videoBean.getType();
 		Float volume = videoBean.getVolume();
 		String size = videoBean.getSize();//视频图片的id
@@ -488,7 +534,7 @@ public class CreativeService extends BaseService {
 		//添加视频信息
 		model.setId(id);
 		model.setName(name);
-		model.setPath(path);
+		model.setPath(path.replace(upload, ""));
 		model.setVolume(volume);
 		model.setTypeId(typeId);
 		model.setSizeId(sizeId);

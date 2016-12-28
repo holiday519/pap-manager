@@ -239,9 +239,8 @@ public class AdvertiserService extends BaseService
     }
     
     public String uploadQualification(MultipartFile file) throws Exception {
-    	MediaBean uploadedFile = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
     	// 图片绝对路径
-    	String path = uploadedFile.getPath();
+    	String path = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
     	// 返回相对路径
     	return path.replace(UPLOAD_DIR, "");
     }

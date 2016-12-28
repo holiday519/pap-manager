@@ -78,8 +78,8 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/image", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String addImage(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-		String id = creativeService.addImage(file);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", id, response);
+//		String id = creativeService.addImage(file);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", "", response);
 	}
 	
 	/**
@@ -92,8 +92,8 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/video", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String addVideo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-		String id = creativeService.addVideo(file);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", id, response);
+//		String id = creativeService.addVideo(file);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", "", response);
 	}
 	
 	/**

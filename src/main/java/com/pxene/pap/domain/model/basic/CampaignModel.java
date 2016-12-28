@@ -17,6 +17,8 @@ public class CampaignModel {
 
     private Integer totalBudget;
 
+    private Integer dailyBudget;
+
     private Integer dailyImpression;
 
     private Integer dailyClick;
@@ -85,6 +87,14 @@ public class CampaignModel {
 
     public void setTotalBudget(Integer totalBudget) {
         this.totalBudget = totalBudget;
+    }
+
+    public Integer getDailyBudget() {
+        return dailyBudget;
+    }
+
+    public void setDailyBudget(Integer dailyBudget) {
+        this.dailyBudget = dailyBudget;
     }
 
     public Integer getDailyImpression() {
@@ -156,6 +166,7 @@ public class CampaignModel {
         sb.append(", startDate=").append(startDate);
         sb.append(", endDate=").append(endDate);
         sb.append(", totalBudget=").append(totalBudget);
+        sb.append(", dailyBudget=").append(dailyBudget);
         sb.append(", dailyImpression=").append(dailyImpression);
         sb.append(", dailyClick=").append(dailyClick);
         sb.append(", remark=").append(remark);
