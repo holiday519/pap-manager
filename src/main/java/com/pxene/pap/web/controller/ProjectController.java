@@ -22,6 +22,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.ProjectBean;
+import com.pxene.pap.domain.beans.ProjectDetailBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.ProjectService;
 
@@ -41,7 +42,6 @@ public class ProjectController {
 	@RequestMapping(value = "/project", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createProject(@Valid @RequestBody ProjectBean bean, HttpServletResponse response) throws Exception {
-		
 		projectService.createProject(bean);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
@@ -100,8 +100,8 @@ public class ProjectController {
 	@ResponseBody
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
-		ProjectBean projectBean = projectService.selectProject(id);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), projectBean, response);
+		ProjectDetailBean projectDetailBean = projectService.selectProject(id);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), projectDetailBean, response);
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class ProjectController {
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<ProjectBean> selectProjects = projectService.selectProjects(name);
+		List<ProjectDetailBean> selectProjects = projectService.selectProjects(name);
 		
 		PaginationResult result = new PaginationResult(selectProjects, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

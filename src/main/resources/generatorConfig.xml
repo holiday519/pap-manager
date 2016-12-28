@@ -87,6 +87,7 @@
 <!--     	<table tableName="pap_v_creative_image" domainObjectName="CreativeImageModel" mapperName="CreativeImageDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_creative_video" domainObjectName="CreativeVideoModel" mapperName="CreativeVideoDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_creative_infoflow" domainObjectName="CreativeInfoflowModel" mapperName="CreativeInfoflowDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+		<table tableName="pap_v_project_detail" domainObjectName="ProjectDetailModel" mapperName="ProjectDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
 
     </context>
 </generatorConfiguration>

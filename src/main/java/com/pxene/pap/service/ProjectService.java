@@ -16,16 +16,20 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ProjectBean;
+import com.pxene.pap.domain.beans.ProjectDetailBean;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
+import com.pxene.pap.domain.model.basic.view.ProjectDetailModel;
+import com.pxene.pap.domain.model.basic.view.ProjectDetailModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.view.ProjectDetailDao;
 
 @Service
 public class ProjectService extends LaunchService {
@@ -38,6 +42,9 @@ public class ProjectService extends LaunchService {
 	
 	@Autowired
 	private CampaignService campaignService;
+	
+	@Autowired
+	private ProjectDetailDao projectDetailDao;
 	
 	/**
 	 * 创建项目
@@ -139,13 +146,15 @@ public class ProjectService extends LaunchService {
 	 * @param id
 	 * @return
 	 */
-    public ProjectBean selectProject(String id) throws Exception {
-        ProjectModel model = projectDao.selectByPrimaryKey(id);
-        if (model == null) {
-        	throw new ResourceNotFoundException();
-        }
-        
-        ProjectBean bean = modelMapper.map(model, ProjectBean.class);
+    public ProjectDetailBean selectProject(String id) throws Exception {
+        ProjectDetailModelExample example = new ProjectDetailModelExample();
+        example.createCriteria().andIdEqualTo(id);
+		List<ProjectDetailModel> models = projectDetailDao.selectByExample(example);
+		if (models == null || models.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		ProjectDetailModel model = models.get(0);
+        ProjectDetailBean bean = modelMapper.map(model, ProjectDetailBean.class);
         
         return bean;
     }
@@ -156,23 +165,23 @@ public class ProjectService extends LaunchService {
      * @return
      * @throws Exception
      */
-    public List<ProjectBean> selectProjects(String name) throws Exception {
+    public List<ProjectDetailBean> selectProjects(String name) throws Exception {
     	
-    	ProjectModelExample example = new ProjectModelExample();
+    	ProjectDetailModelExample example = new ProjectDetailModelExample();
 
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
 		}
 		
-		List<ProjectModel> projects = projectDao.selectByExample(example);
-		List<ProjectBean> beans = new ArrayList<ProjectBean>();
+		List<ProjectDetailModel> projects = projectDetailDao.selectByExample(example);
+		List<ProjectDetailBean> beans = new ArrayList<ProjectDetailBean>();
 		
 		if (projects == null || projects.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		
-		for (ProjectModel mod : projects) {
-			ProjectBean bean = modelMapper.map(mod, ProjectBean.class);
+		for (ProjectDetailModel mod : projects) {
+			ProjectDetailBean bean = modelMapper.map(mod, ProjectDetailBean.class);
 			beans.add(bean);
 		}
 		
