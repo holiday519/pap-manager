@@ -113,9 +113,9 @@ public class DateUtils {
 		return string;
 	}
 	
-	public static void main(String[] args) {
-		
-		System.out.println(getDayOfChange(new Date(),0));
-
-	}
+//	public static void main(String[] args) {
+//		
+//		System.out.println(getDayOfChange(new Date(),0));
+//
+//	}
 }

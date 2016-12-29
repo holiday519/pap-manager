@@ -19,7 +19,6 @@ import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
-import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;

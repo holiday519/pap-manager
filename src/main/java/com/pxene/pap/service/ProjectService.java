@@ -20,7 +20,6 @@ import com.pxene.pap.domain.beans.ProjectDetailBean;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
 import com.pxene.pap.domain.model.basic.ProjectModel;
-import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.domain.model.basic.view.ProjectDetailModel;
 import com.pxene.pap.domain.model.basic.view.ProjectDetailModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
