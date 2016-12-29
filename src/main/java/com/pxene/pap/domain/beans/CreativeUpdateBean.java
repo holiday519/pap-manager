@@ -2,6 +2,9 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
 
+/**
+ * 创意修改bean
+ */
 public class CreativeUpdateBean {
 
 	/**

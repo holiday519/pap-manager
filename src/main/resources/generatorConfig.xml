@@ -21,18 +21,18 @@
         </javaTypeResolver>
         
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.pxene.pap.domain.model.basic" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.pxene.pap.domain.model.basic.view" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="com.pxene.pap.repository.basic" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="com.pxene.pap.repository.basic.view" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         
         <!-- 生成DAO的包名和位置 -->  
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.pxene.pap.repository.basic" targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.pxene.pap.repository.basic.view" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
         
@@ -88,6 +88,8 @@
 <!-- 		<table tableName="pap_v_creative_video" domainObjectName="CreativeVideoModel" mapperName="CreativeVideoDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_creative_infoflow" domainObjectName="CreativeInfoflowModel" mapperName="CreativeInfoflowDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_project_detail" domainObjectName="ProjectDetailModel" mapperName="ProjectDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!-- 		<table tableName="pap_v_tmpl_image_detail" domainObjectName="TmplImageDetailModel" mapperName="TmplImageDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!-- 		<table tableName="pap_v_tmpl_video_detail" domainObjectName="TmplVideoDetailModel" mapperName="TmplVideoDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 
     </context>
 </generatorConfiguration>

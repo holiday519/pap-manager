@@ -1,7 +1,9 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
-
+/**
+ * 添加创意bean
+ */
 public class CreativeAddBean {
 
 	/**
