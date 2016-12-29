@@ -121,6 +121,7 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public void createCreative(CreativeAddBean bean) throws Exception {
 		String creativeId = UUID.randomUUID().toString();
+		bean.setId(creativeId);
 		
 		BaseImageBean[] images = bean.getImages();
 		BaseVideoBean[] videos = bean.getVideos();
