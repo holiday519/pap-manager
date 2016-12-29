@@ -58,6 +58,7 @@ public class ProjectService extends LaunchService {
 		model.setId(id);
 		try {
 			// 添加项目信息
+			model.setStatus(StatusConstant.PROJECT_WATING);//状态
 			projectDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
