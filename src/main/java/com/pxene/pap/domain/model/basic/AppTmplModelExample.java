@@ -175,73 +175,73 @@ public class AppTmplModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIsNull() {
-            addCriterion("creative_id is null");
+        public Criteria andAppIdIsNull() {
+            addCriterion("app_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIsNotNull() {
-            addCriterion("creative_id is not null");
+        public Criteria andAppIdIsNotNull() {
+            addCriterion("app_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdEqualTo(String value) {
-            addCriterion("creative_id =", value, "creativeId");
+        public Criteria andAppIdEqualTo(String value) {
+            addCriterion("app_id =", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotEqualTo(String value) {
-            addCriterion("creative_id <>", value, "creativeId");
+        public Criteria andAppIdNotEqualTo(String value) {
+            addCriterion("app_id <>", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdGreaterThan(String value) {
-            addCriterion("creative_id >", value, "creativeId");
+        public Criteria andAppIdGreaterThan(String value) {
+            addCriterion("app_id >", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdGreaterThanOrEqualTo(String value) {
-            addCriterion("creative_id >=", value, "creativeId");
+        public Criteria andAppIdGreaterThanOrEqualTo(String value) {
+            addCriterion("app_id >=", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLessThan(String value) {
-            addCriterion("creative_id <", value, "creativeId");
+        public Criteria andAppIdLessThan(String value) {
+            addCriterion("app_id <", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLessThanOrEqualTo(String value) {
-            addCriterion("creative_id <=", value, "creativeId");
+        public Criteria andAppIdLessThanOrEqualTo(String value) {
+            addCriterion("app_id <=", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLike(String value) {
-            addCriterion("creative_id like", value, "creativeId");
+        public Criteria andAppIdLike(String value) {
+            addCriterion("app_id like", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotLike(String value) {
-            addCriterion("creative_id not like", value, "creativeId");
+        public Criteria andAppIdNotLike(String value) {
+            addCriterion("app_id not like", value, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIn(List<String> values) {
-            addCriterion("creative_id in", values, "creativeId");
+        public Criteria andAppIdIn(List<String> values) {
+            addCriterion("app_id in", values, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotIn(List<String> values) {
-            addCriterion("creative_id not in", values, "creativeId");
+        public Criteria andAppIdNotIn(List<String> values) {
+            addCriterion("app_id not in", values, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdBetween(String value1, String value2) {
-            addCriterion("creative_id between", value1, value2, "creativeId");
+        public Criteria andAppIdBetween(String value1, String value2) {
+            addCriterion("app_id between", value1, value2, "appId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotBetween(String value1, String value2) {
-            addCriterion("creative_id not between", value1, value2, "creativeId");
+        public Criteria andAppIdNotBetween(String value1, String value2) {
+            addCriterion("app_id not between", value1, value2, "appId");
             return (Criteria) this;
         }
 
@@ -312,6 +312,76 @@ public class AppTmplModelExample {
 
         public Criteria andTmplIdNotBetween(String value1, String value2) {
             addCriterion("tmpl_id not between", value1, value2, "tmplId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeIsNull() {
+            addCriterion("ad_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeIsNotNull() {
+            addCriterion("ad_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeEqualTo(String value) {
+            addCriterion("ad_type =", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeNotEqualTo(String value) {
+            addCriterion("ad_type <>", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeGreaterThan(String value) {
+            addCriterion("ad_type >", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("ad_type >=", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeLessThan(String value) {
+            addCriterion("ad_type <", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeLessThanOrEqualTo(String value) {
+            addCriterion("ad_type <=", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeLike(String value) {
+            addCriterion("ad_type like", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeNotLike(String value) {
+            addCriterion("ad_type not like", value, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeIn(List<String> values) {
+            addCriterion("ad_type in", values, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeNotIn(List<String> values) {
+            addCriterion("ad_type not in", values, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeBetween(String value1, String value2) {
+            addCriterion("ad_type between", value1, value2, "adType");
+            return (Criteria) this;
+        }
+
+        public Criteria andAdTypeNotBetween(String value1, String value2) {
+            addCriterion("ad_type not between", value1, value2, "adType");
             return (Criteria) this;
         }
 

@@ -5,9 +5,11 @@ import java.util.Date;
 public class AppTmplModel {
     private String id;
 
-    private String creativeId;
+    private String appId;
 
     private String tmplId;
+
+    private String adType;
 
     private Date createTime;
 
@@ -21,12 +23,12 @@ public class AppTmplModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getCreativeId() {
-        return creativeId;
+    public String getAppId() {
+        return appId;
     }
 
-    public void setCreativeId(String creativeId) {
-        this.creativeId = creativeId == null ? null : creativeId.trim();
+    public void setAppId(String appId) {
+        this.appId = appId == null ? null : appId.trim();
     }
 
     public String getTmplId() {
@@ -35,6 +37,14 @@ public class AppTmplModel {
 
     public void setTmplId(String tmplId) {
         this.tmplId = tmplId == null ? null : tmplId.trim();
+    }
+
+    public String getAdType() {
+        return adType;
+    }
+
+    public void setAdType(String adType) {
+        this.adType = adType == null ? null : adType.trim();
     }
 
     public Date getCreateTime() {
@@ -60,8 +70,9 @@ public class AppTmplModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", creativeId=").append(creativeId);
+        sb.append(", appId=").append(appId);
         sb.append(", tmplId=").append(tmplId);
+        sb.append(", adType=").append(adType);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

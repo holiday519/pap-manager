@@ -295,6 +295,66 @@ public class InfoFlowTmplModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andMaxCtaDescriptionIsNull() {
+            addCriterion("max_cta_description is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionIsNotNull() {
+            addCriterion("max_cta_description is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionEqualTo(Integer value) {
+            addCriterion("max_cta_description =", value, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionNotEqualTo(Integer value) {
+            addCriterion("max_cta_description <>", value, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionGreaterThan(Integer value) {
+            addCriterion("max_cta_description >", value, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionGreaterThanOrEqualTo(Integer value) {
+            addCriterion("max_cta_description >=", value, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionLessThan(Integer value) {
+            addCriterion("max_cta_description <", value, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionLessThanOrEqualTo(Integer value) {
+            addCriterion("max_cta_description <=", value, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionIn(List<Integer> values) {
+            addCriterion("max_cta_description in", values, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionNotIn(List<Integer> values) {
+            addCriterion("max_cta_description not in", values, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionBetween(Integer value1, Integer value2) {
+            addCriterion("max_cta_description between", value1, value2, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxCtaDescriptionNotBetween(Integer value1, Integer value2) {
+            addCriterion("max_cta_description not between", value1, value2, "maxCtaDescription");
+            return (Criteria) this;
+        }
+
         public Criteria andIconIdIsNull() {
             addCriterion("icon_id is null");
             return (Criteria) this;
@@ -712,6 +772,76 @@ public class InfoFlowTmplModelExample {
 
         public Criteria andImage5IdNotBetween(String value1, String value2) {
             addCriterion("image5_id not between", value1, value2, "image5Id");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarIsNull() {
+            addCriterion("is_app_star is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarIsNotNull() {
+            addCriterion("is_app_star is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarEqualTo(String value) {
+            addCriterion("is_app_star =", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarNotEqualTo(String value) {
+            addCriterion("is_app_star <>", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarGreaterThan(String value) {
+            addCriterion("is_app_star >", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarGreaterThanOrEqualTo(String value) {
+            addCriterion("is_app_star >=", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarLessThan(String value) {
+            addCriterion("is_app_star <", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarLessThanOrEqualTo(String value) {
+            addCriterion("is_app_star <=", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarLike(String value) {
+            addCriterion("is_app_star like", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarNotLike(String value) {
+            addCriterion("is_app_star not like", value, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarIn(List<String> values) {
+            addCriterion("is_app_star in", values, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarNotIn(List<String> values) {
+            addCriterion("is_app_star not in", values, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarBetween(String value1, String value2) {
+            addCriterion("is_app_star between", value1, value2, "isAppStar");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsAppStarNotBetween(String value1, String value2) {
+            addCriterion("is_app_star not between", value1, value2, "isAppStar");
             return (Criteria) this;
         }
 

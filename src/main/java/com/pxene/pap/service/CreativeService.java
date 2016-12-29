@@ -420,7 +420,7 @@ public class CreativeService extends BaseService {
 	}
 
 	/**
-	 * 添加素材用
+	 * 添加素材
 	 * @param tmplId
 	 * @param file
 	 * @throws Exception

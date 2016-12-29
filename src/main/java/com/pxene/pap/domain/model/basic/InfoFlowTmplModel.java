@@ -9,6 +9,8 @@ public class InfoFlowTmplModel {
 
     private Integer maxDescription;
 
+    private Integer maxCtaDescription;
+
     private String iconId;
 
     private String image1Id;
@@ -20,6 +22,8 @@ public class InfoFlowTmplModel {
     private String image4Id;
 
     private String image5Id;
+
+    private String isAppStar;
 
     private String remark;
 
@@ -49,6 +53,14 @@ public class InfoFlowTmplModel {
 
     public void setMaxDescription(Integer maxDescription) {
         this.maxDescription = maxDescription;
+    }
+
+    public Integer getMaxCtaDescription() {
+        return maxCtaDescription;
+    }
+
+    public void setMaxCtaDescription(Integer maxCtaDescription) {
+        this.maxCtaDescription = maxCtaDescription;
     }
 
     public String getIconId() {
@@ -99,6 +111,14 @@ public class InfoFlowTmplModel {
         this.image5Id = image5Id == null ? null : image5Id.trim();
     }
 
+    public String getIsAppStar() {
+        return isAppStar;
+    }
+
+    public void setIsAppStar(String isAppStar) {
+        this.isAppStar = isAppStar == null ? null : isAppStar.trim();
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -132,12 +152,14 @@ public class InfoFlowTmplModel {
         sb.append(", id=").append(id);
         sb.append(", maxTitle=").append(maxTitle);
         sb.append(", maxDescription=").append(maxDescription);
+        sb.append(", maxCtaDescription=").append(maxCtaDescription);
         sb.append(", iconId=").append(iconId);
         sb.append(", image1Id=").append(image1Id);
         sb.append(", image2Id=").append(image2Id);
         sb.append(", image3Id=").append(image3Id);
         sb.append(", image4Id=").append(image4Id);
         sb.append(", image5Id=").append(image5Id);
+        sb.append(", isAppStar=").append(isAppStar);
         sb.append(", remark=").append(remark);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);

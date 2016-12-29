@@ -559,8 +559,10 @@ public class CampaignService extends LaunchService{
 			com.pxene.pap.domain.beans.CampaignBean.Monitor[] monitors = new com.pxene.pap.domain.beans.CampaignBean.Monitor[monitorList.size()];
 			for (int i=0; i<monitors.length; i++) {
 				MonitorModel model = monitorList.get(i);
-				monitors[i].setImpressionUrl(model.getImpressionUrl());
-				monitors[i].setClickUrl(model.getClickUrl());
+				if (model != null) {
+					monitors[i].setImpressionUrl(model.getImpressionUrl());
+					monitors[i].setClickUrl(model.getClickUrl());
+				}
 			}
 			bean.setMonitors(monitors);
 		}
