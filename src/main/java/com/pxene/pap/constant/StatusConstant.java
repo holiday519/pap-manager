@@ -2,10 +2,10 @@ package com.pxene.pap.constant;
 
 public class StatusConstant {
 
-	/**
-	 * 项目状态：未开启
-	 */
-	public static final String PROJECT_WATING = "01";
+//	/**
+//	 * 项目状态：未开启
+//	 */
+//	public static final String PROJECT_WATING = "01";
 	/**
 	 * 项目状态：投放中
 	 */
