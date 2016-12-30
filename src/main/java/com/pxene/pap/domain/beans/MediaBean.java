@@ -1,6 +1,8 @@
 package com.pxene.pap.domain.beans;
 
-
+/**
+ * 媒体
+ */
 public class MediaBean
 {
 	/**

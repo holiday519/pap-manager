@@ -1,7 +1,9 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
-
+/**
+ * app下所有模版
+ */
 public class APPTmplBean {
 
 	private ImageTmpl[] imageTmpl;

@@ -1,7 +1,7 @@
 package com.pxene.pap.domain.beans;
 
 /**
- * 活动目标
+ * 落地页
  */
 public class LandPageBean {
 

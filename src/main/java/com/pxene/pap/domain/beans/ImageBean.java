@@ -1,5 +1,7 @@
 package com.pxene.pap.domain.beans;
-
+/**
+ * 图片
+ */
 public class ImageBean extends MediaBean
 {
 	/**

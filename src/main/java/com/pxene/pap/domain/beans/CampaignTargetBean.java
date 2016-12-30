@@ -3,7 +3,7 @@ package com.pxene.pap.domain.beans;
 import java.util.Arrays;
 
 /**
- * 活动
+ * 活动定向
  */
 public class CampaignTargetBean {
 

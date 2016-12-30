@@ -10,8 +10,9 @@ import org.hibernate.validator.constraints.Email;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RegexConstant;
-
-
+/**
+ * 广告主
+ */
 public class AdvertiserBean
 {
     private String id;

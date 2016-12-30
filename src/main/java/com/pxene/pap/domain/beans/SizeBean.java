@@ -1,5 +1,7 @@
 package com.pxene.pap.domain.beans;
-
+/**
+ * 尺寸信息
+ */
 public class SizeBean {
 	
     private String id;

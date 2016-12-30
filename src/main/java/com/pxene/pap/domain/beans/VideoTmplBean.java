@@ -1,5 +1,7 @@
 package com.pxene.pap.domain.beans;
-
+/**
+ * 视频模版信息
+ */
 public class VideoTmplBean {
 
 	private String id;

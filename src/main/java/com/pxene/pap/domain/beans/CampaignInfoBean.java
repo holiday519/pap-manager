@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 /**
- * 活动
+ * 活动基本信息
  */
 public class CampaignInfoBean {
 

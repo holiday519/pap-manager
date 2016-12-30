@@ -557,12 +557,10 @@ public class CampaignService extends LaunchService{
 		// 如果没有查到点击展现地址数据，直接返回
 		if (monitorList != null && !monitorList.isEmpty()) {
 			com.pxene.pap.domain.beans.CampaignBean.Monitor[] monitors = new com.pxene.pap.domain.beans.CampaignBean.Monitor[monitorList.size()];
-			for (int i=0; i<monitors.length; i++) {
+			for (int i=0; i<monitorList.size(); i++) {
 				MonitorModel model = monitorList.get(i);
-				if (model != null) {
-					monitors[i].setImpressionUrl(model.getImpressionUrl());
-					monitors[i].setClickUrl(model.getClickUrl());
-				}
+				com.pxene.pap.domain.beans.CampaignBean.Monitor monitor = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Monitor.class);
+				monitors[i] = monitor;
 			}
 			bean.setMonitors(monitors);
 		}

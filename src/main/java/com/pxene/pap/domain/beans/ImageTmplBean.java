@@ -1,5 +1,7 @@
 package com.pxene.pap.domain.beans;
-
+/**
+ * 图片模版
+ */
 public class ImageTmplBean {
 	
 	private String id;

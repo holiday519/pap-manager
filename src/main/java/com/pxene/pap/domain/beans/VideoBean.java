@@ -1,5 +1,8 @@
 package com.pxene.pap.domain.beans;
 
+/**
+ * 视频信息
+ */
 public class VideoBean extends MediaBean
 {
 	/**
