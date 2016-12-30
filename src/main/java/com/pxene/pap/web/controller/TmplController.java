@@ -32,9 +32,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/appTmpl/image", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectappTmplImage(@RequestParam String appids, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectappTmplImage(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		APPTmplBean bean = tmplService.selectAppTmplImage(appids);
+		APPTmplBean bean = tmplService.selectAppTmplImage(appIds);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -49,9 +49,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/appTmpl/video", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectappTmplVideo(@RequestParam String appids, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectappTmplVideo(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		APPTmplBean bean = tmplService.selectAppTmplVideo(appids);
+		APPTmplBean bean = tmplService.selectAppTmplVideo(appIds);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -66,9 +66,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/appTmpl/infoFlow", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectappTmplInfoFlow(@RequestParam String appids, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectappTmplInfoFlow(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		APPTmplBean bean = tmplService.selectAppTmplInfo(appids);
+		APPTmplBean bean = tmplService.selectAppTmplInfo(appIds);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
