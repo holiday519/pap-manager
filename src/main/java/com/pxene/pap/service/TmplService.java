@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.APPTmplBean;
 import com.pxene.pap.domain.beans.APPTmplBean.ImageTmpl;
+import com.pxene.pap.domain.beans.APPTmplBean.InfoTmpl;
 import com.pxene.pap.domain.beans.APPTmplBean.VideoTmpl;
 import com.pxene.pap.domain.beans.ImageTmplBean;
 import com.pxene.pap.domain.beans.VideoTmplBean;
@@ -22,6 +23,8 @@ import com.pxene.pap.domain.model.basic.AppTmplModel;
 import com.pxene.pap.domain.model.basic.AppTmplModelExample;
 import com.pxene.pap.domain.model.basic.ImageTmplModel;
 import com.pxene.pap.domain.model.basic.ImageTmplTypeModel;
+import com.pxene.pap.domain.model.basic.InfoFlowTmplModel;
+import com.pxene.pap.domain.model.basic.InfoFlowTmplModelExample;
 import com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample;
 import com.pxene.pap.domain.model.basic.view.TmplImageDetailModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.TmplVideoDetailModelExample;
@@ -98,6 +101,12 @@ public class TmplService extends BaseService {
 
 	}
 
+	/**
+	 * 查询图片模版详细信息
+	 * @param paramId
+	 * @return
+	 * @throws Exception
+	 */
 	public APPTmplBean selectAppTmplImage(String paramId) throws Exception {
 		if (StringUtils.isEmpty(paramId)) {
 			throw new IllegalArgumentException();
@@ -140,6 +149,12 @@ public class TmplService extends BaseService {
 		return bean;
 	}
 	
+	/**
+	 * 查询视频模版详细信息
+	 * @param paramId
+	 * @return
+	 * @throws Exception
+	 */
 	public APPTmplBean selectAppTmplVideo(String paramId) throws Exception {
 		if (StringUtils.isEmpty(paramId)) {
 			throw new IllegalArgumentException();
@@ -191,6 +206,84 @@ public class TmplService extends BaseService {
 		return bean;
 	}
 	
+	/**
+	 * 查询信息流模版详细信息
+	 * @param paramId
+	 * @return
+	 * @throws Exception
+	 */
+	public APPTmplBean selectAppTmplInfo(String paramId) throws Exception {
+		if (StringUtils.isEmpty(paramId)) {
+			throw new IllegalArgumentException();
+		}
+		
+		//appid数组转成list
+		String[] appids = paramId.split(",");
+		List<String> appIdList = Arrays.asList(appids);
+		
+		APPTmplBean bean = new APPTmplBean();
+		List<InfoTmpl> infoTmplList = new ArrayList<InfoTmpl>();
+		// 查询app的模版
+		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
+		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_INFOFLOW);
+		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
+		if (appTmpls != null && !appTmpls.isEmpty()) {
+			List<String> tmplIds = new ArrayList<String>();
+			//将id放入list中
+			for (AppTmplModel appTmpl : appTmpls) {
+				String tmplId = appTmpl.getTmplId();
+				tmplIds.add(tmplId);
+			}
+			//查询信息流模版
+			InfoFlowTmplModelExample example = new InfoFlowTmplModelExample();
+			example.createCriteria().andIdIn(tmplIds);
+			List<InfoFlowTmplModel> list = infoFlowTmplDao.selectByExample(example);
+			if (list != null && !list.isEmpty()) {
+				for (InfoFlowTmplModel model : list) {
+					InfoTmpl infoTmpl = modelMapper.map(model, InfoTmpl.class);
+					// 小图信息
+					if (!StringUtils.isEmpty(model.getIconId())) {
+						ImageTmpl icon = getImageTmplDetail(model.getIconId());
+						infoTmpl.setIcon(icon);
+					}
+					ImageTmpl image = null;
+					//大图信息（最多五个）
+					if (!StringUtils.isEmpty(model.getImage1Id())) {
+						image = getImageTmplDetail(model.getImage1Id());
+						infoTmpl.setImage1(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage2Id())) {
+						image = getImageTmplDetail(model.getImage2Id());
+						infoTmpl.setImage2(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage3Id())) {
+						image = getImageTmplDetail(model.getImage3Id());
+						infoTmpl.setImage3(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage4Id())) {
+						image = getImageTmplDetail(model.getImage4Id());
+						infoTmpl.setImage4(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage5Id())) {
+						image = getImageTmplDetail(model.getImage5Id());
+						infoTmpl.setImage5(image);
+					}
+					infoTmplList.add(infoTmpl);
+				}
+			}
+		}
+		
+		if (!infoTmplList.isEmpty()) {
+			InfoTmpl[] infos = new InfoTmpl[infoTmplList.size()];
+			for (int i = 0;i<infoTmplList.size();i++) {
+				infos[i] = infoTmplList.get(i);
+			}
+			bean.setInfoTmpl(infos);
+		} else {
+			throw new ResourceNotFoundException();
+		}
+		return bean;
+	}
 	
 	/**
 	 * 根据图片模版ID查询图片模版详细信息
