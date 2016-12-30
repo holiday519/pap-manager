@@ -38,27 +38,27 @@ public class StatusConstant {
 	/**
 	 * 广告主审核状态 ：审核中
 	 */
-	public static final String ADVERTISER_AUDIT_WATING = "00";
+	public static final String ADVERTISER_AUDIT_WATING = "01";
 	/**
 	 * 广告主审核状态 ：审核通过
 	 */
-	public static final String ADVERTISER_AUDIT_SUCCESS = "01";
+	public static final String ADVERTISER_AUDIT_SUCCESS = "02";
 	/**
 	 * 广告主审核状态 ：审核不通过
 	 */
-	public static final String ADVERTISER_AUDIT_FAILURE = "02";
+	public static final String ADVERTISER_AUDIT_FAILURE = "03";
 	/**
-	 * 创意主审核状态 ：审核中
+	 * 创意审核状态 ：审核中
 	 */
-	public static final String CREATIVE_AUDIT_WATING = "00";
+	public static final String CREATIVE_AUDIT_WATING = "01";
 	/**
 	 * 创意审核状态 ：审核通过
 	 */
-	public static final String CREATIVE_AUDIT_SUCCESS = "01";
+	public static final String CREATIVE_AUDIT_SUCCESS = "02";
 	/**
 	 * 创意审核状态 ：审核不通过
 	 */
-	public static final String CREATIVE_AUDIT_FAILURE = "02";
+	public static final String CREATIVE_AUDIT_FAILURE = "03";
 	/**
 	 * 创意类型 ： 图片
 	 */
