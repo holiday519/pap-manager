@@ -44,7 +44,7 @@ public class CampaignController {
 	@ResponseBody
 	public String createCampaign(@Valid @RequestBody CampaignInfoBean bean, HttpServletResponse response) throws Exception {
 		campaignService.createCampaign(bean);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", bean.getId(), response);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
 	
 	/**

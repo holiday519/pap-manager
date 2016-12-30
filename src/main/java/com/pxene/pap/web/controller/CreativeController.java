@@ -37,7 +37,7 @@ public class CreativeController {
 	@ResponseBody
 	public String createCreative(@Valid @RequestBody CreativeAddBean bean, HttpServletResponse response) throws Exception {
 		creativeService.createCreative(bean);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", bean.getId(), response);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
 	
 	/**
