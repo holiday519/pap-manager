@@ -53,21 +53,6 @@ public class RegionDataHourController
     
     
     /**
-     * 根据ID编辑指定的地域数据（全部更新）。
-     * @param id        地域数据ID
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/regionDataHour/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public void updateRegionDataHour(@PathVariable Integer id, @Valid @RequestBody RegionDataHourBean regionDataHour, HttpServletResponse response) throws Exception
-    {
-        regionDataHourService.updateRegionDataHour(id, regionDataHour);
-        response.setStatus(HttpStatus.NO_CONTENT.value());
-    }
-    
-    
-    /**
      * 列出地域数据。
      * @param request
      * @param response

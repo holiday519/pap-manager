@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.custom.CustomAppFlowHourDao">
+  <resultMap id="CustomBaseResultMap" type="com.pxene.pap.domain.beans.AppFlowHourBean">
+    <result column="app_id" jdbcType="VARCHAR" property="appId" />
+    <result column="request_amount_sum" jdbcType="BIGINT" property="requestAmount" />
+  </resultMap>
+  
+  <select id="selectTopN" resultMap="CustomBaseResultMap">
+        SELECT
+            t.app_id,
+            SUM(t.request_amount) AS request_amount_sum
+        FROM
+            pap_t_appflow_hour t
+        WHERE
+            t.datetime BETWEEN #{startTime, jdbcType=TIMESTAMP}
+        AND #{endTime, jdbcType=TIMESTAMP}
+        GROUP BY
+            t.app_id
+        ORDER BY
+            request_amount_sum DESC
+        LIMIT #{limitNum, jdbcType=INTEGER}
+  </select>
+</mapper>

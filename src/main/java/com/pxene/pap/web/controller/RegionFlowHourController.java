@@ -1,6 +1,5 @@
 package com.pxene.pap.web.controller;
 
-import java.beans.PropertyEditorSupport;
 import java.util.Date;
 import java.util.List;
 
@@ -23,48 +22,48 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.RequestUtils;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.AppFlowHourBean;
-import com.pxene.pap.service.AppFlowHourService;
+import com.pxene.pap.domain.beans.RegionFlowHourBean;
+import com.pxene.pap.service.RegionFlowHourService;
 
 /**
- * APP流量-小时
+ * 地域流量-小时
  * @author ningyu
  */
 @Controller
-public class AppFlowHourController
+public class RegionFlowHourController
 {
     @Autowired
-    private AppFlowHourService appFlowHourService;
+    private RegionFlowHourService regionFlowHourService;
     
     
     /**
-     * 添加App流量。
-     * @param appFlowHour 按小时计App流量对象    
+     * 添加地域流量。
+     * @param regionFlowHour 按小时计地域流量对象    
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appFlowHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/regionFlowHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public ResponseEntity<Void> addAppFlowHour(@Valid @RequestBody AppFlowHourBean appFlowHour, HttpServletResponse response) throws Exception
+    public ResponseEntity<Void> addRegionFlowHour(@Valid @RequestBody RegionFlowHourBean regionFlowHour, HttpServletResponse response) throws Exception
     {
-        appFlowHourService.saveAppFlowHour(appFlowHour);
+        regionFlowHourService.saveRegionFlowHour(regionFlowHour);
         return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
     
     
     /**
-     * 列出App流量。
+     * 列出地域流量。
      * @param request
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appFlowHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/regionFlowHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAppFlowHour(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listRegionFlowHour(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        List<AppFlowHourBean> appFlowHourList = appFlowHourService.listAppFlowHour(beginTime, endTime, limitNum);
+        List<RegionFlowHourBean> regionFlowHourList = regionFlowHourService.listRegionFlowHour(beginTime, endTime, limitNum);
         
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), appFlowHourList, response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), regionFlowHourList, response);
     }
     
     @InitBinder(value = {"beginTime", "endTime"})

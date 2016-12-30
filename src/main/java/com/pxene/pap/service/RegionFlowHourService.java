@@ -10,30 +10,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import com.pxene.pap.domain.beans.AppFlowHourBean;
-import com.pxene.pap.domain.model.basic.AppFlowHourModel;
+import com.pxene.pap.domain.beans.RegionFlowHourBean;
+import com.pxene.pap.domain.model.basic.RegionFlowHourModel;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.repository.basic.AppFlowHourDao;
-import com.pxene.pap.repository.custom.CustomAppFlowHourDao;
+import com.pxene.pap.repository.basic.RegionFlowHourDao;
+import com.pxene.pap.repository.custom.CustomRegionFlowHourDao;
 
 @Service
-public class AppFlowHourService extends BaseService
+public class RegionFlowHourService extends BaseService
 {
     @Autowired
-    private AppFlowHourDao appFlowHourDao;
+    private RegionFlowHourDao regionFlowHourDao;
     
     @Autowired
-    private CustomAppFlowHourDao customAppFlowHourDao;
+    private CustomRegionFlowHourDao customRegionFlowHourDao;
     
     
     @Transactional
-    public void saveAppFlowHour(AppFlowHourBean appDataDayBean)
+    public void saveRegionFlowHour(RegionFlowHourBean bean)
     {
-        AppFlowHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppFlowHourModel.class);
+        RegionFlowHourModel model = modelMapper.map(bean, RegionFlowHourModel.class);
         
         try
         {
-            appFlowHourDao.insertSelective(appDataDayModel);
+            regionFlowHourDao.insertSelective(model);
         }
         catch (DuplicateKeyException exception)
         {
@@ -42,14 +42,14 @@ public class AppFlowHourService extends BaseService
         }
         
         // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataDayModel, appDataDayBean);
+        BeanUtils.copyProperties(model, bean);
         
     }
 
     @Transactional
-    public List<AppFlowHourBean> listAppFlowHour(Date beginTime, Date endTime, int limitNum)
+    public List<RegionFlowHourBean> listRegionFlowHour(Date beginTime, Date endTime, int limitNum)
     {
-        List<AppFlowHourBean> beans = customAppFlowHourDao.selectTopN(beginTime, endTime, limitNum);
+        List<RegionFlowHourBean> beans = customRegionFlowHourDao.selectTopN(beginTime, endTime, limitNum);
         
         return beans;
     }
