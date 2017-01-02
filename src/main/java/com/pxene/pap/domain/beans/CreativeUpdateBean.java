@@ -153,9 +153,9 @@ public class CreativeUpdateBean {
 	/**
 	 * 信息信息
 	 */
-	private InfoFlow infoFlows;
+	private Infoflow infoflows;
 
-	public static class InfoFlow {
+	public static class Infoflow {
 
 		private Add[] add;
 		private String[] delete;
@@ -335,7 +335,7 @@ public class CreativeUpdateBean {
 
 		@Override
 		public String toString() {
-			return "InfoFlow [add=" + Arrays.toString(add) + ", delete="
+			return "Infoflow [add=" + Arrays.toString(add) + ", delete="
 					+ Arrays.toString(delete) + "]";
 		}
 	}
@@ -387,20 +387,20 @@ public class CreativeUpdateBean {
 	public void setVideos(Video videos) {
 		this.videos = videos;
 	}
-
-	public InfoFlow getInfoFlows() {
-		return infoFlows;
+	
+	public Infoflow getInfoflows() {
+		return infoflows;
 	}
 
-	public void setInfoFlows(InfoFlow infoFlows) {
-		this.infoFlows = infoFlows;
+	public void setInfoflows(Infoflow infoflows) {
+		this.infoflows = infoflows;
 	}
 
 	@Override
 	public String toString() {
 		return "CreativeUpdateBean [id=" + id + ", campaignId=" + campaignId
 				+ ", name=" + name + ", remark=" + remark + ", images="
-				+ images + ", videos=" + videos + ", infoFlows=" + infoFlows
+				+ images + ", videos=" + videos + ", infoflows=" + infoflows
 				+ "]";
 	}
 

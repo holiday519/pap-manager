@@ -20,13 +20,10 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CreativeAddBean;
-import com.pxene.pap.domain.beans.CreativeAddBean.BaseImageBean;
-import com.pxene.pap.domain.beans.CreativeAddBean.BaseInfoFlowBean;
-import com.pxene.pap.domain.beans.CreativeAddBean.BaseVideoBean;
 import com.pxene.pap.domain.beans.CreativeUpdateBean;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.Image;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.Image.Add;
-import com.pxene.pap.domain.beans.CreativeUpdateBean.InfoFlow;
+import com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.Video;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MediaBean;
@@ -123,14 +120,14 @@ public class CreativeService extends BaseService {
 		String creativeId = UUID.randomUUID().toString();
 		bean.setId(creativeId);
 		
-		BaseImageBean[] images = bean.getImages();
-		BaseVideoBean[] videos = bean.getVideos();
-		BaseInfoFlowBean[] infoFlows = bean.getInfoFlows();
+		com.pxene.pap.domain.beans.CreativeAddBean.Image[] images = bean.getImages();
+		com.pxene.pap.domain.beans.CreativeAddBean.Video[] videos = bean.getVideos();
+		com.pxene.pap.domain.beans.CreativeAddBean.Infoflow[] infoflows = bean.getInfoflows();
 		
 		CreativeMaterialModel cmModel = new CreativeMaterialModel();
 		//添加图片创意
 		if (images != null && images.length > 0) {
-			for (BaseImageBean image : images) {
+			for (com.pxene.pap.domain.beans.CreativeAddBean.Image image : images) {
 				cmModel = new CreativeMaterialModel();
 				String imageId = image.getId();
 				Float price = image.getPrice();
@@ -144,7 +141,7 @@ public class CreativeService extends BaseService {
 		}
 		//添加视频创意
 		if (videos != null && videos.length > 0) {
-			for (BaseVideoBean video : videos) {
+			for (com.pxene.pap.domain.beans.CreativeAddBean.Video video : videos) {
 				cmModel = new CreativeMaterialModel();
 				String videoId = video.getId();
 				String imageId = video.getImageId();//图片id
@@ -165,8 +162,8 @@ public class CreativeService extends BaseService {
 			}
 		}
 		//添加信息流创意
-		if (infoFlows != null && infoFlows.length > 0) {
-			for (BaseInfoFlowBean info : infoFlows) {
+		if (infoflows != null && infoflows.length > 0) {
+			for (com.pxene.pap.domain.beans.CreativeAddBean.Infoflow info : infoflows) {
 				cmModel = new CreativeMaterialModel();
 				String infoId = UUID.randomUUID().toString();
 				Float price = info.getPrice();
@@ -203,7 +200,7 @@ public class CreativeService extends BaseService {
 		
 		Image images = bean.getImages();
 		Video videos = bean.getVideos();
-		InfoFlow infoFlows = bean.getInfoFlows();
+		Infoflow infoflows = bean.getInfoflows();
 		
 		CreativeMaterialModel cmModel = new CreativeMaterialModel();
 		if (images != null) {
@@ -262,9 +259,9 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
-		if (infoFlows != null) {
-			com.pxene.pap.domain.beans.CreativeUpdateBean.InfoFlow.Add[] add = infoFlows.getAdd();
-			String[] delete = infoFlows.getDelete();
+		if (infoflows != null) {
+			com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow.Add[] add = infoflows.getAdd();
+			String[] delete = infoflows.getDelete();
 			if (delete != null && delete.length>0) {
 				for (String infoId : delete) {
 					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(infoId);
@@ -287,7 +284,7 @@ public class CreativeService extends BaseService {
 				}
 			}
 			if (add != null && add.length > 0) {
-				for (com.pxene.pap.domain.beans.CreativeUpdateBean.InfoFlow.Add info : add) {
+				for (com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow.Add info : add) {
 					cmModel = new CreativeMaterialModel();
 					String infoId = UUID.randomUUID().toString();
 					Float price = info.getPrice();

@@ -26,9 +26,9 @@ public class CreativeAddBean {
 	/**
 	 * 图片创意信息
 	 */
-	private BaseImageBean[] images;
+	private Image[] images;
 
-	public static class BaseImageBean {
+	public static class Image {
 
 		private String id;
 
@@ -59,9 +59,9 @@ public class CreativeAddBean {
 	/**
 	 * 视频创意信息
 	 */
-	private BaseVideoBean[] videos;
+	private Video[] videos;
 
-	public static class BaseVideoBean {
+	public static class Video {
 
 		private String id;
 
@@ -103,9 +103,9 @@ public class CreativeAddBean {
 	/**
 	 * 信息流创意信息
 	 */
-	private BaseInfoFlowBean[] infoFlows;
+	private Infoflow[] infoflows;
 
-	public static class BaseInfoFlowBean {
+	public static class Infoflow {
 		/**
 		 * 信息流id
 		 */
@@ -253,7 +253,7 @@ public class CreativeAddBean {
 
 		@Override
 		public String toString() {
-			return "BaseInfoFlowBean [id=" + id + ", title=" + title
+			return "Infoflow [id=" + id + ", title=" + title
 					+ ", description=" + description + ", iconId=" + iconId
 					+ ", image1Id=" + image1Id + ", image2Id=" + image2Id
 					+ ", image3Id=" + image3Id + ", image4Id=" + image4Id
@@ -294,29 +294,29 @@ public class CreativeAddBean {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
-
-	public BaseImageBean[] getImages() {
+	
+	public Image[] getImages() {
 		return images;
 	}
 
-	public void setImages(BaseImageBean[] images) {
+	public void setImages(Image[] images) {
 		this.images = images;
 	}
 
-	public BaseVideoBean[] getVideos() {
+	public Video[] getVideos() {
 		return videos;
 	}
 
-	public void setVideos(BaseVideoBean[] videos) {
+	public void setVideos(Video[] videos) {
 		this.videos = videos;
 	}
 
-	public BaseInfoFlowBean[] getInfoFlows() {
-		return infoFlows;
+	public Infoflow[] getInfoflows() {
+		return infoflows;
 	}
 
-	public void setInfoFlows(BaseInfoFlowBean[] infoFlows) {
-		this.infoFlows = infoFlows;
+	public void setInfoflows(Infoflow[] infoflows) {
+		this.infoflows = infoflows;
 	}
 
 	@Override
@@ -324,8 +324,8 @@ public class CreativeAddBean {
 		return "CreativeAddBean [id=" + id + ", campaignId=" + campaignId
 				+ ", name=" + name + ", remark=" + remark + ", images="
 				+ Arrays.toString(images) + ", videos="
-				+ Arrays.toString(videos) + ", infoFlows="
-				+ Arrays.toString(infoFlows) + "]";
+				+ Arrays.toString(videos) + ", infoflows="
+				+ Arrays.toString(infoflows) + "]";
 	}
 
 }

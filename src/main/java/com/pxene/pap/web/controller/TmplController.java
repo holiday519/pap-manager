@@ -64,7 +64,7 @@ public class TmplController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/tmpl/infoFlows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/tmpl/infoflows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectInfoflowTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
