@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.APPTmplBean;
+import com.pxene.pap.domain.beans.TmplBean;
 import com.pxene.pap.service.TmplService;
 
 @Controller
@@ -34,7 +34,7 @@ public class TmplController {
 	@ResponseBody
 	public String selectImageTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		APPTmplBean bean = tmplService.selectAppTmplImage(appIds);
+		TmplBean bean = tmplService.selectImageTmpls(appIds);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -51,7 +51,7 @@ public class TmplController {
 	@ResponseBody
 	public String selectVideoTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		APPTmplBean bean = tmplService.selectAppTmplVideo(appIds);
+		TmplBean bean = tmplService.selectVideoTmpls(appIds);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -66,9 +66,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/infoFlows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectInfoFlowTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectInfoflowTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		APPTmplBean bean = tmplService.selectAppTmplInfo(appIds);
+		TmplBean bean = tmplService.selectInfoflowTmpls(appIds);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}

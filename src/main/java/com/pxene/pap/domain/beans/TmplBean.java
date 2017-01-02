@@ -4,7 +4,7 @@ import java.util.Arrays;
 /**
  * app下所有模版
  */
-public class APPTmplBean {
+public class TmplBean {
 
 	private ImageTmpl[] imageTmpl;
 

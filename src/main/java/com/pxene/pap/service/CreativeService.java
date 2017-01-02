@@ -40,7 +40,7 @@ import com.pxene.pap.domain.model.basic.ImageModel;
 import com.pxene.pap.domain.model.basic.ImageTmplModel;
 import com.pxene.pap.domain.model.basic.ImageTypeModel;
 import com.pxene.pap.domain.model.basic.ImageTypeModelExample;
-import com.pxene.pap.domain.model.basic.InfoFlowModel;
+import com.pxene.pap.domain.model.basic.InfoflowModel;
 import com.pxene.pap.domain.model.basic.SizeModel;
 import com.pxene.pap.domain.model.basic.SizeModelExample;
 import com.pxene.pap.domain.model.basic.VideoModel;
@@ -56,7 +56,7 @@ import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.ImageTypeDao;
-import com.pxene.pap.repository.basic.InfoFlowDao;
+import com.pxene.pap.repository.basic.InfoflowDao;
 import com.pxene.pap.repository.basic.SizeDao;
 import com.pxene.pap.repository.basic.VideoDao;
 import com.pxene.pap.repository.basic.VideoTmplDao;
@@ -80,7 +80,7 @@ public class CreativeService extends BaseService {
 	private CreativeDao creativeDao;
 	
 	@Autowired
-	private InfoFlowDao infoFlowDao;
+	private InfoflowDao infoflowDao;
 	
 	@Autowired
 	private CreativeMaterialDao creativeMaterialDao;
@@ -171,9 +171,9 @@ public class CreativeService extends BaseService {
 				String infoId = UUID.randomUUID().toString();
 				Float price = info.getPrice();
 				//添加信息流创意表信息
-				InfoFlowModel model = modelMapper.map(info, InfoFlowModel.class);
+				InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
 				model.setId(infoId);
-				infoFlowDao.insertSelective(model);
+				infoflowDao.insertSelective(model);
 				//添加关联关系
 				cmModel.setCreativeId(creativeId);
 				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
@@ -267,7 +267,7 @@ public class CreativeService extends BaseService {
 			String[] delete = infoFlows.getDelete();
 			if (delete != null && delete.length>0) {
 				for (String infoId : delete) {
-					InfoFlowModel infoModel = infoFlowDao.selectByPrimaryKey(infoId);
+					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(infoId);
 					String icon = infoModel.getIconId();
 					String image1 = infoModel.getImage1Id();
 					String image2 = infoModel.getImage1Id();
@@ -281,7 +281,7 @@ public class CreativeService extends BaseService {
 					deleteImageMaterialById(image4);
 					deleteImageMaterialById(image5);
 					//删除信息流素材表数据
-					infoFlowDao.deleteByPrimaryKey(infoId);
+					infoflowDao.deleteByPrimaryKey(infoId);
 					//删除关联关系
 					deleteCreativeMaterial(creativeId, infoId);
 				}
@@ -292,9 +292,9 @@ public class CreativeService extends BaseService {
 					String infoId = UUID.randomUUID().toString();
 					Float price = info.getPrice();
 					//添加信息流创意表信息
-					InfoFlowModel model = modelMapper.map(info, InfoFlowModel.class);
+					InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
 					model.setId(infoId);
-					infoFlowDao.insertSelective(model);
+					infoflowDao.insertSelective(model);
 					//添加关联关系
 					cmModel.setCreativeId(creativeId);
 					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
@@ -394,7 +394,7 @@ public class CreativeService extends BaseService {
 					}
 					videoDao.deleteByPrimaryKey(cmId);
 				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {//信息流
-					InfoFlowModel infoModel = infoFlowDao.selectByPrimaryKey(cmId);
+					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(cmId);
 					if (infoModel != null) {
 						String icon = infoModel.getIconId();
 						String image1 = infoModel.getImage1Id();
@@ -410,7 +410,7 @@ public class CreativeService extends BaseService {
 						deleteImageMaterialById(image5);
 					}
 					//删除信息流素材表数据
-					infoFlowDao.deleteByPrimaryKey(cmId);
+					infoflowDao.deleteByPrimaryKey(cmId);
 				}
 			}
 		}

@@ -13,18 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.APPTmplBean;
-import com.pxene.pap.domain.beans.APPTmplBean.ImageTmpl;
-import com.pxene.pap.domain.beans.APPTmplBean.InfoTmpl;
-import com.pxene.pap.domain.beans.APPTmplBean.VideoTmpl;
+import com.pxene.pap.domain.beans.TmplBean;
+import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
+import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
+import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.domain.beans.ImageTmplBean;
 import com.pxene.pap.domain.beans.VideoTmplBean;
 import com.pxene.pap.domain.model.basic.AppTmplModel;
 import com.pxene.pap.domain.model.basic.AppTmplModelExample;
 import com.pxene.pap.domain.model.basic.ImageTmplModel;
 import com.pxene.pap.domain.model.basic.ImageTmplTypeModel;
-import com.pxene.pap.domain.model.basic.InfoFlowTmplModel;
-import com.pxene.pap.domain.model.basic.InfoFlowTmplModelExample;
+import com.pxene.pap.domain.model.basic.InfoflowTmplModel;
+import com.pxene.pap.domain.model.basic.InfoflowTmplModelExample;
 import com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample;
 import com.pxene.pap.domain.model.basic.view.TmplImageDetailModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.TmplVideoDetailModelExample;
@@ -35,7 +35,7 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplTypeDao;
-import com.pxene.pap.repository.basic.InfoFlowTmplDao;
+import com.pxene.pap.repository.basic.InfoflowTmplDao;
 import com.pxene.pap.repository.basic.view.TmplImageDetailDao;
 import com.pxene.pap.repository.basic.view.TmplVideoDetailDao;
 
@@ -58,7 +58,7 @@ public class TmplService extends BaseService {
 	private TmplVideoDetailDao tmplVideoDetailDao;
 
 	@Autowired
-	private InfoFlowTmplDao infoFlowTmplDao;
+	private InfoflowTmplDao infoflowTmplDao;
 
 	/**
 	 * 添加图片模版
@@ -107,7 +107,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public APPTmplBean selectAppTmplImage(String paramId) throws Exception {
+	public TmplBean selectImageTmpls(String paramId) throws Exception {
 		if (StringUtils.isEmpty(paramId)) {
 			throw new IllegalArgumentException();
 		}
@@ -115,7 +115,7 @@ public class TmplService extends BaseService {
 		String[] appids = paramId.split(",");
 		List<String> appIdList = Arrays.asList(appids);
 		
-		APPTmplBean bean = new APPTmplBean();
+		TmplBean bean = new TmplBean();
 		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();
 
 		// 查询app的模版
@@ -155,7 +155,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public APPTmplBean selectAppTmplVideo(String paramId) throws Exception {
+	public TmplBean selectVideoTmpls(String paramId) throws Exception {
 		if (StringUtils.isEmpty(paramId)) {
 			throw new IllegalArgumentException();
 		}
@@ -163,7 +163,7 @@ public class TmplService extends BaseService {
 		String[] appids = paramId.split(",");
 		List<String> appIdList = Arrays.asList(appids);
 		
-		APPTmplBean bean = new APPTmplBean();
+		TmplBean bean = new TmplBean();
 		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
@@ -212,7 +212,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public APPTmplBean selectAppTmplInfo(String paramId) throws Exception {
+	public TmplBean selectInfoflowTmpls(String paramId) throws Exception {
 		if (StringUtils.isEmpty(paramId)) {
 			throw new IllegalArgumentException();
 		}
@@ -221,7 +221,7 @@ public class TmplService extends BaseService {
 		String[] appids = paramId.split(",");
 		List<String> appIdList = Arrays.asList(appids);
 		
-		APPTmplBean bean = new APPTmplBean();
+		TmplBean bean = new TmplBean();
 		List<InfoTmpl> infoTmplList = new ArrayList<InfoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
@@ -235,11 +235,11 @@ public class TmplService extends BaseService {
 				tmplIds.add(tmplId);
 			}
 			//查询信息流模版
-			InfoFlowTmplModelExample example = new InfoFlowTmplModelExample();
+			InfoflowTmplModelExample example = new InfoflowTmplModelExample();
 			example.createCriteria().andIdIn(tmplIds);
-			List<InfoFlowTmplModel> list = infoFlowTmplDao.selectByExample(example);
+			List<InfoflowTmplModel> list = infoflowTmplDao.selectByExample(example);
 			if (list != null && !list.isEmpty()) {
-				for (InfoFlowTmplModel model : list) {
+				for (InfoflowTmplModel model : list) {
 					InfoTmpl infoTmpl = modelMapper.map(model, InfoTmpl.class);
 					// 小图信息
 					if (!StringUtils.isEmpty(model.getIconId())) {
