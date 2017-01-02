@@ -43,7 +43,7 @@ public class CreativeDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/creativeDataHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/creative", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Void> addCreativeDataHour(@Valid @RequestBody CreativeDataHourBean creativeDataHour, HttpServletResponse response) throws Exception
     {
@@ -58,7 +58,7 @@ public class CreativeDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/creativeDataHour/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void updateCreativeDataHour(@PathVariable Integer id, @Valid @RequestBody CreativeDataHourBean creativeDataHour, HttpServletResponse response) throws Exception
     {
@@ -73,9 +73,9 @@ public class CreativeDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/creativeDataHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listCreativeDataHour(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listCreativeDataHours(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
         if (pageNo != null && pageSize != null)

@@ -21,24 +21,24 @@
         </javaTypeResolver>
         
         <!-- 生成模型的包名和位置 -->
-        <javaModelGenerator targetPackage="com.pxene.pap.domain.model.basic.view" targetProject="src/main/java">
+        <javaModelGenerator targetPackage="com.pxene.pap.domain.model.basic" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
         
         <!-- 生成映射文件的包名和位置 -->
-        <sqlMapGenerator targetPackage="com.pxene.pap.repository.basic.view" targetProject="src/main/java">
+        <sqlMapGenerator targetPackage="com.pxene.pap.repository.basic" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
         
         <!-- 生成DAO的包名和位置 -->  
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.pxene.pap.repository.basic.view" targetProject="src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.pxene.pap.repository.basic" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
         
         <!-- 要生成的表 tableName是数据库中的表名或视图名 domainObjectName是实体类名 -->
-<!--         <table tableName="pap_t_user" domainObjectName="UserModel" mapperName="UserDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-<!--         <table tableName="pap_t_adtypetarget" domainObjectName="AdTypeTargetModel" mapperName="AdTypeTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!--        <table tableName="pap_t_user" domainObjectName="UserModel" mapperName="UserDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!--        <table tableName="pap_t_adtypetarget" domainObjectName="AdTypeTargetModel" mapperName="AdTypeTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_advertiser" domainObjectName="AdvertiserModel" mapperName="AdvertiserDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_advertiser_audit" domainObjectName="AdvertiserAuditModel" mapperName="AdvertiserAuditDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_adx" domainObjectName="AdxModel" mapperName="AdxDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
@@ -65,7 +65,7 @@
 <!-- 		<table tableName="pap_t_infoflow" domainObjectName="InfoFlowModel" mapperName="InfoFlowDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_infoflowtmpl" domainObjectName="InfoFlowTmplModel" mapperName="InfoFlowTmplDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_kpi" domainObjectName="KpiModel" mapperName="KpiDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-<!-- 		<table tableName="pap_t_landpage" domainObjectName="LandPageModel" mapperName="LandPageDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!-- 		<table tableName="pap_t_landpage" domainObjectName="LandpageModel" mapperName="LandpageDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_monitor" domainObjectName="MonitorModel" mapperName="MonitorDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_networktarget" domainObjectName="NetworkTargetModel" mapperName="NetworkTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_operatortarget" domainObjectName="OperatorTargetModel" mapperName="OperatorTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
@@ -90,6 +90,18 @@
 <!-- 		<table tableName="pap_v_project_detail" domainObjectName="ProjectDetailModel" mapperName="ProjectDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_tmpl_image_detail" domainObjectName="TmplImageDetailModel" mapperName="TmplImageDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_v_tmpl_video_detail" domainObjectName="TmplVideoDetailModel" mapperName="TmplVideoDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-
+<!--  			<table tableName="pap_t_apprule" domainObjectName="AppRuleModel" mapperName="AppRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_campaign_rule" domainObjectName="CampaignRuleModel" mapperName="CampaignRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_creativerule" domainObjectName="CreativeRuleModel" mapperName="CreativeRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_regionrule" domainObjectName="RegionRuleModel" mapperName="RegionRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_timerule" domainObjectName="TimeRuleModel" mapperName="TimeRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_v_appdatarate_hour" domainObjectName="AppDataRateHourModel" mapperName="AppDataRateHourDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_v_creativedatarate_hour" domainObjectName="CreativeDataRateHourModel" mapperName="CreativeDataRateHourDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_v_regiondatarate_hour" domainObjectName="RegionDataRateHourModel" mapperName="RegionDataRateHourDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_landpagedata_hour" domainObjectName="LandpageDataHourModel" mapperName="LandpageDataHourDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_landpagedata_day" domainObjectName="LandpageDataDayModel" mapperName="LandpageDataDayDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_t_landpagerule" domainObjectName="LandpageRuleModel" mapperName="LandpageRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
+			<table tableName="pap_v_landpagedatarate_hour" domainObjectName="LandpageDataRateHourModel" mapperName="LandpageDataRateHourDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+			<table tableName="pap_t_campaign_rule" domainObjectName="CampaignRuleModel" mapperName="CampaignRuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
     </context>
 </generatorConfiguration>

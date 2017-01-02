@@ -43,7 +43,7 @@ public class LandpageDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/landpageDataHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/landpage", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Void> addLandpageDataHour(@Valid @RequestBody LandpageDataHourBean landpageDataHourBean, HttpServletResponse response) throws Exception
     {
@@ -58,7 +58,7 @@ public class LandpageDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/landpageDataHour/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/landpage/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void updateLandpageDataHour(@PathVariable Integer id, @Valid @RequestBody LandpageDataHourBean landpageDataHour, HttpServletResponse response) throws Exception
     {
@@ -73,9 +73,9 @@ public class LandpageDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/landpageDataHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/landpages", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listLandpageDataHour(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listLandpageDataHours(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
         if (pageNo != null && pageSize != null)

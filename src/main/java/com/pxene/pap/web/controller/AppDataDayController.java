@@ -42,7 +42,7 @@ public class AppDataDayController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataDay", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataDay/app", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Void> addAppDataDay(@Valid @RequestBody AppDataDayBean appDataDay, HttpServletResponse response) throws Exception
     {
@@ -57,7 +57,7 @@ public class AppDataDayController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataDay/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataDay/app/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void updateAppDataDay(@PathVariable Integer id, @Valid @RequestBody AppDataDayBean appDataDay, HttpServletResponse response) throws Exception
     {
@@ -72,7 +72,7 @@ public class AppDataDayController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataDay/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataDay/app/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String getAppDataDay(@PathVariable Integer id, HttpServletResponse response) throws Exception
     {
@@ -88,9 +88,9 @@ public class AppDataDayController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataDay", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataDay/apps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAppDataDay(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listAppDataDays(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
         if (pageNo != null && pageSize != null)

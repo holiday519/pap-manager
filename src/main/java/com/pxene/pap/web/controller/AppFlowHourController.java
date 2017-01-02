@@ -1,6 +1,5 @@
 package com.pxene.pap.web.controller;
 
-import java.beans.PropertyEditorSupport;
 import java.util.Date;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class AppFlowHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appFlowHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/flowHour/app", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Void> addAppFlowHour(@Valid @RequestBody AppFlowHourBean appFlowHour, HttpServletResponse response) throws Exception
     {
@@ -58,9 +57,9 @@ public class AppFlowHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appFlowHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/flowHour/apps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAppFlowHour(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listAppFlowHours(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         List<AppFlowHourBean> appFlowHourList = appFlowHourService.listAppFlowHour(beginTime, endTime, limitNum);
         

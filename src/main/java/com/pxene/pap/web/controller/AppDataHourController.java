@@ -43,7 +43,7 @@ public class AppDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/app", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Void> addAppDataHour(@Valid @RequestBody AppDataHourBean appDataHour, HttpServletResponse response) throws Exception
     {
@@ -58,7 +58,7 @@ public class AppDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataHour/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/app/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void updateAppDataHour(@PathVariable Integer id, @Valid @RequestBody AppDataHourBean appDataHour, HttpServletResponse response) throws Exception
     {
@@ -73,9 +73,9 @@ public class AppDataHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/appDataHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/dataHour/apps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAppDataHour(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listAppDataHours(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
         if (pageNo != null && pageSize != null)

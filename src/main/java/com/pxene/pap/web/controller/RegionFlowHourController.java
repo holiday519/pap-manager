@@ -42,7 +42,7 @@ public class RegionFlowHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/regionFlowHour", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/flowHour/region", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public ResponseEntity<Void> addRegionFlowHour(@Valid @RequestBody RegionFlowHourBean regionFlowHour, HttpServletResponse response) throws Exception
     {
@@ -57,9 +57,9 @@ public class RegionFlowHourController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/regionFlowHour", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/flowHour/regions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listRegionFlowHour(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
+    public String listRegionFlowHours(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         List<RegionFlowHourBean> regionFlowHourList = regionFlowHourService.listRegionFlowHour(beginTime, endTime, limitNum);
         

@@ -30,9 +30,9 @@ public class TmplController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/appTmpl/image", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/tmpl/images", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectappTmplImage(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectImageTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		APPTmplBean bean = tmplService.selectAppTmplImage(appIds);
 		
@@ -47,9 +47,9 @@ public class TmplController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/appTmpl/video", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/tmpl/videos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectappTmplVideo(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectVideoTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		APPTmplBean bean = tmplService.selectAppTmplVideo(appIds);
 		
@@ -64,9 +64,9 @@ public class TmplController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/appTmpl/infoFlow", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/tmpl/infoFlows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectappTmplInfoFlow(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectInfoFlowTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
 		APPTmplBean bean = tmplService.selectAppTmplInfo(appIds);
 		
