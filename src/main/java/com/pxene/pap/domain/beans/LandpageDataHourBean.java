@@ -36,19 +36,19 @@ public class LandpageDataHourBean {
         this.id = id;
     }
 
-    public String getLandpageId() {
-        return landpageId;
-    }
+	public String getLandpageId() {
+		return landpageId;
+	}
 
-    public void setLandpageId(String landpageId) {
-        this.landpageId = landpageId == null ? null : landpageId.trim();
-    }
-
+	public void setLandpageId(String landpageId) {
+		this.landpageId = landpageId == null ? null : landpageId.trim();
+	}
+    
     public String getCampaignId() {
         return campaignId;
     }
 
-    public void setCampaignId(String campaignId) {
+	public void setCampaignId(String campaignId) {
         this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 

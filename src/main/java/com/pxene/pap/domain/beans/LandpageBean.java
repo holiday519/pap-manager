@@ -3,7 +3,7 @@ package com.pxene.pap.domain.beans;
 /**
  * 落地页
  */
-public class LandPageBean {
+public class LandpageBean {
 
 	/**
 	 * 活动目标ID

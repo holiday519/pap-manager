@@ -14,21 +14,21 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.LandPageBean;
+import com.pxene.pap.domain.beans.LandpageBean;
 import com.pxene.pap.domain.model.basic.CampaignModel;
-import com.pxene.pap.domain.model.basic.LandPageModel;
-import com.pxene.pap.domain.model.basic.LandPageModelExample;
+import com.pxene.pap.domain.model.basic.LandpageModel;
+import com.pxene.pap.domain.model.basic.LandpageModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.LandPageDao;
+import com.pxene.pap.repository.basic.LandpageDao;
 
 @Service
-public class LandPageService extends BaseService {
+public class LandpageService extends BaseService {
 
 	@Autowired
-	private LandPageDao landPageDao;
+	private LandpageDao landpageDao;
 
 	@Autowired
 	private CampaignDao campaignDao;
@@ -40,13 +40,13 @@ public class LandPageService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createLandPage(LandPageBean bean) throws Exception {
-		LandPageModel model = modelMapper.map(bean, LandPageModel.class);
+	public void createLandpage(LandpageBean bean) throws Exception {
+		LandpageModel model = modelMapper.map(bean, LandpageModel.class);
 		String id = UUID.randomUUID().toString();
 		model.setId(id);
 		try {
 			// 添加落地页信息
-			landPageDao.insertSelective(model);
+			landpageDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
@@ -60,17 +60,17 @@ public class LandPageService extends BaseService {
 	 * @param bean
 	 */
 	@Transactional
-	public void updateLandPage(String id, LandPageBean bean) throws Exception {
-		LandPageModel landPageInDB = landPageDao.selectByPrimaryKey(id);
-		if (landPageInDB == null) {
+	public void updateLandpage(String id, LandpageBean bean) throws Exception {
+		LandpageModel landpageInDB = landpageDao.selectByPrimaryKey(id);
+		if (landpageInDB == null) {
 			throw new ResourceNotFoundException();
 		}
 
-		LandPageModel model = modelMapper.map(bean, LandPageModel.class);
+		LandpageModel model = modelMapper.map(bean, LandpageModel.class);
 		model.setId(id);
 		try {
 			// 修改落地页信息
-			landPageDao.updateByPrimaryKeySelective(model);
+			landpageDao.updateByPrimaryKeySelective(model);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
@@ -82,15 +82,15 @@ public class LandPageService extends BaseService {
 	 * @param id
 	 */
 	@Transactional
-	public void deleteLandPage(String id) throws Exception {
-		LandPageModel landPageInDB = landPageDao.selectByPrimaryKey(id);
-		if (landPageInDB == null) {
+	public void deleteLandpage(String id) throws Exception {
+		LandpageModel landpageInDB = landpageDao.selectByPrimaryKey(id);
+		if (landpageInDB == null) {
 			throw new ResourceNotFoundException();
 		}
-		String campaignId = landPageInDB.getCampaignId();
+		String campaignId = landpageInDB.getCampaignId();
 		if (StringUtils.isEmpty(campaignId)) {
 			// 如果落地页的campaignId是null，直接删除落地页
-			landPageDao.deleteByPrimaryKey(id);
+			landpageDao.deleteByPrimaryKey(id);
 		}
 		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
 		String status = campaign.getStatus();
@@ -99,7 +99,7 @@ public class LandPageService extends BaseService {
 			throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN_LAUNCH);
 		}
 		// 删除落地页
-		landPageDao.deleteByPrimaryKey(id);
+		landpageDao.deleteByPrimaryKey(id);
 	}
 
 	/**
@@ -108,12 +108,12 @@ public class LandPageService extends BaseService {
 	 * @param id
 	 * @return
 	 */
-	public LandPageBean selectLandPage(String id) throws Exception {
-		LandPageModel landPageModel = landPageDao.selectByPrimaryKey(id);
-		if (landPageModel == null) {
+	public LandpageBean selectLandpage(String id) throws Exception {
+		LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
+		if (landpageModel == null) {
 			throw new ResourceNotFoundException();
 		}
-		LandPageBean bean = modelMapper.map(landPageModel, LandPageBean.class);
+		LandpageBean bean = modelMapper.map(landpageModel, LandpageBean.class);
 
 		return bean;
 	}
@@ -123,19 +123,19 @@ public class LandPageService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<LandPageBean> selectLandPages(String name) throws Exception {
-		LandPageModelExample example = new LandPageModelExample();
+	public List<LandpageBean> selectLandpages(String name) throws Exception {
+		LandpageModelExample example = new LandpageModelExample();
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
 		}
-		List<LandPageBean> list = new ArrayList<LandPageBean>();
-		List<LandPageModel> models = landPageDao.selectByExample(example);
+		List<LandpageBean> list = new ArrayList<LandpageBean>();
+		List<LandpageModel> models = landpageDao.selectByExample(example);
 		
 		if (models == null || models.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		for (LandPageModel model : models) {
-			list.add(modelMapper.map(model, LandPageBean.class));
+		for (LandpageModel model : models) {
+			list.add(modelMapper.map(model, LandpageBean.class));
 		}
 		
 		return list;

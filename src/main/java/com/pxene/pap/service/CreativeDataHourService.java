@@ -16,13 +16,13 @@ import org.springframework.stereotype.Service;
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
 import com.pxene.pap.domain.beans.CreativeDataHourViewBean;
 import com.pxene.pap.domain.model.basic.CreativeDataHourModel;
-import com.pxene.pap.domain.model.basic.view.CreativeDataHourViewModel;
-import com.pxene.pap.domain.model.basic.view.CreativeDataHourViewModelExample;
-import com.pxene.pap.domain.model.basic.view.CreativeDataHourViewModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.view.CreativeDataRateHourModel;
+import com.pxene.pap.domain.model.basic.view.CreativeDataRateHourModelExample;
+import com.pxene.pap.domain.model.basic.view.CreativeDataRateHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CreativeDataHourDao;
-import com.pxene.pap.repository.basic.view.CreativeDataHourViewDao;
+import com.pxene.pap.repository.basic.view.CreativeDataRateHourDao;
 
 @Service
 public class CreativeDataHourService extends BaseService
@@ -31,7 +31,7 @@ public class CreativeDataHourService extends BaseService
     private CreativeDataHourDao creativeDataHourDao;
     
     @Autowired
-    private CreativeDataHourViewDao creativeDataHourViewDao;
+    private CreativeDataRateHourDao creativeDataRateHourDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -88,12 +88,12 @@ public class CreativeDataHourService extends BaseService
     @Transactional
     public List<CreativeDataHourViewBean> listCreativeDataHour(String campaignId, long beginTime, long endTime)
     {
-        CreativeDataHourViewModelExample example = new CreativeDataHourViewModelExample();
+        CreativeDataRateHourModelExample example = new CreativeDataRateHourModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<CreativeDataHourViewModel> models = creativeDataHourViewDao.selectByExample(example);
+        List<CreativeDataRateHourModel> models = creativeDataRateHourDao.selectByExample(example);
         List<CreativeDataHourViewBean> list = new ArrayList<CreativeDataHourViewBean>();
         
         if (models == null || models.size() <= 0)
@@ -103,7 +103,7 @@ public class CreativeDataHourService extends BaseService
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (CreativeDataHourViewModel model : models)
+            for (CreativeDataRateHourModel model : models)
             {
                 list.add(modelMapper.map(model, CreativeDataHourViewBean.class));
             }

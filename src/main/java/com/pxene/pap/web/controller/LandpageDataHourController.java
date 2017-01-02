@@ -22,7 +22,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.LandpageDataHourBean;
-import com.pxene.pap.domain.beans.LandpageDataHourViewBean;
+import com.pxene.pap.domain.beans.LandpageDataRateHourBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.LandpageDataHourService;
 
@@ -47,7 +47,7 @@ public class LandpageDataHourController
     @ResponseBody
     public ResponseEntity<Void> addLandpageDataHour(@Valid @RequestBody LandpageDataHourBean landpageDataHourBean, HttpServletResponse response) throws Exception
     {
-        landpageDataHourService.saveLandpageDataHour(landpageDataHourBean);
+    	landpageDataHourService.saveLandpageDataHour(landpageDataHourBean);
         return new ResponseEntity<Void>(HttpStatus.CREATED);
     }
     
@@ -62,7 +62,7 @@ public class LandpageDataHourController
     @ResponseBody
     public void updateLandpageDataHour(@PathVariable Integer id, @Valid @RequestBody LandpageDataHourBean landpageDataHour, HttpServletResponse response) throws Exception
     {
-        landpageDataHourService.updateLandpageDataHour(id, landpageDataHour);
+    	landpageDataHourService.updateLandpageDataHour(id, landpageDataHour);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
@@ -83,7 +83,7 @@ public class LandpageDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<LandpageDataHourViewBean> landpageDataHourList = landpageDataHourService.listLandpageDataHour(campaignId, beginTime, endTime);
+        List<LandpageDataRateHourBean> landpageDataHourList = landpageDataHourService.listLandpageDataHour(campaignId, beginTime, endTime);
         
         PaginationResult result = new PaginationResult(landpageDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

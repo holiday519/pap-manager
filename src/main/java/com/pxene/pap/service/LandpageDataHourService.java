@@ -14,15 +14,15 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.LandpageDataHourBean;
-import com.pxene.pap.domain.beans.LandpageDataHourViewBean;
+import com.pxene.pap.domain.beans.LandpageDataRateHourBean;
 import com.pxene.pap.domain.model.basic.LandpageDataHourModel;
-import com.pxene.pap.domain.model.basic.view.LandpageDataHourViewModel;
-import com.pxene.pap.domain.model.basic.view.LandpageDataHourViewModelExample;
-import com.pxene.pap.domain.model.basic.view.LandpageDataHourViewModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.view.LandpageDataRateHourModel;
+import com.pxene.pap.domain.model.basic.view.LandpageDataRateHourModelExample;
+import com.pxene.pap.domain.model.basic.view.LandpageDataRateHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.LandpageDataHourDao;
-import com.pxene.pap.repository.basic.view.LandpageDataHourViewDao;
+import com.pxene.pap.repository.basic.view.LandpageDataRateHourDao;
 
 @Service
 public class LandpageDataHourService extends BaseService
@@ -31,7 +31,7 @@ public class LandpageDataHourService extends BaseService
     private LandpageDataHourDao landpageDataHourDao;
     
     @Autowired
-    private LandpageDataHourViewDao landpageDataHourViewDao;
+    private LandpageDataRateHourDao landpageDataRateHourDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -86,15 +86,15 @@ public class LandpageDataHourService extends BaseService
 
     
     @Transactional
-    public List<LandpageDataHourViewBean> listLandpageDataHour(String campaignId, long beginTime, long endTime)
+    public List<LandpageDataRateHourBean> listLandpageDataHour(String campaignId, long beginTime, long endTime)
     {
-        LandpageDataHourViewModelExample example = new LandpageDataHourViewModelExample();
+        LandpageDataRateHourModelExample example = new LandpageDataRateHourModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<LandpageDataHourViewModel> models = landpageDataHourViewDao.selectByExample(example);
-        List<LandpageDataHourViewBean> landpageDataHourList = new ArrayList<LandpageDataHourViewBean>();
+        List<LandpageDataRateHourModel> models = landpageDataRateHourDao.selectByExample(example);
+        List<LandpageDataRateHourBean> landpageDataHourList = new ArrayList<LandpageDataRateHourBean>();
         
         if (models == null || models.size() <= 0)
         {
@@ -103,9 +103,9 @@ public class LandpageDataHourService extends BaseService
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (LandpageDataHourViewModel model : models)
+            for (LandpageDataRateHourModel model : models)
             {
-                landpageDataHourList.add(modelMapper.map(model, LandpageDataHourViewBean.class));
+                landpageDataHourList.add(modelMapper.map(model, LandpageDataRateHourBean.class));
             }
         }
         

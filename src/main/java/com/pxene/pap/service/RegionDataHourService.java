@@ -16,13 +16,13 @@ import org.springframework.stereotype.Service;
 import com.pxene.pap.domain.beans.RegionDataHourBean;
 import com.pxene.pap.domain.beans.RegionDataHourViewBean;
 import com.pxene.pap.domain.model.basic.RegionDataHourModel;
-import com.pxene.pap.domain.model.basic.view.RegionDataHourViewModel;
-import com.pxene.pap.domain.model.basic.view.RegionDataHourViewModelExample;
-import com.pxene.pap.domain.model.basic.view.RegionDataHourViewModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.view.RegionDataRateHourModel;
+import com.pxene.pap.domain.model.basic.view.RegionDataRateHourModelExample;
+import com.pxene.pap.domain.model.basic.view.RegionDataRateHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.RegionDataHourDao;
-import com.pxene.pap.repository.basic.view.RegionDataHourViewDao;
+import com.pxene.pap.repository.basic.view.RegionDataRateHourDao;
 
 @Service
 public class RegionDataHourService extends BaseService
@@ -31,7 +31,7 @@ public class RegionDataHourService extends BaseService
     private RegionDataHourDao regionDataHourDao;
     
     @Autowired
-    private RegionDataHourViewDao regionDataHourViewDao;
+    private RegionDataRateHourDao regionDataRateHourDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -88,12 +88,12 @@ public class RegionDataHourService extends BaseService
     @Transactional
     public List<RegionDataHourViewBean> listRegionDataHour(String campaignId, long beginTime, long endTime)
     {
-        RegionDataHourViewModelExample example = new RegionDataHourViewModelExample();
+        RegionDataRateHourModelExample example = new RegionDataRateHourModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<RegionDataHourViewModel> models = regionDataHourViewDao.selectByExample(example);
+        List<RegionDataRateHourModel> models = regionDataRateHourDao.selectByExample(example);
         List<RegionDataHourViewBean> list = new ArrayList<RegionDataHourViewBean>();
         
         if (models == null || models.size() <= 0)
@@ -103,7 +103,7 @@ public class RegionDataHourService extends BaseService
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (RegionDataHourViewModel model : models)
+            for (RegionDataRateHourModel model : models)
             {
                 list.add(modelMapper.map(model, RegionDataHourViewBean.class));
             }

@@ -20,15 +20,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.LandPageBean;
+import com.pxene.pap.domain.beans.LandpageBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
-import com.pxene.pap.service.LandPageService;
+import com.pxene.pap.service.LandpageService;
 
 @Controller
-public class LandPageController {
+public class LandpageController {
 
 	@Autowired
-	private LandPageService landPageService;
+	private LandpageService landpageService;
 	
 	/**
 	 * 添加落地页
@@ -39,8 +39,8 @@ public class LandPageController {
 	 */
 	@RequestMapping(value = "/landpage", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createProject(@Valid @RequestBody LandPageBean bean, HttpServletResponse response) throws Exception {
-		landPageService.createLandPage(bean);
+	public String createProject(@Valid @RequestBody LandpageBean bean, HttpServletResponse response) throws Exception {
+		landpageService.createLandpage(bean);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
 	/**
@@ -52,8 +52,8 @@ public class LandPageController {
 	 */
 	@RequestMapping(value = "/landpage/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateProject(@PathVariable String id, @Valid @RequestBody LandPageBean bean, HttpServletResponse response) throws Exception {
-		landPageService.updateLandPage(id, bean);
+	public void updateProject(@PathVariable String id, @Valid @RequestBody LandpageBean bean, HttpServletResponse response) throws Exception {
+		landpageService.updateLandpage(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	/**
@@ -65,7 +65,7 @@ public class LandPageController {
 	@RequestMapping(value = "/landpage/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteProject(@PathVariable String id, HttpServletResponse response) throws Exception {
-		landPageService.deleteLandPage(id);
+		landpageService.deleteLandpage(id);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	/**
@@ -77,8 +77,8 @@ public class LandPageController {
 	 */
 	@RequestMapping(value = "/landpage/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectLandPage(@PathVariable String id, HttpServletResponse response) throws Exception {
-		LandPageBean bean = landPageService.selectLandPage(id);
+	public String selectLandpage(@PathVariable String id, HttpServletResponse response) throws Exception {
+		LandpageBean bean = landpageService.selectLandpage(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
 	/**
@@ -93,13 +93,13 @@ public class LandPageController {
 	 */
 	@RequestMapping(value = "/landpages", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectLandPages(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectLandpages(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<LandPageBean> beans = landPageService.selectLandPages(name);
+		List<LandpageBean> beans = landpageService.selectLandpages(name);
 		
 		PaginationResult result = new PaginationResult(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
