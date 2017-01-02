@@ -19,6 +19,7 @@ import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
+import com.pxene.pap.domain.beans.AdvertiserBean.Kpi;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
 import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
@@ -26,6 +27,10 @@ import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModelExample.Criteria;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
+import com.pxene.pap.domain.model.basic.IndustryKpiModel;
+import com.pxene.pap.domain.model.basic.IndustryKpiModelExample;
+import com.pxene.pap.domain.model.basic.IndustryModel;
+import com.pxene.pap.domain.model.basic.KpiModel;
 import com.pxene.pap.domain.model.basic.ProjectModel;
 import com.pxene.pap.domain.model.basic.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -34,6 +39,9 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.IndustryDao;
+import com.pxene.pap.repository.basic.IndustryKpiDao;
+import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
@@ -41,17 +49,20 @@ public class AdvertiserService extends BaseService
 {
     @Autowired
     private AdvertiserDao advertiserDao;
-    
     @Autowired
     private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
-
     @Autowired
     private AdxDao adxDao;
-    
+    @Autowired
     private AdvertiserAuditDao advertiserAuditDao;
-    
     @Autowired
     private ProjectDao projectDao;
+    @Autowired
+    private IndustryDao industryDao;
+    @Autowired
+    private IndustryKpiDao industryKpiDao;
+    @Autowired
+    private KpiDao kpiDao;
     
     private final String UPLOAD_DIR;
     
@@ -201,9 +212,27 @@ public class AdvertiserService extends BaseService
         {
             throw new ResourceNotFoundException();
         }
+        AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
+        // 找出所属行业
+        String industryId = advertiserModel.getIndustryId();
+        IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
+        String industryName = industryModel.getName();
+        bean.setIndustryName(industryName);
+        // 找出该行业下的kpi
+        IndustryKpiModelExample example = new IndustryKpiModelExample();
+        com.pxene.pap.domain.model.basic.IndustryKpiModelExample.Criteria criteria = example.createCriteria();
+        criteria.andIndustryIdEqualTo(industryId);
+        List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(example);
+        Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
+        for (int i=0; i<kpis.length; i++) {
+        	String kpiId = industryKpiModels.get(i).getKpiId();
+        	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
+        	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
+        }
+        bean.setKpis(kpis);
         
         // 将DAO创建的新对象复制回传输对象中
-        return modelMapper.map(advertiserModel, AdvertiserBean.class);
+        return bean;
     }
 
 
@@ -230,7 +259,26 @@ public class AdvertiserService extends BaseService
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
             for (AdvertiserModel advertiserModel : advertiserModels)
             {
-                advertiserList.add(modelMapper.map(advertiserModel, AdvertiserBean.class));
+                //advertiserList.add(modelMapper.map(advertiserModel, AdvertiserBean.class));
+            	AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
+                // 找出所属行业
+                String industryId = advertiserModel.getIndustryId();
+                IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
+                String industryName = industryModel.getName();
+                bean.setIndustryName(industryName);
+                // 找出该行业下的kpi
+                IndustryKpiModelExample industryKpiModelExample = new IndustryKpiModelExample();
+                com.pxene.pap.domain.model.basic.IndustryKpiModelExample.Criteria industryKpiModelExampleCriteria = industryKpiModelExample.createCriteria();
+                industryKpiModelExampleCriteria.andIndustryIdEqualTo(industryId);
+                List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(industryKpiModelExample);
+                Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
+                for (int i=0; i<kpis.length; i++) {
+                	String kpiId = industryKpiModels.get(i).getKpiId();
+                	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
+                	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
+                }
+                bean.setKpis(kpis);
+                advertiserList.add(bean);
             }
         }
         

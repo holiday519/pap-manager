@@ -31,6 +31,10 @@ public class AdvertiserBean
     
     private String industryId;
     
+    private String industryName;
+    
+    private Kpi[] kpis;
+    
     private String brandName;
     
     private String licenseNo;
@@ -66,6 +70,29 @@ public class AdvertiserBean
     @JsonProperty(value = "update_time")
     private Date updateTime;
     
+    public static class Kpi {
+    	private String id;
+    	private String name;
+    	private String unit;
+		public String getId() {
+			return id;
+		}
+		public void setId(String id) {
+			this.id = id;
+		}
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getUnit() {
+			return unit;
+		}
+		public void setUnit(String unit) {
+			this.unit = unit;
+		}
+    }
     
     public String getId()
     {
@@ -106,14 +133,6 @@ public class AdvertiserBean
     public void setPhone(String phone)
     {
         this.phone = phone;
-    }
-    public String getQQ()
-    {
-        return qq;
-    }
-    public void setQQ(String qq)
-    {
-        this.qq = qq;
     }
     public String getIndustryId()
     {
@@ -251,9 +270,26 @@ public class AdvertiserBean
     {
         this.updateTime = updateTime;
     }
-    
-    
-    @Override
+    public String getQq() {
+		return qq;
+	}
+	public void setQq(String qq) {
+		this.qq = qq;
+	}
+	public String getIndustryName() {
+		return industryName;
+	}
+	public void setIndustryName(String industryName) {
+		this.industryName = industryName;
+	}
+	public Kpi[] getKpis() {
+		return kpis;
+	}
+	public void setKpis(Kpi[] kpis) {
+		this.kpis = kpis;
+	}
+	
+	@Override
     public String toString()
     {
         return "AdvertiserBean [id=" + id + ", name=" + name + ", company=" + company + ", contact=" + contact + ", phone=" + phone + ", qq=" + qq + ", industryId=" + industryId + ", brandName="
