@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -14,7 +15,7 @@ import com.pxene.pap.domain.beans.AppFlowHourBean;
 import com.pxene.pap.domain.model.basic.AppFlowHourModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.repository.basic.AppFlowHourDao;
-import com.pxene.pap.repository.custom.CustomAppFlowHourDao;
+import com.pxene.pap.repository.custom.AppFlowHourStatsDao;
 
 @Service
 public class AppFlowHourService extends BaseService
@@ -23,7 +24,7 @@ public class AppFlowHourService extends BaseService
     private AppFlowHourDao appFlowHourDao;
     
     @Autowired
-    private CustomAppFlowHourDao customAppFlowHourDao;
+    private AppFlowHourStatsDao appFlowHourStatsDao;
     
     
     @Transactional
@@ -47,9 +48,9 @@ public class AppFlowHourService extends BaseService
     }
 
     @Transactional
-    public List<AppFlowHourBean> listAppFlowHour(Date beginTime, Date endTime, int limitNum)
+    public List<Map<String, Object>> listAppFlowHour(Date beginTime, Date endTime, int limitNum)
     {
-        List<AppFlowHourBean> beans = customAppFlowHourDao.selectTopN(beginTime, endTime, limitNum);
+        List<Map<String, Object>> beans = appFlowHourStatsDao.selectTopN(beginTime, endTime, limitNum);
         
         return beans;
     }

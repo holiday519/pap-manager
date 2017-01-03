@@ -2,6 +2,7 @@ package com.pxene.pap.web.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,7 +62,7 @@ public class AppFlowHourController
     @ResponseBody
     public String listAppFlowHours(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        List<AppFlowHourBean> appFlowHourList = appFlowHourService.listAppFlowHour(beginTime, endTime, limitNum);
+        List<Map<String, Object>> appFlowHourList = appFlowHourService.listAppFlowHour(beginTime, endTime, limitNum);
         
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), appFlowHourList, response);
     }

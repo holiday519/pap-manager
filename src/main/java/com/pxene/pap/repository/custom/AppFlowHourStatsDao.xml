@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.custom.CustomRegionFlowHourDao">
-  <resultMap id="CustomBaseResultMap" type="com.pxene.pap.domain.beans.RegionFlowHourBean">
-    <result column="region_id" jdbcType="VARCHAR" property="regionId" />
-    <result column="request_amount_sum" jdbcType="BIGINT" property="requestAmount" />
-  </resultMap>
+<mapper namespace="com.pxene.pap.repository.custom.CustomAppFlowHourDao">
   
-  <select id="selectTopN" resultMap="CustomBaseResultMap">
+  <select id="selectTopN" resultType="java.util.Map">
         SELECT
-            t.region_id,
+            t.app_id,
             SUM(t.request_amount) AS request_amount_sum
         FROM
-            pap_t_regionflow_hour t
+            pap_t_appflow_hour t
         WHERE
             t.datetime BETWEEN #{startTime, jdbcType=TIMESTAMP}
         AND #{endTime, jdbcType=TIMESTAMP}
         GROUP BY
-            t.region_id
+            t.app_id
         ORDER BY
             request_amount_sum DESC
         LIMIT #{limitNum, jdbcType=INTEGER}

@@ -2,6 +2,7 @@ package com.pxene.pap.web.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,7 +62,7 @@ public class RegionFlowHourController
     @ResponseBody
     public String listRegionFlowHours(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        List<RegionFlowHourBean> regionFlowHourList = regionFlowHourService.listRegionFlowHour(beginTime, endTime, limitNum);
+        List<Map<String, Object>> regionFlowHourList = regionFlowHourService.listRegionFlowHour(beginTime, endTime, limitNum);
         
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), regionFlowHourList, response);
     }

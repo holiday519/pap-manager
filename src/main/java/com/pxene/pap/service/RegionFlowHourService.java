@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -14,7 +15,7 @@ import com.pxene.pap.domain.beans.RegionFlowHourBean;
 import com.pxene.pap.domain.model.basic.RegionFlowHourModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.repository.basic.RegionFlowHourDao;
-import com.pxene.pap.repository.custom.CustomRegionFlowHourDao;
+import com.pxene.pap.repository.custom.RegionFlowHourStatsDao;
 
 @Service
 public class RegionFlowHourService extends BaseService
@@ -23,7 +24,7 @@ public class RegionFlowHourService extends BaseService
     private RegionFlowHourDao regionFlowHourDao;
     
     @Autowired
-    private CustomRegionFlowHourDao customRegionFlowHourDao;
+    private RegionFlowHourStatsDao regionFlowHourStatsDao;
     
     
     @Transactional
@@ -47,9 +48,9 @@ public class RegionFlowHourService extends BaseService
     }
 
     @Transactional
-    public List<RegionFlowHourBean> listRegionFlowHour(Date beginTime, Date endTime, int limitNum)
+    public List<Map<String, Object>> listRegionFlowHour(Date beginTime, Date endTime, int limitNum)
     {
-        List<RegionFlowHourBean> beans = customRegionFlowHourDao.selectTopN(beginTime, endTime, limitNum);
+        List<Map<String, Object>> beans = regionFlowHourStatsDao.selectTopN(beginTime, endTime, limitNum);
         
         return beans;
     }
