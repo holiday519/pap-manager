@@ -17,6 +17,8 @@ public class CreativeRuleModel {
 
     private Float promote;
 
+    private String status;
+
     private Date createtime;
 
     private Date updatetime;
@@ -77,6 +79,14 @@ public class CreativeRuleModel {
         this.promote = promote;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
     public Date getCreatetime() {
         return createtime;
     }
@@ -106,6 +116,7 @@ public class CreativeRuleModel {
         sb.append(", dataType=").append(dataType);
         sb.append(", data=").append(data);
         sb.append(", promote=").append(promote);
+        sb.append(", status=").append(status);
         sb.append(", createtime=").append(createtime);
         sb.append(", updatetime=").append(updatetime);
         sb.append("]");

@@ -147,6 +147,7 @@ public class ProjectService extends LaunchService {
 	 * @return
 	 */
     public ProjectDetailBean selectProject(String id) throws Exception {
+    	//从视图中查询项目所相关信息
         ProjectDetailModelExample example = new ProjectDetailModelExample();
         example.createCriteria().andIdEqualTo(id);
 		List<ProjectDetailModel> models = projectDetailDao.selectByExample(example);
@@ -180,8 +181,8 @@ public class ProjectService extends LaunchService {
 			throw new ResourceNotFoundException();
 		}
 		
-		for (ProjectDetailModel mod : projects) {
-			ProjectDetailBean bean = modelMapper.map(mod, ProjectDetailBean.class);
+		for (ProjectDetailModel model : projects) {
+			ProjectDetailBean bean = modelMapper.map(model, ProjectDetailBean.class);
 			beans.add(bean);
 		}
 		

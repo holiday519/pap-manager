@@ -14,5 +14,6 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放。";
 	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放。";
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
+	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
     
 }

@@ -123,9 +123,9 @@ public class ProjectController {
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<ProjectDetailBean> selectProjects = projectService.selectProjects(name);
+		List<ProjectDetailBean> beans = projectService.selectProjects(name);
 		
-		PaginationResult result = new PaginationResult(selectProjects, pager);
+		PaginationResult result = new PaginationResult(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

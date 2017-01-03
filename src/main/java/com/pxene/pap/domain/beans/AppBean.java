@@ -70,5 +70,5 @@ public class AppBean {
 				+ ", appName=" + appName + ", appType=" + appType
 				+ ", pkgName=" + pkgName + "]";
 	}
-    
+
 }

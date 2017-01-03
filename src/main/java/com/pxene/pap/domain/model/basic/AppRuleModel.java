@@ -19,6 +19,8 @@ public class AppRuleModel {
 
     private Float sale;
 
+    private String status;
+
     private Date createtime;
 
     private Date updatetime;
@@ -87,6 +89,14 @@ public class AppRuleModel {
         this.sale = sale;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
     public Date getCreatetime() {
         return createtime;
     }
@@ -117,6 +127,7 @@ public class AppRuleModel {
         sb.append(", data=").append(data);
         sb.append(", fare=").append(fare);
         sb.append(", sale=").append(sale);
+        sb.append(", status=").append(status);
         sb.append(", createtime=").append(createtime);
         sb.append(", updatetime=").append(updatetime);
         sb.append("]");
