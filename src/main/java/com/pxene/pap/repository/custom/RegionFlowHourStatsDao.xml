@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.custom.CustomRegionFlowHourDao">
+<mapper namespace="com.pxene.pap.repository.custom.RegionFlowHourStatsDao">
   
   <select id="selectTopN" resultMap="java.util.Map">
         SELECT
             t.region_id,
-            SUM(t.request_amount) AS request_amount_sum
+            SUM(t.request_amount) AS request_amount
         FROM
             pap_t_regionflow_hour t
         WHERE
@@ -14,7 +14,7 @@
         GROUP BY
             t.region_id
         ORDER BY
-            request_amount_sum DESC
+            request_amount DESC
         LIMIT #{limitNum, jdbcType=INTEGER}
   </select>
 </mapper>

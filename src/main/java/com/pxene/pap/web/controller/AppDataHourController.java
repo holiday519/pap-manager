@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,7 +83,7 @@ public class AppDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<AppDataHourBean> appDataHourList = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
+        List<Map<String, Object>> appDataHourList = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
         
         PaginationResult result = new PaginationResult(appDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

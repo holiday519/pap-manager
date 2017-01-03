@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.custom.AppDataHourStatsDao">
+
+	<select id="selectByCampaignId" resultType="java.util.Map">
+		SELECT
+			t.app_id,
+			t.campaign_id,
+			SUM(t.bid_amount) AS bid_amount,
+			SUM(t.win_amount) AS win_amount,
+			SUM(t.win_amount)/SUM(t.bid_amount) AS win_rate,
+			SUM(t.impression_amount) AS impression_amount,
+			SUM(t.impression_amount)/SUM(t.win_amount) AS impression_rate,
+			SUM(t.click_amount) AS click_amount,
+			SUM(t.click_amount)/SUM(t.impression_amount) AS click_rate,
+			SUM(t.arrival_amount) AS arrival_amount,
+			SUM(t.arrival_amount)/SUM(t.click_amount) AS arrival_rate,
+			SUM(t.unique_amount) AS unique_amount
+		FROM
+			pap_t_appdata_hour t
+		WHERE
+			t.campaign_id = #{campaignId, jdbcType=VARCHAR}
+		AND
+			t.datetime BETWEEN #{startTime, jdbcType=TIMESTAMP} AND #{endTime, jdbcType=TIMESTAMP}
+		GROUP BY
+			t.app_id
+	</select>
+</mapper>

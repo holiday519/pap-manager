@@ -1,8 +1,8 @@
 package com.pxene.pap.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -15,17 +15,18 @@ import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.AppDataHourBean;
 import com.pxene.pap.domain.model.basic.AppDataHourModel;
-import com.pxene.pap.domain.model.basic.AppDataHourModelExample;
-import com.pxene.pap.domain.model.basic.AppDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDataHourDao;
+import com.pxene.pap.repository.custom.AppDataHourStatsDao;
 
 @Service
 public class AppDataHourService extends BaseService
 {
     @Autowired
     private AppDataHourDao appDataHourDao;
+    @Autowired
+    private AppDataHourStatsDao appDataHourStatsDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -79,30 +80,14 @@ public class AppDataHourService extends BaseService
 
     
     @Transactional
-    public List<AppDataHourBean> listAppDataHour(String campaignId, long beginTime, long endTime)
+    public List<Map<String, Object>> listAppDataHour(String campaignId, long beginTime, long endTime)
     {
-        AppDataHourModelExample example = new AppDataHourModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andCampaignIdEqualTo(campaignId);
-        criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
-        
-        List<AppDataHourModel> appDataHourModels = appDataHourDao.selectByExample(example);
-        List<AppDataHourBean> appDataHourList = new ArrayList<AppDataHourBean>();
-        
-        if (appDataHourModels == null || appDataHourModels.size() <= 0)
-        {
-            throw new ResourceNotFoundException();
-        }
-        else
-        {
-            // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (AppDataHourModel appDataHourModel : appDataHourModels)
-            {
-                appDataHourList.add(modelMapper.map(appDataHourModel, AppDataHourBean.class));
-            }
-        }
-        
-        return appDataHourList;
+    	List<Map<String, Object>> results = appDataHourStatsDao.selectByCampaignId(campaignId, new Date(beginTime), new Date(endTime));
+    	if (results == null || results.size() <= 0) {
+    		throw new ResourceNotFoundException();
+    	} else {
+    		return results;
+    	}
     }
     
 }
