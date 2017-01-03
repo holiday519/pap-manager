@@ -1,8 +1,8 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.view.TmplImageDetailModel;
-import com.pxene.pap.domain.model.view.TmplImageDetailModelExample;
-import com.pxene.pap.domain.model.view.TmplImageDetailModelWithBLOBs;
+import com.pxene.pap.domain.models.view.TmplImageDetailModel;
+import com.pxene.pap.domain.models.view.TmplImageDetailModelExample;
+import com.pxene.pap.domain.models.view.TmplImageDetailModelWithBLOBs;
 
 import java.util.List;
 

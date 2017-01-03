@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.LandpageRuleModel;
-import com.pxene.pap.domain.model.LandpageRuleModelExample;
+import com.pxene.pap.domain.models.LandpageRuleModel;
+import com.pxene.pap.domain.models.LandpageRuleModelExample;
 
 import java.util.List;
 

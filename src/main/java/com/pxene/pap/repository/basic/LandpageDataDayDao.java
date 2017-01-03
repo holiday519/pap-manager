@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.LandpageDataDayModel;
-import com.pxene.pap.domain.model.LandpageDataDayModelExample;
+import com.pxene.pap.domain.models.LandpageDataDayModel;
+import com.pxene.pap.domain.models.LandpageDataDayModelExample;
 
 import java.util.List;
 

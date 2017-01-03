@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.RegionTargetModel;
-import com.pxene.pap.domain.model.RegionTargetModelExample;
+import com.pxene.pap.domain.models.RegionTargetModel;
+import com.pxene.pap.domain.models.RegionTargetModelExample;
 
 import java.util.List;
 

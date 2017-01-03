@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.OperatorTargetModel;
-import com.pxene.pap.domain.model.OperatorTargetModelExample;
+import com.pxene.pap.domain.models.OperatorTargetModel;
+import com.pxene.pap.domain.models.OperatorTargetModelExample;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.RegionRuleModel;
-import com.pxene.pap.domain.model.RegionRuleModelExample;
+import com.pxene.pap.domain.models.RegionRuleModel;
+import com.pxene.pap.domain.models.RegionRuleModelExample;
 
 import java.util.List;
 

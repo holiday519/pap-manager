@@ -13,8 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.JwtUtils;
 import com.pxene.pap.domain.beans.AccessTokenBean;
-import com.pxene.pap.domain.model.UserModel;
-import com.pxene.pap.domain.model.UserModelExample;
+import com.pxene.pap.domain.models.UserModel;
+import com.pxene.pap.domain.models.UserModelExample;
 import com.pxene.pap.repository.basic.UserDao;
 
 @Service

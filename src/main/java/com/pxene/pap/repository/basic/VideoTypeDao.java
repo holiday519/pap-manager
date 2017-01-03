@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.VideoTypeModel;
-import com.pxene.pap.domain.model.VideoTypeModelExample;
+import com.pxene.pap.domain.models.VideoTypeModel;
+import com.pxene.pap.domain.models.VideoTypeModelExample;
 
 import java.util.List;
 

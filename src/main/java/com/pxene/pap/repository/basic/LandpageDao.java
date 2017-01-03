@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.LandpageModel;
-import com.pxene.pap.domain.model.LandpageModelExample;
+import com.pxene.pap.domain.models.LandpageModel;
+import com.pxene.pap.domain.models.LandpageModelExample;
 
 import java.util.List;
 

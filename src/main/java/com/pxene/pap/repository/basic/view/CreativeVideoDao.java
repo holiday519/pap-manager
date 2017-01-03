@@ -1,8 +1,8 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.view.CreativeVideoModel;
-import com.pxene.pap.domain.model.view.CreativeVideoModelExample;
-import com.pxene.pap.domain.model.view.CreativeVideoModelWithBLOBs;
+import com.pxene.pap.domain.models.view.CreativeVideoModel;
+import com.pxene.pap.domain.models.view.CreativeVideoModelExample;
+import com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs;
 
 import java.util.List;
 

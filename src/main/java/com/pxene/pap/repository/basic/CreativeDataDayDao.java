@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.CreativeDataDayModel;
-import com.pxene.pap.domain.model.CreativeDataDayModelExample;
+import com.pxene.pap.domain.models.CreativeDataDayModel;
+import com.pxene.pap.domain.models.CreativeDataDayModelExample;
 
 import java.util.List;
 

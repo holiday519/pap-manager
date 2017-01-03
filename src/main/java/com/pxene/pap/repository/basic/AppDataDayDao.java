@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.AppDataDayModel;
-import com.pxene.pap.domain.model.AppDataDayModelExample;
+import com.pxene.pap.domain.models.AppDataDayModel;
+import com.pxene.pap.domain.models.AppDataDayModelExample;
 
 import java.util.List;
 

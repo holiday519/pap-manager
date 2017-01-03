@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.FrequencyModel;
-import com.pxene.pap.domain.model.FrequencyModelExample;
+import com.pxene.pap.domain.models.FrequencyModel;
+import com.pxene.pap.domain.models.FrequencyModelExample;
 
 import java.util.List;
 

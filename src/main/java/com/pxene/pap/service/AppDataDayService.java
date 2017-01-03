@@ -11,8 +11,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.AppDataDayBean;
-import com.pxene.pap.domain.model.AppDataDayModel;
-import com.pxene.pap.domain.model.AppDataDayModelExample;
+import com.pxene.pap.domain.models.AppDataDayModel;
+import com.pxene.pap.domain.models.AppDataDayModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDataDayDao;

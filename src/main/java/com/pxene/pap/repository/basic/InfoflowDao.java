@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.InfoflowModel;
-import com.pxene.pap.domain.model.InfoflowModelExample;
+import com.pxene.pap.domain.models.InfoflowModel;
+import com.pxene.pap.domain.models.InfoflowModelExample;
 
 import java.util.List;
 

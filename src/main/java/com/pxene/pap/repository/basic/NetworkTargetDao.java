@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.NetworkTargetModel;
-import com.pxene.pap.domain.model.NetworkTargetModelExample;
+import com.pxene.pap.domain.models.NetworkTargetModel;
+import com.pxene.pap.domain.models.NetworkTargetModelExample;
 
 import java.util.List;
 

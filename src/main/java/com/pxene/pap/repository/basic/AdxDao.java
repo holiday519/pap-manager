@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.AdxModel;
-import com.pxene.pap.domain.model.AdxModelExample;
+import com.pxene.pap.domain.models.AdxModel;
+import com.pxene.pap.domain.models.AdxModelExample;
 
 import java.util.List;
 

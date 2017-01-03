@@ -1,8 +1,8 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.view.CreativeImageModel;
-import com.pxene.pap.domain.model.view.CreativeImageModelExample;
-import com.pxene.pap.domain.model.view.CreativeImageModelWithBLOBs;
+import com.pxene.pap.domain.models.view.CreativeImageModel;
+import com.pxene.pap.domain.models.view.CreativeImageModelExample;
+import com.pxene.pap.domain.models.view.CreativeImageModelWithBLOBs;
 
 import java.util.List;
 

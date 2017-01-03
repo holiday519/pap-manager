@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.RegionDataDayModel;
-import com.pxene.pap.domain.model.RegionDataDayModelExample;
+import com.pxene.pap.domain.models.RegionDataDayModel;
+import com.pxene.pap.domain.models.RegionDataDayModelExample;
 
 import java.util.List;
 

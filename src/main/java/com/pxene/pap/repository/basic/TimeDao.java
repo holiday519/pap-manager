@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.TimeModel;
-import com.pxene.pap.domain.model.TimeModelExample;
+import com.pxene.pap.domain.models.TimeModel;
+import com.pxene.pap.domain.models.TimeModelExample;
 
 import java.util.List;
 

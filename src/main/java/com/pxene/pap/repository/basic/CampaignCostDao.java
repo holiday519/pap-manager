@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.CampaignCostModel;
-import com.pxene.pap.domain.model.CampaignCostModelExample;
+import com.pxene.pap.domain.models.CampaignCostModel;
+import com.pxene.pap.domain.models.CampaignCostModelExample;
 
 import java.util.List;
 

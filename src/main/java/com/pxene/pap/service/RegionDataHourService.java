@@ -14,9 +14,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.RegionDataHourBean;
-import com.pxene.pap.domain.model.RegionDataHourModel;
-import com.pxene.pap.domain.model.RegionDataHourModelExample;
-import com.pxene.pap.domain.model.RegionDataHourModelExample.Criteria;
+import com.pxene.pap.domain.models.RegionDataHourModel;
+import com.pxene.pap.domain.models.RegionDataHourModelExample;
+import com.pxene.pap.domain.models.RegionDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.RegionDataHourDao;

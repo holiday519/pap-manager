@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.KpiModel;
-import com.pxene.pap.domain.model.KpiModelExample;
+import com.pxene.pap.domain.models.KpiModel;
+import com.pxene.pap.domain.models.KpiModelExample;
 
 import java.util.List;
 

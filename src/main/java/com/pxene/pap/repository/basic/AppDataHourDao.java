@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.AppDataHourModel;
-import com.pxene.pap.domain.model.AppDataHourModelExample;
+import com.pxene.pap.domain.models.AppDataHourModel;
+import com.pxene.pap.domain.models.AppDataHourModelExample;
 
 import java.util.List;
 

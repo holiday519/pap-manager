@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.LandpageDataHourModel;
-import com.pxene.pap.domain.model.LandpageDataHourModelExample;
+import com.pxene.pap.domain.models.LandpageDataHourModel;
+import com.pxene.pap.domain.models.LandpageDataHourModelExample;
 
 import java.util.List;
 

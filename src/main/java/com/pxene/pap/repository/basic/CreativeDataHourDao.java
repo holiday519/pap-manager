@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.CreativeDataHourModel;
-import com.pxene.pap.domain.model.CreativeDataHourModelExample;
+import com.pxene.pap.domain.models.CreativeDataHourModel;
+import com.pxene.pap.domain.models.CreativeDataHourModelExample;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.AdvertiserAuditModel;
-import com.pxene.pap.domain.model.AdvertiserAuditModelExample;
+import com.pxene.pap.domain.models.AdvertiserAuditModel;
+import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 
 import java.util.List;
 

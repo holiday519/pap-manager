@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.DeviceTargetModel;
-import com.pxene.pap.domain.model.DeviceTargetModelExample;
+import com.pxene.pap.domain.models.DeviceTargetModel;
+import com.pxene.pap.domain.models.DeviceTargetModelExample;
 
 import java.util.List;
 

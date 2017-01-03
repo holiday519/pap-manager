@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.CreativeRuleModel;
-import com.pxene.pap.domain.model.CreativeRuleModelExample;
+import com.pxene.pap.domain.models.CreativeRuleModel;
+import com.pxene.pap.domain.models.CreativeRuleModelExample;
 
 import java.util.List;
 

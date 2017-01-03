@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.RegionFlowDayModel;
-import com.pxene.pap.domain.model.RegionFlowDayModelExample;
+import com.pxene.pap.domain.models.RegionFlowDayModel;
+import com.pxene.pap.domain.models.RegionFlowDayModelExample;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.view.CreativeInfoflowModel;
-import com.pxene.pap.domain.model.view.CreativeInfoflowModelExample;
-import com.pxene.pap.domain.model.view.CreativeInfoflowModelWithBLOBs;
+import com.pxene.pap.domain.models.view.CreativeInfoflowModel;
+import com.pxene.pap.domain.models.view.CreativeInfoflowModelExample;
+import com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.RegionFlowHourModel;
-import com.pxene.pap.domain.model.RegionFlowHourModelExample;
+import com.pxene.pap.domain.models.RegionFlowHourModel;
+import com.pxene.pap.domain.models.RegionFlowHourModelExample;
 
 import java.util.List;
 

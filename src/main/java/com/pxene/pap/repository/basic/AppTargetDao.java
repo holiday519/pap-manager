@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.AppTargetModel;
-import com.pxene.pap.domain.model.AppTargetModelExample;
+import com.pxene.pap.domain.models.AppTargetModel;
+import com.pxene.pap.domain.models.AppTargetModelExample;
 
 import java.util.List;
 

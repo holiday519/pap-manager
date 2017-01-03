@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.AppRuleModel;
-import com.pxene.pap.domain.model.AppRuleModelExample;
+import com.pxene.pap.domain.models.AppRuleModel;
+import com.pxene.pap.domain.models.AppRuleModelExample;
 
 import java.util.List;
 

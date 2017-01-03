@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.SizeBean;
-import com.pxene.pap.domain.model.SizeModel;
-import com.pxene.pap.domain.model.SizeModelExample;
+import com.pxene.pap.domain.models.SizeModel;
+import com.pxene.pap.domain.models.SizeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.SizeDao;

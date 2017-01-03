@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.ImageModel;
-import com.pxene.pap.domain.model.ImageModelExample;
+import com.pxene.pap.domain.models.ImageModel;
+import com.pxene.pap.domain.models.ImageModelExample;
 
 import java.util.List;
 

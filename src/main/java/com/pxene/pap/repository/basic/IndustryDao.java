@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.IndustryModel;
-import com.pxene.pap.domain.model.IndustryModelExample;
+import com.pxene.pap.domain.models.IndustryModel;
+import com.pxene.pap.domain.models.IndustryModelExample;
 
 import java.util.List;
 

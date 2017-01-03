@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.SettleModel;
-import com.pxene.pap.domain.model.SettleModelExample;
+import com.pxene.pap.domain.models.SettleModel;
+import com.pxene.pap.domain.models.SettleModelExample;
 
 import java.util.List;
 

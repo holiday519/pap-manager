@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.CreativeMaterialModel;
-import com.pxene.pap.domain.model.CreativeMaterialModelExample;
+import com.pxene.pap.domain.models.CreativeMaterialModel;
+import com.pxene.pap.domain.models.CreativeMaterialModelExample;
 
 import java.util.List;
 

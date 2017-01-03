@@ -1,8 +1,8 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.view.TmplVideoDetailModel;
-import com.pxene.pap.domain.model.view.TmplVideoDetailModelExample;
-import com.pxene.pap.domain.model.view.TmplVideoDetailModelWithBLOBs;
+import com.pxene.pap.domain.models.view.TmplVideoDetailModel;
+import com.pxene.pap.domain.models.view.TmplVideoDetailModelExample;
+import com.pxene.pap.domain.models.view.TmplVideoDetailModelWithBLOBs;
 
 import java.util.List;
 

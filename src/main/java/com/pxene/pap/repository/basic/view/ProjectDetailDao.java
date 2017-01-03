@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.view.ProjectDetailModel;
-import com.pxene.pap.domain.model.view.ProjectDetailModelExample;
+import com.pxene.pap.domain.models.view.ProjectDetailModel;
+import com.pxene.pap.domain.models.view.ProjectDetailModelExample;
 
 import java.util.List;
 

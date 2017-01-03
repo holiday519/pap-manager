@@ -14,9 +14,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
-import com.pxene.pap.domain.model.CreativeDataHourModel;
-import com.pxene.pap.domain.model.CreativeDataHourModelExample;
-import com.pxene.pap.domain.model.CreativeDataHourModelExample.Criteria;
+import com.pxene.pap.domain.models.CreativeDataHourModel;
+import com.pxene.pap.domain.models.CreativeDataHourModelExample;
+import com.pxene.pap.domain.models.CreativeDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CreativeDataHourDao;

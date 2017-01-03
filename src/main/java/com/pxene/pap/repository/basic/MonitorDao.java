@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.MonitorModel;
-import com.pxene.pap.domain.model.MonitorModelExample;
+import com.pxene.pap.domain.models.MonitorModel;
+import com.pxene.pap.domain.models.MonitorModelExample;
 
 import java.util.List;
 

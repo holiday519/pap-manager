@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.BrandTargetModel;
-import com.pxene.pap.domain.model.BrandTargetModelExample;
+import com.pxene.pap.domain.models.BrandTargetModel;
+import com.pxene.pap.domain.models.BrandTargetModelExample;
 
 import java.util.List;
 

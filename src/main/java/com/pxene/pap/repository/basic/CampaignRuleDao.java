@@ -1,7 +1,7 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.CampaignRuleModel;
-import com.pxene.pap.domain.model.CampaignRuleModelExample;
+import com.pxene.pap.domain.models.CampaignRuleModel;
+import com.pxene.pap.domain.models.CampaignRuleModelExample;
 
 import java.util.List;
 
