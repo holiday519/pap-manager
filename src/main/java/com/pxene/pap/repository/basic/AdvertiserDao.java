@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AdvertiserModel;
-import com.pxene.pap.domain.model.basic.AdvertiserModelExample;
+import com.pxene.pap.domain.model.AdvertiserModel;
+import com.pxene.pap.domain.model.AdvertiserModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AdvertiserDao {

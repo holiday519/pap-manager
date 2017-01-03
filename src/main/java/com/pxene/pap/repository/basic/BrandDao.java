@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.BrandModel;
-import com.pxene.pap.domain.model.basic.BrandModelExample;
+import com.pxene.pap.domain.model.BrandModel;
+import com.pxene.pap.domain.model.BrandModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface BrandDao {

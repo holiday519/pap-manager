@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.RuleBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.CreativeRuleService;
 @Controller
 public class CreativeRuleController {
@@ -67,7 +67,7 @@ public class CreativeRuleController {
         
 		List<RuleBean> beans = creativeRuleService.listCreativeRule(name);
 		
-		PaginationResult result = new PaginationResult(beans, pager);
+		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

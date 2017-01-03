@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.LandpageDataDayModel;
-import com.pxene.pap.domain.model.basic.LandpageDataDayModelExample;
+import com.pxene.pap.domain.model.LandpageDataDayModel;
+import com.pxene.pap.domain.model.LandpageDataDayModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface LandpageDataDayDao {

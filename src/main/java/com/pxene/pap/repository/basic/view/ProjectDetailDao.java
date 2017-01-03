@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.basic.view.ProjectDetailModel;
-import com.pxene.pap.domain.model.basic.view.ProjectDetailModelExample;
+import com.pxene.pap.domain.model.view.ProjectDetailModel;
+import com.pxene.pap.domain.model.view.ProjectDetailModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface ProjectDetailDao {

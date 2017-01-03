@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CreativeDataDayModel;
-import com.pxene.pap.domain.model.basic.CreativeDataDayModelExample;
+import com.pxene.pap.domain.model.CreativeDataDayModel;
+import com.pxene.pap.domain.model.CreativeDataDayModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeDataDayDao {

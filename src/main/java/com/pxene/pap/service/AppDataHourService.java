@@ -14,7 +14,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.AppDataHourBean;
-import com.pxene.pap.domain.model.basic.AppDataHourModel;
+import com.pxene.pap.domain.model.AppDataHourModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDataHourDao;

@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.RegionDataHourBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.RegionDataHourService;
 
 /**
@@ -68,7 +68,7 @@ public class RegionDataHourController
         
         List<RegionDataHourBean> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
         
-        PaginationResult result = new PaginationResult(regionDataHourList, pager);
+        PaginationBean result = new PaginationBean(regionDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 }

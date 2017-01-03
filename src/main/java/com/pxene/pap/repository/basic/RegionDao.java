@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.RegionModel;
-import com.pxene.pap.domain.model.basic.RegionModelExample;
+import com.pxene.pap.domain.model.RegionModel;
+import com.pxene.pap.domain.model.RegionModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface RegionDao {

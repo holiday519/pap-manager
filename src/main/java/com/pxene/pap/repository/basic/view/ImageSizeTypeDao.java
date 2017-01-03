@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
-import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
+import com.pxene.pap.domain.model.view.ImageSizeTypeModel;
+import com.pxene.pap.domain.model.view.ImageSizeTypeModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface ImageSizeTypeDao {

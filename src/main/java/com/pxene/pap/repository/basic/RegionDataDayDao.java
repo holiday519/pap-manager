@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.RegionDataDayModel;
-import com.pxene.pap.domain.model.basic.RegionDataDayModelExample;
+import com.pxene.pap.domain.model.RegionDataDayModel;
+import com.pxene.pap.domain.model.RegionDataDayModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface RegionDataDayDao {

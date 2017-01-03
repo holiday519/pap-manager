@@ -1,9 +1,11 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.basic.view.CreativeInfoflowModel;
-import com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelExample;
-import com.pxene.pap.domain.model.basic.view.CreativeInfoflowModelWithBLOBs;
+import com.pxene.pap.domain.model.view.CreativeInfoflowModel;
+import com.pxene.pap.domain.model.view.CreativeInfoflowModelExample;
+import com.pxene.pap.domain.model.view.CreativeInfoflowModelWithBLOBs;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeInfoflowDao {

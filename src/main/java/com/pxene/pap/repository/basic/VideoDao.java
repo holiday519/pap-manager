@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.VideoModel;
-import com.pxene.pap.domain.model.basic.VideoModelExample;
+import com.pxene.pap.domain.model.VideoModel;
+import com.pxene.pap.domain.model.VideoModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface VideoDao {

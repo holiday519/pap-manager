@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.IndustryAdxModel;
-import com.pxene.pap.domain.model.basic.IndustryAdxModelExample;
+import com.pxene.pap.domain.model.IndustryAdxModel;
+import com.pxene.pap.domain.model.IndustryAdxModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface IndustryAdxDao {

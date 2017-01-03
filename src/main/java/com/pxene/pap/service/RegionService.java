@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.RegionBean;
-import com.pxene.pap.domain.model.basic.RegionModel;
-import com.pxene.pap.domain.model.basic.RegionModelExample;
+import com.pxene.pap.domain.model.RegionModel;
+import com.pxene.pap.domain.model.RegionModelExample;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.RegionDao;
 

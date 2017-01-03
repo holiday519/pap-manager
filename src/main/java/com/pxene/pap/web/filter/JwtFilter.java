@@ -23,7 +23,7 @@ import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxene.pap.common.TokenUtils;
 import com.pxene.pap.domain.beans.AccessTokenBean;
-import com.pxene.pap.domain.beans.ResponseResultBean;
+import com.pxene.pap.domain.beans.ResponseBean;
 import com.pxene.pap.exception.BaseException;
 import com.pxene.pap.exception.TokenInvalidException;
 import com.pxene.pap.exception.TokenOverdueException;
@@ -87,7 +87,7 @@ public class JwtFilter implements Filter
         httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
         
         ObjectMapper mapper = new ObjectMapper();
-        ResponseResultBean result = new ResponseResultBean();
+        ResponseBean result = new ResponseBean();
     	result.setCode(exception.getCode());
         result.setMessage(exception.getMessage());
         httpResponse.getWriter().write(mapper.writeValueAsString(result));

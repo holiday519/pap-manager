@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
-import com.pxene.pap.domain.model.basic.CreativeMaterialModelExample;
+import com.pxene.pap.domain.model.CreativeMaterialModel;
+import com.pxene.pap.domain.model.CreativeMaterialModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeMaterialDao {

@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.TimeModel;
-import com.pxene.pap.domain.model.basic.TimeModelExample;
+import com.pxene.pap.domain.model.TimeModel;
+import com.pxene.pap.domain.model.TimeModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface TimeDao {

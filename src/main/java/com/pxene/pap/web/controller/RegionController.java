@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.RegionBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.RegionService;
 
 @Controller
@@ -37,7 +37,7 @@ public class RegionController {
         
 		List<RegionBean> selectApps = regionService.ListRegions(name);
 		
-		PaginationResult result = new PaginationResult(selectApps, pager);
+		PaginationBean result = new PaginationBean(selectApps, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

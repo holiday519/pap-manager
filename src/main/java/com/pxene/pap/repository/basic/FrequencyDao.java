@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.FrequencyModel;
-import com.pxene.pap.domain.model.basic.FrequencyModelExample;
+import com.pxene.pap.domain.model.FrequencyModel;
+import com.pxene.pap.domain.model.FrequencyModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface FrequencyDao {

@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.ImageModel;
-import com.pxene.pap.domain.model.basic.ImageModelExample;
+import com.pxene.pap.domain.model.ImageModel;
+import com.pxene.pap.domain.model.ImageModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface ImageDao {

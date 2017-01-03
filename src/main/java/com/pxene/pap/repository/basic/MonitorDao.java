@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.MonitorModel;
-import com.pxene.pap.domain.model.basic.MonitorModelExample;
+import com.pxene.pap.domain.model.MonitorModel;
+import com.pxene.pap.domain.model.MonitorModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface MonitorDao {

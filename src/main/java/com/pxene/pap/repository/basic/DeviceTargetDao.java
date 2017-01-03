@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.DeviceTargetModel;
-import com.pxene.pap.domain.model.basic.DeviceTargetModelExample;
+import com.pxene.pap.domain.model.DeviceTargetModel;
+import com.pxene.pap.domain.model.DeviceTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface DeviceTargetDao {

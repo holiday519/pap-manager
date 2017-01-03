@@ -23,7 +23,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AppDataHourBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.AppDataHourService;
 
 /**
@@ -85,7 +85,7 @@ public class AppDataHourController
         
         List<Map<String, Object>> appDataHourList = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
         
-        PaginationResult result = new PaginationResult(appDataHourList, pager);
+        PaginationBean result = new PaginationBean(appDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 }

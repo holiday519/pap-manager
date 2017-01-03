@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.ImageTmplTypeModel;
-import com.pxene.pap.domain.model.basic.ImageTmplTypeModelExample;
+import com.pxene.pap.domain.model.ImageTmplTypeModel;
+import com.pxene.pap.domain.model.ImageTmplTypeModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface ImageTmplTypeDao {

@@ -1,9 +1,11 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.basic.view.CreativeImageModel;
-import com.pxene.pap.domain.model.basic.view.CreativeImageModelExample;
-import com.pxene.pap.domain.model.basic.view.CreativeImageModelWithBLOBs;
+import com.pxene.pap.domain.model.view.CreativeImageModel;
+import com.pxene.pap.domain.model.view.CreativeImageModelExample;
+import com.pxene.pap.domain.model.view.CreativeImageModelWithBLOBs;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeImageDao {

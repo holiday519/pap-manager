@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CreativeRuleModel;
-import com.pxene.pap.domain.model.basic.CreativeRuleModelExample;
+import com.pxene.pap.domain.model.CreativeRuleModel;
+import com.pxene.pap.domain.model.CreativeRuleModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeRuleDao {

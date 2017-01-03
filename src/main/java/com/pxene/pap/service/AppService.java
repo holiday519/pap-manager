@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.AppBean;
-import com.pxene.pap.domain.model.basic.AppModel;
-import com.pxene.pap.domain.model.basic.AppModelExample;
+import com.pxene.pap.domain.model.AppModel;
+import com.pxene.pap.domain.model.AppModelExample;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
 

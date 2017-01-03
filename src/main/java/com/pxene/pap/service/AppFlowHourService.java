@@ -12,7 +12,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.AppFlowHourBean;
-import com.pxene.pap.domain.model.basic.AppFlowHourModel;
+import com.pxene.pap.domain.model.AppFlowHourModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.repository.basic.AppFlowHourDao;
 import com.pxene.pap.repository.custom.AppFlowHourStatsDao;

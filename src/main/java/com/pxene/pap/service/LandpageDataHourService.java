@@ -14,9 +14,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.LandpageDataHourBean;
-import com.pxene.pap.domain.model.basic.LandpageDataHourModel;
-import com.pxene.pap.domain.model.basic.LandpageDataHourModelExample;
-import com.pxene.pap.domain.model.basic.LandpageDataHourModelExample.Criteria;
+import com.pxene.pap.domain.model.LandpageDataHourModel;
+import com.pxene.pap.domain.model.LandpageDataHourModelExample;
+import com.pxene.pap.domain.model.LandpageDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.LandpageDataHourDao;

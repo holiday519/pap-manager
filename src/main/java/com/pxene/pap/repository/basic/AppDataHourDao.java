@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AppDataHourModel;
-import com.pxene.pap.domain.model.basic.AppDataHourModelExample;
+import com.pxene.pap.domain.model.AppDataHourModel;
+import com.pxene.pap.domain.model.AppDataHourModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AppDataHourDao {

@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CampaignCostModel;
-import com.pxene.pap.domain.model.basic.CampaignCostModelExample;
+import com.pxene.pap.domain.model.CampaignCostModel;
+import com.pxene.pap.domain.model.CampaignCostModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CampaignCostDao {

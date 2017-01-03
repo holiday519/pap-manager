@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.InfoflowModel;
-import com.pxene.pap.domain.model.basic.InfoflowModelExample;
+import com.pxene.pap.domain.model.InfoflowModel;
+import com.pxene.pap.domain.model.InfoflowModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface InfoflowDao {

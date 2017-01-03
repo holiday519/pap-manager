@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.KpiModel;
-import com.pxene.pap.domain.model.basic.KpiModelExample;
+import com.pxene.pap.domain.model.KpiModel;
+import com.pxene.pap.domain.model.KpiModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface KpiDao {

@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.LandpageModel;
-import com.pxene.pap.domain.model.basic.LandpageModelExample;
+import com.pxene.pap.domain.model.LandpageModel;
+import com.pxene.pap.domain.model.LandpageModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface LandpageDao {

@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AppRuleModel;
-import com.pxene.pap.domain.model.basic.AppRuleModelExample;
+import com.pxene.pap.domain.model.AppRuleModel;
+import com.pxene.pap.domain.model.AppRuleModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AppRuleDao {

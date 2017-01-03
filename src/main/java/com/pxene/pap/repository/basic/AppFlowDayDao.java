@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AppFlowDayModel;
-import com.pxene.pap.domain.model.basic.AppFlowDayModelExample;
+import com.pxene.pap.domain.model.AppFlowDayModel;
+import com.pxene.pap.domain.model.AppFlowDayModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AppFlowDayDao {

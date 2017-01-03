@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.VideoTmplTypeModel;
-import com.pxene.pap.domain.model.basic.VideoTmplTypeModelExample;
+import com.pxene.pap.domain.model.VideoTmplTypeModel;
+import com.pxene.pap.domain.model.VideoTmplTypeModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface VideoTmplTypeDao {

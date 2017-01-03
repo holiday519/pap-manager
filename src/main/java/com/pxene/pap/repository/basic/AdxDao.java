@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AdxModel;
-import com.pxene.pap.domain.model.basic.AdxModelExample;
+import com.pxene.pap.domain.model.AdxModel;
+import com.pxene.pap.domain.model.AdxModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AdxDao {

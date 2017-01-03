@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AdTypeTargetModel;
-import com.pxene.pap.domain.model.basic.AdTypeTargetModelExample;
+import com.pxene.pap.domain.model.AdTypeTargetModel;
+import com.pxene.pap.domain.model.AdTypeTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AdTypeTargetDao {

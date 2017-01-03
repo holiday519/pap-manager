@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.SizeModel;
-import com.pxene.pap.domain.model.basic.SizeModelExample;
+import com.pxene.pap.domain.model.SizeModel;
+import com.pxene.pap.domain.model.SizeModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface SizeDao {

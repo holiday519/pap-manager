@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.beans.AuthBean;
-import com.pxene.pap.domain.model.basic.UserModel;
+import com.pxene.pap.domain.model.UserModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.PasswordIncorrectException;
 import com.pxene.pap.exception.UserNotExistException;

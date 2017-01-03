@@ -1,9 +1,11 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.basic.view.TmplImageDetailModel;
-import com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample;
-import com.pxene.pap.domain.model.basic.view.TmplImageDetailModelWithBLOBs;
+import com.pxene.pap.domain.model.view.TmplImageDetailModel;
+import com.pxene.pap.domain.model.view.TmplImageDetailModelExample;
+import com.pxene.pap.domain.model.view.TmplImageDetailModelWithBLOBs;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface TmplImageDetailDao {

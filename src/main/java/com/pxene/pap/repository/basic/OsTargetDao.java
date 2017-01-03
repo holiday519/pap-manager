@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.OsTargetModel;
-import com.pxene.pap.domain.model.basic.OsTargetModelExample;
+import com.pxene.pap.domain.model.OsTargetModel;
+import com.pxene.pap.domain.model.OsTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface OsTargetDao {

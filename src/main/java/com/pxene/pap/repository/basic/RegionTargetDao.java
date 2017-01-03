@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.RegionTargetModel;
-import com.pxene.pap.domain.model.basic.RegionTargetModelExample;
+import com.pxene.pap.domain.model.RegionTargetModel;
+import com.pxene.pap.domain.model.RegionTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface RegionTargetDao {

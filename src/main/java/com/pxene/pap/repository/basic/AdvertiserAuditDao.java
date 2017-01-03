@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AdvertiserAuditModel;
-import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
+import com.pxene.pap.domain.model.AdvertiserAuditModel;
+import com.pxene.pap.domain.model.AdvertiserAuditModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AdvertiserAuditDao {

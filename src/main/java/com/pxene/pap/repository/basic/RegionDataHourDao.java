@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.RegionDataHourModel;
-import com.pxene.pap.domain.model.basic.RegionDataHourModelExample;
+import com.pxene.pap.domain.model.RegionDataHourModel;
+import com.pxene.pap.domain.model.RegionDataHourModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface RegionDataHourDao {

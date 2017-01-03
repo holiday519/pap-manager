@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AppFlowHourModel;
-import com.pxene.pap.domain.model.basic.AppFlowHourModelExample;
+import com.pxene.pap.domain.model.AppFlowHourModel;
+import com.pxene.pap.domain.model.AppFlowHourModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AppFlowHourDao {

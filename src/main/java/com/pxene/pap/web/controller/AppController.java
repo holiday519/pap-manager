@@ -18,7 +18,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AppBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.AppService;
 
 @Controller
@@ -37,7 +37,7 @@ public class AppController {
         
 		List<AppBean> selectApps = appService.ListApps(name);
 		
-		PaginationResult result = new PaginationResult(selectApps, pager);
+		PaginationBean result = new PaginationBean(selectApps, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

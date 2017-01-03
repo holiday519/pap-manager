@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AppTargetModel;
-import com.pxene.pap.domain.model.basic.AppTargetModelExample;
+import com.pxene.pap.domain.model.AppTargetModel;
+import com.pxene.pap.domain.model.AppTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AppTargetDao {

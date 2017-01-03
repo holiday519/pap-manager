@@ -22,7 +22,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CreativeDataHourService;
 
 /**
@@ -84,7 +84,7 @@ public class CreativeDataHourController
         
         List<CreativeDataHourBean> creativeDataHourList = creativeDataHourService.listCreativeDataHour(campaignId, beginTime, endTime);
         
-        PaginationResult result = new PaginationResult(creativeDataHourList, pager);
+        PaginationBean result = new PaginationBean(creativeDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 }

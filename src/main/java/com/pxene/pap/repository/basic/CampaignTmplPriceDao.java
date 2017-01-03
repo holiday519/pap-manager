@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CampaignTmplPriceModel;
-import com.pxene.pap.domain.model.basic.CampaignTmplPriceModelExample;
+import com.pxene.pap.domain.model.CampaignTmplPriceModel;
+import com.pxene.pap.domain.model.CampaignTmplPriceModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CampaignTmplPriceDao {

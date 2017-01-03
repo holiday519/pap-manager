@@ -1,9 +1,11 @@
 package com.pxene.pap.repository.basic.view;
 
-import com.pxene.pap.domain.model.basic.view.CreativeVideoModel;
-import com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample;
-import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
+import com.pxene.pap.domain.model.view.CreativeVideoModel;
+import com.pxene.pap.domain.model.view.CreativeVideoModelExample;
+import com.pxene.pap.domain.model.view.CreativeVideoModelWithBLOBs;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeVideoDao {

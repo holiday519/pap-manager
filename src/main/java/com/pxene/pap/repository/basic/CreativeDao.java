@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CreativeModel;
-import com.pxene.pap.domain.model.basic.CreativeModelExample;
+import com.pxene.pap.domain.model.CreativeModel;
+import com.pxene.pap.domain.model.CreativeModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeDao {

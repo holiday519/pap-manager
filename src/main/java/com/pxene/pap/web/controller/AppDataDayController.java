@@ -22,7 +22,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AppDataDayBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.AppDataDayService;
 
 /**
@@ -100,7 +100,7 @@ public class AppDataDayController
         
         List<AppDataDayBean> appDataDayList = appDataDayService.listAppDataDay();
         
-        PaginationResult result = new PaginationResult(appDataDayList, pager);
+        PaginationBean result = new PaginationBean(appDataDayList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 }

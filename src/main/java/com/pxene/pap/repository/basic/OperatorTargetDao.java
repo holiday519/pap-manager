@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.OperatorTargetModel;
-import com.pxene.pap.domain.model.basic.OperatorTargetModelExample;
+import com.pxene.pap.domain.model.OperatorTargetModel;
+import com.pxene.pap.domain.model.OperatorTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface OperatorTargetDao {

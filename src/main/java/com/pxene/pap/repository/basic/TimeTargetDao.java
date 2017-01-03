@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.TimeTargetModel;
-import com.pxene.pap.domain.model.basic.TimeTargetModelExample;
+import com.pxene.pap.domain.model.TimeTargetModel;
+import com.pxene.pap.domain.model.TimeTargetModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface TimeTargetDao {

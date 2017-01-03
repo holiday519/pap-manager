@@ -23,7 +23,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AdvertiserBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.AdvertiserService;
 import com.pxene.pap.service.AuditAdvertiserBaiduService;
 
@@ -133,7 +133,7 @@ public class AdvertiserController
         
         List<AdvertiserBean> advertisers = advertiserService.listAdvertisers(name);
         
-        PaginationResult result = new PaginationResult(advertisers, pager);
+        PaginationBean result = new PaginationBean(advertisers, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     

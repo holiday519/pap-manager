@@ -21,9 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectDetailBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.ProjectService;
 
 @Controller
@@ -125,7 +125,7 @@ public class ProjectController {
         
 		List<ProjectDetailBean> beans = projectService.selectProjects(name);
 		
-		PaginationResult result = new PaginationResult(beans, pager);
+		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

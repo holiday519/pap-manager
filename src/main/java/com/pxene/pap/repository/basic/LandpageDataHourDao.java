@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.LandpageDataHourModel;
-import com.pxene.pap.domain.model.basic.LandpageDataHourModelExample;
+import com.pxene.pap.domain.model.LandpageDataHourModel;
+import com.pxene.pap.domain.model.LandpageDataHourModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface LandpageDataHourDao {

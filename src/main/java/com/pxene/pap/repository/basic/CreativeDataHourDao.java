@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CreativeDataHourModel;
-import com.pxene.pap.domain.model.basic.CreativeDataHourModelExample;
+import com.pxene.pap.domain.model.CreativeDataHourModel;
+import com.pxene.pap.domain.model.CreativeDataHourModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeDataHourDao {

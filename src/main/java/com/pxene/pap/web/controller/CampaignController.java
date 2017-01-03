@@ -24,7 +24,7 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
-import com.pxene.pap.domain.model.custom.PaginationResult;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CampaignService;
 
 @Controller
@@ -138,7 +138,7 @@ public class CampaignController {
         
 		List<CampaignBean> selectCampaigns = campaignService.selectCampaigns(name, projectId);
 		
-		PaginationResult result = new PaginationResult(selectCampaigns, pager);
+		PaginationBean result = new PaginationBean(selectCampaigns, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

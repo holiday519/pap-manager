@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.UserModel;
-import com.pxene.pap.domain.model.basic.UserModelExample;
+import com.pxene.pap.domain.model.UserModel;
+import com.pxene.pap.domain.model.UserModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface UserDao {

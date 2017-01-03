@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pxene.pap.domain.beans.ArgumentInvalidResultBean;
-import com.pxene.pap.domain.beans.ResponseResultBean;
+import com.pxene.pap.domain.beans.ArgumentInvalidBean;
+import com.pxene.pap.domain.beans.ResponseBean;
 import com.pxene.pap.exception.BaseException;
 import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.exception.IllegalArgumentException;
@@ -37,22 +37,22 @@ public class GlobalExceptionHandler
     
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ResponseResultBean handleException(Exception exception, HttpServletResponse response)
+    public ResponseBean handleException(Exception exception, HttpServletResponse response)
     {
         if (!(exception instanceof BaseException))
         {
             if (MethodArgumentNotValidException.class.isInstance(exception))
             {
                 LOGGER.warn(exception.toString());
-                List<ArgumentInvalidResultBean> invalidArguments = getBindResultErrors(exception);
+                List<ArgumentInvalidBean> invalidArguments = getBindResultErrors(exception);
                 
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
-                return new ResponseResultBean(IllegalArgumentException.ERROR_CODE, IllegalArgumentException.ERROR_MSG, invalidArguments);
+                return new ResponseBean(IllegalArgumentException.ERROR_CODE, IllegalArgumentException.ERROR_MSG, invalidArguments);
             }
             
             LOGGER.error(exception.toString());
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return new ResponseResultBean(ServerFailureException.ERROR_CODE, ServerFailureException.ERROR_MSG);
+            return new ResponseBean(ServerFailureException.ERROR_CODE, ServerFailureException.ERROR_MSG);
         }
         else
         {
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler
             String bizStatusMsg = baseException.getMessage();
 
             response.setStatus(httpStatusCode);
-            return new ResponseResultBean(bizStatusCode, bizStatusMsg);
+            return new ResponseBean(bizStatusCode, bizStatusMsg);
         }
     }
     
@@ -76,15 +76,15 @@ public class GlobalExceptionHandler
      * @param exception     原始异常对象
      * @return              返回非法的字段名称，原始值，错误信息 
      */
-    private List<ArgumentInvalidResultBean> getBindResultErrors(Exception exception)
+    private List<ArgumentInvalidBean> getBindResultErrors(Exception exception)
     {
         MethodArgumentNotValidException notValidException = (MethodArgumentNotValidException) exception;
         BindingResult bindingResult = notValidException.getBindingResult();
-        List<ArgumentInvalidResultBean> invalidArguments = new ArrayList<ArgumentInvalidResultBean>();
+        List<ArgumentInvalidBean> invalidArguments = new ArrayList<ArgumentInvalidBean>();
         
         for (FieldError error : bindingResult.getFieldErrors())
         {
-            ArgumentInvalidResultBean invalidArgument = new ArgumentInvalidResultBean(error.getField(), error.getRejectedValue(), error.getDefaultMessage());
+            ArgumentInvalidBean invalidArgument = new ArgumentInvalidBean(error.getField(), error.getRejectedValue(), error.getDefaultMessage());
             invalidArguments.add(invalidArgument);
         }
         return invalidArguments;

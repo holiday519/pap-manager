@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.LandpageRuleModel;
-import com.pxene.pap.domain.model.basic.LandpageRuleModelExample;
+import com.pxene.pap.domain.model.LandpageRuleModel;
+import com.pxene.pap.domain.model.LandpageRuleModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface LandpageRuleDao {

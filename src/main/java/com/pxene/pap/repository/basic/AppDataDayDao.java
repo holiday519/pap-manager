@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.AppDataDayModel;
-import com.pxene.pap.domain.model.basic.AppDataDayModelExample;
+import com.pxene.pap.domain.model.AppDataDayModel;
+import com.pxene.pap.domain.model.AppDataDayModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface AppDataDayDao {

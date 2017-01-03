@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CreativeAuditModel;
-import com.pxene.pap.domain.model.basic.CreativeAuditModelExample;
+import com.pxene.pap.domain.model.CreativeAuditModel;
+import com.pxene.pap.domain.model.CreativeAuditModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CreativeAuditDao {

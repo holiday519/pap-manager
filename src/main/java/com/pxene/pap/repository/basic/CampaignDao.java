@@ -1,8 +1,10 @@
 package com.pxene.pap.repository.basic;
 
-import com.pxene.pap.domain.model.basic.CampaignModel;
-import com.pxene.pap.domain.model.basic.CampaignModelExample;
+import com.pxene.pap.domain.model.CampaignModel;
+import com.pxene.pap.domain.model.CampaignModelExample;
+
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 public interface CampaignDao {
