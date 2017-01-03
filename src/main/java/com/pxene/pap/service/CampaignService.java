@@ -517,10 +517,14 @@ public class CampaignService extends LaunchService{
 	 * @return
 	 * @throws Exception
 	 */
-	public List<CampaignBean> selectCampaigns(String name) throws Exception {
+	public List<CampaignBean> selectCampaigns(String name, String projectId) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		if(!StringUtils.isEmpty(name)){
 			example.createCriteria().andNameLike("%" + name + "%");
+		}
+		
+		if(!StringUtils.isEmpty(projectId)){
+			example.createCriteria().andProjectIdEqualTo(projectId);
 		}
 		
 		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
