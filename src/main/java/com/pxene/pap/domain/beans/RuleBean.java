@@ -1,25 +1,49 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public class RuleBean {
 
+	/**
+	 * ID
+	 */
 	private String id;
-	
+	/**
+	 * 活动id数组
+	 */
+	private String[] campaignIds;
+	/**
+	 * 规则名称
+	 */
 	private String name;
-	
+	/**
+	 * 历史数据时段
+	 */
 	private String historyData;
-	
+	/**
+	 * 规则执行周期
+	 */
 	private String execCycle;
-	
+	/**
+	 * 指标类型
+	 */
 	private String dataType;
-	
+	/**
+	 * 指标量
+	 */
 	private Double data;
-	
+	/**
+	 * 流量提升
+	 */
 	private Float promote;
-	
+	/**
+	 * 提价比
+	 */
 	private Float fare;
-	
+	/**
+	 * 降价比
+	 */
 	private Float sale;
 	
     private Date createtime;
@@ -32,6 +56,14 @@ public class RuleBean {
 
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String[] getCampaignIds() {
+		return campaignIds;
+	}
+
+	public void setCampaignIds(String[] campaignIds) {
+		this.campaignIds = campaignIds;
 	}
 
 	public String getName() {
@@ -113,5 +145,16 @@ public class RuleBean {
 	public void setUpdatetime(Date updatetime) {
 		this.updatetime = updatetime;
 	}
-    
+
+	@Override
+	public String toString() {
+		return "RuleBean [id=" + id + ", campaignIds="
+				+ Arrays.toString(campaignIds) + ", name=" + name
+				+ ", historyData=" + historyData + ", execCycle=" + execCycle
+				+ ", dataType=" + dataType + ", data=" + data + ", promote="
+				+ promote + ", fare=" + fare + ", sale=" + sale
+				+ ", createtime=" + createtime + ", updatetime=" + updatetime
+				+ "]";
+	}
+
 }

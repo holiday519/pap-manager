@@ -2,33 +2,61 @@ package com.pxene.pap.domain.model.basic;
 
 import java.util.Date;
 
-public class AppModel extends AppModelKey {
-    private String name;
+public class AppModel {
+    private String id;
 
-    private String type;
+    private String appId;
+
+    private String adxId;
+
+    private String appName;
+
+    private String appType;
 
     private String pkgName;
-
-    private String remark;
 
     private Date createTime;
 
     private Date updateTime;
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name == null ? null : name.trim();
+    public void setId(String id) {
+        this.id = id == null ? null : id.trim();
     }
 
-    public String getType() {
-        return type;
+    public String getAppId() {
+        return appId;
     }
 
-    public void setType(String type) {
-        this.type = type == null ? null : type.trim();
+    public void setAppId(String appId) {
+        this.appId = appId == null ? null : appId.trim();
+    }
+
+    public String getAdxId() {
+        return adxId;
+    }
+
+    public void setAdxId(String adxId) {
+        this.adxId = adxId == null ? null : adxId.trim();
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName == null ? null : appName.trim();
+    }
+
+    public String getAppType() {
+        return appType;
+    }
+
+    public void setAppType(String appType) {
+        this.appType = appType == null ? null : appType.trim();
     }
 
     public String getPkgName() {
@@ -37,14 +65,6 @@ public class AppModel extends AppModelKey {
 
     public void setPkgName(String pkgName) {
         this.pkgName = pkgName == null ? null : pkgName.trim();
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark == null ? null : remark.trim();
     }
 
     public Date getCreateTime() {
@@ -69,10 +89,12 @@ public class AppModel extends AppModelKey {
         sb.append(getClass().getSimpleName());
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
-        sb.append(", name=").append(name);
-        sb.append(", type=").append(type);
+        sb.append(", id=").append(id);
+        sb.append(", appId=").append(appId);
+        sb.append(", adxId=").append(adxId);
+        sb.append(", appName=").append(appName);
+        sb.append(", appType=").append(appType);
         sb.append(", pkgName=").append(pkgName);
-        sb.append(", remark=").append(remark);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

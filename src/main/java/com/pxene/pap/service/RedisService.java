@@ -21,6 +21,7 @@ import com.pxene.pap.domain.model.basic.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
+import com.pxene.pap.domain.model.basic.AppModel;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignTmplPriceModel;
 import com.pxene.pap.domain.model.basic.CampaignTmplPriceModelExample;
@@ -45,6 +46,7 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
@@ -103,6 +105,9 @@ public class RedisService {
 	
 	@Autowired
 	private AdxDao adxDao;
+	
+	@Autowired
+	private AppDao appDao;
 	
 	@Autowired
 	private AdvertiserAuditDao advertiserAuditDao;
@@ -618,9 +623,11 @@ public class RedisService {
 			JsonObject idObj = new JsonObject();
 			idObj.addProperty("adx", Integer.parseInt(adx.getId()));
 			JsonArray appids = new JsonArray();
+			AppModel appModel;
 			for (String app : apps) {
-				if (app.split("##")[0] == adx.getId()) {
-					appids.add(app.split("##")[1]);
+				appModel = appDao.selectByPrimaryKey(app);
+				if (adx.getId().equals(appModel.getAdxId())) {
+					appids.add(appModel.getAppId());
 				}
 			}
 			int flag = 0;
