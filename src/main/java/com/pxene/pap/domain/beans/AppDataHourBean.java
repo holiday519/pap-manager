@@ -17,18 +17,54 @@ public class AppDataHourBean {
     private Long bidAmount;
 
     private Long winAmount;
+    
+    private Float winRate;
 
     private Long impressionAmount;
+    
+    private Float impressionRate;
 
     private Long clickAmount;
+    
+    private Float clickRate;
 
     private Long arrivalAmount;
-
+    
+    private Float arrivalRate;
+    
     private Long uniqueAmount;
 
-    private Date createtime;
+    public Float getWinRate() {
+		return winRate;
+	}
 
-    private Date updatetime;
+	public void setWinRate(Float winRate) {
+		this.winRate = winRate;
+	}
+
+	public Float getImpressionRate() {
+		return impressionRate;
+	}
+
+	public void setImpressionRate(Float impressionRate) {
+		this.impressionRate = impressionRate;
+	}
+
+	public Float getClickRate() {
+		return clickRate;
+	}
+
+	public void setClickRate(Float clickRate) {
+		this.clickRate = clickRate;
+	}
+
+	public Float getArrivalRate() {
+		return arrivalRate;
+	}
+
+	public void setArrivalRate(Float arrivalRate) {
+		this.arrivalRate = arrivalRate;
+	}
 
     public Integer getId() {
         return id;
@@ -110,22 +146,6 @@ public class AppDataHourBean {
         this.uniqueAmount = uniqueAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -142,8 +162,6 @@ public class AppDataHourBean {
         sb.append(", clickAmount=").append(clickAmount);
         sb.append(", arrivalAmount=").append(arrivalAmount);
         sb.append(", uniqueAmount=").append(uniqueAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.pxene.pap.domain.beans.ArgumentInvalidResult;
+import com.pxene.pap.domain.beans.ArgumentInvalidResultBean;
 import com.pxene.pap.domain.beans.ResponseResultBean;
 import com.pxene.pap.exception.BaseException;
 import com.pxene.pap.exception.ServerFailureException;
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler
             if (MethodArgumentNotValidException.class.isInstance(exception))
             {
                 LOGGER.warn(exception.toString());
-                List<ArgumentInvalidResult> invalidArguments = getBindResultErrors(exception);
+                List<ArgumentInvalidResultBean> invalidArguments = getBindResultErrors(exception);
                 
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
                 return new ResponseResultBean(IllegalArgumentException.ERROR_CODE, IllegalArgumentException.ERROR_MSG, invalidArguments);
@@ -76,15 +76,15 @@ public class GlobalExceptionHandler
      * @param exception     原始异常对象
      * @return              返回非法的字段名称，原始值，错误信息 
      */
-    private List<ArgumentInvalidResult> getBindResultErrors(Exception exception)
+    private List<ArgumentInvalidResultBean> getBindResultErrors(Exception exception)
     {
         MethodArgumentNotValidException notValidException = (MethodArgumentNotValidException) exception;
         BindingResult bindingResult = notValidException.getBindingResult();
-        List<ArgumentInvalidResult> invalidArguments = new ArrayList<ArgumentInvalidResult>();
+        List<ArgumentInvalidResultBean> invalidArguments = new ArrayList<ArgumentInvalidResultBean>();
         
         for (FieldError error : bindingResult.getFieldErrors())
         {
-            ArgumentInvalidResult invalidArgument = new ArgumentInvalidResult(error.getField(), error.getRejectedValue(), error.getDefaultMessage());
+            ArgumentInvalidResultBean invalidArgument = new ArgumentInvalidResultBean(error.getField(), error.getRejectedValue(), error.getDefaultMessage());
             invalidArguments.add(invalidArgument);
         }
         return invalidArguments;

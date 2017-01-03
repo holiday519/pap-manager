@@ -6,7 +6,7 @@ import java.util.Arrays;
  */
 public class TmplBean {
 
-	private ImageTmpl[] imageTmpl;
+	private ImageTmpl[] imageTmpls;
 
 	public static class ImageTmpl {
 		private String id;
@@ -92,7 +92,7 @@ public class TmplBean {
 
 	}
 
-	private VideoTmpl[] videoTmpl;
+	private VideoTmpl[] videoTmpls;
 
 	public static class VideoTmpl {
 		private String id;
@@ -198,7 +198,7 @@ public class TmplBean {
 
 	}
 
-	private InfoTmpl[] infoTmpl;
+	private InfoTmpl[] infoTmpls;
 
 	public static class InfoTmpl {
 		private String id;
@@ -313,35 +313,42 @@ public class TmplBean {
 
 	}
 
-	public ImageTmpl[] getImageTmpl() {
-		return imageTmpl;
+	
+	public ImageTmpl[] getImageTmpls() {
+		return imageTmpls;
 	}
 
-	public void setImageTmpl(ImageTmpl[] imageTmpl) {
-		this.imageTmpl = imageTmpl;
+
+	public void setImageTmpls(ImageTmpl[] imageTmpls) {
+		this.imageTmpls = imageTmpls;
 	}
 
-	public VideoTmpl[] getVideoTmpl() {
-		return videoTmpl;
+
+	public VideoTmpl[] getVideoTmpls() {
+		return videoTmpls;
 	}
 
-	public void setVideoTmpl(VideoTmpl[] videoTmpl) {
-		this.videoTmpl = videoTmpl;
+
+	public void setVideoTmpls(VideoTmpl[] videoTmpls) {
+		this.videoTmpls = videoTmpls;
 	}
 
-	public InfoTmpl[] getInfoTmpl() {
-		return infoTmpl;
+
+	public InfoTmpl[] getInfoTmpls() {
+		return infoTmpls;
 	}
 
-	public void setInfoTmpl(InfoTmpl[] infoTmpl) {
-		this.infoTmpl = infoTmpl;
+
+	public void setInfoTmpls(InfoTmpl[] infoTmpls) {
+		this.infoTmpls = infoTmpls;
 	}
+
 
 	@Override
 	public String toString() {
-		return "APPTmplBean [imageTmpl=" + Arrays.toString(imageTmpl)
-				+ ", videoTmpl=" + Arrays.toString(videoTmpl) + ", infoTmpl="
-				+ Arrays.toString(infoTmpl) + "]";
+		return "APPTmplBean [imageTmpl=" + Arrays.toString(imageTmpls)
+				+ ", videoTmpl=" + Arrays.toString(videoTmpls) + ", infoTmpl="
+				+ Arrays.toString(infoTmpls) + "]";
 	}
 
 }

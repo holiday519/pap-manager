@@ -1,6 +1,6 @@
 package com.pxene.pap.domain.beans;
 
-public class ArgumentInvalidResult
+public class ArgumentInvalidResultBean
 {
     private String field;
     private Object rejectedValue;
@@ -35,11 +35,11 @@ public class ArgumentInvalidResult
     }
     
     
-    public ArgumentInvalidResult()
+    public ArgumentInvalidResultBean()
     {
         super();
     }
-    public ArgumentInvalidResult(String field, Object rejectedValue, String defaultMessage)
+    public ArgumentInvalidResultBean(String field, Object rejectedValue, String defaultMessage)
     {
         super();
         this.field = field;

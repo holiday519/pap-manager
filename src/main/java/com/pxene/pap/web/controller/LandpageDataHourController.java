@@ -22,7 +22,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.LandpageDataHourBean;
-import com.pxene.pap.domain.beans.LandpageDataRateHourBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.LandpageDataHourService;
 
@@ -83,7 +82,7 @@ public class LandpageDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<LandpageDataRateHourBean> landpageDataHourList = landpageDataHourService.listLandpageDataHour(campaignId, beginTime, endTime);
+        List<LandpageDataHourBean> landpageDataHourList = landpageDataHourService.listLandpageDataHour(campaignId, beginTime, endTime);
         
         PaginationResult result = new PaginationResult(landpageDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

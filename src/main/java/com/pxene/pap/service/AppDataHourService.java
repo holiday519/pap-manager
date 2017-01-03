@@ -14,15 +14,12 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.AppDataHourBean;
-import com.pxene.pap.domain.beans.AppDataHourViewBean;
 import com.pxene.pap.domain.model.basic.AppDataHourModel;
-import com.pxene.pap.domain.model.basic.view.AppDataRateHourModel;
-import com.pxene.pap.domain.model.basic.view.AppDataRateHourModelExample;
-import com.pxene.pap.domain.model.basic.view.AppDataRateHourModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.AppDataHourModelExample;
+import com.pxene.pap.domain.model.basic.AppDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDataHourDao;
-import com.pxene.pap.repository.basic.view.AppDataRateHourDao;
 
 @Service
 public class AppDataHourService extends BaseService
@@ -30,11 +27,7 @@ public class AppDataHourService extends BaseService
     @Autowired
     private AppDataHourDao appDataHourDao;
     
-    @Autowired
-    private AppDataRateHourDao appDataRateHourDao;
-    
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
-    
     
     @Transactional
     public void saveAppDataHour(AppDataHourBean appDataDayBean)
@@ -86,15 +79,15 @@ public class AppDataHourService extends BaseService
 
     
     @Transactional
-    public List<AppDataHourViewBean> listAppDataHour(String campaignId, long beginTime, long endTime)
+    public List<AppDataHourBean> listAppDataHour(String campaignId, long beginTime, long endTime)
     {
-        AppDataRateHourModelExample example = new AppDataRateHourModelExample();
+        AppDataHourModelExample example = new AppDataHourModelExample();
         Criteria criteria = example.createCriteria();
         criteria.andCampaignIdEqualTo(campaignId);
         criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
         
-        List<AppDataRateHourModel> appDataHourModels = appDataRateHourDao.selectByExample(example);
-        List<AppDataHourViewBean> appDataHourList = new ArrayList<AppDataHourViewBean>();
+        List<AppDataHourModel> appDataHourModels = appDataHourDao.selectByExample(example);
+        List<AppDataHourBean> appDataHourList = new ArrayList<AppDataHourBean>();
         
         if (appDataHourModels == null || appDataHourModels.size() <= 0)
         {
@@ -103,9 +96,9 @@ public class AppDataHourService extends BaseService
         else
         {
             // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (AppDataRateHourModel appDataHourModel : appDataHourModels)
+            for (AppDataHourModel appDataHourModel : appDataHourModels)
             {
-                appDataHourList.add(modelMapper.map(appDataHourModel, AppDataHourViewBean.class));
+                appDataHourList.add(modelMapper.map(appDataHourModel, AppDataHourBean.class));
             }
         }
         

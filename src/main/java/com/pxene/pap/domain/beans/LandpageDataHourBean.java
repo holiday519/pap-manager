@@ -17,18 +17,34 @@ public class LandpageDataHourBean {
     private Long clickAmount;
 
     private Long arrivalAmount;
+    
+    private Float arrivalRate;
 
     private Long uniqueAmount;
 
     private Long residentTime;
 
     private Long jumpAmount;
+    
+    private Float jumpRate;
+    
+    public Float getArrivalRate() {
+		return arrivalRate;
+	}
 
-    private Date createtime;
+	public void setArrivalRate(Float arrivalRate) {
+		this.arrivalRate = arrivalRate;
+	}
 
-    private Date updatetime;
+	public Float getJumpRate() {
+		return jumpRate;
+	}
 
-    public Integer getId() {
+	public void setJumpRate(Float jumpRate) {
+		this.jumpRate = jumpRate;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -100,22 +116,6 @@ public class LandpageDataHourBean {
         this.jumpAmount = jumpAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -131,8 +131,6 @@ public class LandpageDataHourBean {
         sb.append(", uniqueAmount=").append(uniqueAmount);
         sb.append(", residentTime=").append(residentTime);
         sb.append(", jumpAmount=").append(jumpAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }

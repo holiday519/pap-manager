@@ -17,24 +17,70 @@ public class RegionDataHourBean {
     private Long bidAmount;
 
     private Long winAmount;
+    
+    private Float winRate;
 
     private Long impressionAmount;
+    
+    private Float impressionRate;
 
     private Long clickAmount;
+    
+    private Float clickRate;
 
     private Long arrivalAmount;
+    
+    private Float arrivalRate;
 
     private Long uniqueAmount;
 
     private Long residentTime;
 
     private Long jumpAmount;
+    
+    private Float jumpRate;
+    
+    public Float getWinRate() {
+		return winRate;
+	}
 
-    private Date createtime;
+	public void setWinRate(Float winRate) {
+		this.winRate = winRate;
+	}
 
-    private Date updatetime;
+	public Float getImpressionRate() {
+		return impressionRate;
+	}
 
-    public Integer getId() {
+	public void setImpressionRate(Float impressionRate) {
+		this.impressionRate = impressionRate;
+	}
+
+	public Float getClickRate() {
+		return clickRate;
+	}
+
+	public void setClickRate(Float clickRate) {
+		this.clickRate = clickRate;
+	}
+
+	public Float getArrivalRate() {
+		return arrivalRate;
+	}
+
+	public void setArrivalRate(Float arrivalRate) {
+		this.arrivalRate = arrivalRate;
+	}
+
+	public Float getJumpRate() {
+		return jumpRate;
+	}
+
+	public void setJumpRate(Float jumpRate) {
+		this.jumpRate = jumpRate;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -130,22 +176,6 @@ public class RegionDataHourBean {
         this.jumpAmount = jumpAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -164,8 +194,6 @@ public class RegionDataHourBean {
         sb.append(", uniqueAmount=").append(uniqueAmount);
         sb.append(", residentTime=").append(residentTime);
         sb.append(", jumpAmount=").append(jumpAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }

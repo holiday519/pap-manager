@@ -141,7 +141,7 @@ public class TmplService extends BaseService {
 			for (int i = 0;i<imageTmplList.size();i++) {
 				images[i] = imageTmplList.get(i);
 			}
-			bean.setImageTmpl(images);
+			bean.setImageTmpls(images);
 		} else {
 			throw new ResourceNotFoundException();
 		}
@@ -199,7 +199,7 @@ public class TmplService extends BaseService {
 			for (int i = 0;i<videpTmplList.size();i++) {
 				videos[i] = videpTmplList.get(i);
 			}
-			bean.setVideoTmpl(videos);
+			bean.setVideoTmpls(videos);
 		} else {
 			throw new ResourceNotFoundException();
 		}
@@ -278,7 +278,7 @@ public class TmplService extends BaseService {
 			for (int i = 0;i<infoTmplList.size();i++) {
 				infos[i] = infoTmplList.get(i);
 			}
-			bean.setInfoTmpl(infos);
+			bean.setInfoTmpls(infos);
 		} else {
 			throw new ResourceNotFoundException();
 		}

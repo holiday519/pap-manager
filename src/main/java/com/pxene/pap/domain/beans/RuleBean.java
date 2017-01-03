@@ -46,10 +46,6 @@ public class RuleBean {
 	 */
 	private Float sale;
 	
-    private Date createtime;
-
-    private Date updatetime;
-
 	public String getId() {
 		return id;
 	}
@@ -130,22 +126,6 @@ public class RuleBean {
 		this.sale = sale;
 	}
 
-	public Date getCreatetime() {
-		return createtime;
-	}
-
-	public void setCreatetime(Date createtime) {
-		this.createtime = createtime;
-	}
-
-	public Date getUpdatetime() {
-		return updatetime;
-	}
-
-	public void setUpdatetime(Date updatetime) {
-		this.updatetime = updatetime;
-	}
-
 	@Override
 	public String toString() {
 		return "RuleBean [id=" + id + ", campaignIds="
@@ -153,7 +133,6 @@ public class RuleBean {
 				+ ", historyData=" + historyData + ", execCycle=" + execCycle
 				+ ", dataType=" + dataType + ", data=" + data + ", promote="
 				+ promote + ", fare=" + fare + ", sale=" + sale
-				+ ", createtime=" + createtime + ", updatetime=" + updatetime
 				+ "]";
 	}
 

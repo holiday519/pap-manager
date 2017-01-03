@@ -31,10 +31,6 @@ public class AppDataDayBean {
 
     private Long uniqueAmount;
 
-    private Date createtime;
-
-    private Date updatetime;
-
     public Integer getId() {
         return id;
     }
@@ -147,22 +143,6 @@ public class AppDataDayBean {
         this.uniqueAmount = uniqueAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -183,8 +163,6 @@ public class AppDataDayBean {
         sb.append(", arrivalAmount=").append(arrivalAmount);
         sb.append(", arrivalRate=").append(arrivalRate);
         sb.append(", uniqueAmount=").append(uniqueAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }

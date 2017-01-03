@@ -17,18 +17,44 @@ public class CreativeDataHourBean {
     private Long winAmount;
 
     private Long impressionAmount;
+    
+    private Float impressionRate;
 
     private Long clickAmount;
+    
+    private Float clickRate;
 
     private Long arrivalAmount;
+    
+    private Float arrivalRate;
 
     private Long uniqueAmount;
+    
+    public Float getImpressionRate() {
+		return impressionRate;
+	}
 
-    private Date createtime;
+	public void setImpressionRate(Float impressionRate) {
+		this.impressionRate = impressionRate;
+	}
 
-    private Date updatetime;
+	public Float getClickRate() {
+		return clickRate;
+	}
 
-    public Integer getId() {
+	public void setClickRate(Float clickRate) {
+		this.clickRate = clickRate;
+	}
+
+	public Float getArrivalRate() {
+		return arrivalRate;
+	}
+
+	public void setArrivalRate(Float arrivalRate) {
+		this.arrivalRate = arrivalRate;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -100,22 +126,6 @@ public class CreativeDataHourBean {
         this.uniqueAmount = uniqueAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -131,8 +141,6 @@ public class CreativeDataHourBean {
         sb.append(", clickAmount=").append(clickAmount);
         sb.append(", arrivalAmount=").append(arrivalAmount);
         sb.append(", uniqueAmount=").append(uniqueAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }

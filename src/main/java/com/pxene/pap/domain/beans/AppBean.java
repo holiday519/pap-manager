@@ -16,10 +16,6 @@ public class AppBean {
 
     private String pkgName;
 
-    private Date createTime;
-
-    private Date updateTime;
-
 	public String getId() {
 		return id;
 	}
@@ -68,28 +64,11 @@ public class AppBean {
 		this.pkgName = pkgName;
 	}
 
-	public Date getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-
-	public Date getUpdateTime() {
-		return updateTime;
-	}
-
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
-
 	@Override
 	public String toString() {
 		return "AppBean [id=" + id + ", appId=" + appId + ", adxId=" + adxId
 				+ ", appName=" + appName + ", appType=" + appType
-				+ ", pkgName=" + pkgName + ", createTime=" + createTime
-				+ ", updateTime=" + updateTime + "]";
+				+ ", pkgName=" + pkgName + "]";
 	}
     
 }

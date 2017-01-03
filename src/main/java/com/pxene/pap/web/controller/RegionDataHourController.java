@@ -21,7 +21,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.RegionDataHourBean;
-import com.pxene.pap.domain.beans.RegionDataHourViewBean;
 import com.pxene.pap.domain.model.custom.PaginationResult;
 import com.pxene.pap.service.RegionDataHourService;
 
@@ -67,7 +66,7 @@ public class RegionDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<RegionDataHourViewBean> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+        List<RegionDataHourBean> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
         
         PaginationResult result = new PaginationResult(regionDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

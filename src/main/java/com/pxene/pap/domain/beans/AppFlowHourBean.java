@@ -14,10 +14,6 @@ public class AppFlowHourBean {
 
     private Long requestAmount;
 
-    private Date createtime;
-
-    private Date updatetime;
-
     public Integer getId() {
         return id;
     }
@@ -50,22 +46,6 @@ public class AppFlowHourBean {
         this.requestAmount = requestAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -76,8 +56,6 @@ public class AppFlowHourBean {
         sb.append(", appId=").append(appId);
         sb.append(", datetime=").append(datetime);
         sb.append(", requestAmount=").append(requestAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }
