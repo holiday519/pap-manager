@@ -209,8 +209,10 @@ public class ProjectService extends LaunchService {
 					continue;
 				}
 				for (CampaignModel campaign : campaigns) {
-					if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())) {
-						//投放
+					//活动是投放状态，并且活动可以投放
+					if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())
+							&& campaignService.checkCampaignCanLaunch(campaign.getId())) {
+						// 投放
 						launch(campaign.getId());
 					}
 				}

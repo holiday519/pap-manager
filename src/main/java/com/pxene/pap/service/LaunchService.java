@@ -149,4 +149,5 @@ public class LaunchService extends BaseService{
 		}
 		LOGGER.info(currentData + " " + currentHour + "点定时器执行结束—————In PutOnService");
 	}
+
 }

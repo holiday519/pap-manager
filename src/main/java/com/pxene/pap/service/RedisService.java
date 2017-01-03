@@ -1,5 +1,6 @@
 package com.pxene.pap.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.github.pagehelper.util.StringUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -22,6 +22,8 @@ import com.pxene.pap.domain.model.basic.AdvertiserModel;
 import com.pxene.pap.domain.model.basic.AdxModel;
 import com.pxene.pap.domain.model.basic.AdxModelExample;
 import com.pxene.pap.domain.model.basic.CampaignModel;
+import com.pxene.pap.domain.model.basic.CampaignTmplPriceModel;
+import com.pxene.pap.domain.model.basic.CampaignTmplPriceModelExample;
 import com.pxene.pap.domain.model.basic.CreativeAuditModel;
 import com.pxene.pap.domain.model.basic.CreativeAuditModelExample;
 import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
@@ -39,10 +41,12 @@ import com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.model.basic.view.ImageSizeTypeModelExample;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
@@ -106,6 +110,9 @@ public class RedisService {
 	@Autowired
 	private CreativeAuditDao creativeAuditDao;
 
+	@Autowired
+	private CampaignTmplPriceDao campaignTmplPriceDao; 
+	
 	/**
 	 * 将活动ID 写入redis
 	 * @param campaignId
@@ -240,7 +247,7 @@ public class RedisService {
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
 				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
-				adxObj.addProperty("price", model.getPrice());
+				adxObj.addProperty("price", getCreativePrice(mapId));
 				priceAdx.add(adxObj);
 			}
 			creativeObj.add("price_adx", priceAdx);
@@ -302,7 +309,7 @@ public class RedisService {
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
 				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
-				adxObj.addProperty("price", model.getPrice());
+				adxObj.addProperty("price", getCreativePrice(mapId));
 				priceAdx.add(adxObj);
 			}
 			creativeObj.add("price_adx", priceAdx);
@@ -364,7 +371,7 @@ public class RedisService {
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
 				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
-				adxObj.addProperty("price", model.getPrice());
+				adxObj.addProperty("price", getCreativePrice(mapId));
 				priceAdx.add(adxObj);
 			}
 			creativeObj.add("price_adx", priceAdx);
@@ -801,5 +808,39 @@ public class RedisService {
 			}
 			JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 		}
+	}
+	
+	/**
+	 * 根据mapId查询价格
+	 * @param mapId
+	 * @return
+	 * @throws Exception
+	 */
+	private BigDecimal getCreativePrice(String mapId) throws Exception {
+		//查询关联表数据
+		CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
+		if (materialModel == null) {
+			throw new ResourceNotFoundException();
+		}
+		//查询创意表数据
+		String creativeId = materialModel.getCreativeId();
+		String tmplId = materialModel.getTmplId();//模版ID
+		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+		if (creativeModel == null) {
+			throw new ResourceNotFoundException();
+		}
+		//获取活动ID
+		String campaignId = creativeModel.getCampaignId();
+		//根据模版ID、活动ID查询价格
+		CampaignTmplPriceModelExample example = new CampaignTmplPriceModelExample();
+		example.createCriteria().andTmplIdEqualTo(tmplId).andCampaignIdEqualTo(campaignId);
+		List<CampaignTmplPriceModel> list = campaignTmplPriceDao.selectByExample(example);
+		if (list == null || list.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		CampaignTmplPriceModel campaignTmplPriceModel = list.get(0);
+		BigDecimal price = campaignTmplPriceModel.getPrice();
+		
+		return price;
 	}
 }

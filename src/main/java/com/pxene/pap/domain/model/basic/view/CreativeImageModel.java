@@ -1,13 +1,9 @@
 package com.pxene.pap.domain.model.basic.view;
 
-import java.math.BigDecimal;
-
 public class CreativeImageModel {
     private String mapId;
 
     private String campaignId;
-
-    private BigDecimal price;
 
     private String type;
 
@@ -41,14 +37,6 @@ public class CreativeImageModel {
 
     public void setCampaignId(String campaignId) {
         this.campaignId = campaignId == null ? null : campaignId.trim();
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
     }
 
     public String getType() {
@@ -131,7 +119,6 @@ public class CreativeImageModel {
         sb.append("Hash = ").append(hashCode());
         sb.append(", mapId=").append(mapId);
         sb.append(", campaignId=").append(campaignId);
-        sb.append(", price=").append(price);
         sb.append(", type=").append(type);
         sb.append(", ftype=").append(ftype);
         sb.append(", ctype=").append(ctype);

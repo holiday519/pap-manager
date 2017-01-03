@@ -1,17 +1,18 @@
 package com.pxene.pap.domain.model.basic;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class CreativeMaterialModelExample {
+public class CampaignTmplPriceModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public CreativeMaterialModelExample() {
+    public CampaignTmplPriceModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -175,143 +176,73 @@ public class CreativeMaterialModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIsNull() {
-            addCriterion("creative_id is null");
+        public Criteria andCampaignIdIsNull() {
+            addCriterion("campaign_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIsNotNull() {
-            addCriterion("creative_id is not null");
+        public Criteria andCampaignIdIsNotNull() {
+            addCriterion("campaign_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdEqualTo(String value) {
-            addCriterion("creative_id =", value, "creativeId");
+        public Criteria andCampaignIdEqualTo(String value) {
+            addCriterion("campaign_id =", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotEqualTo(String value) {
-            addCriterion("creative_id <>", value, "creativeId");
+        public Criteria andCampaignIdNotEqualTo(String value) {
+            addCriterion("campaign_id <>", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdGreaterThan(String value) {
-            addCriterion("creative_id >", value, "creativeId");
+        public Criteria andCampaignIdGreaterThan(String value) {
+            addCriterion("campaign_id >", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdGreaterThanOrEqualTo(String value) {
-            addCriterion("creative_id >=", value, "creativeId");
+        public Criteria andCampaignIdGreaterThanOrEqualTo(String value) {
+            addCriterion("campaign_id >=", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLessThan(String value) {
-            addCriterion("creative_id <", value, "creativeId");
+        public Criteria andCampaignIdLessThan(String value) {
+            addCriterion("campaign_id <", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLessThanOrEqualTo(String value) {
-            addCriterion("creative_id <=", value, "creativeId");
+        public Criteria andCampaignIdLessThanOrEqualTo(String value) {
+            addCriterion("campaign_id <=", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLike(String value) {
-            addCriterion("creative_id like", value, "creativeId");
+        public Criteria andCampaignIdLike(String value) {
+            addCriterion("campaign_id like", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotLike(String value) {
-            addCriterion("creative_id not like", value, "creativeId");
+        public Criteria andCampaignIdNotLike(String value) {
+            addCriterion("campaign_id not like", value, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIn(List<String> values) {
-            addCriterion("creative_id in", values, "creativeId");
+        public Criteria andCampaignIdIn(List<String> values) {
+            addCriterion("campaign_id in", values, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotIn(List<String> values) {
-            addCriterion("creative_id not in", values, "creativeId");
+        public Criteria andCampaignIdNotIn(List<String> values) {
+            addCriterion("campaign_id not in", values, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdBetween(String value1, String value2) {
-            addCriterion("creative_id between", value1, value2, "creativeId");
+        public Criteria andCampaignIdBetween(String value1, String value2) {
+            addCriterion("campaign_id between", value1, value2, "campaignId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotBetween(String value1, String value2) {
-            addCriterion("creative_id not between", value1, value2, "creativeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdIsNull() {
-            addCriterion("material_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdIsNotNull() {
-            addCriterion("material_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdEqualTo(String value) {
-            addCriterion("material_id =", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdNotEqualTo(String value) {
-            addCriterion("material_id <>", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdGreaterThan(String value) {
-            addCriterion("material_id >", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdGreaterThanOrEqualTo(String value) {
-            addCriterion("material_id >=", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdLessThan(String value) {
-            addCriterion("material_id <", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdLessThanOrEqualTo(String value) {
-            addCriterion("material_id <=", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdLike(String value) {
-            addCriterion("material_id like", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdNotLike(String value) {
-            addCriterion("material_id not like", value, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdIn(List<String> values) {
-            addCriterion("material_id in", values, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdNotIn(List<String> values) {
-            addCriterion("material_id not in", values, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdBetween(String value1, String value2) {
-            addCriterion("material_id between", value1, value2, "materialId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMaterialIdNotBetween(String value1, String value2) {
-            addCriterion("material_id not between", value1, value2, "materialId");
+        public Criteria andCampaignIdNotBetween(String value1, String value2) {
+            addCriterion("campaign_id not between", value1, value2, "campaignId");
             return (Criteria) this;
         }
 
@@ -382,6 +313,66 @@ public class CreativeMaterialModelExample {
 
         public Criteria andTmplIdNotBetween(String value1, String value2) {
             addCriterion("tmpl_id not between", value1, value2, "tmplId");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceIsNull() {
+            addCriterion("price is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceIsNotNull() {
+            addCriterion("price is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceEqualTo(BigDecimal value) {
+            addCriterion("price =", value, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceNotEqualTo(BigDecimal value) {
+            addCriterion("price <>", value, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceGreaterThan(BigDecimal value) {
+            addCriterion("price >", value, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("price >=", value, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceLessThan(BigDecimal value) {
+            addCriterion("price <", value, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("price <=", value, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceIn(List<BigDecimal> values) {
+            addCriterion("price in", values, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceNotIn(List<BigDecimal> values) {
+            addCriterion("price not in", values, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("price between", value1, value2, "price");
+            return (Criteria) this;
+        }
+
+        public Criteria andPriceNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("price not between", value1, value2, "price");
             return (Criteria) this;
         }
 

@@ -1,15 +1,16 @@
 package com.pxene.pap.domain.model.basic;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
-public class CreativeMaterialModel {
+public class CampaignTmplPriceModel {
     private String id;
 
-    private String creativeId;
-
-    private String materialId;
+    private String campaignId;
 
     private String tmplId;
+
+    private BigDecimal price;
 
     private String creativeType;
 
@@ -25,20 +26,12 @@ public class CreativeMaterialModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getCreativeId() {
-        return creativeId;
+    public String getCampaignId() {
+        return campaignId;
     }
 
-    public void setCreativeId(String creativeId) {
-        this.creativeId = creativeId == null ? null : creativeId.trim();
-    }
-
-    public String getMaterialId() {
-        return materialId;
-    }
-
-    public void setMaterialId(String materialId) {
-        this.materialId = materialId == null ? null : materialId.trim();
+    public void setCampaignId(String campaignId) {
+        this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
     public String getTmplId() {
@@ -47,6 +40,14 @@ public class CreativeMaterialModel {
 
     public void setTmplId(String tmplId) {
         this.tmplId = tmplId == null ? null : tmplId.trim();
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public String getCreativeType() {
@@ -80,9 +81,9 @@ public class CreativeMaterialModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", creativeId=").append(creativeId);
-        sb.append(", materialId=").append(materialId);
+        sb.append(", campaignId=").append(campaignId);
         sb.append(", tmplId=").append(tmplId);
+        sb.append(", price=").append(price);
         sb.append(", creativeType=").append(creativeType);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);

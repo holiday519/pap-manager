@@ -35,7 +35,7 @@ public class CreativeUpdateBean {
 
 		public static class Add {
 			private String id;
-			private Float price;
+			private String tmplId;
 
 			public String getId() {
 				return id;
@@ -45,18 +45,19 @@ public class CreativeUpdateBean {
 				this.id = id;
 			}
 
-			public Float getPrice() {
-				return price;
+			public String getTmplId() {
+				return tmplId;
 			}
 
-			public void setPrice(Float price) {
-				this.price = price;
+			public void setTmplId(String tmplId) {
+				this.tmplId = tmplId;
 			}
 
 			@Override
 			public String toString() {
-				return "add [id=" + id + ", price=" + price + "]";
+				return "Add [id=" + id + ", tmplId=" + tmplId + "]";
 			}
+
 		}
 
 		public Add[] getAdd() {
@@ -80,6 +81,7 @@ public class CreativeUpdateBean {
 			return "Image [add=" + Arrays.toString(add) + ", delete="
 					+ Arrays.toString(delete) + "]";
 		}
+
 	}
 
 	/**
@@ -93,7 +95,7 @@ public class CreativeUpdateBean {
 
 		public static class Add {
 			private String id;
-			private Float price;
+			private String tmplId;
 			private String imageId;
 
 			public String getId() {
@@ -104,12 +106,12 @@ public class CreativeUpdateBean {
 				this.id = id;
 			}
 
-			public Float getPrice() {
-				return price;
+			public String getTmplId() {
+				return tmplId;
 			}
 
-			public void setPrice(Float price) {
-				this.price = price;
+			public void setTmplId(String tmplId) {
+				this.tmplId = tmplId;
 			}
 
 			public String getImageId() {
@@ -122,9 +124,10 @@ public class CreativeUpdateBean {
 
 			@Override
 			public String toString() {
-				return "Add [id=" + id + ", price=" + price + ", imageId="
+				return "Add [id=" + id + ", tmplId=" + tmplId + ", imageId="
 						+ imageId + "]";
 			}
+
 		}
 
 		public String[] getDelete() {
@@ -148,6 +151,7 @@ public class CreativeUpdateBean {
 			return "Video [delete=" + Arrays.toString(delete) + ", add="
 					+ Arrays.toString(add) + "]";
 		}
+
 	}
 
 	/**
@@ -208,7 +212,7 @@ public class CreativeUpdateBean {
 			/**
 			 * 出价
 			 */
-			private Float price;
+			private String tmplId;
 
 			public String getId() {
 				return id;
@@ -298,12 +302,12 @@ public class CreativeUpdateBean {
 				this.appStar = appStar;
 			}
 
-			public Float getPrice() {
-				return price;
+			public String getTmplId() {
+				return tmplId;
 			}
 
-			public void setPrice(Float price) {
-				this.price = price;
+			public void setTmplId(String tmplId) {
+				this.tmplId = tmplId;
 			}
 
 			@Override
@@ -313,8 +317,9 @@ public class CreativeUpdateBean {
 						+ image1Id + ", image2Id=" + image2Id + ", image3Id="
 						+ image3Id + ", image4Id=" + image4Id + ", image5Id="
 						+ image5Id + ", ctaDescription=" + ctaDescription
-						+ ", appStar=" + appStar + ", price=" + price + "]";
+						+ ", appStar=" + appStar + ", tmplId=" + tmplId + "]";
 			}
+
 		}
 
 		public Add[] getAdd() {
@@ -338,6 +343,7 @@ public class CreativeUpdateBean {
 			return "Infoflow [add=" + Arrays.toString(add) + ", delete="
 					+ Arrays.toString(delete) + "]";
 		}
+
 	}
 
 	public String getId() {

@@ -1,6 +1,7 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
+
 /**
  * 添加创意bean
  */
@@ -32,7 +33,7 @@ public class CreativeAddBean {
 
 		private String id;
 
-		private Float price;
+		private String tmplId;
 
 		public String getId() {
 			return id;
@@ -42,18 +43,19 @@ public class CreativeAddBean {
 			this.id = id;
 		}
 
-		public Float getPrice() {
-			return price;
+		public String getTmplId() {
+			return tmplId;
 		}
 
-		public void setPrice(Float price) {
-			this.price = price;
+		public void setTmplId(String tmplId) {
+			this.tmplId = tmplId;
 		}
 
 		@Override
 		public String toString() {
-			return "BaseImageBean [id=" + id + ", price=" + price + "]";
+			return "BaseImageBean [id=" + id + ", tmplId=" + tmplId + "]";
 		}
+
 	}
 
 	/**
@@ -67,7 +69,7 @@ public class CreativeAddBean {
 
 		private String imageId;
 
-		private Float price;
+		private String tmplId;
 
 		public String getId() {
 			return id;
@@ -85,19 +87,20 @@ public class CreativeAddBean {
 			this.imageId = imageId;
 		}
 
-		public Float getPrice() {
-			return price;
+		public String getTmplId() {
+			return tmplId;
 		}
 
-		public void setPrice(Float price) {
-			this.price = price;
+		public void setTmplId(String tmplId) {
+			this.tmplId = tmplId;
 		}
 
 		@Override
 		public String toString() {
 			return "BaseVideoBean [id=" + id + ", imageId=" + imageId
-					+ ", price=" + price + "]";
+					+ ", tmplId=" + tmplId + "]";
 		}
+
 	}
 
 	/**
@@ -151,9 +154,9 @@ public class CreativeAddBean {
 		 */
 		private String appStar;
 		/**
-		 * 出价
+		 * 模版ID
 		 */
-		private Float price;
+		private String tmplId;
 
 		public String getId() {
 			return id;
@@ -243,12 +246,12 @@ public class CreativeAddBean {
 			this.appStar = appStar;
 		}
 
-		public Float getPrice() {
-			return price;
+		public String getTmplId() {
+			return tmplId;
 		}
 
-		public void setPrice(Float price) {
-			this.price = price;
+		public void setTmplId(String tmplId) {
+			this.tmplId = tmplId;
 		}
 
 		@Override
@@ -258,9 +261,10 @@ public class CreativeAddBean {
 					+ ", image1Id=" + image1Id + ", image2Id=" + image2Id
 					+ ", image3Id=" + image3Id + ", image4Id=" + image4Id
 					+ ", image5Id=" + image5Id + ", ctaDescription="
-					+ ctaDescription + ", appStar=" + appStar + ", price="
-					+ price + "]";
+					+ ctaDescription + ", appStar=" + appStar + ", tmplId="
+					+ tmplId + "]";
 		}
+
 	}
 
 	public String getId() {

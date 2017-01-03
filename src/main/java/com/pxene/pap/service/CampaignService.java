@@ -1,5 +1,6 @@
 package com.pxene.pap.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,8 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -28,11 +31,17 @@ import com.pxene.pap.domain.model.basic.BrandTargetModel;
 import com.pxene.pap.domain.model.basic.BrandTargetModelExample;
 import com.pxene.pap.domain.model.basic.CampaignModel;
 import com.pxene.pap.domain.model.basic.CampaignModelExample;
+import com.pxene.pap.domain.model.basic.CampaignTmplPriceModel;
+import com.pxene.pap.domain.model.basic.CampaignTmplPriceModelExample;
+import com.pxene.pap.domain.model.basic.CampaignTmplPriceModelExample.Criteria;
+import com.pxene.pap.domain.model.basic.CreativeMaterialModel;
 import com.pxene.pap.domain.model.basic.CreativeModel;
 import com.pxene.pap.domain.model.basic.CreativeModelExample;
 import com.pxene.pap.domain.model.basic.DeviceTargetModel;
 import com.pxene.pap.domain.model.basic.DeviceTargetModelExample;
 import com.pxene.pap.domain.model.basic.FrequencyModel;
+import com.pxene.pap.domain.model.basic.LandpageModel;
+import com.pxene.pap.domain.model.basic.LandpageModelExample;
 import com.pxene.pap.domain.model.basic.MonitorModel;
 import com.pxene.pap.domain.model.basic.MonitorModelExample;
 import com.pxene.pap.domain.model.basic.NetworkTargetModel;
@@ -56,9 +65,12 @@ import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
 import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
+import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.MonitorDao;
 import com.pxene.pap.repository.basic.NetworkTargetDao;
 import com.pxene.pap.repository.basic.OperatorTargetDao;
@@ -70,6 +82,8 @@ import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
 public class CampaignService extends LaunchService{
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
 	@Autowired
 	private CampaignDao campaignDao; 
@@ -118,6 +132,15 @@ public class CampaignService extends LaunchService{
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
+	
+	@Autowired
+	private CreativeMaterialDao creativeMaterialDao;
+	
+	@Autowired
+	private CampaignTmplPriceDao campaignTmplPriceDao;
+	
+	@Autowired
+	private LandpageDao LandpageDao;
 	
 	/**
 	 * 创建活动
@@ -592,7 +615,8 @@ public class CampaignService extends LaunchService{
 		}
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
-			if (campaignModel != null) {
+			//活动存在，并且可以投放
+			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
 				String projectId = campaignModel.getProjectId();
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 				if (StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
@@ -604,6 +628,40 @@ public class CampaignService extends LaunchService{
 				campaignDao.updateByPrimaryKeySelective(campaignModel);
 			}
 		}
+	}
+	 
+	/**
+	 * 检查活动是否可以投放
+	 * @param campaignId
+	 * @return true：可投放；false：不可投放
+	 * @throws Exception
+	 */
+	public boolean checkCampaignCanLaunch(String campaignId) throws Exception {
+		// 检查是否有落地页
+		LandpageModelExample lanpageExample = new LandpageModelExample();
+		lanpageExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<LandpageModel> lanpages = LandpageDao.selectByExample(lanpageExample);
+		if (lanpages == null) {
+			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
+			return false;
+		}
+		// 检查是否有创意
+		CreativeModelExample creativeExample = new CreativeModelExample();
+		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+		if (creatives == null) {
+			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_CREATIE);
+			return false;
+		}
+		// 检查是否有模版价格
+		CampaignTmplPriceModelExample ctpExample = new CampaignTmplPriceModelExample();
+		Criteria ctps = ctpExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		if (ctps == null) {
+			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_TMPL_PRICE);
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -633,5 +691,57 @@ public class CampaignService extends LaunchService{
 			}
 		}
 	}
+	
+	/**
+	 * 添加 活动——模版 价格
+	 * @param mapIds
+	 * @param prices
+	 * @throws Exception
+	 */
+	@Transactional
+	public void addCampaignTmplPrice(String[] mapIds, Float[] prices) throws Exception {
+		if (mapIds == null || prices == null || mapIds.length != prices.length
+				|| (mapIds.length == 0 && prices.length == 0)) {
+			throw new IllegalArgumentException();
+		}
+		String campaignId = null;
+		for (int i = 0; i < mapIds.length; i++) {
+			String mapId = mapIds[i];
+			//查询创意关联表数据
+			CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
+			if (materialModel == null) {
+				continue;
+			}
+			String creativeId = materialModel.getCreativeId();
+			String tmplId = materialModel.getTmplId();//模版id
+			String creativeType = materialModel.getCreativeType();//创意类型
+			//查询创意表数据
+			CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+			if (creativeModel == null) {
+				continue;
+			}
+			campaignId = creativeModel.getCampaignId();//活动ID
+			Float price = prices[i];//价格
+			//查询活动、模版是否已经有价格
+			CampaignTmplPriceModelExample ctpExample = new CampaignTmplPriceModelExample();
+			ctpExample.createCriteria().andCampaignIdEqualTo(campaignId).andTmplIdEqualTo(tmplId).andCreativeTypeEqualTo(creativeType);
+			List<CampaignTmplPriceModel> list = campaignTmplPriceDao.selectByExample(ctpExample);
+			if (list == null || list.isEmpty()) {//如果没有数据就插入数据
+				CampaignTmplPriceModel ctmModel = new CampaignTmplPriceModel();
+				ctmModel.setId(UUID.randomUUID().toString());
+				ctmModel.setCampaignId(campaignId);
+				ctmModel.setCreativeType(creativeType);
+				ctmModel.setPrice(new BigDecimal(price));
+				ctmModel.setTmplId(tmplId);
+				campaignTmplPriceDao.insert(ctmModel);
+			} else {//如果有数据则修改数据
+				for (CampaignTmplPriceModel model : list) {
+					model.setPrice(new BigDecimal(price));
+					campaignTmplPriceDao.updateByPrimaryKeySelective(model);
+				}
+			}
+		}
+	}
+	
 	
 }

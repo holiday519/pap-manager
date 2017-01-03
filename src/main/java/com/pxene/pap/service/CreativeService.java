@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -130,10 +129,10 @@ public class CreativeService extends BaseService {
 			for (com.pxene.pap.domain.beans.CreativeAddBean.Image image : images) {
 				cmModel = new CreativeMaterialModel();
 				String imageId = image.getId();
-				Float price = image.getPrice();
+				String tmplId = image.getTmplId();
 				cmModel.setCreativeId(creativeId);
 				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_IMAGE);
-				cmModel.setPrice(new BigDecimal(price));
+				cmModel.setTmplId(tmplId);
 				cmModel.setId(UUID.randomUUID().toString());
 				cmModel.setMaterialId(imageId);
 				creativeMaterialDao.insertSelective(cmModel);
@@ -152,10 +151,10 @@ public class CreativeService extends BaseService {
 					videoModel.setImageId(imageId);
 					videoDao.updateByPrimaryKeySelective(videoModel);
 				}
-				Float price = video.getPrice();
+				String tmplId = video.getTmplId();
 				cmModel.setCreativeId(creativeId);
 				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_VIDEO);
-				cmModel.setPrice(new BigDecimal(price));
+				cmModel.setTmplId(tmplId);
 				cmModel.setId(UUID.randomUUID().toString());
 				cmModel.setMaterialId(videoId);
 				creativeMaterialDao.insertSelective(cmModel);
@@ -166,7 +165,7 @@ public class CreativeService extends BaseService {
 			for (com.pxene.pap.domain.beans.CreativeAddBean.Infoflow info : infoflows) {
 				cmModel = new CreativeMaterialModel();
 				String infoId = UUID.randomUUID().toString();
-				Float price = info.getPrice();
+				String tmplId = info.getTmplId();
 				//添加信息流创意表信息
 				InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
 				model.setId(infoId);
@@ -176,7 +175,7 @@ public class CreativeService extends BaseService {
 				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
 				cmModel.setId(UUID.randomUUID().toString());
 				cmModel.setMaterialId(infoId);
-				cmModel.setPrice(new BigDecimal(price));
+				cmModel.setTmplId(tmplId);
 				creativeMaterialDao.insertSelective(cmModel);
 			}
 		}
@@ -221,10 +220,10 @@ public class CreativeService extends BaseService {
 				for (Add image : add) {
 					cmModel = new CreativeMaterialModel();
 					String imageId = image.getId();
-					Float price = image.getPrice();
+					String tmplId = image.getTmplId();
 					cmModel.setCreativeId(creativeId);
 					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_IMAGE);
-					cmModel.setPrice(new BigDecimal(price));
+					cmModel.setTmplId(tmplId);
 					cmModel.setId(UUID.randomUUID().toString());
 					cmModel.setMaterialId(imageId);
 					creativeMaterialDao.insertSelective(cmModel);
@@ -249,10 +248,10 @@ public class CreativeService extends BaseService {
 				for (com.pxene.pap.domain.beans.CreativeUpdateBean.Video.Add video : add) {
 					cmModel = new CreativeMaterialModel();
 					String videoId = video.getId();
-					Float price = video.getPrice();
+					String tmplId = video.getTmplId();
 					cmModel.setCreativeId(creativeId);
 					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_VIDEO);
-					cmModel.setPrice(new BigDecimal(price));
+					cmModel.setTmplId(tmplId);
 					cmModel.setId(UUID.randomUUID().toString());
 					cmModel.setMaterialId(videoId);
 					creativeMaterialDao.insertSelective(cmModel);
@@ -287,7 +286,7 @@ public class CreativeService extends BaseService {
 				for (com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow.Add info : add) {
 					cmModel = new CreativeMaterialModel();
 					String infoId = UUID.randomUUID().toString();
-					Float price = info.getPrice();
+					String tmplId = info.getTmplId();
 					//添加信息流创意表信息
 					InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
 					model.setId(infoId);
@@ -297,7 +296,7 @@ public class CreativeService extends BaseService {
 					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
 					cmModel.setId(UUID.randomUUID().toString());
 					cmModel.setMaterialId(infoId);
-					cmModel.setPrice(new BigDecimal(price));
+					cmModel.setTmplId(tmplId);
 					creativeMaterialDao.insertSelective(cmModel);
 				}
 			}

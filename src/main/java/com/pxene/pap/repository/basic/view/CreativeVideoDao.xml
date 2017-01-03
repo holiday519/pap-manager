@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.view.CreativeVideoModel">
     <result column="map_id" jdbcType="VARCHAR" property="mapId" />
     <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
-    <result column="price" jdbcType="DECIMAL" property="price" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="ftype" jdbcType="VARCHAR" property="ftype" />
     <result column="ctype" jdbcType="VARCHAR" property="ctype" />
@@ -78,8 +77,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    map_id, campaign_id, price, type, ftype, ctype, w, h, curl, landing_url, source_url, 
-    project_id
+    map_id, campaign_id, type, ftype, ctype, w, h, curl, landing_url, source_url, project_id
   </sql>
   <sql id="Blob_Column_List">
     imonitor_url, cmonitor_url
@@ -123,16 +121,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs">
-    insert into pap_v_creative_video (map_id, campaign_id, price, 
-      type, ftype, ctype, 
-      w, h, curl, landing_url, 
-      source_url, project_id, imonitor_url, 
-      cmonitor_url)
-    values (#{mapId,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, 
-      #{type,jdbcType=VARCHAR}, #{ftype,jdbcType=VARCHAR}, #{ctype,jdbcType=VARCHAR}, 
-      #{w,jdbcType=INTEGER}, #{h,jdbcType=INTEGER}, #{curl,jdbcType=VARCHAR}, #{landingUrl,jdbcType=VARCHAR}, 
-      #{sourceUrl,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{imonitorUrl,jdbcType=LONGVARCHAR}, 
-      #{cmonitorUrl,jdbcType=LONGVARCHAR})
+    insert into pap_v_creative_video (map_id, campaign_id, type, 
+      ftype, ctype, w, h, 
+      curl, landing_url, source_url, 
+      project_id, imonitor_url, cmonitor_url
+      )
+    values (#{mapId,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{ftype,jdbcType=VARCHAR}, #{ctype,jdbcType=VARCHAR}, #{w,jdbcType=INTEGER}, #{h,jdbcType=INTEGER}, 
+      #{curl,jdbcType=VARCHAR}, #{landingUrl,jdbcType=VARCHAR}, #{sourceUrl,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{imonitorUrl,jdbcType=LONGVARCHAR}, #{cmonitorUrl,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs">
     insert into pap_v_creative_video
@@ -142,9 +140,6 @@
       </if>
       <if test="campaignId != null">
         campaign_id,
-      </if>
-      <if test="price != null">
-        price,
       </if>
       <if test="type != null">
         type,
@@ -186,9 +181,6 @@
       </if>
       <if test="campaignId != null">
         #{campaignId,jdbcType=VARCHAR},
-      </if>
-      <if test="price != null">
-        #{price,jdbcType=DECIMAL},
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
@@ -240,9 +232,6 @@
       <if test="record.campaignId != null">
         campaign_id = #{record.campaignId,jdbcType=VARCHAR},
       </if>
-      <if test="record.price != null">
-        price = #{record.price,jdbcType=DECIMAL},
-      </if>
       <if test="record.type != null">
         type = #{record.type,jdbcType=VARCHAR},
       </if>
@@ -285,7 +274,6 @@
     update pap_v_creative_video
     set map_id = #{record.mapId,jdbcType=VARCHAR},
       campaign_id = #{record.campaignId,jdbcType=VARCHAR},
-      price = #{record.price,jdbcType=DECIMAL},
       type = #{record.type,jdbcType=VARCHAR},
       ftype = #{record.ftype,jdbcType=VARCHAR},
       ctype = #{record.ctype,jdbcType=VARCHAR},
@@ -305,7 +293,6 @@
     update pap_v_creative_video
     set map_id = #{record.mapId,jdbcType=VARCHAR},
       campaign_id = #{record.campaignId,jdbcType=VARCHAR},
-      price = #{record.price,jdbcType=DECIMAL},
       type = #{record.type,jdbcType=VARCHAR},
       ftype = #{record.ftype,jdbcType=VARCHAR},
       ctype = #{record.ctype,jdbcType=VARCHAR},
