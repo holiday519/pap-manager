@@ -130,13 +130,13 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) String id, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
 		if (pageNo != null && pageSize != null) {
 			pager = PageHelper.startPage(pageNo, pageSize);
 		}
         
-		List<CampaignBean> selectCampaigns = campaignService.selectCampaigns(name, id);
+		List<CampaignBean> selectCampaigns = campaignService.selectCampaigns(name, projectId);
 		
 		PaginationResult result = new PaginationResult(selectCampaigns, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
