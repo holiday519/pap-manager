@@ -2,9 +2,7 @@ package com.pxene.pap.repository.basic;
 
 import com.pxene.pap.domain.models.RegionRuleModel;
 import com.pxene.pap.domain.models.RegionRuleModelExample;
-
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface RegionRuleDao {
