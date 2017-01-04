@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,7 +83,7 @@ public class CreativeDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<CreativeDataHourBean> creativeDataHourList = creativeDataHourService.listCreativeDataHour(campaignId, beginTime, endTime);
+        List<Map<String, Object>> creativeDataHourList = creativeDataHourService.listCreativeDataHour(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(creativeDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

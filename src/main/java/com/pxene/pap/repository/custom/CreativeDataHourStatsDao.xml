@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.custom.AppDataHourStatsDao">
+<mapper namespace="com.pxene.pap.repository.custom.CreativeDataHourStatsDao">
 
 	<select id="selectByCampaignId" resultType="java.util.Map">
 		SELECT
-			t.app_id appId,
+			t.creative_id creativeId,
 			t.campaign_id campaignId,
-			IFNULL(SUM(t.bid_amount),0) AS bidAmount,
 			IFNULL(SUM(t.win_amount),0) AS winAmount,
-			IFNULL(SUM(t.win_amount)/SUM(t.bid_amount),0) AS winRate,
 			IFNULL(SUM(t.impression_amount),0) AS impressionAmount,
 			IFNULL(SUM(t.impression_amount)/SUM(t.win_amount),0) AS impressionRate,
 			IFNULL(SUM(t.click_amount),0) AS clickAmount,
@@ -17,12 +15,12 @@
 			IFNULL(SUM(t.arrival_amount)/SUM(t.click_amount),0) AS arrivalRate,
 			IFNULL(SUM(t.unique_amount),0) AS uniqueAmount
 		FROM
-			pap_t_appdata_hour t
+			pap_t_creativedata_hour t
 		WHERE
 			t.campaign_id = #{campaignId, jdbcType=VARCHAR}
 		AND
 			t.datetime BETWEEN #{startTime, jdbcType=TIMESTAMP} AND #{endTime, jdbcType=TIMESTAMP}
 		GROUP BY
-			t.app_id
+			t.creative_id
 	</select>
 </mapper>

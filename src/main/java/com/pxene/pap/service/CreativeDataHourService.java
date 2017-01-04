@@ -1,8 +1,8 @@
 package com.pxene.pap.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -15,17 +15,19 @@ import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
 import com.pxene.pap.domain.models.CreativeDataHourModel;
-import com.pxene.pap.domain.models.CreativeDataHourModelExample;
-import com.pxene.pap.domain.models.CreativeDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CreativeDataHourDao;
+import com.pxene.pap.repository.custom.CreativeDataHourStatsDao;
 
 @Service
 public class CreativeDataHourService extends BaseService
 {
     @Autowired
     private CreativeDataHourDao creativeDataHourDao;
+    
+    @Autowired
+    private CreativeDataHourStatsDao creativeDataHourStatsDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -79,28 +81,13 @@ public class CreativeDataHourService extends BaseService
 
     
     @Transactional
-    public List<CreativeDataHourBean> listCreativeDataHour(String campaignId, long beginTime, long endTime)
+    public List<Map<String, Object>> listCreativeDataHour(String campaignId, long beginTime, long endTime)
     {
-        CreativeDataHourModelExample example = new CreativeDataHourModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andCampaignIdEqualTo(campaignId);
-        criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
-        
-        List<CreativeDataHourModel> models = creativeDataHourDao.selectByExample(example);
-        List<CreativeDataHourBean> list = new ArrayList<CreativeDataHourBean>();
-        
-        if (models == null || models.size() <= 0)
-        {
-            throw new ResourceNotFoundException();
-        }
-        else
-        {
-            // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (CreativeDataHourModel model : models)
-            {
-                list.add(modelMapper.map(model, CreativeDataHourBean.class));
-            }
-        }
+		List<Map<String,Object>> list = creativeDataHourStatsDao.selectByCampaignId(campaignId, new Date(beginTime), new Date(endTime));
+		    	
+    	if (list == null || list.isEmpty()) {
+    		throw new ResourceNotFoundException();
+    	}
         
         return list;
     }

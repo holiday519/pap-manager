@@ -4,8 +4,8 @@
   
   <select id="selectTopN" resultType="java.util.Map">
         SELECT
-            t.region_id,
-            SUM(t.request_amount) AS request_amount
+            t.region_id regionId,
+            IFNULL(SUM(t.request_amount),0) AS requestAmount
         FROM
             pap_t_regionflow_hour t
         WHERE

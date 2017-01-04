@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,7 +83,7 @@ public class LandpageDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<LandpageDataHourBean> landpageDataHourList = landpageDataHourService.listLandpageDataHour(campaignId, beginTime, endTime);
+        List<Map<String, Object>> landpageDataHourList = landpageDataHourService.listLandpageDataHour(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(landpageDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

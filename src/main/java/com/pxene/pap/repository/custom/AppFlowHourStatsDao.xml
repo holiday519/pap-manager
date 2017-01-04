@@ -4,8 +4,8 @@
   
   <select id="selectByCampaignId" resultType="java.util.Map">
         SELECT
-            t.app_id,
-            SUM(t.request_amount) AS request_amount
+            t.app_id appId,
+            IFNULL(SUM(t.request_amount),0) AS requestAmount
         FROM
             pap_t_appflow_hour t
         WHERE

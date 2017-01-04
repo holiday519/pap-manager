@@ -1,8 +1,8 @@
 package com.pxene.pap.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -15,17 +15,19 @@ import org.springframework.stereotype.Service;
 
 import com.pxene.pap.domain.beans.RegionDataHourBean;
 import com.pxene.pap.domain.models.RegionDataHourModel;
-import com.pxene.pap.domain.models.RegionDataHourModelExample;
-import com.pxene.pap.domain.models.RegionDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.RegionDataHourDao;
+import com.pxene.pap.repository.custom.RegionDataHourStatsDao;
 
 @Service
 public class RegionDataHourService extends BaseService
 {
     @Autowired
     private RegionDataHourDao regionDataHourDao;
+    
+    @Autowired
+    private RegionDataHourStatsDao regionDataHourStatsDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -79,28 +81,13 @@ public class RegionDataHourService extends BaseService
 
     
     @Transactional
-    public List<RegionDataHourBean> listRegionDataHour(String campaignId, long beginTime, long endTime)
+    public List<Map<String, Object>> listRegionDataHour(String campaignId, long beginTime, long endTime)
     {
-        RegionDataHourModelExample example = new RegionDataHourModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andCampaignIdEqualTo(campaignId);
-        criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
-        
-        List<RegionDataHourModel> models = regionDataHourDao.selectByExample(example);
-        List<RegionDataHourBean> list = new ArrayList<RegionDataHourBean>();
-        
-        if (models == null || models.size() <= 0)
-        {
-            throw new ResourceNotFoundException();
-        }
-        else
-        {
-            // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (RegionDataHourModel model : models)
-            {
-                list.add(modelMapper.map(model, RegionDataHourBean.class));
-            }
-        }
+    	List<Map<String,Object>> list = regionDataHourStatsDao.selectByCampaignId(campaignId, new Date(beginTime), new Date(endTime));
+    	
+    	if (list == null || list.isEmpty()) {
+    		throw new ResourceNotFoundException();
+    	}
         
         return list;
     }

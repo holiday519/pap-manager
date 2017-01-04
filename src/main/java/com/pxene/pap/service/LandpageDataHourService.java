@@ -3,6 +3,7 @@ package com.pxene.pap.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -20,12 +21,16 @@ import com.pxene.pap.domain.models.LandpageDataHourModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.LandpageDataHourDao;
+import com.pxene.pap.repository.custom.LandpageDataHourStatsDao;
 
 @Service
 public class LandpageDataHourService extends BaseService
 {
     @Autowired
     private LandpageDataHourDao landpageDataHourDao;
+    
+    @Autowired
+    private LandpageDataHourStatsDao landpageDataHourStatsDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -79,30 +84,15 @@ public class LandpageDataHourService extends BaseService
 
     
     @Transactional
-    public List<LandpageDataHourBean> listLandpageDataHour(String campaignId, long beginTime, long endTime)
+    public List<Map<String, Object>> listLandpageDataHour(String campaignId, long beginTime, long endTime)
     {
-        LandpageDataHourModelExample example = new LandpageDataHourModelExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andCampaignIdEqualTo(campaignId);
-        criteria.andDatetimeBetween(new Date(beginTime), new Date(endTime));
+    	List<Map<String,Object>> list = landpageDataHourStatsDao.selectByCampaignId(campaignId, new Date(beginTime), new Date(endTime));
+    	
+    	if (list == null || list.isEmpty()) {
+    		throw new ResourceNotFoundException();
+    	}
         
-        List<LandpageDataHourModel> models = landpageDataHourDao.selectByExample(example);
-        List<LandpageDataHourBean> landpageDataHourList = new ArrayList<LandpageDataHourBean>();
-        
-        if (models == null || models.size() <= 0)
-        {
-            throw new ResourceNotFoundException();
-        }
-        else
-        {
-            // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (LandpageDataHourModel model : models)
-            {
-                landpageDataHourList.add(modelMapper.map(model, LandpageDataHourBean.class));
-            }
-        }
-        
-        return landpageDataHourList;
+        return list;
     }
     
 }

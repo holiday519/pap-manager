@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +67,7 @@ public class RegionDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<RegionDataHourBean> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+        List<Map<String, Object>> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(regionDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
