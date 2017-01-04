@@ -243,11 +243,16 @@ public class CampaignService extends LaunchService{
 		if (StringUtils.isEmpty(map.get("action"))) {
 			throw new IllegalArgumentException();
 		}
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
+		if (campaignModel == null) {
+			throw new ResourceNotFoundException();
+		}
+		
 		String action = map.get("action").toString();
-		if ("01".equals(action)) {
-			launchCampaign(id);
-		} else if ("02".equals(action)) {
+		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
 			pauseCampaign(id);
+		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
+			launchCampaign(id);
 		}else {
 			throw new IllegalStatusException();
 		}

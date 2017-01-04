@@ -98,5 +98,18 @@ public class StatusConstant {
 	 * 活动规则类型：时间规则
 	 */
 	public static final String CAMPAIGN_RULE_TYPE_TIME = "05";
+	/**
+	 * action操作类型：暂停
+	 */
+	public static final String ACTION_TYPE_PAUSE = "01";
+	/**
+	 * action操作类型：恢复
+	 */
+	public static final String ACTION_TYPE_PROCEES = "02";
+	/**
+	 * action操作类型：关闭
+	 */
+	public static final String ACTION_TYPE_CLOSE = "03";
+	
 	
 }

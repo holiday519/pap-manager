@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +49,13 @@ public class LandpageRuleController {
 	public void updateLandpageRule(@PathVariable String id, @Valid @RequestBody RuleBean rule, HttpServletResponse response) throws Exception {
 		landpageRuleService.updateLandpageRule(id, rule);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	@RequestMapping(value = "/rule/landpage/status/{id}", method = RequestMethod.PUT)
+	@ResponseBody
+	public void updateLandpageRuleStatus(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+		landpageRuleService.updateLanpageRuleStatus(id, map);
+		response.setStatus(HttpStatus.NO_CONTENT.value());	
 	}
 	
 	@RequestMapping(value = "/rule/landpage/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

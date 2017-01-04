@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +49,13 @@ public class RegionRuleController {
 	public void updateRegionRule(@PathVariable String id, @Valid @RequestBody RuleBean rule, HttpServletResponse response) throws Exception {
 		regionRuleService.updateRegionRule(id, rule);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	@RequestMapping(value = "/rule/region/status/{id}", method = RequestMethod.PUT)
+	@ResponseBody
+	public void updateRegionRuleStatus(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+		regionRuleService.updateRegionRuleStatus(id, map);
+		response.setStatus(HttpStatus.NO_CONTENT.value());	
 	}
 	
 	@RequestMapping(value = "/rule/region/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

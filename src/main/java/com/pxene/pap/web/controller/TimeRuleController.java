@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +49,13 @@ public class TimeRuleController {
 	public void updateTimeRule(@PathVariable String id, @Valid @RequestBody RuleBean rule, HttpServletResponse response) throws Exception {
 		timeRuleService.updateTimeRule(id, rule);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	@RequestMapping(value = "/rule/time/status/{id}", method = RequestMethod.PUT)
+	@ResponseBody
+	public void updateTimeRuleStatus(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+		timeRuleService.updateTimeRuleStatus(id, map);
+		response.setStatus(HttpStatus.NO_CONTENT.value());	
 	}
 	
 	@RequestMapping(value = "/rule/time/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -22,6 +23,7 @@ import com.pxene.pap.domain.models.CampaignRuleModel;
 import com.pxene.pap.domain.models.CampaignRuleModelExample;
 import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppRuleDao;
@@ -200,5 +202,35 @@ public class AppRuleService extends BaseService {
 		example.createCriteria().andRuleIdEqualTo(ruleId);
 		//删除关联关系
 		campaignRuleDao.deleteByExample(example);
+	}
+	
+	/**
+	 * 修改规则状态
+	 * @param id
+	 * @param map
+	 * @throws Exception
+	 */
+	public void updateAppRuleStatus(String id, Map<String, String> map) throws Exception {
+		if (StringUtils.isEmpty(map.get("action"))) {
+			throw new IllegalArgumentException();
+		}
+		AppRuleModel ruleModel = appRuleDao.selectByPrimaryKey(id);
+		if (ruleModel == null) {
+			throw new ResourceNotFoundException();
+		}
+		
+		String action = map.get("action").toString();
+		String status = null;
+		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
+			status = StatusConstant.CAMPAIGN_RULE_STATUS_UNUSED;
+			
+		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
+			status = StatusConstant.CAMPAIGN_RULE_STATUS_USED;
+			
+		}else {
+			throw new IllegalStatusException();
+		}
+		ruleModel.setStatus(status);
+		appRuleDao.updateByPrimaryKeySelective(ruleModel);
 	}
 }

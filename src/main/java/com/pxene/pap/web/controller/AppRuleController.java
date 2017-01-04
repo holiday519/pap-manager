@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,6 +48,13 @@ public class AppRuleController {
     @ResponseBody
 	public void updateAppRule(@PathVariable String id, @Valid @RequestBody RuleBean rule, HttpServletResponse response) throws Exception {
 		appRuleService.updateAppRule(id, rule);
+		response.setStatus(HttpStatus.NO_CONTENT.value());	
+	}
+	
+	@RequestMapping(value = "/rule/app/status/{id}", method = RequestMethod.PUT)
+	@ResponseBody
+	public void updateAppRuleStatus(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+		appRuleService.updateAppRuleStatus(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());	
 	}
 	

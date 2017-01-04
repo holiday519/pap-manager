@@ -106,13 +106,13 @@ public class ProjectService extends LaunchService {
 		}
 		
 		String action = map.get("action").toString();
-		if ("01".equals(action)) {
-			//投放
-			launchProject(id);
-		} else if ("02".equals(action)) {
+		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
 			//暂停
 			pauseProject(id);
-		} else if ("03".equals(action)) {
+		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
+			//投放
+			launchProject(id);
+		} else if (StatusConstant.ACTION_TYPE_CLOSE.equals(action)) {
 			//结束
 			stopProject(id);
 		}else {
