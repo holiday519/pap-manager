@@ -1,5 +1,9 @@
 package com.pxene.pap.web.controller;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -11,13 +15,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CreativeAddBean;
 import com.pxene.pap.domain.beans.CreativeUpdateBean;
+import com.pxene.pap.domain.beans.MaterialListBean;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CreativeService;
 
 @Controller
@@ -107,4 +116,48 @@ public class CreativeController {
     	creativeService.synchronize(id);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
+    
+    /**
+	 * 查询活动列表
+     * @param name
+     * @param campaignId
+     * @param pageNo
+     * @param pageSize
+     * @param request
+     * @param response
+     * @return
+     * @throws Exception
+     */
+	@RequestMapping(value = "/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String selectCreatives(@RequestParam(required = false) String name, @RequestParam(required = false) String campaignId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Page<Object> pager = null;
+		if (pageNo != null && pageSize != null) {
+			pager = PageHelper.startPage(pageNo, pageSize);
+		}
+        
+		List<Map<String, Object>> creatives = creativeService.selectCreatives(name, campaignId);
+		
+		PaginationBean result = new PaginationBean(creatives, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+	}
+	
+	/**
+	 * 列出所有素材
+	 * @param name
+	 * @param creativeId
+	 * @param pageNo
+	 * @param pageSize
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/materials", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) String creativeId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<MaterialListBean> creatives = creativeService.selectCreativeMaterials(name, creativeId);
+		
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), creatives, response);
+	}
 }

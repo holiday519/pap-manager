@@ -13,12 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.ImageTmplBean;
 import com.pxene.pap.domain.beans.TmplBean;
+import com.pxene.pap.domain.beans.TmplBean.App;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
-import com.pxene.pap.domain.beans.ImageTmplBean;
 import com.pxene.pap.domain.beans.VideoTmplBean;
+import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
@@ -32,6 +35,7 @@ import com.pxene.pap.domain.models.view.TmplVideoDetailModelWithBLOBs;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplTypeDao;
@@ -59,7 +63,13 @@ public class TmplService extends BaseService {
 
 	@Autowired
 	private InfoflowTmplDao infoflowTmplDao;
-
+	
+	@Autowired
+	private AppDao appDao;
+	
+	@Autowired
+	private CreativeService creativeService;
+	
 	/**
 	 * 添加图片模版
 	 * 
@@ -130,6 +140,8 @@ public class TmplService extends BaseService {
 				if (!StringUtils.isEmpty(tmplId)) {
 					ImageTmpl imageTmpl = getImageTmplDetail(tmplId);
 					if (imageTmpl != null) {
+						//查询app信息
+						imageTmpl.setApps(getAppByTmplId(appTmpl.getTmplId()));
 						imageTmplList.add(imageTmpl);
 					}
 				}
@@ -182,11 +194,14 @@ public class TmplService extends BaseService {
 			example.createCriteria().andIdIn(tmplIds);
 			List<TmplVideoDetailModelWithBLOBs> videos = tmplVideoDetailDao.selectByExampleWithBLOBs(example);
 			if (videos != null && !videos.isEmpty()) {
+				VideoTmpl videoTmpl = null;
 				for (TmplVideoDetailModelWithBLOBs video : videos) {
-					VideoTmpl videoTmpl = modelMapper.map(video, VideoTmpl.class);
+					videoTmpl = modelMapper.map(video, VideoTmpl.class);
 					if(!StringUtils.isEmpty(video.getImageTmplId())){
 						ImageTmpl image = getImageTmplDetail(video.getImageTmplId());
 						if (image != null) {
+							//查询App信息
+							videoTmpl.setApps(getAppByTmplId(video.getId()));
 							videoTmpl.setImageTmpl(image);
 						}
 					}
@@ -268,6 +283,8 @@ public class TmplService extends BaseService {
 						image = getImageTmplDetail(model.getImage5Id());
 						infoTmpl.setImage5(image);
 					}
+					//查询app信息
+					infoTmpl.setApps(getAppByTmplId(model.getId()));
 					infoTmplList.add(infoTmpl);
 				}
 			}
@@ -305,5 +322,43 @@ public class TmplService extends BaseService {
 		}
 		
 		return imageTmpl;
+	}
+	
+	/**
+	 * 根据模版Id查询App
+	 * @param tmplId
+	 * @return
+	 * @throws Exception
+	 */
+	private App[] getAppByTmplId(String tmplId) throws Exception {
+		AppTmplModelExample atExample = new AppTmplModelExample();
+		atExample.createCriteria().andTmplIdEqualTo(tmplId);
+		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(atExample);
+		List<String> appIdList = new ArrayList<String>();
+		if (appTmpls != null && !appTmpls.isEmpty()) {
+			for (AppTmplModel appTmpl : appTmpls) {
+				String appId = appTmpl.getAppId();
+				if (!appIdList.contains(appId)) {
+					appIdList.add(appId);
+				}
+			}
+		}
+		List<AppModel> appModels = null;
+		if (!appIdList.isEmpty()) {
+			AppModelExample example = new AppModelExample();
+			example.createCriteria().andIdIn(appIdList);
+			appModels = appDao.selectByExample(example);
+		}
+		App[] apps = null;
+		if (appModels != null) {
+			apps = new App[appModels.size()];
+			for (int i = 0; i < appModels.size(); i++) {
+				AppModel appModel = appModels.get(i);
+				App app = modelMapper.map(appModel, App.class);
+				apps[i] = app;
+			}
+		}
+		
+		return apps;
 	}
 }

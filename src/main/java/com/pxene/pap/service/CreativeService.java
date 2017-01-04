@@ -1,7 +1,10 @@
 package com.pxene.pap.service;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -25,13 +28,20 @@ import com.pxene.pap.domain.beans.CreativeUpdateBean.Image.Add;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow;
 import com.pxene.pap.domain.beans.CreativeUpdateBean.Video;
 import com.pxene.pap.domain.beans.ImageBean;
+import com.pxene.pap.domain.beans.MaterialListBean;
+import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
+import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.AppModelExample;
+import com.pxene.pap.domain.models.AppTmplModel;
+import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.CreativeMaterialModel;
 import com.pxene.pap.domain.models.CreativeMaterialModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.ImageTypeModel;
@@ -47,6 +57,8 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.AppDao;
+import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageDao;
@@ -107,6 +119,12 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private VideoTmplDao videoTmplDao;
+	
+	@Autowired
+	private AppTmplDao appTmplDao;
+	
+	@Autowired
+	private AppDao appDao;
 	
 	/**
 	 * 创建创意
@@ -642,5 +660,172 @@ public class CreativeService extends BaseService {
 				
 			}
 		}
+	}
+	
+	/**
+	 * 批量查询创意
+	 * @param name
+	 * @param campaignId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String,Object>> selectCreatives(String name, String campaignId) throws Exception {
+		CreativeModelExample example = new CreativeModelExample();
+		
+		if(!StringUtils.isEmpty(name)){
+			example.createCriteria().andNameLike("%" + name + "%");
+		}
+		
+		if(!StringUtils.isEmpty(campaignId)){
+			example.createCriteria().andCampaignIdEqualTo(campaignId);
+		}
+		
+		List<CreativeModel> creatives = creativeDao.selectByExample(example);
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		
+		if (creatives == null || creatives.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		Map<String,Object> map = null;
+		for (CreativeModel model: creatives) {
+			map = new HashMap<String, Object>();
+			String creativeId = model.getId();
+			String creativeName = model.getName();
+			String cId = model.getCampaignId();
+			map.put("campaignId", cId);
+			map.put("id", creativeId);
+			map.put("name", creativeName);
+			list.add(map);
+		}
+		
+		return list;
+	}
+	
+	/**
+	 * 列出所有素材
+	 * @param name
+	 * @param creativeId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<MaterialListBean> selectCreativeMaterials(String name, String creativeId) throws Exception {
+		List<MaterialListBean> result = new ArrayList<MaterialListBean>();
+		
+		CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
+		
+		if(!StringUtils.isEmpty(creativeId)){
+			cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
+		}
+		List<CreativeMaterialModel> cmList = creativeMaterialDao.selectByExample(cmExample);
+		if (cmList == null || cmList.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		MaterialListBean bean;
+		for (CreativeMaterialModel cmModel : cmList) {
+			bean = new MaterialListBean();
+			String creativeType = cmModel.getCreativeType();
+			String tmplId = cmModel.getTmplId();
+			String materialId = cmModel.getMaterialId();
+			bean.setId(materialId);
+			bean.setType(creativeType);
+			//查询app
+			List<AppModel> appModels = getAppForMaterial(tmplId);
+			List<App> appList = new ArrayList<MaterialListBean.App>();
+			App app = null;
+			if (appModels!=null && !appModels.isEmpty()) {
+				for (AppModel appModel :appModels) {
+					app = new App();
+					app.setAppId(appModel.getAppId());
+					app.setAppname(appModel.getAppName());
+					app.setPkgName(appModel.getPkgName());
+					app.setId(appModel.getId());
+					appList.add(app);
+				}
+			}
+			if (!appList.isEmpty()) {
+				App[] apps = new App[appList.size()];
+				for (int i=0;i< appList.size();i++) {
+					apps[i] = appList.get(i);
+				}
+				bean.setApps(apps);
+			}
+			
+			//查询素材名称
+			String materialName = getMaterialName(materialId, creativeType);
+			bean.setName(materialName);
+			result.add(bean);	
+		}
+		
+		return result;
+	}
+	
+	/**
+	 * 获取App信息
+	 * @param tmplId
+	 * @return 
+	 * @throws Exception
+	 */
+	private List<AppModel> getAppForMaterial(String tmplId) throws Exception {
+		AppTmplModelExample atExample = new AppTmplModelExample();
+		atExample.createCriteria().andTmplIdEqualTo(tmplId);
+		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(atExample);
+		List<String> appIdList = new ArrayList<String>();
+		if (appTmpls != null && !appTmpls.isEmpty()) {
+			for (AppTmplModel appTmpl : appTmpls) {
+				String appId = appTmpl.getAppId();
+				if (!appIdList.contains(appId)) {
+					appIdList.add(appId);
+				}
+			}
+		}
+		List<AppModel> appModels = null;
+		if (!appIdList.isEmpty()) {
+			AppModelExample example = new AppModelExample();
+			example.createCriteria().andIdIn(appIdList);
+			appModels = appDao.selectByExample(example);
+		}
+		
+		return appModels;
+	}
+	
+	/**
+	 * 根据素材Id和素材type查询素材名称
+	 * @param materialId
+	 * @param type
+	 * @return
+	 * @throws Exception
+	 */
+	private String getMaterialName(String materialId, String type) throws Exception {
+		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+			ImageModel model = imageDao.selectByPrimaryKey(materialId);
+			if (model != null) {
+				String sizeId = model.getSizeId();
+				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+				if (sizeModel != null) {
+					Integer width = sizeModel.getWidth();
+					Integer height = sizeModel.getHeight();
+					return width + "x" + height;
+				}
+			}
+		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+			VideoModel model = videoDao.selectByPrimaryKey(materialId);
+			if (model != null) {
+				String sizeId = model.getSizeId();
+				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+				if (sizeModel != null) {
+					Integer width = sizeModel.getWidth();
+					Integer height = sizeModel.getHeight();
+					return width + "x" + height;
+				}
+			}
+		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+			InfoflowModel model = infoflowDao.selectByPrimaryKey(materialId);
+			if (model != null) {
+				
+				return model.getTitle();
+			}
+		}
+		
+		return null;
 	}
 }
