@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.LandpageDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.LandpageModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.LandpageModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
@@ -72,7 +72,7 @@
   <sql id="Base_Column_List">
     id, campaign_id, name, url, anid_deep_link, ios_deep_link, monitor_url, remark
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.LandpageModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.LandpageModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -97,13 +97,13 @@
     delete from pap_t_landpage
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.LandpageModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.LandpageModelExample">
     delete from pap_t_landpage
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.LandpageModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.LandpageModel">
     insert into pap_t_landpage (id, campaign_id, name, 
       url, anid_deep_link, ios_deep_link, 
       monitor_url, remark)
@@ -111,7 +111,7 @@
       #{url,jdbcType=VARCHAR}, #{anidDeepLink,jdbcType=VARCHAR}, #{iosDeepLink,jdbcType=VARCHAR}, 
       #{monitorUrl,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.LandpageModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.LandpageModel">
     insert into pap_t_landpage
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -166,7 +166,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.LandpageModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.LandpageModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_landpage
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -218,7 +218,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.LandpageModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.LandpageModel">
     update pap_t_landpage
     <set>
       <if test="campaignId != null">
@@ -245,7 +245,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.LandpageModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.LandpageModel">
     update pap_t_landpage
     set campaign_id = #{campaignId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},

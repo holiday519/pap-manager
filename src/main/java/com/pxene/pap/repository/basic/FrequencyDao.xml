@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.FrequencyDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.FrequencyModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.FrequencyModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="control_obj" jdbcType="VARCHAR" property="controlObj" />
     <result column="time_type" jdbcType="VARCHAR" property="timeType" />
@@ -70,7 +70,7 @@
   <sql id="Base_Column_List">
     id, control_obj, time_type, number, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.FrequencyModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.FrequencyModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -95,13 +95,13 @@
     delete from pap_t_frequency
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.FrequencyModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.FrequencyModelExample">
     delete from pap_t_frequency
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.FrequencyModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.FrequencyModel">
     insert into pap_t_frequency (id, control_obj, time_type, 
       number, create_time, update_time
       )
@@ -109,7 +109,7 @@
       #{number,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.FrequencyModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.FrequencyModel">
     insert into pap_t_frequency
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -152,7 +152,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.FrequencyModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.FrequencyModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_frequency
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -196,7 +196,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.FrequencyModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.FrequencyModel">
     update pap_t_frequency
     <set>
       <if test="controlObj != null">
@@ -217,7 +217,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.FrequencyModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.FrequencyModel">
     update pap_t_frequency
     set control_obj = #{controlObj,jdbcType=VARCHAR},
       time_type = #{timeType,jdbcType=VARCHAR},

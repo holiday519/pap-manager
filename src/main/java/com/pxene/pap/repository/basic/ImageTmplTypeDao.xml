@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.ImageTmplTypeDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.ImageTmplTypeModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.ImageTmplTypeModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="image_tmpl_id" jdbcType="VARCHAR" property="imageTmplId" />
     <result column="image_type_id" jdbcType="VARCHAR" property="imageTypeId" />
@@ -69,7 +69,7 @@
   <sql id="Base_Column_List">
     id, image_tmpl_id, image_type_id, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -94,19 +94,19 @@
     delete from pap_t_imagetmpl_imagetype
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModelExample">
     delete from pap_t_imagetmpl_imagetype
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModel">
     insert into pap_t_imagetmpl_imagetype (id, image_tmpl_id, image_type_id, 
       create_time, update_time)
     values (#{id,jdbcType=VARCHAR}, #{imageTmplId,jdbcType=VARCHAR}, #{imageTypeId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModel">
     insert into pap_t_imagetmpl_imagetype
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -143,7 +143,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_imagetmpl_imagetype
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -183,7 +183,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModel">
     update pap_t_imagetmpl_imagetype
     <set>
       <if test="imageTmplId != null">
@@ -201,7 +201,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.ImageTmplTypeModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.ImageTmplTypeModel">
     update pap_t_imagetmpl_imagetype
     set image_tmpl_id = #{imageTmplId,jdbcType=VARCHAR},
       image_type_id = #{imageTypeId,jdbcType=VARCHAR},

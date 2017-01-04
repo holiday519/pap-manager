@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.AdvertiserDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AdvertiserModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.AdvertiserModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="company" jdbcType="VARCHAR" property="company" />
@@ -89,7 +89,7 @@
     logo_path, icp_path, organization_path, license_path, account_path, site_url, site_name, 
     email, zip, address, remark, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.AdvertiserModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -114,13 +114,13 @@
     delete from pap_t_advertiser
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.AdvertiserModelExample">
     delete from pap_t_advertiser
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.AdvertiserModel">
     insert into pap_t_advertiser (id, name, company, 
       contact, phone, qq, 
       industry_id, brand_name, license_no, 
@@ -138,7 +138,7 @@
       #{zip,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.AdvertiserModel">
     insert into pap_t_advertiser
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -283,7 +283,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.AdvertiserModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_advertiser
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -395,7 +395,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.AdvertiserModel">
     update pap_t_advertiser
     <set>
       <if test="name != null">
@@ -467,7 +467,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AdvertiserModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.AdvertiserModel">
     update pap_t_advertiser
     set name = #{name,jdbcType=VARCHAR},
       company = #{company,jdbcType=VARCHAR},

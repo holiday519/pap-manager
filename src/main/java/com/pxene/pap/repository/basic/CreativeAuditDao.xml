@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.CreativeAuditDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.CreativeAuditModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CreativeAuditModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="creative_id" jdbcType="VARCHAR" property="creativeId" />
     <result column="adx_id" jdbcType="VARCHAR" property="adxId" />
@@ -72,7 +72,7 @@
   <sql id="Base_Column_List">
     id, creative_id, adx_id, audit_value, status, message, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CreativeAuditModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -97,13 +97,13 @@
     delete from pap_t_creative_audit
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CreativeAuditModelExample">
     delete from pap_t_creative_audit
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.CreativeAuditModel">
     insert into pap_t_creative_audit (id, creative_id, adx_id, 
       audit_value, status, message, 
       create_time, update_time)
@@ -111,7 +111,7 @@
       #{auditValue,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CreativeAuditModel">
     insert into pap_t_creative_audit
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -166,7 +166,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CreativeAuditModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_creative_audit
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -218,7 +218,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.CreativeAuditModel">
     update pap_t_creative_audit
     <set>
       <if test="creativeId != null">
@@ -245,7 +245,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.CreativeAuditModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.CreativeAuditModel">
     update pap_t_creative_audit
     set creative_id = #{creativeId,jdbcType=VARCHAR},
       adx_id = #{adxId,jdbcType=VARCHAR},

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.pxene.pap.repository.basic.view.CampaignTargetDao" >
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.view.CampaignTargetModel" >
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.view.CampaignTargetModel" >
     <result column="id" property="id" jdbcType="VARCHAR" />
   </resultMap>
-  <resultMap id="ResultMapWithBLOBs" type="com.pxene.pap.domain.model.basic.view.CampaignTargetModel" extends="BaseResultMap" >
+  <resultMap id="ResultMapWithBLOBs" type="com.pxene.pap.domain.models.view.CampaignTargetModel" extends="BaseResultMap" >
     <result column="region_id" property="regionId" jdbcType="LONGVARCHAR" />
     <result column="ad_type" property="adType" jdbcType="LONGVARCHAR" />
     <result column="time_id" property="timeId" jdbcType="LONGVARCHAR" />
@@ -79,7 +79,7 @@
   <sql id="Blob_Column_List" >
     region_id, ad_type, time_id, network, operator, device, os, brand_id, app_id
   </sql>
-  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample" >
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.pxene.pap.domain.models.view.CampaignTargetModelExample" >
     select
     <if test="distinct" >
       distinct
@@ -96,7 +96,7 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample" >
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.pxene.pap.domain.models.view.CampaignTargetModelExample" >
     select
     <if test="distinct" >
       distinct
@@ -111,13 +111,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample" >
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.view.CampaignTargetModelExample" >
     delete from pap_v_campaign_target
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.view.CampaignTargetModel" >
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.view.CampaignTargetModel" >
     insert into pap_v_campaign_target (id, region_id, ad_type, 
       time_id, network, operator, 
       device, os, brand_id, 
@@ -127,7 +127,7 @@
       #{device,jdbcType=LONGVARCHAR}, #{os,jdbcType=LONGVARCHAR}, #{brandId,jdbcType=LONGVARCHAR}, 
       #{appId,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.view.CampaignTargetModel" >
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.view.CampaignTargetModel" >
     insert into pap_v_campaign_target
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -194,7 +194,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.view.CampaignTargetModelExample" resultType="java.lang.Integer" >
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.view.CampaignTargetModelExample" resultType="java.lang.Integer" >
     select count(*) from pap_v_campaign_target
     <if test="_parameter != null" >
       <include refid="Example_Where_Clause" />

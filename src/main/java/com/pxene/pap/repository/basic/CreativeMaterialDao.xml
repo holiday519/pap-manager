@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.CreativeMaterialDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.CreativeMaterialModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CreativeMaterialModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="creative_id" jdbcType="VARCHAR" property="creativeId" />
     <result column="material_id" jdbcType="VARCHAR" property="materialId" />
@@ -71,7 +71,7 @@
   <sql id="Base_Column_List">
     id, creative_id, material_id, tmpl_id, creative_type, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CreativeMaterialModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -96,13 +96,13 @@
     delete from pap_t_creative_material
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CreativeMaterialModelExample">
     delete from pap_t_creative_material
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.CreativeMaterialModel">
     insert into pap_t_creative_material (id, creative_id, material_id, 
       tmpl_id, creative_type, create_time, 
       update_time)
@@ -110,7 +110,7 @@
       #{tmplId,jdbcType=VARCHAR}, #{creativeType,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CreativeMaterialModel">
     insert into pap_t_creative_material
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -159,7 +159,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CreativeMaterialModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_creative_material
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -207,7 +207,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.CreativeMaterialModel">
     update pap_t_creative_material
     <set>
       <if test="creativeId != null">
@@ -231,7 +231,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.CreativeMaterialModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.CreativeMaterialModel">
     update pap_t_creative_material
     set creative_id = #{creativeId,jdbcType=VARCHAR},
       material_id = #{materialId,jdbcType=VARCHAR},

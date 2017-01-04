@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.AdxDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AdxModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.AdxModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="impression_url" jdbcType="VARCHAR" property="impressionUrl" />
@@ -84,7 +84,7 @@
     qexamine_url, qupdate_url, cexamine_url, cexamine_result_url, cupdate_url, aexamine_flag, 
     cexamine_flag, private_key, remark, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.AdxModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -109,13 +109,13 @@
     delete from pap_t_adx
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.AdxModelExample">
     delete from pap_t_adx
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.AdxModel">
     insert into pap_t_adx (id, name, impression_url, 
       click_url, aexamine_url, aexamineresult_url, 
       aupdate_url, qexamine_url, qupdate_url, 
@@ -131,7 +131,7 @@
       #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.AdxModel">
     insert into pap_t_adx
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -246,7 +246,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AdxModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.AdxModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_adx
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -338,7 +338,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.AdxModel">
     update pap_t_adx
     <set>
       <if test="name != null">
@@ -395,7 +395,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AdxModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.AdxModel">
     update pap_t_adx
     set name = #{name,jdbcType=VARCHAR},
       impression_url = #{impressionUrl,jdbcType=VARCHAR},

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.ProjectDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.ProjectModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.ProjectModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="advertiser_id" jdbcType="VARCHAR" property="advertiserId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
@@ -75,7 +75,7 @@
     id, advertiser_id, name, total_budget, status, kpi_id, kpi_val, remark, create_time, 
     update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.ProjectModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.ProjectModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -100,13 +100,13 @@
     delete from pap_t_project
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.ProjectModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.ProjectModelExample">
     delete from pap_t_project
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.ProjectModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.ProjectModel">
     insert into pap_t_project (id, advertiser_id, name, 
       total_budget, status, kpi_id, 
       kpi_val, remark, create_time, 
@@ -116,7 +116,7 @@
       #{kpiVal,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.ProjectModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.ProjectModel">
     insert into pap_t_project
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -183,7 +183,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.ProjectModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.ProjectModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_project
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -243,7 +243,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.ProjectModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.ProjectModel">
     update pap_t_project
     <set>
       <if test="advertiserId != null">
@@ -276,7 +276,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.ProjectModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.ProjectModel">
     update pap_t_project
     set advertiser_id = #{advertiserId,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},

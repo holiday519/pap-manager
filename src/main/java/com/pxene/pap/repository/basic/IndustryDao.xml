@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.IndustryDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.IndustryModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.IndustryModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
@@ -69,7 +69,7 @@
   <sql id="Base_Column_List">
     id, name, remark, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.IndustryModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.IndustryModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -94,19 +94,19 @@
     delete from pap_t_industry
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.IndustryModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.IndustryModelExample">
     delete from pap_t_industry
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.IndustryModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.IndustryModel">
     insert into pap_t_industry (id, name, remark, 
       create_time, update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.IndustryModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.IndustryModel">
     insert into pap_t_industry
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -143,7 +143,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.IndustryModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.IndustryModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_industry
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -183,7 +183,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.IndustryModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.IndustryModel">
     update pap_t_industry
     <set>
       <if test="name != null">
@@ -201,7 +201,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.IndustryModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.IndustryModel">
     update pap_t_industry
     set name = #{name,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},

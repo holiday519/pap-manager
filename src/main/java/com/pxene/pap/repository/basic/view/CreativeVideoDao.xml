@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.view.CreativeVideoDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.view.CreativeVideoModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.view.CreativeVideoModel">
     <result column="map_id" jdbcType="VARCHAR" property="mapId" />
     <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
@@ -14,7 +14,7 @@
     <result column="source_url" jdbcType="VARCHAR" property="sourceUrl" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs">
     <result column="imonitor_url" jdbcType="LONGVARCHAR" property="imonitorUrl" />
     <result column="cmonitor_url" jdbcType="LONGVARCHAR" property="cmonitorUrl" />
   </resultMap>
@@ -82,7 +82,7 @@
   <sql id="Blob_Column_List">
     imonitor_url, cmonitor_url
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.models.view.CreativeVideoModelExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -99,7 +99,7 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.view.CreativeVideoModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -114,13 +114,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.view.CreativeVideoModelExample">
     delete from pap_v_creative_video
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs">
     insert into pap_v_creative_video (map_id, campaign_id, type, 
       ftype, ctype, w, h, 
       curl, landing_url, source_url, 
@@ -132,7 +132,7 @@
       #{projectId,jdbcType=VARCHAR}, #{imonitorUrl,jdbcType=LONGVARCHAR}, #{cmonitorUrl,jdbcType=LONGVARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelWithBLOBs">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs">
     insert into pap_v_creative_video
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="mapId != null">
@@ -217,7 +217,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.view.CreativeVideoModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.view.CreativeVideoModelExample" resultType="java.lang.Long">
     select count(*) from pap_v_creative_video
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />

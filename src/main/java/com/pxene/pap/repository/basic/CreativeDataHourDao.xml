@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.CreativeDataHourDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.CreativeDataHourModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CreativeDataHourModel">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="creative_id" jdbcType="VARCHAR" property="creativeId" />
     <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
@@ -76,7 +76,7 @@
     id, creative_id, campaign_id, datetime, win_amount, impression_amount, click_amount, 
     arrival_amount, unique_amount, createtime, updatetime
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CreativeDataHourModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -101,13 +101,13 @@
     delete from pap_t_creativedata_hour
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CreativeDataHourModelExample">
     delete from pap_t_creativedata_hour
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.CreativeDataHourModel">
     insert into pap_t_creativedata_hour (id, creative_id, campaign_id, 
       datetime, win_amount, impression_amount, 
       click_amount, arrival_amount, unique_amount, 
@@ -117,7 +117,7 @@
       #{clickAmount,jdbcType=BIGINT}, #{arrivalAmount,jdbcType=BIGINT}, #{uniqueAmount,jdbcType=BIGINT}, 
       #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CreativeDataHourModel">
     insert into pap_t_creativedata_hour
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -190,7 +190,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CreativeDataHourModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_creativedata_hour
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -254,7 +254,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.CreativeDataHourModel">
     update pap_t_creativedata_hour
     <set>
       <if test="creativeId != null">
@@ -290,7 +290,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.CreativeDataHourModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.CreativeDataHourModel">
     update pap_t_creativedata_hour
     set creative_id = #{creativeId,jdbcType=VARCHAR},
       campaign_id = #{campaignId,jdbcType=VARCHAR},

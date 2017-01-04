@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.TimeDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.TimeModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.TimeModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="week" jdbcType="VARCHAR" property="week" />
     <result column="clock" jdbcType="VARCHAR" property="clock" />
@@ -69,7 +69,7 @@
   <sql id="Base_Column_List">
     id, week, clock, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.TimeModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.TimeModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -94,19 +94,19 @@
     delete from pap_t_time
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.TimeModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.TimeModelExample">
     delete from pap_t_time
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.TimeModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.TimeModel">
     insert into pap_t_time (id, week, clock, 
       create_time, update_time)
     values (#{id,jdbcType=VARCHAR}, #{week,jdbcType=VARCHAR}, #{clock,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.TimeModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.TimeModel">
     insert into pap_t_time
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -143,7 +143,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.TimeModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.TimeModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_time
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -183,7 +183,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.TimeModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.TimeModel">
     update pap_t_time
     <set>
       <if test="week != null">
@@ -201,7 +201,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.TimeModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.TimeModel">
     update pap_t_time
     set week = #{week,jdbcType=VARCHAR},
       clock = #{clock,jdbcType=VARCHAR},

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.AppFlowDayDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AppFlowDayModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.AppFlowDayModel">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="app_id" jdbcType="VARCHAR" property="appId" />
     <result column="date" jdbcType="DATE" property="date" />
@@ -70,7 +70,7 @@
   <sql id="Base_Column_List">
     id, app_id, date, request_amount, createtime, updatetime
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.AppFlowDayModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -95,13 +95,13 @@
     delete from pap_t_appflow_day
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.AppFlowDayModelExample">
     delete from pap_t_appflow_day
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.AppFlowDayModel">
     insert into pap_t_appflow_day (id, app_id, date, 
       request_amount, createtime, updatetime
       )
@@ -109,7 +109,7 @@
       #{requestAmount,jdbcType=BIGINT}, #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.AppFlowDayModel">
     insert into pap_t_appflow_day
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -152,7 +152,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.AppFlowDayModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_appflow_day
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -196,7 +196,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.AppFlowDayModel">
     update pap_t_appflow_day
     <set>
       <if test="appId != null">
@@ -217,7 +217,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AppFlowDayModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.AppFlowDayModel">
     update pap_t_appflow_day
     set app_id = #{appId,jdbcType=VARCHAR},
       date = #{date,jdbcType=DATE},

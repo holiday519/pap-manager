@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.RegionDataHourDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.RegionDataHourModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.RegionDataHourModel">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="region_id" jdbcType="VARCHAR" property="regionId" />
     <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
@@ -80,7 +80,7 @@
     click_amount, arrival_amount, unique_amount, resident_time, jump_amount, createtime, 
     updatetime
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.RegionDataHourModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -105,13 +105,13 @@
     delete from pap_t_regiondata_hour
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.RegionDataHourModelExample">
     delete from pap_t_regiondata_hour
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.RegionDataHourModel">
     insert into pap_t_regiondata_hour (id, region_id, campaign_id, 
       datetime, bid_amount, win_amount, 
       impression_amount, click_amount, arrival_amount, 
@@ -123,7 +123,7 @@
       #{uniqueAmount,jdbcType=BIGINT}, #{residentTime,jdbcType=BIGINT}, #{jumpAmount,jdbcType=BIGINT}, 
       #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.RegionDataHourModel">
     insert into pap_t_regiondata_hour
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -214,7 +214,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.RegionDataHourModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_regiondata_hour
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -290,7 +290,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.RegionDataHourModel">
     update pap_t_regiondata_hour
     <set>
       <if test="regionId != null">
@@ -335,7 +335,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.RegionDataHourModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.RegionDataHourModel">
     update pap_t_regiondata_hour
     set region_id = #{regionId,jdbcType=VARCHAR},
       campaign_id = #{campaignId,jdbcType=VARCHAR},

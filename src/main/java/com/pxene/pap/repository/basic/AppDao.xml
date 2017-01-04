@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.AppDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.AppModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.AppModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="app_id" jdbcType="VARCHAR" property="appId" />
     <result column="adx_id" jdbcType="VARCHAR" property="adxId" />
@@ -72,7 +72,7 @@
   <sql id="Base_Column_List">
     id, app_id, adx_id, app_name, app_type, pkg_name, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.AppModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.AppModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -97,13 +97,13 @@
     delete from pap_t_app
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.AppModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.AppModelExample">
     delete from pap_t_app
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.AppModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.AppModel">
     insert into pap_t_app (id, app_id, adx_id, 
       app_name, app_type, pkg_name, 
       create_time, update_time)
@@ -111,7 +111,7 @@
       #{appName,jdbcType=VARCHAR}, #{appType,jdbcType=VARCHAR}, #{pkgName,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.AppModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.AppModel">
     insert into pap_t_app
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -166,7 +166,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.AppModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.AppModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_app
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -218,7 +218,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.AppModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.AppModel">
     update pap_t_app
     <set>
       <if test="appId != null">
@@ -245,7 +245,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.AppModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.AppModel">
     update pap_t_app
     set app_id = #{appId,jdbcType=VARCHAR},
       adx_id = #{adxId,jdbcType=VARCHAR},

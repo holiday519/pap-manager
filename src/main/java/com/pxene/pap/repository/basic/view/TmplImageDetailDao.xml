@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.view.TmplImageDetailDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.view.TmplImageDetailModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.view.TmplImageDetailModel">
     <result column="id" jdbcType="VARCHAR" property="id" />
     <result column="max_volume" jdbcType="REAL" property="maxVolume" />
     <result column="width" jdbcType="INTEGER" property="width" />
     <result column="height" jdbcType="INTEGER" property="height" />
     <result column="size_name" jdbcType="VARCHAR" property="sizeName" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelWithBLOBs">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.models.view.TmplImageDetailModelWithBLOBs">
     <result column="type_id" jdbcType="LONGVARCHAR" property="typeId" />
     <result column="type_code" jdbcType="LONGVARCHAR" property="typeCode" />
     <result column="type_name" jdbcType="LONGVARCHAR" property="typeName" />
@@ -77,7 +77,7 @@
   <sql id="Blob_Column_List">
     type_id, type_code, type_name
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.models.view.TmplImageDetailModelExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -94,7 +94,7 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.view.TmplImageDetailModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -109,13 +109,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.view.TmplImageDetailModelExample">
     delete from pap_v_tmpl_image_detail
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelWithBLOBs">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.view.TmplImageDetailModelWithBLOBs">
     insert into pap_v_tmpl_image_detail (id, max_volume, width, 
       height, size_name, type_id, 
       type_code, type_name)
@@ -123,7 +123,7 @@
       #{height,jdbcType=INTEGER}, #{sizeName,jdbcType=VARCHAR}, #{typeId,jdbcType=LONGVARCHAR}, 
       #{typeCode,jdbcType=LONGVARCHAR}, #{typeName,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelWithBLOBs">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.view.TmplImageDetailModelWithBLOBs">
     insert into pap_v_tmpl_image_detail
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -178,7 +178,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.view.TmplImageDetailModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.view.TmplImageDetailModelExample" resultType="java.lang.Long">
     select count(*) from pap_v_tmpl_image_detail
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />

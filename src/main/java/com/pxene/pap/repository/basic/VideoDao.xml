@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.basic.VideoDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.model.basic.VideoModel">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.VideoModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="path" jdbcType="VARCHAR" property="path" />
@@ -76,7 +76,7 @@
     id, name, path, type_id, size_id, volume, time_length, image_id, remark, create_time, 
     update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.model.basic.VideoModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.VideoModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
@@ -101,13 +101,13 @@
     delete from pap_t_video
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.model.basic.VideoModelExample">
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.VideoModelExample">
     delete from pap_t_video
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.model.basic.VideoModel">
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.VideoModel">
     insert into pap_t_video (id, name, path, 
       type_id, size_id, volume, 
       time_length, image_id, remark, 
@@ -117,7 +117,7 @@
       #{timeLength,jdbcType=INTEGER}, #{imageId,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.model.basic.VideoModel">
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.VideoModel">
     insert into pap_t_video
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -190,7 +190,7 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.model.basic.VideoModelExample" resultType="java.lang.Long">
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.VideoModelExample" resultType="java.lang.Long">
     select count(*) from pap_t_video
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
@@ -254,7 +254,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.model.basic.VideoModel">
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.VideoModel">
     update pap_t_video
     <set>
       <if test="name != null">
@@ -290,7 +290,7 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.model.basic.VideoModel">
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.VideoModel">
     update pap_t_video
     set name = #{name,jdbcType=VARCHAR},
       path = #{path,jdbcType=VARCHAR},
