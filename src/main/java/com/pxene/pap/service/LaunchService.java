@@ -114,7 +114,7 @@ public class LaunchService extends BaseService{
 				if (currentDay.equals(dayOfChange)) {
 					campaign.setStatus(StatusConstant.CAMPAIGN_CLOSE);
 					campaignDao.updateByPrimaryKey(campaign);
-					redisService.removeCampaignIds(id);
+					redisService.deleteCampaignId(id);
 					stopFlag = true;
 				}
 				//非暂停状态才去判断是否需要投放 && 当前的项目没到停止时间
@@ -139,7 +139,7 @@ public class LaunchService extends BaseService{
 								if (flag) {
 									redisService.writeCampaignIds(id);
 								} else {
-									redisService.removeCampaignIds(id);
+									redisService.deleteCampaignId(id);
 								}
 							}
 						}
@@ -150,4 +150,13 @@ public class LaunchService extends BaseService{
 		LOGGER.info(currentData + " " + currentHour + "点定时器执行结束—————In PutOnService");
 	}
 
+	/**
+	 * 删除redis中活动相关key
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteKeyFromRedis(String campaignId) throws Exception {
+		redisService.deleteKeyFromRedis(campaignId);
+	}
+	
 }

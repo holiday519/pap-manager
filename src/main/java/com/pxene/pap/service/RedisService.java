@@ -151,37 +151,6 @@ public class RedisService {
 	}
 	
 	/**
-	 * 将活动ID 从redis 移除
-	 * @param campaignId
-	 * @throws Exception
-	 */
-	public void removeCampaignIds(String campaignId) throws Exception {
-		String ids = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_IDS);
-		JsonObject idObj = new JsonObject();
-		JsonArray idArray = new JsonArray();
-		if (!StringUtils.isEmpty(ids)) {
-			Gson gson = new Gson();
-			idObj = gson.fromJson(ids, new JsonObject().getClass());
-			idArray = idObj.get("groupids").getAsJsonArray();
-			// 判断是否已经含有当前campaignID
-			boolean flag = false;
-			int n = 0;
-			for (int i = 0; i < idArray.size(); i++) {
-				if (campaignId.equals(idArray.get(i).getAsString())) {
-					flag = true;
-					n = i;
-					break;
-				}
-			}
-			if (flag) {
-				idArray.remove(n);
-				idObj.add("groupids", idArray);
-			}
-			JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
-		}
-	}
-	
-	/**
 	 * 创意基本信息写入redis
 	 * @param campaignId
 	 * @throws Exception
@@ -213,13 +182,13 @@ public class RedisService {
 					if (getAuditSuccessMapId(mapId)) {
 						String creativeType = mapModel.getCreativeType();
 						// 图片创意
-						if ("1".equals(creativeType)) {
+						if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 							writeImgCreativeInfoToRedis(mapId);
 							// 视频创意
-						} else if ("2".equals(creativeType)) {
+						} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
 							writeVideoCreativeInfoToRedis(mapId);
 							// 信息流创意
-						} else if ("3".equals(creativeType)) {
+						} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
 							writeInfoCreativeInfoToRedis(mapId);
 						}
 					}
@@ -801,7 +770,7 @@ public class RedisService {
 		JsonObject idObj = new JsonObject();
 		JsonArray idArray = new JsonArray();
 		//如果 有 pap_campaignids Key 
-		if (ids != null && !ids.isEmpty()) {
+		if (!StringUtils.isEmpty(ids)) {
 			Gson gson = new Gson();
 			idObj = gson.fromJson(ids, new JsonObject().getClass());
 			idArray = idObj.get("groupids").getAsJsonArray();
@@ -849,5 +818,99 @@ public class RedisService {
 		BigDecimal price = campaignTmplPriceModel.getPrice();
 		
 		return price;
+	}
+	
+	/**
+	 * 删除redis中活动对应key
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteKeyFromRedis(String campaignId) throws Exception {
+		deleteCampaignId(campaignId);
+		deleteCampaignMapidFromredis(campaignId);
+		deleteCampaignInfoFromredis(campaignId);
+		deleteCampaignTargetFromredis(campaignId);
+		deleteCampaignFrequencyFromredis(campaignId);
+		deleteMapidsFromredis(campaignId);
+	}
+	/**
+	 * 删除redis中key：dsp_groupid_mapids_活动id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignMapidFromredis(String campaignId) throws Exception {
+		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		if (!StringUtils.isEmpty(str)) {
+			JedisUtils.delete(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		}
+	}
+	/**
+	 * 删除redis中key：dsp_groupid_info_id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignInfoFromredis(String campaignId) throws Exception {
+		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+		if (!StringUtils.isEmpty(str)) {
+			JedisUtils.delete(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+		}
+	}
+	/**
+	 * 删除redis中key：dsp_groupid_target_活动id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignTargetFromredis(String campaignId) throws Exception {
+		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
+		if (!StringUtils.isEmpty(str)) {
+			JedisUtils.delete(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
+		}
+	}
+	/**
+	 * 删除redis中key：dsp_groupid_frequencycapping_"活动id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignFrequencyFromredis(String campaignId) throws Exception {
+		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);
+		if (!StringUtils.isEmpty(str)) {
+			JedisUtils.delete(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);
+		}
+	}
+	/**
+	 * 删除redis中key：dsp_mapid_关联id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteMapidsFromredis(String campaignId) throws Exception {
+		// 查询活动下创意
+		CreativeModelExample creativeExample = new CreativeModelExample();
+		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+		// 创意id数组
+		List<String> creativeIds = new ArrayList<String>();
+		//如果活动下无可投创意
+		if(creatives == null || creatives.isEmpty()){
+			return;
+		}
+		// 将查询出来的创意id放入创意id数组
+		for (CreativeModel creative : creatives) {
+			creativeIds.add(creative.getId());
+		}
+		// 根据创意id数组查询创意所对应的关联关系表数据
+		if (!creativeIds.isEmpty()) {
+			CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
+			mapExample.createCriteria().andCreativeIdIn(creativeIds);
+			List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
+			if (mapModels != null && !mapModels.isEmpty()) {
+				for (CreativeMaterialModel mapModel : mapModels) {
+					String mapId = mapModel.getId();
+					String str = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapId);
+					if (!StringUtils.isEmpty(str)) {
+						JedisUtils.delete(RedisKeyConstant.CREATIVE_INFO + mapId);
+					}
+				}
+			}
+		}
 	}
 }

@@ -96,25 +96,28 @@ public class ProjectService extends LaunchService {
 	 * @param map
 	 */
 	@Transactional
-	public void updateProjectStatus(String id, Map<String, String> map) {
+	public void updateProjectStatus(String id, Map<String, String> map) throws Exception {
 		if (StringUtils.isEmpty(map.get("action"))) {
 			throw new IllegalArgumentException();
 		}
+		CampaignModel model = campaignDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException();
+		}
+		
 		String action = map.get("action").toString();
-		String status = "";
 		if ("01".equals(action)) {
-			status = StatusConstant.CAMPAIGN_START;
+			//投放
+			launchProject(id);
 		} else if ("02".equals(action)) {
-			status = StatusConstant.CAMPAIGN_PAUSE;
+			//暂停
+			pauseProject(id);
 		} else if ("03".equals(action)) {
-			status = StatusConstant.CAMPAIGN_CLOSE;
+			//结束
+			stopProject(id);
 		}else {
 			throw new IllegalStatusException();
 		}
-		ProjectModel model = new ProjectModel();
-		model.setId(id);
-		model.setStatus(status);
-		projectDao.updateByPrimaryKeySelective(model);
 	}
 	
 	/**
@@ -125,6 +128,7 @@ public class ProjectService extends LaunchService {
 	 */
 	@Transactional
 	public void deleteProject(String id) throws Exception {
+		
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
 			throw new ResourceNotFoundException();
@@ -195,10 +199,11 @@ public class ProjectService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void launchProject(List<String> projectIds) throws Exception {
-		if (projectIds == null || projectIds.isEmpty()) {
+	public void launchProject(String param) throws Exception {
+		if (StringUtils.isEmpty(param)) {
 			throw new ResourceNotFoundException();
 		}
+		String[] projectIds = param.split(",");
 		
 		for (String projectId : projectIds) {
 			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
@@ -230,10 +235,11 @@ public class ProjectService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void pauseProject(List<String> projectIds) throws Exception {
-		if (projectIds == null || projectIds.isEmpty()) {
+	public void pauseProject(String param) throws Exception {
+		if (StringUtils.isEmpty(param)) {
 			throw new ResourceNotFoundException();
 		}
+		String[] projectIds = param.split(",");
 		
 		for (String projectId : projectIds) {
 			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
@@ -264,10 +270,11 @@ public class ProjectService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void stopProject(List<String> projectIds) throws Exception {
-		if (projectIds == null || projectIds.isEmpty()) {
+	public void stopProject(String param) throws Exception {
+		if (StringUtils.isEmpty(param)) {
 			throw new ResourceNotFoundException();
 		}
+		String[] projectIds = param.split(",");
 		
 		for (String projectId : projectIds) {
 			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
@@ -279,10 +286,7 @@ public class ProjectService extends LaunchService {
 					continue;
 				}
 				for (CampaignModel campaign : campaigns) {
-					if (StatusConstant.CAMPAIGN_CLOSE.equals(campaign.getStatus())) {
-						//移除redis中key
-						pause(campaign.getId());
-					}
+					deleteKeyFromRedis(campaign.getId());
 				}
 				//项目投放之后修改状态
 				projectModel.setStatus(StatusConstant.CAMPAIGN_CLOSE);

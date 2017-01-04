@@ -244,18 +244,13 @@ public class CampaignService extends LaunchService{
 			throw new IllegalArgumentException();
 		}
 		String action = map.get("action").toString();
-		String status = "";
 		if ("01".equals(action)) {
-			status = StatusConstant.CAMPAIGN_START;
+			launchCampaign(id);
 		} else if ("02".equals(action)) {
-			status = StatusConstant.CAMPAIGN_PAUSE;
+			pauseCampaign(id);
 		}else {
 			throw new IllegalStatusException();
 		}
-		CampaignModel model = new CampaignModel();
-		model.setId(id);
-		model.setStatus(status);
-		campaignDao.updateByPrimaryKeySelective(model);
 	}
 	
 	/**
@@ -556,26 +551,30 @@ public class CampaignService extends LaunchService{
 		List<CampaignTargetModel> list = campaignTargetDao.selectByExampleWithBLOBs(example);
 		if (list != null && !list.isEmpty()) {
 			CampaignTargetModel model = list.get(0);
-			Target target = new Target();
-			target.setRegion(formatTargetStringToArray(model.getRegionId()));
-			target.setAdType(formatTargetStringToArray(model.getAdType()));
-			target.setTime(formatTargetStringToArray(model.getTimeId()));
-			target.setNetwork(formatTargetStringToArray(model.getNetwork()));
-			target.setOperator(formatTargetStringToArray(model.getOperator()));
-			target.setDevice(formatTargetStringToArray(model.getDevice()));
-			target.setOs(formatTargetStringToArray(model.getOs()));
-			target.setBrand(formatTargetStringToArray(model.getBrandId()));
-			target.setApp(formatTargetStringToArray(model.getAppId()));
-			bean.setTarget(target);
+			if (model != null) {
+				Target target = new Target();
+				target.setRegion(formatTargetStringToArray(model.getRegionId()));
+				target.setAdType(formatTargetStringToArray(model.getAdType()));
+				target.setTime(formatTargetStringToArray(model.getTimeId()));
+				target.setNetwork(formatTargetStringToArray(model.getNetwork()));
+				target.setOperator(formatTargetStringToArray(model.getOperator()));
+				target.setDevice(formatTargetStringToArray(model.getDevice()));
+				target.setOs(formatTargetStringToArray(model.getOs()));
+				target.setBrand(formatTargetStringToArray(model.getBrandId()));
+				target.setApp(formatTargetStringToArray(model.getAppId()));
+				bean.setTarget(target);
+			}
 		}
 		// 查询频次信息
 		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
 			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
-			com.pxene.pap.domain.beans.CampaignBean.Frequency frequency = new com.pxene.pap.domain.beans.CampaignBean.Frequency();
-			frequency.setControlObj(frequencyModel.getControlObj());
-			frequency.setNumber(frequencyModel.getNumber());
-			frequency.setTimeType(frequencyModel.getTimeType());
-			bean.setFrequency(frequency);
+			if (frequencyModel != null) {
+				com.pxene.pap.domain.beans.CampaignBean.Frequency frequency = new com.pxene.pap.domain.beans.CampaignBean.Frequency();
+				frequency.setControlObj(frequencyModel.getControlObj());
+				frequency.setNumber(frequencyModel.getNumber());
+				frequency.setTimeType(frequencyModel.getTimeType());
+				bean.setFrequency(frequency);
+			}
 		}
 		// 查询检测地址
 		MonitorModelExample monitorExample = new MonitorModelExample();
@@ -584,12 +583,14 @@ public class CampaignService extends LaunchService{
 		// 如果没有查到点击展现地址数据，直接返回
 		if (monitorList != null && !monitorList.isEmpty()) {
 			com.pxene.pap.domain.beans.CampaignBean.Monitor[] monitors = new com.pxene.pap.domain.beans.CampaignBean.Monitor[monitorList.size()];
-			for (int i=0; i<monitorList.size(); i++) {
-				MonitorModel model = monitorList.get(i);
-				com.pxene.pap.domain.beans.CampaignBean.Monitor monitor = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Monitor.class);
-				monitors[i] = monitor;
+			if (monitors != null) {
+				for (int i=0; i<monitorList.size(); i++) {
+					MonitorModel model = monitorList.get(i);
+					com.pxene.pap.domain.beans.CampaignBean.Monitor monitor = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Monitor.class);
+					monitors[i] = monitor;
+				}
+				bean.setMonitors(monitors);
 			}
-			bean.setMonitors(monitors);
 		}
 		return bean;
 	}
@@ -613,10 +614,12 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void launchCampaign(List<String> campaignIds) throws Exception {
-		if (campaignIds == null || campaignIds.isEmpty()) {
+	public void launchCampaign(String param) throws Exception {
+		if (StringUtils.isEmpty(param)) {
 			throw new ResourceNotFoundException();
 		}
+		String[] campaignIds = param.split(",");
+		
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			//活动存在，并且可以投放
@@ -674,10 +677,12 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void pauseCampaign(List<String> campaignIds) throws Exception {
-		if (campaignIds == null || campaignIds.isEmpty()) {
+	public void pauseCampaign(String param) throws Exception {
+		if (StringUtils.isEmpty(param)) {
 			throw new ResourceNotFoundException();
 		}
+		String[] campaignIds = param.split(",");
+		
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			if (campaignModel != null) {
