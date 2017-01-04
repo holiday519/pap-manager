@@ -20,7 +20,7 @@ public class LandpageBean {
 	/**
 	 * 落地页地址
 	 */
-	private String Url;
+	private String url;
 	/**
 	 * 安卓deekLink
 	 */
@@ -56,10 +56,10 @@ public class LandpageBean {
 		this.name = name;
 	}
 	public String getUrl() {
-		return Url;
+		return url;
 	}
 	public void setUrl(String url) {
-		Url = url;
+		this.url = url;
 	}
 	public String getAnidDeepLink() {
 		return anidDeepLink;
@@ -88,7 +88,7 @@ public class LandpageBean {
 	@Override
 	public String toString() {
 		return "PurposeBean [id=" + id + ", campaignId=" + campaignId
-				+ ", name=" + name + ", Url=" + Url + ", anidDeepLink="
+				+ ", name=" + name + ", Url=" + url + ", anidDeepLink="
 				+ anidDeepLink + ", iosDeepLink=" + iosDeepLink
 				+ ", monitorUrl=" + monitorUrl + ", remark=" + remark + "]";
 	}
