@@ -21,7 +21,7 @@
 		WHERE
 			t.campaign_id = #{campaignId, jdbcType=VARCHAR}
 		AND
-			t.datetime BETWEEN #{startTime, jdbcType=TIMESTAMP} AND #{endTime, jdbcType=TIMESTAMP}
+			t.datetime BETWEEN #{beginTime, jdbcType=TIMESTAMP} AND #{endTime, jdbcType=TIMESTAMP}
 		GROUP BY
 			t.app_id
 	</select>

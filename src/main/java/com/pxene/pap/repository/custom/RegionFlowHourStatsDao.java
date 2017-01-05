@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface RegionFlowHourStatsDao
 {
     
-    List<Map<String, Object>> selectTopN(@Param("startTime") Date startTime, @Param("endTime") Date endTime, @Param("limitNum") Integer limitNum);
+    List<Map<String, Object>> selectTopN(@Param("beginTime") Date beginTime, @Param("endTime") Date endTime, @Param("limitNum") Integer limitNum);
     
 }

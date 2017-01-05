@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LandpageDataHourStatsDao {
 
-	List<Map<String, Object>> selectByCampaignId(@Param("campaignId") String campaignId, @Param("startTime") Date startTime, @Param("endTime") Date endTime);
+	List<Map<String, Object>> selectByCampaignId(@Param("campaignId") String campaignId, @Param("beginTime") Date beginTime, @Param("endTime") Date endTime);
 }

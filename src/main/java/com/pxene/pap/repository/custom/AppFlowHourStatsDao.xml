@@ -2,18 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pxene.pap.repository.custom.AppFlowHourStatsDao">
   
-  <select id="selectByCampaignId" resultType="java.util.Map">
+  <select id="selectTopN" resultType="java.util.Map">
         SELECT
             t.app_id appId,
             IFNULL(SUM(t.request_amount),0) AS requestAmount
         FROM
             pap_t_appflow_hour t
         WHERE
-            t.datetime BETWEEN #{startTime, jdbcType=TIMESTAMP}
+            t.datetime BETWEEN #{beginTime, jdbcType=TIMESTAMP}
         AND #{endTime, jdbcType=TIMESTAMP}
         GROUP BY
             t.app_id
         ORDER BY
             request_amount DESC
+        LIMIT #{limitNum, jdbcType=INTEGER}
   </select>
 </mapper>
