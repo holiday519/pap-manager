@@ -20,7 +20,7 @@
         GROUP BY
             t.app_id
         ORDER BY
-            request_amount DESC
+            SUM(t.request_amount) DESC
         LIMIT #{limitNum, jdbcType=INTEGER}
   </select>
 </mapper>

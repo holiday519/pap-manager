@@ -9,13 +9,14 @@
 			t1.`name` regionName
         FROM
             pap_t_regionflow_hour t
+            left join pap_t_region t1 on t1.`id` = t.`region_id`
         WHERE
             t.datetime BETWEEN #{beginTime, jdbcType=TIMESTAMP}
         AND #{endTime, jdbcType=TIMESTAMP}
         GROUP BY
             t.region_id
         ORDER BY
-            request_amount DESC
+            SUM(t.request_amount) DESC
         LIMIT #{limitNum, jdbcType=INTEGER}
   </select>
 </mapper>

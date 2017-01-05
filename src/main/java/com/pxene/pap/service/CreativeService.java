@@ -435,9 +435,9 @@ public class CreativeService extends BaseService {
 	 * @param file
 	 * @throws Exception
 	 */
-	public String addMaterial(String tmplId, MultipartFile file) throws Exception {
+	public Map<String, String> addMaterial(String tmplId, MultipartFile file) throws Exception {
 		MediaBean mediaBean = FileUtils.checkFile(file);
-		String id = "";
+		Map<String, String> result = null;
 		
 		if (mediaBean instanceof ImageBean){
 			ImageBean imageBean = (ImageBean) FileUtils.checkFile(file);
@@ -458,7 +458,7 @@ public class CreativeService extends BaseService {
 				throw new IllegalArgumentException();
 			}
 			
-			id = addImage(imageBean, file);
+			result = addImage(imageBean, file);
 			
 		}else if (mediaBean instanceof VideoBean) {
 			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
@@ -481,11 +481,11 @@ public class CreativeService extends BaseService {
 				throw new IllegalArgumentException();
 			}
 			
-			id = addVideo(videoBean, file);
+			result = addVideo(videoBean, file);
 			
 		}
 		
-		return id;
+		return result;
 	}
 	
 	
@@ -497,9 +497,9 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public String addImage(ImageBean imageBean, MultipartFile file) throws Exception {
+	public  Map<String, String> addImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = upload + "creative/image";
+		String dir = upload + "creative/image/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
 		String name = imageBean.getName();
 //		String path = imageBean.getPath().replace(upload, "");
@@ -533,7 +533,11 @@ public class CreativeService extends BaseService {
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
-		return id;
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("id", id);
+		map.put("path", path.replace(upload, ""));
+		return map;
 	}
 	
 	/**
@@ -543,9 +547,9 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public String addVideo(VideoBean videoBean, MultipartFile file) throws Exception {
+	public Map<String, String> addVideo(VideoBean videoBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = upload + "creative/video";
+		String dir = upload + "creative/video/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
 		String name = videoBean.getName();
 //		String path = videoBean.getPath().replace(upload, "");
@@ -584,7 +588,11 @@ public class CreativeService extends BaseService {
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}		
-		return id;
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("id", id);
+		map.put("path", path.replace(upload, ""));
+		return map;
 	}
 	
 	/**

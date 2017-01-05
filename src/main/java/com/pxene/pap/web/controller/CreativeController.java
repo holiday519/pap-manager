@@ -99,8 +99,8 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/upload", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String addMaterial(@RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "tmplId") String tmplId, HttpServletResponse response) throws Exception {
-		String id = creativeService.addMaterial(tmplId, file);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "id", id, response);
+		Map<String, String> map = creativeService.addMaterial(tmplId, file);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), map, response);
 	}
 	
 	/**
