@@ -3,6 +3,7 @@ package com.pxene.pap.service;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.AdvertiserBean.Kpi;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
@@ -376,25 +378,40 @@ public class AdvertiserService extends BaseService
 		AdvertiserBean advertiserBean = new AdvertiserBean();
 		BeanUtils.copyProperties(advertiserModel, advertiserBean);
 		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+//		AdxModelExample adxExample = new AdxModelExample();
+//		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//广告主审核
-		for (AdxModel adx : adxs) {
-			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {//百度
-				//查询是否已经提交过审核
-				AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
-				ex.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
-				List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
-				if (list == null || list.isEmpty()) {
-					//百度广告主第一次审核
-					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "add");
-				} else {
-					//百度广告主重新审核
-					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "edit");
-				}
-			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
-				
-			}
+//		for (AdxModel adx : adxs) {
+//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {//百度
+//				//查询是否已经提交过审核
+//				AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+//				ex.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+//				List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
+//				if (list == null || list.isEmpty()) {
+//					//百度广告主第一次审核
+//					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "add");
+//				} else {
+//					//百度广告主重新审核
+//					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "edit");
+//				}
+//			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
+//				
+//			}
+//		}
+		//直接审核通过（现仅百度）
+		AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+		example.createCriteria().andAdvertiserIdEqualTo(id);
+		List<AdvertiserAuditModel> auditModel = advertiserAuditDao.selectByExample(example);
+		if (auditModel == null || auditModel.isEmpty()) {
+			AdvertiserAuditModel aModel = new AdvertiserAuditModel();
+			aModel.setAdvertiserId(id);
+			aModel.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
+			long num =  (long) Math.floor((new Random()).nextDouble() * 1000000000D);
+			String auditValue = String.valueOf(num);
+			aModel.setAuditValue(auditValue);
+			aModel.setId(UUID.randomUUID().toString());
+			aModel.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
+			advertiserAuditDao.insertSelective(aModel);
 		}
 
 	}
