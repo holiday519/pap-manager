@@ -5,9 +5,15 @@
   <select id="selectTopN" resultType="java.util.Map">
         SELECT
             t.app_id appId,
-            IFNULL(SUM(t.request_amount),0) AS requestAmount
+            IFNULL(SUM(t.request_amount),0) AS requestAmount,
+			t1.`app_id` realAppId,
+			t1.`adx_id`,
+			t1.`app_name`,
+			t1.`app_type`,
+			t1.`pkg_name`
         FROM
             pap_t_appflow_hour t
+            left join pap_t_app t1 on t1.id = t.`app_id`
         WHERE
             t.datetime BETWEEN #{beginTime, jdbcType=TIMESTAMP}
         AND #{endTime, jdbcType=TIMESTAMP}
