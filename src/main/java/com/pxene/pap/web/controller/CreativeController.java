@@ -24,7 +24,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CreativeAddBean;
-import com.pxene.pap.domain.beans.CreativeUpdateBean;
 import com.pxene.pap.domain.beans.MaterialListBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CreativeService;
