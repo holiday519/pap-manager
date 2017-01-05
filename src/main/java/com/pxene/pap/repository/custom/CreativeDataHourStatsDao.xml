@@ -13,9 +13,11 @@
 			IFNULL(SUM(t.click_amount)/SUM(t.impression_amount),0) AS clickRate,
 			IFNULL(SUM(t.arrival_amount),0) AS arrivalAmount,
 			IFNULL(SUM(t.arrival_amount)/SUM(t.click_amount),0) AS arrivalRate,
-			IFNULL(SUM(t.unique_amount),0) AS uniqueAmount
+			IFNULL(SUM(t.unique_amount),0) AS uniqueAmount,
+			t1.`name` creativeName
 		FROM
 			pap_t_creativedata_hour t
+			left join pap_t_creative t1 on t1.`id` = t.`creative_id`
 		WHERE
 			t.campaign_id = #{campaignId, jdbcType=VARCHAR}
 		AND

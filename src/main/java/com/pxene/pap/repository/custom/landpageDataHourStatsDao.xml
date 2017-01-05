@@ -12,10 +12,11 @@
 			IFNULL(SUM(t.unique_amount),0) AS uniqueAmount,
 			IFNULL(round(avg(t.resident_time)),0) as residentTime,
 			IFNULL(SUM(t.jump_amount),0) AS jumpAmount,
-			ifnull(SUM(t.jump_amount)/SUM(t.arrival_amount),0) AS jumpRate
+			ifnull(SUM(t.jump_amount)/SUM(t.arrival_amount),0) AS jumpRate,
+			t1.name landpageName
 		FROM
 			pap_t_landpagedata_hour t
-
+			left join pap_t_landpage t1 on t1.id = t.`landpage_id`
 		WHERE
 			t.campaign_id = #{campaignId, jdbcType=VARCHAR}
 		AND
