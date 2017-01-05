@@ -38,6 +38,7 @@ import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
+import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeMaterialModel;
 import com.pxene.pap.domain.models.CreativeMaterialModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
@@ -59,6 +60,7 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
+import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageDao;
@@ -126,6 +128,9 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private AppDao appDao;
 	
+	@Autowired
+	private CampaignDao campaignDao;
+	
 	/**
 	 * 创建创意
 	 * @param bean
@@ -135,7 +140,6 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public void createCreative(CreativeAddBean bean) throws Exception {
 		String creativeId = UUID.randomUUID().toString();
-		bean.setId(creativeId);
 		
 		com.pxene.pap.domain.beans.CreativeAddBean.Image[] images = bean.getImages();
 		com.pxene.pap.domain.beans.CreativeAddBean.Video[] videos = bean.getVideos();
@@ -385,55 +389,90 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		
+		String campaignId = creativeInDB.getCampaignId();
+		if (!StringUtils.isEmpty(campaignId)) {
+			//只有活动是等待中时才可删除创意
+			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+			if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
+			}
+		}
+		
 		CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
 		cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
 		
-		List<CreativeMaterialModel> cmList = creativeMaterialDao.selectByExample(cmExample);
-		if (cmList != null && !cmList.isEmpty()) {
-			// 删除各个素材
-			for (CreativeMaterialModel cm : cmList) {
-				String cmId = cm.getMaterialId();//素材ID
-				String creativeType = cm.getCreativeType();//素材类型
-				
-				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {//图片
-					ImageModel imageModel = imageDao.selectByPrimaryKey(cmId);
-					if (imageModel != null) {
-						deleteImageMaterialById(imageModel.getId());
-					}
-					imageDao.deleteByPrimaryKey(cmId);
-				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {//视频
-					VideoModel videoModel = videoDao.selectByPrimaryKey(cmId);
-					if (videoModel != null) {
-						deleteVideoMaterialById(videoModel.getId());
-					}
-					videoDao.deleteByPrimaryKey(cmId);
-				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {//信息流
-					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(cmId);
-					if (infoModel != null) {
-						String icon = infoModel.getIconId();
-						String image1 = infoModel.getImage1Id();
-						String image2 = infoModel.getImage1Id();
-						String image3 = infoModel.getImage1Id();
-						String image4 = infoModel.getImage1Id();
-						String image5 = infoModel.getImage1Id();
-						deleteImageMaterialById(icon);
-						deleteImageMaterialById(image1);
-						deleteImageMaterialById(image2);
-						deleteImageMaterialById(image3);
-						deleteImageMaterialById(image4);
-						deleteImageMaterialById(image5);
-					}
-					//删除信息流素材表数据
-					infoflowDao.deleteByPrimaryKey(cmId);
-				}
-			}
-		}
+		//删除素材以及删除图片服务器上文件逻辑（暂无需执行）
+//		List<CreativeMaterialModel> cmList = creativeMaterialDao.selectByExample(cmExample);
+//		if (cmList != null && !cmList.isEmpty()) {
+//			// 删除各个素材
+//			for (CreativeMaterialModel cm : cmList) {
+//				String cmId = cm.getMaterialId();//素材ID
+//				String creativeType = cm.getCreativeType();//素材类型
+//				
+//				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {//图片
+//					ImageModel imageModel = imageDao.selectByPrimaryKey(cmId);
+//					if (imageModel != null) {
+//						deleteImageMaterialById(imageModel.getId());
+//					}
+//					imageDao.deleteByPrimaryKey(cmId);
+//				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {//视频
+//					VideoModel videoModel = videoDao.selectByPrimaryKey(cmId);
+//					if (videoModel != null) {
+//						deleteVideoMaterialById(videoModel.getId());
+//					}
+//					videoDao.deleteByPrimaryKey(cmId);
+//				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {//信息流
+//					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(cmId);
+//					if (infoModel != null) {
+//						String icon = infoModel.getIconId();
+//						String image1 = infoModel.getImage1Id();
+//						String image2 = infoModel.getImage1Id();
+//						String image3 = infoModel.getImage1Id();
+//						String image4 = infoModel.getImage1Id();
+//						String image5 = infoModel.getImage1Id();
+//						deleteImageMaterialById(icon);
+//						deleteImageMaterialById(image1);
+//						deleteImageMaterialById(image2);
+//						deleteImageMaterialById(image3);
+//						deleteImageMaterialById(image4);
+//						deleteImageMaterialById(image5);
+//					}
+//					//删除信息流素材表数据
+//					infoflowDao.deleteByPrimaryKey(cmId);
+//				}
+//			}
+//		}
 		// 删除关联关系表中数据
 		creativeMaterialDao.deleteByExample(cmExample);
 		// 删除创意数据
 		creativeDao.deleteByPrimaryKey(creativeId);
 	}
+	
+	/**
+	 * 删除创意下素材
+	 * @param creativeId
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteCreativeMaterial(String mapId) throws Exception {
+		CreativeMaterialModel material = creativeMaterialDao.selectByPrimaryKey(mapId);
+		String creativeId = material.getCreativeId();
+		if (!StringUtils.isEmpty(creativeId)) {
+			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+			String campaignId = creative.getCampaignId();
+			if (!StringUtils.isEmpty(campaignId)) {
+				//只有活动是等待中时才可删除创意
+				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+				if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
+				}
+			}
+		}
+		
+		creativeMaterialDao.deleteByPrimaryKey(mapId);
+	}
 
+		
 	/**
 	 * 添加素材
 	 * @param tmplId
@@ -723,6 +762,8 @@ public class CreativeService extends BaseService {
 		MaterialListBean bean;
 		for (CreativeMaterialModel cmModel : cmList) {
 			bean = new MaterialListBean();
+			String mapId = cmModel.getId();
+			bean.setMapId(mapId);
 			String creativeType = cmModel.getCreativeType();
 			String tmplId = cmModel.getTmplId();
 			String materialId = cmModel.getMaterialId();

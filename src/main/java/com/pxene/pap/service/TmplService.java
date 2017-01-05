@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,12 +21,17 @@ import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.domain.beans.VideoTmplBean;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
+import com.pxene.pap.domain.models.AppTargetModel;
+import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
+import com.pxene.pap.domain.models.CreativeMaterialModel;
+import com.pxene.pap.domain.models.CreativeMaterialModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.ImageTmplTypeModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
 import com.pxene.pap.domain.models.InfoflowTmplModelExample;
+import com.pxene.pap.domain.models.InfoflowTmplModelExample.Criteria;
 import com.pxene.pap.domain.models.view.TmplImageDetailModelExample;
 import com.pxene.pap.domain.models.view.TmplImageDetailModelWithBLOBs;
 import com.pxene.pap.domain.models.view.TmplVideoDetailModelExample;
@@ -36,7 +40,9 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
+import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
+import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplTypeDao;
 import com.pxene.pap.repository.basic.InfoflowTmplDao;
@@ -54,6 +60,9 @@ public class TmplService extends BaseService {
 
 	@Autowired
 	private AppTmplDao appTmplDao;
+	
+	@Autowired
+	private AppTargetDao appTargetDao;
 
 	@Autowired
 	private TmplImageDetailDao tmplImageDetailDao;
@@ -66,6 +75,9 @@ public class TmplService extends BaseService {
 	
 	@Autowired
 	private AppDao appDao;
+	
+	@Autowired
+	private CreativeMaterialDao creativeMaterialDao;
 	
 	@Autowired
 	private CreativeService creativeService;
@@ -117,20 +129,36 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TmplBean selectImageTmpls(String paramId) throws Exception {
-		if (StringUtils.isEmpty(paramId)) {
+	public TmplBean selectImageTmpls(String campaignId, String creativeId) throws Exception {
+		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
-		//appid数组转成list
-		String[] appids = paramId.split(",");
-		List<String> appIdList = Arrays.asList(appids);
+		//获取活动下的APPId
+		List<String> appIdList = getAppidByCampaignId(campaignId);
 		
 		TmplBean bean = new TmplBean();
 		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();
 
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
-		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE);
+		//如果creativeId不为空,在查询模版时，排除掉该创意已经绑定的模版
+		if(!StringUtils.isEmpty(creativeId)) {
+			CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
+			exa.createCriteria().andCreativeIdEqualTo(creativeId);
+			List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
+			List<String> list = new ArrayList<String>();
+			if (models != null && !models.isEmpty()) {
+				for (CreativeMaterialModel model : models) {
+					String tmplId = model.getTmplId();
+					list.add(tmplId);
+				}
+			}
+			if (!list.isEmpty()) {
+				appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE).andTmplIdNotIn(list);
+			}
+		} else {
+			appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE);
+		}
 		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
 		
 		if (appTmpls != null && !appTmpls.isEmpty()) {
@@ -167,14 +195,13 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TmplBean selectVideoTmpls(String paramId) throws Exception {
-		if (StringUtils.isEmpty(paramId)) {
+	public TmplBean selectVideoTmpls(String campaignId, String creativeId) throws Exception {
+		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
-		//appid数组转成list
-		String[] appids = paramId.split(",");
-		List<String> appIdList = Arrays.asList(appids);
-		
+		//获取活动下的APPId
+		List<String> appIdList = getAppidByCampaignId(campaignId);
+				
 		TmplBean bean = new TmplBean();
 		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
 		// 查询app的模版
@@ -191,7 +218,24 @@ public class TmplService extends BaseService {
 			}
 			//根据模版id查询出所有视频模版信息
 			TmplVideoDetailModelExample example = new TmplVideoDetailModelExample();
-			example.createCriteria().andIdIn(tmplIds);
+			//如果creativeId不为空,在查询模版时，排除掉该创意已经绑定的模版
+			if(!StringUtils.isEmpty(creativeId)) {
+				CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
+				exa.createCriteria().andCreativeIdEqualTo(creativeId);
+				List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
+				List<String> list = new ArrayList<String>();
+				if (models != null && !models.isEmpty()) {
+					for (CreativeMaterialModel model : models) {
+						String tmplId = model.getTmplId();
+						list.add(tmplId);
+					}
+				}
+				if (!list.isEmpty()) {
+					example.createCriteria().andIdIn(tmplIds).andIdNotIn(list);
+				}
+			} else {
+				example.createCriteria().andIdIn(tmplIds);
+			}
 			List<TmplVideoDetailModelWithBLOBs> videos = tmplVideoDetailDao.selectByExampleWithBLOBs(example);
 			if (videos != null && !videos.isEmpty()) {
 				VideoTmpl videoTmpl = null;
@@ -227,15 +271,14 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TmplBean selectInfoflowTmpls(String paramId) throws Exception {
-		if (StringUtils.isEmpty(paramId)) {
+	public TmplBean selectInfoflowTmpls(String campaignId, String creativeId) throws Exception {
+		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
 		
-		//appid数组转成list
-		String[] appids = paramId.split(",");
-		List<String> appIdList = Arrays.asList(appids);
-		
+		//获取活动下的APPId
+		List<String> appIdList = getAppidByCampaignId(campaignId);
+				
 		TmplBean bean = new TmplBean();
 		List<InfoTmpl> infoTmplList = new ArrayList<InfoTmpl>();
 		// 查询app的模版
@@ -251,7 +294,25 @@ public class TmplService extends BaseService {
 			}
 			//查询信息流模版
 			InfoflowTmplModelExample example = new InfoflowTmplModelExample();
-			example.createCriteria().andIdIn(tmplIds);
+			Criteria createCriteria = example.createCriteria();
+			createCriteria.andIdIn(tmplIds);
+			//如果creativeId不为空,在查询模版时，排除掉该创意已经绑定的模版
+			if(!StringUtils.isEmpty(creativeId)) {
+				CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
+				exa.createCriteria().andCreativeIdEqualTo(creativeId);
+				List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
+				List<String> list = new ArrayList<String>();
+				if (models != null && !models.isEmpty()) {
+					for (CreativeMaterialModel model : models) {
+						String tmplId = model.getTmplId();
+						list.add(tmplId);
+					}
+				}
+				if (!list.isEmpty()) {
+					createCriteria.andIdNotIn(list);
+				}
+			}
+			//查询模版
 			List<InfoflowTmplModel> list = infoflowTmplDao.selectByExample(example);
 			if (list != null && !list.isEmpty()) {
 				for (InfoflowTmplModel model : list) {
@@ -360,5 +421,25 @@ public class TmplService extends BaseService {
 		}
 		
 		return apps;
+	}
+	
+	/**
+	 * 根据活动ID查询appid
+	 * @param campaignId
+	 */
+	public List<String> getAppidByCampaignId(String campaignId) throws Exception {
+		AppTargetModelExample example = new AppTargetModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<AppTargetModel> list = appTargetDao.selectByExample(example);
+		List<String> appIds = new ArrayList<String>();
+		if (list != null && !list.isEmpty()) {
+			for (AppTargetModel model : list) {
+				String appId = model.getAppId();
+				if (!StringUtils.isEmpty(appId)) {
+					appIds.add(appId);
+				}
+			}
+		}
+		return appIds;
 	}
 }

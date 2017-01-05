@@ -8,6 +8,7 @@ import java.util.Arrays;
 public class MaterialListBean {
 
 	private String id;
+	private String mapId;
 	private String name;
 	private String type;
 	private App[] apps;
@@ -90,10 +91,19 @@ public class MaterialListBean {
 		this.apps = apps;
 	}
 
+	public String getMapId() {
+		return mapId;
+	}
+
+	public void setMapId(String mapId) {
+		this.mapId = mapId;
+	}
+
 	@Override
 	public String toString() {
-		return "MaterialListBean [id=" + id + ", name=" + name + ", type="
-				+ type + ", apps=" + Arrays.toString(apps) + "]";
+		return "MaterialListBean [id=" + id + ", mapId=" + mapId + ", name="
+				+ name + ", type=" + type + ", apps=" + Arrays.toString(apps)
+				+ "]";
 	}
 
 }

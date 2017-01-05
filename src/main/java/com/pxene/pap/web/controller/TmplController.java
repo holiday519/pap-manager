@@ -32,9 +32,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/images", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectImageTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectImageTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		TmplBean bean = tmplService.selectImageTmpls(appIds);
+		TmplBean bean = tmplService.selectImageTmpls(campaignId, creativeId);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -49,9 +49,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/videos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectVideoTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectVideoTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		TmplBean bean = tmplService.selectVideoTmpls(appIds);
+		TmplBean bean = tmplService.selectVideoTmpls(campaignId, creativeId);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -66,9 +66,9 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/infoflows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectInfoflowTmpls(@RequestParam String appIds, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectInfoflowTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
 		
-		TmplBean bean = tmplService.selectInfoflowTmpls(appIds);
+		TmplBean bean = tmplService.selectInfoflowTmpls(campaignId, creativeId);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
