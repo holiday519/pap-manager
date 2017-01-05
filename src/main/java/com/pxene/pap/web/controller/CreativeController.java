@@ -57,12 +57,12 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-//	@RequestMapping(value = "/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-//	@ResponseBody
-//	public void updateCreative(@PathVariable String id, @RequestBody CreativeUpdateBean bean, HttpServletResponse response) throws Exception {
-//		creativeService.updateCreative(id, bean);
-//		response.setStatus(HttpStatus.NO_CONTENT.value());
-//	}
+	@RequestMapping(value = "/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateCreative(@PathVariable String id, @RequestBody CreativeAddBean bean, HttpServletResponse response) throws Exception {
+		creativeService.updateCreative(id, bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 	
 	/**
 	 * 删除创意

@@ -22,11 +22,9 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CreativeAddBean;
-import com.pxene.pap.domain.beans.CreativeUpdateBean;
-import com.pxene.pap.domain.beans.CreativeUpdateBean.Image;
-import com.pxene.pap.domain.beans.CreativeUpdateBean.Image.Add;
-import com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow;
-import com.pxene.pap.domain.beans.CreativeUpdateBean.Video;
+import com.pxene.pap.domain.beans.CreativeAddBean.Image;
+import com.pxene.pap.domain.beans.CreativeAddBean.Infoflow;
+import com.pxene.pap.domain.beans.CreativeAddBean.Video;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MaterialListBean;
 import com.pxene.pap.domain.beans.MaterialListBean.App;
@@ -141,14 +139,14 @@ public class CreativeService extends BaseService {
 	public void createCreative(CreativeAddBean bean) throws Exception {
 		String creativeId = UUID.randomUUID().toString();
 		
-		com.pxene.pap.domain.beans.CreativeAddBean.Image[] images = bean.getImages();
-		com.pxene.pap.domain.beans.CreativeAddBean.Video[] videos = bean.getVideos();
-		com.pxene.pap.domain.beans.CreativeAddBean.Infoflow[] infoflows = bean.getInfoflows();
+		Image[] images = bean.getImages();
+		Video[] videos = bean.getVideos();
+		Infoflow[] infoflows = bean.getInfoflows();
 		
 		CreativeMaterialModel cmModel = new CreativeMaterialModel();
 		//添加图片创意
 		if (images != null && images.length > 0) {
-			for (com.pxene.pap.domain.beans.CreativeAddBean.Image image : images) {
+			for (Image image : images) {
 				cmModel = new CreativeMaterialModel();
 				String imageId = image.getId();
 				String tmplId = image.getTmplId();
@@ -162,7 +160,7 @@ public class CreativeService extends BaseService {
 		}
 		//添加视频创意
 		if (videos != null && videos.length > 0) {
-			for (com.pxene.pap.domain.beans.CreativeAddBean.Video video : videos) {
+			for (Video video : videos) {
 				cmModel = new CreativeMaterialModel();
 				String videoId = video.getId();
 				String imageId = video.getImageId();//图片id
@@ -184,7 +182,7 @@ public class CreativeService extends BaseService {
 		}
 		//添加信息流创意
 		if (infoflows != null && infoflows.length > 0) {
-			for (com.pxene.pap.domain.beans.CreativeAddBean.Infoflow info : infoflows) {
+			for (Infoflow info : infoflows) {
 				cmModel = new CreativeMaterialModel();
 				String infoId = UUID.randomUUID().toString();
 				String tmplId = info.getTmplId();
@@ -217,112 +215,70 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void updateCreative(String creativeId, CreativeUpdateBean bean) throws Exception {
+	public void updateCreative(String creativeId, CreativeAddBean bean) throws Exception {
 		
-		Image images = bean.getImages();
-		Video videos = bean.getVideos();
-		Infoflow infoflows = bean.getInfoflows();
+		Image[] images = bean.getImages();
+		Video[] videos = bean.getVideos();
+		Infoflow[] infoflows = bean.getInfoflows();
 		
 		CreativeMaterialModel cmModel = new CreativeMaterialModel();
-		if (images != null) {
-			Add[] add = images.getAdd();//新添加的图片素材
-			String[] delete = images.getDelete();//需要删除的图片素材
-			if (delete != null && delete.length>0) {
-				for (String imageId : delete) {
-					//删除图片服务器上素材
-					deleteImageMaterialById(imageId);
-					//删除素材表数据
-					imageDao.deleteByPrimaryKey(imageId);
-					//删除关联关系
-					deleteCreativeMaterial(creativeId, imageId);
-				}
-			}
-			//添加新增的图片素材
-			if (add != null && add.length>0) {
-				for (Add image : add) {
-					cmModel = new CreativeMaterialModel();
-					String imageId = image.getId();
-					String tmplId = image.getTmplId();
-					cmModel.setCreativeId(creativeId);
-					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_IMAGE);
-					cmModel.setTmplId(tmplId);
-					cmModel.setId(UUID.randomUUID().toString());
-					cmModel.setMaterialId(imageId);
-					creativeMaterialDao.insertSelective(cmModel);
-				}
+		//添加图片创意
+		if (images != null && images.length > 0) {
+			for (Image image : images) {
+				cmModel = new CreativeMaterialModel();
+				String imageId = image.getId();
+				String tmplId = image.getTmplId();
+				cmModel.setCreativeId(creativeId);
+				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_IMAGE);
+				cmModel.setTmplId(tmplId);
+				cmModel.setId(UUID.randomUUID().toString());
+				cmModel.setMaterialId(imageId);
+				creativeMaterialDao.insertSelective(cmModel);
 			}
 		}
-		if (videos != null) {
-			com.pxene.pap.domain.beans.CreativeUpdateBean.Video.Add[] add = videos.getAdd();//新添加的视频素材
-			String[] delete = videos.getDelete();//需要删除的视频素材
-			if (delete != null && delete.length>0) {
-				for (String videoId : delete) {
-					//删除图片服务器上素材
-					deleteVideoMaterialById(videoId);
-					//删除素材表数据
-					videoDao.deleteByPrimaryKey(videoId);
-					//删除关联关系
-					deleteCreativeMaterial(creativeId, videoId);
+		//添加视频创意
+		if (videos != null && videos.length > 0) {
+			for (Video video : videos) {
+				cmModel = new CreativeMaterialModel();
+				String videoId = video.getId();
+				String imageId = video.getImageId();//图片id
+				//如果有图片，将图片Id保存到视频创意表中
+				if (!StringUtil.isEmpty(imageId)) {
+					VideoModel videoModel = new VideoModel();
+					videoModel.setId(videoId);
+					videoModel.setImageId(imageId);
+					videoDao.updateByPrimaryKeySelective(videoModel);
 				}
-			}
-			//添加新增的图片素材
-			if (add != null && add.length>0) {
-				for (com.pxene.pap.domain.beans.CreativeUpdateBean.Video.Add video : add) {
-					cmModel = new CreativeMaterialModel();
-					String videoId = video.getId();
-					String tmplId = video.getTmplId();
-					cmModel.setCreativeId(creativeId);
-					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_VIDEO);
-					cmModel.setTmplId(tmplId);
-					cmModel.setId(UUID.randomUUID().toString());
-					cmModel.setMaterialId(videoId);
-					creativeMaterialDao.insertSelective(cmModel);
-				}
+				String tmplId = video.getTmplId();
+				cmModel.setCreativeId(creativeId);
+				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_VIDEO);
+				cmModel.setTmplId(tmplId);
+				cmModel.setId(UUID.randomUUID().toString());
+				cmModel.setMaterialId(videoId);
+				creativeMaterialDao.insertSelective(cmModel);
 			}
 		}
-		if (infoflows != null) {
-			com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow.Add[] add = infoflows.getAdd();
-			String[] delete = infoflows.getDelete();
-			if (delete != null && delete.length>0) {
-				for (String infoId : delete) {
-					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(infoId);
-					String icon = infoModel.getIconId();
-					String image1 = infoModel.getImage1Id();
-					String image2 = infoModel.getImage1Id();
-					String image3 = infoModel.getImage1Id();
-					String image4 = infoModel.getImage1Id();
-					String image5 = infoModel.getImage1Id();
-					deleteImageMaterialById(icon);
-					deleteImageMaterialById(image1);
-					deleteImageMaterialById(image2);
-					deleteImageMaterialById(image3);
-					deleteImageMaterialById(image4);
-					deleteImageMaterialById(image5);
-					//删除信息流素材表数据
-					infoflowDao.deleteByPrimaryKey(infoId);
-					//删除关联关系
-					deleteCreativeMaterial(creativeId, infoId);
-				}
-			}
-			if (add != null && add.length > 0) {
-				for (com.pxene.pap.domain.beans.CreativeUpdateBean.Infoflow.Add info : add) {
-					cmModel = new CreativeMaterialModel();
-					String infoId = UUID.randomUUID().toString();
-					String tmplId = info.getTmplId();
-					//添加信息流创意表信息
-					InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
-					model.setId(infoId);
-					infoflowDao.insertSelective(model);
-					//添加关联关系
-					cmModel.setCreativeId(creativeId);
-					cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
-					cmModel.setId(UUID.randomUUID().toString());
-					cmModel.setMaterialId(infoId);
-					cmModel.setTmplId(tmplId);
-					creativeMaterialDao.insertSelective(cmModel);
-				}
+		//添加信息流创意
+		if (infoflows != null && infoflows.length > 0) {
+			for (Infoflow info : infoflows) {
+				cmModel = new CreativeMaterialModel();
+				String infoId = UUID.randomUUID().toString();
+				String tmplId = info.getTmplId();
+				//添加信息流创意表信息
+				InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
+				model.setId(infoId);
+				infoflowDao.insertSelective(model);
+				//添加关联关系
+				cmModel.setCreativeId(creativeId);
+				cmModel.setCreativeType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
+				cmModel.setId(UUID.randomUUID().toString());
+				cmModel.setMaterialId(infoId);
+				cmModel.setTmplId(tmplId);
+				creativeMaterialDao.insertSelective(cmModel);
 			}
 		}
+		
+		//添加创意表数据
 		CreativeModel model = new CreativeModel();
 		model.setId(creativeId);
 		model.setCampaignId(bean.getCampaignId());
