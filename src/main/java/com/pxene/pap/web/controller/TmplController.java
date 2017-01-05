@@ -1,5 +1,7 @@
 package com.pxene.pap.web.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,8 +14,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.TmplBean;
+import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
+import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
+import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.service.TmplService;
 
 @Controller
@@ -34,9 +41,12 @@ public class TmplController {
 	@ResponseBody
 	public String selectImageTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		
-		TmplBean bean = tmplService.selectImageTmpls(campaignId, creativeId);
+		Page<Object> pager = null;
 		
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
+		List<ImageTmpl> bean = tmplService.selectImageTmpls(campaignId, creativeId);
+		
+		PaginationBean result = new PaginationBean(bean, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
 	/**
@@ -50,10 +60,13 @@ public class TmplController {
 	@RequestMapping(value = "/tmpl/videos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectVideoTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+		Page<Object> pager = null;
 		
-		TmplBean bean = tmplService.selectVideoTmpls(campaignId, creativeId);
+		List<VideoTmpl> bean = tmplService.selectVideoTmpls(campaignId, creativeId);
 		
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
+		PaginationBean result = new PaginationBean(bean, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
 	/**
@@ -68,8 +81,11 @@ public class TmplController {
 	@ResponseBody
 	public String selectInfoflowTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
 		
-		TmplBean bean = tmplService.selectInfoflowTmpls(campaignId, creativeId);
+		Page<Object> pager = null;
 		
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
+		List<InfoTmpl> bean = tmplService.selectInfoflowTmpls(campaignId, creativeId);
+		
+		PaginationBean result = new PaginationBean(bean, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 }

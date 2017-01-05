@@ -21,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.Page;
 import com.pxene.pap.common.RequestUtils;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AppFlowHourBean;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.AppFlowHourService;
 
 /**
@@ -62,9 +64,12 @@ public class AppFlowHourController
     @ResponseBody
     public String listAppFlowHours(@RequestParam(required = true) Date beginTime, @RequestParam(required = true) Date endTime, @RequestParam(required = true) int limitNum, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
+    	Page<Object> pager = null;
+    	
         List<Map<String, Object>> appFlowHourList = appFlowHourService.listAppFlowHour(beginTime, endTime, limitNum);
         
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), appFlowHourList, response);
+        PaginationBean result = new PaginationBean(appFlowHourList, pager);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @InitBinder(value = {"beginTime", "endTime"})

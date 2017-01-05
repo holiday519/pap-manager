@@ -168,8 +168,11 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/materials", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) String creativeId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Page<Object> pager = null;
+		
 		List<MaterialListBean> creatives = creativeService.selectCreativeMaterials(name, creativeId);
 		
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), creatives, response);
+		PaginationBean result = new PaginationBean(creatives, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 }

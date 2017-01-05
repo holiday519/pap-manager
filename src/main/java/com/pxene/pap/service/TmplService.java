@@ -129,14 +129,13 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TmplBean selectImageTmpls(String campaignId, String creativeId) throws Exception {
+	public List<ImageTmpl> selectImageTmpls(String campaignId, String creativeId) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 		
-		TmplBean bean = new TmplBean();
 		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();
 
 		// 查询app的模版
@@ -176,17 +175,11 @@ public class TmplService extends BaseService {
 			}
 		}
 		
-		if (!imageTmplList.isEmpty()) {
-			ImageTmpl[] images = new ImageTmpl[imageTmplList.size()];
-			for (int i = 0;i<imageTmplList.size();i++) {
-				images[i] = imageTmplList.get(i);
-			}
-			bean.setImageTmpls(images);
-		} else {
+		if (imageTmplList.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		
-		return bean;
+		return imageTmplList;
 	}
 	
 	/**
@@ -195,14 +188,13 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TmplBean selectVideoTmpls(String campaignId, String creativeId) throws Exception {
+	public List<VideoTmpl> selectVideoTmpls(String campaignId, String creativeId) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 				
-		TmplBean bean = new TmplBean();
 		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
@@ -253,16 +245,10 @@ public class TmplService extends BaseService {
 				}
 			}
 		}
-		if (!videpTmplList.isEmpty()) {
-			VideoTmpl[] videos = new VideoTmpl[videpTmplList.size()];
-			for (int i = 0;i<videpTmplList.size();i++) {
-				videos[i] = videpTmplList.get(i);
-			}
-			bean.setVideoTmpls(videos);
-		} else {
+		if (videpTmplList.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		return bean;
+		return videpTmplList;
 	}
 	
 	/**
@@ -271,7 +257,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public TmplBean selectInfoflowTmpls(String campaignId, String creativeId) throws Exception {
+	public List<InfoTmpl> selectInfoflowTmpls(String campaignId, String creativeId) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -279,7 +265,6 @@ public class TmplService extends BaseService {
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 				
-		TmplBean bean = new TmplBean();
 		List<InfoTmpl> infoTmplList = new ArrayList<InfoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
@@ -351,16 +336,10 @@ public class TmplService extends BaseService {
 			}
 		}
 		
-		if (!infoTmplList.isEmpty()) {
-			InfoTmpl[] infos = new InfoTmpl[infoTmplList.size()];
-			for (int i = 0;i<infoTmplList.size();i++) {
-				infos[i] = infoTmplList.get(i);
-			}
-			bean.setInfoTmpls(infos);
-		} else {
+		if (infoTmplList.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		return bean;
+		return infoTmplList;
 	}
 	
 	/**
