@@ -733,6 +733,66 @@ public class CreativeService extends BaseService {
 			String materialId = cmModel.getMaterialId();
 			bean.setId(materialId);
 			bean.setType(creativeType);
+			//根据素材类型不同，获取不同的素材路径
+			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(materialId);
+				if (imageModel != null) {
+					String path = imageModel.getPath();
+					bean.setPath(path);
+				}
+			} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
+				VideoModel videoModel = videoDao.selectByPrimaryKey(materialId);
+				if (videoModel != null) {
+					String path = videoModel.getPath();
+					bean.setPath(path);
+				}
+			} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
+				InfoflowModel infoflowModel = infoflowDao.selectByPrimaryKey(materialId);
+				if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getIconId());
+					if (imageModel != null) {
+						String iconPath = imageModel.getPath();
+						bean.setIconPath(iconPath);
+					}
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage1Id())) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage1Id());
+					if (imageModel != null) {
+						String image1Path = imageModel.getPath();
+						bean.setImage1Path(image1Path);
+					}
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage2Id())) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage2Id());
+					if (imageModel != null) {
+						String image2Path = imageModel.getPath();
+						bean.setImage2Path(image2Path);
+					}
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage3Id())) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage3Id());
+					if (imageModel != null) {
+						String image3Path = imageModel.getPath();
+						bean.setImage3Path(image3Path);
+					}
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage4Id())) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage4Id());
+					if (imageModel != null) {
+						String image4Path = imageModel.getPath();
+						bean.setImage4Path(image4Path);
+					}
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage5Id())) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage5Id());
+					if (imageModel != null) {
+						String image5Path = imageModel.getPath();
+						bean.setImage5Path(image5Path);
+					}
+				}
+			}
+			
+			
 			//查询app
 			List<AppModel> appModels = getAppForMaterial(tmplId);
 			List<App> appList = new ArrayList<MaterialListBean.App>();
