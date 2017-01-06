@@ -454,8 +454,8 @@ public class CreativeService extends BaseService {
 			int width = imageBean.getWidth();//文件宽
 			Float volume = imageBean.getVolume();//文件体积限制
 			
-			if (tmplWidth < width || tmplHeight < height || maxVolume < volume) {
-				throw new IllegalArgumentException();
+			if (tmplWidth != width || tmplHeight != height || maxVolume < volume) {
+				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_SIZE);
 			}
 			
 			result = addImage(imageBean, file);
@@ -477,8 +477,8 @@ public class CreativeService extends BaseService {
 			Float volume = videoBean.getVolume();//文件体积限制
 			int timelength = videoBean.getTimelength();//文件时长
 			
-			if (tmplWidth < width || tmplHeight < height || maxVolume < volume || maxTimelength < timelength) {
-				throw new IllegalArgumentException();
+			if (tmplWidth != width || tmplHeight != height || maxVolume < volume || maxTimelength < timelength) {
+				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_SIZE);
 			}
 			
 			result = addVideo(videoBean, file);

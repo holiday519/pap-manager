@@ -170,12 +170,16 @@ public class ProjectService extends LaunchService {
      * @return
      * @throws Exception
      */
-    public List<ProjectDetailBean> selectProjects(String name) throws Exception {
+    public List<ProjectDetailBean> selectProjects(String name, String advertiserId) throws Exception {
     	
     	ProjectDetailModelExample example = new ProjectDetailModelExample();
 
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
+		}
+		
+		if (!StringUtils.isEmpty(advertiserId)) {
+			example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
 		}
 		
 		List<ProjectDetailModel> projects = projectDetailDao.selectByExample(example);
