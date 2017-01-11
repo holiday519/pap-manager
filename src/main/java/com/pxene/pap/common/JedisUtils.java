@@ -28,7 +28,7 @@ public class JedisUtils {
 		// redis如果设置了密码：
 		if (StringUtils.isEmpty(JRedisPoolConfig.REDIS_PASSWORD)) {
 			jedisPool = new JedisPool(config, JRedisPoolConfig.REDIS_IP,
-					JRedisPoolConfig.REDIS_PORT, 10000);
+					JRedisPoolConfig.REDIS_PORT, 10000,null,2);
 		} else {
 			jedisPool = new JedisPool(config, JRedisPoolConfig.REDIS_IP,
 					JRedisPoolConfig.REDIS_PORT, 10000,
@@ -233,6 +233,26 @@ public class JedisUtils {
 			jedis.del(key);
 		}
 		close(jedis);
+	}
+	
+	public static Map<String, String> hget(String key) {
+		if (isBlank(key)) {
+			return null;
+		}
+		Jedis jedis = getJedis();
+		Map<String, String> hgetAll = jedis.hgetAll(key);
+		close(jedis);
+		return hgetAll;
+	}
+	
+	public static Set<String> hkeys(String key) {
+		if (isBlank(key)) {
+			return null;
+		}
+		Jedis jedis = getJedis();
+		Set<String> hgetAll = jedis.hkeys(key);
+		close(jedis);
+		return hgetAll;
 	}
 	
 	public static boolean isBlank(String str) {

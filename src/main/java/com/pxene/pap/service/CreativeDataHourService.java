@@ -1,22 +1,34 @@
 package com.pxene.pap.service;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import com.pxene.pap.common.DateUtils;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
+import com.pxene.pap.domain.beans.DayAndHourDataBean;
 import com.pxene.pap.domain.models.CreativeDataHourModel;
+import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeDataHourDao;
 import com.pxene.pap.repository.custom.CreativeDataHourStatsDao;
 
@@ -28,6 +40,9 @@ public class CreativeDataHourService extends BaseService
     
     @Autowired
     private CreativeDataHourStatsDao creativeDataHourStatsDao;
+    
+    @Autowired
+    private CreativeDao creativeDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -81,15 +96,258 @@ public class CreativeDataHourService extends BaseService
 
     
     @Transactional
-    public List<Map<String, Object>> listCreativeDataHour(String campaignId, long beginTime, long endTime)
+    public List<DayAndHourDataBean> listCreativeDataHour(String campaignId, long beginTime, long endTime) throws Exception
     {
-		List<Map<String,Object>> list = creativeDataHourStatsDao.selectByCampaignId(campaignId, new Date(beginTime), new Date(endTime));
-		    	
-    	if (list == null || list.isEmpty()) {
-    		throw new ResourceNotFoundException();
+    	Map<String, String> sourceMap = new HashMap<String, String>();
+    	DateTime begin = new DateTime(beginTime);
+    	DateTime end = new DateTime(endTime);
+    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
+    		//查看是不是全天(如果是全天，查询天表；但是时间不能是今天，当天数据还未生成天文件)
+			if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
+					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
+				String [] days = {begin.toString("yyyyMMdd")};
+				sourceMap = margeDayTables(sourceMap, days);
+			} else {
+				String[] days = DateUtils.getDaysArrayBetweenTwoDate(begin.toDate(), end.toDate());
+				List<String> daysList = new ArrayList<String>(Arrays.asList(days));
+				if (!begin.toString("HH").equals("00")) {
+					Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
+					sourceMap = makeDayTableUseHour(sourceMap, begin.toDate(), bigHourOfDay);
+					if (daysList != null && daysList.size() > 0) {
+						for (int i = 0; i < daysList.size(); i++) {
+							if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
+								daysList.remove(i);
+							}
+						}
+					}
+				}
+				if (!end.toString("HH").equals("23")) {
+					Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
+					sourceMap = makeDayTableUseHour(sourceMap, smallHourOfDay, begin.toDate());
+					if (daysList != null && daysList.size() > 0) {
+						for (int i = 0; i < daysList.size(); i++) {
+							if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
+								daysList.remove(i);
+							}
+						}
+					}
+				}
+				sourceMap = margeDayTables(sourceMap, days);
+			}
     	}
-        
-        return list;
+    	
+    	List<DayAndHourDataBean> beans = getListFromSource(sourceMap);
+    	formatLastList(beans);
+    	return beans;
+    }
+    
+    /**
+     * 将小时文件拼成一个（类似天文件）合并至源Map中
+     * @param sourceMap 源Map
+     * @param beginTime 开始时间
+     * @param endTime 结束时间
+     * @return
+     */
+	public Map<String, String> makeDayTableUseHour(Map<String, String> sourceMap, Date beginTime, Date endTime)	throws Exception {
+		String[] hours = DateUtils.getHourArrayBetweenTwoDate(beginTime, endTime);
+		for (int i = 0; i < hours.length; i++) {
+			String hour = hours[i];
+			Map<String, String> map = JedisUtils.hget("creativeDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);
+			Set<String> hkeys = JedisUtils.hkeys("creativeDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);
+			if (hkeys != null && !hkeys.isEmpty()) {
+				for (String hkey : hkeys) {
+					String hourStr = map.get(hkey);
+					if (sourceMap.containsKey(hkey)) {
+						String str = sourceMap.get(hkey);
+						if (StringUtils.isEmpty(str)) {
+							// 根据类型判断求和类型int？double？
+							if (hkey.indexOf("@m") > 0) {// 展现
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@c") > 0) {// 点击
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							}
+						} else {
+							sourceMap.put(hkey, hourStr);
+						}
+					} else {
+						sourceMap.put(hkey, hourStr);
+					}
+				}
+			}
+		}
+		return sourceMap;
+	}
+    
+    /**
+     * 整合天文件为一个文件
+     * @param sourceMap
+     * @param days
+     * @return
+     * @throws Exception
+     */
+    public Map<String, String> margeDayTables(Map<String, String> sourceMap, String [] days) throws Exception {
+    	if (days!=null && days.length > 0) {
+    		for (int i = 0; i < days.length; i++) {
+    			String day = days[i];
+    			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + day);
+    			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + day);
+    			if (hkeys != null && !hkeys.isEmpty()) {
+    				for (String hkey : hkeys) {
+    					String hourStr = map.get(hkey);
+    					if (sourceMap.containsKey(hkey)) {
+    						String str = sourceMap.get(hkey);
+    						if (StringUtils.isEmpty(str)) {
+    							// 根据类型判断求和类型int？double？
+    							if (hkey.indexOf("@m") > 0) {// 展现
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@c") > 0) {// 点击
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							}
+    						} else {
+    							sourceMap.put(hkey, hourStr);
+    						}
+    					} else {
+    						sourceMap.put(hkey, hourStr);
+    					}
+    				}
+    			}
+    		}
+    	}
+		return sourceMap;
+    }
+    
+    /**
+     * 将合并后的Map数据整理成List数据
+     * @param sourceMap
+     * @return
+     * @throws Exception
+     */
+    public List<DayAndHourDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+    	List<DayAndHourDataBean> beans = new ArrayList<DayAndHourDataBean>();
+    	for (String key : sourceMap.keySet()) {
+    		if (!StringUtils.isEmpty(key)) {
+    			String value = sourceMap.get(key);
+    			beans = takeDataToList(beans, key, value);
+    		}
+    	}
+    	return beans;
+    }
+    
+    /**
+     * 将数据整合到list中
+     * @param beans
+     * @param key
+     * @param value
+     * @return
+     * @throws Exception
+     */
+    public List<DayAndHourDataBean> takeDataToList(List<DayAndHourDataBean> beans, String key, String value) throws Exception {
+    	String[] keyArray = key.split("@");
+    	String creativeId = keyArray[0];
+    	
+    	if (beans.isEmpty()) {
+    		DayAndHourDataBean bean = new DayAndHourDataBean();
+    		if (key.indexOf("@m") > 0) {// 展现
+    			bean.setImpressionAmount(Long.parseLong(value));
+        	} else if (key.indexOf("@c") > 0) {// 点击
+        		bean.setClickAmount(Long.parseLong(value));
+        	}
+    		bean.setCreativeId(creativeId);
+    		beans.add(bean);
+    	} else {
+    		boolean flag = false;
+    		int index = 0;
+    		for (int i=0;i < beans.size();i++) {
+    			DayAndHourDataBean bean = beans.get(i);
+    			if (bean.getCreativeId().equals(creativeId)) {
+    				index = i;
+    				flag = true;
+    				break;
+    			}
+    		}
+    		if (flag) {
+    			DayAndHourDataBean bean = beans.get(index);
+    			if (key.indexOf("@m") > 0) {// 展现
+        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+            	} else if (key.indexOf("@c") > 0) {// 点击
+            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+            	}
+    			bean.setCreativeId(creativeId);
+    		} else {
+    			DayAndHourDataBean bean = new DayAndHourDataBean();
+        		if (key.indexOf("@m") > 0) {// 展现
+        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+            	} else if (key.indexOf("@c") > 0) {// 点击
+            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+            	}
+        		bean.setCreativeId(creativeId);
+        		beans.add(bean);
+    		}
+    	}
+		return beans;
+    }
+	
+    /**
+     * 格式化list中各个返回参数
+     * @param beans
+     * @return
+     */
+    public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans) {
+    	if (beans != null && beans.size() > 0) {
+    		for (DayAndHourDataBean bean : beans) {
+    			bean.setBidAmount(null);
+				if (bean.getWinAmount() == null) {
+					bean.setWinAmount(0L);
+				}
+				if (bean.getImpressionAmount() == null) {
+					bean.setImpressionAmount(0L);
+				}
+				if (bean.getClickAmount() == null) {
+					bean.setClickAmount(0L);
+				}
+				if (bean.getArrivalAmount() == null) {
+					bean.setArrivalAmount(0L);
+				}
+				if (bean.getUniqueAmount() == null) {
+					bean.setUniqueAmount(0L);
+				}
+				bean.setJumpAmount(null);
+				
+				DecimalFormat format = new DecimalFormat("0.00000");
+				
+				if (bean.getWinAmount() == 0) {
+					bean.setImpressionRate(0F);
+				} else {
+			        double percent = (double)bean.getImpressionAmount() / bean.getWinAmount();
+			        Float result = Float.parseFloat(format.format(percent));
+			        bean.setImpressionRate(result);
+				}
+				
+				if (bean.getImpressionAmount() == 0) {
+					bean.setClickRate(0F);
+				} else {
+					double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
+					Float result = Float.parseFloat(format.format(percent));
+					bean.setClickRate(result);
+				}
+				
+				if (bean.getClickAmount() == 0) {
+					bean.setArrivalRate(0F);
+				} else {
+					double percent = (double)bean.getArrivalAmount() / bean.getClickAmount();
+					Float result = Float.parseFloat(format.format(percent));
+					bean.setArrivalRate(result);
+				}
+				
+				if (!StringUtils.isEmpty(bean.getCreativeId())) {
+					CreativeModel model = creativeDao.selectByPrimaryKey(bean.getCreativeId());
+					if (model != null) {
+						bean.setCreativeName(model.getName());
+					}
+				}
+    		}
+    	}
+    	return beans;
     }
     
 }

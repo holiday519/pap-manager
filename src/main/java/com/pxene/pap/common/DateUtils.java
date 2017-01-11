@@ -1,9 +1,14 @@
 package com.pxene.pap.common;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 public class DateUtils {
 
@@ -113,9 +118,102 @@ public class DateUtils {
 		return string;
 	}
 	
-//	public static void main(String[] args) {
-//		
-//		System.out.println(getDayOfChange(new Date(),0));
-//
-//	}
+	/**
+	 * 获取两个日期之间天数
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static int getDaysBetweenTowDate(Date start, Date end) {
+		LocalDate start2=new LocalDate(start);    
+        LocalDate end2=new LocalDate(end); 
+		int days = Days.daysBetween(start2, end2).getDays();  
+		return days;
+	}
+	
+	/**
+	 * 获取两个日期之间天数
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static int getDaysBetweenTowDate(Long start, Long end) {
+		LocalDate start2 = new LocalDate(start);
+		LocalDate end2 = new LocalDate(end);
+		int days = Days.daysBetween(start2, end2).getDays();
+		return days;
+	}
+
+	/**
+	 * 查询两个日期中间所有的“天”
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String[] getDaysArrayBetweenTwoDate(Date start, Date end) {
+		int days = getDaysBetweenTowDate(start, end);
+		if (days < 0) {
+			return null;
+		}
+		String[] array = new String[days+1];
+		for (int i = 0; i <= days; i++) {
+			array[i] = new DateTime(start).plusDays(i).toString("yyyyMMdd");
+		}
+		return array;
+	}
+	
+	/**
+	 * 获取两个时间之间的“小时”
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String [] getHourArrayBetweenTwoDate(Date start, Date end) {
+		Integer st = Integer.parseInt(new DateTime(start).toString("HH"));
+		Integer ed = Integer.parseInt(new DateTime(end).toString("HH"));
+		
+		List<String> list = new ArrayList<String>();
+		for (int i = 0;i <= (ed-st); i++ ) {
+			list.add(new DateTime(start).plusHours(i).toString("HH"));
+		}
+		return  list.toArray(new String[list.size()]);
+	}
+	
+	 /**
+     * 获取一天中最大时间
+     * @param time
+     * @return
+     * @throws Exception
+     */
+    public static Date getBigHourOfDay(Date time) throws Exception {
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	SimpleDateFormat fot = new SimpleDateFormat("yyyy-MM-dd");
+    	String fTime = fot.format(time);
+        Date date = format.parse(fTime + " 23:59:59");
+        return date;
+    }
+    
+    /**
+     * 获取一天中最小时间
+     * @param time
+     * @return
+     * @throws Exception
+     */
+    public static Date getSmallHourOfDay(Date time) throws Exception {
+    	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	SimpleDateFormat fot = new SimpleDateFormat("yyyy-MM-dd");
+    	String fTime = fot.format(time);
+    	Date date = format.parse(fTime + " 00:00:00");
+    	return date;
+    }
+	
+    
+	public static void main(String[] args) throws Exception {
+		
+//		for (int i=0;i<=32;i++) {
+//			System.out.println(new DateTime(new Date(1355443200000L)).plusDays(i).toString("dd", Locale.CHINESE));
+//		}
+
+//		String[] hourArrayBetweenTwoDate = getHourArrayBetweenTwoDate(new Date(1484020800000L), new Date(1484038800000L));
+	}
 }

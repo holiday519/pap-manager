@@ -1,7 +1,6 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.DayAndHourDataBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.RegionDataHourBean;
 import com.pxene.pap.service.RegionDataHourService;
@@ -67,7 +67,7 @@ public class RegionDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<Map<String, Object>> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+        List<DayAndHourDataBean> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(regionDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
