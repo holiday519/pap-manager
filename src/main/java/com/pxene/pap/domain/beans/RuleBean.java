@@ -28,14 +28,46 @@ public class RuleBean {
 	 * 规则执行周期
 	 */
 	private String execCycle;
-	/**
-	 * 指标类型
-	 */
-	private String dataType;
-	/**
-	 * 指标量
-	 */
-	private Double data;
+	
+	private Condition[] conditions;
+	
+	public static class Condition {
+		/**
+		 * 指标类型
+		 */
+		private String dataType;
+		/**
+		 * 比较类型
+		 */
+		private String compareType;
+		/**
+		 * 指标量
+		 */
+		private Double data;
+		public String getDataType() {
+			return dataType;
+		}
+		public void setDataType(String dataType) {
+			this.dataType = dataType;
+		}
+		public String getCompareType() {
+			return compareType;
+		}
+		public void setCompareType(String compareType) {
+			this.compareType = compareType;
+		}
+		public Double getData() {
+			return data;
+		}
+		public void setData(Double data) {
+			this.data = data;
+		}
+		@Override
+		public String toString() {
+			return "ConditionBean [dataType=" + dataType + ", compareType="
+					+ compareType + ", data=" + data + "]";
+		}
+	}
 	/**
 	 * 流量提升
 	 */
@@ -51,7 +83,6 @@ public class RuleBean {
 	/**
 	 * 状态
 	 */
-	private String status;
 	public String getId() {
 		return id;
 	}
@@ -88,17 +119,11 @@ public class RuleBean {
 	public void setExecCycle(String execCycle) {
 		this.execCycle = execCycle;
 	}
-	public String getDataType() {
-		return dataType;
+	public Condition[] getConditions() {
+		return conditions;
 	}
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
-	}
-	public Double getData() {
-		return data;
-	}
-	public void setData(Double data) {
-		this.data = data;
+	public void setConditions(Condition[] conditions) {
+		this.conditions = conditions;
 	}
 	public Float getPromote() {
 		return promote;
@@ -118,22 +143,14 @@ public class RuleBean {
 	public void setSale(Float sale) {
 		this.sale = sale;
 	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
 	@Override
 	public String toString() {
 		return "RuleBean [id=" + id + ", campaignIds="
 				+ Arrays.toString(campaignIds) + ", campaignNames="
 				+ Arrays.toString(campaignNames) + ", name=" + name
 				+ ", historyData=" + historyData + ", execCycle=" + execCycle
-				+ ", dataType=" + dataType + ", data=" + data + ", promote="
-				+ promote + ", fare=" + fare + ", sale=" + sale + ", status="
-				+ status + "]";
+				+ ", conditions=" + Arrays.toString(conditions) + ", promote="
+				+ promote + ", fare=" + fare + ", sale=" + sale + "]";
 	}
-
 
 }

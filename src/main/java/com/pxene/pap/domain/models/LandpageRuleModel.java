@@ -11,10 +11,6 @@ public class LandpageRuleModel {
 
     private String execCycle;
 
-    private String dataType;
-
-    private Double data;
-
     private Float promote;
 
     private String status;
@@ -53,22 +49,6 @@ public class LandpageRuleModel {
 
     public void setExecCycle(String execCycle) {
         this.execCycle = execCycle == null ? null : execCycle.trim();
-    }
-
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType == null ? null : dataType.trim();
-    }
-
-    public Double getData() {
-        return data;
-    }
-
-    public void setData(Double data) {
-        this.data = data;
     }
 
     public Float getPromote() {
@@ -113,8 +93,6 @@ public class LandpageRuleModel {
         sb.append(", name=").append(name);
         sb.append(", historyData=").append(historyData);
         sb.append(", execCycle=").append(execCycle);
-        sb.append(", dataType=").append(dataType);
-        sb.append(", data=").append(data);
         sb.append(", promote=").append(promote);
         sb.append(", status=").append(status);
         sb.append(", createtime=").append(createtime);

@@ -16,20 +16,23 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.RuleBean;
-import com.pxene.pap.domain.models.AppRuleModel;
+import com.pxene.pap.domain.beans.RuleBean.Condition;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignRuleModel;
 import com.pxene.pap.domain.models.CampaignRuleModelExample;
+import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
 import com.pxene.pap.domain.models.CreativeRuleModel;
 import com.pxene.pap.domain.models.CreativeRuleModelExample;
-import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
+import com.pxene.pap.domain.models.RuleConditionModel;
+import com.pxene.pap.domain.models.RuleConditionModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
-import com.pxene.pap.repository.basic.CreativeRuleDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignRuleDao;
+import com.pxene.pap.repository.basic.CreativeRuleDao;
+import com.pxene.pap.repository.basic.RuleConditionDao;
 
 @Service
 public class CreativeRuleService extends BaseService {
@@ -39,6 +42,9 @@ public class CreativeRuleService extends BaseService {
 	
 	@Autowired
 	private CampaignDao campaignDao;
+	
+	@Autowired
+	private RuleConditionDao ruleConditionDao;
 	
 	@Autowired
 	private CampaignRuleDao campaignRuleDao;
@@ -53,6 +59,8 @@ public class CreativeRuleService extends BaseService {
 			ruleBean.setId(ruleId);
 			//添加关联关系
 			addCampaignAndRule(ruleBean, StatusConstant.CAMPAIGN_RULE_TYPE_CREATIVE);
+			//添加规则——条件
+			addRuleCondition(ruleBean);
 			creativeRuleDao.insertSelective(model);
         } catch (DuplicateKeyException exception) {
             // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
@@ -77,6 +85,8 @@ public class CreativeRuleService extends BaseService {
 		if (models.size() > 0) {
 			throw new IllegalStatusException(PhrasesConstant.RULE_HAVE_CAMPAIGN);
 		} else {
+			//删除规则条件
+			deleteRuleConditionById(id);
 			creativeRuleDao.deleteByPrimaryKey(id);
 		}
 		
@@ -91,6 +101,10 @@ public class CreativeRuleService extends BaseService {
 		CreativeRuleModel ruleModel = modelMapper.map(ruleBean, CreativeRuleModel.class);
 		//删除所有关联关系
 		deleteCampaignAndRule(id);
+		//删除规则条件
+		deleteRuleConditionById(id);
+		//重新添加规则——条件
+		addRuleCondition(ruleBean);
 		//重新添加关联关系
 		ruleBean.setId(id);
 		addCampaignAndRule(ruleBean, StatusConstant.CAMPAIGN_RULE_TYPE_CREATIVE);
@@ -170,6 +184,25 @@ public class CreativeRuleService extends BaseService {
 			bean.setCampaignIds(idArray);
 			bean.setCampaignNames(nameArray);
 		}
+		//查询出规则条件
+		List<Condition> conditionList = new ArrayList<Condition>();
+		
+		RuleConditionModelExample rcExample = new RuleConditionModelExample();
+		rcExample.createCriteria().andRuleIdEqualTo(ruleId);
+		List<RuleConditionModel> conditions = ruleConditionDao.selectByExample(rcExample);
+		if (conditions != null && !conditions.isEmpty()) {
+			for (RuleConditionModel mod : conditions) {
+				Condition model = modelMapper.map(mod, Condition.class);
+				conditionList.add(model);
+			}
+		}
+		if (!conditionList.isEmpty()) {
+			Condition[] cds = new Condition[conditionList.size()];
+			for (int i=0;i< conditionList.size();i++) {
+				cds[i] = conditionList.get(i);
+			}
+			bean.setConditions(cds);
+		}
 		
 		return bean;
 	}
@@ -233,5 +266,33 @@ public class CreativeRuleService extends BaseService {
 		}
 		ruleModel.setStatus(status);
 		creativeRuleDao.updateByPrimaryKeySelective(ruleModel);
+	}
+	/**
+	 * 向规则——条件表插入数据
+	 * @param ruleBean
+	 * @throws Exception
+	 */
+	public void addRuleCondition(RuleBean ruleBean) throws Exception {
+		Condition[] conditions = ruleBean.getConditions();
+		if (conditions != null && conditions.length > 0) {
+			for (Condition condition : conditions) {
+				RuleConditionModel ruleCondition = modelMapper.map(condition, RuleConditionModel.class);
+				ruleCondition.setId(UUID.randomUUID().toString());
+				ruleCondition.setRuleId(ruleBean.getId());
+				ruleConditionDao.insertSelective(ruleCondition);
+			}
+		}
+	}
+	
+	/**
+	 * 删除规则——条件表数据
+	 * @param ruleId
+	 */
+	public void deleteRuleConditionById(String ruleId) {
+		if (!StringUtils.isEmpty(ruleId)) {
+			RuleConditionModelExample example = new RuleConditionModelExample();
+			example.createCriteria().andRuleIdEqualTo(ruleId);
+			ruleConditionDao.deleteByExample(example );
+		}
 	}
 }

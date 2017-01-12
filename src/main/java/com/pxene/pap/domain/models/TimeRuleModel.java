@@ -11,10 +11,6 @@ public class TimeRuleModel {
 
     private String execCycle;
 
-    private String dataType;
-
-    private Double data;
-
     private Float fare;
 
     private Float sale;
@@ -55,22 +51,6 @@ public class TimeRuleModel {
 
     public void setExecCycle(String execCycle) {
         this.execCycle = execCycle == null ? null : execCycle.trim();
-    }
-
-    public String getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(String dataType) {
-        this.dataType = dataType == null ? null : dataType.trim();
-    }
-
-    public Double getData() {
-        return data;
-    }
-
-    public void setData(Double data) {
-        this.data = data;
     }
 
     public Float getFare() {
@@ -123,8 +103,6 @@ public class TimeRuleModel {
         sb.append(", name=").append(name);
         sb.append(", historyData=").append(historyData);
         sb.append(", execCycle=").append(execCycle);
-        sb.append(", dataType=").append(dataType);
-        sb.append(", data=").append(data);
         sb.append(", fare=").append(fare);
         sb.append(", sale=").append(sale);
         sb.append(", status=").append(status);
