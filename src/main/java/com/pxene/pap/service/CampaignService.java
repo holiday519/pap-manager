@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CampaignInfoBean;
+import com.pxene.pap.domain.beans.CampaignTmpePriceBean;
 import com.pxene.pap.domain.beans.CampaignInfoBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
@@ -708,52 +710,32 @@ public class CampaignService extends LaunchService{
 	
 	/**
 	 * 添加 活动——模版 价格
-	 * @param mapIds
-	 * @param prices
+	 * @param beans
 	 * @throws Exception
 	 */
 	@Transactional
-	public void addCampaignTmplPrice(String[] mapIds, Float[] prices) throws Exception {
-		if (mapIds == null || prices == null || mapIds.length != prices.length
-				|| (mapIds.length == 0 && prices.length == 0)) {
+	public void addCampaignTmplPrice(Map<String, Map<String, String>[]> param) throws Exception {
+		
+		Map<String, String>[] maps = param.get("params");
+		
+		if (maps == null || maps.length < 1) {
 			throw new IllegalArgumentException();
 		}
-		String campaignId = null;
-		for (int i = 0; i < mapIds.length; i++) {
-			String mapId = mapIds[i];
-			//查询创意关联表数据
-			CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
-			if (materialModel == null) {
-				continue;
-			}
-			String creativeId = materialModel.getCreativeId();
-			String tmplId = materialModel.getTmplId();//模版id
-			String creativeType = materialModel.getCreativeType();//创意类型
-			//查询创意表数据
-			CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-			if (creativeModel == null) {
-				continue;
-			}
-			campaignId = creativeModel.getCampaignId();//活动ID
-			Float price = prices[i];//价格
-			//查询活动、模版是否已经有价格
-			CampaignTmplPriceModelExample ctpExample = new CampaignTmplPriceModelExample();
-			ctpExample.createCriteria().andCampaignIdEqualTo(campaignId).andTmplIdEqualTo(tmplId).andCreativeTypeEqualTo(creativeType);
-			List<CampaignTmplPriceModel> list = campaignTmplPriceDao.selectByExample(ctpExample);
-			if (list == null || list.isEmpty()) {//如果没有数据就插入数据
-				CampaignTmplPriceModel ctmModel = new CampaignTmplPriceModel();
-				ctmModel.setId(UUID.randomUUID().toString());
-				ctmModel.setCampaignId(campaignId);
-				ctmModel.setCreativeType(creativeType);
+		for (Map<String, String> map : maps) {
+			CampaignTmplPriceModel ctmModel = new CampaignTmplPriceModel();
+			String campaignId = map.get("campaignId");
+			String tmplId = map.get("tmplId");
+			String creativeType = map.get("creativeType");
+			String price = map.get("price");
+
+			ctmModel.setId(UUID.randomUUID().toString());
+			ctmModel.setCampaignId(campaignId);
+			ctmModel.setTmplId(tmplId);
+			ctmModel.setCreativeType(creativeType);
+			if (!StringUtils.isEmpty(price)) {
 				ctmModel.setPrice(new BigDecimal(price));
-				ctmModel.setTmplId(tmplId);
-				campaignTmplPriceDao.insert(ctmModel);
-			} else {//如果有数据则修改数据
-				for (CampaignTmplPriceModel model : list) {
-					model.setPrice(new BigDecimal(price));
-					campaignTmplPriceDao.updateByPrimaryKeySelective(model);
-				}
 			}
+			campaignTmplPriceDao.insert(ctmModel);
 		}
 	}
 	

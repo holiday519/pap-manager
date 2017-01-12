@@ -24,6 +24,7 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
+import com.pxene.pap.domain.beans.CampaignTmpePriceBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CampaignService;
 
@@ -165,6 +166,22 @@ public class CampaignController {
 	@ResponseBody
 	public void pauseByCampaign(@RequestParam(required = true) String campaignIds, HttpServletResponse response) throws Exception {
 		campaignService.pauseCampaign(campaignIds);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 添加活动模版价格
+	 * @param campaignId
+	 * @param tmplIds
+	 * @param creativeTypes
+	 * @param prices
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign/addTmplPrice", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void addCampaignTmplPrice(@RequestBody Map<String, Map<String, String>[]> param, HttpServletResponse response) throws Exception {
+		campaignService.addCampaignTmplPrice(param);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }
