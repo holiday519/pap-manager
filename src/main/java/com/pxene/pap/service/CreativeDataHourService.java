@@ -25,11 +25,13 @@ import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
 import com.pxene.pap.domain.beans.DayAndHourDataBean;
 import com.pxene.pap.domain.models.CreativeDataHourModel;
+import com.pxene.pap.domain.models.CreativeMaterialModel;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CreativeDataHourDao;
+import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.custom.CreativeDataHourStatsDao;
 
 @Service
@@ -43,6 +45,9 @@ public class CreativeDataHourService extends BaseService
     
     @Autowired
     private CreativeDao creativeDao;
+    
+    @Autowired
+    private CreativeMaterialDao creativeMaterialDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -293,6 +298,7 @@ public class CreativeDataHourService extends BaseService
      * @return
      */
     public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans) {
+    	DecimalFormat format = new DecimalFormat("0.00000");
     	if (beans != null && beans.size() > 0) {
     		for (DayAndHourDataBean bean : beans) {
     			bean.setBidAmount(null);
@@ -313,7 +319,6 @@ public class CreativeDataHourService extends BaseService
 				}
 				bean.setJumpAmount(null);
 				
-				DecimalFormat format = new DecimalFormat("0.00000");
 				
 				if (bean.getWinAmount() == 0) {
 					bean.setImpressionRate(0F);
@@ -340,14 +345,88 @@ public class CreativeDataHourService extends BaseService
 				}
 				
 				if (!StringUtils.isEmpty(bean.getCreativeId())) {
-					CreativeModel model = creativeDao.selectByPrimaryKey(bean.getCreativeId());
+					CreativeMaterialModel model = creativeMaterialDao.selectByPrimaryKey(bean.getCreativeId());
 					if (model != null) {
-						bean.setCreativeName(model.getName());
+						//相同creativeId的素材对象creativeId都变成一个
+						String creativeId = model.getCreativeId();
+						if (!StringUtils.isEmpty(creativeId)) {
+							CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+							bean.setCreativeId(creativeModel.getId());
+							bean.setCreativeName(creativeModel.getName());
+						}
 					}
 				}
     		}
     	}
-    	return beans;
+    	//将所有不重复的creaticeId放入List————根据List就知道最后条数
+    	List<String> creativeIds = new ArrayList<String>();
+    	for (DayAndHourDataBean bean : beans) {
+    		if (creativeIds.contains(bean.getCreativeId())) {
+    			creativeIds.add(bean.getCreativeId());	
+    		}
+    	}
+    	//创建一个新的List存放结果用
+    	List<DayAndHourDataBean> newBeans = new ArrayList<DayAndHourDataBean>();
+    	if (beans !=null && !beans.isEmpty()) {
+			for (DayAndHourDataBean bean : beans) {
+				//如果list里没有CreativeId，先添加进去
+				if(indexOfBean(newBeans, bean.getCreativeId()) == null){
+					newBeans.add(bean);
+				} else {
+					//如果有，就将相同creativeId的数据合并成一条
+					int index = indexOfBean(newBeans, bean.getCreativeId());
+					DayAndHourDataBean dataBean = newBeans.get(index);
+					dataBean.setWinAmount(dataBean.getWinAmount() + bean.getWinAmount());
+					dataBean.setImpressionAmount(dataBean.getImpressionAmount() + bean.getImpressionAmount());
+					dataBean.setClickAmount(dataBean.getClickAmount() + bean.getClickAmount());
+					dataBean.setArrivalAmount(dataBean.getArrivalAmount() + bean.getArrivalAmount());
+					dataBean.setUniqueAmount(dataBean.getUniqueAmount() + bean.getUniqueAmount());
+					
+					if (dataBean.getWinAmount() == 0) {
+						dataBean.setImpressionRate(0F);
+					} else {
+				        double percent = (double)dataBean.getImpressionAmount() / dataBean.getWinAmount();
+				        Float result = Float.parseFloat(format.format(percent));
+				        dataBean.setImpressionRate(result);
+					}
+					
+					if (dataBean.getImpressionAmount() == 0) {
+						dataBean.setClickRate(0F);
+					} else {
+						double percent = (double)dataBean.getClickAmount() / dataBean.getImpressionAmount();
+						Float result = Float.parseFloat(format.format(percent));
+						dataBean.setClickRate(result);
+					}
+					
+					if (dataBean.getClickAmount() == 0) {
+						dataBean.setArrivalRate(0F);
+					} else {
+						double percent = (double)dataBean.getArrivalAmount() / dataBean.getClickAmount();
+						Float result = Float.parseFloat(format.format(percent));
+						dataBean.setArrivalRate(result);
+					}
+				}
+			}
+    	}
+    	//返回新的结果集
+    	return newBeans;
+    }
+    
+    /**
+     * 查询list中是否含有bean
+     * @param newBeans
+     * @param id
+     * @return
+     */
+    public Integer indexOfBean(List<DayAndHourDataBean> newBeans, String id) {
+    	Integer index = null;
+    	for (int i=0;i<newBeans.size();i++) {
+    		if (id.equals(newBeans.get(i).getCreativeId())) {
+    			index = i;
+    			break;
+    		}
+    	}
+    	return index;
     }
     
 }
