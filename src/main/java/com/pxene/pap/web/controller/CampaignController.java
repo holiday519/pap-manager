@@ -21,10 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignBean;
+import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
-import com.pxene.pap.domain.beans.CampaignTmpePriceBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CampaignService;
 
