@@ -580,7 +580,7 @@ public class RedisService {
 	 * @return
 	 * @throws Exception
 	 */
-	private JsonObject createAppTargetJson(String appTarget) throws Exception {
+	public JsonObject createAppTargetJson(String appTarget) throws Exception {
 		if (appTarget == null || "".equals(appTarget)) {
 			return null;
 		}
@@ -600,10 +600,7 @@ public class RedisService {
 					appids.add(appModel.getAppId());
 				}
 			}
-			int flag = 0;
-			if (appids.size() > 0) {
-				flag = 1;
-			}
+			int flag = 1;//是中写入1；用于控制在app为空时，不投此媒体
 			idObj.addProperty("flag", flag);
 			idObj.add("wlist", appids);
 			idArr.add(idObj);
@@ -633,6 +630,7 @@ public class RedisService {
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		JsonArray mapidJson = new JsonArray();
+		JsonObject mapidObject = new JsonObject();
 		if (creatives != null && !creatives.isEmpty()) {
 			// 查询创意对应的关联关系mapid
 			for (CreativeModel creative : creatives) {
@@ -652,7 +650,8 @@ public class RedisService {
 				}
 			}
 		}
-		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, mapidJson.toString());
+		mapidObject.add("mapids", mapidJson);
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, mapidObject.toString());
 	}
 	
 	/**

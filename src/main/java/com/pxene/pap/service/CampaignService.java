@@ -61,6 +61,7 @@ import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
+import com.pxene.pap.repository.basic.AppRuleDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -735,6 +736,5 @@ public class CampaignService extends LaunchService{
 			campaignTmplPriceDao.insert(ctmModel);
 		}
 	}
-	
 	
 }

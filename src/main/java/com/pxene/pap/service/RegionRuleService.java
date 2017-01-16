@@ -53,7 +53,7 @@ public class RegionRuleService extends BaseService {
 		RegionRuleModel model = modelMapper.map(ruleBean, RegionRuleModel.class);
 		String ruleId = UUID.randomUUID().toString();
 		model.setId(ruleId);
-		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_USED);
+		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_UNUSED);
 		
 		try {
 			ruleBean.setId(ruleId);

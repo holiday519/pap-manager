@@ -1,20 +1,32 @@
 package com.pxene.pap.service;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.DayAndHourDataBean;
 import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.beans.RuleBean.Condition;
 import com.pxene.pap.domain.models.AppRuleModel;
@@ -22,9 +34,9 @@ import com.pxene.pap.domain.models.AppRuleModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignRuleModel;
 import com.pxene.pap.domain.models.CampaignRuleModelExample;
+import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
 import com.pxene.pap.domain.models.RuleConditionModel;
 import com.pxene.pap.domain.models.RuleConditionModelExample;
-import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
@@ -49,11 +61,17 @@ public class AppRuleService extends BaseService {
 	@Autowired
 	private CampaignRuleDao campaignRuleDao;
 	
+	@Autowired
+	private RedisService redisService;
+	
+	@Autowired
+	private AppDataHourService appDataHourService;
+	
 	public void saveAppRule(RuleBean ruleBean) throws Exception {
 		AppRuleModel model = modelMapper.map(ruleBean, AppRuleModel.class);
 		String ruleId = UUID.randomUUID().toString();
 		model.setId(ruleId);
-		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_USED);
+		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_UNUSED);
 		
 		try {
 			ruleBean.setId(ruleId);
@@ -295,4 +313,241 @@ public class AppRuleService extends BaseService {
 			ruleConditionDao.deleteByExample(example );
 		}
 	}
+	
+	/**
+	 * 打开App规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @throws Exception
+	 */
+	public void openCampaignAppRule(String campaignId, String ruleId) throws Exception {
+		String Id1 = UUID.randomUUID().toString();
+		String Id2 = UUID.randomUUID().toString();
+		Date time = new Date();//当前时间
+		//查询规则
+		AppRuleModel ruleModel = appRuleDao.selectByPrimaryKey(ruleId);
+		String historyData = ruleModel.getHistoryData();//时段
+		Float fare = ruleModel.getFare();//提价比
+		Float sale = ruleModel.getSale();//降价比
+		//根据时段设置开始时间、结束时间
+		Long beginTime = getStartTimeByhistoryData(historyData, time);
+		Long endTime = time.getTime();
+		//如果时间为“前一天”时，结束时间需要特殊处理
+		if ("09".equals(historyData)) {
+			DateTimeFormatter format = DateTimeFormat .forPattern("yyyy-MM-dd HH:mm:ss");
+			String day = new DateTime(time).minusDays(1).toString("yyyy-MM-dd");
+			endTime = DateTime.parse(day + " 23:59:59", format).getMillis();
+		}
+		//查询app数据
+		List<DayAndHourDataBean> appDataHour = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
+		if (appDataHour == null || appDataHour.isEmpty()) {
+			throw new ResourceNotFoundException("当前活动无APP投放数据，不能开启app规则");
+		}
+		//查询规则下的条件
+		RuleConditionModelExample conditionExample = new RuleConditionModelExample();
+		conditionExample.createCriteria().andRuleIdEqualTo(ruleId);
+		List<RuleConditionModel> conditions = ruleConditionDao.selectByExample(conditionExample);
+		
+		List<String> upList = new ArrayList<String>();//加价的活动id
+		List<String> downList = new ArrayList<String>();//减价的活动id
+		for (DayAndHourDataBean bean : appDataHour) {//--先找出需要减钱的appid
+			//要求每一条都符合所有的条件才能加价，否则就减价
+			for (RuleConditionModel condition : conditions) {//不符合其中任意一个条件的，就属于减价
+				double data = 0;
+				if ("01".equals(condition.getDataType())) {
+					data = bean.getBidAmount();
+				} else if ("02".equals(condition.getDataType())) {
+					data = bean.getWinAmount();
+				} else if ("03".equals(condition.getDataType())) {
+					data = bean.getWinRate();
+				} else if ("04".equals(condition.getDataType())) {
+					data = bean.getImpressionAmount();
+				} else if ("05".equals(condition.getDataType())) {
+					data = bean.getImpressionRate();
+				} else if ("06".equals(condition.getDataType())) {
+					data = bean.getClickAmount();
+				} else if ("07".equals(condition.getDataType())) {
+					data = bean.getClickRate();
+				} else if ("08".equals(condition.getDataType())) {
+					data = bean.getArrivalAmount();
+				} else if ("09".equals(condition.getDataType())) {
+					data = bean.getArrivalRate();
+				} else if ("10".equals(condition.getDataType())) {
+					data = bean.getUniqueAmount();
+				}
+				String AppId = bean.getAppId();
+				if ("01".equals(condition.getCompareType())) {//条件选择大于的时候，如果数据值不大于条件值，就放入降价id中
+					if (data < condition.getData()) {
+						if (!downList.contains(condition)) {
+							downList.add(AppId);
+						}
+					}
+				} else {//条件选择小于
+					if (data >= condition.getData()) {
+						if (!downList.contains(condition)) {
+							downList.add(AppId);
+						}
+					}
+				}
+			}
+		}
+		
+		for (DayAndHourDataBean bean : appDataHour) {//查询数据中除去减钱的剩下的就是加钱的
+			bean.getRealAppId();
+			if (!downList.isEmpty() && !downList.contains(bean.getAppId())) {
+				upList.add(bean.getAppId());
+			}
+		}
+		
+		//已经找出升价的appid和降价appid，进行拆分key
+		//查询redis中活动定向
+		String campaignTarget = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
+		
+		Gson gson = new Gson();
+		
+		if(!StringUtils.isEmpty(campaignTarget)) {
+			JsonObject targetObj1 = gson.fromJson(campaignTarget, new JsonObject().getClass());
+			JsonObject targetObj2 = gson.fromJson(campaignTarget, new JsonObject().getClass());
+			targetObj1.addProperty("groupid", Id1);
+			targetObj2.addProperty("groupid", Id2);
+			StringBuffer string1 = new StringBuffer("");
+			for (int i = 0; 1 < upList.size(); i++) {
+				string1.append(upList.get(i));
+				if (i < upList.size() - 1) {
+					string1.append(",");
+				}
+			}
+			StringBuffer string2 = new StringBuffer("");
+			for (int i = 0; 1 < downList.size(); i++) {
+				string2.append(downList.get(i));
+				if (i < downList.size() - 1) {
+					string2.append(",");
+				}
+			}
+			JsonObject appObj1 = redisService.createAppTargetJson(string1.toString());
+			JsonObject appObj2 = redisService.createAppTargetJson(string2.toString());
+			targetObj1.add("app", appObj1);
+			targetObj2.add("app", appObj2);
+			
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + Id1, targetObj1.toString());
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + Id2, targetObj2.toString());
+		}
+		
+		//活动基本信息拆分
+		String campaignInfo = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+		if (!StringUtils.isEmpty(campaignInfo)) {
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + Id1, campaignInfo);
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + Id2, campaignInfo);
+		}
+		
+		//活动下mapIds
+		String campaignMapId = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		//将mapid分成两份
+		List<String> mapIdList1 = new ArrayList<String>();
+		List<String> mapIdList2 = new ArrayList<String>();
+		if (!StringUtils.isEmpty(campaignMapId)) {
+			JsonObject mapIdJson = gson.fromJson(campaignMapId, new JsonObject().getClass());
+			JsonArray mapids = mapIdJson.getAsJsonArray("mapids");
+			for (int i = 0; i < mapids.size(); i++) {
+				String mapid = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapids.get(i));
+				if (StringUtils.isEmpty(mapid)) {
+					continue;
+				}
+				String mapid1 = UUID.randomUUID().toString();
+				String mapid2 = UUID.randomUUID().toString();
+				mapIdList1.add(mapid1);
+				mapIdList2.add(mapid2);
+				JsonObject obj1 = gson.fromJson(mapid, new JsonObject().getClass());
+				JsonObject obj2 = gson.fromJson(mapid, new JsonObject().getClass());
+				obj1.addProperty("groupid", Id1);
+				obj2.addProperty("groupid", Id2);
+				JsonArray array1 = obj1.getAsJsonArray("price_adx");
+				JsonArray array2 = obj2.getAsJsonArray("price_adx");
+				DecimalFormat format = new DecimalFormat("##.##");
+				for (int m=0;m<array1.size();m++) {//加价
+					JsonObject object = array1.getAsJsonObject();
+					Float price = object.get("price").getAsFloat();
+					String newPriceStr = format.format(new BigDecimal(price).multiply(new BigDecimal(1 + fare)));
+					float newPrice = Float.parseFloat(newPriceStr);
+					object.addProperty("price", newPrice);
+				}
+				for (int m=0;m<array2.size();m++) {//降价
+					JsonObject object = array2.getAsJsonObject();
+					Float price = object.get("price").getAsFloat();
+					String newPriceStr = format.format(new BigDecimal(price).multiply(new BigDecimal(1 - sale)));
+					float newPrice = Float.parseFloat(newPriceStr);
+					object.addProperty("price", newPrice);
+				}
+				obj1.add("price_adx", array1);
+				obj2.add("price_adx", array2);
+				JedisUtils.set("part_mapId_" + mapid1, mapid);
+				JedisUtils.set("part_mapId_" + mapid2, mapid);
+				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid1, obj1.toString());
+				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid2, obj2.toString());
+			}
+		}
+		
+		//写入活动下的创意
+		JsonArray mapIdArr1 = new JsonArray();
+		JsonArray mapIdArr2 = new JsonArray();
+		JsonObject mapIdObj1 = new JsonObject();
+		JsonObject mapIdObj2 = new JsonObject();
+		for (int i = 0; i < upList.size(); i++) {
+			mapIdArr1.add(upList.get(i));
+		}
+		for (int i = 0; i < downList.size(); i++) {
+			mapIdArr2.add(downList.get(i));
+		}
+		mapIdObj1.add("mapids", mapIdArr1);
+		mapIdObj2.add("mapids", mapIdArr2);
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + Id1, mapIdObj1.toString());
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + Id2, mapIdObj2.toString());
+		
+		JedisUtils.set("part_campaignId_" + Id1, campaignId);
+		JedisUtils.set("part_campaignId_" + Id2, campaignId);
+		
+		//活动投放（被拆分的移除，拆分出的加入）
+		redisService.deleteCampaignId(campaignId);
+		redisService.writeCampaignIds(Id1);
+		redisService.writeCampaignIds(Id2);
+		
+		AppRuleModel model = appRuleDao.selectByPrimaryKey(ruleId);
+		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_USED);
+		appRuleDao.updateByPrimaryKey(model);
+	}
+	
+	/**
+	 * 获取时段
+	 * @param historyData 时段参数
+	 * @return
+	 */
+	public static Long getStartTimeByhistoryData(String historyData, Date endTime) {
+		DateTime time = new DateTime(endTime);
+		DateTimeFormatter format = DateTimeFormat .forPattern("yyyy-MM-dd HH:mm:ss");
+		if ("01".equals(historyData)) {//过去1小时
+			return time.minusHours(1).getMillis();
+		} else if ("02".equals(historyData)) {//过去2小时
+			return time.minusHours(2).getMillis();
+		} else if ("03".equals(historyData)) {//过去3小时
+			return time.minusHours(3).getMillis();
+		} else if ("04".equals(historyData)) {//过去6小时
+			return time.minusHours(6).getMillis();
+		} else if ("05".equals(historyData)) {//过去12小时
+			return time.minusHours(12).getMillis();
+		} else if ("06".equals(historyData)) {//过去24小时
+			return time.minusHours(24).getMillis();
+		} else if ("07".equals(historyData)) {//过去3天
+			return time.minusDays(3).getMillis();
+		} else if ("08".equals(historyData)) {//过去7天
+			return time.minusDays(7).getMillis();
+		} else if ("09".equals(historyData)) {//前一天:调用此处时，由于是前一天，此函数只对开始时间处理；*需要单独处理结束时间
+			String day = time.minusDays(1).toString("yyyy-MM-dd");
+			return DateTime.parse(day + " 00:00:00", format).getMillis();
+		} else if ("10".equals(historyData)) {//当天
+			String day = time.toString("yyyy-MM-dd");
+			return DateTime.parse(day + " 00:00:00", format).getMillis();
+		}
+		return 0L;
+	}
+	
 }

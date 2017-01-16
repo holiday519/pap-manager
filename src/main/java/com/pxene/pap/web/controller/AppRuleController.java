@@ -79,4 +79,18 @@ public class AppRuleController {
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
+	/**
+	 * 打开app规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/rule/app/open", method = RequestMethod.PUT)
+    @ResponseBody
+	public void updateAppRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId,  HttpServletResponse response) throws Exception {
+		appRuleService.openCampaignAppRule(campaignId, ruleId);
+		response.setStatus(HttpStatus.NO_CONTENT.value());	
+	}
+	
 }
