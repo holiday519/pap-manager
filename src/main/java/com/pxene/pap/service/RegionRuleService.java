@@ -1,44 +1,76 @@
 package com.pxene.pap.service;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.DayAndHourDataBean;
 import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.beans.RuleBean.Condition;
+import com.pxene.pap.domain.models.AppRuleModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignRuleModel;
 import com.pxene.pap.domain.models.CampaignRuleModelExample;
 import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
+import com.pxene.pap.domain.models.CreativeRuleModel;
+import com.pxene.pap.domain.models.LandpageRuleModel;
 import com.pxene.pap.domain.models.RegionRuleModel;
 import com.pxene.pap.domain.models.RegionRuleModelExample;
 import com.pxene.pap.domain.models.RuleConditionModel;
 import com.pxene.pap.domain.models.RuleConditionModelExample;
+import com.pxene.pap.domain.models.TimeRuleModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.AppRuleDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignRuleDao;
+import com.pxene.pap.repository.basic.CreativeRuleDao;
+import com.pxene.pap.repository.basic.LandpageRuleDao;
 import com.pxene.pap.repository.basic.RegionRuleDao;
 import com.pxene.pap.repository.basic.RuleConditionDao;
+import com.pxene.pap.repository.basic.TimeRuleDao;
 
 @Service
 public class RegionRuleService extends BaseService {
 	
 	@Autowired
+	private AppRuleDao appRuleDao;
+	
+	@Autowired
 	private RegionRuleDao regionRuleDao;
+	
+	@Autowired
+	private TimeRuleDao timeRuleDao;
+	
+	@Autowired
+	private LandpageRuleDao landpageRuleDao;
+	
+	@Autowired
+	private CreativeRuleDao creativeRuleDao;
 	
 	@Autowired
 	private CampaignDao campaignDao;
@@ -47,7 +79,16 @@ public class RegionRuleService extends BaseService {
 	private CampaignRuleDao campaignRuleDao;
 	
 	@Autowired
+	private RedisService redisService;
+	
+	@Autowired
 	private RuleConditionDao ruleConditionDao; 
+	
+	@Autowired
+	private RegionDataHourService regionDataHourService;
+	
+	@Autowired
+	private AppRuleService appRuleService;
 	
 	public void saveRegionRule(RuleBean ruleBean) throws Exception {
 		RegionRuleModel model = modelMapper.map(ruleBean, RegionRuleModel.class);
@@ -213,6 +254,7 @@ public class RegionRuleService extends BaseService {
 	 * @param ruleBean
 	 * @param type
 	 */
+	@Transactional
 	public void addCampaignAndRule(RuleBean ruleBean, String type) throws Exception {
 		String[] campaignIds = ruleBean.getCampaignIds();
 		if (campaignIds != null && campaignIds.length > 0) {
@@ -232,6 +274,7 @@ public class RegionRuleService extends BaseService {
 	 * @param ruleId
 	 * @throws Exception
 	 */
+	@Transactional
 	public void deleteCampaignAndRule(String ruleId) throws Exception {
 		CampaignRuleModelExample example = new CampaignRuleModelExample();
 		example.createCriteria().andRuleIdEqualTo(ruleId);
@@ -245,6 +288,7 @@ public class RegionRuleService extends BaseService {
 	 * @param map
 	 * @throws Exception
 	 */
+	@Transactional
 	public void updateRegionRuleStatus(String id, Map<String, String> map) throws Exception {
 		if (StringUtils.isEmpty(map.get("action"))) {
 			throw new IllegalArgumentException();
@@ -274,6 +318,7 @@ public class RegionRuleService extends BaseService {
 	 * @param ruleBean
 	 * @throws Exception
 	 */
+	@Transactional
 	public void addRuleCondition(RuleBean ruleBean) throws Exception {
 		Condition[] conditions = ruleBean.getConditions();
 		if (conditions != null && conditions.length > 0) {
@@ -290,6 +335,7 @@ public class RegionRuleService extends BaseService {
 	 * 删除规则——条件表数据
 	 * @param ruleId
 	 */
+	@Transactional
 	public void deleteRuleConditionById(String ruleId) {
 		if (!StringUtils.isEmpty(ruleId)) {
 			RuleConditionModelExample example = new RuleConditionModelExample();
@@ -297,4 +343,298 @@ public class RegionRuleService extends BaseService {
 			ruleConditionDao.deleteByExample(example );
 		}
 	}
+	
+	/**
+	 * 打开地域规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @throws Exception
+	 */
+	@Transactional
+	public void openRegionRule(String campaignId, String ruleId) throws Exception {
+		if (checkGroupHaveRule(campaignId, ruleId)) {
+			throw new IllegalStatusException("活动下已有开启的规则，无法再次开启规则");
+		}
+		
+		String Id1 = UUID.randomUUID().toString();
+		String Id2 = UUID.randomUUID().toString();
+		Date time = new Date();//当前时间
+		//查询规则
+		RegionRuleModel ruleModel = regionRuleDao.selectByPrimaryKey(ruleId);
+		String historyData = ruleModel.getHistoryData();//时段
+		Float fare = ruleModel.getFare();//提价比
+		Float sale = ruleModel.getSale();//降价比
+		//根据时段设置开始时间、结束时间
+		Long beginTime = getStartTimeByhistoryData(historyData, time);
+		Long endTime = time.getTime();
+		//如果时间为“前一天”时，结束时间需要特殊处理
+		if ("09".equals(historyData)) {
+			DateTimeFormatter format = DateTimeFormat .forPattern("yyyy-MM-dd HH:mm:ss");
+			String day = new DateTime(time).minusDays(1).toString("yyyy-MM-dd");
+			endTime = DateTime.parse(day + " 23:59:59", format).getMillis();
+		}
+		
+		//查询app数据
+		List<DayAndHourDataBean> regionDataHour = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+		if (regionDataHour == null || regionDataHour.isEmpty()) {
+			throw new ResourceNotFoundException("当前活动无地域投放数据，不能开启地域规则");
+		}
+		//查询规则下的条件
+		RuleConditionModelExample conditionExample = new RuleConditionModelExample();
+		conditionExample.createCriteria().andRuleIdEqualTo(ruleId);
+		List<RuleConditionModel> conditions = ruleConditionDao.selectByExample(conditionExample);
+		
+		List<String> upList = new ArrayList<String>();//加价的活动id
+		List<String> downList = new ArrayList<String>();//减价的活动id
+		
+		for (DayAndHourDataBean bean : regionDataHour) {//--先找出需要减钱的regionId
+			//要求每一条都符合所有的条件才能加价，否则就减价
+			for (RuleConditionModel condition : conditions) {//不符合其中任意一个条件的，就属于减价
+				double data = 0;
+				if ("01".equals(condition.getDataType())) {
+					data = bean.getBidAmount();
+				} else if ("02".equals(condition.getDataType())) {
+					data = bean.getWinAmount();
+				} else if ("03".equals(condition.getDataType())) {
+					data = bean.getWinRate();
+				} else if ("04".equals(condition.getDataType())) {
+					data = bean.getImpressionAmount();
+				} else if ("05".equals(condition.getDataType())) {
+					data = bean.getImpressionRate();
+				} else if ("06".equals(condition.getDataType())) {
+					data = bean.getClickAmount();
+				} else if ("07".equals(condition.getDataType())) {
+					data = bean.getClickRate();
+				} else if ("08".equals(condition.getDataType())) {
+					data = bean.getArrivalAmount();
+				} else if ("09".equals(condition.getDataType())) {
+					data = bean.getArrivalRate();
+				} else if ("10".equals(condition.getDataType())) {
+					data = bean.getUniqueAmount();
+				}
+				String RegionId = bean.getRegionId();
+				if ("01".equals(condition.getCompareType())) {//条件选择大于的时候，如果数据值不大于条件值，就放入降价id中
+					if (data < condition.getData()) {
+						if (!downList.contains(RegionId)) {
+							downList.add(RegionId);
+						}
+					}
+				} else {//条件选择小于
+					if (data >= condition.getData()) {
+						if (!downList.contains(RegionId)) {
+							downList.add(RegionId);
+						}
+					}
+				}
+			}
+		}
+		//查询数据中除去减钱的剩下的就是加钱的-----在定向里的id，却没有投放数据（根据判断代码逻辑，不符合降价，也不符合升价），此处会将这些id丢掉。--？
+		for (DayAndHourDataBean bean : regionDataHour) {
+			if (!downList.isEmpty() && !downList.contains(bean.getRegionId())) {
+				upList.add(bean.getRegionId());
+			}
+		}
+		
+		//已经找出升价的regionId和降价regionId，进行拆分key
+		//查询redis中活动定向
+		String campaignTarget = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
+		
+		Gson gson = new Gson();
+		
+		if(!StringUtils.isEmpty(campaignTarget)) {
+			JsonObject targetObj1 = gson.fromJson(campaignTarget, new JsonObject().getClass());
+			JsonObject targetObj2 = gson.fromJson(campaignTarget, new JsonObject().getClass());
+			targetObj1.addProperty("groupid", Id1);
+			targetObj2.addProperty("groupid", Id2);
+			
+			JsonArray arr1 = new JsonArray();
+			JsonArray arr2 = new JsonArray();
+			
+			for (String up : upList) {
+				String str = up.substring(4, up.length());
+				arr1.add(Integer.parseInt(str));
+			}
+			for (String down : downList) {
+				String str = down.substring(4, down.length());
+				arr2.add(Integer.parseInt(str));
+			}
+			targetObj1.add("regioncode", arr1);
+			targetObj2.add("regioncode", arr2);
+			
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + Id1, targetObj1.toString());
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + Id2, targetObj2.toString());
+		}
+		
+		//活动基本信息拆分
+		String campaignInfo = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+		if (!StringUtils.isEmpty(campaignInfo)) {
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + Id1, campaignInfo);
+			JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + Id2, campaignInfo);
+		}
+		
+		//活动下mapIds
+		String campaignMapId = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		//将mapid分成两份
+		List<String> mapIdList1 = new ArrayList<String>();
+		List<String> mapIdList2 = new ArrayList<String>();
+		if (!StringUtils.isEmpty(campaignMapId)) {
+			JsonObject mapIdJson = gson.fromJson(campaignMapId, new JsonObject().getClass());
+			JsonArray mapids = mapIdJson.getAsJsonArray("mapids");
+			for (int i = 0; i < mapids.size(); i++) {
+				String mapid = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapids.get(i).getAsString());
+				if (StringUtils.isEmpty(mapid)) {
+					continue;
+				}
+				String mapid1 = UUID.randomUUID().toString();
+				String mapid2 = UUID.randomUUID().toString();
+				mapIdList1.add(mapid1);
+				mapIdList2.add(mapid2);
+				JsonObject obj1 = gson.fromJson(mapid, new JsonObject().getClass());
+				JsonObject obj2 = gson.fromJson(mapid, new JsonObject().getClass());
+				obj1.addProperty("groupid", Id1);
+				obj2.addProperty("groupid", Id2);
+				JsonArray array1 = obj1.getAsJsonArray("price_adx");
+				JsonArray array2 = obj2.getAsJsonArray("price_adx");
+				DecimalFormat format = new DecimalFormat("##.##");
+				for (int m = 0; m < array1.size(); m++) {//加价
+					JsonObject object = array1.get(m).getAsJsonObject();
+					Float price = object.get("price").getAsFloat();
+					String newPriceStr = format.format(new BigDecimal(price).multiply(new BigDecimal(1 + fare)));
+					float newPrice = Float.parseFloat(newPriceStr);
+					object.addProperty("price", newPrice);
+				}
+				for (int m = 0; m < array2.size(); m++) {//降价
+					JsonObject object = array2.get(m).getAsJsonObject();
+					Float price = object.get("price").getAsFloat();
+					String newPriceStr = format.format(new BigDecimal(price).multiply(new BigDecimal(1 - sale)));
+					float newPrice = Float.parseFloat(newPriceStr);
+					object.addProperty("price", newPrice);
+				}
+				obj1.add("price_adx", array1);
+				obj2.add("price_adx", array2);
+				JedisUtils.set("part_child_mapId_" + mapid1, mapid);
+				JedisUtils.set("part_child_mapId_" + mapid2, mapid);
+				JedisUtils.set("part_parent_mapId_" + mapid, mapid + "," + mapid2);
+				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid1, obj1.toString());
+				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid2, obj2.toString());
+			}
+		}
+		
+		//写入活动下的创意
+		JsonArray mapIdArr1 = new JsonArray();
+		JsonArray mapIdArr2 = new JsonArray();
+		JsonObject mapIdObj1 = new JsonObject();
+		JsonObject mapIdObj2 = new JsonObject();
+		for (int i = 0; i < upList.size(); i++) {
+			mapIdArr1.add(upList.get(i));
+		}
+		for (int i = 0; i < downList.size(); i++) {
+			mapIdArr2.add(downList.get(i));
+		}
+		mapIdObj1.add("mapids", mapIdArr1);
+		mapIdObj2.add("mapids", mapIdArr2);
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + Id1, mapIdObj1.toString());
+		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + Id2, mapIdObj2.toString());
+		
+		JedisUtils.set("part_child_campaignId_" + Id1, campaignId);
+		JedisUtils.set("part_child_campaignId_" + Id2, campaignId);
+		JedisUtils.set("part_parent_campaignId_" + campaignId, Id1 + "," + Id2);
+		
+		//活动投放（被拆分的移除，拆分出的加入）
+		redisService.deleteCampaignId(campaignId);
+		redisService.writeCampaignIds(Id1);
+		redisService.writeCampaignIds(Id2);
+		
+		AppRuleModel model = appRuleDao.selectByPrimaryKey(ruleId);
+		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_USED);
+		appRuleDao.updateByPrimaryKey(model);
+	}
+	
+	/**
+	 * 获取时段
+	 * @param historyData 时段参数
+	 * @return
+	 */
+	public static Long getStartTimeByhistoryData(String historyData, Date endTime) {
+		DateTime time = new DateTime(endTime);
+		DateTimeFormatter format = DateTimeFormat .forPattern("yyyy-MM-dd HH:mm:ss");
+		if ("01".equals(historyData)) {//过去1小时
+			return time.minusHours(1).getMillis();
+		} else if ("02".equals(historyData)) {//过去2小时
+			return time.minusHours(2).getMillis();
+		} else if ("03".equals(historyData)) {//过去3小时
+			return time.minusHours(3).getMillis();
+		} else if ("04".equals(historyData)) {//过去6小时
+			return time.minusHours(6).getMillis();
+		} else if ("05".equals(historyData)) {//过去12小时
+			return time.minusHours(12).getMillis();
+		} else if ("06".equals(historyData)) {//过去24小时
+			return time.minusHours(24).getMillis();
+		} else if ("07".equals(historyData)) {//过去3天
+			return time.minusDays(3).getMillis();
+		} else if ("08".equals(historyData)) {//过去7天
+			return time.minusDays(7).getMillis();
+		} else if ("09".equals(historyData)) {//前一天:调用此处时，由于是前一天，此函数只对开始时间处理；*需要单独处理结束时间
+			String day = time.minusDays(1).toString("yyyy-MM-dd");
+			return DateTime.parse(day + " 00:00:00", format).getMillis();
+		} else if ("10".equals(historyData)) {//当天
+			String day = time.toString("yyyy-MM-dd");
+			return DateTime.parse(day + " 00:00:00", format).getMillis();
+		}
+		return 0L;
+	}
+	
+	/**
+	 * 检查活动下是否已经有规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @return true：有；false：无
+	 * @throws Exception
+	 */
+	public boolean checkGroupHaveRule(String campaignId, String ruleId) throws Exception {
+		//如果活动已经有开启的规则，则提示错误；一个活动只能有一个规则限定
+		CampaignRuleModelExample example = new CampaignRuleModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CampaignRuleModel> campaignRules = campaignRuleDao.selectByExample(example);
+		int m = 0;
+		if (campaignRules != null && !campaignRules.isEmpty()) {
+			for (CampaignRuleModel model : campaignRules) {
+				String id = model.getRuleId();
+				String ruleType = model.getRuleType();
+				if (StatusConstant.CAMPAIGN_RULE_TYPE_APP.equals(ruleType)) {
+					AppRuleModel ruleModel = appRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_REGION.equals(ruleType)) {
+					RegionRuleModel ruleModel = regionRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_TIME.equals(ruleType)) {
+					TimeRuleModel ruleModel = timeRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_LANDPAGE.equals(ruleType)) {
+					LandpageRuleModel ruleModel = landpageRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_CREATIVE.equals(ruleType)) {
+					CreativeRuleModel ruleModel = creativeRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				}
+				if (m > 0) {
+					return true;
+				}
+			}
+		} else {
+			throw new ResourceNotFoundException("活动无绑定规则，无法开启");
+		}
+		return false;
+	}
+	
 }

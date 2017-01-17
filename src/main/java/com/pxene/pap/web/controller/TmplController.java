@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
-import com.pxene.pap.domain.beans.TmplBean;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;

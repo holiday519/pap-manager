@@ -792,7 +792,7 @@ public class RedisService {
 	 * @return
 	 * @throws Exception
 	 */
-	private BigDecimal getCreativePrice(String mapId) throws Exception {
+	public BigDecimal getCreativePrice(String mapId) throws Exception {
 		//查询关联表数据
 		CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
 		if (materialModel == null) {

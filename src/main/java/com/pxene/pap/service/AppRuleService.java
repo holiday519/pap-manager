@@ -35,8 +35,12 @@ import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignRuleModel;
 import com.pxene.pap.domain.models.CampaignRuleModelExample;
 import com.pxene.pap.domain.models.CampaignRuleModelExample.Criteria;
+import com.pxene.pap.domain.models.CreativeRuleModel;
+import com.pxene.pap.domain.models.LandpageRuleModel;
+import com.pxene.pap.domain.models.RegionRuleModel;
 import com.pxene.pap.domain.models.RuleConditionModel;
 import com.pxene.pap.domain.models.RuleConditionModelExample;
+import com.pxene.pap.domain.models.TimeRuleModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
@@ -44,13 +48,29 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppRuleDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignRuleDao;
+import com.pxene.pap.repository.basic.CreativeRuleDao;
+import com.pxene.pap.repository.basic.LandpageRuleDao;
+import com.pxene.pap.repository.basic.RegionRuleDao;
 import com.pxene.pap.repository.basic.RuleConditionDao;
+import com.pxene.pap.repository.basic.TimeRuleDao;
 
 @Service
 public class AppRuleService extends BaseService {
 	
 	@Autowired
 	private AppRuleDao appRuleDao;
+	
+	@Autowired
+	private RegionRuleDao regionRuleDao;
+	
+	@Autowired
+	private TimeRuleDao timeRuleDao;
+	
+	@Autowired
+	private LandpageRuleDao landpageRuleDao;
+	
+	@Autowired
+	private CreativeRuleDao creativeRuleDao;
 	
 	@Autowired
 	private CampaignDao campaignDao;
@@ -229,6 +249,7 @@ public class AppRuleService extends BaseService {
 	 * @param ruleBean
 	 * @param type
 	 */
+	@Transactional
 	public void addCampaignAndRule(RuleBean ruleBean, String type) throws Exception {
 		String[] campaignIds = ruleBean.getCampaignIds();
 		if (campaignIds != null && campaignIds.length > 0) {
@@ -248,6 +269,7 @@ public class AppRuleService extends BaseService {
 	 * @param ruleId
 	 * @throws Exception
 	 */
+	@Transactional
 	public void deleteCampaignAndRule(String ruleId) throws Exception {
 		CampaignRuleModelExample example = new CampaignRuleModelExample();
 		example.createCriteria().andRuleIdEqualTo(ruleId);
@@ -261,6 +283,7 @@ public class AppRuleService extends BaseService {
 	 * @param map
 	 * @throws Exception
 	 */
+	@Transactional
 	public void updateAppRuleStatus(String id, Map<String, String> map) throws Exception {
 		if (StringUtils.isEmpty(map.get("action"))) {
 			throw new IllegalArgumentException();
@@ -290,6 +313,7 @@ public class AppRuleService extends BaseService {
 	 * @param ruleBean
 	 * @throws Exception
 	 */
+	@Transactional
 	public void addRuleCondition(RuleBean ruleBean) throws Exception {
 		Condition[] conditions = ruleBean.getConditions();
 		if (conditions != null && conditions.length > 0) {
@@ -306,6 +330,7 @@ public class AppRuleService extends BaseService {
 	 * 删除规则——条件表数据
 	 * @param ruleId
 	 */
+	@Transactional
 	public void deleteRuleConditionById(String ruleId) {
 		if (!StringUtils.isEmpty(ruleId)) {
 			RuleConditionModelExample example = new RuleConditionModelExample();
@@ -320,7 +345,13 @@ public class AppRuleService extends BaseService {
 	 * @param ruleId
 	 * @throws Exception
 	 */
+	@Transactional
 	public void openCampaignAppRule(String campaignId, String ruleId) throws Exception {
+
+		if (checkGroupHaveRule(campaignId, ruleId)) {
+			throw new IllegalStatusException("活动下已有开启的规则，无法再次开启规则");
+		}
+		
 		String Id1 = UUID.randomUUID().toString();
 		String Id2 = UUID.randomUUID().toString();
 		Date time = new Date();//当前时间
@@ -378,22 +409,21 @@ public class AppRuleService extends BaseService {
 				String AppId = bean.getAppId();
 				if ("01".equals(condition.getCompareType())) {//条件选择大于的时候，如果数据值不大于条件值，就放入降价id中
 					if (data < condition.getData()) {
-						if (!downList.contains(condition)) {
+						if (!downList.contains(AppId)) {
 							downList.add(AppId);
 						}
 					}
 				} else {//条件选择小于
 					if (data >= condition.getData()) {
-						if (!downList.contains(condition)) {
+						if (!downList.contains(AppId)) {
 							downList.add(AppId);
 						}
 					}
 				}
 			}
 		}
-		
-		for (DayAndHourDataBean bean : appDataHour) {//查询数据中除去减钱的剩下的就是加钱的
-			bean.getRealAppId();
+		//查询数据中除去减钱的剩下的就是加钱的-----在定向里的id，却没有投放数据（根据判断代码逻辑，不符合降价，也不符合升价），此处会将这些id丢掉。--？
+		for (DayAndHourDataBean bean : appDataHour) {
 			if (!downList.isEmpty() && !downList.contains(bean.getAppId())) {
 				upList.add(bean.getAppId());
 			}
@@ -464,15 +494,15 @@ public class AppRuleService extends BaseService {
 				JsonArray array1 = obj1.getAsJsonArray("price_adx");
 				JsonArray array2 = obj2.getAsJsonArray("price_adx");
 				DecimalFormat format = new DecimalFormat("##.##");
-				for (int m=0;m<array1.size();m++) {//加价
-					JsonObject object = array1.getAsJsonObject();
+				for (int m = 0; m < array1.size(); m++) {//加价
+					JsonObject object = array1.get(m).getAsJsonObject();
 					Float price = object.get("price").getAsFloat();
 					String newPriceStr = format.format(new BigDecimal(price).multiply(new BigDecimal(1 + fare)));
 					float newPrice = Float.parseFloat(newPriceStr);
 					object.addProperty("price", newPrice);
 				}
-				for (int m=0;m<array2.size();m++) {//降价
-					JsonObject object = array2.getAsJsonObject();
+				for (int m = 0; m < array2.size(); m++) {//降价
+					JsonObject object = array2.get(m).getAsJsonObject();
 					Float price = object.get("price").getAsFloat();
 					String newPriceStr = format.format(new BigDecimal(price).multiply(new BigDecimal(1 - sale)));
 					float newPrice = Float.parseFloat(newPriceStr);
@@ -480,8 +510,9 @@ public class AppRuleService extends BaseService {
 				}
 				obj1.add("price_adx", array1);
 				obj2.add("price_adx", array2);
-				JedisUtils.set("part_mapId_" + mapid1, mapid);
-				JedisUtils.set("part_mapId_" + mapid2, mapid);
+				JedisUtils.set("part_child_mapId_" + mapid1, mapid);
+				JedisUtils.set("part_child_mapId_" + mapid2, mapid);
+				JedisUtils.set("part_parent_mapId_" + mapid, mapid + "," + mapid2);
 				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid1, obj1.toString());
 				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid2, obj2.toString());
 			}
@@ -503,8 +534,9 @@ public class AppRuleService extends BaseService {
 		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + Id1, mapIdObj1.toString());
 		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + Id2, mapIdObj2.toString());
 		
-		JedisUtils.set("part_campaignId_" + Id1, campaignId);
-		JedisUtils.set("part_campaignId_" + Id2, campaignId);
+		JedisUtils.set("part_child_campaignId_" + Id1, campaignId);
+		JedisUtils.set("part_child_campaignId_" + Id2, campaignId);
+		JedisUtils.set("part_parent_campaignId_" + campaignId, Id1 + "," + Id2);
 		
 		//活动投放（被拆分的移除，拆分出的加入）
 		redisService.deleteCampaignId(campaignId);
@@ -550,4 +582,56 @@ public class AppRuleService extends BaseService {
 		return 0L;
 	}
 	
+	/**
+	 * 检查活动下是否已经有规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @return true：有；false：无
+	 * @throws Exception
+	 */
+	public boolean checkGroupHaveRule(String campaignId, String ruleId) throws Exception {
+		//如果活动已经有开启的规则，则提示错误；一个活动只能有一个规则限定
+		CampaignRuleModelExample example = new CampaignRuleModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CampaignRuleModel> campaignRules = campaignRuleDao.selectByExample(example);
+		int m = 0;
+		if (campaignRules != null && !campaignRules.isEmpty()) {
+			for (CampaignRuleModel model : campaignRules) {
+				String id = model.getRuleId();
+				String ruleType = model.getRuleType();
+				if (StatusConstant.CAMPAIGN_RULE_TYPE_APP.equals(ruleType)) {
+					AppRuleModel ruleModel = appRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_REGION.equals(ruleType)) {
+					RegionRuleModel ruleModel = regionRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_TIME.equals(ruleType)) {
+					TimeRuleModel ruleModel = timeRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_LANDPAGE.equals(ruleType)) {
+					LandpageRuleModel ruleModel = landpageRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				} else if (StatusConstant.CAMPAIGN_RULE_TYPE_CREATIVE.equals(ruleType)) {
+					CreativeRuleModel ruleModel = creativeRuleDao.selectByPrimaryKey(id);
+					if (ruleModel != null && StatusConstant.CAMPAIGN_RULE_STATUS_USED.equals(ruleModel.getStatus())) {
+						m = m + 1;
+					}
+				}
+				if (m > 0) {
+					return true;
+				}
+			}
+		} else {
+			throw new ResourceNotFoundException("活动无绑定规则，无法开启");
+		}
+		return false;
+	}
 }

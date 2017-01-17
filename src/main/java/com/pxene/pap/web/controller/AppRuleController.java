@@ -88,7 +88,7 @@ public class AppRuleController {
 	 */
 	@RequestMapping(value = "/rule/app/open", method = RequestMethod.PUT)
     @ResponseBody
-	public void updateAppRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId,  HttpServletResponse response) throws Exception {
+	public void updateAppRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId, HttpServletResponse response) throws Exception {
 		appRuleService.openCampaignAppRule(campaignId, ruleId);
 		response.setStatus(HttpStatus.NO_CONTENT.value());	
 	}

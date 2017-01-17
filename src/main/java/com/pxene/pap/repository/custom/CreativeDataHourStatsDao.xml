@@ -25,4 +25,24 @@
 		GROUP BY
 			t.creative_id
 	</select>
+	<select id="selectTimeDataByCampaignId" resultType="java.util.Map">
+		SELECT
+			date_format(t.`datetime`,'%H') time,
+			IFNULL(SUM(t.win_amount),0) AS winAmount,
+			IFNULL(SUM(t.impression_amount),0) AS impressionAmount,
+			IFNULL(SUM(t.impression_amount)/SUM(t.win_amount),0) AS impressionRate,
+			IFNULL(SUM(t.click_amount),0) AS clickAmount,
+			IFNULL(SUM(t.click_amount)/SUM(t.impression_amount),0) AS clickRate,
+			IFNULL(SUM(t.arrival_amount),0) AS arrivalAmount,
+			IFNULL(SUM(t.arrival_amount)/SUM(t.click_amount),0) AS arrivalRate,
+			IFNULL(SUM(t.unique_amount),0) AS uniqueAmount
+		FROM
+			pap_t_creativedata_hour t
+		WHERE
+			t.campaign_id = #{campaignId, jdbcType=VARCHAR}
+		AND
+			t.datetime BETWEEN #{beginTime, jdbcType=TIMESTAMP} AND #{endTime, jdbcType=TIMESTAMP}
+		GROUP BY
+			t.campaign_id,t.`datetime`
+	</select>
 </mapper>
