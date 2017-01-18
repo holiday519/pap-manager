@@ -162,6 +162,18 @@ public class AppDataHourService extends BaseService
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@c@") > 0) {// 点击
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@a@") > 0) {// 到达
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@w@") > 0) {// 中标
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@u@") > 0) {// 独立访客数
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@b@") > 0) {// 参与竞价量
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							}
 						} else {
 							sourceMap.put(hkey, hourStr);
@@ -198,6 +210,18 @@ public class AppDataHourService extends BaseService
     							if (hkey.indexOf("@m@") > 0) {// 展现
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@c@") > 0) {// 点击
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@a@") > 0) {// 到达
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@w@") > 0) {// 中标
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@u@") > 0) {// 独立访客数
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@b@") > 0) {// 参与竞价量
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							}
     						} else {
@@ -249,7 +273,19 @@ public class AppDataHourService extends BaseService
     			bean.setImpressionAmount(Long.parseLong(value));
         	} else if (key.indexOf("@c@") > 0) {// 点击
         		bean.setClickAmount(Long.parseLong(value));
-        	}
+        	} else if (key.indexOf("@a@") > 0) {// 到达
+				bean.setArrivalAmount(Long.parseLong(value));
+			} else if (key.indexOf("@w@") > 0) {// 中标
+				bean.setWinAmount(Long.parseLong(value));
+			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
+				bean.setResidentTime(Integer.parseInt(value));
+			} else if (key.indexOf("@u@") > 0) {// 独立访客数
+				bean.setUniqueAmount(Long.parseLong(value));
+			} else if (key.indexOf("@j@") > 0) {// 二跳数
+				bean.setJumpAmount(Long.parseLong(value));
+			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+				bean.setBidAmount(Long.parseLong(value));
+			}
     		bean.setAppId(appId);
     		bean.setAdxId(adxId);
     		beans.add(bean);
@@ -270,7 +306,19 @@ public class AppDataHourService extends BaseService
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c@") > 0) {// 点击
             		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	}
+            	} else if (key.indexOf("@a@") > 0) {// 到达
+    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    			} else if (key.indexOf("@w@") > 0) {// 中标
+    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
+    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
+    			} else if (key.indexOf("@u@") > 0) {// 独立访客数
+    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    			} else if (key.indexOf("@j@") > 0) {// 二跳数
+    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
+    			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    			}
         		bean.setAppId(appId);
         		bean.setAdxId(adxId);
     		} else {
@@ -279,7 +327,19 @@ public class AppDataHourService extends BaseService
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c@") > 0) {// 点击
             		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	}
+            	} else if (key.indexOf("@a@") > 0) {// 到达
+    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    			} else if (key.indexOf("@w@") > 0) {// 中标
+    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
+    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
+    			} else if (key.indexOf("@u@") > 0) {// 独立访客数
+    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    			} else if (key.indexOf("@j@") > 0) {// 二跳数
+    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
+    			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    			}
         		bean.setAppId(appId);
         		bean.setAdxId(adxId);
         		beans.add(bean);

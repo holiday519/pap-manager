@@ -1,9 +1,7 @@
 package com.pxene.pap.service;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service

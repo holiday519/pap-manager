@@ -13,7 +13,6 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ImageTmplBean;
-import com.pxene.pap.domain.beans.TmplBean;
 import com.pxene.pap.domain.beans.TmplBean.App;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
