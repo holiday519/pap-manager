@@ -350,7 +350,7 @@ public class TimeRuleService extends BaseService {
 	 */
 	@Transactional
 	public void openTimeRule(String campaignId, String ruleId) throws Exception {
-		if (checkGroupHaveRule(campaignId, ruleId)) {
+		if (checkGroupHaveRule(campaignId)) {
 			throw new IllegalStatusException("活动下已有开启的规则，无法再次开启规则");
 		}
 		
@@ -525,7 +525,7 @@ public class TimeRuleService extends BaseService {
 	 * @return true：有；false：无
 	 * @throws Exception
 	 */
-	public boolean checkGroupHaveRule(String campaignId, String ruleId) throws Exception {
+	public boolean checkGroupHaveRule(String campaignId) throws Exception {
 		//如果活动已经有开启的规则，则提示错误；一个活动只能有一个规则限定
 		CampaignRuleModelExample example = new CampaignRuleModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);

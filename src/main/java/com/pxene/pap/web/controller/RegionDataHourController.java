@@ -67,7 +67,7 @@ public class RegionDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<DayAndHourDataBean> regionDataHourList = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+        List<DayAndHourDataBean> regionDataHourList = regionDataHourService.listRegionDataHours(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(regionDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

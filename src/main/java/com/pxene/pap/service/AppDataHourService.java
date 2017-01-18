@@ -43,6 +43,9 @@ public class AppDataHourService extends BaseService
     @Autowired
     private AppDataHourStatsDao appDataHourStatsDao;
     
+    @Autowired
+    private AppRuleService appRuleService;
+    
     @Transactional
     public void saveAppDataHour(AppDataHourBean appDataDayBean)
     {
@@ -91,7 +94,83 @@ public class AppDataHourService extends BaseService
         BeanUtils.copyProperties(appDataHourDao.selectByPrimaryKey(id), appDataDayBean);
     }
 
+    /**
+     * 查询app小时数据（包括分key）
+     * @param campaignId
+     * @param beginTime
+     * @param endTime
+     * @return
+     * @throws Exception
+     */
+    @Transactional
+    public List<DayAndHourDataBean> listAppDataHours(String campaignId, long beginTime, long endTime) throws Exception {
+    	
+    	List<DayAndHourDataBean> result = new ArrayList<DayAndHourDataBean>();
+    	
+    	String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+    	//如果redis中没有分key；说明活动没有绑定过规则，直接查询即可
+    	if (!StringUtils.isEmpty(str)) {
+    		String[] ids = str.split(",");
+			for (int i = 0; i < ids.length; i++) {
+				String id = ids[i];
+				//查询出的数据整合时，需要判断未分key之前是否与分开之后数据的ID相同，如果相同加起来，不相同直接放到结果集中
+				List<DayAndHourDataBean> list = listAppDataHour(id, beginTime, endTime);
+				if (list == null || list.isEmpty()) {
+					continue;
+				}
+				if (result.isEmpty()) {
+					result.addAll(list);
+				} else {
+					List<DayAndHourDataBean> newList = new ArrayList<DayAndHourDataBean>();//用于存放result中、不包含的、 新id的bean 
+					DayAndHourDataBean reslutBean = null;
+					DayAndHourDataBean bean = null;
+					//循环遍历分key返回结果，如果reslut中已有某条ID数据，就把两条数据整合到一起放到结果集中
+					//如果没有，先放到临时list中，循环检查结束后，将新list拼接到结果集中
+					for (int b = 0; b < list.size(); b++) {
+						boolean flag = false;//reslut所含id是否与分key中id相同
+						bean = list.get(b);
+						//将各个“量”都格式化一下：空则变成0
+						formatBeanAmount(bean);
+						for (int r = 0; r < result.size(); r++) {
+							reslutBean = result.get(r);
+							//将各个“量”都格式化一下：空则变成0
+							formatBeanAmount(reslutBean);
+							if (reslutBean.getAppId().equals(bean.getAppId())) {
+								reslutBean.setBidAmount(bean.getBidAmount() + reslutBean.getBidAmount());
+								reslutBean.setWinAmount(bean.getWinAmount() + reslutBean.getWinAmount());
+								reslutBean.setImpressionAmount(bean.getImpressionAmount() + reslutBean.getImpressionAmount());
+								reslutBean.setClickAmount(bean.getClickAmount() + reslutBean.getClickAmount());
+								reslutBean.setArrivalAmount(bean.getArrivalAmount() + reslutBean.getArrivalAmount());
+								reslutBean.setUniqueAmount(bean.getUniqueAmount() + reslutBean.getUniqueAmount());
+								flag = true;
+								break;
+							}
+						}
+						if (flag) {
+							formatBeanRate(reslutBean);//格式化一下“率”
+						}else{
+							newList.add(bean);
+						}
+					}
+					if (!newList.isEmpty()) {
+						result.addAll(newList);
+					}
+				}
+			}
+    	}else {
+    		return listAppDataHour(campaignId, beginTime, endTime);
+    	}
+    	return result;
+    }
     
+    /**
+     * 查询活动的app小时数据
+     * @param campaignId
+     * @param beginTime
+     * @param endTime
+     * @return
+     * @throws Exception
+     */
     @Transactional
     public List<DayAndHourDataBean> listAppDataHour(String campaignId, long beginTime, long endTime) throws Exception
     {
@@ -353,61 +432,12 @@ public class AppDataHourService extends BaseService
      * @param beans
      * @return
      */
-    public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans) {
+    public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans) throws Exception {
     	if (beans != null && beans.size() > 0) {
     		for (DayAndHourDataBean bean : beans) {
-				if (bean.getBidAmount() == null) {
-					bean.setBidAmount(0L);
-				}
-				if (bean.getWinAmount() == null) {
-					bean.setWinAmount(0L);
-				}
-				if (bean.getImpressionAmount() == null) {
-					bean.setImpressionAmount(0L);
-				}
-				if (bean.getClickAmount() == null) {
-					bean.setClickAmount(0L);
-				}
-				if (bean.getArrivalAmount() == null) {
-					bean.setArrivalAmount(0L);
-				}
-				if (bean.getUniqueAmount() == null) {
-					bean.setUniqueAmount(0L);
-				}
-				bean.setJumpAmount(null);
 				
-				DecimalFormat format = new DecimalFormat("0.00000");
-				if (bean.getBidAmount() == 0) {
-					bean.setWinRate(0F);
-				} else {
-			        double percent = (double)bean.getWinAmount() / bean.getBidAmount();
-			        Float result = Float.parseFloat(format.format(percent));
-			        bean.setWinRate(result);
-				}
-				
-				if (bean.getWinAmount() == 0) {
-					bean.setImpressionRate(0F);
-				} else {
-			        double percent = (double)bean.getImpressionAmount() / bean.getWinAmount();
-			        Float result = Float.parseFloat(format.format(percent));
-			        bean.setImpressionRate(result);
-				}
-				
-				if (bean.getImpressionAmount() == 0) {
-					bean.setClickRate(0F);
-				} else {
-					double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
-					Float result = Float.parseFloat(format.format(percent));
-					bean.setClickRate(result);
-				}
-				
-				if (bean.getClickAmount() == 0) {
-					bean.setArrivalRate(0F);
-				} else {
-					double percent = (double)bean.getArrivalAmount() / bean.getClickAmount();
-					Float result = Float.parseFloat(format.format(percent));
-					bean.setArrivalRate(result);
-				}
+				formatBeanAmount(bean);//计算“量”
+				formatBeanRate(bean);//计算“率”
 				
 				if (!StringUtils.isEmpty(bean.getAdxId()) && !StringUtils.isEmpty(bean.getAppId())) {
 					AppModelExample example = new AppModelExample();
@@ -427,5 +457,76 @@ public class AppDataHourService extends BaseService
     		}
     	}
     	return beans;
+    }
+    
+    /**
+     * 格式化各种“量”
+     * @param bean
+     */
+    public void formatBeanAmount(DayAndHourDataBean bean) throws Exception {
+    	if (bean == null) {
+			return;
+		}
+    	if (bean.getBidAmount() == null) {
+			bean.setBidAmount(0L);
+		}
+		if (bean.getWinAmount() == null) {
+			bean.setWinAmount(0L);
+		}
+		if (bean.getImpressionAmount() == null) {
+			bean.setImpressionAmount(0L);
+		}
+		if (bean.getClickAmount() == null) {
+			bean.setClickAmount(0L);
+		}
+		if (bean.getArrivalAmount() == null) {
+			bean.setArrivalAmount(0L);
+		}
+		if (bean.getUniqueAmount() == null) {
+			bean.setUniqueAmount(0L);
+		}
+		bean.setJumpAmount(null);
+    }
+    
+    /**
+     * 格式化各种“率”
+     * @param bean
+     */
+    public void formatBeanRate(DayAndHourDataBean bean) throws Exception {
+		if (bean == null) {
+			return;
+		}
+		DecimalFormat format = new DecimalFormat("0.00000");
+		if (bean.getBidAmount() == 0) {
+			bean.setWinRate(0F);
+		} else {
+	        double percent = (double)bean.getWinAmount() / bean.getBidAmount();
+	        Float result = Float.parseFloat(format.format(percent));
+	        bean.setWinRate(result);
+		}
+		
+		if (bean.getWinAmount() == 0) {
+			bean.setImpressionRate(0F);
+		} else {
+	        double percent = (double)bean.getImpressionAmount() / bean.getWinAmount();
+	        Float result = Float.parseFloat(format.format(percent));
+	        bean.setImpressionRate(result);
+		}
+		
+		if (bean.getImpressionAmount() == 0) {
+			bean.setClickRate(0F);
+		} else {
+			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
+			Float result = Float.parseFloat(format.format(percent));
+			bean.setClickRate(result);
+		}
+		
+		if (bean.getClickAmount() == 0) {
+			bean.setArrivalRate(0F);
+		} else {
+			double percent = (double)bean.getArrivalAmount() / bean.getClickAmount();
+			Float result = Float.parseFloat(format.format(percent));
+			bean.setArrivalRate(result);
+		}
     }
 }

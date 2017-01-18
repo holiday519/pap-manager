@@ -83,7 +83,7 @@ public class AppDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<DayAndHourDataBean> appDataHourList = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
+        List<DayAndHourDataBean> appDataHourList = appDataHourService.listAppDataHours(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(appDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

@@ -348,7 +348,7 @@ public class AppRuleService extends BaseService {
 	@Transactional
 	public void openCampaignAppRule(String campaignId, String ruleId) throws Exception {
 
-		if (checkGroupHaveRule(campaignId, ruleId)) {
+		if (checkGroupHaveRule(campaignId)) {
 			throw new IllegalStatusException("活动下已有开启的规则，无法再次开启规则");
 		}
 		
@@ -512,7 +512,12 @@ public class AppRuleService extends BaseService {
 				obj2.add("price_adx", array2);
 				JedisUtils.set("part_child_mapId_" + mapid1, mapid);
 				JedisUtils.set("part_child_mapId_" + mapid2, mapid);
-				JedisUtils.set("part_parent_mapId_" + mapid, mapid + "," + mapid2);
+				String str = JedisUtils.getStr("part_parent_mapId_" + mapid);
+				if (StringUtils.isEmpty(str)) {
+					JedisUtils.set("part_parent_mapId_" + mapid, mapid1 + "," + mapid2);
+				} else {
+					JedisUtils.set("part_parent_mapId_" + mapid, str + "," + mapid1 + "," + mapid2);
+				}
 				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid1, obj1.toString());
 				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapid2, obj2.toString());
 			}
@@ -536,7 +541,12 @@ public class AppRuleService extends BaseService {
 		
 		JedisUtils.set("part_child_campaignId_" + Id1, campaignId);
 		JedisUtils.set("part_child_campaignId_" + Id2, campaignId);
-		JedisUtils.set("part_parent_campaignId_" + campaignId, Id1 + "," + Id2);
+		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+		if (StringUtils.isEmpty(str)) {
+			JedisUtils.set("part_parent_campaignId_" + campaignId, Id1 + "," + Id2);
+		} else {
+			JedisUtils.set("part_parent_campaignId_" + campaignId, str + "," + Id1 + "," + Id2);
+		}
 		
 		//活动投放（被拆分的移除，拆分出的加入）
 		redisService.deleteCampaignId(campaignId);
@@ -585,11 +595,10 @@ public class AppRuleService extends BaseService {
 	/**
 	 * 检查活动下是否已经有规则
 	 * @param campaignId
-	 * @param ruleId
 	 * @return true：有；false：无
 	 * @throws Exception
 	 */
-	public boolean checkGroupHaveRule(String campaignId, String ruleId) throws Exception {
+	public boolean checkGroupHaveRule(String campaignId) throws Exception {
 		//如果活动已经有开启的规则，则提示错误；一个活动只能有一个规则限定
 		CampaignRuleModelExample example = new CampaignRuleModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
