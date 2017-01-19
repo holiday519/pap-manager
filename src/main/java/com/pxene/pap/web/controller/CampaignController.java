@@ -119,20 +119,6 @@ public class CampaignController {
 	}
 	
 	/**
-	 * 根据活动id查询频次信息
-	 * @param id
-	 * @param response
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/campaign/frequency/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
-		Map<String, Object> bean = campaignService.selectFrequencyByCampaignId(id);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
-	}
-	
-	/**
 	 * 查询活动列表
 	 * @param name
 	 * @param pageNo
