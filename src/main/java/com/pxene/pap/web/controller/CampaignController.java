@@ -128,7 +128,7 @@ public class CampaignController {
 	@RequestMapping(value = "/campaign/frequency/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
-		CampaignBean bean = campaignService.selectFrequencyByCampaignId(id);
+		Map<String, Object> bean = campaignService.selectFrequencyByCampaignId(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
 	
