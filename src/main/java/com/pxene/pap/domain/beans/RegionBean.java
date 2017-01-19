@@ -1,7 +1,6 @@
 package com.pxene.pap.domain.beans;
 
 import java.math.BigDecimal;
-import java.util.Date;
 /**
  * 地域码表
  */

@@ -28,7 +28,7 @@ public class JedisUtils {
 		// redis如果设置了密码：
 		if (StringUtils.isEmpty(JRedisPoolConfig.REDIS_PASSWORD)) {
 			jedisPool = new JedisPool(config, JRedisPoolConfig.REDIS_IP,
-					JRedisPoolConfig.REDIS_PORT, 10000,null,2);
+					JRedisPoolConfig.REDIS_PORT, 10000,null,3);
 		} else {
 			jedisPool = new JedisPool(config, JRedisPoolConfig.REDIS_IP,
 					JRedisPoolConfig.REDIS_PORT, 10000,

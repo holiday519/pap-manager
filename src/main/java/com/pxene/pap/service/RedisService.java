@@ -3,6 +3,7 @@ package com.pxene.pap.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -183,13 +184,13 @@ public class RedisService {
 						String creativeType = mapModel.getCreativeType();
 						// 图片创意
 						if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
-							writeImgCreativeInfoToRedis(mapId);
+							writeImgCreativeInfoToRedis(mapId, campaignId);
 							// 视频创意
 						} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
-							writeVideoCreativeInfoToRedis(mapId);
+							writeVideoCreativeInfoToRedis(mapId, campaignId);
 							// 信息流创意
 						} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
-							writeInfoCreativeInfoToRedis(mapId);
+							writeInfoCreativeInfoToRedis(mapId, campaignId);
 						}
 					}
 				}
@@ -202,7 +203,7 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	public void writeImgCreativeInfoToRedis(String mapId) throws Exception {
+	public void writeImgCreativeInfoToRedis(String mapId, String campaignId) throws Exception {
 		CreativeImageModelExample imageExaple = new CreativeImageModelExample();
 		imageExaple.createCriteria().andMapIdEqualTo(mapId);
 		List<CreativeImageModelWithBLOBs> list = creativeImageDao.selectByExampleWithBLOBs(imageExaple);
@@ -256,6 +257,11 @@ public class RedisService {
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.add("exts", exts);
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
+			
+			//添加权重key
+			String type = "image_";
+			String materialName = model.getSourceUrl().substring(0, model.getSourceUrl().indexOf("|"));
+			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getW(),0), GlobalUtil.parseInt(model.getH(),0), materialName);
 		}
 	}
 	
@@ -264,7 +270,7 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	public void writeVideoCreativeInfoToRedis(String mapId) throws Exception {
+	public void writeVideoCreativeInfoToRedis(String mapId, String campaignId) throws Exception {
 		CreativeVideoModelExample videoExaple = new CreativeVideoModelExample();
 		videoExaple.createCriteria().andMapIdEqualTo(mapId);
 		List<CreativeVideoModelWithBLOBs> list = creativeVideoDao.selectByExampleWithBLOBs(videoExaple);
@@ -318,6 +324,11 @@ public class RedisService {
     		JsonArray exts = getCreativeExts(mapId);
 			creativeObj.add("exts", exts);
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
+			
+			//添加权重key
+			String type = "video_";
+			String materialName = model.getSourceUrl().substring(0, model.getSourceUrl().indexOf("|"));
+			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getW(),0), GlobalUtil.parseInt(model.getH(),0), materialName);
 		}
 	}
 	
@@ -326,7 +337,7 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	public void writeInfoCreativeInfoToRedis(String mapId) throws Exception {
+	public void writeInfoCreativeInfoToRedis(String mapId, String campaignId) throws Exception {
 		CreativeInfoflowModelExample infoExaple = new CreativeInfoflowModelExample();
 		infoExaple.createCriteria().andMapIdEqualTo(mapId);
 		List<CreativeInfoflowModelWithBLOBs> list = creativeInfoflowDao.selectByExampleWithBLOBs(infoExaple);
@@ -913,4 +924,34 @@ public class RedisService {
 		}
 	}
 	
+	/**
+	 * 为活动下素材添加权重key
+	 * @param model
+	 * @param type
+	 */
+	public void addRateForMaterial(String campaignId, String type, int width, int hight, String materialName) throws Exception {
+		Map<String, String> map = JedisUtils.hget(type + width + "X" + hight);
+		if (!StringUtils.isEmpty(map.get(campaignId))) {
+			String valueInReids = map.get(campaignId).toString();
+			String[] values = valueInReids.split(",");
+			//判断是否已经含有当前model名称
+			boolean flag = false;
+			for (int i = 0; i < values.length; i++) {
+				String value = values[i].substring(0, values[i].indexOf("|"));
+				if (value.equals(materialName)) {
+					flag = true;
+					break;
+				}
+			}
+			if (!flag) {
+				//如果没有就在合并放入redis
+				materialName = valueInReids + "," + materialName;
+				map.put(campaignId, materialName + "|1");
+			}
+			JedisUtils.hset(type + width + "X" + hight, map);
+		} else {
+			map.put(campaignId, materialName + "|1");
+			JedisUtils.hset(type + width + "X" + hight, map);
+		}
+	}
 }

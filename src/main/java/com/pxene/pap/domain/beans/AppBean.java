@@ -1,6 +1,5 @@
 package com.pxene.pap.domain.beans;
 
-import java.util.Date;
 
 public class AppBean {
 	
