@@ -158,7 +158,10 @@ public class AppDataHourService extends BaseService
 				}
 			}
     	}else {
-    		return listAppDataHour(campaignId, beginTime, endTime);
+    		result = listAppDataHour(campaignId, beginTime, endTime);
+    	}
+    	for (DayAndHourDataBean bean : result) {
+    		bean.setCampaignId(campaignId);
     	}
     	return result;
     }

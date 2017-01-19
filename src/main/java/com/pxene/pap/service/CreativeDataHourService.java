@@ -143,6 +143,9 @@ public class CreativeDataHourService extends BaseService
     	
     	List<DayAndHourDataBean> beans = getListFromSource(sourceMap);
     	formatLastList(beans);
+    	for (DayAndHourDataBean bean : beans) {
+    		bean.setCampaignId(campaignId);
+    	}
     	return beans;
     }
     

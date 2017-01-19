@@ -159,7 +159,10 @@ public class RegionDataHourService extends BaseService
 				}
 			}
     	}else {
-    		return listRegionDataHour(campaignId, beginTime, endTime);
+    		result = listRegionDataHour(campaignId, beginTime, endTime);
+    	}
+    	for (DayAndHourDataBean bean : result) {
+    		bean.setCampaignId(campaignId);
     	}
     	return result;
     }
