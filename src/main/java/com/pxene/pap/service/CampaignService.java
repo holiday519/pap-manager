@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -509,6 +510,33 @@ public class CampaignService extends LaunchService{
 		CampaignBean bean = addParamToCampaign(map, model.getId());
 		return bean;
 	}
+	
+	/**
+	 * 根据活动id查询频次信息
+	 * @param campaignId
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> selectFrequencyByCampaignId(String campaignId)  throws Exception {
+		Map<String, Object> map = new HashMap<String, Object>();
+		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+		if (model != null) {
+			String frequencyId = model.getFrequencyId();
+			if (!StringUtils.isEmpty(frequencyId)){
+				FrequencyModel frequency = frequencyDao.selectByPrimaryKey(frequencyId);
+				String id = frequency.getId();
+				String controlObj = frequency.getControlObj();
+				String timeType = frequency.getTimeType();
+				Integer number = frequency.getNumber();
+				map.put("id", id);
+				map.put("controlObj", controlObj);
+				map.put("timeType", timeType);
+				map.put("number", number);
+			}
+		}
+		return map;
+	}
+	
 	
 	/**
 	 * 查询活动列表

@@ -113,8 +113,22 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public String selectCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
 		CampaignBean bean = campaignService.selectCampaign(id);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
+	}
+	
+	/**
+	 * 根据活动id查询频次信息
+	 * @param id
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign/frequency/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
+		CampaignBean bean = campaignService.selectFrequencyByCampaignId(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
 	
@@ -130,7 +144,7 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProject(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectCampaigns(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
 		if (pageNo != null && pageSize != null) {
 			pager = PageHelper.startPage(pageNo, pageSize);
