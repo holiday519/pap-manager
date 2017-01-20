@@ -31,7 +31,7 @@ public class RuleLogController {
 	private RuleLogService ruleLogService;
 	
 	/**
-	 * 添加尺寸
+	 * 添加规则日志
 	 * @param bean
 	 * @param response
 	 * @return
@@ -39,13 +39,13 @@ public class RuleLogController {
 	 */
 	@RequestMapping(value = "/rulelog", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createProject(@Valid @RequestBody RuleLogBean bean, HttpServletResponse response) throws Exception {
+	public String createRuleLog(@Valid @RequestBody RuleLogBean bean, HttpServletResponse response) throws Exception {
 		ruleLogService.createRuleLog(bean);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
 	
 	/**
-	 * 查询尺寸列表
+	 * 查询规则日志列表
 	 * @param name
 	 * @param pageNo
 	 * @param pageSize
@@ -56,7 +56,7 @@ public class RuleLogController {
 	 */
 	@RequestMapping(value = "/rulelogs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectsizes(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectRuleLogs(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
