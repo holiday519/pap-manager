@@ -5,6 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -77,7 +78,7 @@ public class LaunchService extends BaseService{
 	 * 根据时间定向投放活动，结束到期活动
 	 * @throws Exception
 	 */
-//	@Scheduled(cron = "0 */1 * * * *")
+	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
 		String currentWeek = DateUtils.getCurrentWeekInNumber();//当前星期
 		String currentHour = DateUtils.getCurrentHour();//当前小时

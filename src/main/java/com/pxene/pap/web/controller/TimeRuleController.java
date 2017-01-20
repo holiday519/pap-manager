@@ -79,4 +79,18 @@ public class TimeRuleController {
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
+	@RequestMapping(value = "/rule/times/open", method = RequestMethod.PUT)
+    @ResponseBody
+	public void openTimeRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId, HttpServletResponse response) throws Exception {
+		timeRuleService.openTimeRule(campaignId, ruleId);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	@RequestMapping(value = "/rule/times/close", method = RequestMethod.PUT)
+    @ResponseBody
+	public void closeTimeRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId, HttpServletResponse response) throws Exception {
+		timeRuleService.closeTimeRule(campaignId, ruleId);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
 }

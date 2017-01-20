@@ -113,33 +113,35 @@ public class CreativeDataHourService extends BaseService
 				String [] days = {begin.toString("yyyyMMdd")};
 				sourceMap = margeDayTables(sourceMap, days);
 			} else {
-				String[] days = DateUtils.getDaysArrayBetweenTwoDate(begin.toDate(), end.toDate());
-				List<String> daysList = new ArrayList<String>(Arrays.asList(days));
-				if (!begin.toString("HH").equals("00")) {
-					Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
-					sourceMap = makeDayTableUseHour(sourceMap, begin.toDate(), bigHourOfDay);
-					if (daysList != null && daysList.size() > 0) {
-						for (int i = 0; i < daysList.size(); i++) {
-							if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
-								daysList.remove(i);
-							}
-						}
-					}
-				}
-				if (!end.toString("HH").equals("23")) {
-					Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
-					sourceMap = makeDayTableUseHour(sourceMap, smallHourOfDay, begin.toDate());
-					if (daysList != null && daysList.size() > 0) {
-						for (int i = 0; i < daysList.size(); i++) {
-							if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
-								daysList.remove(i);
-							}
-						}
-					}
-				}
-				sourceMap = margeDayTables(sourceMap, days);
+				sourceMap = makeDayTableUseHour(sourceMap, begin.toDate(), end.toDate());
 			}
-    	}
+    	} else {
+			String[] days = DateUtils.getDaysArrayBetweenTwoDate(begin.toDate(), end.toDate());
+			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
+			if (!begin.toString("HH").equals("00")) {
+				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
+				sourceMap = makeDayTableUseHour(sourceMap, begin.toDate(), bigHourOfDay);
+				if (daysList != null && daysList.size() > 0) {
+					for (int i = 0; i < daysList.size(); i++) {
+						if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
+							daysList.remove(i);
+						}
+					}
+				}
+			}
+			if (!end.toString("HH").equals("23")) {
+				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
+				sourceMap = makeDayTableUseHour(sourceMap, smallHourOfDay, begin.toDate());
+				if (daysList != null && daysList.size() > 0) {
+					for (int i = 0; i < daysList.size(); i++) {
+						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
+							daysList.remove(i);
+						}
+					}
+				}
+			}
+			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
+		}
     	
     	List<DayAndHourDataBean> beans = getListFromSource(sourceMap);
     	formatLastList(beans);

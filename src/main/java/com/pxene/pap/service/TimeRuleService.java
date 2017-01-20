@@ -16,6 +16,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -94,6 +95,9 @@ public class TimeRuleService extends BaseService {
 	
 	@Autowired
 	private RedisService redisService;
+	
+	@Autowired
+	private CampaignService campaignService;
 	
 	public void saveTimeRule(RuleBean ruleBean) throws Exception {
 		TimeRuleModel model = modelMapper.map(ruleBean, TimeRuleModel.class);
@@ -343,6 +347,26 @@ public class TimeRuleService extends BaseService {
 	}
 	
 	/**
+	 * 关闭时间规则（只需修改时间规则状态，定时器会处理其他逻辑）
+	 * @param campaignId
+	 * @param ruleId
+	 * @throws Exception
+	 */
+	@Transactional
+	public void closeTimeRule(String campaignId, String ruleId) throws Exception {
+		TimeRuleModel ruleModel = timeRuleDao.selectByPrimaryKey(ruleId);
+		if (ruleModel == null) {
+			throw new ResourceNotFoundException();
+		}
+		ruleModel.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_UNUSED);
+		timeRuleDao.updateByPrimaryKey(ruleModel);
+		
+		//将活动重新投放
+		campaignService.launch(campaignId);
+		
+	}
+	
+	/**
 	 * 打开时间规则（修改时间崔则状态，改变redis中key由定时器处理）
 	 * @param campaignId
 	 * @param ruleId
@@ -366,7 +390,7 @@ public class TimeRuleService extends BaseService {
 	 * 定时监测时段规则
 	 * @throws Exception
 	 */
-//	@Scheduled(cron = "0 */1 * * * *")
+	@Scheduled(cron = "0 0 */1 * * ?")
 	@Transactional
 	public void changeTimePrice() throws Exception {
 		TimeRuleModelExample example = new TimeRuleModelExample();

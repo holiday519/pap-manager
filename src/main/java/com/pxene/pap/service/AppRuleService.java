@@ -87,6 +87,9 @@ public class AppRuleService extends BaseService {
 	@Autowired
 	private AppDataHourService appDataHourService;
 	
+	@Autowired
+	private CampaignService campaignService;
+	
 	public void saveAppRule(RuleBean ruleBean) throws Exception {
 		AppRuleModel model = modelMapper.map(ruleBean, AppRuleModel.class);
 		String ruleId = UUID.randomUUID().toString();
@@ -340,13 +343,72 @@ public class AppRuleService extends BaseService {
 	}
 	
 	/**
+	 * 关闭活动规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @throws Exception
+	 */
+	@Transactional
+	public void closeAppRule(String campaignId, String ruleId) throws Exception {
+		//先删除已经分开的key
+		String child = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+		if (StringUtils.isEmpty(child)) {
+			return;
+		}
+		//删除创意分出的key
+		Gson gson = new Gson();
+		//找出分key之前的所有mapId；删除掉这些mapid分出的新id值
+		String mapids = JedisUtils.getStr("dsp_groupid_mapids_" + campaignId);
+		JsonObject idObj = new JsonObject();
+		JsonArray idArray = new JsonArray();
+		if (!StringUtils.isEmpty(mapids)) {
+			idObj = gson.fromJson(mapids, new JsonObject().getClass());
+			idArray = idObj.get("mapids").getAsJsonArray();
+			if (idArray != null && idArray.size() > 0) {
+				for (int m = 0; m < idArray.size(); m++) {
+					String mapId = idArray.get(m).getAsString();
+					String mapChild = JedisUtils.getStr("part_parent_mapId_" + mapId);
+					String[] mapChilds = mapChild.split(",");
+					if (mapChilds != null && mapChilds.length > 0) {
+						for (String mId : mapChilds) {
+							JedisUtils.delete("part_child_mapid_" + mId);
+						}
+					}
+					JedisUtils.delete("part_parent_mapid_" + mapId);
+				}
+			}
+		}		
+		//删除活动分出的key
+		String[] childs = child.split(",");
+		for (int i = 0; i < childs.length; i++) {
+			String cId = childs[i];
+			//删除分出key所用的redis中投放相关key
+			redisService.deleteKeyFromRedis(cId);
+			//删除分key标记
+			JedisUtils.delete("part_child_campaignId_" + cId);
+		}
+		
+		redisService.deleteKeyFromRedis("part_parent_campaignId_" + campaignId);
+		
+		//再将原来活动进行重新投放，将相关key写入redis
+		campaignService.launch(campaignId);
+		
+		//改变规则状态
+		AppRuleModel ruleModel = appRuleDao.selectByPrimaryKey(ruleId);
+		if (ruleModel != null) {
+			ruleModel.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_UNUSED);
+			appRuleDao.updateByPrimaryKey(ruleModel);
+		}
+	}
+	
+	/**
 	 * 打开App规则
 	 * @param campaignId
 	 * @param ruleId
 	 * @throws Exception
 	 */
 	@Transactional
-	public void openCampaignAppRule(String campaignId, String ruleId) throws Exception {
+	public void openAppRule(String campaignId, String ruleId) throws Exception {
 
 		if (checkGroupHaveRule(campaignId)) {
 			throw new IllegalStatusException("活动下已有开启的规则，无法再次开启规则");

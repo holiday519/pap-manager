@@ -88,8 +88,22 @@ public class RegionRuleController {
 	 */
 	@RequestMapping(value = "/rule/region/open", method = RequestMethod.PUT)
     @ResponseBody
-	public void updateRegionRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId, HttpServletResponse response) throws Exception {
+	public void openCampaignRegionRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId, HttpServletResponse response) throws Exception {
 		regionRuleService.openRegionRule(campaignId, ruleId);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 关闭活动地域规则
+	 * @param campaignId
+	 * @param ruleId
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/rule/region/close", method = RequestMethod.PUT)
+	@ResponseBody
+	public void closeRegionRule(@RequestParam(required = true) String campaignId, @RequestParam(required = true) String ruleId, HttpServletResponse response) throws Exception {
+		regionRuleService.closeRegionRule(campaignId, ruleId);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }
