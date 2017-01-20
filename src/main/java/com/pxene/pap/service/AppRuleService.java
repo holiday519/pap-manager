@@ -368,6 +368,9 @@ public class AppRuleService extends BaseService {
 				for (int m = 0; m < idArray.size(); m++) {
 					String mapId = idArray.get(m).getAsString();
 					String mapChild = JedisUtils.getStr("part_parent_mapId_" + mapId);
+					if (StringUtils.isEmpty(mapChild)) {
+						continue;
+					}
 					String[] mapChilds = mapChild.split(",");
 					if (mapChilds != null && mapChilds.length > 0) {
 						for (String mId : mapChilds) {
@@ -388,7 +391,7 @@ public class AppRuleService extends BaseService {
 			JedisUtils.delete("part_child_campaignId_" + cId);
 		}
 		
-		redisService.deleteKeyFromRedis("part_parent_campaignId_" + campaignId);
+		JedisUtils.delete("part_parent_campaignId_" + campaignId);
 		
 		//再将原来活动进行重新投放，将相关key写入redis
 		campaignService.launch(campaignId);

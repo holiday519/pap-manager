@@ -373,6 +373,9 @@ public class RegionRuleService extends BaseService {
 				for (int m = 0; m < idArray.size(); m++) {
 					String mapId = idArray.get(m).getAsString();
 					String mapChild = JedisUtils.getStr("part_parent_mapId_" + mapId);
+					if (StringUtils.isEmpty(mapChild)) {
+						continue;
+					}
 					String[] mapChilds = mapChild.split(",");
 					if (mapChilds != null && mapChilds.length > 0) {
 						for (String mId : mapChilds) {
