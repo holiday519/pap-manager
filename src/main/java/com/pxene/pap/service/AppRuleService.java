@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -59,6 +60,9 @@ public class AppRuleService extends BaseService {
 	
 	@Autowired
 	private AppRuleDao appRuleDao;
+	
+	@Autowired
+	private RuleLogService ruleLogService;
 	
 	@Autowired
 	private RegionRuleDao regionRuleDao;
@@ -130,7 +134,6 @@ public class AppRuleService extends BaseService {
 			deleteRuleConditionById(id);
 			appRuleDao.deleteByPrimaryKey(id);
 		}
-		
 	}
 	
 	public void updateAppRule(String id, RuleBean ruleBean) throws Exception {
@@ -402,6 +405,14 @@ public class AppRuleService extends BaseService {
 			ruleModel.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_UNUSED);
 			appRuleDao.updateByPrimaryKey(ruleModel);
 		}
+		
+		//插入日志信息
+		RuleLogBean bean = new RuleLogBean();
+		bean.setRuleId(ruleId);
+		bean.setCampaignId(campaignId);
+		bean.setRuleType(StatusConstant.CAMPAIGN_RULE_TYPE_APP);
+		bean.setActionType("02");//关闭
+		ruleLogService.createRuleLog(bean);
 	}
 	
 	/**
@@ -621,6 +632,14 @@ public class AppRuleService extends BaseService {
 		AppRuleModel model = appRuleDao.selectByPrimaryKey(ruleId);
 		model.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_USED);
 		appRuleDao.updateByPrimaryKey(model);
+		
+		//插入日志信息
+		RuleLogBean bean = new RuleLogBean();
+		bean.setRuleId(ruleId);
+		bean.setCampaignId(campaignId);
+		bean.setRuleType(StatusConstant.CAMPAIGN_RULE_TYPE_APP);
+		bean.setActionType("01");//开启
+		ruleLogService.createRuleLog(bean);
 	}
 	
 	/**

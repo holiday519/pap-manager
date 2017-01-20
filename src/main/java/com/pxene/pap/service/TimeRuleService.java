@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -83,6 +84,9 @@ public class TimeRuleService extends BaseService {
 	
 	@Autowired
 	private CampaignDao campaignDao;
+	
+	@Autowired
+	private RuleLogService ruleLogService;
 	
 	@Autowired
 	private CampaignRuleDao campaignRuleDao;
@@ -364,6 +368,13 @@ public class TimeRuleService extends BaseService {
 		//将活动重新投放
 		campaignService.launch(campaignId);
 		
+		//插入日志信息
+		RuleLogBean bean = new RuleLogBean();
+		bean.setRuleId(ruleId);
+		bean.setCampaignId(campaignId);
+		bean.setRuleType(StatusConstant.CAMPAIGN_RULE_TYPE_TIME);
+		bean.setActionType("02");//关闭
+		ruleLogService.createRuleLog(bean);
 	}
 	
 	/**
@@ -384,6 +395,13 @@ public class TimeRuleService extends BaseService {
 		}
 		ruleModel.setStatus(StatusConstant.CAMPAIGN_RULE_STATUS_USED);
 		timeRuleDao.updateByPrimaryKey(ruleModel);
+		//插入日志信息
+		RuleLogBean bean = new RuleLogBean();
+		bean.setRuleId(ruleId);
+		bean.setCampaignId(campaignId);
+		bean.setRuleType(StatusConstant.CAMPAIGN_RULE_TYPE_TIME);
+		bean.setActionType("01");//打开
+		ruleLogService.createRuleLog(bean);
 	}
 	
 	/**
