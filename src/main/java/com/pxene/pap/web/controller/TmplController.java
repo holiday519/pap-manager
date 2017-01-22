@@ -2,7 +2,6 @@ package com.pxene.pap.web.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/images", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectImageTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectImageTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
 		
 		Page<Object> pager = null;
 		
@@ -58,7 +57,7 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/videos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectVideoTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectVideoTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
 
 		Page<Object> pager = null;
 		

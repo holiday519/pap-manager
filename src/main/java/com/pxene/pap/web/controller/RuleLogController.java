@@ -2,7 +2,6 @@ package com.pxene.pap.web.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -21,7 +20,6 @@ import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.domain.beans.PaginationBean;
-import com.pxene.pap.domain.beans.SizeBean;
 import com.pxene.pap.service.RuleLogService;
 
 @Controller
@@ -56,7 +54,7 @@ public class RuleLogController {
 	 */
 	@RequestMapping(value = "/rulelogs", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectRuleLogs(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String selectRuleLogs(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
