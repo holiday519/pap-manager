@@ -191,7 +191,7 @@ public class RegionDataHourService extends BaseService
 				sourceMap = makeDayTableUseHour(sourceMap, begin.toDate(), end.toDate());
 			}
     	} else {
-			String[] days = DateUtils.getDaysArrayBetweenTwoDate(begin.toDate(), end.toDate());
+			String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
 			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
 			if (!begin.toString("HH").equals("00")) {
 				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
@@ -234,7 +234,7 @@ public class RegionDataHourService extends BaseService
      * @return
      */
 	public Map<String, String> makeDayTableUseHour(Map<String, String> sourceMap, Date beginTime, Date endTime)	throws Exception {
-		String[] hours = DateUtils.getHourArrayBetweenTwoDate(beginTime, endTime);
+		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
 		for (int i = 0; i < hours.length; i++) {
 			String hour = hours[i];
 			Map<String, String> map = JedisUtils.hget("regionDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);

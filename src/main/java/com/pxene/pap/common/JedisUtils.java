@@ -36,15 +36,14 @@ public class JedisUtils {
 		}
 	}
 
-	public static JedisPool getPool() {
-		return jedisPool;
-	}
-
 	/**
 	 * 从jedis连接池中获取获取jedis对象
 	 */
 	public static Jedis getJedis() {
-		return jedisPool.getResource();
+		Jedis jedis = jedisPool.getResource();
+		jedis.select(4);
+		return jedis;
+		//return jedisPool.getResource();
 	}
 
 	/**
