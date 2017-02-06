@@ -29,7 +29,7 @@ public class AppFlowService extends BaseService
 	private static final String DAY_PREFIX = "appFlowDay_";
 	
     @Transactional
-    public List<AppFlowBean> listAppFlow(Date beginTime, Date endTime, int limitNum)
+    public List<AppFlowBean> listAppFlows(Date beginTime, Date endTime, int limitNum)
     {
     	List<AppFlowBean> beans = new ArrayList<AppFlowBean>();
     	// 查出所有的app
