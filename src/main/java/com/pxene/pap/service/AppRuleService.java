@@ -27,7 +27,7 @@ import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.DayAndHourDataBean;
+import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.beans.RuleBean.Condition;
 import com.pxene.pap.domain.models.AppRuleModel;
@@ -89,7 +89,7 @@ public class AppRuleService extends BaseService {
 	private RedisService redisService;
 	
 	@Autowired
-	private AppDataHourService appDataHourService;
+	private AppDataService appDataHourService;
 	
 	@Autowired
 	private CampaignService campaignService;
@@ -446,7 +446,7 @@ public class AppRuleService extends BaseService {
 			endTime = DateTime.parse(day + " 23:59:59", format).getMillis();
 		}
 		//查询app数据
-		List<DayAndHourDataBean> appDataHour = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
+		List<AppDataBean> appDataHour = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
 		if (appDataHour == null || appDataHour.isEmpty()) {
 			throw new ResourceNotFoundException("当前活动无APP投放数据，不能开启app规则");
 		}
@@ -457,7 +457,7 @@ public class AppRuleService extends BaseService {
 		
 		List<String> upList = new ArrayList<String>();//加价的活动id
 		List<String> downList = new ArrayList<String>();//减价的活动id
-		for (DayAndHourDataBean bean : appDataHour) {//--先找出需要减钱的appid
+		for (AppDataBean bean : appDataHour) {//--先找出需要减钱的appid
 			//要求每一条都符合所有的条件才能加价，否则就减价
 			for (RuleConditionModel condition : conditions) {//不符合其中任意一个条件的，就属于减价
 				double data = 0;
@@ -499,7 +499,7 @@ public class AppRuleService extends BaseService {
 			}
 		}
 		//查询数据中除去减钱的剩下的就是加钱的-----在定向里的id，却没有投放数据（根据判断代码逻辑，不符合降价，也不符合升价），此处会将这些id丢掉。--？
-		for (DayAndHourDataBean bean : appDataHour) {
+		for (AppDataBean bean : appDataHour) {
 			if (!downList.isEmpty() && !downList.contains(bean.getAppId())) {
 				upList.add(bean.getAppId());
 			}

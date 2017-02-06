@@ -22,7 +22,7 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.domain.beans.DayAndHourDataBean;
+import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.beans.RegionDataHourBean;
 import com.pxene.pap.domain.models.RegionDataHourModel;
 import com.pxene.pap.domain.models.RegionModel;
@@ -103,8 +103,8 @@ public class RegionDataHourService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<DayAndHourDataBean> listRegionDataHours(String campaignId, long beginTime, long endTime) throws Exception {
-    	List<DayAndHourDataBean> result = new ArrayList<DayAndHourDataBean>();
+    public List<AppDataBean> listRegionDataHours(String campaignId, long beginTime, long endTime) throws Exception {
+    	List<AppDataBean> result = new ArrayList<AppDataBean>();
     	
     	String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
     	long ms = endTime - beginTime;
@@ -115,16 +115,16 @@ public class RegionDataHourService extends BaseService
 			for (int i = 0; i < ids.length; i++) {
 				String id = ids[i];
 				//查询出的数据整合时，需要判断未分key之前是否与分开之后数据的ID相同，如果相同加起来，不相同直接放到结果集中
-				List<DayAndHourDataBean> list = listRegionDataHour(id, beginTime, endTime);
+				List<AppDataBean> list = listRegionDataHour(id, beginTime, endTime);
 				if (list == null || list.isEmpty()) {
 					continue;
 				}
 				if (result.isEmpty()) {
 					result.addAll(list);
 				} else {
-					List<DayAndHourDataBean> newList = new ArrayList<DayAndHourDataBean>();//用于存放result中、不包含的、 新id的bean 
-					DayAndHourDataBean reslutBean = null;
-					DayAndHourDataBean bean = null;
+					List<AppDataBean> newList = new ArrayList<AppDataBean>();//用于存放result中、不包含的、 新id的bean 
+					AppDataBean reslutBean = null;
+					AppDataBean bean = null;
 					//循环遍历分key返回结果，如果reslut中已有某条ID数据，就把两条数据整合到一起放到结果集中
 					//如果没有，先放到临时list中，循环检查结束后，将新list拼接到结果集中
 					for (int b = 0; b < list.size(); b++) {
@@ -161,7 +161,7 @@ public class RegionDataHourService extends BaseService
     	}else {
     		result = listRegionDataHour(campaignId, beginTime, endTime);
     	}
-    	for (DayAndHourDataBean bean : result) {
+    	for (AppDataBean bean : result) {
     		bean.setCampaignId(campaignId);
     	}
     	return result;
@@ -176,7 +176,7 @@ public class RegionDataHourService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<DayAndHourDataBean> listRegionDataHour(String campaignId, long beginTime, long endTime) throws Exception
+    public List<AppDataBean> listRegionDataHour(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -221,7 +221,7 @@ public class RegionDataHourService extends BaseService
     	long ms = endTime - beginTime;
     	int days =  (int) (ms /3600 /1000) + 1;
     	
-    	List<DayAndHourDataBean> beans = getListFromSource(sourceMap);
+    	List<AppDataBean> beans = getListFromSource(sourceMap);
     	formatLastList(beans , days);
     	return beans;
     }
@@ -331,8 +331,8 @@ public class RegionDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<DayAndHourDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
-    	List<DayAndHourDataBean> beans = new ArrayList<DayAndHourDataBean>();
+    public List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+    	List<AppDataBean> beans = new ArrayList<AppDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
@@ -350,12 +350,12 @@ public class RegionDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<DayAndHourDataBean> takeDataToList(List<DayAndHourDataBean> beans, String key, String value) throws Exception {
+    public List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String regionId = keyArray[2];
     	
     	if (beans.isEmpty()) {
-    		DayAndHourDataBean bean = new DayAndHourDataBean();
+    		AppDataBean bean = new AppDataBean();
     		if (key.indexOf("@m@") > 0) {// 展现
     			bean.setImpressionAmount(Long.parseLong(value));
         	} else if (key.indexOf("@c@") > 0) {// 点击
@@ -379,7 +379,7 @@ public class RegionDataHourService extends BaseService
     		boolean flag = false;
     		int index = 0;
     		for (int i=0;i < beans.size();i++) {
-    			DayAndHourDataBean bean = beans.get(i);
+    			AppDataBean bean = beans.get(i);
     			if (bean.getRegionId().equals(regionId)) {
     				index = i;
     				flag = true;
@@ -387,7 +387,7 @@ public class RegionDataHourService extends BaseService
     			}
     		}
     		if (flag) {
-    			DayAndHourDataBean bean = beans.get(index);
+    			AppDataBean bean = beans.get(index);
     			if (key.indexOf("@m@") > 0) {// 展现
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c@") > 0) {// 点击
@@ -407,7 +407,7 @@ public class RegionDataHourService extends BaseService
     			}
     			bean.setRegionId(regionId);
     		} else {
-    			DayAndHourDataBean bean = new DayAndHourDataBean();
+    			AppDataBean bean = new AppDataBean();
         		if (key.indexOf("@m@") > 0) {// 展现
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c@") > 0) {// 点击
@@ -438,9 +438,9 @@ public class RegionDataHourService extends BaseService
      * @return
      * @throws Exception 
      */
-    public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans, int days) throws Exception {
+    public List<AppDataBean> formatLastList(List<AppDataBean> beans, int days) throws Exception {
     	if (beans != null && beans.size() > 0) {
-    		for (DayAndHourDataBean bean : beans) {
+    		for (AppDataBean bean : beans) {
 				
     			formatBeanAmount(bean);//计算“量”
 				formatBeanRate(bean, days);//计算“率”
@@ -461,7 +461,7 @@ public class RegionDataHourService extends BaseService
      * 格式化各种“量”
      * @param bean
      */
-    public void formatBeanAmount(DayAndHourDataBean bean) throws Exception {
+    public void formatBeanAmount(AppDataBean bean) throws Exception {
     	if (bean == null) {
     		return;
     	}
@@ -494,7 +494,7 @@ public class RegionDataHourService extends BaseService
      * 格式化各种“率”
      * @param bean
      */
-    public void formatBeanRate(DayAndHourDataBean bean, int days) throws Exception {
+    public void formatBeanRate(AppDataBean bean, int days) throws Exception {
     	if (bean == null) {
     		return;
     	}

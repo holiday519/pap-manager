@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.DayAndHourDataBean;
+import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.RegionDataHourBean;
 import com.pxene.pap.service.RegionDataHourService;
@@ -66,7 +66,7 @@ public class RegionDataHourController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<DayAndHourDataBean> regionDataHourList = regionDataHourService.listRegionDataHours(campaignId, beginTime, endTime);
+        List<AppDataBean> regionDataHourList = regionDataHourService.listRegionDataHours(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(regionDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

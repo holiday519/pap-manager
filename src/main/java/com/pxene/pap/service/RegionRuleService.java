@@ -27,7 +27,7 @@ import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.DayAndHourDataBean;
+import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.beans.RuleBean.Condition;
 import com.pxene.pap.domain.models.AppRuleModel;
@@ -452,7 +452,7 @@ public class RegionRuleService extends BaseService {
 		}
 		
 		//查询app数据
-		List<DayAndHourDataBean> regionDataHour = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+		List<AppDataBean> regionDataHour = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
 		if (regionDataHour == null || regionDataHour.isEmpty()) {
 			throw new ResourceNotFoundException("当前活动无地域投放数据，不能开启地域规则");
 		}
@@ -464,7 +464,7 @@ public class RegionRuleService extends BaseService {
 		List<String> upList = new ArrayList<String>();//加价的活动id
 		List<String> downList = new ArrayList<String>();//减价的活动id
 		
-		for (DayAndHourDataBean bean : regionDataHour) {//--先找出需要减钱的regionId
+		for (AppDataBean bean : regionDataHour) {//--先找出需要减钱的regionId
 			//要求每一条都符合所有的条件才能加价，否则就减价
 			for (RuleConditionModel condition : conditions) {//不符合其中任意一个条件的，就属于减价
 				double data = 0;
@@ -506,7 +506,7 @@ public class RegionRuleService extends BaseService {
 			}
 		}
 		//查询数据中除去减钱的剩下的就是加钱的-----在定向里的id，却没有投放数据（根据判断代码逻辑，不符合降价，也不符合升价），此处会将这些id丢掉。--？
-		for (DayAndHourDataBean bean : regionDataHour) {
+		for (AppDataBean bean : regionDataHour) {
 			if (!downList.isEmpty() && !downList.contains(bean.getRegionId())) {
 				upList.add(bean.getRegionId());
 			}

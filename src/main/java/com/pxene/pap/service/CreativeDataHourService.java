@@ -23,7 +23,7 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.domain.beans.CreativeDataHourBean;
-import com.pxene.pap.domain.beans.DayAndHourDataBean;
+import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.models.CreativeDataHourModel;
 import com.pxene.pap.domain.models.CreativeMaterialModel;
 import com.pxene.pap.domain.models.CreativeModel;
@@ -101,7 +101,7 @@ public class CreativeDataHourService extends BaseService
 
     
     @Transactional
-    public List<DayAndHourDataBean> listCreativeDataHour(String campaignId, long beginTime, long endTime) throws Exception
+    public List<AppDataBean> listCreativeDataHour(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -143,9 +143,9 @@ public class CreativeDataHourService extends BaseService
 			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
 		}
     	
-    	List<DayAndHourDataBean> beans = getListFromSource(sourceMap);
+    	List<AppDataBean> beans = getListFromSource(sourceMap);
     	formatLastList(beans);
-    	for (DayAndHourDataBean bean : beans) {
+    	for (AppDataBean bean : beans) {
     		bean.setCampaignId(campaignId);
     	}
     	return beans;
@@ -256,8 +256,8 @@ public class CreativeDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<DayAndHourDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
-    	List<DayAndHourDataBean> beans = new ArrayList<DayAndHourDataBean>();
+    public List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+    	List<AppDataBean> beans = new ArrayList<AppDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
@@ -275,12 +275,12 @@ public class CreativeDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<DayAndHourDataBean> takeDataToList(List<DayAndHourDataBean> beans, String key, String value) throws Exception {
+    public List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String creativeId = keyArray[0];
     	
     	if (beans.isEmpty()) {
-    		DayAndHourDataBean bean = new DayAndHourDataBean();
+    		AppDataBean bean = new AppDataBean();
     		if (key.indexOf("@m") > 0) {// 展现
     			bean.setImpressionAmount(Long.parseLong(value));
         	} else if (key.indexOf("@c") > 0) {// 点击
@@ -304,7 +304,7 @@ public class CreativeDataHourService extends BaseService
     		boolean flag = false;
     		int index = 0;
     		for (int i=0;i < beans.size();i++) {
-    			DayAndHourDataBean bean = beans.get(i);
+    			AppDataBean bean = beans.get(i);
     			if (bean.getCreativeId().equals(creativeId)) {
     				index = i;
     				flag = true;
@@ -312,7 +312,7 @@ public class CreativeDataHourService extends BaseService
     			}
     		}
     		if (flag) {
-    			DayAndHourDataBean bean = beans.get(index);
+    			AppDataBean bean = beans.get(index);
     			if (key.indexOf("@m") > 0) {// 展现
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c") > 0) {// 点击
@@ -332,7 +332,7 @@ public class CreativeDataHourService extends BaseService
     			}
     			bean.setCreativeId(creativeId);
     		} else {
-    			DayAndHourDataBean bean = new DayAndHourDataBean();
+    			AppDataBean bean = new AppDataBean();
         		if (key.indexOf("@m") > 0) {// 展现
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c") > 0) {// 点击
@@ -362,10 +362,10 @@ public class CreativeDataHourService extends BaseService
      * @param beans
      * @return
      */
-    public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans) {
+    public List<AppDataBean> formatLastList(List<AppDataBean> beans) {
     	DecimalFormat format = new DecimalFormat("0.00000");
     	if (beans != null && beans.size() > 0) {
-    		for (DayAndHourDataBean bean : beans) {
+    		for (AppDataBean bean : beans) {
     			bean.setBidAmount(null);
 				if (bean.getWinAmount() == null) {
 					bean.setWinAmount(0L);
@@ -425,22 +425,22 @@ public class CreativeDataHourService extends BaseService
     	}
     	//将所有不重复的creaticeId放入List————根据List就知道最后条数
     	List<String> creativeIds = new ArrayList<String>();
-    	for (DayAndHourDataBean bean : beans) {
+    	for (AppDataBean bean : beans) {
     		if (creativeIds.contains(bean.getCreativeId())) {
     			creativeIds.add(bean.getCreativeId());	
     		}
     	}
     	//创建一个新的List存放结果用
-    	List<DayAndHourDataBean> newBeans = new ArrayList<DayAndHourDataBean>();
+    	List<AppDataBean> newBeans = new ArrayList<AppDataBean>();
     	if (beans !=null && !beans.isEmpty()) {
-			for (DayAndHourDataBean bean : beans) {
+			for (AppDataBean bean : beans) {
 				//如果list里没有CreativeId，先添加进去
 				if(indexOfBean(newBeans, bean.getCreativeId()) == null){
 					newBeans.add(bean);
 				} else {
 					//如果有，就将相同creativeId的数据合并成一条
 					int index = indexOfBean(newBeans, bean.getCreativeId());
-					DayAndHourDataBean dataBean = newBeans.get(index);
+					AppDataBean dataBean = newBeans.get(index);
 					dataBean.setWinAmount(dataBean.getWinAmount() + bean.getWinAmount());
 					dataBean.setImpressionAmount(dataBean.getImpressionAmount() + bean.getImpressionAmount());
 					dataBean.setClickAmount(dataBean.getClickAmount() + bean.getClickAmount());
@@ -483,7 +483,7 @@ public class CreativeDataHourService extends BaseService
      * @param id
      * @return
      */
-    public Integer indexOfBean(List<DayAndHourDataBean> newBeans, String id) {
+    public Integer indexOfBean(List<AppDataBean> newBeans, String id) {
     	Integer index = null;
     	for (int i=0;i<newBeans.size();i++) {
     		if (id.equals(newBeans.get(i).getCreativeId())) {

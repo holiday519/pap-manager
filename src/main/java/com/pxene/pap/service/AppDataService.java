@@ -12,88 +12,23 @@ import java.util.Set;
 import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.domain.beans.AppDataHourBean;
-import com.pxene.pap.domain.beans.DayAndHourDataBean;
-import com.pxene.pap.domain.models.AppDataHourModel;
+import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
-import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
-import com.pxene.pap.repository.basic.AppDataHourDao;
-import com.pxene.pap.repository.custom.AppDataHourStatsDao;
 
 @Service
-public class AppDataHourService extends BaseService
+public class AppDataService extends BaseService
 {
-    @Autowired
-    private AppDataHourDao appDataHourDao;
-    
     @Autowired
     private AppDao appDao;
     
-    @Autowired
-    private AppDataHourStatsDao appDataHourStatsDao;
-    
-    @Autowired
-    private AppRuleService appRuleService;
-    
-    @Transactional
-    public void saveAppDataHour(AppDataHourBean appDataDayBean)
-    {
-        AppDataHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppDataHourModel.class);
-        
-        try
-        {
-            appDataHourDao.insertSelective(appDataDayModel);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-        
-        // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataDayModel, appDataDayBean);
-        
-    }
-
-    @Transactional
-    public void updateAppDataHour(Integer id, AppDataHourBean appDataDayBean)
-    {
-        // 操作前先查询一次数据库，判断指定的资源是否存在
-        AppDataHourModel appDataDayInDB = appDataHourDao.selectByPrimaryKey(id);
-        if (appDataDayInDB == null)
-        {
-            throw new ResourceNotFoundException();
-        }
-        
-        // 将传输对象映射成数据库Model
-        AppDataHourModel appDataDayModel = modelMapper.map(appDataDayBean, AppDataHourModel.class);
-        appDataDayModel.setId(id);
-        
-        try
-        {
-            appDataHourDao.updateByPrimaryKey(appDataDayModel);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-        
-        // 将DAO编辑后的新对象复制回传输对象中
-        BeanUtils.copyProperties(appDataHourDao.selectByPrimaryKey(id), appDataDayBean);
-    }
-
     /**
      * 查询app小时数据（包括分key）
      * @param campaignId
@@ -103,9 +38,9 @@ public class AppDataHourService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<DayAndHourDataBean> listAppDataHours(String campaignId, long beginTime, long endTime) throws Exception {
+    public List<AppDataBean> listAppDataHours(String campaignId, long beginTime, long endTime) throws Exception {
     	
-    	List<DayAndHourDataBean> result = new ArrayList<DayAndHourDataBean>();
+    	List<AppDataBean> result = new ArrayList<AppDataBean>();
     	
     	String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
     	//如果redis中没有分key；说明活动没有绑定过规则，直接查询即可
@@ -114,16 +49,16 @@ public class AppDataHourService extends BaseService
 			for (int i = 0; i < ids.length; i++) {
 				String id = ids[i];
 				//查询出的数据整合时，需要判断未分key之前是否与分开之后数据的ID相同，如果相同加起来，不相同直接放到结果集中
-				List<DayAndHourDataBean> list = listAppDataHour(id, beginTime, endTime);
+				List<AppDataBean> list = listAppDataHour(id, beginTime, endTime);
 				if (list == null || list.isEmpty()) {
 					continue;
 				}
 				if (result.isEmpty()) {
 					result.addAll(list);
 				} else {
-					List<DayAndHourDataBean> newList = new ArrayList<DayAndHourDataBean>();//用于存放result中、不包含的、 新id的bean 
-					DayAndHourDataBean reslutBean = null;
-					DayAndHourDataBean bean = null;
+					List<AppDataBean> newList = new ArrayList<AppDataBean>();//用于存放result中、不包含的、 新id的bean 
+					AppDataBean reslutBean = null;
+					AppDataBean bean = null;
 					//循环遍历分key返回结果，如果reslut中已有某条ID数据，就把两条数据整合到一起放到结果集中
 					//如果没有，先放到临时list中，循环检查结束后，将新list拼接到结果集中
 					for (int b = 0; b < list.size(); b++) {
@@ -160,7 +95,7 @@ public class AppDataHourService extends BaseService
     	}else {
     		result = listAppDataHour(campaignId, beginTime, endTime);
     	}
-    	for (DayAndHourDataBean bean : result) {
+    	for (AppDataBean bean : result) {
     		bean.setCampaignId(campaignId);
     	}
     	return result;
@@ -175,7 +110,7 @@ public class AppDataHourService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<DayAndHourDataBean> listAppDataHour(String campaignId, long beginTime, long endTime) throws Exception
+    public List<AppDataBean> listAppDataHour(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -217,7 +152,7 @@ public class AppDataHourService extends BaseService
 			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
 		}
     	
-    	List<DayAndHourDataBean> beans = getListFromSource(sourceMap);
+    	List<AppDataBean> beans = getListFromSource(sourceMap);
     	formatLastList(beans);
     	return beans;
     }
@@ -327,8 +262,8 @@ public class AppDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<DayAndHourDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
-    	List<DayAndHourDataBean> beans = new ArrayList<DayAndHourDataBean>();
+    public List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+    	List<AppDataBean> beans = new ArrayList<AppDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
@@ -346,13 +281,13 @@ public class AppDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<DayAndHourDataBean> takeDataToList(List<DayAndHourDataBean> beans, String key, String value) throws Exception {
+    public List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String appId = keyArray[2];
     	String adxId = keyArray[3];
     	
     	if (beans.isEmpty()) {
-    		DayAndHourDataBean bean = new DayAndHourDataBean();
+    		AppDataBean bean = new AppDataBean();
     		if (key.indexOf("@m@") > 0) {// 展现
     			bean.setImpressionAmount(Long.parseLong(value));
         	} else if (key.indexOf("@c@") > 0) {// 点击
@@ -377,7 +312,7 @@ public class AppDataHourService extends BaseService
     		boolean flag = false;
     		int index = 0;
     		for (int i=0;i < beans.size();i++) {
-    			DayAndHourDataBean bean = beans.get(i);
+    			AppDataBean bean = beans.get(i);
     			if (bean.getAppId().equals(appId) && bean.getAdxId().endsWith(adxId)) {
     				index = i;
     				flag = true;
@@ -385,7 +320,7 @@ public class AppDataHourService extends BaseService
     			}
     		}
     		if (flag) {
-    			DayAndHourDataBean bean = beans.get(index);
+    			AppDataBean bean = beans.get(index);
     			if (key.indexOf("@m@") > 0) {// 展现
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c@") > 0) {// 点击
@@ -406,7 +341,7 @@ public class AppDataHourService extends BaseService
         		bean.setAppId(appId);
         		bean.setAdxId(adxId);
     		} else {
-    			DayAndHourDataBean bean = new DayAndHourDataBean();
+    			AppDataBean bean = new AppDataBean();
         		if (key.indexOf("@m@") > 0) {// 展现
         			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
             	} else if (key.indexOf("@c@") > 0) {// 点击
@@ -437,9 +372,9 @@ public class AppDataHourService extends BaseService
      * @param beans
      * @return
      */
-    public List<DayAndHourDataBean> formatLastList(List<DayAndHourDataBean> beans) throws Exception {
+    public List<AppDataBean> formatLastList(List<AppDataBean> beans) throws Exception {
     	if (beans != null && beans.size() > 0) {
-    		for (DayAndHourDataBean bean : beans) {
+    		for (AppDataBean bean : beans) {
 				
 				formatBeanAmount(bean);//计算“量”
 				formatBeanRate(bean);//计算“率”
@@ -468,7 +403,7 @@ public class AppDataHourService extends BaseService
      * 格式化各种“量”
      * @param bean
      */
-    public void formatBeanAmount(DayAndHourDataBean bean) throws Exception {
+    public void formatBeanAmount(AppDataBean bean) throws Exception {
     	if (bean == null) {
 			return;
 		}
@@ -497,7 +432,7 @@ public class AppDataHourService extends BaseService
      * 格式化各种“率”
      * @param bean
      */
-    public void formatBeanRate(DayAndHourDataBean bean) throws Exception {
+    public void formatBeanRate(AppDataBean bean) throws Exception {
 		if (bean == null) {
 			return;
 		}

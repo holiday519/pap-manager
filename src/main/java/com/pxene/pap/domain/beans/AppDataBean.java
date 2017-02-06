@@ -3,7 +3,7 @@ package com.pxene.pap.domain.beans;
 /**
  * 用于查询数据统计（小时、天）
  */
-public class DayAndHourDataBean {
+public class AppDataBean {
 
 	private String regionId;
 	private String regionName;
