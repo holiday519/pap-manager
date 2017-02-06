@@ -446,7 +446,7 @@ public class AppRuleService extends BaseService {
 			endTime = DateTime.parse(day + " 23:59:59", format).getMillis();
 		}
 		//查询app数据
-		List<AppDataBean> appDataHour = appDataHourService.listAppDataHour(campaignId, beginTime, endTime);
+		List<AppDataBean> appDataHour = appDataHourService.listAppDatas(campaignId, beginTime, endTime);
 		if (appDataHour == null || appDataHour.isEmpty()) {
 			throw new ResourceNotFoundException("当前活动无APP投放数据，不能开启app规则");
 		}

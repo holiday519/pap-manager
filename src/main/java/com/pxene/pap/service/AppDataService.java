@@ -38,7 +38,7 @@ public class AppDataService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<AppDataBean> listAppDataHours(String campaignId, long beginTime, long endTime) throws Exception {
+    public List<AppDataBean> listAppDatas(String campaignId, long beginTime, long endTime) throws Exception {
     	
     	List<AppDataBean> result = new ArrayList<AppDataBean>();
     	
@@ -49,7 +49,7 @@ public class AppDataService extends BaseService
 			for (int i = 0; i < ids.length; i++) {
 				String id = ids[i];
 				//查询出的数据整合时，需要判断未分key之前是否与分开之后数据的ID相同，如果相同加起来，不相同直接放到结果集中
-				List<AppDataBean> list = listAppDataHour(id, beginTime, endTime);
+				List<AppDataBean> list = selectByArgs(id, beginTime, endTime);
 				if (list == null || list.isEmpty()) {
 					continue;
 				}
@@ -93,7 +93,7 @@ public class AppDataService extends BaseService
 				}
 			}
     	}else {
-    		result = listAppDataHour(campaignId, beginTime, endTime);
+    		result = selectByArgs(campaignId, beginTime, endTime);
     	}
     	for (AppDataBean bean : result) {
     		bean.setCampaignId(campaignId);
@@ -110,7 +110,7 @@ public class AppDataService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<AppDataBean> listAppDataHour(String campaignId, long beginTime, long endTime) throws Exception
+    private List<AppDataBean> selectByArgs(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -164,7 +164,7 @@ public class AppDataService extends BaseService
      * @param endTime 结束时间
      * @return
      */
-	public Map<String, String> makeDayTableUseHour(Map<String, String> sourceMap, Date beginTime, Date endTime)	throws Exception {
+    private Map<String, String> makeDayTableUseHour(Map<String, String> sourceMap, Date beginTime, Date endTime)	throws Exception {
 		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
 		for (int i = 0; i < hours.length; i++) {
 			String hour = hours[i];
@@ -213,7 +213,7 @@ public class AppDataService extends BaseService
      * @return
      * @throws Exception
      */
-    public Map<String, String> margeDayTables(Map<String, String> sourceMap, String [] days) throws Exception {
+	private Map<String, String> margeDayTables(Map<String, String> sourceMap, String [] days) throws Exception {
     	if (days!=null && days.length > 0) {
     		for (int i = 0; i < days.length; i++) {
     			String day = days[i];
@@ -262,7 +262,7 @@ public class AppDataService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+    private List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
     	List<AppDataBean> beans = new ArrayList<AppDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
@@ -281,7 +281,7 @@ public class AppDataService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
+    private List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String appId = keyArray[2];
     	String adxId = keyArray[3];
@@ -372,7 +372,7 @@ public class AppDataService extends BaseService
      * @param beans
      * @return
      */
-    public List<AppDataBean> formatLastList(List<AppDataBean> beans) throws Exception {
+    private List<AppDataBean> formatLastList(List<AppDataBean> beans) throws Exception {
     	if (beans != null && beans.size() > 0) {
     		for (AppDataBean bean : beans) {
 				
@@ -403,7 +403,7 @@ public class AppDataService extends BaseService
      * 格式化各种“量”
      * @param bean
      */
-    public void formatBeanAmount(AppDataBean bean) throws Exception {
+    private void formatBeanAmount(AppDataBean bean) throws Exception {
     	if (bean == null) {
 			return;
 		}
@@ -432,7 +432,7 @@ public class AppDataService extends BaseService
      * 格式化各种“率”
      * @param bean
      */
-    public void formatBeanRate(AppDataBean bean) throws Exception {
+    private void formatBeanRate(AppDataBean bean) throws Exception {
 		if (bean == null) {
 			return;
 		}

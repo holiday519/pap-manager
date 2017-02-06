@@ -28,7 +28,7 @@ import com.pxene.pap.service.AppDataService;
 public class AppDataController
 {
     @Autowired
-    private AppDataService appDataHourService;
+    private AppDataService appDataService;
     
     /**
      * 列出App数据。
@@ -46,7 +46,7 @@ public class AppDataController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<AppDataBean> appDataHourList = appDataHourService.listAppDataHours(campaignId, beginTime, endTime);
+        List<AppDataBean> appDataHourList = appDataService.listAppDatas(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(appDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
