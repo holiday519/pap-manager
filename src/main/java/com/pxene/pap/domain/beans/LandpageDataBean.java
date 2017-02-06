@@ -1,31 +1,50 @@
-package com.pxene.pap.domain.models;
+package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
-public class LandpageDataHourModel {
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+public class LandpageDataBean {
     private Integer id;
 
     private String landpageId;
 
     private String campaignId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
     private Date datetime;
 
     private Long clickAmount;
 
     private Long arrivalAmount;
+    
+    private Float arrivalRate;
 
     private Long uniqueAmount;
 
     private Long residentTime;
 
     private Long jumpAmount;
+    
+    private Float jumpRate;
+    
+    public Float getArrivalRate() {
+		return arrivalRate;
+	}
 
-    private Date createtime;
+	public void setArrivalRate(Float arrivalRate) {
+		this.arrivalRate = arrivalRate;
+	}
 
-    private Date updatetime;
+	public Float getJumpRate() {
+		return jumpRate;
+	}
 
-    public Integer getId() {
+	public void setJumpRate(Float jumpRate) {
+		this.jumpRate = jumpRate;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -33,19 +52,19 @@ public class LandpageDataHourModel {
         this.id = id;
     }
 
-    public String getLandpageId() {
-        return landpageId;
-    }
+	public String getLandpageId() {
+		return landpageId;
+	}
 
-    public void setLandpageId(String landpageId) {
-        this.landpageId = landpageId == null ? null : landpageId.trim();
-    }
-
+	public void setLandpageId(String landpageId) {
+		this.landpageId = landpageId == null ? null : landpageId.trim();
+	}
+    
     public String getCampaignId() {
         return campaignId;
     }
 
-    public void setCampaignId(String campaignId) {
+	public void setCampaignId(String campaignId) {
         this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
@@ -97,22 +116,6 @@ public class LandpageDataHourModel {
         this.jumpAmount = jumpAmount;
     }
 
-    public Date getCreatetime() {
-        return createtime;
-    }
-
-    public void setCreatetime(Date createtime) {
-        this.createtime = createtime;
-    }
-
-    public Date getUpdatetime() {
-        return updatetime;
-    }
-
-    public void setUpdatetime(Date updatetime) {
-        this.updatetime = updatetime;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -128,8 +131,6 @@ public class LandpageDataHourModel {
         sb.append(", uniqueAmount=").append(uniqueAmount);
         sb.append(", residentTime=").append(residentTime);
         sb.append(", jumpAmount=").append(jumpAmount);
-        sb.append(", createtime=").append(createtime);
-        sb.append(", updatetime=").append(updatetime);
         sb.append("]");
         return sb.toString();
     }
