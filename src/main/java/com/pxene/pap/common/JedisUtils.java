@@ -41,7 +41,7 @@ public class JedisUtils {
 	 */
 	public static Jedis getJedis() {
 		Jedis jedis = jedisPool.getResource();
-		jedis.select(4);
+		jedis.select(2);
 		return jedis;
 		//return jedisPool.getResource();
 	}

@@ -304,31 +304,31 @@ public class AdvertiserService extends BaseService
         
         File destDir = new File(UPLOAD_DIR + FORMAL_DIR);
         
-        if (logoPath.contains(TEMP_DIR))
+        if (logoPath != null && logoPath.contains(TEMP_DIR))
         {
             org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
             advertiserBean.setLogoPath(logoPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
-        if (accountPath.contains(TEMP_DIR))
+        if (accountPath != null && accountPath.contains(TEMP_DIR))
         {
             org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
             advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
-        if (licensePath.contains(TEMP_DIR))
+        if (licensePath != null && licensePath.contains(TEMP_DIR))
         {
             org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
             advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
-        if (organizationPath.contains(TEMP_DIR))
+        if (organizationPath != null && organizationPath.contains(TEMP_DIR))
         {
             org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
             advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
-        if (icpPath.contains(TEMP_DIR))
+        if (icpPath != null && icpPath.contains(TEMP_DIR))
         {
             org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
             advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));

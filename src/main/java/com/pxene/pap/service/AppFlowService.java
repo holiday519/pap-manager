@@ -59,12 +59,12 @@ public class AppFlowService extends BaseService
         return beans.size() > limitNum ? beans.subList(0, limitNum) : beans;
     }
     
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
     	
 		String[] hours = DateUtils.getDayHoursBetween(new Date(1484020800000L), new Date(1484038800000L));
 		for (String hour : hours) {
 			System.out.println(hour);
 		}
-	}
+	}*/
     
 }
