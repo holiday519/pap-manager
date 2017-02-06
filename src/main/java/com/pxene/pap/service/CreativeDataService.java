@@ -14,35 +14,21 @@ import javax.transaction.Transactional;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.domain.beans.CreativeDataHourBean;
 import com.pxene.pap.domain.beans.AppDataBean;
-import com.pxene.pap.domain.models.CreativeDataHourModel;
 import com.pxene.pap.domain.models.CreativeMaterialModel;
 import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.CreativeDataHourDao;
 import com.pxene.pap.repository.basic.CreativeMaterialDao;
-import com.pxene.pap.repository.custom.CreativeDataHourStatsDao;
 
 @Service
-public class CreativeDataHourService extends BaseService
+public class CreativeDataService extends BaseService
 {
-    @Autowired
-    private CreativeDataHourDao creativeDataHourDao;
-    
-    @Autowired
-    private CreativeDataHourStatsDao creativeDataHourStatsDao;
-    
     @Autowired
     private CreativeDao creativeDao;
     
@@ -52,56 +38,7 @@ public class CreativeDataHourService extends BaseService
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
     @Transactional
-    public void saveCreativeDataHour(CreativeDataHourBean bean)
-    {
-        CreativeDataHourModel model = modelMapper.map(bean, CreativeDataHourModel.class);
-        
-        try
-        {
-            creativeDataHourDao.insertSelective(model);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-        
-        // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(model, bean);
-        
-    }
-
-    @Transactional
-    public void updateCreativeDataHour(Integer id, CreativeDataHourBean bean)
-    {
-        // 操作前先查询一次数据库，判断指定的资源是否存在
-        CreativeDataHourModel dataInDB = creativeDataHourDao.selectByPrimaryKey(id);
-        if (dataInDB == null)
-        {
-            throw new ResourceNotFoundException();
-        }
-        
-        // 将传输对象映射成数据库Model
-        CreativeDataHourModel model = modelMapper.map(bean, CreativeDataHourModel.class);
-        model.setId(id);
-        
-        try
-        {
-            creativeDataHourDao.updateByPrimaryKey(model);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-        
-        // 将DAO编辑后的新对象复制回传输对象中
-        BeanUtils.copyProperties(creativeDataHourDao.selectByPrimaryKey(id), bean);
-    }
-
-    
-    @Transactional
-    public List<AppDataBean> listCreativeDataHour(String campaignId, long beginTime, long endTime) throws Exception
+    public List<AppDataBean> listCreativeDatas(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -158,7 +95,7 @@ public class CreativeDataHourService extends BaseService
      * @param endTime 结束时间
      * @return
      */
-	public Map<String, String> makeDayTableUseHour(Map<String, String> sourceMap, Date beginTime, Date endTime)	throws Exception {
+	private Map<String, String> makeDayTableUseHour(Map<String, String> sourceMap, Date beginTime, Date endTime)	throws Exception {
 		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
 		for (int i = 0; i < hours.length; i++) {
 			String hour = hours[i];
@@ -207,7 +144,7 @@ public class CreativeDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public Map<String, String> margeDayTables(Map<String, String> sourceMap, String [] days) throws Exception {
+	private Map<String, String> margeDayTables(Map<String, String> sourceMap, String [] days) throws Exception {
     	if (days!=null && days.length > 0) {
     		for (int i = 0; i < days.length; i++) {
     			String day = days[i];
@@ -256,7 +193,7 @@ public class CreativeDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+	private List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
     	List<AppDataBean> beans = new ArrayList<AppDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
@@ -275,7 +212,7 @@ public class CreativeDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
+	private List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String creativeId = keyArray[0];
     	
@@ -362,7 +299,7 @@ public class CreativeDataHourService extends BaseService
      * @param beans
      * @return
      */
-    public List<AppDataBean> formatLastList(List<AppDataBean> beans) {
+	private List<AppDataBean> formatLastList(List<AppDataBean> beans) {
     	DecimalFormat format = new DecimalFormat("0.00000");
     	if (beans != null && beans.size() > 0) {
     		for (AppDataBean bean : beans) {
@@ -483,7 +420,7 @@ public class CreativeDataHourService extends BaseService
      * @param id
      * @return
      */
-    public Integer indexOfBean(List<AppDataBean> newBeans, String id) {
+	private Integer indexOfBean(List<AppDataBean> newBeans, String id) {
     	Integer index = null;
     	for (int i=0;i<newBeans.size();i++) {
     		if (id.equals(newBeans.get(i).getCreativeId())) {

@@ -2,36 +2,59 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
-public class AppDataDayBean {
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+public class CreativeDataBean {
     private Integer id;
 
-    private String appId;
+    private String creativeId;
 
     private String campaignId;
-
-    private Date date;
-
-    private Long bidAmount;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone="GMT+8")
+    private Date datetime;
 
     private Long winAmount;
 
-    private Float winRate;
-
     private Long impressionAmount;
-
+    
     private Float impressionRate;
 
     private Long clickAmount;
-
+    
     private Float clickRate;
 
     private Long arrivalAmount;
-
+    
     private Float arrivalRate;
 
     private Long uniqueAmount;
+    
+    public Float getImpressionRate() {
+		return impressionRate;
+	}
 
-    public Integer getId() {
+	public void setImpressionRate(Float impressionRate) {
+		this.impressionRate = impressionRate;
+	}
+
+	public Float getClickRate() {
+		return clickRate;
+	}
+
+	public void setClickRate(Float clickRate) {
+		this.clickRate = clickRate;
+	}
+
+	public Float getArrivalRate() {
+		return arrivalRate;
+	}
+
+	public void setArrivalRate(Float arrivalRate) {
+		this.arrivalRate = arrivalRate;
+	}
+
+	public Integer getId() {
         return id;
     }
 
@@ -39,12 +62,12 @@ public class AppDataDayBean {
         this.id = id;
     }
 
-    public String getAppId() {
-        return appId;
+    public String getCreativeId() {
+        return creativeId;
     }
 
-    public void setAppId(String appId) {
-        this.appId = appId == null ? null : appId.trim();
+    public void setCreativeId(String creativeId) {
+        this.creativeId = creativeId == null ? null : creativeId.trim();
     }
 
     public String getCampaignId() {
@@ -55,20 +78,12 @@ public class AppDataDayBean {
         this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
-    public Date getDate() {
-        return date;
+    public Date getDatetime() {
+        return datetime;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Long getBidAmount() {
-        return bidAmount;
-    }
-
-    public void setBidAmount(Long bidAmount) {
-        this.bidAmount = bidAmount;
+    public void setDatetime(Date datetime) {
+        this.datetime = datetime;
     }
 
     public Long getWinAmount() {
@@ -79,28 +94,12 @@ public class AppDataDayBean {
         this.winAmount = winAmount;
     }
 
-    public Float getWinRate() {
-        return winRate;
-    }
-
-    public void setWinRate(Float winRate) {
-        this.winRate = winRate;
-    }
-
     public Long getImpressionAmount() {
         return impressionAmount;
     }
 
     public void setImpressionAmount(Long impressionAmount) {
         this.impressionAmount = impressionAmount;
-    }
-
-    public Float getImpressionRate() {
-        return impressionRate;
-    }
-
-    public void setImpressionRate(Float impressionRate) {
-        this.impressionRate = impressionRate;
     }
 
     public Long getClickAmount() {
@@ -111,28 +110,12 @@ public class AppDataDayBean {
         this.clickAmount = clickAmount;
     }
 
-    public Float getClickRate() {
-        return clickRate;
-    }
-
-    public void setClickRate(Float clickRate) {
-        this.clickRate = clickRate;
-    }
-
     public Long getArrivalAmount() {
         return arrivalAmount;
     }
 
     public void setArrivalAmount(Long arrivalAmount) {
         this.arrivalAmount = arrivalAmount;
-    }
-
-    public Float getArrivalRate() {
-        return arrivalRate;
-    }
-
-    public void setArrivalRate(Float arrivalRate) {
-        this.arrivalRate = arrivalRate;
     }
 
     public Long getUniqueAmount() {
@@ -150,18 +133,13 @@ public class AppDataDayBean {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", appId=").append(appId);
+        sb.append(", creativeId=").append(creativeId);
         sb.append(", campaignId=").append(campaignId);
-        sb.append(", date=").append(date);
-        sb.append(", bidAmount=").append(bidAmount);
+        sb.append(", datetime=").append(datetime);
         sb.append(", winAmount=").append(winAmount);
-        sb.append(", winRate=").append(winRate);
         sb.append(", impressionAmount=").append(impressionAmount);
-        sb.append(", impressionRate=").append(impressionRate);
         sb.append(", clickAmount=").append(clickAmount);
-        sb.append(", clickRate=").append(clickRate);
         sb.append(", arrivalAmount=").append(arrivalAmount);
-        sb.append(", arrivalRate=").append(arrivalRate);
         sb.append(", uniqueAmount=").append(uniqueAmount);
         sb.append("]");
         return sb.toString();
