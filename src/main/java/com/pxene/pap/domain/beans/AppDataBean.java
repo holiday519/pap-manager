@@ -5,20 +5,13 @@ package com.pxene.pap.domain.beans;
  */
 public class AppDataBean {
 
-	private String regionId;
-	private String regionName;
-
-	private String creativeId;
-	private String creativeName;
-
+	private String id;
 	private String appId;
-	private String realAppId;
 	private String appName;
 	private String adxId;
 	private String appType;
 	private String pkgName;
 
-	private String campaignId;
 	private Long bidAmount;
 	private Long winAmount;
 	private Float winRate;
@@ -26,43 +19,13 @@ public class AppDataBean {
 	private Float impressionRate;
 	private Long clickAmount;
 	private Float clickRate;
-	private Long arrivalAmount;
-	private Float arrivalRate;
-	private Long uniqueAmount;
-	private Long jumpAmount;
-	private Float jumpRate;
-	private Integer residentTime;
 
-	public String getRegionId() {
-		return regionId;
+	public String getId() {
+		return id;
 	}
 
-	public void setRegionId(String regionId) {
-		this.regionId = regionId;
-	}
-
-	public String getRegionName() {
-		return regionName;
-	}
-
-	public void setRegionName(String regionName) {
-		this.regionName = regionName;
-	}
-
-	public String getCreativeId() {
-		return creativeId;
-	}
-
-	public void setCreativeId(String creativeId) {
-		this.creativeId = creativeId;
-	}
-
-	public String getCreativeName() {
-		return creativeName;
-	}
-
-	public void setCreativeName(String creativeName) {
-		this.creativeName = creativeName;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public String getAppId() {
@@ -71,14 +34,6 @@ public class AppDataBean {
 
 	public void setAppId(String appId) {
 		this.appId = appId;
-	}
-
-	public String getRealAppId() {
-		return realAppId;
-	}
-
-	public void setRealAppId(String realAppId) {
-		this.realAppId = realAppId;
 	}
 
 	public String getAppName() {
@@ -111,14 +66,6 @@ public class AppDataBean {
 
 	public void setPkgName(String pkgName) {
 		this.pkgName = pkgName;
-	}
-
-	public String getCampaignId() {
-		return campaignId;
-	}
-
-	public void setCampaignId(String campaignId) {
-		this.campaignId = campaignId;
 	}
 
 	public Long getBidAmount() {
@@ -177,70 +124,15 @@ public class AppDataBean {
 		this.clickRate = clickRate;
 	}
 
-	public Long getArrivalAmount() {
-		return arrivalAmount;
-	}
-
-	public void setArrivalAmount(Long arrivalAmount) {
-		this.arrivalAmount = arrivalAmount;
-	}
-
-	public Float getArrivalRate() {
-		return arrivalRate;
-	}
-
-	public void setArrivalRate(Float arrivalRate) {
-		this.arrivalRate = arrivalRate;
-	}
-
-	public Long getUniqueAmount() {
-		return uniqueAmount;
-	}
-
-	public void setUniqueAmount(Long uniqueAmount) {
-		this.uniqueAmount = uniqueAmount;
-	}
-
-	public Long getJumpAmount() {
-		return jumpAmount;
-	}
-
-	public void setJumpAmount(Long jumpAmount) {
-		this.jumpAmount = jumpAmount;
-	}
-
-	public Float getJumpRate() {
-		return jumpRate;
-	}
-
-	public void setJumpRate(Float jumpRate) {
-		this.jumpRate = jumpRate;
-	}
-
-	public Integer getResidentTime() {
-		return residentTime;
-	}
-
-	public void setResidentTime(Integer residentTime) {
-		this.residentTime = residentTime;
-	}
-
 	@Override
 	public String toString() {
-		return "DayAndHourDataBean [regionId=" + regionId + ", regionName="
-				+ regionName + ", creativeId=" + creativeId + ", creativeName="
-				+ creativeName + ", appId=" + appId + ", realAppId="
-				+ realAppId + ", appName=" + appName + ", adxId=" + adxId
-				+ ", appType=" + appType + ", pkgName=" + pkgName
-				+ ", campaignId=" + campaignId + ", bidAmount=" + bidAmount
+		return "AppDataBean [id=" + id + ", appId=" + appId + ", appName="
+				+ appName + ", adxId=" + adxId + ", appType=" + appType
+				+ ", pkgName=" + pkgName + ", bidAmount=" + bidAmount
 				+ ", winAmount=" + winAmount + ", winRate=" + winRate
 				+ ", impressionAmount=" + impressionAmount
 				+ ", impressionRate=" + impressionRate + ", clickAmount="
-				+ clickAmount + ", clickRate=" + clickRate + ", arrivalAmount="
-				+ arrivalAmount + ", arrivalRate=" + arrivalRate
-				+ ", uniqueAmount=" + uniqueAmount + ", jumpAmount="
-				+ jumpAmount + ", jumpRate=" + jumpRate + ", residentTime="
-				+ residentTime + "]";
+				+ clickAmount + ", clickRate=" + clickRate + "]";
 	}
 
 }

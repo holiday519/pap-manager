@@ -14,86 +14,28 @@ import javax.transaction.Transactional;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.domain.beans.AppDataBean;
-import com.pxene.pap.domain.beans.RegionDataHourBean;
-import com.pxene.pap.domain.models.RegionDataHourModel;
+import com.pxene.pap.constant.RedisKeyConstant;
+import com.pxene.pap.domain.beans.RegionDataBean;
 import com.pxene.pap.domain.models.RegionModel;
-import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.RegionDao;
-import com.pxene.pap.repository.basic.RegionDataHourDao;
-import com.pxene.pap.repository.custom.RegionDataHourStatsDao;
 
 @Service
-public class RegionDataHourService extends BaseService
+public class RegionDataService extends BaseService
 {
-    @Autowired
-    private RegionDataHourDao regionDataHourDao;
-    
     @Autowired
     private RegionDao regionDao;
     
-    @Autowired
-    private RegionDataHourStatsDao regionDataHourStatsDao;
-    
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
-    @Transactional
-    public void saveRegionDataHour(RegionDataHourBean bean)
-    {
-        RegionDataHourModel model = modelMapper.map(bean, RegionDataHourModel.class);
-        
-        try
-        {
-            regionDataHourDao.insertSelective(model);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-        
-        // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(model, bean);
-        
-    }
-
-    @Transactional
-    public void updateRegionDataHour(Integer id, RegionDataHourBean bean)
-    {
-        // 操作前先查询一次数据库，判断指定的资源是否存在
-        RegionDataHourModel dataInDB = regionDataHourDao.selectByPrimaryKey(id);
-        if (dataInDB == null)
-        {
-            throw new ResourceNotFoundException();
-        }
-        
-        // 将传输对象映射成数据库Model
-        RegionDataHourModel model = modelMapper.map(bean, RegionDataHourModel.class);
-        model.setId(id);
-        
-        try
-        {
-            regionDataHourDao.updateByPrimaryKey(model);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
-        
-        // 将DAO编辑后的新对象复制回传输对象中
-        BeanUtils.copyProperties(regionDataHourDao.selectByPrimaryKey(id), bean);
-    }
-
     /**
      * 查询地域小时数据（包括分key）
      * @param campaignId
@@ -103,8 +45,8 @@ public class RegionDataHourService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<AppDataBean> listRegionDataHours(String campaignId, long beginTime, long endTime) throws Exception {
-    	List<AppDataBean> result = new ArrayList<AppDataBean>();
+    public List<RegionDataBean> listRegionDataHours(String campaignId, long beginTime, long endTime) throws Exception {
+    	List<RegionDataBean> result = new ArrayList<RegionDataBean>();
     	
     	String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
     	long ms = endTime - beginTime;
@@ -115,16 +57,16 @@ public class RegionDataHourService extends BaseService
 			for (int i = 0; i < ids.length; i++) {
 				String id = ids[i];
 				//查询出的数据整合时，需要判断未分key之前是否与分开之后数据的ID相同，如果相同加起来，不相同直接放到结果集中
-				List<AppDataBean> list = listRegionDataHour(id, beginTime, endTime);
+				List<RegionDataBean> list = listRegionDataHour(id, beginTime, endTime);
 				if (list == null || list.isEmpty()) {
 					continue;
 				}
 				if (result.isEmpty()) {
 					result.addAll(list);
 				} else {
-					List<AppDataBean> newList = new ArrayList<AppDataBean>();//用于存放result中、不包含的、 新id的bean 
-					AppDataBean reslutBean = null;
-					AppDataBean bean = null;
+					List<RegionDataBean> newList = new ArrayList<RegionDataBean>();//用于存放result中、不包含的、 新id的bean 
+					RegionDataBean reslutBean = null;
+					RegionDataBean bean = null;
 					//循环遍历分key返回结果，如果reslut中已有某条ID数据，就把两条数据整合到一起放到结果集中
 					//如果没有，先放到临时list中，循环检查结束后，将新list拼接到结果集中
 					for (int b = 0; b < list.size(); b++) {
@@ -136,7 +78,7 @@ public class RegionDataHourService extends BaseService
 							reslutBean = result.get(r);
 							//将各个“量”都格式化一下：空则变成0
 							formatBeanAmount(reslutBean);
-							if (reslutBean.getRegionId().equals(bean.getRegionId())) {
+							if (reslutBean.getId().equals(bean.getId())) {
 								reslutBean.setBidAmount(bean.getBidAmount() + reslutBean.getBidAmount());
 								reslutBean.setWinAmount(bean.getWinAmount() + reslutBean.getWinAmount());
 								reslutBean.setImpressionAmount(bean.getImpressionAmount() + reslutBean.getImpressionAmount());
@@ -161,9 +103,6 @@ public class RegionDataHourService extends BaseService
     	}else {
     		result = listRegionDataHour(campaignId, beginTime, endTime);
     	}
-    	for (AppDataBean bean : result) {
-    		bean.setCampaignId(campaignId);
-    	}
     	return result;
     }
     
@@ -176,7 +115,7 @@ public class RegionDataHourService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public List<AppDataBean> listRegionDataHour(String campaignId, long beginTime, long endTime) throws Exception
+    public List<RegionDataBean> listRegionDataHour(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -221,7 +160,7 @@ public class RegionDataHourService extends BaseService
     	long ms = endTime - beginTime;
     	int days =  (int) (ms /3600 /1000) + 1;
     	
-    	List<AppDataBean> beans = getListFromSource(sourceMap);
+    	List<RegionDataBean> beans = getListFromSource(campaignId, sourceMap);
     	formatLastList(beans , days);
     	return beans;
     }
@@ -331,12 +270,12 @@ public class RegionDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
-    	List<AppDataBean> beans = new ArrayList<AppDataBean>();
+    public List<RegionDataBean> getListFromSource(String campaignId, Map<String, String> sourceMap) throws Exception {
+    	List<RegionDataBean> beans = new ArrayList<RegionDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
-    			beans = takeDataToList(beans, key, value);
+    			beans = takeDataToList(campaignId, beans, key, value);
     		}
     	}
     	return beans;
@@ -350,83 +289,119 @@ public class RegionDataHourService extends BaseService
      * @return
      * @throws Exception
      */
-    public List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
+    public List<RegionDataBean> takeDataToList(String campaignId, List<RegionDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String regionId = keyArray[2];
-    	
-    	if (beans.isEmpty()) {
-    		AppDataBean bean = new AppDataBean();
-    		if (key.indexOf("@m@") > 0) {// 展现
-    			bean.setImpressionAmount(Long.parseLong(value));
-        	} else if (key.indexOf("@c@") > 0) {// 点击
-        		bean.setClickAmount(Long.parseLong(value));
-        	} else if (key.indexOf("@a@") > 0) {// 到达
-				bean.setArrivalAmount(Long.parseLong(value));
-			} else if (key.indexOf("@w@") > 0) {// 中标
-				bean.setWinAmount(Long.parseLong(value));
-			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-				bean.setResidentTime(Integer.parseInt(value));
-			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-				bean.setUniqueAmount(Long.parseLong(value));
-			} else if (key.indexOf("@j@") > 0) {// 二跳数
-				bean.setJumpAmount(Long.parseLong(value));
-			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-				bean.setBidAmount(Long.parseLong(value));
-			}
-    		bean.setRegionId(regionId);
-    		beans.add(bean);
-    	} else {
-    		boolean flag = false;
-    		int index = 0;
-    		for (int i=0;i < beans.size();i++) {
-    			AppDataBean bean = beans.get(i);
-    			if (bean.getRegionId().equals(regionId)) {
-    				index = i;
-    				flag = true;
-    				break;
+    	//只返回当前活动下创意数据
+    	String mapId = keyArray[0];
+    	boolean isFlag = false;//当前mapid是否属于当前活动
+    	//判断两次：判断mapId是不是属于mapids；判断mapId是不是数据分key中mapId；属于其中一个则证明该数据属于当前活动
+    	if (!isFlag) {
+    		//redis中活动下mpaid
+    		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+    		if (!StringUtils.isEmpty(str)) {
+    			JsonObject idObj = new JsonObject();
+    			JsonArray idArray = new JsonArray();
+    			if (!StringUtils.isEmpty(str)) {
+    				Gson gson = new Gson();
+    				idObj = gson.fromJson(str, new JsonObject().getClass());
+    				idArray = idObj.get("mapids").getAsJsonArray();
+    				
+    				for (int i = 0; i < idArray.size(); i++) {
+    					if (mapId.equals(idArray.get(i).getAsString())) {
+    						isFlag = true;
+    						break;
+    					}
+    				}
     			}
     		}
-    		if (flag) {
-    			AppDataBean bean = beans.get(index);
+    	}
+    	if (!isFlag) {
+    		//redis中活动分key分出的mapId
+    		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+    		if (!StringUtils.isEmpty(str)) {
+    			String[] mapChilds = str.split(",");
+    			if (mapChilds != null && mapChilds.length > 0) {
+    				for (String mId : mapChilds) {
+    					if (mapId.equals(mId)) {
+    						isFlag = true;
+    						break;
+    					}
+    				}
+    			}
+    		}
+    	}
+		
+    	//如果当前mapid属于当前活动才整合数据
+    	if (isFlag) {
+    		if (beans.isEmpty()) {
+    			RegionDataBean bean = new RegionDataBean();
     			if (key.indexOf("@m@") > 0) {// 展现
-        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
-            	} else if (key.indexOf("@c@") > 0) {// 点击
-            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	} else if (key.indexOf("@a@") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				bean.setImpressionAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@c@") > 0) {// 点击
+    				bean.setClickAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@a@") > 0) {// 到达
+    				bean.setArrivalAmount(Long.parseLong(value));
     			} else if (key.indexOf("@w@") > 0) {// 中标
-    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
-    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
+    				bean.setWinAmount(Long.parseLong(value));
     			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				bean.setUniqueAmount(Long.parseLong(value));
     			} else if (key.indexOf("@j@") > 0) {// 二跳数
-    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
+    				bean.setJumpAmount(Long.parseLong(value));
     			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				bean.setBidAmount(Long.parseLong(value));
     			}
-    			bean.setRegionId(regionId);
+    			bean.setId(regionId);
+    			beans.add(bean);
     		} else {
-    			AppDataBean bean = new AppDataBean();
-        		if (key.indexOf("@m@") > 0) {// 展现
-        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
-            	} else if (key.indexOf("@c@") > 0) {// 点击
-            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	} else if (key.indexOf("@a@") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
-    			} else if (key.indexOf("@w@") > 0) {// 中标
-    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
-    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
-    			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
-    			} else if (key.indexOf("@j@") > 0) {// 二跳数
-    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
-    			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    			boolean flag = false;
+    			int index = 0;
+    			for (int i=0;i < beans.size();i++) {
+    				RegionDataBean bean = beans.get(i);
+    				if (bean.getId().equals(regionId)) {
+    					index = i;
+    					flag = true;
+    					break;
+    				}
     			}
-        		bean.setRegionId(regionId);
-        		beans.add(bean);
+    			if (flag) {
+    				RegionDataBean bean = beans.get(index);
+    				if (key.indexOf("@m@") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c@") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+    				} else if (key.indexOf("@a@") > 0) {// 到达
+    					bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				} else if (key.indexOf("@w@") > 0) {// 中标
+    					bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    				} else if (key.indexOf("@u@") > 0) {// 独立访客数
+    					bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				} else if (key.indexOf("@j@") > 0) {// 二跳数
+    					bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
+    				} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+    					bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				}
+    				bean.setId(regionId);
+    			} else {
+    				RegionDataBean bean = new RegionDataBean();
+    				if (key.indexOf("@m@") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c@") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+    				} else if (key.indexOf("@a@") > 0) {// 到达
+    					bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				} else if (key.indexOf("@w@") > 0) {// 中标
+    					bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    				} else if (key.indexOf("@u@") > 0) {// 独立访客数
+    					bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				} else if (key.indexOf("@j@") > 0) {// 二跳数
+    					bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
+    				} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+    					bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				}
+    				bean.setId(regionId);
+    				beans.add(bean);
+    			}
     		}
     	}
 		return beans;
@@ -438,18 +413,18 @@ public class RegionDataHourService extends BaseService
      * @return
      * @throws Exception 
      */
-    public List<AppDataBean> formatLastList(List<AppDataBean> beans, int days) throws Exception {
+    public List<RegionDataBean> formatLastList(List<RegionDataBean> beans, int days) throws Exception {
     	if (beans != null && beans.size() > 0) {
-    		for (AppDataBean bean : beans) {
+    		for (RegionDataBean bean : beans) {
 				
     			formatBeanAmount(bean);//计算“量”
 				formatBeanRate(bean, days);//计算“率”
 				
-				if (!StringUtils.isEmpty(bean.getRegionId())) {
-					String regionId = bean.getRegionId().substring(4,bean.getRegionId().length());
+				if (!StringUtils.isEmpty(bean.getId())) {
+					String regionId = bean.getId().substring(4,bean.getId().length());
 					RegionModel model = regionDao.selectByPrimaryKey(regionId);
 					if (model != null) {
-						bean.setRegionName(model.getName());
+						bean.setName(model.getName());
 					}
 				}
     		}
@@ -461,7 +436,7 @@ public class RegionDataHourService extends BaseService
      * 格式化各种“量”
      * @param bean
      */
-    public void formatBeanAmount(AppDataBean bean) throws Exception {
+    public void formatBeanAmount(RegionDataBean bean) throws Exception {
     	if (bean == null) {
     		return;
     	}
@@ -486,28 +461,15 @@ public class RegionDataHourService extends BaseService
 		if (bean.getJumpAmount() == null) {
 			bean.setJumpAmount(0L);
 		}
-		if (bean.getResidentTime() == null) {
-			bean.setResidentTime(0);
-		}
     }
     /**
      * 格式化各种“率”
      * @param bean
      */
-    public void formatBeanRate(AppDataBean bean, int days) throws Exception {
+    public void formatBeanRate(RegionDataBean bean, int days) throws Exception {
     	if (bean == null) {
     		return;
     	}
-    	if (bean.getResidentTime() == null) {
-			bean.setResidentTime(0);
-		} else {
-			DecimalFormat fmt = new DecimalFormat("0");
-			Integer residentTime = bean.getResidentTime();
-			double time = (double) residentTime / days;
-			Integer result = Integer.parseInt(fmt.format(time));
-			bean.setResidentTime(result);
-		}
-		
 		DecimalFormat format = new DecimalFormat("0.00000");
 		if (bean.getBidAmount() == 0) {
 			bean.setWinRate(0F);

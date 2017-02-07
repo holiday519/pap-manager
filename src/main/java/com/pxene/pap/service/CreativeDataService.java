@@ -18,9 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.domain.beans.AppDataBean;
+import com.pxene.pap.constant.RedisKeyConstant;
+import com.pxene.pap.domain.beans.CreativeDataBean;
 import com.pxene.pap.domain.models.CreativeMaterialModel;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.repository.basic.CreativeDao;
@@ -38,7 +42,7 @@ public class CreativeDataService extends BaseService
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
     @Transactional
-    public List<AppDataBean> listCreativeDatas(String campaignId, long beginTime, long endTime) throws Exception
+    public List<CreativeDataBean> listCreativeDatas(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -80,11 +84,8 @@ public class CreativeDataService extends BaseService
 			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
 		}
     	
-    	List<AppDataBean> beans = getListFromSource(sourceMap);
+    	List<CreativeDataBean> beans = getListFromSource(campaignId, sourceMap);
     	formatLastList(beans);
-    	for (AppDataBean bean : beans) {
-    		bean.setCampaignId(campaignId);
-    	}
     	return beans;
     }
     
@@ -193,12 +194,12 @@ public class CreativeDataService extends BaseService
      * @return
      * @throws Exception
      */
-	private List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
-    	List<AppDataBean> beans = new ArrayList<AppDataBean>();
+	private List<CreativeDataBean> getListFromSource(String campaignId, Map<String, String> sourceMap) throws Exception {
+    	List<CreativeDataBean> beans = new ArrayList<CreativeDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
-    			beans = takeDataToList(beans, key, value);
+    			beans = takeDataToList(campaignId, beans, key, value);
     		}
     	}
     	return beans;
@@ -212,83 +213,107 @@ public class CreativeDataService extends BaseService
      * @return
      * @throws Exception
      */
-	private List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
+	private List<CreativeDataBean> takeDataToList(String campaignId, List<CreativeDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String creativeId = keyArray[0];
-    	
-    	if (beans.isEmpty()) {
-    		AppDataBean bean = new AppDataBean();
-    		if (key.indexOf("@m") > 0) {// 展现
-    			bean.setImpressionAmount(Long.parseLong(value));
-        	} else if (key.indexOf("@c") > 0) {// 点击
-        		bean.setClickAmount(Long.parseLong(value));
-        	} else if (key.indexOf("@a@") > 0) {// 到达
-				bean.setArrivalAmount(Long.parseLong(value));
-			} else if (key.indexOf("@w@") > 0) {// 中标
-				bean.setWinAmount(Long.parseLong(value));
-			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-				bean.setResidentTime(Integer.parseInt(value));
-			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-				bean.setUniqueAmount(Long.parseLong(value));
-			} else if (key.indexOf("@j@") > 0) {// 二跳数
-				bean.setJumpAmount(Long.parseLong(value));
-			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-				bean.setBidAmount(Long.parseLong(value));
-			}
-    		bean.setCreativeId(creativeId);
-    		beans.add(bean);
-    	} else {
-    		boolean flag = false;
-    		int index = 0;
-    		for (int i=0;i < beans.size();i++) {
-    			AppDataBean bean = beans.get(i);
-    			if (bean.getCreativeId().equals(creativeId)) {
-    				index = i;
-    				flag = true;
-    				break;
+    	//只返回当前活动下创意数据
+    	String mapId = keyArray[0];
+    	boolean isFlag = false;//当前mapid是否属于当前活动
+    	//判断两次：判断mapId是不是属于mapids；判断mapId是不是数据分key中mapId；属于其中一个则证明该数据属于当前活动
+    	if (!isFlag) {
+    		//redis中活动下mpaid
+    		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+    		if (!StringUtils.isEmpty(str)) {
+    			JsonObject idObj = new JsonObject();
+    			JsonArray idArray = new JsonArray();
+    			if (!StringUtils.isEmpty(str)) {
+    				Gson gson = new Gson();
+    				idObj = gson.fromJson(str, new JsonObject().getClass());
+    				idArray = idObj.get("mapids").getAsJsonArray();
+    				
+    				for (int i = 0; i < idArray.size(); i++) {
+    					if (mapId.equals(idArray.get(i).getAsString())) {
+    						isFlag = true;
+    						break;
+    					}
+    				}
     			}
     		}
-    		if (flag) {
-    			AppDataBean bean = beans.get(index);
+    	}
+    	if (!isFlag) {
+    		//redis中活动分key分出的mapId
+    		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+    		if (!StringUtils.isEmpty(str)) {
+    			String[] mapChilds = str.split(",");
+    			if (mapChilds != null && mapChilds.length > 0) {
+    				for (String mId : mapChilds) {
+    					if (mapId.equals(mId)) {
+    						isFlag = true;
+    						break;
+    					}
+    				}
+    			}
+    		}
+    	}
+    	
+    	//如果当前mapid属于当前活动才整合数据
+    	if (isFlag) {
+    		if (beans.isEmpty()) {
+    			CreativeDataBean bean = new CreativeDataBean();
     			if (key.indexOf("@m") > 0) {// 展现
-        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
-            	} else if (key.indexOf("@c") > 0) {// 点击
-            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	} else if (key.indexOf("@a@") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				bean.setImpressionAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@c") > 0) {// 点击
+    				bean.setClickAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@a@") > 0) {// 到达
+    				bean.setArrivalAmount(Long.parseLong(value));
     			} else if (key.indexOf("@w@") > 0) {// 中标
-    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
-    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
+    				bean.setWinAmount(Long.parseLong(value));
     			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
-    			} else if (key.indexOf("@j@") > 0) {// 二跳数
-    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
-    			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				bean.setUniqueAmount(Long.parseLong(value));
     			}
-    			bean.setCreativeId(creativeId);
+    			bean.setId(creativeId);
+    			beans.add(bean);
     		} else {
-    			AppDataBean bean = new AppDataBean();
-        		if (key.indexOf("@m") > 0) {// 展现
-        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
-            	} else if (key.indexOf("@c") > 0) {// 点击
-            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	} else if (key.indexOf("@a@") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
-    			} else if (key.indexOf("@w@") > 0) {// 中标
-    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
-    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
-    			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
-    			} else if (key.indexOf("@j@") > 0) {// 二跳数
-    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
-    			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    			boolean flag = false;
+    			int index = 0;
+    			for (int i=0;i < beans.size();i++) {
+    				CreativeDataBean bean = beans.get(i);
+    				if (bean.getId().equals(creativeId)) {
+    					index = i;
+    					flag = true;
+    					break;
+    				}
     			}
-        		bean.setCreativeId(creativeId);
-        		beans.add(bean);
+    			if (flag) {
+    				CreativeDataBean bean = beans.get(index);
+    				if (key.indexOf("@m") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+    				} else if (key.indexOf("@a@") > 0) {// 到达
+    					bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				} else if (key.indexOf("@w@") > 0) {// 中标
+    					bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    				} else if (key.indexOf("@u@") > 0) {// 独立访客数
+    					bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				}
+    				bean.setId(creativeId);
+    			} else {
+    				CreativeDataBean bean = new CreativeDataBean();
+    				if (key.indexOf("@m") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+    				} else if (key.indexOf("@a@") > 0) {// 到达
+    					bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				} else if (key.indexOf("@w@") > 0) {// 中标
+    					bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    				} else if (key.indexOf("@u@") > 0) {// 独立访客数
+    					bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				}
+    				bean.setId(creativeId);
+    				beans.add(bean);
+    			}
     		}
     	}
 		return beans;
@@ -299,11 +324,10 @@ public class CreativeDataService extends BaseService
      * @param beans
      * @return
      */
-	private List<AppDataBean> formatLastList(List<AppDataBean> beans) {
+	private List<CreativeDataBean> formatLastList(List<CreativeDataBean> beans) {
     	DecimalFormat format = new DecimalFormat("0.00000");
     	if (beans != null && beans.size() > 0) {
-    		for (AppDataBean bean : beans) {
-    			bean.setBidAmount(null);
+    		for (CreativeDataBean bean : beans) {
 				if (bean.getWinAmount() == null) {
 					bean.setWinAmount(0L);
 				}
@@ -319,7 +343,6 @@ public class CreativeDataService extends BaseService
 				if (bean.getUniqueAmount() == null) {
 					bean.setUniqueAmount(0L);
 				}
-				bean.setJumpAmount(null);
 				
 				
 				if (bean.getWinAmount() == 0) {
@@ -346,15 +369,15 @@ public class CreativeDataService extends BaseService
 					bean.setArrivalRate(result);
 				}
 				
-				if (!StringUtils.isEmpty(bean.getCreativeId())) {
-					CreativeMaterialModel model = creativeMaterialDao.selectByPrimaryKey(bean.getCreativeId());
+				if (!StringUtils.isEmpty(bean.getId())) {
+					CreativeMaterialModel model = creativeMaterialDao.selectByPrimaryKey(bean.getId());
 					if (model != null) {
 						//相同creativeId的素材对象creativeId都变成一个
 						String creativeId = model.getCreativeId();
 						if (!StringUtils.isEmpty(creativeId)) {
 							CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-							bean.setCreativeId(creativeModel.getId());
-							bean.setCreativeName(creativeModel.getName());
+							bean.setId(creativeModel.getId());
+							bean.setName(creativeModel.getName());
 						}
 					}
 				}
@@ -362,22 +385,22 @@ public class CreativeDataService extends BaseService
     	}
     	//将所有不重复的creaticeId放入List————根据List就知道最后条数
     	List<String> creativeIds = new ArrayList<String>();
-    	for (AppDataBean bean : beans) {
-    		if (creativeIds.contains(bean.getCreativeId())) {
-    			creativeIds.add(bean.getCreativeId());	
+    	for (CreativeDataBean bean : beans) {
+    		if (creativeIds.contains(bean.getId())) {
+    			creativeIds.add(bean.getId());	
     		}
     	}
     	//创建一个新的List存放结果用
-    	List<AppDataBean> newBeans = new ArrayList<AppDataBean>();
+    	List<CreativeDataBean> newBeans = new ArrayList<CreativeDataBean>();
     	if (beans !=null && !beans.isEmpty()) {
-			for (AppDataBean bean : beans) {
+			for (CreativeDataBean bean : beans) {
 				//如果list里没有CreativeId，先添加进去
-				if(indexOfBean(newBeans, bean.getCreativeId()) == null){
+				if(indexOfBean(newBeans, bean.getId()) == null){
 					newBeans.add(bean);
 				} else {
 					//如果有，就将相同creativeId的数据合并成一条
-					int index = indexOfBean(newBeans, bean.getCreativeId());
-					AppDataBean dataBean = newBeans.get(index);
+					int index = indexOfBean(newBeans, bean.getId());
+					CreativeDataBean dataBean = newBeans.get(index);
 					dataBean.setWinAmount(dataBean.getWinAmount() + bean.getWinAmount());
 					dataBean.setImpressionAmount(dataBean.getImpressionAmount() + bean.getImpressionAmount());
 					dataBean.setClickAmount(dataBean.getClickAmount() + bean.getClickAmount());
@@ -420,10 +443,10 @@ public class CreativeDataService extends BaseService
      * @param id
      * @return
      */
-	private Integer indexOfBean(List<AppDataBean> newBeans, String id) {
+	private Integer indexOfBean(List<CreativeDataBean> newBeans, String id) {
     	Integer index = null;
     	for (int i=0;i<newBeans.size();i++) {
-    		if (id.equals(newBeans.get(i).getCreativeId())) {
+    		if (id.equals(newBeans.get(i).getId())) {
     			index = i;
     			break;
     		}

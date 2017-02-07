@@ -2,19 +2,15 @@ package com.pxene.pap.web.controller;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +21,6 @@ import com.pxene.pap.common.RequestUtils;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.RegionFlowBean;
-import com.pxene.pap.domain.beans.RegionFlowHourBean;
 import com.pxene.pap.service.RegionFlowService;
 
 /**

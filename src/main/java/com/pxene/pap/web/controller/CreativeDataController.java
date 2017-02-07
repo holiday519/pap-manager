@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.AppDataBean;
+import com.pxene.pap.domain.beans.CreativeDataBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CreativeDataService;
 
@@ -46,7 +46,7 @@ public class CreativeDataController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<AppDataBean> creativeDataHourList = creativeDataService.listCreativeDatas(campaignId, beginTime, endTime);
+        List<CreativeDataBean> creativeDataHourList = creativeDataService.listCreativeDatas(campaignId, beginTime, endTime);
         
         PaginationBean result = new PaginationBean(creativeDataHourList, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

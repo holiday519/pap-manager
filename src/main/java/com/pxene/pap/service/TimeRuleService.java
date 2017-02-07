@@ -1,7 +1,5 @@
 package com.pxene.pap.service;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,17 +14,11 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.PhrasesConstant;
-import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.beans.RuleBean.Condition;

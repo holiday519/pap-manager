@@ -475,14 +475,8 @@ public class AppRuleService extends BaseService {
 					data = bean.getClickAmount();
 				} else if ("07".equals(condition.getDataType())) {
 					data = bean.getClickRate();
-				} else if ("08".equals(condition.getDataType())) {
-					data = bean.getArrivalAmount();
-				} else if ("09".equals(condition.getDataType())) {
-					data = bean.getArrivalRate();
-				} else if ("10".equals(condition.getDataType())) {
-					data = bean.getUniqueAmount();
 				}
-				String AppId = bean.getAppId();
+				String AppId = bean.getId();
 				if ("01".equals(condition.getCompareType())) {//条件选择大于的时候，如果数据值不大于条件值，就放入降价id中
 					if (data < condition.getData()) {
 						if (!downList.contains(AppId)) {
@@ -500,8 +494,8 @@ public class AppRuleService extends BaseService {
 		}
 		//查询数据中除去减钱的剩下的就是加钱的-----在定向里的id，却没有投放数据（根据判断代码逻辑，不符合降价，也不符合升价），此处会将这些id丢掉。--？
 		for (AppDataBean bean : appDataHour) {
-			if (!downList.isEmpty() && !downList.contains(bean.getAppId())) {
-				upList.add(bean.getAppId());
+			if (!downList.isEmpty() && !downList.contains(bean.getId())) {
+				upList.add(bean.getId());
 			}
 		}
 		

@@ -27,7 +27,7 @@ import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.AppDataBean;
+import com.pxene.pap.domain.beans.RegionDataBean;
 import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.beans.RuleBean.Condition;
 import com.pxene.pap.domain.models.AppRuleModel;
@@ -89,7 +89,7 @@ public class RegionRuleService extends BaseService {
 	private RuleConditionDao ruleConditionDao; 
 	
 	@Autowired
-	private RegionDataHourService regionDataHourService;
+	private RegionDataService regionDataHourService;
 	
 	@Autowired
 	private CampaignService campaignService;
@@ -452,7 +452,7 @@ public class RegionRuleService extends BaseService {
 		}
 		
 		//查询app数据
-		List<AppDataBean> regionDataHour = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
+		List<RegionDataBean> regionDataHour = regionDataHourService.listRegionDataHour(campaignId, beginTime, endTime);
 		if (regionDataHour == null || regionDataHour.isEmpty()) {
 			throw new ResourceNotFoundException("当前活动无地域投放数据，不能开启地域规则");
 		}
@@ -464,7 +464,7 @@ public class RegionRuleService extends BaseService {
 		List<String> upList = new ArrayList<String>();//加价的活动id
 		List<String> downList = new ArrayList<String>();//减价的活动id
 		
-		for (AppDataBean bean : regionDataHour) {//--先找出需要减钱的regionId
+		for (RegionDataBean bean : regionDataHour) {//--先找出需要减钱的regionId
 			//要求每一条都符合所有的条件才能加价，否则就减价
 			for (RuleConditionModel condition : conditions) {//不符合其中任意一个条件的，就属于减价
 				double data = 0;
@@ -489,7 +489,7 @@ public class RegionRuleService extends BaseService {
 				} else if ("10".equals(condition.getDataType())) {
 					data = bean.getUniqueAmount();
 				}
-				String RegionId = bean.getRegionId();
+				String RegionId = bean.getId();
 				if ("01".equals(condition.getCompareType())) {//条件选择大于的时候，如果数据值不大于条件值，就放入降价id中
 					if (data < condition.getData()) {
 						if (!downList.contains(RegionId)) {
@@ -506,9 +506,9 @@ public class RegionRuleService extends BaseService {
 			}
 		}
 		//查询数据中除去减钱的剩下的就是加钱的-----在定向里的id，却没有投放数据（根据判断代码逻辑，不符合降价，也不符合升价），此处会将这些id丢掉。--？
-		for (AppDataBean bean : regionDataHour) {
-			if (!downList.isEmpty() && !downList.contains(bean.getRegionId())) {
-				upList.add(bean.getRegionId());
+		for (RegionDataBean bean : regionDataHour) {
+			if (!downList.isEmpty() && !downList.contains(bean.getId())) {
+				upList.add(bean.getId());
 			}
 		}
 		

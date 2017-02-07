@@ -14,13 +14,11 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.RuleLogBean;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.SizeBean;
 import com.pxene.pap.domain.models.AppRuleModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.RegionRuleModel;
 import com.pxene.pap.domain.models.RuleLogModel;
 import com.pxene.pap.domain.models.RuleLogModelExample;
-import com.pxene.pap.domain.models.SizeModel;
 import com.pxene.pap.domain.models.TimeRuleModel;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.ResourceNotFoundException;

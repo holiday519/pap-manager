@@ -16,8 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.domain.beans.AppDataBean;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
@@ -70,13 +74,11 @@ public class AppDataService extends BaseService
 							reslutBean = result.get(r);
 							//将各个“量”都格式化一下：空则变成0
 							formatBeanAmount(reslutBean);
-							if (reslutBean.getAppId().equals(bean.getAppId())) {
+							if (reslutBean.getId().equals(bean.getId())) {
 								reslutBean.setBidAmount(bean.getBidAmount() + reslutBean.getBidAmount());
 								reslutBean.setWinAmount(bean.getWinAmount() + reslutBean.getWinAmount());
 								reslutBean.setImpressionAmount(bean.getImpressionAmount() + reslutBean.getImpressionAmount());
 								reslutBean.setClickAmount(bean.getClickAmount() + reslutBean.getClickAmount());
-								reslutBean.setArrivalAmount(bean.getArrivalAmount() + reslutBean.getArrivalAmount());
-								reslutBean.setUniqueAmount(bean.getUniqueAmount() + reslutBean.getUniqueAmount());
 								flag = true;
 								break;
 							}
@@ -94,9 +96,6 @@ public class AppDataService extends BaseService
 			}
     	}else {
     		result = selectByArgs(campaignId, beginTime, endTime);
-    	}
-    	for (AppDataBean bean : result) {
-    		bean.setCampaignId(campaignId);
     	}
     	return result;
     }
@@ -152,7 +151,7 @@ public class AppDataService extends BaseService
 			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
 		}
     	
-    	List<AppDataBean> beans = getListFromSource(sourceMap);
+    	List<AppDataBean> beans = getListFromSource(campaignId, sourceMap);
     	formatLastList(beans);
     	return beans;
     }
@@ -262,12 +261,12 @@ public class AppDataService extends BaseService
      * @return
      * @throws Exception
      */
-    private List<AppDataBean> getListFromSource(Map<String, String> sourceMap) throws Exception {
+    private List<AppDataBean> getListFromSource(String campaignId, Map<String, String> sourceMap) throws Exception {
     	List<AppDataBean> beans = new ArrayList<AppDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
-    			beans = takeDataToList(beans, key, value);
+    			beans = takeDataToList(campaignId, beans, key, value);
     		}
     	}
     	return beans;
@@ -281,92 +280,110 @@ public class AppDataService extends BaseService
      * @return
      * @throws Exception
      */
-    private List<AppDataBean> takeDataToList(List<AppDataBean> beans, String key, String value) throws Exception {
+    private List<AppDataBean> takeDataToList(String campaignId, List<AppDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
     	String appId = keyArray[2];
     	String adxId = keyArray[3];
     	
-    	if (beans.isEmpty()) {
-    		AppDataBean bean = new AppDataBean();
-    		if (key.indexOf("@m@") > 0) {// 展现
-    			bean.setImpressionAmount(Long.parseLong(value));
-        	} else if (key.indexOf("@c@") > 0) {// 点击
-        		bean.setClickAmount(Long.parseLong(value));
-        	} else if (key.indexOf("@a@") > 0) {// 到达
-				bean.setArrivalAmount(Long.parseLong(value));
-			} else if (key.indexOf("@w@") > 0) {// 中标
-				bean.setWinAmount(Long.parseLong(value));
-			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-				bean.setResidentTime(Integer.parseInt(value));
-			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-				bean.setUniqueAmount(Long.parseLong(value));
-			} else if (key.indexOf("@j@") > 0) {// 二跳数
-				bean.setJumpAmount(Long.parseLong(value));
-			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-				bean.setBidAmount(Long.parseLong(value));
-			}
-    		bean.setAppId(appId);
-    		bean.setAdxId(adxId);
-    		beans.add(bean);
-    	} else {
-    		boolean flag = false;
-    		int index = 0;
-    		for (int i=0;i < beans.size();i++) {
-    			AppDataBean bean = beans.get(i);
-    			if (bean.getAppId().equals(appId) && bean.getAdxId().endsWith(adxId)) {
-    				index = i;
-    				flag = true;
-    				break;
+    	//只返回当前活动下创意数据
+    	String mapId = keyArray[0];
+    	boolean isFlag = false;//当前mapid是否属于当前活动
+    	//判断两次：判断mapId是不是属于mapids；判断mapId是不是数据分key中mapId；属于其中一个则证明该数据属于当前活动
+    	if (!isFlag) {
+    		//redis中活动下mpaid
+    		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+    		if (!StringUtils.isEmpty(str)) {
+    			JsonObject idObj = new JsonObject();
+    			JsonArray idArray = new JsonArray();
+    			if (!StringUtils.isEmpty(str)) {
+    				Gson gson = new Gson();
+    				idObj = gson.fromJson(str, new JsonObject().getClass());
+    				idArray = idObj.get("mapids").getAsJsonArray();
+    				
+    				for (int i = 0; i < idArray.size(); i++) {
+    					if (mapId.equals(idArray.get(i).getAsString())) {
+    						isFlag = true;
+    						break;
+    					}
+    				}
     			}
     		}
-    		if (flag) {
-    			AppDataBean bean = beans.get(index);
-    			if (key.indexOf("@m@") > 0) {// 展现
-        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
-            	} else if (key.indexOf("@c@") > 0) {// 点击
-            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	} else if (key.indexOf("@a@") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
-    			} else if (key.indexOf("@w@") > 0) {// 中标
-    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
-    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
-    			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
-    			} else if (key.indexOf("@j@") > 0) {// 二跳数
-    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
-    			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    	}
+    	if (!isFlag) {
+    		//redis中活动分key分出的mapId
+    		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+    		if (!StringUtils.isEmpty(str)) {
+    			String[] mapChilds = str.split(",");
+    			if (mapChilds != null && mapChilds.length > 0) {
+    				for (String mId : mapChilds) {
+    					if (mapId.equals(mId)) {
+    						isFlag = true;
+    						break;
+    					}
+    				}
     			}
-        		bean.setAppId(appId);
-        		bean.setAdxId(adxId);
-    		} else {
+    		}
+    	}
+    	//如果当前mapid属于当前活动才整合数据
+    	if (isFlag) {
+    		if (beans.isEmpty()) {
     			AppDataBean bean = new AppDataBean();
-        		if (key.indexOf("@m@") > 0) {// 展现
-        			bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
-            	} else if (key.indexOf("@c@") > 0) {// 点击
-            		bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
-            	} else if (key.indexOf("@a@") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    			if (key.indexOf("@m@") > 0) {// 展现
+    				bean.setImpressionAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@c@") > 0) {// 点击
+    				bean.setClickAmount(Long.parseLong(value));
     			} else if (key.indexOf("@w@") > 0) {// 中标
-    				bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
-    			} else if (key.indexOf("@s@") > 0) {// 平均访问时间
-    				bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
-    			} else if (key.indexOf("@u@") > 0) {// 独立访客数
-    				bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
-    			} else if (key.indexOf("@j@") > 0) {// 二跳数
-    				bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
+    				bean.setWinAmount(Long.parseLong(value));
     			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
-    				bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				bean.setBidAmount(Long.parseLong(value));
     			}
-        		bean.setAppId(appId);
-        		bean.setAdxId(adxId);
-        		beans.add(bean);
+    			bean.setId(appId);
+    			bean.setAdxId(adxId);
+    			beans.add(bean);
+    		} else {
+    			boolean flag = false;
+    			int index = 0;
+    			for (int i=0;i < beans.size();i++) {
+    				AppDataBean bean = beans.get(i);
+    				if (bean.getId().equals(appId) && bean.getAdxId().endsWith(adxId)) {
+    					index = i;
+    					flag = true;
+    					break;
+    				}
+    			}
+    			if (flag) {
+    				AppDataBean bean = beans.get(index);
+    				if (key.indexOf("@m@") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c@") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+    				} else if (key.indexOf("@w@") > 0) {// 中标
+    					bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    				} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+    					bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				}
+    				bean.setId(appId);
+    				bean.setAdxId(adxId);
+    			} else {
+    				AppDataBean bean = new AppDataBean();
+    				if (key.indexOf("@m@") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c@") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
+    				} else if (key.indexOf("@w@") > 0) {// 中标
+    					bean.setWinAmount(Long.parseLong(value) + (bean.getWinAmount()==null?0:bean.getWinAmount()));
+    				} else if (key.indexOf("@b@") > 0) {// 参与竞价量
+    					bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				}
+    				bean.setId(appId);
+    				bean.setAdxId(adxId);
+    				beans.add(bean);
+    			}
     		}
     	}
 		return beans;
     }
-	
+	 
     /**
      * 格式化list中各个返回参数
      * @param beans
@@ -379,14 +396,14 @@ public class AppDataService extends BaseService
 				formatBeanAmount(bean);//计算“量”
 				formatBeanRate(bean);//计算“率”
 				
-				if (!StringUtils.isEmpty(bean.getAdxId()) && !StringUtils.isEmpty(bean.getAppId())) {
+				if (!StringUtils.isEmpty(bean.getAdxId()) && !StringUtils.isEmpty(bean.getId())) {
 					AppModelExample example = new AppModelExample();
-					example.createCriteria().andAdxIdEqualTo(bean.getAdxId()).andAppIdEqualTo(bean.getAppId());
+					example.createCriteria().andAdxIdEqualTo(bean.getAdxId()).andAppIdEqualTo(bean.getId());
 					List<AppModel> apps = appDao.selectByExample(example);
 					if (apps != null && apps.size() > 0) {
 						for (AppModel app : apps) {
-							bean.setRealAppId(bean.getAppId());
-							bean.setAppId(app.getId());
+							bean.setAppId(bean.getId());
+							bean.setId(app.getId());
 							bean.setAppName(app.getAppName());
 							bean.setAppType(app.getAppType());
 							bean.setPkgName(app.getPkgName());
@@ -419,13 +436,6 @@ public class AppDataService extends BaseService
 		if (bean.getClickAmount() == null) {
 			bean.setClickAmount(0L);
 		}
-		if (bean.getArrivalAmount() == null) {
-			bean.setArrivalAmount(0L);
-		}
-		if (bean.getUniqueAmount() == null) {
-			bean.setUniqueAmount(0L);
-		}
-		bean.setJumpAmount(null);
     }
     
     /**
@@ -461,12 +471,5 @@ public class AppDataService extends BaseService
 			bean.setClickRate(result);
 		}
 		
-		if (bean.getClickAmount() == 0) {
-			bean.setArrivalRate(0F);
-		} else {
-			double percent = (double)bean.getArrivalAmount() / bean.getClickAmount();
-			Float result = Float.parseFloat(format.format(percent));
-			bean.setArrivalRate(result);
-		}
     }
 }
