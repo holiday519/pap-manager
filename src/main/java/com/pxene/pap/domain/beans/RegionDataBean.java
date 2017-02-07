@@ -5,7 +5,7 @@ package com.pxene.pap.domain.beans;
  */
 public class RegionDataBean {
 
-	private String Id;
+	private String id;
 	private String name;
 
 	private Long bidAmount;
@@ -22,11 +22,11 @@ public class RegionDataBean {
 	private Float jumpRate;
 
 	public String getId() {
-		return Id;
+		return id;
 	}
 
 	public void setId(String id) {
-		Id = id;
+		this.id = id;
 	}
 
 	public String getName() {
@@ -135,7 +135,7 @@ public class RegionDataBean {
 
 	@Override
 	public String toString() {
-		return "RegionDataBean [Id=" + Id + ", name=" + name + ", bidAmount="
+		return "RegionDataBean [Id=" + id + ", name=" + name + ", bidAmount="
 				+ bidAmount + ", winAmount=" + winAmount + ", winRate="
 				+ winRate + ", impressionAmount=" + impressionAmount
 				+ ", impressionRate=" + impressionRate + ", clickAmount="
