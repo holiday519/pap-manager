@@ -180,15 +180,7 @@ public class AppDataService extends BaseService
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@c@") > 0) {// 点击
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@a@") > 0) {// 到达
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@w@") > 0) {// 中标
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@u@") > 0) {// 独立访客数
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@b@") > 0) {// 参与竞价量
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
@@ -229,15 +221,7 @@ public class AppDataService extends BaseService
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@c@") > 0) {// 点击
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@a@") > 0) {// 到达
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@w@") > 0) {// 中标
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@u@") > 0) {// 独立访客数
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@b@") > 0) {// 参与竞价量
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
