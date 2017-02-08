@@ -413,6 +413,11 @@ public class RegionDataService extends BaseService
     	if (beans != null && beans.size() > 0) {
     		for (RegionDataBean bean : beans) {
 				
+    			String id = bean.getId();//去掉id中的“1156”
+    			if (!StringUtils.isEmpty(id)) {
+    				bean.setId(id.substring(4, id.length()));
+    			}
+    			
     			formatBeanAmount(bean);//计算“量”
 				formatBeanRate(bean, days);//计算“率”
 				
