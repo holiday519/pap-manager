@@ -345,19 +345,19 @@ public class AdvertiserService extends BaseService
         String icpPath = advertiserModel.getIcpPath();
         
         // 删除
-        if (StringUtils.isEmpty(logoPath)) {
+        if (!StringUtils.isEmpty(logoPath)) {
         	org.apache.commons.io.FileUtils.deleteQuietly(new File(logoPath));
         }
-        if (StringUtils.isEmpty(accountPath)) {
+        if (!StringUtils.isEmpty(accountPath)) {
         	org.apache.commons.io.FileUtils.deleteQuietly(new File(accountPath));
         }
-        if (StringUtils.isEmpty(licensePath)) {
+        if (!StringUtils.isEmpty(licensePath)) {
         	org.apache.commons.io.FileUtils.deleteQuietly(new File(licensePath));
         }
-        if (StringUtils.isEmpty(organizationPath)) {
+        if (!StringUtils.isEmpty(organizationPath)) {
         	org.apache.commons.io.FileUtils.deleteQuietly(new File(organizationPath));
         }
-        if (StringUtils.isEmpty(icpPath)) {
+        if (!StringUtils.isEmpty(icpPath)) {
         	org.apache.commons.io.FileUtils.deleteQuietly(new File(icpPath));
         }
     	
