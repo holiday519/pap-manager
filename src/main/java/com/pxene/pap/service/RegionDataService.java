@@ -195,6 +195,8 @@ public class RegionDataService extends BaseService
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@u@") > 0) {// 独立访客数
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
+								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@b@") > 0) {// 参与竞价量
@@ -242,6 +244,8 @@ public class RegionDataService extends BaseService
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@u@") > 0) {// 独立访客数
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
+    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));	
     							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@b@") > 0) {// 参与竞价量
@@ -346,6 +350,8 @@ public class RegionDataService extends BaseService
     				bean.setJumpAmount(Long.parseLong(value));
     			} else if (key.indexOf("@b@") > 0) {// 参与竞价量
     				bean.setBidAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@s@") > 0) {//平均停留时间
+    				bean.setResidentTime(Integer.parseInt(value));
     			}
     			bean.setId(regionId);
     			beans.add(bean);
@@ -376,6 +382,8 @@ public class RegionDataService extends BaseService
     					bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
     				} else if (key.indexOf("@b@") > 0) {// 参与竞价量
     					bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				} else if (key.indexOf("@s@") > 0) {//平均停留时间
+    					bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
     				}
     				bean.setId(regionId);
     			} else {
@@ -394,6 +402,8 @@ public class RegionDataService extends BaseService
     					bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
     				} else if (key.indexOf("@b@") > 0) {// 参与竞价量
     					bean.setBidAmount(Long.parseLong(value) + (bean.getBidAmount()==null?0:bean.getBidAmount()));
+    				} else if (key.indexOf("@s@") > 0) {//平均停留时间
+    					bean.setResidentTime(Integer.parseInt(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
     				}
     				bean.setId(regionId);
     				beans.add(bean);
@@ -462,6 +472,9 @@ public class RegionDataService extends BaseService
 		if (bean.getJumpAmount() == null) {
 			bean.setJumpAmount(0L);
 		}
+		if (bean.getResidentTime() == null) {
+			bean.setResidentTime(0);
+		}
     }
     /**
      * 格式化各种“率”
@@ -472,6 +485,7 @@ public class RegionDataService extends BaseService
     		return;
     	}
 		DecimalFormat format = new DecimalFormat("0.00000");
+		DecimalFormat format1 = new DecimalFormat("0");
 		if (bean.getBidAmount() == 0) {
 			bean.setWinRate(0F);
 		} else {
@@ -510,5 +524,13 @@ public class RegionDataService extends BaseService
 			Float result = Float.parseFloat(format.format(percent));
 			bean.setJumpRate(result);
 		}
+		if (bean.getArrivalAmount() == 0) {
+			bean.setResidentTime(0);
+		} else {
+			double percent = (double)bean.getResidentTime() / bean.getArrivalAmount();
+			Integer result = Integer.parseInt(format1.format(percent));
+			bean.setResidentTime(result);
+		}
     }
+    
 }

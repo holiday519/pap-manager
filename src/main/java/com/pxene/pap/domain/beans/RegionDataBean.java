@@ -20,6 +20,7 @@ public class RegionDataBean {
 	private Long uniqueAmount;
 	private Long jumpAmount;
 	private Float jumpRate;
+	private Integer residentTime;
 
 	public String getId() {
 		return id;
@@ -133,16 +134,25 @@ public class RegionDataBean {
 		this.jumpRate = jumpRate;
 	}
 
+	public Integer getResidentTime() {
+		return residentTime;
+	}
+
+	public void setResidentTime(Integer residentTime) {
+		this.residentTime = residentTime;
+	}
+
 	@Override
 	public String toString() {
-		return "RegionDataBean [Id=" + id + ", name=" + name + ", bidAmount="
+		return "RegionDataBean [id=" + id + ", name=" + name + ", bidAmount="
 				+ bidAmount + ", winAmount=" + winAmount + ", winRate="
 				+ winRate + ", impressionAmount=" + impressionAmount
 				+ ", impressionRate=" + impressionRate + ", clickAmount="
 				+ clickAmount + ", clickRate=" + clickRate + ", arrivalAmount="
 				+ arrivalAmount + ", arrivalRate=" + arrivalRate
 				+ ", uniqueAmount=" + uniqueAmount + ", jumpAmount="
-				+ jumpAmount + ", jumpRate=" + jumpRate + "]";
+				+ jumpAmount + ", jumpRate=" + jumpRate + ", residentTime="
+				+ residentTime + "]";
 	}
 
 }

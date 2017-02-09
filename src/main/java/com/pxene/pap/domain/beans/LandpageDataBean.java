@@ -1,23 +1,19 @@
 package com.pxene.pap.domain.beans;
 
 public class LandpageDataBean {
-    private String id;
+	private String id;
 
-    private String name;
+	private String name;
 
-    private Long clickAmount;
+	private Long arrivalAmount;
 
-    private Long arrivalAmount;
-    
-    private Float arrivalRate;
+	private Long uniqueAmount;
 
-    private Long uniqueAmount;
+	private Long residentTime;
 
-    private Long residentTime;
+	private Long jumpAmount;
 
-    private Long jumpAmount;
-    
-    private Float jumpRate;
+	private Float jumpRate;
 
 	public String getId() {
 		return id;
@@ -35,28 +31,12 @@ public class LandpageDataBean {
 		this.name = name;
 	}
 
-	public Long getClickAmount() {
-		return clickAmount;
-	}
-
-	public void setClickAmount(Long clickAmount) {
-		this.clickAmount = clickAmount;
-	}
-
 	public Long getArrivalAmount() {
 		return arrivalAmount;
 	}
 
 	public void setArrivalAmount(Long arrivalAmount) {
 		this.arrivalAmount = arrivalAmount;
-	}
-
-	public Float getArrivalRate() {
-		return arrivalRate;
-	}
-
-	public void setArrivalRate(Float arrivalRate) {
-		this.arrivalRate = arrivalRate;
 	}
 
 	public Long getUniqueAmount() {
@@ -94,11 +74,9 @@ public class LandpageDataBean {
 	@Override
 	public String toString() {
 		return "LandpageDataBean [id=" + id + ", name=" + name
-				+ ", clickAmount=" + clickAmount + ", arrivalAmount="
-				+ arrivalAmount + ", arrivalRate=" + arrivalRate
-				+ ", uniqueAmount=" + uniqueAmount + ", residentTime="
-				+ residentTime + ", jumpAmount=" + jumpAmount + ", jumpRate="
-				+ jumpRate + "]";
+				+ ", arrivalAmount=" + arrivalAmount + ", uniqueAmount="
+				+ uniqueAmount + ", residentTime=" + residentTime
+				+ ", jumpAmount=" + jumpAmount + ", jumpRate=" + jumpRate + "]";
 	}
-    
+
 }
