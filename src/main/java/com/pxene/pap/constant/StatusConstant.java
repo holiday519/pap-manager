@@ -110,6 +110,26 @@ public class StatusConstant {
 	 * action操作类型：关闭
 	 */
 	public static final String ACTION_TYPE_CLOSE = "03";
+	/**
+	 * 落地页代码检查状态：未检查
+	 */
+	public static final String LANDPAGE_CHECK_NOTCHECK = "00";
+	/**
+	 * 落地页代码检查状态：代码安装成功
+	 */
+	public static final String LANDPAGE_CHECK_SUCCESS = "01";
+	/**
+	 * 落地页代码检查状态：代码安装失败
+	 */
+	public static final String LANDPAGE_CHECK_ERROR = "02";
+	/**
+	 * 落地页代码检查状态：未发现代码
+	 */
+	public static final String LANDPAGE_CHECK_NOTFIND = "03";
+	/**
+	 * 落地页代码检查状态：无法完成代码检查
+	 */
+	public static final String LANDPAGE_CHECK_URLERRPR = "04";
 	
 	
 }

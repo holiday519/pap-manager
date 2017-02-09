@@ -15,6 +15,8 @@ public class LandpageModel {
 
     private String monitorUrl;
 
+    private String status;
+
     private String remark;
 
     public String getId() {
@@ -73,6 +75,14 @@ public class LandpageModel {
         this.monitorUrl = monitorUrl == null ? null : monitorUrl.trim();
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
+    }
+
     public String getRemark() {
         return remark;
     }
@@ -94,6 +104,7 @@ public class LandpageModel {
         sb.append(", anidDeepLink=").append(anidDeepLink);
         sb.append(", iosDeepLink=").append(iosDeepLink);
         sb.append(", monitorUrl=").append(monitorUrl);
+        sb.append(", status=").append(status);
         sb.append(", remark=").append(remark);
         sb.append("]");
         return sb.toString();

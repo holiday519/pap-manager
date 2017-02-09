@@ -1,5 +1,9 @@
 package com.pxene.pap.service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +37,40 @@ public class LandpageService extends BaseService {
 	@Autowired
 	private CampaignDao campaignDao;
 
+	private static final String HTTP_ACCEPT = "accept";
+
+	private static final String HTTP_ACCEPT_DEFAULT = "*/*";
+
+	private static final String HTTP_USER_AGENT = "user-agent";
+
+	private static final String HTTP_USER_AGENT_VAL = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)";
+
+	private static final String HTTP_CONNECTION = "connection";
+
+	private static final String HTTP_CONNECTION_VAL = "Keep-Alive";
+
+	/**
+	 * 监测脚本地址
+	 */
+	public static final String MONITOR_URL = "img.pxene.com/pxene.js";
+    /**
+     * 监测代码片段_开始
+     */
+    private static final String CODE_START = "<script>var_pxe=_pxe||[];var_pxe_id='";
+    /**
+     * 监测代码片段_结束
+     */
+    private static final String CODE_END = "';(function(){varpxejs=document.createElement('script');var_pxejsProtocol=(('https:'==document.location.protocol)?'https://':'http://');pxejs.src=_pxejsProtocol+'//"+MONITOR_URL+"';varone=document.getElementsByTagName('script')[0];one.parentNode.insertBefore(pxejs,one);})();</script>";
+    /**
+     * HTML中头部开始标签
+     */
+    private static final String HTML_HEAD_START = "<HEAD>";
+    
+    /**
+     * HTML中头部结束标签
+     */
+    private static final String HTML_HEAD_END = "</HEAD>";
+	
 	/**
 	 * 添加落地页
 	 * 
@@ -44,6 +82,7 @@ public class LandpageService extends BaseService {
 		LandpageModel model = modelMapper.map(bean, LandpageModel.class);
 		String id = UUID.randomUUID().toString();
 		model.setId(id);
+		model.setStatus(StatusConstant.LANDPAGE_CHECK_NOTCHECK);
 		try {
 			// 添加落地页信息
 			landpageDao.insertSelective(model);
@@ -140,5 +179,72 @@ public class LandpageService extends BaseService {
 		
 		return list;
 	}
-
+	/**
+	 * 检查落地页中监测代码安装状态
+	 * @param landpageId
+	 * @throws Exception
+	 */
+	public void checkCode(String landpageId) throws Exception {
+		LandpageModel model = landpageDao.selectByPrimaryKey(landpageId);
+		if (model == null) {
+			throw new ResourceNotFoundException();
+		}
+		String url = model.getUrl();
+		String reCode = "";
+		BufferedReader in = null;
+		URL realUrl = new URL(url);
+		// 打开和URL之间的连接
+		URLConnection connection = realUrl.openConnection();
+		// 设置通用的请求属性
+		connection.setRequestProperty(HTTP_ACCEPT, HTTP_ACCEPT_DEFAULT);
+		connection.setRequestProperty(HTTP_CONNECTION, HTTP_CONNECTION_VAL);
+		connection.setRequestProperty(HTTP_USER_AGENT, HTTP_USER_AGENT_VAL);
+		// 建立实际的连接
+		connection.connect();
+		// 获取所有响应头字段
+//		Map<String, List<String>> map = connection.getHeaderFields();
+//		// 遍历所有的响应头字段
+//		for (String key : map.keySet()) {
+//			System.out.println(key + "--->" + map.get(key));
+//		}
+		// 定义 BufferedReader输入流来读取URL的响应
+		in = new BufferedReader(new InputStreamReader(
+				connection.getInputStream()));
+		String line;
+		while ((line = in.readLine()) != null) {
+			reCode += line;
+		}
+		
+		if (in != null) {
+			in.close();
+		}
+		
+		String codeStatus = StatusConstant.LANDPAGE_CHECK_NOTCHECK;
+		if (StringUtils.isEmpty(reCode)) {
+            // 如果没有结果集--无法完成检查
+            codeStatus = StatusConstant.LANDPAGE_CHECK_URLERRPR;
+        } else if (reCode.indexOf(landpageId) > 0) {
+            int headStart = reCode.indexOf(HTML_HEAD_START);
+            int headEnd = reCode.indexOf(HTML_HEAD_END);
+            if (headStart > 0
+                    && headEnd > 0) {
+                reCode = reCode.substring(headStart,
+                        headEnd).replaceAll(" ", "")
+                        .replaceAll("\"", "'").replaceAll("\n", "").replace("\t", "");
+                if (reCode.indexOf(CODE_START + landpageId
+                        + CODE_END) > 0) {
+                    codeStatus = StatusConstant.LANDPAGE_CHECK_SUCCESS;
+                } else {
+                    codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+                }
+            } else {
+                codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+            }
+        } else {
+            codeStatus = StatusConstant.LANDPAGE_CHECK_NOTFIND;
+        }
+		
+		model.setStatus(codeStatus);
+		landpageDao.updateByPrimaryKeySelective(model);
+	}
 }

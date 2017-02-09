@@ -103,4 +103,16 @@ public class LandpageController {
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
+	/**
+	 * 检查落地页监测代码状态
+	 * @param id
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/landpage/check/{id}", method = RequestMethod.PUT)
+	@ResponseBody
+	public void checkCode(@PathVariable String id, HttpServletResponse response) throws Exception {
+		landpageService.checkCode(id);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 }
