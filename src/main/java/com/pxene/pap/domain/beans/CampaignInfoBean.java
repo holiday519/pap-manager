@@ -3,6 +3,10 @@ package com.pxene.pap.domain.beans;
 import java.util.Arrays;
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
+import com.pxene.pap.constant.PhrasesConstant;
+
 /**
  * 活动基本信息
  */
@@ -19,6 +23,7 @@ public class CampaignInfoBean {
 	/**
 	 * 名称
 	 */
+	@NotNull(message = PhrasesConstant.INVALID_CAMPAIGN_NAME)
 	private String name;
 	/**
 	 * 活动类型

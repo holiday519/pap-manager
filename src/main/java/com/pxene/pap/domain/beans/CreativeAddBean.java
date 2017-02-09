@@ -2,6 +2,10 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
 
+import javax.validation.constraints.NotNull;
+
+import com.pxene.pap.constant.PhrasesConstant;
+
 /**
  * 添加创意bean
  */
@@ -18,6 +22,7 @@ public class CreativeAddBean {
 	/**
 	 * 创意名称
 	 */
+	@NotNull(message = PhrasesConstant.INVALID_CREATIVE_NAME)
 	private String name;
 	/**
 	 * 备注
