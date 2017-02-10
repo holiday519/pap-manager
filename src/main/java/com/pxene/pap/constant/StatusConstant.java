@@ -35,6 +35,10 @@ public class StatusConstant {
 	 */
 	public static final String CAMPAIGN_CLOSE = "04";
 	/**
+	 * 广告主审核状态 未审核
+	 */
+	public static final String ADVERTISER_AUDIT_NOCHECK = "00";
+	/**
 	 * 广告主审核状态 ：审核中
 	 */
 	public static final String ADVERTISER_AUDIT_WATING = "01";

@@ -86,7 +86,6 @@ public class AdvertiserService extends BaseService
     	// 将path替换成正式目录
         AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
         advertiserModel.setId(UUID.randomUUID().toString());
-        
         try
         {
             advertiserDao.insertSelective(advertiserModel);
@@ -233,6 +232,15 @@ public class AdvertiserService extends BaseService
         }
         bean.setKpis(kpis);
         
+        AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+        ex.createCriteria().andAdvertiserIdEqualTo(id);
+        List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
+        String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
+        if (list!=null && !list.isEmpty()) {
+        	AdvertiserAuditModel model = list.get(0);
+        	status = model.getStatus();
+        }
+        bean.setStatus(status);
         // 将DAO创建的新对象复制回传输对象中
         return bean;
     }
@@ -280,6 +288,17 @@ public class AdvertiserService extends BaseService
                 	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
                 }
                 bean.setKpis(kpis);
+                //查询审核状态
+                AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+                ex.createCriteria().andAdvertiserIdEqualTo(advertiserModel.getId());
+                List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
+                String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
+                if (list!=null && !list.isEmpty()) {
+                	AdvertiserAuditModel model = list.get(0);
+                	status = model.getStatus();
+                }
+                bean.setStatus(status);
+                
                 advertiserList.add(bean);
             }
         }

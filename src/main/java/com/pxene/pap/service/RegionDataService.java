@@ -432,7 +432,7 @@ public class RegionDataService extends BaseService
 				formatBeanRate(bean, days);//计算“率”
 				
 				if (!StringUtils.isEmpty(bean.getId())) {
-					String regionId = bean.getId().substring(4,bean.getId().length());
+					String regionId = bean.getId();
 					RegionModel model = regionDao.selectByPrimaryKey(regionId);
 					if (model != null) {
 						bean.setName(model.getName());

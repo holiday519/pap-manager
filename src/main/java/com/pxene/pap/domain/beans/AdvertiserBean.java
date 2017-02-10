@@ -1,5 +1,6 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import javax.validation.constraints.NotNull;
@@ -77,6 +78,8 @@ public class AdvertiserBean {
 
 	@JsonProperty(value = "update_time")
 	private Date updateTime;
+
+	private String status;
 
 	public static class Kpi {
 		private String id;
@@ -308,18 +311,29 @@ public class AdvertiserBean {
 		this.kpis = kpis;
 	}
 
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	@Override
 	public String toString() {
 		return "AdvertiserBean [id=" + id + ", name=" + name + ", company="
 				+ company + ", contact=" + contact + ", phone=" + phone
-				+ ", qq=" + qq + ", industryId=" + industryId + ", brandName="
-				+ brandName + ", licenseNo=" + licenseNo + ", organizationNo="
+				+ ", qq=" + qq + ", industryId=" + industryId
+				+ ", industryName=" + industryName + ", kpis="
+				+ Arrays.toString(kpis) + ", brandName=" + brandName
+				+ ", licenseNo=" + licenseNo + ", organizationNo="
 				+ organizationNo + ", logoPath=" + logoPath + ", icpPath="
 				+ icpPath + ", organizationPath=" + organizationPath
 				+ ", licensePath=" + licensePath + ", accountPath="
 				+ accountPath + ", siteUrl=" + siteUrl + ", siteName="
 				+ siteName + ", email=" + email + ", zip=" + zip + ", address="
 				+ address + ", remark=" + remark + ", createTime=" + createTime
-				+ ", updateTime=" + updateTime + "]";
+				+ ", updateTime=" + updateTime + ", status=" + status + "]";
 	}
+
 }
