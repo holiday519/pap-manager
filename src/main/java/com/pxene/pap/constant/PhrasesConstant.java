@@ -18,5 +18,100 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
 	public static final String CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE = "活动已产生投放数据，创意不能删除。";
+	
+	
+	
+	public static final String NOTNULL_NAME = "必须填写名称";
+	
+	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
+	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
+	public static final String LENGTH_ERROR_REMARK = "备注长度不能超过400";
+	
+	public static final String ADVERTISER_NOTNULL_INDUSTY = "必须选择行业";
+	public static final String ADVERTISER_NOTNULL_COMPANY = "必须填写公司名称";
+	public static final String ADVERTISER_NOTNULL_SITEURL = "必须填写公司官网地址";
+	public static final String ADVERTISER_NOTNULL_SITENAME = "必须填写公司官网名称";
+	public static final String ADVERTISER_NOTNULL_CONTACT = "必须填写联系人";
+	public static final String ADVERTISER_NOTNULL_PHONE = "必须填写联系电话";
+	public static final String ADVERTISER_NOTNULL_LICENSENO = "必须填写营业执照编号";
+	public static final String ADVERTISER_NOTNULL_LICENSEPATH = "必须上传营业执照图片";
+	
+	public static final String ADVERTISER_LENGTH_ERROR_COMPANY = "公司名称长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_ADDRESS= "公司地址长度不能超过200";
+	public static final String ADVERTISER_LENGTH_ERROR_SITEUR = "公司官网地址长度不能超过200";
+	public static final String ADVERTISER_LENGTH_ERROR_SITENAME = "公司官网名称长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_BRANDNAME = "品牌名称长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_CONTACT = "联系人长度不能超过20";
+	public static final String ADVERTISER_LENGTH_ERROR_PHONE= "联系电话长度不能超过20";
+	public static final String ADVERTISER_LENGTH_ERROR_EMAIL = "邮箱长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_QQ = "QQ号码长度不能超过20";
+	public static final String ADVERTISER_LENGTH_ERROR_LICENSENO = "营业执照编号长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_ORGANIZATIONNO = "组织机构代码长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_INDUSTRYID = "行业ID长度不能超过36";
+	
+	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
+	public static final String PROJECT_NOTNULL_KPI = "必须选择KPI指标";
+	public static final String PROJECT_NOTNULL_KPI_VALUE = "必须填写KPI指标值";
+	
+	public static final String PROJECT_LENGTH_ERROR_ADVERTISERID = "广告主ID长度不能超过36";
+	public static final String PROJECT_LENGTH_ERROR_KPIID = "KPI指标ID长度不能超过36";
+	
+	public static final String CAMPAIGN_NOTNULL_PROJECTID = "项目ID不能为空";
+	public static final String CAMPAIGN_NOTNULL_TYPE = "活动类型不能为空";
+	public static final String CAMPAIGN_NOTNULL_STARTDATE = "开始时间不能为空";
+	public static final String CAMPAIGN_NOTNULL_ENDDATE = "结束时间不能为空";
+	public static final String CAMPAIGN_NOTNULL_TOTALBUDGET = "活动总预算不能为空";
+	public static final String CAMPAIGN_NOTNULL_DAILYBUDGET = "活动日预算不能为空";
+	public static final String CAMPAIGN_NOTNULL_DAILYIMPRESSION = "活动日均最大展现量不能为空";
+	public static final String CAMPAIGN_NOTNULL_DAILYCLICK = "活动日均最大点击量不能为空";
+	public static final String CAMPAIGN_NOTNULL_FREQUENCY_CONTROLOBJ = "活动频次控制目标不能为空";
+	public static final String CAMPAIGN_NOTNULL_FREQUENCY_TIMETYPE = "活动频次控制时段类型不能为空";
+	public static final String CAMPAIGN_NOTNULL_FREQUENCY_NUMBER = "活动频次次数不能为空";
+	
+	public static final String CAMPAIGN_LENGTH_ERROR_PROJECTID = "项目ID长度不能超过36";
+	
+	public static final String CREATIVE_NOTNULL_CAMPAIGNID = "活动ID不能为空";
+	public static final String CREATIVE_NOTNULL_IMAGE_ID = "图片素材ID不能为空";
+	public static final String CREATIVE_NOTNULL_IMAGE_TMPLID = "图片素材模版ID不能为空";
+	public static final String CREATIVE_NOTNULL_IMAGE_PRICE = "图片素材价格不能为空";
+	public static final String CREATIVE_NOTNULL_VIDEO_ID = "视频素材ID不能为空";
+	public static final String CREATIVE_NOTNULL_VIDEO_TMPLID = "视频素材模版ID不能为空";
+	public static final String CREATIVE_NOTNULL_VIDEO_PRICE = "视频素材价格不能为空";
+	public static final String CREATIVE_NOTNULL_INFO_ID = "信息流素材标题ID不能为空";
+	public static final String CREATIVE_NOTNULL_INFO_TITLE = "信息流素材标题不能为空";
+	public static final String CREATIVE_NOTNULL_INFO_PRICE = "信息流素材价格不能为空";
+	public static final String CREATIVE_NOTNULL_INFO_TMPLID = "信息流素材模版ID不能为空";
+	
+	public static final String CREATIVE_LENGTH_ERROR_CAMPAIGNID = "活动ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_IMAGE_ID = "图片素材ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_IMAGE_TMPLID = "图片素材模版ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_VIDEO_ID = "视频素材ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_VIDEO_TMPLID = "视频素材模版ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_VIDEO_IMAGEID = "视频素材图片ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_ID = "视频素材ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_TITLE = "信息流素材标题长度不能超过100";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_DESCRIPTION = "信息流素材描述长度不能超过100";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_CTADESCRIPTION = "信息流素材CTA描述长度不能超过100";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_ICONID = "信息流素材小图ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID1 = "信息流素材大图1 ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID2 = "信息流素材大图2 ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID3 = "信息流素材大图3 ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID4 = "信息流素材大图4 ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID5 = "信息流素材大图5 ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_TMPLID = "信息流素材模版ID长度不能超过36";
+	
+	
+	
+	public static final String LANDPAGE_NOTNULL_CAMPAIGNID = "活动ID不能为空";
+	public static final String LANDPAGE_NOTNULL_URL = "落地页地址不能为空";
+	
+	public static final String LANDPAGE_LENGTH_ERROR_URL = "落地页地址长度不能 超过400";
+	public static final String LANDPAGE_LENGTH_ERROR_MONITORURL = "第三方监测地址长度不能 超过400";
+	public static final String LANDPAGE_LENGTH_ERROR_ANIDDEEP = "安卓 DeepLink长度不能 超过400";
+	public static final String LANDPAGE_LENGTH_ERROR_IOSDEEP = "ios Deepl长度不能 超过400";
+	public static final String LANDPAGE_LENGTH_ERROR_REMARK = "备注长度不能 超过200";
+	
+	
+	
     
 }

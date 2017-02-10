@@ -2,6 +2,8 @@ package com.pxene.pap.domain.beans;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Length;
+
 import com.pxene.pap.constant.PhrasesConstant;
 
 /**
@@ -16,11 +18,14 @@ public class ProjectBean {
 	/**
 	 * 广告主id
 	 */
+	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_ADVERTISERID)
+	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_ADVERTISERID)
 	private String advertiserId;
 	/**
 	 * 名称
 	 */
-	@NotNull(message = PhrasesConstant.INVALID_CAMPAIGN_NAME)
+	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
+	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	/**
 	 * 总预算
@@ -30,6 +35,7 @@ public class ProjectBean {
 	/**
 	 * 备注
 	 */
+    @Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 	/**
 	 * 状态
@@ -38,11 +44,14 @@ public class ProjectBean {
 	/**
 	 * KPI指标id
 	 */
+	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI)
 	private String kpiId;
 	
 	/**
 	 * KPI指标value
 	 */
+	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI_VALUE)
+	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
 	private Integer kpiVal;
 	
 	public Integer getKpiVal() {

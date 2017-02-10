@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Length;
+
 import com.pxene.pap.constant.PhrasesConstant;
 
 /**
@@ -15,39 +17,49 @@ public class CampaignInfoBean {
 	/**
 	 * 活动id
 	 */
+	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 	/**
 	 * 项目id
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID)
+	@Length(max = 36, message = PhrasesConstant.CAMPAIGN_LENGTH_ERROR_PROJECTID)
 	private String projectId;
 	/**
 	 * 名称
 	 */
-	@NotNull(message = PhrasesConstant.INVALID_CAMPAIGN_NAME)
+	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
+	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	/**
 	 * 活动类型
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_TYPE)
 	private String type;
 	/**
 	 * 总预算
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_TOTALBUDGET)
 	private Integer totalBudget;
 	/**
 	 * 日预算
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_DAILYBUDGET)
 	private Integer dailyBudget;
 	/**
 	 * 日展现
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_DAILYIMPRESSION)
 	private Integer dailyImpression;
 	/**
 	 * 日点击
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_DAILYCLICK)
 	private Integer dailyClick;
 	/**
 	 * 备注
 	 */
+    @Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 	/**
 	 * 状态
@@ -56,10 +68,12 @@ public class CampaignInfoBean {
 	/**
 	 * 开始时间
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_STARTDATE)
 	private Date startDate;
 	/**
 	 * 结束时间
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_ENDDATE)
 	private Date endDate;
 	
 	/**
@@ -77,14 +91,17 @@ public class CampaignInfoBean {
 		/**
 		 * 控制对象
 		 */
+		@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_FREQUENCY_CONTROLOBJ)
 		private String controlObj;
 		/**
 		 * 时间类型
 		 */
+		@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_FREQUENCY_TIMETYPE)
 		private String timeType;
 		/**
 		 * 频次
 		 */
+		@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_FREQUENCY_NUMBER)
 		private Integer number;
 		
 		public String getControlObj() {

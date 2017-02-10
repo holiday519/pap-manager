@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Length;
+
 import com.pxene.pap.constant.PhrasesConstant;
 
 /**
@@ -14,19 +16,18 @@ public class CreativeAddBean {
 	/**
 	 * 创意id
 	 */
+	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 	/**
 	 * 活动id
 	 */
+	@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
+	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_CAMPAIGNID)
 	private String campaignId;
-	/**
-	 * 创意名称
-	 */
-	@NotNull(message = PhrasesConstant.INVALID_CREATIVE_NAME)
-	private String name;
 	/**
 	 * 备注
 	 */
+	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 
 	/**
@@ -35,10 +36,14 @@ public class CreativeAddBean {
 	private Image[] images;
 
 	public static class Image {
-
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_IMAGE_ID)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_IMAGE_ID)
 		private String id;
-
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_IMAGE_TMPLID)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_IMAGE_TMPLID)
 		private String tmplId;
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_IMAGE_PRICE)
+		private Float price;
 
 		public String getId() {
 			return id;
@@ -56,9 +61,18 @@ public class CreativeAddBean {
 			this.tmplId = tmplId;
 		}
 
+		public Float getPrice() {
+			return price;
+		}
+
+		public void setPrice(Float price) {
+			this.price = price;
+		}
+
 		@Override
 		public String toString() {
-			return "BaseImageBean [id=" + id + ", tmplId=" + tmplId + "]";
+			return "Image [id=" + id + ", tmplId=" + tmplId + ", price="
+					+ price + "]";
 		}
 
 	}
@@ -69,12 +83,16 @@ public class CreativeAddBean {
 	private Video[] videos;
 
 	public static class Video {
-
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_VIDEO_ID)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_VIDEO_ID)
 		private String id;
-
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_VIDEO_IMAGEID)
 		private String imageId;
-
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_VIDEO_TMPLID)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_VIDEO_TMPLID)
 		private String tmplId;
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_VIDEO_PRICE)
+		private Float price;
 
 		public String getId() {
 			return id;
@@ -100,10 +118,18 @@ public class CreativeAddBean {
 			this.tmplId = tmplId;
 		}
 
+		public Float getPrice() {
+			return price;
+		}
+
+		public void setPrice(Float price) {
+			this.price = price;
+		}
+
 		@Override
 		public String toString() {
-			return "BaseVideoBean [id=" + id + ", imageId=" + imageId
-					+ ", tmplId=" + tmplId + "]";
+			return "Video [id=" + id + ", imageId=" + imageId + ", tmplId="
+					+ tmplId + ", price=" + price + "]";
 		}
 
 	}
@@ -117,42 +143,59 @@ public class CreativeAddBean {
 		/**
 		 * 信息流id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_ID)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_INFO_ID)
 		private String id;
+		/**
+		 * 价格
+		 */
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_INFO_PRICE)
+		private Float price;
 		/**
 		 * 标题
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_TITLE)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_INFO_TITLE)
 		private String title;
 		/**
 		 * 描述
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_DESCRIPTION)
 		private String description;
 		/**
 		 * 小图id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_ICONID)
 		private String iconId;
 		/**
 		 * 大图id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_IMAGEID1)
 		private String image1Id;
 		/**
 		 * 大图id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_IMAGEID2)
 		private String image2Id;
 		/**
 		 * 大图id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_IMAGEID3)
 		private String image3Id;
 		/**
 		 * 大图id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_IMAGEID4)
 		private String image4Id;
 		/**
 		 * 大图id
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_IMAGEID5)
 		private String image5Id;
 		/**
 		 * CTA描述
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_CTADESCRIPTION)
 		private String ctaDescription;
 		/**
 		 * APP评分
@@ -161,6 +204,8 @@ public class CreativeAddBean {
 		/**
 		 * 模版ID
 		 */
+		@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_INFO_TMPLID)
+		@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_INFO_TMPLID)
 		private String tmplId;
 
 		public String getId() {
@@ -259,13 +304,21 @@ public class CreativeAddBean {
 			this.tmplId = tmplId;
 		}
 
+		public Float getPrice() {
+			return price;
+		}
+
+		public void setPrice(Float price) {
+			this.price = price;
+		}
+
 		@Override
 		public String toString() {
-			return "Infoflow [id=" + id + ", title=" + title
-					+ ", description=" + description + ", iconId=" + iconId
-					+ ", image1Id=" + image1Id + ", image2Id=" + image2Id
-					+ ", image3Id=" + image3Id + ", image4Id=" + image4Id
-					+ ", image5Id=" + image5Id + ", ctaDescription="
+			return "Infoflow [id=" + id + ", price=" + price + ", title="
+					+ title + ", description=" + description + ", iconId="
+					+ iconId + ", image1Id=" + image1Id + ", image2Id="
+					+ image2Id + ", image3Id=" + image3Id + ", image4Id="
+					+ image4Id + ", image5Id=" + image5Id + ", ctaDescription="
 					+ ctaDescription + ", appStar=" + appStar + ", tmplId="
 					+ tmplId + "]";
 		}
@@ -288,14 +341,6 @@ public class CreativeAddBean {
 		this.campaignId = campaignId;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
 	public String getRemark() {
 		return remark;
 	}
@@ -303,7 +348,7 @@ public class CreativeAddBean {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
-	
+
 	public Image[] getImages() {
 		return images;
 	}
@@ -331,9 +376,8 @@ public class CreativeAddBean {
 	@Override
 	public String toString() {
 		return "CreativeAddBean [id=" + id + ", campaignId=" + campaignId
-				+ ", name=" + name + ", remark=" + remark + ", images="
-				+ Arrays.toString(images) + ", videos="
-				+ Arrays.toString(videos) + ", infoflows="
+				+ ", remark=" + remark + ", images=" + Arrays.toString(images)
+				+ ", videos=" + Arrays.toString(videos) + ", infoflows="
 				+ Arrays.toString(infoflows) + "]";
 	}
 
