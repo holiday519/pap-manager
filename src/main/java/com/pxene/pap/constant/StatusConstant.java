@@ -35,10 +35,6 @@ public class StatusConstant {
 	 */
 	public static final String CAMPAIGN_CLOSE = "04";
 	/**
-	 * 广告主审核状态 未审核
-	 */
-	public static final String ADVERTISER_AUDIT_NOCHECK = "00";
-	/**
 	 * 广告主审核状态 ：审核中
 	 */
 	public static final String ADVERTISER_AUDIT_WATING = "01";
@@ -50,6 +46,10 @@ public class StatusConstant {
 	 * 广告主审核状态 ：审核不通过
 	 */
 	public static final String ADVERTISER_AUDIT_FAILURE = "03";
+	/**
+	 * 广告主审核状态 ：未审核
+	 */
+	public static final String ADVERTISER_AUDIT_NOCHECK = "04";
 	/**
 	 * 创意审核状态 ：审核中
 	 */
