@@ -18,6 +18,8 @@ public class CreativeAddBean {
 	 */
 	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
+
+	private String name;
 	/**
 	 * 活动id
 	 */
@@ -373,11 +375,20 @@ public class CreativeAddBean {
 		this.infoflows = infoflows;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public String toString() {
-		return "CreativeAddBean [id=" + id + ", campaignId=" + campaignId
-				+ ", remark=" + remark + ", images=" + Arrays.toString(images)
-				+ ", videos=" + Arrays.toString(videos) + ", infoflows="
+		return "CreativeAddBean [id=" + id + ", name=" + name + ", campaignId="
+				+ campaignId + ", remark=" + remark + ", images="
+				+ Arrays.toString(images) + ", videos="
+				+ Arrays.toString(videos) + ", infoflows="
 				+ Arrays.toString(infoflows) + "]";
 	}
 
