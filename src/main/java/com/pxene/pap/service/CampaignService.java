@@ -150,6 +150,18 @@ public class CampaignService extends LaunchService{
 	@Transactional
 	public void createCampaign(CampaignInfoBean bean) throws Exception {
 		
+		String projectId = bean.getProjectId();
+		if (StringUtils.isEmpty(projectId)) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID);
+		} else {
+			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+			Integer projectBudget = projectModel.getTotalBudget();
+			Integer campaignBueget = bean.getTotalBudget();
+			if (campaignBueget.compareTo(projectBudget) > 0) {
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_BUDGET_BIGGER_PROJECT_BUDGET);
+			}
+		}
+		
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		String id = UUID.randomUUID().toString();
 		bean.setId(id);//此处放入ID，添加活动相关联信息时用到
