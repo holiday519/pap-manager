@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -127,6 +128,32 @@ public class AdvertiserService extends BaseService
         	removeImages(id);
             advertiserDao.deleteByPrimaryKey(id);
         }
+    }
+    @Transactional
+    public void deleteAdvertisers(String[] ids) throws Exception
+    {
+    	List<String> asList = Arrays.asList(ids);
+    	// 操作前先查询一次数据库，判断指定的资源是否存在
+    	AdvertiserModelExample ex = new AdvertiserModelExample();
+    	ex.createCriteria().andIdIn(asList);
+    	List<AdvertiserModel> advertiserInDB = advertiserDao.selectByExample(ex);
+    	if (advertiserInDB == null || advertiserInDB.isEmpty())
+    	{
+    		throw new ResourceNotFoundException();
+    	}
+		for (String id : ids) {
+			ProjectModelExample example = new ProjectModelExample();
+			example.createCriteria().andAdvertiserIdEqualTo(id);
+			
+			List<ProjectModel> projects = projectDao.selectByExample(example);
+			
+			// 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
+			if (projects != null && !projects.isEmpty())
+			{
+				throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAS_PROJECTS);
+			}
+		}
+		advertiserDao.deleteByExample(ex);
     }
 
 //    @Transactional

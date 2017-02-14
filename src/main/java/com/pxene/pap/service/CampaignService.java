@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -505,6 +506,43 @@ public class CampaignService extends LaunchService{
 		deletefrequency(campaignId);
 		//删除活动
 		campaignDao.deleteByPrimaryKey(campaignId);
+	}
+	
+	/**
+	 * 批量删除活动
+	 * @param bean
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteCampaigns(String[] campaignIds) throws Exception {
+		
+		List<String> asList = Arrays.asList(campaignIds);
+		CampaignModelExample ex = new CampaignModelExample();
+		ex.createCriteria().andIdIn(asList);
+		
+		List<CampaignModel> campaignInDB = campaignDao.selectByExample(ex);
+		if (campaignInDB ==null || campaignInDB.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		
+		for (String campaignId : campaignIds) {
+			//先查询出活动下创意
+			CreativeModelExample creativeExample = new CreativeModelExample();
+			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
+			if (list != null && !list.isEmpty()) {
+				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
+			}
+			//删除检测地址
+			deleteCampaignMonitor(campaignId);
+			//删除定向
+			deleteCampaignTarget(campaignId);
+			//删除频次信息
+			deletefrequency(campaignId);
+			//删除活动
+		}
+		campaignDao.deleteByExample(ex);
 	}
 	
 	/**

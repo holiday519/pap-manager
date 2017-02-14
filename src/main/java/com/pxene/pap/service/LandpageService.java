@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -139,6 +140,39 @@ public class LandpageService extends BaseService {
 		}
 		// 删除落地页
 		landpageDao.deleteByPrimaryKey(id);
+	}
+	/**
+	 * 批量删除落地页
+	 * @param ids
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteLandpages(String[] ids) throws Exception {
+		
+		List<String> asList = Arrays.asList(ids);
+		LandpageModelExample ex = new LandpageModelExample();
+		ex.createCriteria().andIdIn(asList);
+		
+		List<LandpageModel> landpageInDB = landpageDao.selectByExample(ex);
+		if (landpageInDB == null || landpageInDB.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		for (String id : ids) {
+			LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
+			String campaignId = landpageModel.getCampaignId();
+			if (StringUtils.isEmpty(campaignId)) {
+				// 如果落地页的campaignId是null，直接删除落地页
+				landpageDao.deleteByPrimaryKey(id);
+			}
+			CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
+			String status = campaign.getStatus();
+			// 不是投放中才可以删除
+			if (StatusConstant.CAMPAIGN_START.equals(status)) {
+				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN_LAUNCH);
+			}
+		}
+		// 删除落地页
+		landpageDao.deleteByExample(ex);
 	}
 
 	/**

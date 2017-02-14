@@ -68,6 +68,18 @@ public class LandpageController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	/**
+	 * 批量删除落地页
+	 * @param ids
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/landpage/{id}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteProject(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
+		landpageService.deleteLandpages(ids);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	/**
 	 * 根据id查询落地页
 	 * @param id
 	 * @param response

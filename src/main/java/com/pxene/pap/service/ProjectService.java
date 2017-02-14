@@ -1,6 +1,7 @@
 package com.pxene.pap.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +21,7 @@ import com.pxene.pap.domain.beans.ProjectDetailBean;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.view.ProjectDetailModel;
 import com.pxene.pap.domain.models.view.ProjectDetailModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -143,6 +145,36 @@ public class ProjectService extends LaunchService {
 		}
 		
 		projectDao.deleteByPrimaryKey(id);
+	}
+	
+	/**
+	 * 批量删除项目
+	 * @param projectId
+	 * @return
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteProjects(String[] ids) throws Exception {
+		
+		List<String> asList = Arrays.asList(ids);
+		ProjectModelExample ex = new ProjectModelExample();
+		ex.createCriteria().andIdIn(asList);
+		
+		List<ProjectModel> projectInDB = projectDao.selectByExample(ex);
+		if (projectInDB == null || projectInDB.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		for (String id : ids) {
+			//查询出项目下活动
+			CampaignModelExample example = new CampaignModelExample();
+			example.createCriteria().andProjectIdEqualTo(id);
+			List<CampaignModel> list = campaignDao.selectByExample(example);
+			if (list != null && !list.isEmpty()) {
+				throw new IllegalStatusException(PhrasesConstant.PROJECT_HAS_CAMPAIGN);
+			}
+		}
+		
+		projectDao.deleteByExample(ex);
 	}
 
 	/**

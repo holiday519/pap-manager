@@ -96,10 +96,23 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/campaigns", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
 		campaignService.deleteCampaign(id);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 批量删除活动
+	 * @param id
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteCampaigns(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
+		campaignService.deleteCampaigns(ids);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

@@ -89,6 +89,21 @@ public class ProjectController {
 	}
 	
 	/**
+	 * 删除项目信息
+	 * @param id
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/projects", method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteProjects(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
+		
+		projectService.deleteProjects(ids);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
 	 * 根据id查询项目
 	 * @param id
 	 * @param response

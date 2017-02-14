@@ -74,7 +74,31 @@ public class CreativeController {
 		creativeService.deleteCreative(id);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
+	/**
+	 * 批量删除创意
+	 * @param id
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creatives",method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteCreatives(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
+		creativeService.deleteCreatives(ids);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 	
+	/**
+	 * 批量删除创意下素材
+	 * @param id
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/materials",method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteCreativeMaterials(@RequestBody String[] mapIds, HttpServletResponse response) throws Exception {
+		creativeService.deleteCreativeMaterials(mapIds);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 	/**
 	 * 删除创意下素材
 	 * @param id

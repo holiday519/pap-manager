@@ -63,7 +63,19 @@ public class AdvertiserController
         advertiserService.deleteAdvertiser(id);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
-    
+    /**
+     * 批量删除广告主
+     * @param ids
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/advertisers", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteAdvertisers(@RequestBody String[] ids, HttpServletResponse response) throws Exception
+    {
+        advertiserService.deleteAdvertisers(ids);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
+    }
     
     /**
      * 根据ID编辑指定的广告主（全部更新）。

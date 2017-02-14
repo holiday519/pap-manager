@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -404,6 +405,78 @@ public class CreativeService extends BaseService {
 		creativeDao.deleteByPrimaryKey(creativeId);
 	}
 	
+	/**
+	 * 批量删除创意
+	 * @param creativeIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteCreatives(String[] creativeIds) throws Exception {
+		
+		List<String> asList = Arrays.asList(creativeIds);
+		CreativeModelExample ex = new CreativeModelExample();
+		ex.createCriteria().andIdIn(asList);
+		
+		List<CreativeModel> creativeInDB = creativeDao.selectByExample(ex);
+		if (creativeInDB == null || creativeInDB.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		
+		for (String creativeId : creativeIds) {
+			CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+			String campaignId = null;
+			if (creativeModel != null) {
+				campaignId = creativeModel.getCampaignId();
+			}
+			if (!StringUtils.isEmpty(campaignId)) {
+				//只有活动是等待中时才可删除创意
+				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+				if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
+				}
+			}
+			
+			CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
+			cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
+			
+			// 删除关联关系表中数据
+			creativeMaterialDao.deleteByExample(cmExample);
+		}
+		// 删除创意数据
+		creativeDao.deleteByExample(ex);
+	}
+	
+	/**
+	 * 批量删除创意下素材
+	 * @param mapIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteCreativeMaterials(String[] mapIds) throws Exception {
+		for (String mapId : mapIds) {
+			CreativeMaterialModel material = creativeMaterialDao.selectByPrimaryKey(mapId);
+			if (material == null) {
+				continue;
+			}
+			String creativeId = material.getCreativeId();
+			if (!StringUtils.isEmpty(creativeId)) {
+				CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+				String campaignId = creative.getCampaignId();
+				if (!StringUtils.isEmpty(campaignId)) {
+					//只有活动是等待中时才可删除创意
+					CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+					if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
+						throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
+					}
+				}
+			}
+		}
+		
+		List<String> asList = Arrays.asList(mapIds);
+		CreativeMaterialModelExample ex = new CreativeMaterialModelExample();
+		ex.createCriteria().andIdIn(asList);
+		creativeMaterialDao.deleteByExample(ex);
+	}
 	/**
 	 * 删除创意下素材
 	 * @param creativeId
