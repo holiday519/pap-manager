@@ -228,21 +228,22 @@ public class CreativeDataService extends BaseService
     			}
     		}
     	}
-    	if (!isFlag) {
-    		//redis中活动分key分出的mapId
-    		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
-    		if (!StringUtils.isEmpty(str)) {
-    			String[] mapChilds = str.split(",");
-    			if (mapChilds != null && mapChilds.length > 0) {
-    				for (String mId : mapChilds) {
-    					if (mapId.equals(mId)) {
-    						isFlag = true;
-    						break;
-    					}
-    				}
-    			}
-    		}
-    	}
+    	//------------分key逻辑
+//    	if (!isFlag) {
+//    		//redis中活动分key分出的mapId
+//    		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
+//    		if (!StringUtils.isEmpty(str)) {
+//    			String[] mapChilds = str.split(",");
+//    			if (mapChilds != null && mapChilds.length > 0) {
+//    				for (String mId : mapChilds) {
+//    					if (mapId.equals(mId)) {
+//    						isFlag = true;
+//    						break;
+//    					}
+//    				}
+//    			}
+//    		}
+//    	}
     	
     	//如果当前mapid属于当前活动才整合数据
     	if (isFlag) {

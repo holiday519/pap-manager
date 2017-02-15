@@ -53,7 +53,7 @@ public class AppDataService extends BaseService
 			for (int i = 0; i < ids.length; i++) {
 				String id = ids[i];
 				//查询出的数据整合时，需要判断未分key之前是否与分开之后数据的ID相同，如果相同加起来，不相同直接放到结果集中
-				List<AppDataBean> list = selectByArgs(id, beginTime, endTime);
+				List<AppDataBean> list = listAppData(id, beginTime, endTime);
 				if (list == null || list.isEmpty()) {
 					continue;
 				}
@@ -95,8 +95,8 @@ public class AppDataService extends BaseService
 				}
 			}
     	}else {
-    		result = selectByArgs(campaignId, beginTime, endTime);
     	}
+    	result = listAppData(campaignId, beginTime, endTime);
     	return result;
     }
     
@@ -109,7 +109,7 @@ public class AppDataService extends BaseService
      * @throws Exception
      */
     @Transactional
-    private List<AppDataBean> selectByArgs(String campaignId, long beginTime, long endTime) throws Exception
+	public List<AppDataBean> listAppData(String campaignId, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -293,7 +293,8 @@ public class AppDataService extends BaseService
     			}
     		}
     	}
-    	if (!isFlag) {
+    	//------------分key逻辑
+    	/*if (!isFlag) {
     		//redis中活动分key分出的mapId
     		String str = JedisUtils.getStr("part_parent_campaignId_" + campaignId);
     		if (!StringUtils.isEmpty(str)) {
@@ -307,7 +308,7 @@ public class AppDataService extends BaseService
     				}
     			}
     		}
-    	}
+    	}*/
     	//如果当前mapid属于当前活动才整合数据
     	if (isFlag) {
     		if (beans.isEmpty()) {

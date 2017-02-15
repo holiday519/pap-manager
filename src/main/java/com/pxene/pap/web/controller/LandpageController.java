@@ -73,7 +73,7 @@ public class LandpageController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/landpage/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/landpages", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteProject(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
 		landpageService.deleteLandpages(ids);
