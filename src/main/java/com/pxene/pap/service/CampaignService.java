@@ -3,6 +3,7 @@ package com.pxene.pap.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -12,9 +13,12 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -150,6 +154,7 @@ public class CampaignService extends LaunchService{
 	 */
 	@Transactional
 	public void createCampaign(CampaignInfoBean bean) throws Exception {
+	    checkDateRange(bean);
 		
 		String projectId = bean.getProjectId();
 		if (StringUtils.isEmpty(projectId)) {
@@ -188,6 +193,16 @@ public class CampaignService extends LaunchService{
 		}
 //		BeanUtils.copyProperties(campaignModel, bean);
 	}
+
+    private void checkDateRange(CampaignInfoBean bean)
+    {
+        Date startDate = bean.getStartDate();
+	    Date endDate = bean.getEndDate();
+	    if (startDate != null && endDate != null && startDate.after(endDate))
+	    {
+            throw new IllegalArgumentException();
+	    }
+    }
 	
 	/**
 	 * 编辑活动
