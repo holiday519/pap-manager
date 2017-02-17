@@ -16,6 +16,25 @@ public class CreativeDataBean {
 	private Long arrivalAmount;
 	private Float arrivalRate;
 	private Long uniqueAmount;
+	private Long jumpAmount;
+	private Float cost;
+
+	
+	public Long getJumpAmount() {
+		return jumpAmount;
+	}
+
+	public void setJumpAmount(Long jumpAmount) {
+		this.jumpAmount = jumpAmount;
+	}
+
+	public Float getCost() {
+		return cost;
+	}
+
+	public void setCost(Float cost) {
+		this.cost = cost;
+	}
 
 	public String getId() {
 		return id;

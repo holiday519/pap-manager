@@ -1,6 +1,5 @@
 package com.pxene.pap.service;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,31 +13,45 @@ import javax.transaction.Transactional;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.domain.beans.LandpageDataBean;
-import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.LandpageModel;
-import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.LandpageDao;
-
+import com.pxene.pap.domain.beans.CreativeDataBean;
+/**
+ * 查询创意所有数据属性（用于广告主、项目、活动、创意列表时数据查询）
+ * 查询 点击、展现、二跳、花费
+ *
+ */
 @Service
-public class LandpageDataService extends BaseService
+public class CreativeAllDataService extends BaseService
 {
-	@Autowired
-	private LandpageDao landpageDao;
-	
-	@Autowired
-	private CampaignDao campaignDao;
-	
+    
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
     @Transactional
-    public List<LandpageDataBean> listLandpageDatas(String campaignId, long beginTime, long endTime) throws Exception
+    public CreativeDataBean listCreativeData(List<String> creativeIds, long beginTime, long endTime) throws Exception
+    {
+    	List<CreativeDataBean> beans = listCreativeDatas(creativeIds, beginTime, endTime);
+    	CreativeDataBean resultBean = new CreativeDataBean();
+    	Float cost = 0F;
+		Long jumpAmount = 0L;
+		Long impressionAmount = 0L;
+		Long clickAmount = 0L;
+		if (beans != null && !beans.isEmpty()) {
+			for (CreativeDataBean bean : beans) {
+				resultBean.setJumpAmount(bean.getJumpAmount() + jumpAmount);
+				resultBean.setCost(cost + bean.getCost());
+				resultBean.setImpressionAmount(impressionAmount + bean.getImpressionAmount());
+				resultBean.setClickAmount(clickAmount + bean.getClickAmount());
+			}
+		}
+    	return resultBean;
+    }
+    
+    @Transactional
+    public List<CreativeDataBean> listCreativeDatas(List<String> creativeIds, long beginTime, long endTime) throws Exception
     {
     	Map<String, String> sourceMap = new HashMap<String, String>();
     	DateTime begin = new DateTime(beginTime);
@@ -80,14 +93,7 @@ public class LandpageDataService extends BaseService
 			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
 		}
     	
-    	//查询活动对应的落地页id;不是这个id的数据不显示
-    	CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
-    	
-    	if (campaignModel == null) {
-    		return new ArrayList<LandpageDataBean>();
-    	}
-    	String landpageId = campaignModel.getLandpageId();
-    	List<LandpageDataBean> beans = getListFromSource(landpageId, sourceMap);
+    	List<CreativeDataBean> beans = getListFromSource(creativeIds, sourceMap);
     	formatLastList(beans);
     	return beans;
     }
@@ -103,8 +109,8 @@ public class LandpageDataService extends BaseService
 		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
 		for (int i = 0; i < hours.length; i++) {
 			String hour = hours[i];
-			Map<String, String> map = JedisUtils.hget("landpageDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);
-			Set<String> hkeys = JedisUtils.hkeys("landpageDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);
+			Map<String, String> map = JedisUtils.hget("creativeDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);
+			Set<String> hkeys = JedisUtils.hkeys("creativeDataHour_" + new DateTime(beginTime).toString("yyyyMMdd") + hour);
 			if (hkeys != null && !hkeys.isEmpty()) {
 				for (String hkey : hkeys) {
 					String hourStr = map.get(hkey);
@@ -116,16 +122,10 @@ public class LandpageDataService extends BaseService
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
 							} else if (hkey.indexOf("@c") > 0) {// 点击
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@a") > 0) {// 到达
+							} else if (hkey.indexOf("@j") > 0) {// 二跳数
 								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@w") > 0) {// 中标
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@u") > 0) {// 独立访客数
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
-								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+							} else if (hkey.indexOf("@e") > 0) {// 花费
+								sourceMap.put(hkey, String.valueOf(Float.parseFloat(hourStr) + Float.parseFloat(str)));
 							}
 						} else {
 							sourceMap.put(hkey, hourStr);
@@ -150,8 +150,8 @@ public class LandpageDataService extends BaseService
     	if (days!=null && days.length > 0) {
     		for (int i = 0; i < days.length; i++) {
     			String day = days[i];
-    			Map<String, String> map = JedisUtils.hget("landpageDataDay_" + day);
-    			Set<String> hkeys = JedisUtils.hkeys("landpageDataDay_" + day);
+    			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + day);
+    			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + day);
     			if (hkeys != null && !hkeys.isEmpty()) {
     				for (String hkey : hkeys) {
     					String hourStr = map.get(hkey);
@@ -163,16 +163,10 @@ public class LandpageDataService extends BaseService
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
     							} else if (hkey.indexOf("@c") > 0) {// 点击
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@a") > 0) {// 到达
+    							} else if (hkey.indexOf("@j") > 0) {// 二跳数
     								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@w") > 0) {// 中标
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@u") > 0) {// 独立访客数
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@s@") > 0) {// 平均访问时间
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
-    							} else if (hkey.indexOf("@j@") > 0) {// 二跳数
-    								sourceMap.put(hkey, String.valueOf(Integer.parseInt(hourStr) + Integer.parseInt(str)));
+    							} else if (hkey.indexOf("@e") > 0) {// 花费
+    								sourceMap.put(hkey, String.valueOf(Float.parseFloat(hourStr) + Float.parseFloat(str)));
     							}
     						} else {
     							sourceMap.put(hkey, hourStr);
@@ -193,12 +187,12 @@ public class LandpageDataService extends BaseService
      * @return
      * @throws Exception
      */
-	private List<LandpageDataBean> getListFromSource(String landpageId, Map<String, String> sourceMap) throws Exception {
-    	List<LandpageDataBean> beans = new ArrayList<LandpageDataBean>();
+	private List<CreativeDataBean> getListFromSource(List<String> creativeIds, Map<String, String> sourceMap) throws Exception {
+    	List<CreativeDataBean> beans = new ArrayList<CreativeDataBean>();
     	for (String key : sourceMap.keySet()) {
     		if (!StringUtils.isEmpty(key)) {
     			String value = sourceMap.get(key);
-    			beans = takeDataToList(landpageId, beans, key, value);
+    			beans = takeDataToList(creativeIds, beans, key, value);
     		}
     	}
     	return beans;
@@ -212,65 +206,67 @@ public class LandpageDataService extends BaseService
      * @return
      * @throws Exception
      */
-	private List<LandpageDataBean> takeDataToList(String landpageId, List<LandpageDataBean> beans, String key, String value) throws Exception {
+	private List<CreativeDataBean> takeDataToList(List<String> creativeIds, List<CreativeDataBean> beans, String key, String value) throws Exception {
     	String[] keyArray = key.split("@");
-    	String ldpgId = keyArray[0];
-    	boolean isFlag = false;//当前landpageid是否属于当前活动
+    	String creativeId = keyArray[0];
+    	//只返回当前创意数组中创意id的数据
+    	String mapId = keyArray[0];
+    	boolean isFlag = false;//当前mapid是否属于当前活动
     	
-    	if (landpageId.equals(ldpgId)) {
+    	if (creativeIds.contains(mapId)) {
     		isFlag = true;
     	}
     	
-    	//如果当前landpageid属于当前活动才整合数据
+    	//如果当前mapid属于当前活动才整合数据
     	if (isFlag) {
     		if (beans.isEmpty()) {
-    			LandpageDataBean bean = new LandpageDataBean();
-    			if (key.indexOf("@s") > 0) {// 平均停留时间
-    				bean.setResidentTime(Long.parseLong(value));
-    			} else if (key.indexOf("@a") > 0) {// 到达
-    				bean.setArrivalAmount(Long.parseLong(value));
-    			} else if (key.indexOf("@j") > 0) {// 二跳量
-    				bean.setJumpAmount(Long.parseLong(value));
-    			} else if (key.indexOf("@u") > 0) {// 独立访客数
+    			CreativeDataBean bean = new CreativeDataBean();
+    			if (key.indexOf("@m") > 0) {// 展现
+    				bean.setImpressionAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@c") > 0) {// 点击
+    				bean.setClickAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@j") > 0) {// 跳出
     				bean.setUniqueAmount(Long.parseLong(value));
+    			} else if (key.indexOf("@e") > 0) {// 花费
+    				bean.setCost(Float.parseFloat(value));
     			}
-    			bean.setId(ldpgId);
+    			bean.setId(creativeId);
     			beans.add(bean);
     		} else {
     			boolean flag = false;
     			int index = 0;
     			for (int i=0;i < beans.size();i++) {
-    				LandpageDataBean bean = beans.get(i);
-    				if (bean.getId().equals(ldpgId)) {
+    				CreativeDataBean bean = beans.get(i);
+    				if (bean.getId().equals(creativeId)) {
     					index = i;
     					flag = true;
     					break;
     				}
     			}
     			if (flag) {
-    				LandpageDataBean bean = beans.get(index);
-    				if (key.indexOf("@s") > 0) {// 平均停留时间
-    					bean.setResidentTime(Long.parseLong(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
-    				} else if (key.indexOf("@a") > 0) {// 到达
-    					bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				CreativeDataBean bean = beans.get(index);
+    				if (key.indexOf("@m") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
     				} else if (key.indexOf("@j") > 0) {// 二跳量
     					bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
-    				} else if (key.indexOf("@u") > 0) {// 独立访客数
-    					bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				} else if (key.indexOf("@e") > 0) {// 花费
+    					bean.setCost(Float.parseFloat(value) + (bean.getCost()==null?0:bean.getCost()));
     				}
-    				bean.setId(ldpgId);
+    				bean.setId(creativeId);
     			} else {
-    				LandpageDataBean bean = new LandpageDataBean();
-    				if (key.indexOf("@s") > 0) {// 平均停留时间
-    					bean.setResidentTime(Long.parseLong(value) + (bean.getResidentTime()==null?0:bean.getResidentTime()));
-    				} else if (key.indexOf("@a") > 0) {// 到达
-    					bean.setArrivalAmount(Long.parseLong(value) + (bean.getArrivalAmount()==null?0:bean.getArrivalAmount()));
+    				CreativeDataBean bean = new CreativeDataBean();
+    				if (key.indexOf("@m") > 0) {// 展现
+    					bean.setImpressionAmount(Long.parseLong(value) + (bean.getImpressionAmount()==null?0:bean.getImpressionAmount()));
+    				} else if (key.indexOf("@c") > 0) {// 点击
+    					bean.setClickAmount(Long.parseLong(value) + (bean.getClickAmount()==null?0:bean.getClickAmount()));
     				} else if (key.indexOf("@j") > 0) {// 二跳量
     					bean.setJumpAmount(Long.parseLong(value) + (bean.getJumpAmount()==null?0:bean.getJumpAmount()));
-    				} else if (key.indexOf("@u") > 0) {// 独立访客数
-    					bean.setUniqueAmount(Long.parseLong(value) + (bean.getUniqueAmount()==null?0:bean.getUniqueAmount()));
+    				} else if (key.indexOf("@e") > 0) {// 花费
+    					bean.setCost(Float.parseFloat(value) + (bean.getCost()==null?0:bean.getCost()));
     				}
-    				bean.setId(ldpgId);
+    				bean.setId(creativeId);
     				beans.add(bean);
     			}
     		}
@@ -283,10 +279,18 @@ public class LandpageDataService extends BaseService
      * @param beans
      * @return
      */
-	private List<LandpageDataBean> formatLastList(List<LandpageDataBean> beans) {
-    	DecimalFormat format = new DecimalFormat("0.00000");
+	private List<CreativeDataBean> formatLastList(List<CreativeDataBean> beans) {
     	if (beans != null && beans.size() > 0) {
-    		for (LandpageDataBean bean : beans) {
+    		for (CreativeDataBean bean : beans) {
+				if (bean.getWinAmount() == null) {
+					bean.setWinAmount(0L);
+				}
+				if (bean.getImpressionAmount() == null) {
+					bean.setImpressionAmount(0L);
+				}
+				if (bean.getClickAmount() == null) {
+					bean.setClickAmount(0L);
+				}
 				if (bean.getArrivalAmount() == null) {
 					bean.setArrivalAmount(0L);
 				}
@@ -296,51 +300,34 @@ public class LandpageDataService extends BaseService
 				if (bean.getJumpAmount() == null) {
 					bean.setJumpAmount(0L);
 				}
-				if (bean.getResidentTime() == null) {
-					bean.setResidentTime(0L);
-				}
-				if (bean.getArrivalAmount() == 0) {
-					bean.setJumpRate(0F);
-				} else {
-			        double percent = (double)bean.getJumpAmount() / bean.getArrivalAmount();
-			        Float result = Float.parseFloat(format.format(percent));
-			        bean.setJumpRate(result);
-				}
-				if (!StringUtils.isEmpty(bean.getId())) {
-					LandpageModel model = landpageDao.selectByPrimaryKey(bean.getId());
-					bean.setId(model.getId());
-					bean.setName(model.getName());
+				if (bean.getCost() == null) {
+					bean.setCost(0F);
 				}
     		}
     	}
-    	//将所有不重复的landpageId放入List————根据List就知道最后条数
-    	List<String> landpageIds = new ArrayList<String>();
-    	for (LandpageDataBean bean : beans) {
-    		if (landpageIds.contains(bean.getId())) {
-    			landpageIds.add(bean.getId());	
+    	//将所有不重复的creaticeId放入List————根据List就知道最后条数
+    	List<String> creativeIds = new ArrayList<String>();
+    	for (CreativeDataBean bean : beans) {
+    		if (creativeIds.contains(bean.getId())) {
+    			creativeIds.add(bean.getId());	
     		}
     	}
     	//创建一个新的List存放结果用
-    	List<LandpageDataBean> newBeans = new ArrayList<LandpageDataBean>();
+    	List<CreativeDataBean> newBeans = new ArrayList<CreativeDataBean>();
     	if (beans !=null && !beans.isEmpty()) {
-			for (LandpageDataBean bean : beans) {
+			for (CreativeDataBean bean : beans) {
 				//如果list里没有CreativeId，先添加进去
 				if(indexOfBean(newBeans, bean.getId()) == null){
 					newBeans.add(bean);
 				} else {
-					//如果有，就将相同landpageId的数据合并成一条
+					//如果有，就将相同creativeId的数据合并成一条
 					int index = indexOfBean(newBeans, bean.getId());
-					LandpageDataBean dataBean = newBeans.get(index);
+					CreativeDataBean dataBean = newBeans.get(index);
+					dataBean.setWinAmount(dataBean.getWinAmount() + bean.getWinAmount());
+					dataBean.setImpressionAmount(dataBean.getImpressionAmount() + bean.getImpressionAmount());
+					dataBean.setClickAmount(dataBean.getClickAmount() + bean.getClickAmount());
 					dataBean.setArrivalAmount(dataBean.getArrivalAmount() + bean.getArrivalAmount());
 					dataBean.setUniqueAmount(dataBean.getUniqueAmount() + bean.getUniqueAmount());
-					
-					if (dataBean.getArrivalAmount() == 0) {
-						dataBean.setJumpRate(0F);
-					} else {
-				        double percent = (double)dataBean.getJumpAmount() / dataBean.getArrivalAmount();
-				        Float result = Float.parseFloat(format.format(percent));
-				        dataBean.setJumpRate(result);
-					}
 				}
 			}
     	}
@@ -354,7 +341,7 @@ public class LandpageDataService extends BaseService
      * @param id
      * @return
      */
-	private Integer indexOfBean(List<LandpageDataBean> newBeans, String id) {
+	private Integer indexOfBean(List<CreativeDataBean> newBeans, String id) {
     	Integer index = null;
     	for (int i=0;i<newBeans.size();i++) {
     		if (id.equals(newBeans.get(i).getId())) {

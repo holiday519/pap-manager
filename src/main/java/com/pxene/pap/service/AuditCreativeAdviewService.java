@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -27,7 +28,7 @@ import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
-import com.pxene.pap.domain.models.CampaignCreativeModel;
+import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
@@ -45,7 +46,7 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
-import com.pxene.pap.repository.basic.CampaignCreativeDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.ImageDao;
@@ -60,7 +61,7 @@ import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
 import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
-
+@Service
 public class AuditCreativeAdviewService {
 
 	@Autowired
@@ -97,7 +98,7 @@ public class AuditCreativeAdviewService {
 	private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
 	
 	@Autowired
-	private CampaignCreativeDao campaignCreativeDao;
+	private CreativeDao creativeDao;
 	
 	@Autowired
 	private CreativeImageDao creativeImageDao;
@@ -133,7 +134,7 @@ public class AuditCreativeAdviewService {
 	public void audit(String creativeId) throws Exception {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_ADVIEW_VALUE);
 		String cexamineurl = adxModel.getCexamineUrl();
-		CampaignCreativeModel mapModel = campaignCreativeDao.selectByPrimaryKey(creativeId);
+		CreativeModel mapModel = creativeDao.selectByPrimaryKey(creativeId);
 		if (mapModel == null) {
 			throw new ResourceNotFoundException();
 		}
@@ -200,9 +201,9 @@ public class AuditCreativeAdviewService {
 //		origs.addProperty("originalityName", bean.getName());
 		origs.addProperty("clickURL", landpageModel.getUrl());
 		//广告位类型adType: 0 –横幅(条) 1 –插屏 4 –开屏
-		String type = mapModel.getCreativeType();
+		String type = mapModel.getType();
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-			String imageId = mapModel.getCreativeId();
+			String imageId = mapModel.getMaterialId();
 			ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
 			String sizeId = imageModel.getSizeId();
 			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
@@ -227,7 +228,7 @@ public class AuditCreativeAdviewService {
 //			origs.addProperty("adtype", adType);//--------------------需要图片广告位类型
 			
 		} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
-			String videoId = mapModel.getCreativeId();
+			String videoId = mapModel.getMaterialId();
 			VideoModel videoModel = videoDao.selectByPrimaryKey(videoId);
 			String sizeId = videoModel.getSizeId();
 			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
@@ -238,7 +239,7 @@ public class AuditCreativeAdviewService {
 			origs.addProperty("type", 3);
 			
 		} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
-			String infoId= mapModel.getCreativeId();
+			String infoId= mapModel.getMaterialId();
 			InfoflowModel infoflowModel = InfoflowDao.selectByPrimaryKey(infoId);
 			//原生图片信息
 			JsonArray nativePic = new JsonArray();
@@ -447,7 +448,7 @@ public class AuditCreativeAdviewService {
 	 */
 	public Long getAdvAuditValueByMapId (String mapId) throws Exception {
 		//查询活动ID
-		CampaignCreativeModel campaignCreativeModel = campaignCreativeDao.selectByPrimaryKey(mapId);
+		CreativeModel campaignCreativeModel = creativeDao.selectByPrimaryKey(mapId);
 		String campaignId = campaignCreativeModel.getCampaignId();
 		//查询项目ID
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
@@ -480,7 +481,7 @@ public class AuditCreativeAdviewService {
 	 */
 	public AdvertiserModel getAdvertiserByMapId (String mapId) throws Exception {
 		//查询活动ID
-		CampaignCreativeModel campaignCreativeModel = campaignCreativeDao.selectByPrimaryKey(mapId);
+		CreativeModel campaignCreativeModel = creativeDao.selectByPrimaryKey(mapId);
 		String campaignId = campaignCreativeModel.getCampaignId();
 		//查询项目ID
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);

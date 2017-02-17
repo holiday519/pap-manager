@@ -34,7 +34,7 @@ public class AppDataService extends BaseService
     private AppDao appDao;
     
     /**
-     * 查询app小时数据（包括分key）
+     * 查询app小时数据（包括分key）------暂时不调用
      * @param campaignId
      * @param beginTime
      * @param endTime

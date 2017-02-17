@@ -162,19 +162,16 @@ public class CreativeController {
      * @return
      * @throws Exception
      */
-//	@RequestMapping(value = "/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-//	@ResponseBody
-//	public String selectCreatives(@RequestParam(required = false) String campaignId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
-//		Page<Object> pager = null;
-//		if (pageNo != null && pageSize != null) {
-//			pager = PageHelper.startPage(pageNo, pageSize);
-//		}
-//        
-//		List<Map<String, Object>> creatives = creativeService.selectCreatives(campaignId);
-//		
-//		PaginationBean result = new PaginationBean(creatives, pager);
-//		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-//	}
+	@RequestMapping(value = "/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String selectCreatives(@RequestParam(required = false) String campaignId, @RequestParam(required = false) Long beginTime, @RequestParam(required = false) Long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+		Page<Object> pager = null;
+		        
+		List<MaterialListBean> creatives = creativeService.selectCreativeMaterials(campaignId, beginTime, endTime);
+		
+		PaginationBean result = new PaginationBean(creatives, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+	}
 	
 	/**
 	 * 列出所有素材
@@ -187,14 +184,14 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creative/materials", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public String selectMaterials(@RequestParam(required = true) String campaignId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
-		Page<Object> pager = null;
-		
-		List<MaterialListBean> creatives = creativeService.selectCreativeMaterials(campaignId);
-		
-		PaginationBean result = new PaginationBean(creatives, pager);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-	}
+//	@RequestMapping(value = "/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public String selectMaterials(@RequestParam(required = true) String campaignId, @RequestParam(required = false) long beginTime, @RequestParam(required = false) long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+//		Page<Object> pager = null;
+//		
+//		List<MaterialListBean> creatives = creativeService.selectCreativeMaterials(campaignId, beginTime, endTime);
+//		
+//		PaginationBean result = new PaginationBean(creatives, pager);
+//		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+//	}
 }

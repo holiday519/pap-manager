@@ -37,7 +37,7 @@ public class RegionDataService extends BaseService
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
     /**
-     * 查询地域小时数据（包括分key）
+     * 查询地域小时数据（包括分key）------暂时不调用
      * @param campaignId
      * @param beginTime
      * @param endTime

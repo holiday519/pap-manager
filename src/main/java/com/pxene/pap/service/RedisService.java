@@ -23,8 +23,8 @@ import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.CampaignCreativeModel;
-import com.pxene.pap.domain.models.CampaignCreativeModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
@@ -43,7 +43,7 @@ import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
-import com.pxene.pap.repository.basic.CampaignCreativeDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.ProjectDao;
@@ -77,7 +77,7 @@ public class RedisService {
 	private ProjectDao projectDao;
 	
 	@Autowired
-	private CampaignCreativeDao campaignCreativeDao;
+	private CreativeDao creativeDao;
 	
 	@Autowired
 	private CreativeImageDao creativeImageDao;
@@ -145,9 +145,9 @@ public class RedisService {
 	 */
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
 		// 查询活动下创意
-		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
+		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CampaignCreativeModel> creatives = campaignCreativeDao.selectByExample(creativeExample);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		// 创意id数组
 		List<String> creativeIds = new ArrayList<String>();
 		//如果活动下无可投创意
@@ -155,20 +155,20 @@ public class RedisService {
 			return;
 		}
 		// 将查询出来的创意id放入创意id数组
-		for (CampaignCreativeModel creative : creatives) {
+		for (CreativeModel creative : creatives) {
 			creativeIds.add(creative.getId());
 		}
 		// 根据创意id数组查询创意所对应的关联关系表数据
 		if (!creativeIds.isEmpty()) {
-			CampaignCreativeModelExample mapExample = new CampaignCreativeModelExample();
+			CreativeModelExample mapExample = new CreativeModelExample();
 			mapExample.createCriteria().andIdIn(creativeIds);
-			List<CampaignCreativeModel> mapModels = campaignCreativeDao.selectByExample(mapExample);
+			List<CreativeModel> mapModels = creativeDao.selectByExample(mapExample);
 			if (mapModels != null && !mapModels.isEmpty()) {
-				for (CampaignCreativeModel mapModel : mapModels) {
+				for (CreativeModel mapModel : mapModels) {
 					String mapId = mapModel.getId();
 					//审核通过的创意才可以投放
 					if (getAuditSuccessMapId(mapId)) {
-						String creativeType = mapModel.getCreativeType();
+						String creativeType = mapModel.getType();
 						// 图片创意
 						if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 							writeImgCreativeInfoToRedis(mapId, campaignId);
@@ -623,14 +623,14 @@ public class RedisService {
 	 */
 	public void writeMapidToRedis(String campaignId) throws Exception {
 		//查询活动下创意
-		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
+		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CampaignCreativeModel> creatives = campaignCreativeDao.selectByExample(creativeExample);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		JsonArray mapidJson = new JsonArray();
 		JsonObject mapidObject = new JsonObject();
 		if (creatives != null && !creatives.isEmpty()) {
 			// 查询创意对应的关联关系mapid
-			for (CampaignCreativeModel creative : creatives) {
+			for (CreativeModel creative : creatives) {
 				String creativeId = creative.getId();
 				//审核通过的创意才可以投放
 				if (getAuditSuccessMapId(creativeId)) {
@@ -805,7 +805,7 @@ public class RedisService {
 //		CampaignTmplPriceModel campaignTmplPriceModel = list.get(0);
 //		BigDecimal price = campaignTmplPriceModel.getPrice();
 		
-		CampaignCreativeModel model = campaignCreativeDao.selectByPrimaryKey(mapId);
+		CreativeModel model = creativeDao.selectByPrimaryKey(mapId);
 		BigDecimal price = model.getPrice();
 		
 		
@@ -904,10 +904,10 @@ public class RedisService {
 //				}
 //			}
 //		}
-		CampaignCreativeModelExample example = new CampaignCreativeModelExample();
+		CreativeModelExample example = new CreativeModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CampaignCreativeModel> list = campaignCreativeDao.selectByExample(example);
-		for (CampaignCreativeModel mapModel : list) {
+		List<CreativeModel> list = creativeDao.selectByExample(example);
+		for (CreativeModel mapModel : list) {
 			String mapId = mapModel.getId();
 			String str = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapId);
 			if (!StringUtils.isEmpty(str)) {

@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class CampaignCreativeModelExample {
+public class CreativeModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public CampaignCreativeModelExample() {
+    public CreativeModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -176,6 +176,76 @@ public class CampaignCreativeModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andNameIsNull() {
+            addCriterion("name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameIsNotNull() {
+            addCriterion("name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameEqualTo(String value) {
+            addCriterion("name =", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotEqualTo(String value) {
+            addCriterion("name <>", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameGreaterThan(String value) {
+            addCriterion("name >", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameGreaterThanOrEqualTo(String value) {
+            addCriterion("name >=", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameLessThan(String value) {
+            addCriterion("name <", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameLessThanOrEqualTo(String value) {
+            addCriterion("name <=", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameLike(String value) {
+            addCriterion("name like", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotLike(String value) {
+            addCriterion("name not like", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameIn(List<String> values) {
+            addCriterion("name in", values, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotIn(List<String> values) {
+            addCriterion("name not in", values, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameBetween(String value1, String value2) {
+            addCriterion("name between", value1, value2, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotBetween(String value1, String value2) {
+            addCriterion("name not between", value1, value2, "name");
+            return (Criteria) this;
+        }
+
         public Criteria andCampaignIdIsNull() {
             addCriterion("campaign_id is null");
             return (Criteria) this;
@@ -246,73 +316,73 @@ public class CampaignCreativeModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIsNull() {
-            addCriterion("creative_id is null");
+        public Criteria andMaterialIdIsNull() {
+            addCriterion("material_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIsNotNull() {
-            addCriterion("creative_id is not null");
+        public Criteria andMaterialIdIsNotNull() {
+            addCriterion("material_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdEqualTo(String value) {
-            addCriterion("creative_id =", value, "creativeId");
+        public Criteria andMaterialIdEqualTo(String value) {
+            addCriterion("material_id =", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotEqualTo(String value) {
-            addCriterion("creative_id <>", value, "creativeId");
+        public Criteria andMaterialIdNotEqualTo(String value) {
+            addCriterion("material_id <>", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdGreaterThan(String value) {
-            addCriterion("creative_id >", value, "creativeId");
+        public Criteria andMaterialIdGreaterThan(String value) {
+            addCriterion("material_id >", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdGreaterThanOrEqualTo(String value) {
-            addCriterion("creative_id >=", value, "creativeId");
+        public Criteria andMaterialIdGreaterThanOrEqualTo(String value) {
+            addCriterion("material_id >=", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLessThan(String value) {
-            addCriterion("creative_id <", value, "creativeId");
+        public Criteria andMaterialIdLessThan(String value) {
+            addCriterion("material_id <", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLessThanOrEqualTo(String value) {
-            addCriterion("creative_id <=", value, "creativeId");
+        public Criteria andMaterialIdLessThanOrEqualTo(String value) {
+            addCriterion("material_id <=", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdLike(String value) {
-            addCriterion("creative_id like", value, "creativeId");
+        public Criteria andMaterialIdLike(String value) {
+            addCriterion("material_id like", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotLike(String value) {
-            addCriterion("creative_id not like", value, "creativeId");
+        public Criteria andMaterialIdNotLike(String value) {
+            addCriterion("material_id not like", value, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdIn(List<String> values) {
-            addCriterion("creative_id in", values, "creativeId");
+        public Criteria andMaterialIdIn(List<String> values) {
+            addCriterion("material_id in", values, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotIn(List<String> values) {
-            addCriterion("creative_id not in", values, "creativeId");
+        public Criteria andMaterialIdNotIn(List<String> values) {
+            addCriterion("material_id not in", values, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdBetween(String value1, String value2) {
-            addCriterion("creative_id between", value1, value2, "creativeId");
+        public Criteria andMaterialIdBetween(String value1, String value2) {
+            addCriterion("material_id between", value1, value2, "materialId");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeIdNotBetween(String value1, String value2) {
-            addCriterion("creative_id not between", value1, value2, "creativeId");
+        public Criteria andMaterialIdNotBetween(String value1, String value2) {
+            addCriterion("material_id not between", value1, value2, "materialId");
             return (Criteria) this;
         }
 
@@ -386,73 +456,73 @@ public class CampaignCreativeModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeIsNull() {
-            addCriterion("creative_type is null");
+        public Criteria andTypeIsNull() {
+            addCriterion("type is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeIsNotNull() {
-            addCriterion("creative_type is not null");
+        public Criteria andTypeIsNotNull() {
+            addCriterion("type is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeEqualTo(String value) {
-            addCriterion("creative_type =", value, "creativeType");
+        public Criteria andTypeEqualTo(String value) {
+            addCriterion("type =", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeNotEqualTo(String value) {
-            addCriterion("creative_type <>", value, "creativeType");
+        public Criteria andTypeNotEqualTo(String value) {
+            addCriterion("type <>", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeGreaterThan(String value) {
-            addCriterion("creative_type >", value, "creativeType");
+        public Criteria andTypeGreaterThan(String value) {
+            addCriterion("type >", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeGreaterThanOrEqualTo(String value) {
-            addCriterion("creative_type >=", value, "creativeType");
+        public Criteria andTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("type >=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeLessThan(String value) {
-            addCriterion("creative_type <", value, "creativeType");
+        public Criteria andTypeLessThan(String value) {
+            addCriterion("type <", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeLessThanOrEqualTo(String value) {
-            addCriterion("creative_type <=", value, "creativeType");
+        public Criteria andTypeLessThanOrEqualTo(String value) {
+            addCriterion("type <=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeLike(String value) {
-            addCriterion("creative_type like", value, "creativeType");
+        public Criteria andTypeLike(String value) {
+            addCriterion("type like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeNotLike(String value) {
-            addCriterion("creative_type not like", value, "creativeType");
+        public Criteria andTypeNotLike(String value) {
+            addCriterion("type not like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeIn(List<String> values) {
-            addCriterion("creative_type in", values, "creativeType");
+        public Criteria andTypeIn(List<String> values) {
+            addCriterion("type in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeNotIn(List<String> values) {
-            addCriterion("creative_type not in", values, "creativeType");
+        public Criteria andTypeNotIn(List<String> values) {
+            addCriterion("type not in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeBetween(String value1, String value2) {
-            addCriterion("creative_type between", value1, value2, "creativeType");
+        public Criteria andTypeBetween(String value1, String value2) {
+            addCriterion("type between", value1, value2, "type");
             return (Criteria) this;
         }
 
-        public Criteria andCreativeTypeNotBetween(String value1, String value2) {
-            addCriterion("creative_type not between", value1, value2, "creativeType");
+        public Criteria andTypeNotBetween(String value1, String value2) {
+            addCriterion("type not between", value1, value2, "type");
             return (Criteria) this;
         }
 

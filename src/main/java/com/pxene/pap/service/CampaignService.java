@@ -1,6 +1,5 @@
 package com.pxene.pap.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,12 +12,9 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.MethodParameter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -34,10 +30,10 @@ import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.BrandTargetModel;
 import com.pxene.pap.domain.models.BrandTargetModelExample;
-import com.pxene.pap.domain.models.CampaignCreativeModel;
-import com.pxene.pap.domain.models.CampaignCreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.DeviceTargetModel;
 import com.pxene.pap.domain.models.DeviceTargetModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
@@ -63,8 +59,8 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
-import com.pxene.pap.repository.basic.CampaignCreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
 import com.pxene.pap.repository.basic.LandpageDao;
@@ -92,7 +88,7 @@ public class CampaignService extends LaunchService{
 	private CreativeService creativeService; 
 	
 	@Autowired
-	private CampaignCreativeDao campaignCreativeDao; 
+	private CreativeDao creativeDao; 
 	
 	@Autowired
 	private MonitorDao monitorDao;
@@ -506,9 +502,9 @@ public class CampaignService extends LaunchService{
 		}
 		
 		//先查询出活动下创意
-		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
+		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CampaignCreativeModel> list = campaignCreativeDao.selectByExample(creativeExample);
+		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
 			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 		}
@@ -542,9 +538,9 @@ public class CampaignService extends LaunchService{
 		
 		for (String campaignId : campaignIds) {
 			//先查询出活动下创意
-			CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
+			CreativeModelExample creativeExample = new CreativeModelExample();
 			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-			List<CampaignCreativeModel> list = campaignCreativeDao.selectByExample(creativeExample);
+			List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 			if (list != null && !list.isEmpty()) {
 				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 			}
@@ -724,9 +720,9 @@ public class CampaignService extends LaunchService{
 			return false;
 		}
 		// 检查是否有创意
-		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
+		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CampaignCreativeModel> creatives = campaignCreativeDao.selectByExample(creativeExample);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		if (creatives == null) {
 			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 			return false;
