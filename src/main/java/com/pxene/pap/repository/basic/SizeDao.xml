@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.basic.CreativeRuleDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CreativeRuleModel">
+<mapper namespace="com.pxene.pap.repository.basic.SizeDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.SizeModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="history_data" jdbcType="VARCHAR" property="historyData" />
-    <result column="exec_cycle" jdbcType="VARCHAR" property="execCycle" />
-    <result column="promote" jdbcType="REAL" property="promote" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
-    <result column="updatetime" jdbcType="TIMESTAMP" property="updatetime" />
+    <result column="width" jdbcType="INTEGER" property="width" />
+    <result column="height" jdbcType="INTEGER" property="height" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,16 +69,16 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, history_data, exec_cycle, promote, status, createtime, updatetime
+    id, name, width, height, remark, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CreativeRuleModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.SizeModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_creativerule
+    from pap_t_size
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -90,29 +89,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from pap_t_creativerule
+    from pap_t_size
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from pap_t_creativerule
+    delete from pap_t_size
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CreativeRuleModelExample">
-    delete from pap_t_creativerule
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.SizeModelExample">
+    delete from pap_t_size
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.models.CreativeRuleModel">
-    insert into pap_t_creativerule (id, name, history_data, 
-      exec_cycle, promote, status, 
-      createtime, updatetime)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{historyData,jdbcType=VARCHAR}, 
-      #{execCycle,jdbcType=VARCHAR}, #{promote,jdbcType=REAL}, #{status,jdbcType=VARCHAR}, 
-      #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP})
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.SizeModel">
+    insert into pap_t_size (id, name, width, 
+      height, remark, create_time, 
+      update_time)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{width,jdbcType=INTEGER}, 
+      #{height,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CreativeRuleModel">
-    insert into pap_t_creativerule
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.SizeModel">
+    insert into pap_t_size
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -120,23 +119,20 @@
       <if test="name != null">
         name,
       </if>
-      <if test="historyData != null">
-        history_data,
+      <if test="width != null">
+        width,
       </if>
-      <if test="execCycle != null">
-        exec_cycle,
+      <if test="height != null">
+        height,
       </if>
-      <if test="promote != null">
-        promote,
+      <if test="remark != null">
+        remark,
       </if>
-      <if test="status != null">
-        status,
+      <if test="createTime != null">
+        create_time,
       </if>
-      <if test="createtime != null">
-        createtime,
-      </if>
-      <if test="updatetime != null">
-        updatetime,
+      <if test="updateTime != null">
+        update_time,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,34 +142,31 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="historyData != null">
-        #{historyData,jdbcType=VARCHAR},
+      <if test="width != null">
+        #{width,jdbcType=INTEGER},
       </if>
-      <if test="execCycle != null">
-        #{execCycle,jdbcType=VARCHAR},
+      <if test="height != null">
+        #{height,jdbcType=INTEGER},
       </if>
-      <if test="promote != null">
-        #{promote,jdbcType=REAL},
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createtime != null">
-        #{createtime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updatetime != null">
-        #{updatetime,jdbcType=TIMESTAMP},
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CreativeRuleModelExample" resultType="java.lang.Long">
-    select count(*) from pap_t_creativerule
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.SizeModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_size
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update pap_t_creativerule
+    update pap_t_size
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -181,23 +174,20 @@
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.historyData != null">
-        history_data = #{record.historyData,jdbcType=VARCHAR},
+      <if test="record.width != null">
+        width = #{record.width,jdbcType=INTEGER},
       </if>
-      <if test="record.execCycle != null">
-        exec_cycle = #{record.execCycle,jdbcType=VARCHAR},
+      <if test="record.height != null">
+        height = #{record.height,jdbcType=INTEGER},
       </if>
-      <if test="record.promote != null">
-        promote = #{record.promote,jdbcType=REAL},
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        status = #{record.status,jdbcType=VARCHAR},
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="record.createtime != null">
-        createtime = #{record.createtime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.updatetime != null">
-        updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -205,55 +195,50 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update pap_t_creativerule
+    update pap_t_size
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      history_data = #{record.historyData,jdbcType=VARCHAR},
-      exec_cycle = #{record.execCycle,jdbcType=VARCHAR},
-      promote = #{record.promote,jdbcType=REAL},
-      status = #{record.status,jdbcType=VARCHAR},
-      createtime = #{record.createtime,jdbcType=TIMESTAMP},
-      updatetime = #{record.updatetime,jdbcType=TIMESTAMP}
+      width = #{record.width,jdbcType=INTEGER},
+      height = #{record.height,jdbcType=INTEGER},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.CreativeRuleModel">
-    update pap_t_creativerule
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.SizeModel">
+    update pap_t_size
     <set>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="historyData != null">
-        history_data = #{historyData,jdbcType=VARCHAR},
+      <if test="width != null">
+        width = #{width,jdbcType=INTEGER},
       </if>
-      <if test="execCycle != null">
-        exec_cycle = #{execCycle,jdbcType=VARCHAR},
+      <if test="height != null">
+        height = #{height,jdbcType=INTEGER},
       </if>
-      <if test="promote != null">
-        promote = #{promote,jdbcType=REAL},
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
       </if>
-      <if test="status != null">
-        status = #{status,jdbcType=VARCHAR},
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createtime != null">
-        createtime = #{createtime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updatetime != null">
-        updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.CreativeRuleModel">
-    update pap_t_creativerule
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.SizeModel">
+    update pap_t_size
     set name = #{name,jdbcType=VARCHAR},
-      history_data = #{historyData,jdbcType=VARCHAR},
-      exec_cycle = #{execCycle,jdbcType=VARCHAR},
-      promote = #{promote,jdbcType=REAL},
-      status = #{status,jdbcType=VARCHAR},
-      createtime = #{createtime,jdbcType=TIMESTAMP},
-      updatetime = #{updatetime,jdbcType=TIMESTAMP}
+      width = #{width,jdbcType=INTEGER},
+      height = #{height,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

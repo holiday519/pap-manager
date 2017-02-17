@@ -2,9 +2,7 @@ package com.pxene.pap.repository.basic;
 
 import com.pxene.pap.domain.models.IndustryKpiModel;
 import com.pxene.pap.domain.models.IndustryKpiModelExample;
-
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface IndustryKpiDao {

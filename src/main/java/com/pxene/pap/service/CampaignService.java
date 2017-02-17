@@ -38,9 +38,6 @@ import com.pxene.pap.domain.models.CampaignCreativeModel;
 import com.pxene.pap.domain.models.CampaignCreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
-import com.pxene.pap.domain.models.CampaignTmplPriceModel;
-import com.pxene.pap.domain.models.CampaignTmplPriceModelExample;
-import com.pxene.pap.domain.models.CampaignTmplPriceModelExample.Criteria;
 import com.pxene.pap.domain.models.DeviceTargetModel;
 import com.pxene.pap.domain.models.DeviceTargetModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
@@ -68,7 +65,6 @@ import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignCreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
 import com.pxene.pap.repository.basic.LandpageDao;
@@ -133,9 +129,6 @@ public class CampaignService extends LaunchService{
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
-	
-	@Autowired
-	private CampaignTmplPriceDao campaignTmplPriceDao;
 	
 	@Autowired
 	private LandpageDao LandpageDao;
@@ -738,13 +731,6 @@ public class CampaignService extends LaunchService{
 			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 			return false;
 		}
-		// 检查是否有模版价格
-		CampaignTmplPriceModelExample ctpExample = new CampaignTmplPriceModelExample();
-		Criteria ctps = ctpExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		if (ctps == null) {
-			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_TMPL_PRICE);
-			return false;
-		}
 		
 		return true;
 	}
@@ -776,37 +762,6 @@ public class CampaignService extends LaunchService{
 				campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 				campaignDao.updateByPrimaryKeySelective(campaignModel);
 			}
-		}
-	}
-	
-	/**
-	 * 添加 活动——模版 价格
-	 * @param beans
-	 * @throws Exception
-	 */
-	@Transactional
-	public void addCampaignTmplPrice(Map<String, Map<String, String>[]> param) throws Exception {
-		
-		Map<String, String>[] maps = param.get("params");
-		
-		if (maps == null || maps.length < 1) {
-			throw new IllegalArgumentException();
-		}
-		for (Map<String, String> map : maps) {
-			CampaignTmplPriceModel ctmModel = new CampaignTmplPriceModel();
-			String campaignId = map.get("campaignId");
-			String tmplId = map.get("tmplId");
-			String creativeType = map.get("creativeType");
-			String price = map.get("price");
-
-			ctmModel.setId(UUID.randomUUID().toString());
-			ctmModel.setCampaignId(campaignId);
-			ctmModel.setTmplId(tmplId);
-			ctmModel.setCreativeType(creativeType);
-			if (!StringUtils.isEmpty(price)) {
-				ctmModel.setPrice(new BigDecimal(price));
-			}
-			campaignTmplPriceDao.insert(ctmModel);
 		}
 	}
 	

@@ -2,9 +2,7 @@ package com.pxene.pap.repository.basic;
 
 import com.pxene.pap.domain.models.NetworkTargetModel;
 import com.pxene.pap.domain.models.NetworkTargetModelExample;
-
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface NetworkTargetDao {

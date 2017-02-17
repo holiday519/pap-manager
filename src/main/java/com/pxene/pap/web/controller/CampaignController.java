@@ -180,19 +180,4 @@ public class CampaignController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
-	/**
-	 * 添加活动模版价格
-	 * @param campaignId
-	 * @param tmplIds
-	 * @param creativeTypes
-	 * @param prices
-	 * @param response
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/campaign/addTmplPrice", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public void addCampaignTmplPrice(@RequestBody Map<String, Map<String, String>[]> param, HttpServletResponse response) throws Exception {
-		campaignService.addCampaignTmplPrice(param);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}
 }

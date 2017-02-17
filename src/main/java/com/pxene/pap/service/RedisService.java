@@ -45,7 +45,6 @@ import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.CampaignCreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
@@ -107,9 +106,6 @@ public class RedisService {
 	@Autowired
 	private CreativeAuditDao creativeAuditDao;
 
-	@Autowired
-	private CampaignTmplPriceDao campaignTmplPriceDao; 
-	
 	/**
 	 * 将活动ID 写入redis
 	 * @param campaignId

@@ -2,9 +2,7 @@ package com.pxene.pap.repository.basic;
 
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
-
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface AdTypeTargetDao {

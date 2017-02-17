@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.basic.CampaignRuleDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CampaignRuleModel">
+<mapper namespace="com.pxene.pap.repository.basic.QuantityDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.QuantityModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
-    <result column="rule_id" jdbcType="VARCHAR" property="ruleId" />
-    <result column="rule_type" jdbcType="VARCHAR" property="ruleType" />
-    <result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
-    <result column="updatetime" jdbcType="TIMESTAMP" property="updatetime" />
+    <result column="start_date" jdbcType="DATE" property="startDate" />
+    <result column="end_date" jdbcType="DATE" property="endDate" />
+    <result column="daily_budget" jdbcType="INTEGER" property="dailyBudget" />
+    <result column="daily_impression" jdbcType="INTEGER" property="dailyImpression" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,16 +70,17 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, campaign_id, rule_id, rule_type, createtime, updatetime
+    id, campaign_id, start_date, end_date, daily_budget, daily_impression, create_time, 
+    update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CampaignRuleModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.QuantityModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_campaign_rule
+    from pap_t_quantity
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,29 +91,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from pap_t_campaign_rule
+    from pap_t_quantity
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from pap_t_campaign_rule
+    delete from pap_t_quantity
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CampaignRuleModelExample">
-    delete from pap_t_campaign_rule
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.QuantityModelExample">
+    delete from pap_t_quantity
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.models.CampaignRuleModel">
-    insert into pap_t_campaign_rule (id, campaign_id, rule_id, 
-      rule_type, createtime, updatetime
-      )
-    values (#{id,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, #{ruleId,jdbcType=VARCHAR}, 
-      #{ruleType,jdbcType=VARCHAR}, #{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}
-      )
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.QuantityModel">
+    insert into pap_t_quantity (id, campaign_id, start_date, 
+      end_date, daily_budget, daily_impression, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, #{startDate,jdbcType=DATE}, 
+      #{endDate,jdbcType=DATE}, #{dailyBudget,jdbcType=INTEGER}, #{dailyImpression,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CampaignRuleModel">
-    insert into pap_t_campaign_rule
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.QuantityModel">
+    insert into pap_t_quantity
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -118,17 +121,23 @@
       <if test="campaignId != null">
         campaign_id,
       </if>
-      <if test="ruleId != null">
-        rule_id,
+      <if test="startDate != null">
+        start_date,
       </if>
-      <if test="ruleType != null">
-        rule_type,
+      <if test="endDate != null">
+        end_date,
       </if>
-      <if test="createtime != null">
-        createtime,
+      <if test="dailyBudget != null">
+        daily_budget,
       </if>
-      <if test="updatetime != null">
-        updatetime,
+      <if test="dailyImpression != null">
+        daily_impression,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -138,28 +147,34 @@
       <if test="campaignId != null">
         #{campaignId,jdbcType=VARCHAR},
       </if>
-      <if test="ruleId != null">
-        #{ruleId,jdbcType=VARCHAR},
+      <if test="startDate != null">
+        #{startDate,jdbcType=DATE},
       </if>
-      <if test="ruleType != null">
-        #{ruleType,jdbcType=VARCHAR},
+      <if test="endDate != null">
+        #{endDate,jdbcType=DATE},
       </if>
-      <if test="createtime != null">
-        #{createtime,jdbcType=TIMESTAMP},
+      <if test="dailyBudget != null">
+        #{dailyBudget,jdbcType=INTEGER},
       </if>
-      <if test="updatetime != null">
-        #{updatetime,jdbcType=TIMESTAMP},
+      <if test="dailyImpression != null">
+        #{dailyImpression,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CampaignRuleModelExample" resultType="java.lang.Long">
-    select count(*) from pap_t_campaign_rule
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.QuantityModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_quantity
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update pap_t_campaign_rule
+    update pap_t_quantity
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -167,17 +182,23 @@
       <if test="record.campaignId != null">
         campaign_id = #{record.campaignId,jdbcType=VARCHAR},
       </if>
-      <if test="record.ruleId != null">
-        rule_id = #{record.ruleId,jdbcType=VARCHAR},
+      <if test="record.startDate != null">
+        start_date = #{record.startDate,jdbcType=DATE},
       </if>
-      <if test="record.ruleType != null">
-        rule_type = #{record.ruleType,jdbcType=VARCHAR},
+      <if test="record.endDate != null">
+        end_date = #{record.endDate,jdbcType=DATE},
       </if>
-      <if test="record.createtime != null">
-        createtime = #{record.createtime,jdbcType=TIMESTAMP},
+      <if test="record.dailyBudget != null">
+        daily_budget = #{record.dailyBudget,jdbcType=INTEGER},
       </if>
-      <if test="record.updatetime != null">
-        updatetime = #{record.updatetime,jdbcType=TIMESTAMP},
+      <if test="record.dailyImpression != null">
+        daily_impression = #{record.dailyImpression,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -185,45 +206,55 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update pap_t_campaign_rule
+    update pap_t_quantity
     set id = #{record.id,jdbcType=VARCHAR},
       campaign_id = #{record.campaignId,jdbcType=VARCHAR},
-      rule_id = #{record.ruleId,jdbcType=VARCHAR},
-      rule_type = #{record.ruleType,jdbcType=VARCHAR},
-      createtime = #{record.createtime,jdbcType=TIMESTAMP},
-      updatetime = #{record.updatetime,jdbcType=TIMESTAMP}
+      start_date = #{record.startDate,jdbcType=DATE},
+      end_date = #{record.endDate,jdbcType=DATE},
+      daily_budget = #{record.dailyBudget,jdbcType=INTEGER},
+      daily_impression = #{record.dailyImpression,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.CampaignRuleModel">
-    update pap_t_campaign_rule
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.QuantityModel">
+    update pap_t_quantity
     <set>
       <if test="campaignId != null">
         campaign_id = #{campaignId,jdbcType=VARCHAR},
       </if>
-      <if test="ruleId != null">
-        rule_id = #{ruleId,jdbcType=VARCHAR},
+      <if test="startDate != null">
+        start_date = #{startDate,jdbcType=DATE},
       </if>
-      <if test="ruleType != null">
-        rule_type = #{ruleType,jdbcType=VARCHAR},
+      <if test="endDate != null">
+        end_date = #{endDate,jdbcType=DATE},
       </if>
-      <if test="createtime != null">
-        createtime = #{createtime,jdbcType=TIMESTAMP},
+      <if test="dailyBudget != null">
+        daily_budget = #{dailyBudget,jdbcType=INTEGER},
       </if>
-      <if test="updatetime != null">
-        updatetime = #{updatetime,jdbcType=TIMESTAMP},
+      <if test="dailyImpression != null">
+        daily_impression = #{dailyImpression,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.CampaignRuleModel">
-    update pap_t_campaign_rule
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.QuantityModel">
+    update pap_t_quantity
     set campaign_id = #{campaignId,jdbcType=VARCHAR},
-      rule_id = #{ruleId,jdbcType=VARCHAR},
-      rule_type = #{ruleType,jdbcType=VARCHAR},
-      createtime = #{createtime,jdbcType=TIMESTAMP},
-      updatetime = #{updatetime,jdbcType=TIMESTAMP}
+      start_date = #{startDate,jdbcType=DATE},
+      end_date = #{endDate,jdbcType=DATE},
+      daily_budget = #{dailyBudget,jdbcType=INTEGER},
+      daily_impression = #{dailyImpression,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
