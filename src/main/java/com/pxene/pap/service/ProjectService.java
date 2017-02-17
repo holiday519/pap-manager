@@ -56,6 +56,18 @@ public class ProjectService extends LaunchService {
 	@Transactional
 	public void createProject(ProjectBean bean) throws Exception{
 		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
+		
+		if (bean != null && model != null && !StringUtils.isEmpty(bean.getName()))
+		{
+		    ProjectModelExample modelExample = new ProjectModelExample();
+		    modelExample.createCriteria().andNameEqualTo(bean.getName());
+		    List<ProjectModel> selectResult = projectDao.selectByExample(modelExample);
+		    if (selectResult != null && !selectResult.isEmpty())
+		    {
+		        throw new IllegalArgumentException("项目名称已存在");
+		    }
+		}
+		
 		String id = UUID.randomUUID().toString();
 		model.setId(id);
 		try {

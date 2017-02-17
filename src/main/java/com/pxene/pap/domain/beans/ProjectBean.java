@@ -45,13 +45,13 @@ public class ProjectBean {
 	 * KPI指标id
 	 */
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI)
+	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
 	private String kpiId;
 	
 	/**
 	 * KPI指标value
 	 */
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI_VALUE)
-	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
 	private Integer kpiVal;
 	
 	public Integer getKpiVal() {

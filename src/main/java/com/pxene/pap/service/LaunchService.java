@@ -84,7 +84,7 @@ public class LaunchService extends BaseService{
 		String currentHour = DateUtils.getCurrentHour();//当前小时
 		String currentDay = DateUtils.getCurrentDay();//当前时间
 		String currentData = DateUtils.getCurrentData();//当前日期
-		LOGGER.info(currentData + " " + currentHour + ":00:00 定时器开始执行—————In PutOnService");
+		LOGGER.info(currentData + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
 		//查询当前时间对应的时间ID
 		TimeModelExample timeExample = new TimeModelExample();
 		timeExample.createCriteria().andWeekEqualTo(currentWeek).andClockEqualTo(currentHour);
@@ -149,7 +149,7 @@ public class LaunchService extends BaseService{
 				}
 			}
 		}
-		LOGGER.info(currentData + " " + currentHour + ":00:00 定时器执行结束—————In PutOnService");
+		LOGGER.info(currentData + " " + currentHour + ":00:00 定时器执行结束—————In LaunchService");
 	}
 
 	/**

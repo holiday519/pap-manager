@@ -22,12 +22,11 @@ import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
+import com.pxene.pap.domain.models.CampaignCreativeModel;
+import com.pxene.pap.domain.models.CampaignCreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
-import com.pxene.pap.domain.models.CreativeMaterialModel;
-import com.pxene.pap.domain.models.CreativeMaterialModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.IndustryAdxModel;
 import com.pxene.pap.domain.models.IndustryAdxModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
@@ -41,10 +40,9 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.CampaignCreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.IndustryAdxDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
@@ -55,9 +53,7 @@ import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 @Service
 public class AuditCreativeBaiduService {
 
-	@Autowired
-	private CreativeDao creativeDao;
-	
+
 	@Autowired
 	private CampaignDao campaignDao;
 	
@@ -77,7 +73,7 @@ public class AuditCreativeBaiduService {
 	private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
 	
 	@Autowired
-	private CreativeMaterialDao creativeMaterialDao;
+	private CampaignCreativeDao campaignCreativeDao;
 	
 	@Autowired
 	private CreativeImageDao creativeImageDao;
@@ -107,64 +103,30 @@ public class AuditCreativeBaiduService {
 		 */
 		image_url = env.getProperty("pap.fileserver.url.prefix");
 	}
-	
+	@Transactional
 	public void audit(String creativeId) throws Exception {
-		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
-		if (creativeInDB==null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new ResourceNotFoundException();
-		}
-		//查询创意下的各个mapid,分别进行审核
-		CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
-		mapExample.createCriteria().andCreativeIdEqualTo(creativeId);
-		List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
 		
-		if (mapModels != null && !mapModels.isEmpty()) {
-			for (CreativeMaterialModel mapModel : mapModels) {
-				CreativeAuditModelExample example = new CreativeAuditModelExample();
-				example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
-				List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
-				String type = "add";
-				if (list == null || list.isEmpty()) {
-					type = "edit";
-				}
-				String mapId = mapModel.getId();
-				String creativeType = mapModel.getCreativeType();
-				// 图片创意
-				if ("1".equals(creativeType)) {
-					auditImgCreative(mapId, type);
-				// 视频创意
-				} else if ("2".equals(creativeType)) {
+		CampaignCreativeModel mapModel = campaignCreativeDao.selectByPrimaryKey(creativeId);
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+		String type = "add";
+		if (list == null || list.isEmpty()) {
+			type = "edit";
+		}
+		String mapId = mapModel.getId();
+		String creativeType = mapModel.getCreativeType();
+		// 图片创意
+		if ("1".equals(creativeType)) {
+			auditImgCreative(mapId, type);
+			// 视频创意
+		} else if ("2".equals(creativeType)) {
 //					auditVideoCreative(mapId);
-				// 信息流创意
-				} else if ("3".equals(creativeType)) {
-					auditInfoCreative(mapId, type);
-				}
-			}
+			// 信息流创意
+		} else if ("3".equals(creativeType)) {
+			auditInfoCreative(mapId, type);
 		}
 		
-	}
-	
-	/**
-	 * 同步创意
-	 * @param creativeId
-	 * @throws Exception
-	 */
-	public void synchronizeCreative(String creativeId) throws Exception {
-		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
-		if (creativeInDB==null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new ResourceNotFoundException();
-		}
-		//查询创意下的各个mapid,分别进行同步
-		CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
-		mapExample.createCriteria().andCreativeIdEqualTo(creativeId);
-		List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
-		
-		if (mapModels != null && !mapModels.isEmpty()) {
-			for (CreativeMaterialModel mapModel : mapModels) {
-				String mapId = mapModel.getId();
-				synchronize(mapId);
-			}
-		}
 	}
 	
 	/**
@@ -186,7 +148,7 @@ public class AuditCreativeBaiduService {
     	Gson gson = new Gson();
     	JsonObject json = gson.fromJson(privateKey, new JsonObject().getClass());
     	if (json.get("dspId") == null || json.get("token") == null) {
-			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu广告主提交第三方审核错误！原因：私密key不存在")
+			throw new ResourceNotFoundException("baidu : 缺少私密key");//缺少私密key("baidu创意提交第三方审核错误！原因：私密key不存在")
 		}
     	//将私密key转成json格式
 		Long dspId = json.get("dspId").getAsLong();
@@ -463,7 +425,7 @@ public class AuditCreativeBaiduService {
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
 			ex.createCriteria().andCreativeIdEqualTo(mapId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 			CreativeAuditModel mod = new CreativeAuditModel();
-			mod.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+			mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 			creativeAuditDao.updateByExampleSelective(mod, ex);
 		}else{
 			JsonArray errors = jsonMap.get("errors").getAsJsonArray();
@@ -562,12 +524,9 @@ public class AuditCreativeBaiduService {
 	 * @throws Exception
 	 */
 	public Long getAdvAuditValueByMapId (String mapId) throws Exception {
-		//查询创意ID
-		CreativeMaterialModel creativeMaterialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
-		String creativeId = creativeMaterialModel.getCreativeId();
 		//查询活动ID
-		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-		String campaignId = creativeModel.getCampaignId();
+		CampaignCreativeModel campaignCreativeModel = campaignCreativeDao.selectByPrimaryKey(mapId);
+		String campaignId = campaignCreativeModel.getCampaignId();
 		//查询项目ID
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		String projectId = campaignModel.getProjectId();
@@ -598,12 +557,9 @@ public class AuditCreativeBaiduService {
 	 * @throws Exception
 	 */
 	public AdvertiserModel getAdvertiserByMapId (String mapId) throws Exception {
-		//查询创意ID
-		CreativeMaterialModel creativeMaterialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
-		String creativeId = creativeMaterialModel.getCreativeId();
 		//查询活动ID
-		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-		String campaignId = creativeModel.getCampaignId();
+		CampaignCreativeModel campaignCreativeModel = campaignCreativeDao.selectByPrimaryKey(mapId);
+		String campaignId = campaignCreativeModel.getCampaignId();
 		//查询项目ID
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		String projectId = campaignModel.getProjectId();
@@ -622,12 +578,9 @@ public class AuditCreativeBaiduService {
 	 * @throws Exception
 	 */
 	public String getCampaignPromotionTypeByMapId (String mapId) throws Exception {
-		//查询创意ID
-		CreativeMaterialModel creativeMaterialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
-		String creativeId = creativeMaterialModel.getCreativeId();
 		//查询活动ID
-		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-		String campaignId = creativeModel.getCampaignId();
+		CampaignCreativeModel campaignCreativeModel = campaignCreativeDao.selectByPrimaryKey(mapId);
+		String campaignId = campaignCreativeModel.getCampaignId();
 		//查询项目ID
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		String type = campaignModel.getType();

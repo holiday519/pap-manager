@@ -21,6 +21,7 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.LandpageBean;
 import com.pxene.pap.domain.models.CampaignModel;
+import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.LandpageModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -127,17 +128,13 @@ public class LandpageService extends BaseService {
 		if (landpageInDB == null) {
 			throw new ResourceNotFoundException();
 		}
-		String campaignId = landpageInDB.getCampaignId();
-		if (StringUtils.isEmpty(campaignId)) {
-			// 如果落地页的campaignId是null，直接删除落地页
-			landpageDao.deleteByPrimaryKey(id);
+		CampaignModelExample example = new CampaignModelExample();
+		example.createCriteria().andLandpageIdEqualTo(id);
+		List<CampaignModel> list = campaignDao.selectByExample(example);
+		if (list == null || !list.isEmpty()) {
+			throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN);
 		}
-		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
-		String status = campaign.getStatus();
-		// 不是投放中才可以删除
-		if (StatusConstant.CAMPAIGN_START.equals(status)) {
-			throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN_LAUNCH);
-		}
+		
 		// 删除落地页
 		landpageDao.deleteByPrimaryKey(id);
 	}
@@ -158,17 +155,12 @@ public class LandpageService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		for (String id : ids) {
-			LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
-			String campaignId = landpageModel.getCampaignId();
-			if (StringUtils.isEmpty(campaignId)) {
-				// 如果落地页的campaignId是null，直接删除落地页
-				landpageDao.deleteByPrimaryKey(id);
-			}
-			CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
-			String status = campaign.getStatus();
+			CampaignModelExample example = new CampaignModelExample();
+			example.createCriteria().andLandpageIdEqualTo(id);
+			List<CampaignModel> list = campaignDao.selectByExample(example);
 			// 不是投放中才可以删除
-			if (StatusConstant.CAMPAIGN_START.equals(status)) {
-				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN_LAUNCH);
+			if (list == null || !list.isEmpty()) {
+				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN);
 			}
 		}
 		// 删除落地页

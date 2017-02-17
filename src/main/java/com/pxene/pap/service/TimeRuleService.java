@@ -41,8 +41,6 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppRuleDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignRuleDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.CreativeRuleDao;
 import com.pxene.pap.repository.basic.LandpageRuleDao;
 import com.pxene.pap.repository.basic.RegionRuleDao;
@@ -51,12 +49,6 @@ import com.pxene.pap.repository.basic.TimeRuleDao;
 
 @Service
 public class TimeRuleService extends BaseService {
-	
-	@Autowired
-	private CreativeDao creativeDao;
-	
-	@Autowired
-	private CreativeMaterialDao creativeMaterialDao;
 	
 	@Autowired
 	private AppRuleDao appRuleDao;

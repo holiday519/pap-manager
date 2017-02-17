@@ -24,8 +24,6 @@ import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
-import com.pxene.pap.domain.models.CreativeMaterialModel;
-import com.pxene.pap.domain.models.CreativeMaterialModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.ImageTmplTypeModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
@@ -41,7 +39,6 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
-import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplTypeDao;
 import com.pxene.pap.repository.basic.InfoflowTmplDao;
@@ -74,9 +71,6 @@ public class TmplService extends BaseService {
 	
 	@Autowired
 	private AppDao appDao;
-	
-	@Autowired
-	private CreativeMaterialDao creativeMaterialDao;
 	
 	@Autowired
 	private CreativeService creativeService;
@@ -140,23 +134,23 @@ public class TmplService extends BaseService {
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
 		//如果creativeId不为空,在查询模版时，排除掉该创意已经绑定的模版
-		if(!StringUtils.isEmpty(creativeId)) {
-			CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
-			exa.createCriteria().andCreativeIdEqualTo(creativeId);
-			List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
-			List<String> list = new ArrayList<String>();
-			if (models != null && !models.isEmpty()) {
-				for (CreativeMaterialModel model : models) {
-					String tmplId = model.getTmplId();
-					list.add(tmplId);
-				}
-			}
-			if (!list.isEmpty()) {
-				appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE).andTmplIdNotIn(list);
-			}
-		} else {
+//		if(!StringUtils.isEmpty(creativeId)) {
+//			CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
+//			exa.createCriteria().andCreativeIdEqualTo(creativeId);
+//			List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
+//			List<String> list = new ArrayList<String>();
+//			if (models != null && !models.isEmpty()) {
+//				for (CreativeMaterialModel model : models) {
+//					String tmplId = model.getTmplId();
+//					list.add(tmplId);
+//				}
+//			}
+//			if (!list.isEmpty()) {
+//				appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE).andTmplIdNotIn(list);
+//			}
+//		} else {
 			appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE);
-		}
+//		}
 		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
 		
 		if (appTmpls != null && !appTmpls.isEmpty()) {
@@ -210,23 +204,23 @@ public class TmplService extends BaseService {
 			//根据模版id查询出所有视频模版信息
 			TmplVideoDetailModelExample example = new TmplVideoDetailModelExample();
 			//如果creativeId不为空,在查询模版时，排除掉该创意已经绑定的模版
-			if(!StringUtils.isEmpty(creativeId)) {
-				CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
-				exa.createCriteria().andCreativeIdEqualTo(creativeId);
-				List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
-				List<String> list = new ArrayList<String>();
-				if (models != null && !models.isEmpty()) {
-					for (CreativeMaterialModel model : models) {
-						String tmplId = model.getTmplId();
-						list.add(tmplId);
-					}
-				}
-				if (!list.isEmpty()) {
-					example.createCriteria().andIdIn(tmplIds).andIdNotIn(list);
-				}
-			} else {
+//			if(!StringUtils.isEmpty(creativeId)) {
+//				CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
+//				exa.createCriteria().andCreativeIdEqualTo(creativeId);
+//				List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
+//				List<String> list = new ArrayList<String>();
+//				if (models != null && !models.isEmpty()) {
+//					for (CreativeMaterialModel model : models) {
+//						String tmplId = model.getTmplId();
+//						list.add(tmplId);
+//					}
+//				}
+//				if (!list.isEmpty()) {
+//					example.createCriteria().andIdIn(tmplIds).andIdNotIn(list);
+//				}
+//			} else {
 				example.createCriteria().andIdIn(tmplIds);
-			}
+//			}
 			List<TmplVideoDetailModelWithBLOBs> videos = tmplVideoDetailDao.selectByExampleWithBLOBs(example);
 			if (videos != null && !videos.isEmpty()) {
 				VideoTmpl videoTmpl = null;
@@ -281,21 +275,21 @@ public class TmplService extends BaseService {
 			Criteria createCriteria = example.createCriteria();
 			createCriteria.andIdIn(tmplIds);
 			//如果creativeId不为空,在查询模版时，排除掉该创意已经绑定的模版
-			if(!StringUtils.isEmpty(creativeId)) {
-				CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
-				exa.createCriteria().andCreativeIdEqualTo(creativeId);
-				List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
-				List<String> list = new ArrayList<String>();
-				if (models != null && !models.isEmpty()) {
-					for (CreativeMaterialModel model : models) {
-						String tmplId = model.getTmplId();
-						list.add(tmplId);
-					}
-				}
-				if (!list.isEmpty()) {
-					createCriteria.andIdNotIn(list);
-				}
-			}
+//			if(!StringUtils.isEmpty(creativeId)) {
+//				CreativeMaterialModelExample exa = new CreativeMaterialModelExample();
+//				exa.createCriteria().andCreativeIdEqualTo(creativeId);
+//				List<CreativeMaterialModel> models = creativeMaterialDao.selectByExample(exa);
+//				List<String> list = new ArrayList<String>();
+//				if (models != null && !models.isEmpty()) {
+//					for (CreativeMaterialModel model : models) {
+//						String tmplId = model.getTmplId();
+//						list.add(tmplId);
+//					}
+//				}
+//				if (!list.isEmpty()) {
+//					createCriteria.andIdNotIn(list);
+//				}
+//			}
 			//查询模版
 			List<InfoflowTmplModel> list = infoflowTmplDao.selectByExample(example);
 			if (list != null && !list.isEmpty()) {

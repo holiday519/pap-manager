@@ -17,11 +17,6 @@ public class LandpageBean {
 	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 	/**
-	 * 活动id
-	 */
-	@NotNull(message = PhrasesConstant.LANDPAGE_NOTNULL_CAMPAIGNID)
-	private String campaignId;
-	/**
 	 * 活动目标名称
 	 */
 	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
@@ -64,14 +59,6 @@ public class LandpageBean {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getCampaignId() {
-		return campaignId;
-	}
-
-	public void setCampaignId(String campaignId) {
-		this.campaignId = campaignId;
 	}
 
 	public String getName() {
@@ -132,10 +119,10 @@ public class LandpageBean {
 
 	@Override
 	public String toString() {
-		return "LandpageBean [id=" + id + ", campaignId=" + campaignId
-				+ ", name=" + name + ", url=" + url + ", anidDeepLink="
-				+ anidDeepLink + ", iosDeepLink=" + iosDeepLink
-				+ ", monitorUrl=" + monitorUrl + ", status=" + status
-				+ ", remark=" + remark + "]";
+		return "LandpageBean [id=" + id + ", name=" + name + ", url=" + url
+				+ ", anidDeepLink=" + anidDeepLink + ", iosDeepLink="
+				+ iosDeepLink + ", monitorUrl=" + monitorUrl + ", status="
+				+ status + ", remark=" + remark + "]";
 	}
+
 }

@@ -912,6 +912,76 @@ public class CampaignModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andLandpageIdIsNull() {
+            addCriterion("landpage_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdIsNotNull() {
+            addCriterion("landpage_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdEqualTo(String value) {
+            addCriterion("landpage_id =", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdNotEqualTo(String value) {
+            addCriterion("landpage_id <>", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdGreaterThan(String value) {
+            addCriterion("landpage_id >", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdGreaterThanOrEqualTo(String value) {
+            addCriterion("landpage_id >=", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdLessThan(String value) {
+            addCriterion("landpage_id <", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdLessThanOrEqualTo(String value) {
+            addCriterion("landpage_id <=", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdLike(String value) {
+            addCriterion("landpage_id like", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdNotLike(String value) {
+            addCriterion("landpage_id not like", value, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdIn(List<String> values) {
+            addCriterion("landpage_id in", values, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdNotIn(List<String> values) {
+            addCriterion("landpage_id not in", values, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdBetween(String value1, String value2) {
+            addCriterion("landpage_id between", value1, value2, "landpageId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLandpageIdNotBetween(String value1, String value2) {
+            addCriterion("landpage_id not between", value1, value2, "landpageId");
+            return (Criteria) this;
+        }
+
         public Criteria andFrequencyIdIsNull() {
             addCriterion("frequency_id is null");
             return (Criteria) this;

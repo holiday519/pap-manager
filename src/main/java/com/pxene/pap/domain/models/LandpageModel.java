@@ -3,8 +3,6 @@ package com.pxene.pap.domain.models;
 public class LandpageModel {
     private String id;
 
-    private String campaignId;
-
     private String name;
 
     private String url;
@@ -25,14 +23,6 @@ public class LandpageModel {
 
     public void setId(String id) {
         this.id = id == null ? null : id.trim();
-    }
-
-    public String getCampaignId() {
-        return campaignId;
-    }
-
-    public void setCampaignId(String campaignId) {
-        this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
     public String getName() {
@@ -98,7 +88,6 @@ public class LandpageModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", campaignId=").append(campaignId);
         sb.append(", name=").append(name);
         sb.append(", url=").append(url);
         sb.append(", anidDeepLink=").append(anidDeepLink);

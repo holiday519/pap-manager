@@ -1,5 +1,15 @@
 package com.pxene.pap.common;
 
+import java.nio.charset.Charset;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
 
 public class GlobalUtil {
 	public static String parseString(String s, String v) {
@@ -57,5 +67,27 @@ public class GlobalUtil {
 		}
 		return Integer.parseInt(String.valueOf(s));
 	}
-	
+	/**
+	 * 向指定 URL 发送POST方法的请求
+	 * 
+	 * @param url
+	 *            发送请求的 URL
+	 * @param param
+	 *            请求参数
+	 * @return 所代表远程资源的响应结果
+	 */
+	public static String sendPost(String url, String param) {
+		CloseableHttpClient client = HttpClients.createDefault();
+		try {
+			HttpPost post = new HttpPost(url);
+			post.setHeader("Content-Type", "application/json;charset=UTF-8");
+			post.setEntity(new StringEntity(param,Charset.forName("UTF-8")));
+			HttpResponse response = client.execute(post);
+			HttpEntity entity = response.getEntity();
+			return EntityUtils.toString(entity);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
 }

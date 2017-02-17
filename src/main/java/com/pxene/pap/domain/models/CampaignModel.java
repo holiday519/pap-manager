@@ -27,6 +27,8 @@ public class CampaignModel {
 
     private String status;
 
+    private String landpageId;
+
     private String frequencyId;
 
     private Date createTime;
@@ -129,6 +131,14 @@ public class CampaignModel {
         this.status = status == null ? null : status.trim();
     }
 
+    public String getLandpageId() {
+        return landpageId;
+    }
+
+    public void setLandpageId(String landpageId) {
+        this.landpageId = landpageId == null ? null : landpageId.trim();
+    }
+
     public String getFrequencyId() {
         return frequencyId;
     }
@@ -171,6 +181,7 @@ public class CampaignModel {
         sb.append(", dailyClick=").append(dailyClick);
         sb.append(", remark=").append(remark);
         sb.append(", status=").append(status);
+        sb.append(", landpageId=").append(landpageId);
         sb.append(", frequencyId=").append(frequencyId);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);

@@ -34,18 +34,16 @@ import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.BrandTargetModel;
 import com.pxene.pap.domain.models.BrandTargetModelExample;
+import com.pxene.pap.domain.models.CampaignCreativeModel;
+import com.pxene.pap.domain.models.CampaignCreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CampaignTmplPriceModel;
 import com.pxene.pap.domain.models.CampaignTmplPriceModelExample;
 import com.pxene.pap.domain.models.CampaignTmplPriceModelExample.Criteria;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.DeviceTargetModel;
 import com.pxene.pap.domain.models.DeviceTargetModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
-import com.pxene.pap.domain.models.LandpageModel;
-import com.pxene.pap.domain.models.LandpageModelExample;
 import com.pxene.pap.domain.models.MonitorModel;
 import com.pxene.pap.domain.models.MonitorModelExample;
 import com.pxene.pap.domain.models.NetworkTargetModel;
@@ -68,10 +66,9 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
+import com.pxene.pap.repository.basic.CampaignCreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
 import com.pxene.pap.repository.basic.LandpageDao;
@@ -99,7 +96,7 @@ public class CampaignService extends LaunchService{
 	private CreativeService creativeService; 
 	
 	@Autowired
-	private CreativeDao creativeDao; 
+	private CampaignCreativeDao campaignCreativeDao; 
 	
 	@Autowired
 	private MonitorDao monitorDao;
@@ -138,9 +135,6 @@ public class CampaignService extends LaunchService{
 	private CampaignTargetDao campaignTargetDao;
 	
 	@Autowired
-	private CreativeMaterialDao creativeMaterialDao;
-	
-	@Autowired
 	private CampaignTmplPriceDao campaignTmplPriceDao;
 	
 	@Autowired
@@ -169,6 +163,18 @@ public class CampaignService extends LaunchService{
 		}
 		
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
+		
+		if (bean != null && campaignModel != null && !StringUtils.isEmpty(bean.getName()))
+        {
+		    CampaignModelExample modelExample = new CampaignModelExample();
+            modelExample.createCriteria().andNameEqualTo(bean.getName());
+            List<CampaignModel> selectResult = campaignDao.selectByExample(modelExample);
+            if (selectResult != null && !selectResult.isEmpty())
+            {
+                throw new IllegalArgumentException("活动名称已存在");
+            }
+        }
+		
 		String id = UUID.randomUUID().toString();
 		bean.setId(id);//此处放入ID，添加活动相关联信息时用到
 		campaignModel.setId(id);
@@ -507,13 +513,13 @@ public class CampaignService extends LaunchService{
 		}
 		
 		//先查询出活动下创意
-		CreativeModelExample creativeExample = new CreativeModelExample();
+		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
+		List<CampaignCreativeModel> list = campaignCreativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
 			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 		}
-		//删除检测地址
+		//删除监测地址
 		deleteCampaignMonitor(campaignId);
 		//删除定向
 		deleteCampaignTarget(campaignId);
@@ -543,9 +549,9 @@ public class CampaignService extends LaunchService{
 		
 		for (String campaignId : campaignIds) {
 			//先查询出活动下创意
-			CreativeModelExample creativeExample = new CreativeModelExample();
+			CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
 			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-			List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
+			List<CampaignCreativeModel> list = campaignCreativeDao.selectByExample(creativeExample);
 			if (list != null && !list.isEmpty()) {
 				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 			}
@@ -714,17 +720,20 @@ public class CampaignService extends LaunchService{
 	 */
 	public boolean checkCampaignCanLaunch(String campaignId) throws Exception {
 		// 检查是否有落地页
-		LandpageModelExample lanpageExample = new LandpageModelExample();
-		lanpageExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<LandpageModel> lanpages = LandpageDao.selectByExample(lanpageExample);
-		if (lanpages == null) {
-			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
+		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+		if (model != null) {
+			String landpageId = model.getLandpageId();
+			if (StringUtils.isEmpty(landpageId)) {
+				LOGGER.info(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
+				return false;
+			}
+		} else {
 			return false;
 		}
 		// 检查是否有创意
-		CreativeModelExample creativeExample = new CreativeModelExample();
+		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+		List<CampaignCreativeModel> creatives = campaignCreativeDao.selectByExample(creativeExample);
 		if (creatives == null) {
 			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 			return false;

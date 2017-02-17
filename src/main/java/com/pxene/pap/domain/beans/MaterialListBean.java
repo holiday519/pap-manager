@@ -1,5 +1,6 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Arrays;
 
 /**
  * 列出所有素材
@@ -11,7 +12,8 @@ public class MaterialListBean {
 	private String name;
 	private String type;
 	private App[] apps;
-	
+	private Float price;
+
 	private String path;
 	private String iconPath;
 	private String image1Path;
@@ -162,4 +164,21 @@ public class MaterialListBean {
 		this.image5Path = image5Path;
 	}
 
+	public Float getPrice() {
+		return price;
+	}
+
+	public void setPrice(Float price) {
+		this.price = price;
+	}
+
+	@Override
+	public String toString() {
+		return "MaterialListBean [id=" + id + ", mapId=" + mapId + ", name="
+				+ name + ", type=" + type + ", apps=" + Arrays.toString(apps)
+				+ ", price=" + price + ", path=" + path + ", iconPath="
+				+ iconPath + ", image1Path=" + image1Path + ", image2Path="
+				+ image2Path + ", image3Path=" + image3Path + ", image4Path="
+				+ image4Path + ", image5Path=" + image5Path + "]";
+	}
 }

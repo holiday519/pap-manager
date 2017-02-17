@@ -23,15 +23,11 @@ import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.CampaignCreativeModel;
+import com.pxene.pap.domain.models.CampaignCreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.CampaignTmplPriceModel;
-import com.pxene.pap.domain.models.CampaignTmplPriceModelExample;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
-import com.pxene.pap.domain.models.CreativeMaterialModel;
-import com.pxene.pap.domain.models.CreativeMaterialModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
@@ -43,16 +39,14 @@ import com.pxene.pap.domain.models.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.domain.models.view.ImageSizeTypeModel;
 import com.pxene.pap.domain.models.view.ImageSizeTypeModelExample;
-import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
+import com.pxene.pap.repository.basic.CampaignCreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignTmplPriceDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.CreativeMaterialDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
@@ -84,10 +78,7 @@ public class RedisService {
 	private ProjectDao projectDao;
 	
 	@Autowired
-	private CreativeDao creativeDao;
-	
-	@Autowired
-	private CreativeMaterialDao creativeMaterialDao;
+	private CampaignCreativeDao campaignCreativeDao;
 	
 	@Autowired
 	private CreativeImageDao creativeImageDao;
@@ -158,9 +149,9 @@ public class RedisService {
 	 */
 	public void writeCreativeInfoToRedis(String campaignId) throws Exception {
 		// 查询活动下创意
-		CreativeModelExample creativeExample = new CreativeModelExample();
+		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+		List<CampaignCreativeModel> creatives = campaignCreativeDao.selectByExample(creativeExample);
 		// 创意id数组
 		List<String> creativeIds = new ArrayList<String>();
 		//如果活动下无可投创意
@@ -168,16 +159,16 @@ public class RedisService {
 			return;
 		}
 		// 将查询出来的创意id放入创意id数组
-		for (CreativeModel creative : creatives) {
+		for (CampaignCreativeModel creative : creatives) {
 			creativeIds.add(creative.getId());
 		}
 		// 根据创意id数组查询创意所对应的关联关系表数据
 		if (!creativeIds.isEmpty()) {
-			CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
-			mapExample.createCriteria().andCreativeIdIn(creativeIds);
-			List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
+			CampaignCreativeModelExample mapExample = new CampaignCreativeModelExample();
+			mapExample.createCriteria().andIdIn(creativeIds);
+			List<CampaignCreativeModel> mapModels = campaignCreativeDao.selectByExample(mapExample);
 			if (mapModels != null && !mapModels.isEmpty()) {
-				for (CreativeMaterialModel mapModel : mapModels) {
+				for (CampaignCreativeModel mapModel : mapModels) {
 					String mapId = mapModel.getId();
 					//审核通过的创意才可以投放
 					if (getAuditSuccessMapId(mapId)) {
@@ -636,27 +627,18 @@ public class RedisService {
 	 */
 	public void writeMapidToRedis(String campaignId) throws Exception {
 		//查询活动下创意
-		CreativeModelExample creativeExample = new CreativeModelExample();
+		CampaignCreativeModelExample creativeExample = new CampaignCreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+		List<CampaignCreativeModel> creatives = campaignCreativeDao.selectByExample(creativeExample);
 		JsonArray mapidJson = new JsonArray();
 		JsonObject mapidObject = new JsonObject();
 		if (creatives != null && !creatives.isEmpty()) {
 			// 查询创意对应的关联关系mapid
-			for (CreativeModel creative : creatives) {
+			for (CampaignCreativeModel creative : creatives) {
 				String creativeId = creative.getId();
-				CreativeMaterialModelExample cmExample = new CreativeMaterialModelExample();
-				cmExample.createCriteria().andCreativeIdEqualTo(creativeId);
-				List<CreativeMaterialModel> list = creativeMaterialDao.selectByExample(cmExample);
-				if (list == null || list.isEmpty()) {
-					continue;
-				}
-				for (CreativeMaterialModel cm : list) {
-					String mapId = cm.getId();
-					//审核通过的创意才可以投放
-					if (getAuditSuccessMapId(mapId)) {
-						mapidJson.add(mapId);
-					}
+				//审核通过的创意才可以投放
+				if (getAuditSuccessMapId(creativeId)) {
+					mapidJson.add(creativeId);
 				}
 			}
 		}
@@ -803,29 +785,33 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public BigDecimal getCreativePrice(String mapId) throws Exception {
-		//查询关联表数据
-		CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
-		if (materialModel == null) {
-			throw new ResourceNotFoundException();
-		}
-		//查询创意表数据
-		String creativeId = materialModel.getCreativeId();
-		String tmplId = materialModel.getTmplId();//模版ID
-		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-		if (creativeModel == null) {
-			throw new ResourceNotFoundException();
-		}
-		//获取活动ID
-		String campaignId = creativeModel.getCampaignId();
-		//根据模版ID、活动ID查询价格
-		CampaignTmplPriceModelExample example = new CampaignTmplPriceModelExample();
-		example.createCriteria().andTmplIdEqualTo(tmplId).andCampaignIdEqualTo(campaignId);
-		List<CampaignTmplPriceModel> list = campaignTmplPriceDao.selectByExample(example);
-		if (list == null || list.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		CampaignTmplPriceModel campaignTmplPriceModel = list.get(0);
-		BigDecimal price = campaignTmplPriceModel.getPrice();
+//		//查询关联表数据
+//		CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
+//		if (materialModel == null) {
+//			throw new ResourceNotFoundException();
+//		}
+//		//查询创意表数据
+//		String creativeId = materialModel.getCreativeId();
+//		String tmplId = materialModel.getTmplId();//模版ID
+//		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+//		if (creativeModel == null) {
+//			throw new ResourceNotFoundException();
+//		}
+//		//获取活动ID
+//		String campaignId = creativeModel.getCampaignId();
+//		//根据模版ID、活动ID查询价格
+//		CampaignTmplPriceModelExample example = new CampaignTmplPriceModelExample();
+//		example.createCriteria().andTmplIdEqualTo(tmplId).andCampaignIdEqualTo(campaignId);
+//		List<CampaignTmplPriceModel> list = campaignTmplPriceDao.selectByExample(example);
+//		if (list == null || list.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
+//		CampaignTmplPriceModel campaignTmplPriceModel = list.get(0);
+//		BigDecimal price = campaignTmplPriceModel.getPrice();
+		
+		CampaignCreativeModel model = campaignCreativeDao.selectByPrimaryKey(mapId);
+		BigDecimal price = model.getPrice();
+		
 		
 		return price;
 	}
@@ -841,7 +827,7 @@ public class RedisService {
 		deleteCampaignInfoFromredis(campaignId);
 		deleteCampaignTargetFromredis(campaignId);
 		deleteCampaignFrequencyFromredis(campaignId);
-		deleteMapidsFromredis(campaignId);
+		deleteMapidsFromRedis(campaignId);
 	}
 	/**
 	 * 删除redis中key：dsp_groupid_mapids_活动id
@@ -892,34 +878,44 @@ public class RedisService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void deleteMapidsFromredis(String campaignId) throws Exception {
-		// 查询活动下创意
-		CreativeModelExample creativeExample = new CreativeModelExample();
-		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
-		// 创意id数组
-		List<String> creativeIds = new ArrayList<String>();
-		//如果活动下无可投创意
-		if(creatives == null || creatives.isEmpty()){
-			return;
-		}
-		// 将查询出来的创意id放入创意id数组
-		for (CreativeModel creative : creatives) {
-			creativeIds.add(creative.getId());
-		}
-		// 根据创意id数组查询创意所对应的关联关系表数据
-		if (!creativeIds.isEmpty()) {
-			CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
-			mapExample.createCriteria().andCreativeIdIn(creativeIds);
-			List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
-			if (mapModels != null && !mapModels.isEmpty()) {
-				for (CreativeMaterialModel mapModel : mapModels) {
-					String mapId = mapModel.getId();
-					String str = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapId);
-					if (!StringUtils.isEmpty(str)) {
-						JedisUtils.delete(RedisKeyConstant.CREATIVE_INFO + mapId);
-					}
-				}
+	public void deleteMapidsFromRedis(String campaignId) throws Exception {
+		//		// 查询活动下创意
+//		CreativeModelExample creativeExample = new CreativeModelExample();
+//		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+//		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+//		// 创意id数组
+//		List<String> creativeIds = new ArrayList<String>();
+//		//如果活动下无可投创意
+//		if(creatives == null || creatives.isEmpty()){
+//			return;
+//		}
+//		// 将查询出来的创意id放入创意id数组
+//		for (CreativeModel creative : creatives) {
+//			creativeIds.add(creative.getId());
+//		}
+//		// 根据创意id数组查询创意所对应的关联关系表数据
+//		if (!creativeIds.isEmpty()) {
+//			CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
+//			mapExample.createCriteria().andCreativeIdIn(creativeIds);
+//			List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
+//			if (mapModels != null && !mapModels.isEmpty()) {
+//				for (CreativeMaterialModel mapModel : mapModels) {
+//					String mapId = mapModel.getId();
+//					String str = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapId);
+//					if (!StringUtils.isEmpty(str)) {
+//						JedisUtils.delete(RedisKeyConstant.CREATIVE_INFO + mapId);
+//					}
+//				}
+//			}
+//		}
+		CampaignCreativeModelExample example = new CampaignCreativeModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CampaignCreativeModel> list = campaignCreativeDao.selectByExample(example);
+		for (CampaignCreativeModel mapModel : list) {
+			String mapId = mapModel.getId();
+			String str = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapId);
+			if (!StringUtils.isEmpty(str)) {
+				JedisUtils.delete(RedisKeyConstant.CREATIVE_INFO + mapId);
 			}
 		}
 	}

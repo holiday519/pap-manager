@@ -21,8 +21,9 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.domain.beans.LandpageDataBean;
+import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.LandpageModel;
-import com.pxene.pap.domain.models.LandpageModelExample;
+import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 
 @Service
@@ -30,6 +31,9 @@ public class LandpageDataService extends BaseService
 {
 	@Autowired
 	private LandpageDao landpageDao;
+	
+	@Autowired
+	private CampaignDao campaignDao;
 	
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -76,14 +80,13 @@ public class LandpageDataService extends BaseService
 			sourceMap = margeDayTables(sourceMap, daysList.toArray(new String[daysList.size()]));
 		}
     	
-    	//查询活动对应的落地页id不是这个id的数据不显示
-    	LandpageModelExample example = new LandpageModelExample();
-    	example.createCriteria().andCampaignIdEqualTo(campaignId);
-    	List<LandpageModel> lms = landpageDao.selectByExample(example);
-    	if (lms == null || lms.isEmpty()) {
+    	//查询活动对应的落地页id;不是这个id的数据不显示
+    	CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+    	
+    	if (campaignModel == null) {
     		return new ArrayList<LandpageDataBean>();
     	}
-    	String landpageId = lms.get(0).getId();
+    	String landpageId = campaignModel.getLandpageId();
     	List<LandpageDataBean> beans = getListFromSource(landpageId, sourceMap);
     	formatLastList(beans);
     	return beans;

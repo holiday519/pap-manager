@@ -14,7 +14,6 @@ import javax.transaction.Transactional;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,19 +24,10 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.domain.beans.CreativeDataBean;
-import com.pxene.pap.domain.models.CreativeMaterialModel;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.CreativeMaterialDao;
 
 @Service
 public class CreativeDataService extends BaseService
 {
-    @Autowired
-    private CreativeDao creativeDao;
-    
-    @Autowired
-    private CreativeMaterialDao creativeMaterialDao;
     
     DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");    
     
@@ -358,18 +348,18 @@ public class CreativeDataService extends BaseService
 					bean.setArrivalRate(result);
 				}
 				
-				if (!StringUtils.isEmpty(bean.getId())) {
-					CreativeMaterialModel model = creativeMaterialDao.selectByPrimaryKey(bean.getId());
-					if (model != null) {
-						//相同creativeId的素材对象creativeId都变成一个
-						String creativeId = model.getCreativeId();
-						if (!StringUtils.isEmpty(creativeId)) {
-							CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-							bean.setId(creativeModel.getId());
-							bean.setName(creativeModel.getName());
-						}
-					}
-				}
+//				if (!StringUtils.isEmpty(bean.getId())) {
+//					CreativeMaterialModel model = creativeMaterialDao.selectByPrimaryKey(bean.getId());
+//					if (model != null) {
+//						//相同creativeId的素材对象creativeId都变成一个
+//						String creativeId = model.getCreativeId();
+//						if (!StringUtils.isEmpty(creativeId)) {
+//							CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+//							bean.setId(creativeModel.getId());
+//							bean.setName(creativeModel.getName());
+//						}
+//					}
+//				}
     		}
     	}
     	//将所有不重复的creaticeId放入List————根据List就知道最后条数
