@@ -3,10 +3,12 @@ package com.pxene.pap.domain.beans;
 import java.util.Arrays;
 import java.util.Date;
 
+import com.pxene.pap.domain.beans.CampaignInfoBean.Quantity;
+
 /**
  * 活动所有信息
  */
-public class CampaignBean extends CreativeBasicBean{
+public class CampaignBean extends CreativeBasicBean {
 
 	/**
 	 * 活动id
@@ -333,6 +335,87 @@ public class CampaignBean extends CreativeBasicBean{
 		}
 	}
 
+	/**
+	 * 投放量控制策略
+	 */
+	private Quantity[] quantity;
+
+	public static class Quantity {
+		private Date startDate;
+		private Date endDate;
+		private Integer dailyBudget;
+		private Integer dailyImpression;
+
+		public Date getStartDate() {
+			return startDate;
+		}
+
+		public void setStartDate(Date startDate) {
+			this.startDate = startDate;
+		}
+
+		public Date getEndDate() {
+			return endDate;
+		}
+
+		public void setEndDate(Date endDate) {
+			this.endDate = endDate;
+		}
+
+		public Integer getDailyBudget() {
+			return dailyBudget;
+		}
+
+		public void setDailyBudget(Integer dailyBudget) {
+			this.dailyBudget = dailyBudget;
+		}
+
+		public Integer getDailyImpression() {
+			return dailyImpression;
+		}
+
+		public void setDailyImpression(Integer dailyImpression) {
+			this.dailyImpression = dailyImpression;
+		}
+
+	}
+
+	private String landpageId;
+	private String landpageName;
+	private String landpageUrl;
+
+	public Quantity[] getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Quantity[] quantity) {
+		this.quantity = quantity;
+	}
+
+	public String getLandpageId() {
+		return landpageId;
+	}
+
+	public void setLandpageId(String landpageId) {
+		this.landpageId = landpageId;
+	}
+
+	public String getLandpageName() {
+		return landpageName;
+	}
+
+	public void setLandpageName(String landpageName) {
+		this.landpageName = landpageName;
+	}
+
+	public String getLandpageUrl() {
+		return landpageUrl;
+	}
+
+	public void setLandpageUrl(String landpageUrl) {
+		this.landpageUrl = landpageUrl;
+	}
+
 	public String getId() {
 		return id;
 	}
@@ -471,7 +554,10 @@ public class CampaignBean extends CreativeBasicBean{
 				+ ", startDate=" + startDate + ", endDate=" + endDate
 				+ ", frequencyId=" + frequencyId + ", target=" + target
 				+ ", frequency=" + frequency + ", monitors="
-				+ Arrays.toString(monitors) + "]";
+				+ Arrays.toString(monitors) + ", quantity="
+				+ Arrays.toString(quantity) + ", landpageId=" + landpageId
+				+ ", landpageName=" + landpageName + ", landpageUrl="
+				+ landpageUrl + "]";
 	}
 
 }

@@ -39,6 +39,7 @@ import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.DeviceTargetModel;
 import com.pxene.pap.domain.models.DeviceTargetModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
+import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.MonitorModel;
 import com.pxene.pap.domain.models.MonitorModelExample;
 import com.pxene.pap.domain.models.NetworkTargetModel;
@@ -642,8 +643,8 @@ public class CampaignService extends LaunchService{
         	throw new ResourceNotFoundException();
         }
 		CampaignBean map = modelMapper.map(model, CampaignBean.class);
-		CampaignBean bean = addParamToCampaign(map, model.getId());
-		return bean;
+		addParamToCampaign(map, model.getId());
+		return map;
 	}
 	
 	/**
@@ -671,8 +672,8 @@ public class CampaignService extends LaunchService{
 		
 		for (CampaignModel campaign : campaigns) {
 			CampaignBean map = modelMapper.map(campaign, CampaignBean.class);
-			CampaignBean bean = addParamToCampaign(map, campaign.getId());
-			beans.add(bean);
+			addParamToCampaign(map, campaign.getId());
+			beans.add(map);
 		}
 		
 		return beans;
@@ -684,7 +685,7 @@ public class CampaignService extends LaunchService{
 	 * @param campaignId
 	 * @return
 	 */
-	private CampaignBean addParamToCampaign(CampaignBean bean, String campaignId) {
+	private void addParamToCampaign(CampaignBean bean, String campaignId) throws Exception{
 		CampaignTargetModelExample example = new CampaignTargetModelExample();
 		example.createCriteria().andIdEqualTo(campaignId);
 		// 查询定向信息
@@ -758,7 +759,28 @@ public class CampaignService extends LaunchService{
 				bean.setMonitors(monitors);
 			}
 		}
-		return bean;
+		//落地页信息
+		String landpageId = bean.getLandpageId();
+		LandpageModel landpageModel = LandpageDao.selectByPrimaryKey(landpageId);
+		if (landpageModel != null) {
+			String url = landpageModel.getUrl();
+			String name = landpageModel.getName();
+			bean.setLandpageName(name);
+			bean.setLandpageUrl(url);
+		}
+		//投放量控制策略
+		QuantityModelExample qex = new QuantityModelExample();
+		qex.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<QuantityModel> quans = quantityDao.selectByExample(qex);
+		if (quans != null && !quans.isEmpty()) {
+			com.pxene.pap.domain.beans.CampaignBean.Quantity[] quanArray = new com.pxene.pap.domain.beans.CampaignBean.Quantity[quans.size()] ;
+			for (int i = 0; i < quans.size(); i++) {
+				QuantityModel model = quans.get(i);
+				quanArray[i] = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Quantity.class);
+			}
+			bean.setQuantity(quanArray);
+		}
+		
 	}
 	
 	/**

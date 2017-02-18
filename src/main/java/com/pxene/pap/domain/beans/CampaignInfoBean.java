@@ -42,21 +42,6 @@ public class CampaignInfoBean {
 	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_TOTALBUDGET)
 	private Integer totalBudget;
 	/**
-	 * 日预算
-	 */
-	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_DAILYBUDGET)
-	private Integer dailyBudget;
-	/**
-	 * 日展现
-	 */
-	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_DAILYIMPRESSION)
-	private Integer dailyImpression;
-	/**
-	 * 日点击
-	 */
-	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_DAILYCLICK)
-	private Integer dailyClick;
-	/**
 	 * 备注
 	 */
 	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
@@ -264,22 +249,6 @@ public class CampaignInfoBean {
 		this.totalBudget = totalBudget;
 	}
 
-	public Integer getDailyImpression() {
-		return dailyImpression;
-	}
-
-	public void setDailyImpression(Integer dailyImpression) {
-		this.dailyImpression = dailyImpression;
-	}
-
-	public Integer getDailyClick() {
-		return dailyClick;
-	}
-
-	public void setDailyClick(Integer dailyClick) {
-		this.dailyClick = dailyClick;
-	}
-
 	public String getRemark() {
 		return remark;
 	}
@@ -336,21 +305,11 @@ public class CampaignInfoBean {
 		this.monitors = monitors;
 	}
 
-	public Integer getDailyBudget() {
-		return dailyBudget;
-	}
-
-	public void setDailyBudget(Integer dailyBudget) {
-		this.dailyBudget = dailyBudget;
-	}
-
 	@Override
 	public String toString() {
 		return "CampaignInfoBean [id=" + id + ", projectId=" + projectId
 				+ ", name=" + name + ", type=" + type + ", totalBudget="
-				+ totalBudget + ", dailyBudget=" + dailyBudget
-				+ ", dailyImpression=" + dailyImpression + ", dailyClick="
-				+ dailyClick + ", remark=" + remark + ", status=" + status
+				+ totalBudget + ", remark=" + remark + ", status=" + status
 				+ ", startDate=" + startDate + ", endDate=" + endDate
 				+ ", frequencyId=" + frequencyId + ", frequency=" + frequency
 				+ ", monitors=" + Arrays.toString(monitors) + ", quantity="
