@@ -365,7 +365,7 @@ public class CampaignService extends LaunchService{
 				time = new TimeTargetModel();
 				time.setId(UUID.randomUUID().toString());
 				time.setCampaignId(id);
-				time.setTimeId(timeId);
+				time.setTime(timeId);
 				timeTargetDao.insertSelective(time);
 			}
 		}
