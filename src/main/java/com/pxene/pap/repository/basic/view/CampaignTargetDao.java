@@ -2,13 +2,11 @@ package com.pxene.pap.repository.basic.view;
 
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
-
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 
 public interface CampaignTargetDao {
-    int countByExample(CampaignTargetModelExample example);
+    long countByExample(CampaignTargetModelExample example);
 
     int deleteByExample(CampaignTargetModelExample example);
 

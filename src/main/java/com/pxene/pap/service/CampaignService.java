@@ -20,9 +20,11 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
+import com.pxene.pap.domain.beans.CampaignBean.Target.Population;
 import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignInfoBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignInfoBean.Monitor;
+import com.pxene.pap.domain.beans.CampaignInfoBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
@@ -45,7 +47,13 @@ import com.pxene.pap.domain.models.OperatorTargetModel;
 import com.pxene.pap.domain.models.OperatorTargetModelExample;
 import com.pxene.pap.domain.models.OsTargetModel;
 import com.pxene.pap.domain.models.OsTargetModelExample;
+import com.pxene.pap.domain.models.PopulationModel;
+import com.pxene.pap.domain.models.PopulationModelExample;
+import com.pxene.pap.domain.models.PopulationTargetModel;
+import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.QuantityModel;
+import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.RegionTargetModel;
 import com.pxene.pap.domain.models.RegionTargetModelExample;
 import com.pxene.pap.domain.models.TimeTargetModel;
@@ -68,7 +76,10 @@ import com.pxene.pap.repository.basic.MonitorDao;
 import com.pxene.pap.repository.basic.NetworkTargetDao;
 import com.pxene.pap.repository.basic.OperatorTargetDao;
 import com.pxene.pap.repository.basic.OsTargetDao;
+import com.pxene.pap.repository.basic.PopulationDao;
+import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.QuantityDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
@@ -124,10 +135,19 @@ public class CampaignService extends LaunchService{
 	private AppTargetDao appTargetDao;
 	
 	@Autowired
+	private PopulationTargetDao populationTargetDao;
+	
+	@Autowired
+	private PopulationDao populationDao;
+	
+	@Autowired
 	private CampaignTargetDao campaignTargetDao;
 	
 	@Autowired
 	private LandpageDao LandpageDao;
+	
+	@Autowired
+	private QuantityDao quantityDao;
 	
 	/**
 	 * 创建活动
@@ -180,16 +200,18 @@ public class CampaignService extends LaunchService{
 			//添加频次ID
 			campaignModel.setFrequencyId(frequencyId);
 			campaignModel.setStatus(StatusConstant.CAMPAIGN_WATING);
+			//添加投放量控制策略
+			addCampaignQuantity(bean);
 			//添加活动基本信息
 			campaignDao.insertSelective(campaignModel);
-			
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
 		}
+		
 //		BeanUtils.copyProperties(campaignModel, bean);
 	}
 
-    private void checkDateRange(CampaignInfoBean bean)
+    private void checkDateRange(CampaignInfoBean bean) throws Exception
     {
         Date startDate = bean.getStartDate();
 	    Date endDate = bean.getEndDate();
@@ -247,6 +269,10 @@ public class CampaignService extends LaunchService{
 			deleteCampaignMonitor(id);
 			//重新添加点击、展现监测地址
 			addCampaignMonitor(bean);
+			//删除投放量控制策略
+			deleteCampaignQuantity(id);
+			//添加投放量控制策略
+			addCampaignQuantity(bean);
 			//修改基本信息
 			campaignDao.updateByPrimaryKeySelective(campaignModel);
 		} catch (DuplicateKeyException exception) {
@@ -311,6 +337,7 @@ public class CampaignService extends LaunchService{
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
 		String[] appTarget = bean.getApp();//app
+		String[] populationTarget = bean.getPopulation();//人群
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region;
 			for (String regionId : regionTarget) {
@@ -401,6 +428,16 @@ public class CampaignService extends LaunchService{
 				appTargetDao.insertSelective(app);
 			}
 		}
+		if (populationTarget != null && populationTarget.length > 0) {
+			PopulationTargetModel population;
+			for (String popId : populationTarget) {
+				population = new PopulationTargetModel();
+				population.setId(UUID.randomUUID().toString());
+				population.setCampaignId(id);
+				population.setPopulationId(popId);
+				populationTargetDao.insertSelective(population);
+			}
+		}
 	}
 	
 	/**
@@ -445,6 +482,10 @@ public class CampaignService extends LaunchService{
 		AppTargetModelExample app = new AppTargetModelExample();
 		app.createCriteria().andCampaignIdEqualTo(campaignId);
 		appTargetDao.deleteByExample(app);
+		//删除人群定向
+		PopulationTargetModelExample pop = new PopulationTargetModelExample();
+		pop.createCriteria().andCampaignIdEqualTo(campaignId);
+		populationTargetDao.deleteByExample(pop);
 	}
 	
 	/**
@@ -475,6 +516,37 @@ public class CampaignService extends LaunchService{
 		MonitorModelExample example = new MonitorModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
 		monitorDao.deleteByExample(example);
+	}
+	
+	/**
+	 * 添加活动投放策略
+	 * @param bean
+	 * @throws Exception
+	 */
+	@Transactional
+	public void addCampaignQuantity(CampaignInfoBean bean) throws Exception {
+		Quantity[] quantitys = bean.getQuantity();
+		if (quantitys != null && quantitys.length > 0) {
+			String id = bean.getId();
+			for (Quantity qt : quantitys) {
+				QuantityModel model = modelMapper.map(qt, QuantityModel.class);
+				model.setCampaignId(id);
+				model.setId(UUID.randomUUID().toString());
+				quantityDao.insertSelective(model);
+			}
+		}
+	}
+	
+	/**
+	 * 活动投放策略
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteCampaignQuantity(String campaignId) throws Exception {
+		QuantityModelExample example = new QuantityModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		quantityDao.deleteByExample(example);
 	}
 	
 	/**
@@ -514,6 +586,8 @@ public class CampaignService extends LaunchService{
 		deleteCampaignTarget(campaignId);
 		//删除频次信息
 		deletefrequency(campaignId);
+		//删除控制策略
+		deleteCampaignMonitor(campaignId);
 		//删除活动
 		campaignDao.deleteByPrimaryKey(campaignId);
 	}
@@ -544,14 +618,16 @@ public class CampaignService extends LaunchService{
 			if (list != null && !list.isEmpty()) {
 				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
 			}
-			//删除检测地址
+			//删除监测地址
 			deleteCampaignMonitor(campaignId);
 			//删除定向
 			deleteCampaignTarget(campaignId);
 			//删除频次信息
 			deletefrequency(campaignId);
-			//删除活动
+			//删除控制策略
+			deleteCampaignMonitor(campaignId);
 		}
+		//删除活动
 		campaignDao.deleteByExample(ex);
 	}
 	
@@ -626,6 +702,32 @@ public class CampaignService extends LaunchService{
 				target.setOs(formatTargetStringToArray(model.getOs()));
 				target.setBrand(formatTargetStringToArray(model.getBrandId()));
 				target.setApp(formatTargetStringToArray(model.getAppId()));
+				String populationId = model.getPopulationId();//查询活动的人群定向信息
+				if (!StringUtils.isEmpty(populationId)) {
+					List<Population> PopulationList = new ArrayList<CampaignBean.Target.Population>();
+					String[] popids = populationId.split(",");
+					List<String> popIdList = Arrays.asList(popids);
+					PopulationModelExample ex = new PopulationModelExample();
+					ex.createCriteria().andIdIn(popIdList);
+					List<PopulationModel> pops = populationDao.selectByExample(ex);
+					if (pops != null && !pops.isEmpty()) {
+						Population popu = null;
+						for (PopulationModel p : pops) {
+							popu = new Population();
+							popu.setId(p.getId());
+							popu.setPath(p.getPath());
+							popu.setType(p.getType());
+							PopulationList.add(popu);
+						}
+					}
+					if (!PopulationList.isEmpty()) {
+						Population[] ps = new Population[PopulationList.size()];
+						for (int i=0;i<PopulationList.size();i++) {
+							ps[i] = PopulationList.get(i);
+						}
+						target.setPopulation(ps);
+					}
+				}
 				bean.setTarget(target);
 			}
 		}

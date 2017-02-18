@@ -21,6 +21,8 @@ public class CampaignTargetModel {
 
     private String appId;
 
+    private String populationId;
+
     public String getId() {
         return id;
     }
@@ -99,5 +101,34 @@ public class CampaignTargetModel {
 
     public void setAppId(String appId) {
         this.appId = appId == null ? null : appId.trim();
+    }
+
+    public String getPopulationId() {
+        return populationId;
+    }
+
+    public void setPopulationId(String populationId) {
+        this.populationId = populationId == null ? null : populationId.trim();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", regionId=").append(regionId);
+        sb.append(", adType=").append(adType);
+        sb.append(", timeId=").append(timeId);
+        sb.append(", network=").append(network);
+        sb.append(", operator=").append(operator);
+        sb.append(", device=").append(device);
+        sb.append(", os=").append(os);
+        sb.append(", brandId=").append(brandId);
+        sb.append(", appId=").append(appId);
+        sb.append(", populationId=").append(populationId);
+        sb.append("]");
+        return sb.toString();
     }
 }

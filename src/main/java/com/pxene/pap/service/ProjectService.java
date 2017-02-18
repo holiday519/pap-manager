@@ -18,8 +18,11 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectDetailBean;
+import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.IndustryModel;
+import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.view.ProjectDetailModel;
@@ -28,7 +31,10 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.IndustryDao;
+import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.ProjectDetailDao;
 
@@ -42,10 +48,19 @@ public class ProjectService extends LaunchService {
 	private CampaignDao campaignDao;
 	
 	@Autowired
+	private AdvertiserDao advertiserDao;
+	
+	@Autowired
 	private CampaignService campaignService;
 	
 	@Autowired
 	private ProjectDetailDao projectDetailDao;
+	
+	@Autowired
+	private IndustryDao industryDao;
+	
+	@Autowired
+	private KpiDao kpiDao;
 	
 	/**
 	 * 创建项目
@@ -196,15 +211,14 @@ public class ProjectService extends LaunchService {
 	 */
     public ProjectDetailBean selectProject(String id) throws Exception {
     	//从视图中查询项目所相关信息
-        ProjectDetailModelExample example = new ProjectDetailModelExample();
+        ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andIdEqualTo(id);
-		List<ProjectDetailModel> models = projectDetailDao.selectByExample(example);
-		if (models == null || models.isEmpty()) {
+		ProjectModel model = projectDao.selectByPrimaryKey(id);
+		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		ProjectDetailModel model = models.get(0);
         ProjectDetailBean bean = modelMapper.map(model, ProjectDetailBean.class);
-        
+        getParamForBean(bean);//查询属性，并放如结果中
         return bean;
     }
     
@@ -216,7 +230,7 @@ public class ProjectService extends LaunchService {
      */
     public List<ProjectDetailBean> selectProjects(String name, String advertiserId) throws Exception {
     	
-    	ProjectDetailModelExample example = new ProjectDetailModelExample();
+    	ProjectModelExample example = new ProjectModelExample();
 
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
@@ -226,19 +240,46 @@ public class ProjectService extends LaunchService {
 			example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
 		}
 		
-		List<ProjectDetailModel> projects = projectDetailDao.selectByExample(example);
+		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectDetailBean> beans = new ArrayList<ProjectDetailBean>();
 		
 		if (projects == null || projects.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		
-		for (ProjectDetailModel model : projects) {
+		for (ProjectModel model : projects) {
 			ProjectDetailBean bean = modelMapper.map(model, ProjectDetailBean.class);
+			getParamForBean(bean);//查询属性，并放如结果中
 			beans.add(bean);
 		}
-		
     	return beans;
+    }
+    /**
+     * 查询项目属性
+     * @param bean
+     * @throws Exception
+     */
+    private void getParamForBean(ProjectDetailBean bean) throws Exception {
+    	
+    	String advertiserId = bean.getAdvertiserId();
+    	if (!StringUtils.isEmpty(advertiserId)) {
+    		AdvertiserModel adv = advertiserDao.selectByPrimaryKey(advertiserId);
+    		if (adv!=null) {
+    			bean.setAdvertiserName(adv.getName());
+    			String industryId = adv.getIndustryId();
+    			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
+    			bean.setIndustryId(industryId);
+				if (industryModel != null) {
+					bean.setIndustryName(industryModel.getName());
+    			}
+    		}
+    	}
+    	String kpiId = bean.getKpiId();
+    	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
+    	if (kpiModel!=null) {
+    		bean.setKpiName(kpiModel.getName());
+    	}
+    	
     }
     
 	/**

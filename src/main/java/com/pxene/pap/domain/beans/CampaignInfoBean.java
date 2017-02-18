@@ -59,7 +59,7 @@ public class CampaignInfoBean {
 	/**
 	 * 备注
 	 */
-    @Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
+	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 	/**
 	 * 状态
@@ -75,19 +75,19 @@ public class CampaignInfoBean {
 	 */
 	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_ENDDATE)
 	private Date endDate;
-	
+
 	/**
 	 * 频次Id
 	 */
 	private String frequencyId;
-	
+
 	/**
 	 * 频次
 	 */
 	private Frequency frequency;
-	
+
 	public static class Frequency {
-		
+
 		/**
 		 * 控制对象
 		 */
@@ -103,25 +103,31 @@ public class CampaignInfoBean {
 		 */
 		@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_FREQUENCY_NUMBER)
 		private Integer number;
-		
+
 		public String getControlObj() {
 			return controlObj;
 		}
+
 		public void setControlObj(String controlObj) {
 			this.controlObj = controlObj;
 		}
+
 		public String getTimeType() {
 			return timeType;
 		}
+
 		public void setTimeType(String timeType) {
 			this.timeType = timeType;
 		}
+
 		public Integer getNumber() {
 			return number;
 		}
+
 		public void setNumber(Integer number) {
 			this.number = number;
 		}
+
 		@Override
 		public String toString() {
 			return "Frequency [controlObj=" + controlObj + ", timeType="
@@ -133,27 +139,89 @@ public class CampaignInfoBean {
 	 * 监测地址
 	 */
 	private Monitor[] monitors;
-	
+
 	public static class Monitor {
 		private String impressionUrl;
 		private String clickUrl;
+
 		public String getImpressionUrl() {
 			return impressionUrl;
 		}
+
 		public void setImpressionUrl(String impressionUrl) {
 			this.impressionUrl = impressionUrl;
 		}
+
 		public String getClickUrl() {
 			return clickUrl;
 		}
+
 		public void setClickUrl(String clickUrl) {
 			this.clickUrl = clickUrl;
 		}
+
 		@Override
 		public String toString() {
 			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
 					+ clickUrl + "]";
 		}
+	}
+
+	private Quantity[] quantity;
+
+	public static class Quantity {
+		private Date startDate;
+		private Date endDate;
+		private Integer dailyBudget;
+		private Integer dailyImpression;
+
+		public Date getStartDate() {
+			return startDate;
+		}
+
+		public void setStartDate(Date startDate) {
+			this.startDate = startDate;
+		}
+
+		public Date getEndDate() {
+			return endDate;
+		}
+
+		public void setEndDate(Date endDate) {
+			this.endDate = endDate;
+		}
+
+		public Integer getDailyBudget() {
+			return dailyBudget;
+		}
+
+		public void setDailyBudget(Integer dailyBudget) {
+			this.dailyBudget = dailyBudget;
+		}
+
+		public Integer getDailyImpression() {
+			return dailyImpression;
+		}
+
+		public void setDailyImpression(Integer dailyImpression) {
+			this.dailyImpression = dailyImpression;
+		}
+
+		@Override
+		public String toString() {
+			return "Quantity [startDate=" + startDate + ", endDate=" + endDate
+					+ ", dailyBudget=" + dailyBudget + ", dailyImpression="
+					+ dailyImpression + "]";
+		}
+
+	}
+
+	public Quantity[] getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Quantity[] quantity) {
+		this.quantity = quantity;
 	}
 
 	public String getId() {
@@ -285,8 +353,8 @@ public class CampaignInfoBean {
 				+ dailyClick + ", remark=" + remark + ", status=" + status
 				+ ", startDate=" + startDate + ", endDate=" + endDate
 				+ ", frequencyId=" + frequencyId + ", frequency=" + frequency
-				+ ", monitors=" + Arrays.toString(monitors) + "]";
+				+ ", monitors=" + Arrays.toString(monitors) + ", quantity="
+				+ Arrays.toString(quantity) + "]";
 	}
 
 }
-

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CreativeAddBean;
+import com.pxene.pap.domain.beans.CreativeBasicBean;
 import com.pxene.pap.domain.beans.MaterialListBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CreativeService;
@@ -164,10 +165,10 @@ public class CreativeController {
      */
 	@RequestMapping(value = "/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectCreatives(@RequestParam(required = false) String campaignId, @RequestParam(required = false) Long beginTime, @RequestParam(required = false) Long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String selectCreatives(@RequestParam(required = true) String campaignId, @RequestParam(required = false) String type, @RequestParam(required = false) String name, @RequestParam(required = false) Long beginTime, @RequestParam(required = false) Long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
 		        
-		List<MaterialListBean> creatives = creativeService.selectCreativeMaterials(campaignId, beginTime, endTime);
+		List<CreativeBasicBean> creatives = creativeService.selectCreatives(campaignId, name, type, beginTime, endTime);
 		
 		PaginationBean result = new PaginationBean(creatives, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

@@ -48,66 +48,99 @@ public class CampaignTargetBean {
 	 * app定向
 	 */
 	private String[] app;
+	/**
+	 * 人群定向
+	 */
+	private String[] population;
+
 	public String getId() {
 		return id;
 	}
+
 	public void setId(String id) {
 		this.id = id;
 	}
+
 	public String[] getRegion() {
 		return region;
 	}
+
 	public void setRegion(String[] region) {
 		this.region = region;
 	}
+
 	public String[] getAdType() {
 		return adType;
 	}
+
 	public void setAdType(String[] adType) {
 		this.adType = adType;
 	}
+
 	public String[] getTime() {
 		return time;
 	}
+
 	public void setTime(String[] time) {
 		this.time = time;
 	}
+
 	public String[] getNetwork() {
 		return network;
 	}
+
 	public void setNetwork(String[] network) {
 		this.network = network;
 	}
+
 	public String[] getOperator() {
 		return operator;
 	}
+
 	public void setOperator(String[] operator) {
 		this.operator = operator;
 	}
+
 	public String[] getDevice() {
 		return device;
 	}
+
 	public void setDevice(String[] device) {
 		this.device = device;
 	}
+
 	public String[] getOs() {
 		return os;
 	}
+
 	public void setOs(String[] os) {
 		this.os = os;
 	}
+
 	public String[] getBrand() {
 		return brand;
 	}
+
 	public void setBrand(String[] brand) {
 		this.brand = brand;
 	}
+
 	public String[] getApp() {
 		return app;
 	}
+
 	public void setApp(String[] app) {
 		this.app = app;
 	}
+
+	public String[] getPopulation() {
+		return population;
+	}
+
+	public void setPopulation(String[] population) {
+		this.population = population;
+	}
+
 	@Override
 	public String toString() {
 		return "CampaignTargetBean [id=" + id + ", region="
@@ -117,6 +150,8 @@ public class CampaignTargetBean {
 				+ Arrays.toString(operator) + ", device="
 				+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
 				+ ", brand=" + Arrays.toString(brand) + ", app="
-				+ Arrays.toString(app) + "]";
+				+ Arrays.toString(app) + ", population="
+				+ Arrays.toString(population) + "]";
 	}
+
 }

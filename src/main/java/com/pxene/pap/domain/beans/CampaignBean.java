@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * 活动所有信息
  */
-public class CampaignBean {
+public class CampaignBean extends CreativeBasicBean{
 
 	/**
 	 * 活动id
@@ -56,20 +56,20 @@ public class CampaignBean {
 	 * 结束时间
 	 */
 	private Date endDate;
-	
+
 	/**
 	 * 频次Id
 	 */
 	private String frequencyId;
-	
+
 	/**
 	 * 定向
 	 *
 	 */
 	private Target target;
-	
+
 	public static class Target {
-		
+
 		/**
 		 * 地域定向
 		 */
@@ -106,11 +106,53 @@ public class CampaignBean {
 		 * app定向
 		 */
 		private String[] app;
-		
+
+		/**
+		 * 人群定向
+		 */
+		private Population[] population;
+
+		public static class Population {
+			private String id;
+			private String type;
+			private String path;
+
+			public String getId() {
+				return id;
+			}
+
+			public void setId(String id) {
+				this.id = id;
+			}
+
+			public String getType() {
+				return type;
+			}
+
+			public void setType(String type) {
+				this.type = type;
+			}
+
+			public String getPath() {
+				return path;
+			}
+
+			public void setPath(String path) {
+				this.path = path;
+			}
+
+			@Override
+			public String toString() {
+				return "Population [id=" + id + ", type=" + type + ", path="
+						+ path + "]";
+			}
+
+		}
+
 		public String[] getRegion() {
 			return region;
 		}
-		
+
 		public void setRegion(String[] region) {
 			this.region = region;
 		}
@@ -179,22 +221,36 @@ public class CampaignBean {
 			this.app = app;
 		}
 
+		public Population[] getPopulation() {
+			return population;
+		}
+
+		public void setPopulation(Population[] population) {
+			this.population = population;
+		}
+
 		@Override
 		public String toString() {
-			return "Target [region=" + region + ", adType=" + adType
-					+ ", time=" + time + ", network=" + network + ", operator="
-					+ operator + ", device=" + device + ", os=" + os
-					+ ", brand=" + brand + ", app=" + app + "]";
+			return "Target [region=" + Arrays.toString(region) + ", adType="
+					+ Arrays.toString(adType) + ", time="
+					+ Arrays.toString(time) + ", network="
+					+ Arrays.toString(network) + ", operator="
+					+ Arrays.toString(operator) + ", device="
+					+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
+					+ ", brand=" + Arrays.toString(brand) + ", app="
+					+ Arrays.toString(app) + ", population="
+					+ Arrays.toString(population) + "]";
 		}
+
 	}
-	
+
 	/**
 	 * 频次
 	 */
 	private Frequency frequency;
-	
+
 	public static class Frequency {
-		
+
 		/**
 		 * 控制对象
 		 */
@@ -207,25 +263,31 @@ public class CampaignBean {
 		 * 频次
 		 */
 		private Integer number;
-		
+
 		public String getControlObj() {
 			return controlObj;
 		}
+
 		public void setControlObj(String controlObj) {
 			this.controlObj = controlObj;
 		}
+
 		public String getTimeType() {
 			return timeType;
 		}
+
 		public void setTimeType(String timeType) {
 			this.timeType = timeType;
 		}
+
 		public Integer getNumber() {
 			return number;
 		}
+
 		public void setNumber(Integer number) {
 			this.number = number;
 		}
+
 		@Override
 		public String toString() {
 			return "Frequency [controlObj=" + controlObj + ", timeType="
@@ -237,7 +299,7 @@ public class CampaignBean {
 	 * 监测地址
 	 */
 	private Monitor[] monitors;
-	
+
 	public static class Monitor {
 		/**
 		 * 展现监测地址
@@ -247,19 +309,23 @@ public class CampaignBean {
 		 * 点击监测地址
 		 */
 		private String clickUrl;
-		
+
 		public String getImpressionUrl() {
 			return impressionUrl;
 		}
+
 		public void setImpressionUrl(String impressionUrl) {
 			this.impressionUrl = impressionUrl;
 		}
+
 		public String getClickUrl() {
 			return clickUrl;
 		}
+
 		public void setClickUrl(String clickUrl) {
 			this.clickUrl = clickUrl;
 		}
+
 		@Override
 		public String toString() {
 			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
@@ -409,4 +475,3 @@ public class CampaignBean {
 	}
 
 }
-

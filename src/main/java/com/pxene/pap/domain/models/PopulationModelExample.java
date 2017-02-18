@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TimeModelExample {
+public class PopulationModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public TimeModelExample() {
+    public PopulationModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -175,143 +175,213 @@ public class TimeModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andWeekIsNull() {
-            addCriterion("week is null");
+        public Criteria andTypeIsNull() {
+            addCriterion("type is null");
             return (Criteria) this;
         }
 
-        public Criteria andWeekIsNotNull() {
-            addCriterion("week is not null");
+        public Criteria andTypeIsNotNull() {
+            addCriterion("type is not null");
             return (Criteria) this;
         }
 
-        public Criteria andWeekEqualTo(String value) {
-            addCriterion("week =", value, "week");
+        public Criteria andTypeEqualTo(String value) {
+            addCriterion("type =", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekNotEqualTo(String value) {
-            addCriterion("week <>", value, "week");
+        public Criteria andTypeNotEqualTo(String value) {
+            addCriterion("type <>", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekGreaterThan(String value) {
-            addCriterion("week >", value, "week");
+        public Criteria andTypeGreaterThan(String value) {
+            addCriterion("type >", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekGreaterThanOrEqualTo(String value) {
-            addCriterion("week >=", value, "week");
+        public Criteria andTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("type >=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekLessThan(String value) {
-            addCriterion("week <", value, "week");
+        public Criteria andTypeLessThan(String value) {
+            addCriterion("type <", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekLessThanOrEqualTo(String value) {
-            addCriterion("week <=", value, "week");
+        public Criteria andTypeLessThanOrEqualTo(String value) {
+            addCriterion("type <=", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekLike(String value) {
-            addCriterion("week like", value, "week");
+        public Criteria andTypeLike(String value) {
+            addCriterion("type like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekNotLike(String value) {
-            addCriterion("week not like", value, "week");
+        public Criteria andTypeNotLike(String value) {
+            addCriterion("type not like", value, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekIn(List<String> values) {
-            addCriterion("week in", values, "week");
+        public Criteria andTypeIn(List<String> values) {
+            addCriterion("type in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekNotIn(List<String> values) {
-            addCriterion("week not in", values, "week");
+        public Criteria andTypeNotIn(List<String> values) {
+            addCriterion("type not in", values, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekBetween(String value1, String value2) {
-            addCriterion("week between", value1, value2, "week");
+        public Criteria andTypeBetween(String value1, String value2) {
+            addCriterion("type between", value1, value2, "type");
             return (Criteria) this;
         }
 
-        public Criteria andWeekNotBetween(String value1, String value2) {
-            addCriterion("week not between", value1, value2, "week");
+        public Criteria andTypeNotBetween(String value1, String value2) {
+            addCriterion("type not between", value1, value2, "type");
             return (Criteria) this;
         }
 
-        public Criteria andClockIsNull() {
-            addCriterion("clock is null");
+        public Criteria andPathIsNull() {
+            addCriterion("path is null");
             return (Criteria) this;
         }
 
-        public Criteria andClockIsNotNull() {
-            addCriterion("clock is not null");
+        public Criteria andPathIsNotNull() {
+            addCriterion("path is not null");
             return (Criteria) this;
         }
 
-        public Criteria andClockEqualTo(String value) {
-            addCriterion("clock =", value, "clock");
+        public Criteria andPathEqualTo(String value) {
+            addCriterion("path =", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockNotEqualTo(String value) {
-            addCriterion("clock <>", value, "clock");
+        public Criteria andPathNotEqualTo(String value) {
+            addCriterion("path <>", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockGreaterThan(String value) {
-            addCriterion("clock >", value, "clock");
+        public Criteria andPathGreaterThan(String value) {
+            addCriterion("path >", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockGreaterThanOrEqualTo(String value) {
-            addCriterion("clock >=", value, "clock");
+        public Criteria andPathGreaterThanOrEqualTo(String value) {
+            addCriterion("path >=", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockLessThan(String value) {
-            addCriterion("clock <", value, "clock");
+        public Criteria andPathLessThan(String value) {
+            addCriterion("path <", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockLessThanOrEqualTo(String value) {
-            addCriterion("clock <=", value, "clock");
+        public Criteria andPathLessThanOrEqualTo(String value) {
+            addCriterion("path <=", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockLike(String value) {
-            addCriterion("clock like", value, "clock");
+        public Criteria andPathLike(String value) {
+            addCriterion("path like", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockNotLike(String value) {
-            addCriterion("clock not like", value, "clock");
+        public Criteria andPathNotLike(String value) {
+            addCriterion("path not like", value, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockIn(List<String> values) {
-            addCriterion("clock in", values, "clock");
+        public Criteria andPathIn(List<String> values) {
+            addCriterion("path in", values, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockNotIn(List<String> values) {
-            addCriterion("clock not in", values, "clock");
+        public Criteria andPathNotIn(List<String> values) {
+            addCriterion("path not in", values, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockBetween(String value1, String value2) {
-            addCriterion("clock between", value1, value2, "clock");
+        public Criteria andPathBetween(String value1, String value2) {
+            addCriterion("path between", value1, value2, "path");
             return (Criteria) this;
         }
 
-        public Criteria andClockNotBetween(String value1, String value2) {
-            addCriterion("clock not between", value1, value2, "clock");
+        public Criteria andPathNotBetween(String value1, String value2) {
+            addCriterion("path not between", value1, value2, "path");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNull() {
+            addCriterion("remark is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIsNotNull() {
+            addCriterion("remark is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkEqualTo(String value) {
+            addCriterion("remark =", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotEqualTo(String value) {
+            addCriterion("remark <>", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThan(String value) {
+            addCriterion("remark >", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkGreaterThanOrEqualTo(String value) {
+            addCriterion("remark >=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThan(String value) {
+            addCriterion("remark <", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLessThanOrEqualTo(String value) {
+            addCriterion("remark <=", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkLike(String value) {
+            addCriterion("remark like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotLike(String value) {
+            addCriterion("remark not like", value, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkIn(List<String> values) {
+            addCriterion("remark in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotIn(List<String> values) {
+            addCriterion("remark not in", values, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkBetween(String value1, String value2) {
+            addCriterion("remark between", value1, value2, "remark");
+            return (Criteria) this;
+        }
+
+        public Criteria andRemarkNotBetween(String value1, String value2) {
+            addCriterion("remark not between", value1, value2, "remark");
             return (Criteria) this;
         }
 

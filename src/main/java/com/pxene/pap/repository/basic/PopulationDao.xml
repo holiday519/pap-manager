@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.basic.TimeDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.TimeModel">
+<mapper namespace="com.pxene.pap.repository.basic.PopulationDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.PopulationModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="week" jdbcType="VARCHAR" property="week" />
-    <result column="clock" jdbcType="VARCHAR" property="clock" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
@@ -67,16 +68,16 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, week, clock, create_time, update_time
+    id, type, path, remark, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.TimeModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.PopulationModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_time
+    from pap_t_population
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -87,36 +88,41 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from pap_t_time
+    from pap_t_population
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from pap_t_time
+    delete from pap_t_population
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.TimeModelExample">
-    delete from pap_t_time
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.PopulationModelExample">
+    delete from pap_t_population
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.models.TimeModel">
-    insert into pap_t_time (id, week, clock, 
-      create_time, update_time)
-    values (#{id,jdbcType=VARCHAR}, #{week,jdbcType=VARCHAR}, #{clock,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.PopulationModel">
+    insert into pap_t_population (id, type, path, 
+      remark, create_time, update_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.TimeModel">
-    insert into pap_t_time
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.PopulationModel">
+    insert into pap_t_population
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
-      <if test="week != null">
-        week,
+      <if test="type != null">
+        type,
       </if>
-      <if test="clock != null">
-        clock,
+      <if test="path != null">
+        path,
+      </if>
+      <if test="remark != null">
+        remark,
       </if>
       <if test="createTime != null">
         create_time,
@@ -129,11 +135,14 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="week != null">
-        #{week,jdbcType=VARCHAR},
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
-      <if test="clock != null">
-        #{clock,jdbcType=VARCHAR},
+      <if test="path != null">
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
@@ -143,23 +152,26 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.models.TimeModelExample" resultType="java.lang.Long">
-    select count(*) from pap_t_time
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.PopulationModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_population
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update pap_t_time
+    update pap_t_population
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.week != null">
-        week = #{record.week,jdbcType=VARCHAR},
+      <if test="record.type != null">
+        type = #{record.type,jdbcType=VARCHAR},
       </if>
-      <if test="record.clock != null">
-        clock = #{record.clock,jdbcType=VARCHAR},
+      <if test="record.path != null">
+        path = #{record.path,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -173,24 +185,28 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update pap_t_time
+    update pap_t_population
     set id = #{record.id,jdbcType=VARCHAR},
-      week = #{record.week,jdbcType=VARCHAR},
-      clock = #{record.clock,jdbcType=VARCHAR},
+      type = #{record.type,jdbcType=VARCHAR},
+      path = #{record.path,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.TimeModel">
-    update pap_t_time
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.PopulationModel">
+    update pap_t_population
     <set>
-      <if test="week != null">
-        week = #{week,jdbcType=VARCHAR},
+      <if test="type != null">
+        type = #{type,jdbcType=VARCHAR},
       </if>
-      <if test="clock != null">
-        clock = #{clock,jdbcType=VARCHAR},
+      <if test="path != null">
+        path = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -201,10 +217,11 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.TimeModel">
-    update pap_t_time
-    set week = #{week,jdbcType=VARCHAR},
-      clock = #{clock,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.PopulationModel">
+    update pap_t_population
+    set type = #{type,jdbcType=VARCHAR},
+      path = #{path,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}

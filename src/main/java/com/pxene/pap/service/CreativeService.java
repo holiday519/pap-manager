@@ -27,7 +27,10 @@ import com.pxene.pap.domain.beans.CreativeAddBean;
 import com.pxene.pap.domain.beans.CreativeAddBean.Image;
 import com.pxene.pap.domain.beans.CreativeAddBean.Infoflow;
 import com.pxene.pap.domain.beans.CreativeAddBean.Video;
-import com.pxene.pap.domain.beans.CreativeDataBean;
+import com.pxene.pap.domain.beans.CreativeBasicBean;
+import com.pxene.pap.domain.beans.CreativeImageBean;
+import com.pxene.pap.domain.beans.CreativeInfoflowBean;
+import com.pxene.pap.domain.beans.CreativeVideoBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MaterialListBean;
 import com.pxene.pap.domain.beans.MaterialListBean.App;
@@ -40,6 +43,8 @@ import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
+import com.pxene.pap.domain.models.CreativeAuditModel;
+import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ImageModel;
@@ -60,6 +65,7 @@ import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
@@ -74,8 +80,6 @@ import com.pxene.pap.repository.basic.VideoTypeDao;
 public class CreativeService extends BaseService {
 	
 	private static String upload;
-	
-	private static String times[] = {"00","01","02","03","04","05","06","07","08","09","10","01","01","01","01","01","01","01","01","01","01"};
 	
 	@Autowired
 	public CreativeService(Environment env)
@@ -106,6 +110,9 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private AdxDao adxDao;
+	
+	@Autowired
+	private CreativeAuditDao creativeAuditDao;
 	
 	@Autowired
 	private AuditCreativeBaiduService auditCreativeBaiduService;
@@ -658,37 +665,94 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-//	public List<Map<String,Object>> selectCreatives(String name, String campaignId) throws Exception {
-//		CreativeModelExample example = new CreativeModelExample();
-//		
-//		if(!StringUtils.isEmpty(name)){
-//			example.createCriteria().andNameLike("%" + name + "%");
-//		}
-//		
-//		if(!StringUtils.isEmpty(campaignId)){
-//			example.createCriteria().andCampaignIdEqualTo(campaignId);
-//		}
-//		
-//		List<CreativeModel> creatives = creativeDao.selectByExample(example);
-//		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-//		
-//		if (creatives == null || creatives.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-//		Map<String,Object> map = null;
-//		for (CreativeModel model: creatives) {
-//			map = new HashMap<String, Object>();
-//			String creativeId = model.getId();
-//			String creativeName = model.getName();
-//			String cId = model.getCampaignId();
-//			map.put("campaignId", cId);
-//			map.put("id", creativeId);
-//			map.put("name", creativeName);
-//			list.add(map);
-//		}
-//		
-//		return list;
-//	}
+	public List<CreativeBasicBean> selectCreatives(String campaignId,String name, String type, Long beginTime, Long endTime) {
+		List<CreativeBasicBean> result = new ArrayList<CreativeBasicBean>();
+		CreativeModelExample example = new CreativeModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creatives = creativeDao.selectByExample(example);
+		if (creatives != null && !creatives.isEmpty()) {
+			CreativeImageBean image = null;
+			CreativeVideoBean video = null;
+			CreativeInfoflowBean info = null;
+			for (CreativeModel creative : creatives) {
+				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+					ImageModel imageModel = imageDao.selectByPrimaryKey(creative.getMaterialId());
+					if (imageModel != null) {
+						image = new CreativeImageBean();
+						
+						image.setId(creative.getId());
+						image.setType(type);
+						image.setCampaignId(campaignId);
+						image.setName(creative.getName());
+						
+						image.setStatus(getCreativeAuditStatus(creative.getId()));
+						image.setPrice(creative.getPrice().floatValue());
+						
+						image.setImageId(creative.getMaterialId());
+						image.setImagePath(imageModel.getPath());
+						result.add(image);
+					}
+				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+					VideoModel videoModel = videoDao.selectByPrimaryKey(creative.getMaterialId());
+					if (videoModel != null) {
+						video = new CreativeVideoBean();
+						video.setId(creative.getId());
+						video.setType(type);
+						video.setCampaignId(campaignId);
+						video.setName(creative.getName());
+						video.setStatus(getCreativeAuditStatus(creative.getId()));
+						video.setPrice(creative.getPrice().floatValue());
+						
+						String imageId = videoModel.getImageId();
+						video.setImageId(imageId);
+						video.setImagePath(getImagePath(imageId));
+						video.setVideoId(creative.getMaterialId());
+						video.setVideoPath(videoModel.getPath());
+						result.add(video);
+					}
+				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
+					InfoflowModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
+					if (infoflowModel != null) {
+						info = new CreativeInfoflowBean();
+						info.setId(creative.getId());
+						info.setType(type);
+						info.setCampaignId(campaignId);
+						info.setName(creative.getName());
+						info.setStatus(getCreativeAuditStatus(creative.getId()));
+						info.setPrice(creative.getPrice().floatValue());
+						
+						if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
+							info.setIconId(infoflowModel.getIconId());
+							info.setIconPath(getImagePath(infoflowModel.getIconId()));
+						}
+						if (!StringUtils.isEmpty(infoflowModel.getImage1Id())) {
+							info.setImage1Id(infoflowModel.getImage1Id());
+							info.setImage1Path(getImagePath(infoflowModel.getImage1Id()));
+						}
+						if (!StringUtils.isEmpty(infoflowModel.getImage2Id())) {
+							info.setImage2Id(infoflowModel.getImage2Id());
+							info.setImage2Path(getImagePath(infoflowModel.getImage2Id()));
+						}
+						if (!StringUtils.isEmpty(infoflowModel.getImage3Id())) {
+							info.setImage3Id(infoflowModel.getImage3Id());
+							info.setImage3Path(getImagePath(infoflowModel.getImage3Id()));
+						}
+						if (!StringUtils.isEmpty(infoflowModel.getImage4Id())) {
+							info.setImage4Id(infoflowModel.getImage4Id());
+							info.setImage4Path(getImagePath(infoflowModel.getImage4Id()));
+						}
+						if (!StringUtils.isEmpty(infoflowModel.getImage5Id())) {
+							info.setImage5Id(infoflowModel.getImage5Id());
+							info.setImage5Path(getImagePath(infoflowModel.getImage5Id()));
+						}
+						info.setAppStar(infoflowModel.getAppStar());
+						result.add(info);
+					}
+				}
+			}
+		}
+		return result;
+	}
 	
 	/**
 	 * 列出所有素材
@@ -805,7 +869,7 @@ public class CreativeService extends BaseService {
 			List<String> list = new ArrayList<String>();
 			list.add(bean.getId());
 			//查询点击、展现等数据
-			CreativeDataBean dataBean = creativeAllDataService.listCreativeData(list, beginTime, endTime);
+//			CreativeDataBean dataBean = creativeAllDataService.listCreativeData(list, beginTime, endTime);
 //			Long impressionAmount = dataBean.getImpressionAmount();
 //			Long clickAmount = dataBean.getClickAmount();
 //			Float cost = dataBean.getCost();
@@ -816,6 +880,56 @@ public class CreativeService extends BaseService {
 		return result;
 	}
 	
+	/**
+	 * 根据图片素材id查询图片路径
+	 * @param imageId
+	 * @return
+	 */
+	private String getImagePath(String imageId) {
+		String path = null;
+		if (!StringUtils.isEmpty(imageId)) {
+			ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
+			if (imageModel != null) {
+				path = imageModel.getPath();
+			}
+		}
+		return path;
+	}
+	
+	public String getCreativeAuditStatus(String creativeId) {
+		CreativeAuditModelExample ex = new CreativeAuditModelExample();
+		ex.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
+		String status = StatusConstant.CREATIVE_AUDIT_NOCHECK;
+		boolean successFlag = false;
+		for (CreativeAuditModel model : list) {
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(model.getStatus())) {
+				status = StatusConstant.CREATIVE_AUDIT_SUCCESS;
+				successFlag  = true;
+				break;
+			}
+		}
+		if (!successFlag) {
+			boolean watingFlag = false;
+			for (CreativeAuditModel model : list) {
+				if (StatusConstant.CREATIVE_AUDIT_WATING.equals(model.getStatus())) {
+					status = StatusConstant.CREATIVE_AUDIT_WATING;
+					watingFlag = true;
+					break;
+				}
+			}
+			if (!watingFlag) {
+				for (CreativeAuditModel model : list) {
+					if (StatusConstant.CREATIVE_AUDIT_FAILURE.equals(model.getStatus())) {
+						status = StatusConstant.CREATIVE_AUDIT_FAILURE;
+						break;
+					}
+				}
+			}
+		}
+		
+		return status;
+	}
 	/**
 	 * 获取App信息
 	 * @param tmplId
@@ -878,7 +992,6 @@ public class CreativeService extends BaseService {
 		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			InfoflowModel model = infoflowDao.selectByPrimaryKey(materialId);
 			if (model != null) {
-				
 				return model.getTitle();
 			}
 		}

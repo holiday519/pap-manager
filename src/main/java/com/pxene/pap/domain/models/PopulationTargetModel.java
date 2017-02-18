@@ -2,12 +2,12 @@ package com.pxene.pap.domain.models;
 
 import java.util.Date;
 
-public class TimeModel {
+public class PopulationTargetModel {
     private String id;
 
-    private String week;
+    private String campaignId;
 
-    private String clock;
+    private String populationId;
 
     private Date createTime;
 
@@ -21,20 +21,20 @@ public class TimeModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getWeek() {
-        return week;
+    public String getCampaignId() {
+        return campaignId;
     }
 
-    public void setWeek(String week) {
-        this.week = week == null ? null : week.trim();
+    public void setCampaignId(String campaignId) {
+        this.campaignId = campaignId == null ? null : campaignId.trim();
     }
 
-    public String getClock() {
-        return clock;
+    public String getPopulationId() {
+        return populationId;
     }
 
-    public void setClock(String clock) {
-        this.clock = clock == null ? null : clock.trim();
+    public void setPopulationId(String populationId) {
+        this.populationId = populationId == null ? null : populationId.trim();
     }
 
     public Date getCreateTime() {
@@ -60,8 +60,8 @@ public class TimeModel {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
-        sb.append(", week=").append(week);
-        sb.append(", clock=").append(clock);
+        sb.append(", campaignId=").append(campaignId);
+        sb.append(", populationId=").append(populationId);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

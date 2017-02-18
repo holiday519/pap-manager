@@ -15,13 +15,10 @@ import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
-import com.pxene.pap.domain.models.TimeModel;
-import com.pxene.pap.domain.models.TimeModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.ProjectDao;
-import com.pxene.pap.repository.basic.TimeDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
@@ -37,9 +34,6 @@ public class LaunchService extends BaseService{
 	
 	@Autowired
 	private CampaignDao campaignDao;
-	
-	@Autowired
-	private TimeDao timeDao;
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
@@ -85,11 +79,8 @@ public class LaunchService extends BaseService{
 		String currentDay = DateUtils.getCurrentDay();//当前时间
 		String currentData = DateUtils.getCurrentData();//当前日期
 		LOGGER.info(currentData + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
-		//查询当前时间对应的时间ID
-		TimeModelExample timeExample = new TimeModelExample();
-		timeExample.createCriteria().andWeekEqualTo(currentWeek).andClockEqualTo(currentHour);
-		List<TimeModel> times = timeDao.selectByExample(timeExample);
-		String cId = times.get(0).getId();
+		//当前时间对应的时间ID
+		String cId = "0" + currentWeek + currentDay;
 		//查询投放中和等待中的项目
 		ProjectModelExample projectExample = new ProjectModelExample();
 		projectExample.createCriteria()
