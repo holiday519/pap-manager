@@ -896,6 +896,11 @@ public class CreativeService extends BaseService {
 		return path;
 	}
 	
+	/**
+	 * 活动审核状态
+	 * @param creativeId
+	 * @return
+	 */
 	public String getCreativeAuditStatus(String creativeId) {
 		CreativeAuditModelExample ex = new CreativeAuditModelExample();
 		ex.createCriteria().andCreativeIdEqualTo(creativeId);

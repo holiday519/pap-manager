@@ -30,6 +30,8 @@ import com.pxene.pap.domain.models.AdvertiserModelExample;
 import com.pxene.pap.domain.models.AdvertiserModelExample.Criteria;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
+import com.pxene.pap.domain.models.CreativeAuditModel;
+import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.IndustryKpiModel;
 import com.pxene.pap.domain.models.IndustryKpiModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
@@ -259,15 +261,7 @@ public class AdvertiserService extends BaseService
         }
         bean.setKpis(kpis);
         
-        AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
-        ex.createCriteria().andAdvertiserIdEqualTo(id);
-        List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
-        String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
-        if (list!=null && !list.isEmpty()) {
-        	AdvertiserAuditModel model = list.get(0);
-        	status = model.getStatus();
-        }
-        bean.setStatus(status);
+        bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
         // 将DAO创建的新对象复制回传输对象中
         return bean;
     }
@@ -316,15 +310,7 @@ public class AdvertiserService extends BaseService
                 }
                 bean.setKpis(kpis);
                 //查询审核状态
-                AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
-                ex.createCriteria().andAdvertiserIdEqualTo(advertiserModel.getId());
-                List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
-                String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
-                if (list!=null && !list.isEmpty()) {
-                	AdvertiserAuditModel model = list.get(0);
-                	status = model.getStatus();
-                }
-                bean.setStatus(status);
+                bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
                 
                 advertiserList.add(bean);
             }
@@ -332,6 +318,46 @@ public class AdvertiserService extends BaseService
         
         return advertiserList;
     }
+    
+    /**
+	 * 活动审核状态
+	 * @param creativeId
+	 * @return
+	 */
+	public String getAdvertiserAuditStatus(String AdvertiserId) {
+		AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
+		ex.createCriteria().andAdvertiserIdEqualTo(AdvertiserId);
+		List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
+		String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
+		boolean successFlag = false;
+		for (AdvertiserAuditModel model : list) {
+			if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(model.getStatus())) {
+				status = StatusConstant.ADVERTISER_AUDIT_SUCCESS;
+				successFlag  = true;
+				break;
+			}
+		}
+		if (!successFlag) {
+			boolean watingFlag = false;
+			for (AdvertiserAuditModel model : list) {
+				if (StatusConstant.ADVERTISER_AUDIT_WATING.equals(model.getStatus())) {
+					status = StatusConstant.ADVERTISER_AUDIT_WATING;
+					watingFlag = true;
+					break;
+				}
+			}
+			if (!watingFlag) {
+				for (AdvertiserAuditModel model : list) {
+					if (StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(model.getStatus())) {
+						status = StatusConstant.ADVERTISER_AUDIT_FAILURE;
+						break;
+					}
+				}
+			}
+		}
+		return status;
+	}
+    
     
     public String uploadQualification(MultipartFile file) throws Exception {
     	// 图片绝对路径
