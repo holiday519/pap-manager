@@ -1,6 +1,6 @@
 package com.pxene.pap.domain.beans;
 
-public class CreativeVideoBean extends CreativeBasicBean {
+public class CreativeVideoBean extends BasicDataBean {
 
 	private String id;
 	private String type;// 创意类型

@@ -17,7 +17,6 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ProjectBean;
-import com.pxene.pap.domain.beans.ProjectDetailBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
@@ -25,8 +24,6 @@ import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
-import com.pxene.pap.domain.models.view.ProjectDetailModel;
-import com.pxene.pap.domain.models.view.ProjectDetailModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
@@ -209,7 +206,7 @@ public class ProjectService extends LaunchService {
 	 * @param id
 	 * @return
 	 */
-    public ProjectDetailBean selectProject(String id) throws Exception {
+    public ProjectBean selectProject(String id) throws Exception {
     	//从视图中查询项目所相关信息
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andIdEqualTo(id);
@@ -217,7 +214,7 @@ public class ProjectService extends LaunchService {
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-        ProjectDetailBean bean = modelMapper.map(model, ProjectDetailBean.class);
+		ProjectBean bean = modelMapper.map(model, ProjectBean.class);
         getParamForBean(bean);//查询属性，并放如结果中
         return bean;
     }
@@ -228,7 +225,7 @@ public class ProjectService extends LaunchService {
      * @return
      * @throws Exception
      */
-    public List<ProjectDetailBean> selectProjects(String name, String advertiserId) throws Exception {
+    public List<ProjectBean> selectProjects(String name, String advertiserId) throws Exception {
     	
     	ProjectModelExample example = new ProjectModelExample();
 
@@ -241,14 +238,14 @@ public class ProjectService extends LaunchService {
 		}
 		
 		List<ProjectModel> projects = projectDao.selectByExample(example);
-		List<ProjectDetailBean> beans = new ArrayList<ProjectDetailBean>();
+		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 		
 		if (projects == null || projects.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		
 		for (ProjectModel model : projects) {
-			ProjectDetailBean bean = modelMapper.map(model, ProjectDetailBean.class);
+			ProjectBean bean = modelMapper.map(model, ProjectBean.class);
 			getParamForBean(bean);//查询属性，并放如结果中
 			beans.add(bean);
 		}
@@ -259,7 +256,7 @@ public class ProjectService extends LaunchService {
      * @param bean
      * @throws Exception
      */
-    private void getParamForBean(ProjectDetailBean bean) throws Exception {
+    private void getParamForBean(ProjectBean bean) throws Exception {
     	
     	String advertiserId = bean.getAdvertiserId();
     	if (!StringUtils.isEmpty(advertiserId)) {

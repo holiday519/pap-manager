@@ -3,7 +3,7 @@ package com.pxene.pap.domain.beans;
 /**
  * 查询广告主、项目、活动、创意时公共继承类 类中主要有展现、点击等投放数据
  */
-public class CreativeBasicBean {
+public class BasicDataBean {
 
 	private Long impressionAmount;// 展现数
 	private Long clickAmount;// 点击数

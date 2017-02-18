@@ -22,7 +22,6 @@ import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
-import com.pxene.pap.domain.beans.ProjectDetailBean;
 import com.pxene.pap.service.ProjectService;
 
 @Controller
@@ -114,7 +113,7 @@ public class ProjectController {
 	@ResponseBody
 	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
-		ProjectDetailBean projectDetailBean = projectService.selectProject(id);
+		ProjectBean projectDetailBean = projectService.selectProject(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), projectDetailBean, response);
 	}
 	
@@ -137,7 +136,7 @@ public class ProjectController {
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<ProjectDetailBean> beans = projectService.selectProjects(name, advertiserId);
+		List<ProjectBean> beans = projectService.selectProjects(name, advertiserId);
 		
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

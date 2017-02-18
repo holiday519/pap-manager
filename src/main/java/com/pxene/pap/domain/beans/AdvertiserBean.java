@@ -16,7 +16,7 @@ import com.pxene.pap.constant.RegexConstant;
 /**
  * 广告主
  */
-public class AdvertiserBean extends CreativeBasicBean {
+public class AdvertiserBean extends BasicDataBean {
 	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 

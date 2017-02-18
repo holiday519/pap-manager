@@ -3,12 +3,10 @@ package com.pxene.pap.domain.beans;
 import java.util.Arrays;
 import java.util.Date;
 
-import com.pxene.pap.domain.beans.CampaignInfoBean.Quantity;
-
 /**
  * 活动所有信息
  */
-public class CampaignBean extends CreativeBasicBean {
+public class CampaignBean extends BasicDataBean {
 
 	/**
 	 * 活动id

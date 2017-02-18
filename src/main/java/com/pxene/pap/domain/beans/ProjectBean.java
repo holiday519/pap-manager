@@ -9,12 +9,16 @@ import com.pxene.pap.constant.PhrasesConstant;
 /**
  * 项目
  */
-public class ProjectBean {
+public class ProjectBean extends BasicDataBean {
 
 	/**
 	 * 项目id
 	 */
 	private String id;
+	
+	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
+	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
+	private String name;
 	/**
 	 * 广告主id
 	 */
@@ -24,9 +28,15 @@ public class ProjectBean {
 	/**
 	 * 名称
 	 */
-	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
-	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
-	private String name;
+	private String advertiserName;
+	/**
+	 * 行业id
+	 */
+	private String industryId;
+	/**
+	 * 行业名称
+	 */
+	private String industryName;
 	/**
 	 * 总预算
 	 */
@@ -47,7 +57,10 @@ public class ProjectBean {
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI)
 	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
 	private String kpiId;
-	
+	/**
+	 * kpi指标名称
+	 */
+	private String kpiName;
 	/**
 	 * KPI指标value
 	 */
@@ -102,6 +115,31 @@ public class ProjectBean {
 	}
 	public void setKpiId(String kpiId) {
 		this.kpiId = kpiId;
+	}
+	
+	public String getAdvertiserName() {
+		return advertiserName;
+	}
+	public void setAdvertiserName(String advertiserName) {
+		this.advertiserName = advertiserName;
+	}
+	public String getIndustryId() {
+		return industryId;
+	}
+	public void setIndustryId(String industryId) {
+		this.industryId = industryId;
+	}
+	public String getIndustryName() {
+		return industryName;
+	}
+	public void setIndustryName(String industryName) {
+		this.industryName = industryName;
+	}
+	public String getKpiName() {
+		return kpiName;
+	}
+	public void setKpiName(String kpiName) {
+		this.kpiName = kpiName;
 	}
 	@Override
 	public String toString() {

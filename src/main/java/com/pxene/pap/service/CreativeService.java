@@ -27,7 +27,7 @@ import com.pxene.pap.domain.beans.CreativeAddBean;
 import com.pxene.pap.domain.beans.CreativeAddBean.Image;
 import com.pxene.pap.domain.beans.CreativeAddBean.Infoflow;
 import com.pxene.pap.domain.beans.CreativeAddBean.Video;
-import com.pxene.pap.domain.beans.CreativeBasicBean;
+import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.CreativeImageBean;
 import com.pxene.pap.domain.beans.CreativeInfoflowBean;
 import com.pxene.pap.domain.beans.CreativeVideoBean;
@@ -137,9 +137,6 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private CampaignDao campaignDao;
-	
-	@Autowired
-	private CreativeAllDataService creativeAllDataService;
 	
 	/**
 	 * 创建创意
@@ -665,8 +662,8 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<CreativeBasicBean> selectCreatives(String campaignId,String name, String type, Long beginTime, Long endTime) {
-		List<CreativeBasicBean> result = new ArrayList<CreativeBasicBean>();
+	public List<BasicDataBean> selectCreatives(String campaignId,String name, String type, Long beginTime, Long endTime) {
+		List<BasicDataBean> result = new ArrayList<BasicDataBean>();
 		CreativeModelExample example = new CreativeModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
