@@ -1,5 +1,9 @@
 package com.pxene.pap.common;
 
+import it.sauronsoftware.jave.Encoder;
+import it.sauronsoftware.jave.MultimediaInfo;
+import it.sauronsoftware.jave.VideoSize;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,10 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
-
-import it.sauronsoftware.jave.Encoder;
-import it.sauronsoftware.jave.MultimediaInfo;
-import it.sauronsoftware.jave.VideoSize;
 
 public class FileUtils
 {
@@ -65,9 +65,9 @@ public class FileUtils
      */
     public static MediaBean checkFile(MultipartFile file)
     {
-    	MediaBean result = null;
+//    	MediaBean result = null;
     	
-    	try
+		try
     	{
     		String name = file.getOriginalFilename();
     		String contentType = file.getContentType();
@@ -82,7 +82,13 @@ public class FileUtils
     			width = sourceImg.getWidth();
     			height = sourceImg.getHeight();
     			
-    			result = new ImageBean(width, height);
+    			ImageBean result = new ImageBean();
+    			result.setHeight(height);
+    			result.setWidth(width);
+    			// 设置基本属性
+        		result.setFormat(fileExtension);
+        		result.setVolume(volume);
+        		return result;
     		}
     		else if (contentType.startsWith("video"))
     		{
@@ -96,13 +102,15 @@ public class FileUtils
     			width = videoSize.getWidth();
     			height = videoSize.getHeight();
     			
-    			result = new VideoBean(width, height, timeLength);
+    			VideoBean result = new VideoBean();
+    			result.setHeight(height);
+    			result.setWidth(width);
+    			result.setTimelength(timeLength);
+    			// 设置基本属性
+        		result.setFormat(fileExtension);
+        		result.setVolume(volume);
+        		return result;
     		}
-    		
-    		// 设置基本属性
-    		result.setName(name);
-    		result.setType(fileExtension);
-    		result.setVolume(volume);
     		
     	}
     	catch (Exception e)
@@ -110,7 +118,7 @@ public class FileUtils
     		e.printStackTrace();
     		return null;
     	}
-    	return result;
+    	return null;
     }
     
     
