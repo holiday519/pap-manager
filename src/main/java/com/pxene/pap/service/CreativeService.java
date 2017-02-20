@@ -1,16 +1,19 @@
 package com.pxene.pap.service;
 
 import java.io.File;
-import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
@@ -18,21 +21,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.github.pagehelper.util.StringUtil;
+import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.CreativeBean;
+import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.ImageCreativeBean;
 import com.pxene.pap.domain.beans.InfoflowCreativeBean;
-import com.pxene.pap.domain.beans.VideoCreativeBean;
-import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MaterialListBean;
 import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
+import com.pxene.pap.domain.beans.VideoCreativeBean;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
@@ -44,6 +48,7 @@ import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.CreativeModelExample.Criteria;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.ImageTypeModel;
@@ -665,10 +670,17 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<BasicDataBean> selectCreatives(String campaignId,String name, String type, Long beginTime, Long endTime) {
+	public List<BasicDataBean> selectCreatives(String campaignId, String name, String type, Long beginTime, Long endTime) throws Exception {
 		List<BasicDataBean> result = new ArrayList<BasicDataBean>();
 		CreativeModelExample example = new CreativeModelExample();
-		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(campaignId)) {
+			example.createCriteria().andNameEqualTo(name);
+		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
+			example.createCriteria().andCampaignIdEqualTo(campaignId);
+		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
+			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameEqualTo(name);
+		}
+		
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
 			ImageCreativeBean image = null;
@@ -690,6 +702,23 @@ public class CreativeService extends BaseService {
 						
 						image.setImageId(creative.getMaterialId());
 						image.setImagePath(imageModel.getPath());
+						//查询投放数据
+						if (beginTime != null && endTime != null) {
+							String creativeId = creative.getId();
+							List<String> idList = new ArrayList<String>();
+							idList.add(creativeId);
+							BasicDataBean dataBean = getCreativeDatas(idList, beginTime, endTime);
+							if (dataBean != null) {
+								image.setImpressionAmount(dataBean.getImpressionAmount());
+								image.setClickAmount(dataBean.getClickAmount());
+								image.setTotalCost(dataBean.getTotalCost());
+								image.setJumpAmount(dataBean.getJumpAmount());
+								image.setImpressionCost(dataBean.getImpressionCost());
+								image.setClickCost(dataBean.getClickCost());
+								image.setClickRate(dataBean.getClickRate());
+								image.setJumpCost(dataBean.getJumpCost());
+							}
+						}
 						result.add(image);
 					}
 				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
@@ -708,6 +737,23 @@ public class CreativeService extends BaseService {
 						video.setImagePath(getImagePath(imageId));
 						video.setVideoId(creative.getMaterialId());
 						video.setVideoPath(videoModel.getPath());
+						//查询投放数据
+						if (beginTime != null && endTime != null) {
+							String creativeId = creative.getId();
+							List<String> idList = new ArrayList<String>();
+							idList.add(creativeId);
+							BasicDataBean dataBean = getCreativeDatas(idList, beginTime, endTime);
+							if (dataBean != null) {
+								video.setImpressionAmount(dataBean.getImpressionAmount());
+								video.setClickAmount(dataBean.getClickAmount());
+								video.setTotalCost(dataBean.getTotalCost());
+								video.setJumpAmount(dataBean.getJumpAmount());
+								video.setImpressionCost(dataBean.getImpressionCost());
+								video.setClickCost(dataBean.getClickCost());
+								video.setClickRate(dataBean.getClickRate());
+								video.setJumpCost(dataBean.getJumpCost());
+							}
+						}
 						result.add(video);
 					}
 				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
@@ -746,6 +792,23 @@ public class CreativeService extends BaseService {
 							info.setImage5Path(getImagePath(infoflowModel.getImage5Id()));
 						}
 						info.setAppStar(infoflowModel.getAppStar());
+						//查询投放数据
+						if (beginTime != null && endTime != null) {
+							String creativeId = creative.getId();
+							List<String> idList = new ArrayList<String>();
+							idList.add(creativeId);
+							BasicDataBean dataBean = getCreativeDatas(idList, beginTime, endTime);
+							if (dataBean != null) {
+								info.setImpressionAmount(dataBean.getImpressionAmount());
+								info.setClickAmount(dataBean.getClickAmount());
+								info.setTotalCost(dataBean.getTotalCost());
+								info.setJumpAmount(dataBean.getJumpAmount());
+								info.setImpressionCost(dataBean.getImpressionCost());
+								info.setClickCost(dataBean.getClickCost());
+								info.setClickRate(dataBean.getClickRate());
+								info.setJumpCost(dataBean.getJumpCost());
+							}
+						}
 						result.add(info);
 					}
 				}
@@ -1004,4 +1067,177 @@ public class CreativeService extends BaseService {
 		return null;
 	}
 	
+	/**
+	 * 查询创意投放数据
+	 * @param creativeIds
+	 * @param beginTime
+	 * @param endTime
+	 * @return
+	 * @throws Exception
+	 */
+	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long beginTime, Long endTime) throws Exception {
+		BasicDataBean basicData = new BasicDataBean();
+		FormatBeanParams(basicData);//将属性值变成0
+		DateTime begin = new DateTime(beginTime);
+    	DateTime end = new DateTime(endTime);
+    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
+    		//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
+    		if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
+					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
+				List<String> days = new ArrayList<String>();
+				days.add(begin.toString("yyyyMMdd"));
+				getDataformDayTable(creativeIds, days, basicData);
+			} else {//如果是今天就要查询小时数据
+				getDataformHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
+			}
+    	} else {
+    		String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
+			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
+			if (!begin.toString("HH").equals("00")) {
+				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
+				getDataformHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
+				if (daysList != null && daysList.size() > 0) {
+					for (int i = 0; i < daysList.size(); i++) {
+						if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
+							daysList.remove(i);
+						}
+					}
+				}
+			}
+			if (!end.toString("HH").equals("23")) {
+				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
+				getDataformHourTable(creativeIds, smallHourOfDay, begin.toDate(), basicData);
+				if (daysList != null && daysList.size() > 0) {
+					for (int i = 0; i < daysList.size(); i++) {
+						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
+							daysList.remove(i);
+						}
+					}
+				}
+			}
+			getDataformDayTable(creativeIds, daysList, basicData);
+    	}
+    	
+    	FormatBeanRate(basicData);
+		return basicData;
+	}
+	
+	/**
+	 * 取天数据
+	 * @param creativeIds
+	 * @param daysList
+	 * @param bean
+	 * @throws Exception
+	 */
+	private void getDataformDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
+		for (String creativeId : creativeIds) {
+			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + creativeId);//获取map集合
+			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + creativeId);//获取所有key
+			if (hkeys != null && !hkeys.isEmpty()) {
+				for (String hkey : hkeys) {
+					//必须要符合“日期”+“@”才是创意的数据
+					for (String day : daysList) {
+						if (hkey.indexOf(day + "@") > -1) {
+							String value = map.get(hkey);
+							//根据不同的值来整合不同属性值
+							if (StringUtils.isEmpty(value)) {
+								if (hkey.indexOf("@m") > 0) {// 展现
+									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
+								} else if (hkey.indexOf("@c") > 0) {// 点击
+									bean.setClickAmount(bean.getClickAmount() + Long.parseLong(value));
+								} else if (hkey.indexOf("@j") > 0) {// 二跳
+									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
+								} else if (hkey.indexOf("@e") > 0) {// 花费
+									bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(value));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 取小时数据
+	 * @param creativeIds
+	 * @param beginTime
+	 * @param endTime
+	 * @param bean
+	 * @throws Exception
+	 */
+	private void getDataformHourTable(List<String> creativeIds, Date beginTime, Date endTime, BasicDataBean bean) throws Exception {
+		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
+		String day = new DateTime(beginTime).toString("yyyyMMdd");
+		for (String creativeId : creativeIds) {
+			Map<String, String> map = JedisUtils.hget("creativeDataHour_" + creativeId);//获取map集合
+			Set<String> hkeys = JedisUtils.hkeys("creativeDataHour_" + creativeId);//获取所有key
+			if (hkeys != null && !hkeys.isEmpty()) {
+				for (String hkey : hkeys) {
+					//必须要符合“日期”+“小时”+“@”才是创意的数据
+					for (String hour : hours) {
+						if (hkey.indexOf(day + hour + "@") > -1) {
+							String value = map.get(hkey);
+							//根据不同的值来整合不同属性值
+							if (StringUtils.isEmpty(value)) {
+								if (hkey.indexOf("@m") > 0) {// 展现
+									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
+								} else if (hkey.indexOf("@c") > 0) {// 点击
+									bean.setClickAmount(bean.getClickAmount() + Long.parseLong(value));
+								} else if (hkey.indexOf("@j") > 0) {// 二跳
+									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
+								} else if (hkey.indexOf("@e") > 0) {// 花费
+									bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(value));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 将实例化的bean种属性值变成0
+	 * @param bean
+	 * @throws Exception
+	 */
+	private void FormatBeanParams(BasicDataBean bean) throws Exception {
+		bean.setImpressionAmount(0L);
+		bean.setClickAmount(0L);
+		bean.setJumpAmount(0L);
+		bean.setTotalCost(0F);
+		
+		bean.setImpressionCost(0F);
+		bean.setClickRate(0F);
+		bean.setClickCost(0F);
+		bean.setJumpCost(0F);
+	}
+	
+	/**
+	 * 格式话“率”
+	 * @param bean
+	 * @throws Exception
+	 */
+	private void FormatBeanRate(BasicDataBean bean) throws Exception {
+		DecimalFormat format = new DecimalFormat("0.00000");
+		if (bean.getTotalCost() > 0) {
+			double percent = (double)bean.getImpressionAmount() / bean.getTotalCost();
+	        Float result = Float.parseFloat(format.format(percent));
+	        bean.setImpressionCost(result);
+	        
+	        percent = (double)bean.getClickAmount() / bean.getTotalCost();
+	        result = Float.parseFloat(format.format(percent));
+	        bean.setClickCost(result);
+	        
+	        percent = (double)bean.getJumpAmount() / bean.getTotalCost();
+	        result = Float.parseFloat(format.format(percent));
+	        bean.setJumpCost(result);
+		}
+		if (bean.getImpressionAmount() > 0) {
+			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
+	        Float result = Float.parseFloat(format.format(percent));
+	        bean.setClickRate(result);
+		}
+	}
 }

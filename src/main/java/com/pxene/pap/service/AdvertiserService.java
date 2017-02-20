@@ -23,15 +23,17 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.AdvertiserBean.Kpi;
+import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdvertiserModelExample;
-import com.pxene.pap.domain.models.AdvertiserModelExample.Criteria;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
-import com.pxene.pap.domain.models.CreativeAuditModel;
-import com.pxene.pap.domain.models.CreativeAuditModelExample;
+import com.pxene.pap.domain.models.CampaignModel;
+import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.IndustryKpiModel;
 import com.pxene.pap.domain.models.IndustryKpiModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
@@ -44,6 +46,8 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.IndustryKpiDao;
 import com.pxene.pap.repository.basic.KpiDao;
@@ -57,11 +61,17 @@ public class AdvertiserService extends BaseService
     @Autowired
     private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
     @Autowired
+    private CreativeService creativeService;
+    @Autowired
     private AdxDao adxDao;
     @Autowired
     private AdvertiserAuditDao advertiserAuditDao;
-    @Autowired
-    private ProjectDao projectDao;
+	@Autowired
+	private ProjectDao projectDao;
+	@Autowired
+	private CampaignDao campaignDao;
+	@Autowired
+	private CreativeDao creativeDao;
     @Autowired
     private IndustryDao industryDao;
     @Autowired
@@ -267,15 +277,14 @@ public class AdvertiserService extends BaseService
     }
 
 
-    public List<AdvertiserBean> listAdvertisers(String name) throws Exception
+    public List<AdvertiserBean> listAdvertisers(String name, Long beginTime, Long endTime) throws Exception
     {
         AdvertiserModelExample example = new AdvertiserModelExample();
-        Criteria criteria = example.createCriteria();
         
         // 根据用户名进行过滤（可选）
         if (!StringUtils.isEmpty(name))
         {
-            criteria.andNameLike("%" + name + "%");
+        	example.createCriteria().andNameLike("%" + name + "%");
         }
         
         List<AdvertiserModel> advertiserModels = advertiserDao.selectByExample(example);
@@ -312,12 +321,66 @@ public class AdvertiserService extends BaseService
                 //查询审核状态
                 bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
                 
+                if (beginTime != null && endTime != null) {
+					//查询投放数据
+    				getData(beginTime, endTime, bean);
+    			}
+                
                 advertiserList.add(bean);
             }
         }
         
         return advertiserList;
     }
+    
+    /**
+     * 查询项目投放数据
+     * @param projectId
+     * @param beginTime
+     * @param endTime
+     * @param bean
+     * @throws Exception
+     */
+    private void getData(Long beginTime, Long endTime,AdvertiserBean bean) throws Exception {
+    	ProjectModelExample projectExample = new ProjectModelExample();
+    	projectExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
+    	List<ProjectModel> projects = projectDao.selectByExample(projectExample);
+    	if (projects != null && !projects.isEmpty()) {
+    		List<String> projectIds = new ArrayList<String>();
+    		for (ProjectModel project : projects) {
+    			projectIds.add(project.getId());
+    		}
+    		CampaignModelExample campaignExample = new CampaignModelExample();
+    		campaignExample.createCriteria().andProjectIdIn(projectIds);
+    		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+    		if (campaigns != null && !campaigns.isEmpty()) {
+    			List<String> campaignIds = new ArrayList<String>();
+    			for (CampaignModel campaign : campaigns) {
+    				campaignIds.add(campaign.getId());
+    			}
+    			CreativeModelExample cExample = new CreativeModelExample();
+    			cExample.createCriteria().andCampaignIdIn(campaignIds);
+    			List<CreativeModel> list = creativeDao.selectByExample(cExample);
+    			List<String> creativeIds = new ArrayList<String>();
+    			if (list != null && !list.isEmpty()) {
+    				for (CreativeModel model : list) {
+    					creativeIds.add(model.getId());
+    				}
+    			}
+    			BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
+    			if (dataBean != null) {
+    				bean.setImpressionAmount(dataBean.getImpressionAmount());
+    				bean.setClickAmount(dataBean.getClickAmount());
+    				bean.setTotalCost(dataBean.getTotalCost());
+    				bean.setJumpAmount(dataBean.getJumpAmount());
+    				bean.setImpressionCost(dataBean.getImpressionCost());
+    				bean.setClickCost(dataBean.getClickCost());
+    				bean.setClickRate(dataBean.getClickRate());
+    				bean.setJumpCost(dataBean.getJumpCost());
+    			}
+    		}
+    	}
+	}
     
     /**
 	 * 活动审核状态

@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ImageCreativeBean;
 import com.pxene.pap.domain.beans.InfoflowCreativeBean;

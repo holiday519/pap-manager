@@ -129,14 +129,14 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProjects(@RequestParam(required = false) String name,@RequestParam(required = false) String advertiserId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String selectProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Long beginTime, @RequestParam(required = false) Long endTime, @RequestParam(required = false) String advertiserId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<ProjectBean> beans = projectService.selectProjects(name, advertiserId);
+		List<ProjectBean> beans = projectService.selectProjects(name, beginTime, endTime, advertiserId);
 		
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

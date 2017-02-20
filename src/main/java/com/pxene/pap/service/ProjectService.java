@@ -16,10 +16,13 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
@@ -30,6 +33,7 @@ import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
@@ -45,10 +49,16 @@ public class ProjectService extends LaunchService {
 	private CampaignDao campaignDao;
 	
 	@Autowired
+	private CreativeDao creativeDao;
+	
+	@Autowired
 	private AdvertiserDao advertiserDao;
 	
 	@Autowired
 	private CampaignService campaignService;
+	
+	@Autowired
+	private CreativeService creativeService;
 	
 	@Autowired
 	private ProjectDetailDao projectDetailDao;
@@ -225,18 +235,16 @@ public class ProjectService extends LaunchService {
      * @return
      * @throws Exception
      */
-    public List<ProjectBean> selectProjects(String name, String advertiserId) throws Exception {
+    public List<ProjectBean> selectProjects(String name, Long beginTime, Long endTime, String advertiserId) throws Exception {
     	
     	ProjectModelExample example = new ProjectModelExample();
-
-		if (!StringUtils.isEmpty(name)) {
+		if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(advertiserId)) {
 			example.createCriteria().andNameLike("%" + name + "%");
-		}
-		
-		if (!StringUtils.isEmpty(advertiserId)) {
+		} else if (!StringUtils.isEmpty(advertiserId) && StringUtils.isEmpty(name)) {
 			example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		} else if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(advertiserId)) {
+			example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andNameLike("%" + name + "%");
 		}
-		
 		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 		
@@ -247,10 +255,59 @@ public class ProjectService extends LaunchService {
 		for (ProjectModel model : projects) {
 			ProjectBean bean = modelMapper.map(model, ProjectBean.class);
 			getParamForBean(bean);//查询属性，并放如结果中
+			
+			if (beginTime != null && endTime != null) {
+				//查询每个项目的投放信息
+				getData(beginTime, endTime, bean);
+			}
+			
 			beans.add(bean);
 		}
     	return beans;
     }
+    
+    /**
+     * 查询项目投放数据
+     * @param projectId
+     * @param beginTime
+     * @param endTime
+     * @param bean
+     * @throws Exception
+     */
+    private void getData(Long beginTime, Long endTime,ProjectBean bean) throws Exception {
+    	//查询活动
+    	CampaignModelExample campaignExample = new CampaignModelExample();
+    	campaignExample.createCriteria().andProjectIdEqualTo(bean.getId());
+    	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+    	if (campaigns != null && !campaigns.isEmpty()) {
+    		List<String> campaignIds = new ArrayList<String>();
+    		for (CampaignModel campaign : campaigns) {
+    			campaignIds.add(campaign.getId());
+    		}
+    		CreativeModelExample cExample = new CreativeModelExample();
+    		cExample.createCriteria().andCampaignIdIn(campaignIds);
+    		List<CreativeModel> list = creativeDao.selectByExample(cExample);
+    		List<String> creativeIds = new ArrayList<String>();
+    		if (list != null && !list.isEmpty()) {
+    			for (CreativeModel model : list) {
+    				creativeIds.add(model.getId());
+    			}
+    		}
+    		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
+    		if (dataBean != null) {
+    			bean.setImpressionAmount(dataBean.getImpressionAmount());
+    			bean.setClickAmount(dataBean.getClickAmount());
+    			bean.setTotalCost(dataBean.getTotalCost());
+    			bean.setJumpAmount(dataBean.getJumpAmount());
+    			bean.setImpressionCost(dataBean.getImpressionCost());
+    			bean.setClickCost(dataBean.getClickCost());
+    			bean.setClickRate(dataBean.getClickRate());
+    			bean.setJumpCost(dataBean.getJumpCost());
+    		}
+    	}
+    	
+	}
+    
     /**
      * 查询项目属性
      * @param bean

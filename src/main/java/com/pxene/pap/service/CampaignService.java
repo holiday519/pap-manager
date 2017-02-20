@@ -18,12 +18,13 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.CampaignBean;
-import com.pxene.pap.domain.beans.CampaignBean.Target;
-import com.pxene.pap.domain.beans.CampaignBean.Target.Population;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Monitor;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
+import com.pxene.pap.domain.beans.CampaignBean.Target;
+import com.pxene.pap.domain.beans.CampaignBean.Target.Population;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
@@ -649,17 +650,19 @@ public class CampaignService extends LaunchService{
 	/**
 	 * 查询活动列表
 	 * @param name
+	 * @param beginTime 
+	 * @param endTime 
 	 * @return
 	 * @throws Exception
 	 */
-	public List<CampaignBean> selectCampaigns(String name, String projectId) throws Exception {
+	public List<CampaignBean> selectCampaigns(String name, String projectId, Long beginTime, Long endTime) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
-		if(!StringUtils.isEmpty(name)){
+		if(!StringUtils.isEmpty(name) && StringUtils.isEmpty(projectId)){
 			example.createCriteria().andNameLike("%" + name + "%");
-		}
-		
-		if(!StringUtils.isEmpty(projectId)){
+		} else if(!StringUtils.isEmpty(projectId) && StringUtils.isEmpty(name)){
 			example.createCriteria().andProjectIdEqualTo(projectId);
+		}else if(!StringUtils.isEmpty(name) && !StringUtils.isEmpty(projectId)){
+			example.createCriteria().andProjectIdEqualTo(projectId).andNameLike("%" + name + "%");
 		}
 		
 		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
@@ -672,11 +675,48 @@ public class CampaignService extends LaunchService{
 		for (CampaignModel campaign : campaigns) {
 			CampaignBean map = modelMapper.map(campaign, CampaignBean.class);
 			addParamToCampaign(map, campaign.getId());
+			
+			if (beginTime != null && endTime != null) {
+				//查询每个活动的投放信息
+				getData(beginTime, endTime, map);
+			}
+			
 			beans.add(map);
 		}
-		
 		return beans;
 	}
+	
+	/**
+	 * 查询投放数据放入结果中
+	 * @param campaignId
+	 * @param beginTime
+	 * @param endTime
+	 * @param bean
+	 * @throws Exception 
+	 */
+	private void getData(Long beginTime, Long endTime, CampaignBean bean) throws Exception {
+		CreativeModelExample cExample = new CreativeModelExample();
+		cExample.createCriteria().andCampaignIdEqualTo(bean.getId());
+		List<CreativeModel> list = creativeDao.selectByExample(cExample);
+		List<String> creativeIds = new ArrayList<String>();
+		if (list != null && !list.isEmpty()) {
+			for (CreativeModel model : list) {
+				creativeIds.add(model.getId());
+			}
+		}
+		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
+		if (dataBean != null) {
+			bean.setImpressionAmount(dataBean.getImpressionAmount());
+			bean.setClickAmount(dataBean.getClickAmount());
+			bean.setTotalCost(dataBean.getTotalCost());
+			bean.setJumpAmount(dataBean.getJumpAmount());
+			bean.setImpressionCost(dataBean.getImpressionCost());
+			bean.setClickCost(dataBean.getClickCost());
+			bean.setClickRate(dataBean.getClickRate());
+			bean.setJumpCost(dataBean.getJumpCost());
+		}
+	}
+	
 	
 	/**
 	 * 查询活动相关属性
