@@ -49,17 +49,11 @@ import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.CreativeModelExample.Criteria;
+import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.ImageTmplModel;
-import com.pxene.pap.domain.models.ImageTypeModel;
-import com.pxene.pap.domain.models.ImageTypeModelExample;
-import com.pxene.pap.domain.models.InfoflowModel;
-import com.pxene.pap.domain.models.SizeModel;
-import com.pxene.pap.domain.models.SizeModelExample;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
-import com.pxene.pap.domain.models.VideoTypeModel;
-import com.pxene.pap.domain.models.VideoTypeModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
@@ -70,13 +64,10 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
+import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
-import com.pxene.pap.repository.basic.ImageTypeDao;
-import com.pxene.pap.repository.basic.InfoflowDao;
-import com.pxene.pap.repository.basic.SizeDao;
 import com.pxene.pap.repository.basic.VideoDao;
 import com.pxene.pap.repository.basic.VideoTmplDao;
-import com.pxene.pap.repository.basic.VideoTypeDao;
 
 @Service
 public class CreativeService extends BaseService {
@@ -93,22 +84,10 @@ public class CreativeService extends BaseService {
 	}
 	
 	@Autowired
-	private InfoflowDao infoflowDao;
-	
-	@Autowired
 	private CreativeDao creativeDao;
 	
 	@Autowired
-	private ImageTypeDao imageTypeDao;
-	
-	@Autowired
-	private VideoTypeDao videoTypeDao;
-	
-	@Autowired
 	private VideoDao videoDao;
-	
-	@Autowired
-	private SizeDao sizeDao;
 	
 	@Autowired
 	private AdxDao adxDao;
@@ -140,6 +119,9 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private CampaignDao campaignDao;
 	
+	@Autowired
+	private ImageMaterialDao imageMaterialDao;
+	
 	/**
 	 * 创建创意
 	 * @param bean
@@ -157,18 +139,14 @@ public class CreativeService extends BaseService {
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
 			creativeModel = modelMapper.map(iBean, CreativeModel.class);
+			ImageMaterialModel imageMaterialModel = modelMapper.map(iBean, ImageMaterialModel.class);
+			imageMaterialDao.insert(imageMaterialModel);
 		}
 		// 视频
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
-			String imageId = vBean.getImageId();
-			if (!StringUtils.isEmpty(imageId)) {
-				String videoId = vBean.getVideoId();
-				VideoModel videoModel = videoDao.selectByPrimaryKey(videoId);
-				videoModel.setImageId(imageId);
-				videoDao.updateByPrimaryKey(videoModel);
-			}
 			creativeModel = modelMapper.map(vBean, CreativeModel.class);
+			
 		}
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
