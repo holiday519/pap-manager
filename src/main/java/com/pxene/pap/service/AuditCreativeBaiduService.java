@@ -570,21 +570,21 @@ public class AuditCreativeBaiduService {
 		
 		return advertiserModel;
 	}
-	/**
-	 * 查询创意对应活动的活动类型
-	 * @param mapId
-	 * @return
-	 * @throws Exception
-	 */
-	public String getCampaignPromotionTypeByMapId (String mapId) throws Exception {
-		//查询活动ID
-		CreativeModel campaignCreativeModel = creativeDao.selectByPrimaryKey(mapId);
-		String campaignId = campaignCreativeModel.getCampaignId();
-		//查询项目ID
-		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
-		String type = campaignModel.getType();
-		return type;
-	}
+//	/**
+//	 * 查询创意对应活动的活动类型
+//	 * @param mapId
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	public String getCampaignPromotionTypeByMapId (String mapId) throws Exception {
+//		//查询活动ID
+//		CreativeModel campaignCreativeModel = creativeDao.selectByPrimaryKey(mapId);
+//		String campaignId = campaignCreativeModel.getCampaignId();
+//		//查询项目ID
+//		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+//		String type = campaignModel.getType();
+//		return type;
+//	}
 	
 	/**
 	 * 获取审核Value

@@ -25,7 +25,6 @@ import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
-import com.pxene.pap.domain.models.ImageTmplTypeModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
 import com.pxene.pap.domain.models.InfoflowTmplModelExample;
 import com.pxene.pap.domain.models.InfoflowTmplModelExample.Criteria;
@@ -40,7 +39,6 @@ import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
-import com.pxene.pap.repository.basic.ImageTmplTypeDao;
 import com.pxene.pap.repository.basic.InfoflowTmplDao;
 import com.pxene.pap.repository.basic.view.TmplImageDetailDao;
 import com.pxene.pap.repository.basic.view.TmplVideoDetailDao;
@@ -51,8 +49,8 @@ public class TmplService extends BaseService {
 	@Autowired
 	private ImageTmplDao imageTmplDao;
 
-	@Autowired
-	private ImageTmplTypeDao imageTmplTypeDao;
+//	@Autowired
+//	private ImageTmplTypeDao imageTmplTypeDao;
 
 	@Autowired
 	private AppTmplDao appTmplDao;
@@ -91,15 +89,15 @@ public class TmplService extends BaseService {
 		if (StringUtils.isEmpty(id)) {
 			id = UUID.randomUUID().toString();
 		}
-		// 如果图片类型ID 不为NULL，添加关联关系
-		String imageTypeId = bean.getImageTypeId();
-		if (!StringUtils.isEmpty(imageTypeId)) {
-			ImageTmplTypeModel ittModel = new ImageTmplTypeModel();
-			ittModel.setId(UUID.randomUUID().toString());
-			ittModel.setImageTmplId(id);
-			ittModel.setImageTypeId(imageTypeId);
-			imageTmplTypeDao.insertSelective(ittModel);
-		}
+//		// 如果图片类型ID 不为NULL，添加关联关系
+//		String imageTypeId = bean.getImageTypeId();
+//		if (!StringUtils.isEmpty(imageTypeId)) {
+//			ImageTmplTypeModel ittModel = new ImageTmplTypeModel();
+//			ittModel.setId(UUID.randomUUID().toString());
+//			ittModel.setImageTmplId(id);
+//			ittModel.setImageTypeId(imageTypeId);
+//			imageTmplTypeDao.insertSelective(ittModel);
+//		}
 		// 转换参数
 		ImageTmplModel model = modelMapper.map(bean, ImageTmplModel.class);
 

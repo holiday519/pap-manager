@@ -28,17 +28,17 @@ import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
-import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.IndustryAdxModel;
 import com.pxene.pap.domain.models.IndustryAdxModelExample;
-import com.pxene.pap.domain.models.InfoflowModel;
+import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
-import com.pxene.pap.domain.models.SizeModel;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
@@ -46,15 +46,15 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
-import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
+import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.IndustryAdxDao;
-import com.pxene.pap.repository.basic.InfoflowDao;
+import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.ProjectDao;
-import com.pxene.pap.repository.basic.SizeDao;
 import com.pxene.pap.repository.basic.VideoDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
@@ -70,8 +70,8 @@ public class AuditCreativeAdviewService {
 	@Autowired
 	private LandpageDao landpageDao;
 	
-	@Autowired
-	private SizeDao sizeDao;
+//	@Autowired
+//	private SizeDao sizeDao;
 	
 	@Autowired
 	private ImageDao imageDao;
@@ -80,7 +80,10 @@ public class AuditCreativeAdviewService {
 	private VideoDao videoDao;
 	
 	@Autowired
-	private InfoflowDao InfoflowDao;
+	private ImageMaterialDao imageMaterialDao;
+	
+	@Autowired
+	private InfoflowMaterialDao InfoflowDao;
 	
 	@Autowired
 	private ProjectDao projectDao;
@@ -203,11 +206,12 @@ public class AuditCreativeAdviewService {
 		//广告位类型adType: 0 –横幅(条) 1 –插屏 4 –开屏
 		String type = mapModel.getType();
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-			String imageId = mapModel.getMaterialId();
-			ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
-			String sizeId = imageModel.getSizeId();
-			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			String imageName = sizeModel.getWidth() + "x" + sizeModel.getHeight();//名称、尺寸
+			String imageMaterialId = mapModel.getMaterialId();
+			ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageMaterialId);
+			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getId());
+//			String sizeId = imageModel.getSizeId();
+//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			String imageName = imageModel.getWidth() + "x" + imageModel.getHeight();//名称、尺寸
 			String imageUrl = imageModel.getPath();
 			origs.addProperty("originalityName", imageName);
 			JsonObject imageObj = new JsonObject();
@@ -230,9 +234,12 @@ public class AuditCreativeAdviewService {
 		} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			String videoId = mapModel.getMaterialId();
 			VideoModel videoModel = videoDao.selectByPrimaryKey(videoId);
-			String sizeId = videoModel.getSizeId();
-			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			String videoName = sizeModel.getWidth() + "x" + sizeModel.getHeight();//名称、尺寸
+//			String sizeId = videoModel.getSizeId();
+//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			String imageMaterialId = mapModel.getMaterialId();
+			ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageMaterialId);
+			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getId());
+			String videoName = imageModel.getWidth() + "x" + imageModel.getHeight();//名称、尺寸
 			String videoUrl = videoModel.getPath();
 			origs.addProperty("jumpLinkVideo", videoUrl);
 			origs.addProperty("resolutionVideo", videoName);
@@ -240,7 +247,7 @@ public class AuditCreativeAdviewService {
 			
 		} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			String infoId= mapModel.getMaterialId();
-			InfoflowModel infoflowModel = InfoflowDao.selectByPrimaryKey(infoId);
+			InfoflowMaterialModel infoflowModel = InfoflowDao.selectByPrimaryKey(infoId);
 			//原生图片信息
 			JsonArray nativePic = new JsonArray();
 			if (infoflowModel.getIconId() != null) {
@@ -396,18 +403,18 @@ public class AuditCreativeAdviewService {
 	public void addImageInfo(JsonArray nativePic, String imageId ) throws Exception {
 		
 		ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
-		if (imageModel != null) {
-			String sizeId = imageModel.getSizeId();
-			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			if (sizeModel != null) {
-				String size = sizeModel.getWidth() + "x" + sizeModel.getHeight();//尺寸
+//		if (imageModel != null) {
+//			String sizeId = imageModel.getSizeId();
+//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			if (imageModel != null) {
+				String size = imageModel.getWidth() + "x" + imageModel.getHeight();//尺寸
 				String url = imageModel.getPath();
 				JsonObject imageObj = new JsonObject();
 				imageObj.addProperty("size", size);
 				imageObj.addProperty("url", url);
 				nativePic.add(imageObj);
 			}
-		}
+//		}
 	}
 	
 	/**

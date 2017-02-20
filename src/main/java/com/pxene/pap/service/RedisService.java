@@ -780,7 +780,7 @@ public class RedisService {
 	 * @return
 	 * @throws Exception
 	 */
-	public BigDecimal getCreativePrice(String mapId) throws Exception {
+	public Float getCreativePrice(String mapId) throws Exception {
 //		//查询关联表数据
 //		CreativeMaterialModel materialModel = creativeMaterialDao.selectByPrimaryKey(mapId);
 //		if (materialModel == null) {
@@ -806,7 +806,7 @@ public class RedisService {
 //		BigDecimal price = campaignTmplPriceModel.getPrice();
 		
 		CreativeModel model = creativeDao.selectByPrimaryKey(mapId);
-		BigDecimal price = model.getPrice();
+		Float price = model.getPrice();
 		
 		
 		return price;

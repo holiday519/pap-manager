@@ -48,10 +48,11 @@ import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
-import com.pxene.pap.domain.models.CreativeModelExample.Criteria;
 import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.ImageTmplModel;
+import com.pxene.pap.domain.models.InfoflowMaterialModel;
+import com.pxene.pap.domain.models.VideoMaterialModel;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -66,7 +67,9 @@ import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
 import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
+import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.VideoDao;
+import com.pxene.pap.repository.basic.VideoMaterialDao;
 import com.pxene.pap.repository.basic.VideoTmplDao;
 
 @Service
@@ -85,6 +88,9 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private CreativeDao creativeDao;
+	
+	@Autowired
+	private InfoflowMaterialDao infoflowDao;
 	
 	@Autowired
 	private VideoDao videoDao;
@@ -122,6 +128,12 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private ImageMaterialDao imageMaterialDao;
 	
+	@Autowired
+	private VideoMaterialDao videoeMaterialDao;
+	
+	@Autowired
+	private InfoflowMaterialDao infoMaterialDao;
+	
 	/**
 	 * 创建创意
 	 * @param bean
@@ -151,7 +163,7 @@ public class CreativeService extends BaseService {
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
-			InfoflowModel infoflowModel = modelMapper.map(ifBean, InfoflowModel.class);
+			InfoflowMaterialModel infoflowModel = modelMapper.map(ifBean, InfoflowMaterialModel.class);
 			infoflowModel.setId(UUID.randomUUID().toString());
 			infoflowDao.insert(infoflowModel);
 			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
@@ -382,10 +394,10 @@ public class CreativeService extends BaseService {
 			if (tmplModel==null) {
 				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
 			}
-			String sizeId = tmplModel.getSizeId();
-			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			Integer tmplWidth = sizeModel.getWidth();//模版宽限制
-			Integer tmplHeight = sizeModel.getHeight();//模版高限制
+//			String sizeId = tmplModel.getSizeId();
+//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			Integer tmplWidth = tmplModel.getWidth();//模版宽限制
+			Integer tmplHeight = tmplModel.getHeight();//模版高限制
 			Float maxVolume = tmplModel.getMaxVolume();//模版最大体积限制
 			int height = imageBean.getHeight();//文件高
 			int width = imageBean.getWidth();//文件宽
@@ -403,10 +415,10 @@ public class CreativeService extends BaseService {
 			if (tmplModel==null) {
 				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
 			}
-			String sizeId = tmplModel.getSizeId();
-			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			Integer tmplWidth = sizeModel.getWidth();//模版宽限制
-			Integer tmplHeight = sizeModel.getHeight();//模版高限制
+//			String sizeId = tmplModel.getSizeId();
+//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+			Integer tmplWidth = tmplModel.getWidth();//模版宽限制
+			Integer tmplHeight = tmplModel.getHeight();//模版高限制
 			Float maxVolume = tmplModel.getMaxVolume();//模版最大体积限制
 			Integer maxTimelength = tmplModel.getMaxTimelength();//模版最大时长
 			int height = videoBean.getHeight();//文件高
@@ -438,33 +450,36 @@ public class CreativeService extends BaseService {
 		String id = UUID.randomUUID().toString();
 		String dir = upload + "creative/image/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
-		String name = imageBean.getName();
+//		String name = imageBean.getName();
 //		String path = imageBean.getPath().replace(upload, "");
-		String type = imageBean.getType();
+		String type = imageBean.getFormat();
 		Float volume = imageBean.getVolume();
-		ImageTypeModelExample itExample = new ImageTypeModelExample();
-		itExample.createCriteria().andNameEqualTo(type);
-		//查询typeID
-		List<ImageTypeModel> imageTypes = imageTypeDao.selectByExample(itExample);
-		if (imageTypes == null || imageTypes.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		String typeId = null;
-		for (ImageTypeModel mol : imageTypes) {
-			typeId = mol.getId();
-		}
+//		ImageTypeModelExample itExample = new ImageTypeModelExample();
+//		itExample.createCriteria().andNameEqualTo(type);
+//		//查询typeID
+//		List<ImageTypeModel> imageTypes = imageTypeDao.selectByExample(itExample);
+//		if (imageTypes == null || imageTypes.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
+//		String typeId = null;
+//		for (ImageTypeModel mol : imageTypes) {
+//			typeId = mol.getId();
+//		}
 		//查询尺寸ID
 		int height = imageBean.getHeight();
 		int width = imageBean.getWidth();
-		String sizeId = getImageSizeId(width, height);
+//		String sizeId = getImageSizeId(width, height);
 		//添加图片信息
 		ImageModel model = new ImageModel();
 		model.setId(id);
-		model.setName(name);
+//		model.setName(name);
 		model.setPath(path.replace(upload, ""));
-		model.setVolume(volume);
-		model.setTypeId(typeId);
-		model.setSizeId(sizeId);
+		model.setFormat(type);
+		model.setVolume(Double.parseDouble(String.valueOf(volume)));
+		model.setWidth(width);
+		model.setHeight(height);
+//		model.setTypeId(typeId);
+//		model.setSizeId(sizeId);
 		try {
 			imageDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
@@ -488,38 +503,41 @@ public class CreativeService extends BaseService {
 		String id = UUID.randomUUID().toString();
 		String dir = upload + "creative/video/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
-		String name = videoBean.getName();
+//		String name = videoBean.getName();
 //		String path = videoBean.getPath().replace(upload, "");
-		String type = videoBean.getType();
+		String type = videoBean.getFormat();
 		Float volume = videoBean.getVolume();
-		String size = videoBean.getSize();//视频图片的id
-		int timeLength = videoBean.getTimelength();
-		VideoTypeModelExample videoExample = new VideoTypeModelExample();
-		videoExample.createCriteria().andNameEqualTo(type);
-		//查询typeID
-		List<VideoTypeModel> videoTypes = videoTypeDao.selectByExample(videoExample);
-		if (videoTypes == null || videoTypes.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		String typeId = null;
-		for (VideoTypeModel mol : videoTypes) {
-			typeId = mol.getId();
-		}
+//		String size = videoBean.getSize();//视频图片的id
+//		int timeLength = videoBean.getTimelength();
+//		VideoTypeModelExample videoExample = new VideoTypeModelExample();
+//		videoExample.createCriteria().andNameEqualTo(type);
+//		//查询typeID
+//		List<VideoTypeModel> videoTypes = videoTypeDao.selectByExample(videoExample);
+//		if (videoTypes == null || videoTypes.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
+//		String typeId = null;
+//		for (VideoTypeModel mol : videoTypes) {
+//			typeId = mol.getId();
+//		}
 		//查询尺寸ID
 		int height = videoBean.getHeight();
 		int width = videoBean.getWidth();
-		String sizeId = getImageSizeId(width, height);
+//		String sizeId = getImageSizeId(width, height);
 		
 		VideoModel model = new VideoModel();
 		//添加视频信息
 		model.setId(id);
-		model.setName(name);
+//		model.setName(name);
 		model.setPath(path.replace(upload, ""));
-		model.setVolume(volume);
-		model.setTypeId(typeId);
-		model.setSizeId(sizeId);
-		model.setTimeLength(timeLength);
-		model.setImageId(size);
+		model.setFormat(type);
+		model.setWidth(width);
+		model.setHeight(height);
+		model.setVolume(Double.parseDouble(String.valueOf(volume)));
+//		model.setTypeId(typeId);
+//		model.setSizeId(sizeId);
+		model.setTimeLength(videoBean.getTimelength());
+//		model.setImageId(size);
 		try {
 			videoDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
@@ -532,25 +550,25 @@ public class CreativeService extends BaseService {
 		return map;
 	}
 	
-	/**
-	 * 根据长和宽查询尺寸ID
-	 * @param width
-	 * @param height
-	 * @return
-	 */
-	private String getImageSizeId(int width, int height) {
-		SizeModelExample sizeExample = new SizeModelExample();
-		sizeExample.createCriteria().andHeightEqualTo(height).andWidthEqualTo(width);
-		List<SizeModel> sizes = sizeDao.selectByExample(sizeExample);
-		if (sizes==null || sizes.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		String id = null;
-		for (SizeModel mol : sizes) {
-			id = mol.getId();
-		}
-		return id;
-	}
+//	/**
+//	 * 根据长和宽查询尺寸ID
+//	 * @param width
+//	 * @param height
+//	 * @return
+//	 */
+//	private String getImageSizeId(int width, int height) {
+//		SizeModelExample sizeExample = new SizeModelExample();
+//		sizeExample.createCriteria().andHeightEqualTo(height).andWidthEqualTo(width);
+//		List<SizeModel> sizes = sizeDao.selectByExample(sizeExample);
+//		if (sizes==null || sizes.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
+//		String id = null;
+//		for (SizeModel mol : sizes) {
+//			id = mol.getId();
+//		}
+//		return id;
+//	}
 
 	/**
 	 * 创意提交第三方审核
@@ -630,7 +648,8 @@ public class CreativeService extends BaseService {
 			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
 				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-					ImageModel imageModel = imageDao.selectByPrimaryKey(creative.getMaterialId());
+					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
+					ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
 					if (imageModel != null) {
 						image = new ImageCreativeBean();
 						
@@ -664,7 +683,10 @@ public class CreativeService extends BaseService {
 						result.add(image);
 					}
 				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
-					VideoModel videoModel = videoDao.selectByPrimaryKey(creative.getMaterialId());
+					VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(creative.getMaterialId());
+					String imageId = videoMaterialModel.getImageId();
+					
+					VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
 					if (videoModel != null) {
 						video = new VideoCreativeBean();
 						video.setId(creative.getId());
@@ -674,7 +696,6 @@ public class CreativeService extends BaseService {
 						video.setStatus(getCreativeAuditStatus(creative.getId()));
 						video.setPrice(creative.getPrice().floatValue());
 						
-						String imageId = videoModel.getImageId();
 						video.setImageId(imageId);
 						video.setImagePath(getImagePath(imageId));
 						video.setVideoId(creative.getMaterialId());
@@ -699,7 +720,7 @@ public class CreativeService extends BaseService {
 						result.add(video);
 					}
 				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
-					InfoflowModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
+					InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
 					if (infoflowModel != null) {
 						info = new InfoflowCreativeBean();
 						info.setId(creative.getId());
@@ -788,19 +809,21 @@ public class CreativeService extends BaseService {
 			bean.setType(creativeType);
 			//根据素材类型不同，获取不同的素材路径
 			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
-				ImageModel imageModel = imageDao.selectByPrimaryKey(materialId);
+				ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(materialId);
+				ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
 				if (imageModel != null) {
 					String path = imageModel.getPath();
 					bean.setPath(path);
 				}
 			} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
-				VideoModel videoModel = videoDao.selectByPrimaryKey(materialId);
+				VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(materialId);
+				VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
 				if (videoModel != null) {
 					String path = videoModel.getPath();
 					bean.setPath(path);
 				}
 			} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
-				InfoflowModel infoflowModel = infoflowDao.selectByPrimaryKey(materialId);
+				InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(materialId);
 				if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
 					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getIconId());
 					if (imageModel != null) {
@@ -978,29 +1001,32 @@ public class CreativeService extends BaseService {
 	 */
 	private String getMaterialName(String materialId, String type) throws Exception {
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-			ImageModel model = imageDao.selectByPrimaryKey(materialId);
+			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(materialId);
+			ImageModel model = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
 			if (model != null) {
-				String sizeId = model.getSizeId();
-				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-				if (sizeModel != null) {
-					Integer width = sizeModel.getWidth();
-					Integer height = sizeModel.getHeight();
+//				String sizeId = model.getSizeId();
+//				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+//				if (sizeModel != null) {
+					Integer width = model.getWidth();
+					Integer height = model.getHeight();
 					return width + "x" + height;
-				}
+//				}
 			}
 		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-			VideoModel model = videoDao.selectByPrimaryKey(materialId);
+			
+			VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(materialId);
+			VideoModel model = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
 			if (model != null) {
-				String sizeId = model.getSizeId();
-				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-				if (sizeModel != null) {
-					Integer width = sizeModel.getWidth();
-					Integer height = sizeModel.getHeight();
+//				String sizeId = model.getSizeId();
+//				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
+//				if (sizeModel != null) {
+					Integer width = model.getWidth();
+					Integer height = model.getHeight();
 					return width + "x" + height;
-				}
+//				}
 			}
 		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-			InfoflowModel model = infoflowDao.selectByPrimaryKey(materialId);
+			InfoflowMaterialModel model = infoflowDao.selectByPrimaryKey(materialId);
 			if (model != null) {
 				return model.getTitle();
 			}
