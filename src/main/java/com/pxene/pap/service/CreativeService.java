@@ -148,77 +148,41 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void createCreative(CreativeBean bean) throws Exception {
-		String name = bean.getName();
-		String campaignId = bean.getCampaignId();
 		String type = bean.getType();
-		Float price = bean.getPrice();
+		CreativeModel creativeModel = null;
 		
+		// 创建创意的时候，要根据模板判断上传的创意是否符合模板要求，不符合要抛出异常
+		
+		// 图片
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
+			creativeModel = modelMapper.map(iBean, CreativeModel.class);
 		}
+		// 视频
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
+			String imageId = vBean.getImageId();
+			if (!StringUtils.isEmpty(imageId)) {
+				String videoId = vBean.getVideoId();
+				VideoModel videoModel = videoDao.selectByPrimaryKey(videoId);
+				videoModel.setImageId(imageId);
+				videoDao.updateByPrimaryKey(videoModel);
+			}
+			creativeModel = modelMapper.map(vBean, CreativeModel.class);
 		}
+		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
+			InfoflowModel infoflowModel = modelMapper.map(ifBean, InfoflowModel.class);
+			infoflowModel.setId(UUID.randomUUID().toString());
+			infoflowDao.insert(infoflowModel);
+			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
+			
 		}
 		
-//		CreativeModel cmModel = new CreativeModel();
-//		//添加图片创意
-//		if (images != null && images.length > 0) {
-//			for (Image image : images) {
-//				cmModel = new CreativeModel();
-//				String imageId = image.getId();
-//				String tmplId = image.getTmplId();
-//				cmModel.setType(StatusConstant.CREATIVE_TYPE_IMAGE);
-//				cmModel.setTmplId(tmplId);
-//				cmModel.setId(UUID.randomUUID().toString());
-//				cmModel.setMaterialId(imageId);
-//				cmModel.setCampaignId(campaignId);
-//				creativeDao.insertSelective(cmModel);
-//			}
-//		}
-//		//添加视频创意
-//		if (videos != null && videos.length > 0) {
-//			for (Video video : videos) {
-//				cmModel = new CreativeModel();
-//				String videoId = video.getId();
-//				String imageId = video.getImageId();//图片id
-//				//如果有图片，将图片Id保存到视频创意表中
-//				if (!StringUtil.isEmpty(imageId)) {
-//					VideoModel videoModel = new VideoModel();
-//					videoModel.setId(videoId);
-//					videoModel.setImageId(imageId);
-//					videoDao.updateByPrimaryKeySelective(videoModel);
-//				}
-//				String tmplId = video.getTmplId();
-//				cmModel.setType(StatusConstant.CREATIVE_TYPE_VIDEO);
-//				cmModel.setTmplId(tmplId);
-//				cmModel.setId(UUID.randomUUID().toString());
-//				cmModel.setMaterialId(videoId);
-//				cmModel.setCampaignId(campaignId);
-//				creativeDao.insertSelective(cmModel);
-//			}
-//		}
-//		//添加信息流创意
-//		if (infoflows != null && infoflows.length > 0) {
-//			for (Infoflow info : infoflows) {
-//				cmModel = new CreativeModel();
-//				String infoId = UUID.randomUUID().toString();
-//				String tmplId = info.getTmplId();
-//				//添加信息流创意表信息
-//				InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
-//				model.setId(infoId);
-//				infoflowDao.insertSelective(model);
-//				
-//				cmModel.setType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
-//				cmModel.setId(UUID.randomUUID().toString());
-//				cmModel.setMaterialId(infoId);
-//				cmModel.setTmplId(tmplId);
-//				cmModel.setCampaignId(campaignId);
-//				creativeDao.insertSelective(cmModel);
-//			}
-//		}
+		creativeModel.setId(UUID.randomUUID().toString());
+		creativeDao.insertSelective(creativeModel);
+		
 	}
 	
 	/**
@@ -283,7 +247,7 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(campaignId)) {
 			//只有活动是等待中时才可删除创意
 			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-			if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
+			if (!StatusConstant.CAMPAIGN_WAITING.equals(model.getStatus())) {
 				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
 			}
 		}
@@ -359,7 +323,7 @@ public class CreativeService extends BaseService {
 			if (!StringUtils.isEmpty(campaignId)) {
 				//只有活动是等待中时才可删除创意
 				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-				if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
+				if (!StatusConstant.CAMPAIGN_WAITING.equals(model.getStatus())) {
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
 				}
 			}

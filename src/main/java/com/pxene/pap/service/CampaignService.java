@@ -200,7 +200,7 @@ public class CampaignService extends LaunchService{
 			addCampaignMonitor(bean);
 			//添加频次ID
 			campaignModel.setFrequencyId(frequencyId);
-			campaignModel.setStatus(StatusConstant.CAMPAIGN_WATING);
+			campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING);
 			//添加投放量控制策略
 			addCampaignQuantity(bean);
 			//添加活动基本信息

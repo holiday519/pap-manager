@@ -21,7 +21,7 @@ public class StatusConstant {
 	/**
 	 * 活动状态：未开启
 	 */
-	public static final String CAMPAIGN_WATING = "01";
+	public static final String CAMPAIGN_WAITING = "01";
 	/**
 	 * 活动状态：投放中
 	 */

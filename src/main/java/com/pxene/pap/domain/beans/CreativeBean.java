@@ -39,10 +39,13 @@ public class CreativeBean extends BasicDataBean {
 	 */
 	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_IMAGE_PRICE)
 	private Float price;
-	
+	/**
+	 * 备注
+	 */
+	private String tmplId;
 	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
-
+	
 	public String getId() {
 		return id;
 	}
@@ -106,12 +109,20 @@ public class CreativeBean extends BasicDataBean {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	public String getTmplId() {
+		return tmplId;
+	}
+
+	public void setTmplId(String tmplId) {
+		this.tmplId = tmplId;
+	}
 
 	@Override
 	public String toString() {
 		return "CreativeBean [id=" + id + ", name=" + name + ", type=" + type
 				+ ", status=" + status + ", campaignId=" + campaignId
-				+ ", campaignName=" + campaignName + ", price=" + price
+				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
 				+ ", remark=" + remark + "]";
 	}
 	
