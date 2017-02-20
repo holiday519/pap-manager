@@ -21,7 +21,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.CampaignBean;
-import com.pxene.pap.domain.beans.CampaignInfoBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CampaignService;
@@ -41,7 +40,7 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createCampaign(@Valid @RequestBody CampaignInfoBean bean, HttpServletResponse response) throws Exception {
+	public String createCampaign(@Valid @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.createCampaign(bean);
 		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
@@ -70,7 +69,7 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateCampaign(@PathVariable String id, @RequestBody CampaignInfoBean bean, HttpServletResponse response) throws Exception {
+	public void updateCampaign(@PathVariable String id, @RequestBody CampaignBean bean, HttpServletResponse response) throws Exception {
 		campaignService.updateCampaign(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}

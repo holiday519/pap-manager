@@ -21,10 +21,9 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Population;
-import com.pxene.pap.domain.beans.CampaignInfoBean;
-import com.pxene.pap.domain.beans.CampaignInfoBean.Frequency;
-import com.pxene.pap.domain.beans.CampaignInfoBean.Monitor;
-import com.pxene.pap.domain.beans.CampaignInfoBean.Quantity;
+import com.pxene.pap.domain.beans.CampaignBean.Frequency;
+import com.pxene.pap.domain.beans.CampaignBean.Monitor;
+import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
@@ -157,7 +156,7 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createCampaign(CampaignInfoBean bean) throws Exception {
+	public void createCampaign(CampaignBean bean) throws Exception {
 	    checkDateRange(bean);
 		
 		String projectId = bean.getProjectId();
@@ -212,7 +211,7 @@ public class CampaignService extends LaunchService{
 //		BeanUtils.copyProperties(campaignModel, bean);
 	}
 
-    private void checkDateRange(CampaignInfoBean bean) throws Exception
+    private void checkDateRange(CampaignBean bean) throws Exception
     {
         Date startDate = bean.getStartDate();
 	    Date endDate = bean.getEndDate();
@@ -229,7 +228,7 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void updateCampaign(String id ,CampaignInfoBean bean) throws Exception {
+	public void updateCampaign(String id, CampaignBean bean) throws Exception {
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
 			throw new ResourceNotFoundException();
@@ -494,7 +493,7 @@ public class CampaignService extends LaunchService{
 	 * @param bean
 	 */
 	@Transactional
-	public void addCampaignMonitor(CampaignInfoBean bean) throws Exception {
+	public void addCampaignMonitor(CampaignBean bean) throws Exception {
 		Monitor[] monitors = bean.getMonitors();
 		if (monitors != null && monitors.length > 0) {
 			String id = bean.getId();
@@ -525,7 +524,7 @@ public class CampaignService extends LaunchService{
 	 * @throws Exception
 	 */
 	@Transactional
-	public void addCampaignQuantity(CampaignInfoBean bean) throws Exception {
+	public void addCampaignQuantity(CampaignBean bean) throws Exception {
 		Quantity[] quantitys = bean.getQuantity();
 		if (quantitys != null && quantitys.length > 0) {
 			String id = bean.getId();

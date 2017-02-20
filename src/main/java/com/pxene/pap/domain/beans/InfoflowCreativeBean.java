@@ -1,13 +1,7 @@
 package com.pxene.pap.domain.beans;
 
-public class CreativeInfoflowBean extends BasicDataBean {
+public class InfoflowCreativeBean extends CreativeBean {
 
-	private String id;
-	private String type;// 创意类型
-	private String campaignId;// 活动ID
-	private String name;// 名称
-	private String status;// 创意审核状态
-	private Float price;// 创意价格
 	private String infoflowId;
 	private String title;
 	private String description;
@@ -25,54 +19,6 @@ public class CreativeInfoflowBean extends BasicDataBean {
 	private String image4Path;
 	private String image5Path;
 	private Integer appStar;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getCampaignId() {
-		return campaignId;
-	}
-
-	public void setCampaignId(String campaignId) {
-		this.campaignId = campaignId;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
-	public Float getPrice() {
-		return price;
-	}
-
-	public void setPrice(Float price) {
-		this.price = price;
-	}
 
 	public String getInfoflowId() {
 		return infoflowId;
@@ -212,17 +158,15 @@ public class CreativeInfoflowBean extends BasicDataBean {
 
 	@Override
 	public String toString() {
-		return "CreativeInfoflowBean [id=" + id + ", type=" + type
-				+ ", campaignId=" + campaignId + ", name=" + name + ", status="
-				+ status + ", price=" + price + ", infoflowId=" + infoflowId
-				+ ", title=" + title + ", description=" + description
-				+ ", ctaDescription=" + ctaDescription + ", iconId=" + iconId
-				+ ", iconPath=" + iconPath + ", image1Id=" + image1Id
-				+ ", image2Id=" + image2Id + ", image3Id=" + image3Id
-				+ ", image4Id=" + image4Id + ", image5Id=" + image5Id
-				+ ", image1Path=" + image1Path + ", image2Path=" + image2Path
-				+ ", image3Path=" + image3Path + ", image4Path=" + image4Path
-				+ ", image5Path=" + image5Path + ", appStar=" + appStar + "]";
+		return "InfoflowCreativeBean [infoflowId=" + infoflowId + ", title="
+				+ title + ", description=" + description + ", ctaDescription="
+				+ ctaDescription + ", iconId=" + iconId + ", iconPath="
+				+ iconPath + ", image1Id=" + image1Id + ", image2Id="
+				+ image2Id + ", image3Id=" + image3Id + ", image4Id="
+				+ image4Id + ", image5Id=" + image5Id + ", image1Path="
+				+ image1Path + ", image2Path=" + image2Path + ", image3Path="
+				+ image3Path + ", image4Path=" + image4Path + ", image5Path="
+				+ image5Path + ", appStar=" + appStar + "]";
 	}
-
+	
 }

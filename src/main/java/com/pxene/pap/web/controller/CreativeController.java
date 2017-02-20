@@ -21,10 +21,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.domain.beans.CreativeAddBean;
+import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.BasicDataBean;
-import com.pxene.pap.domain.beans.MaterialListBean;
+import com.pxene.pap.domain.beans.ImageCreativeBean;
+import com.pxene.pap.domain.beans.InfoflowCreativeBean;
 import com.pxene.pap.domain.beans.PaginationBean;
+import com.pxene.pap.domain.beans.VideoCreativeBean;
 import com.pxene.pap.service.CreativeService;
 
 @Controller
@@ -40,9 +42,37 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creative", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createCreative(@Valid @RequestBody CreativeAddBean bean, HttpServletResponse response) throws Exception {
+	public String createImageCreative(@Valid @RequestBody ImageCreativeBean bean, HttpServletResponse response) throws Exception {
+		creativeService.createCreative(bean);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
+	}
+	
+	/**
+	 * 添加创意
+	 * @param bean
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/video", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String createVideoCreative(@Valid @RequestBody VideoCreativeBean bean, HttpServletResponse response) throws Exception {
+		creativeService.createCreative(bean);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
+	}
+	
+	/**
+	 * 添加创意
+	 * @param bean
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/infoflow", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String createInfoflowCreative(@Valid @RequestBody InfoflowCreativeBean bean, HttpServletResponse response) throws Exception {
 		creativeService.createCreative(bean);
 		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}

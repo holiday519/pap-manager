@@ -23,14 +23,11 @@ import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.CreativeAddBean;
-import com.pxene.pap.domain.beans.CreativeAddBean.Image;
-import com.pxene.pap.domain.beans.CreativeAddBean.Infoflow;
-import com.pxene.pap.domain.beans.CreativeAddBean.Video;
+import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.BasicDataBean;
-import com.pxene.pap.domain.beans.CreativeImageBean;
-import com.pxene.pap.domain.beans.CreativeInfoflowBean;
-import com.pxene.pap.domain.beans.CreativeVideoBean;
+import com.pxene.pap.domain.beans.ImageCreativeBean;
+import com.pxene.pap.domain.beans.InfoflowCreativeBean;
+import com.pxene.pap.domain.beans.VideoCreativeBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MaterialListBean;
 import com.pxene.pap.domain.beans.MaterialListBean.App;
@@ -145,72 +142,78 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createCreative(CreativeAddBean bean) throws Exception {
+	public void createCreative(CreativeBean bean) throws Exception {
+		String name = bean.getName();
 		String campaignId = bean.getCampaignId();
+		String type = bean.getType();
+		Float price = bean.getPrice();
 		
-		Image[] images = bean.getImages();
-		Video[] videos = bean.getVideos();
-		Infoflow[] infoflows = bean.getInfoflows();
+		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+			ImageCreativeBean iBean = (ImageCreativeBean)bean;
+		}
+		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+			VideoCreativeBean vBean = (VideoCreativeBean)bean;
+		}
+		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
+			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
+		}
 		
-		CreativeModel cmModel = new CreativeModel();
-		//添加图片创意
-		if (images != null && images.length > 0) {
-			for (Image image : images) {
-				cmModel = new CreativeModel();
-				String imageId = image.getId();
-				String tmplId = image.getTmplId();
-				cmModel.setType(StatusConstant.CREATIVE_TYPE_IMAGE);
-				cmModel.setTmplId(tmplId);
-				cmModel.setId(UUID.randomUUID().toString());
-				cmModel.setMaterialId(imageId);
-				cmModel.setCampaignId(campaignId);
-				cmModel.setPrice(new BigDecimal(image.getPrice()));
-				creativeDao.insertSelective(cmModel);
-			}
-		}
-		//添加视频创意
-		if (videos != null && videos.length > 0) {
-			for (Video video : videos) {
-				cmModel = new CreativeModel();
-				String videoId = video.getId();
-				String imageId = video.getImageId();//图片id
-				//如果有图片，将图片Id保存到视频创意表中
-				if (!StringUtil.isEmpty(imageId)) {
-					VideoModel videoModel = new VideoModel();
-					videoModel.setId(videoId);
-					videoModel.setImageId(imageId);
-					videoDao.updateByPrimaryKeySelective(videoModel);
-				}
-				String tmplId = video.getTmplId();
-				cmModel.setType(StatusConstant.CREATIVE_TYPE_VIDEO);
-				cmModel.setTmplId(tmplId);
-				cmModel.setId(UUID.randomUUID().toString());
-				cmModel.setMaterialId(videoId);
-				cmModel.setCampaignId(campaignId);
-				cmModel.setPrice(new BigDecimal(video.getPrice()));
-				creativeDao.insertSelective(cmModel);
-			}
-		}
-		//添加信息流创意
-		if (infoflows != null && infoflows.length > 0) {
-			for (Infoflow info : infoflows) {
-				cmModel = new CreativeModel();
-				String infoId = UUID.randomUUID().toString();
-				String tmplId = info.getTmplId();
-				//添加信息流创意表信息
-				InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
-				model.setId(infoId);
-				infoflowDao.insertSelective(model);
-				
-				cmModel.setType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
-				cmModel.setId(UUID.randomUUID().toString());
-				cmModel.setMaterialId(infoId);
-				cmModel.setTmplId(tmplId);
-				cmModel.setCampaignId(campaignId);
-				cmModel.setPrice(new BigDecimal(info.getPrice()));
-				creativeDao.insertSelective(cmModel);
-			}
-		}
+//		CreativeModel cmModel = new CreativeModel();
+//		//添加图片创意
+//		if (images != null && images.length > 0) {
+//			for (Image image : images) {
+//				cmModel = new CreativeModel();
+//				String imageId = image.getId();
+//				String tmplId = image.getTmplId();
+//				cmModel.setType(StatusConstant.CREATIVE_TYPE_IMAGE);
+//				cmModel.setTmplId(tmplId);
+//				cmModel.setId(UUID.randomUUID().toString());
+//				cmModel.setMaterialId(imageId);
+//				cmModel.setCampaignId(campaignId);
+//				creativeDao.insertSelective(cmModel);
+//			}
+//		}
+//		//添加视频创意
+//		if (videos != null && videos.length > 0) {
+//			for (Video video : videos) {
+//				cmModel = new CreativeModel();
+//				String videoId = video.getId();
+//				String imageId = video.getImageId();//图片id
+//				//如果有图片，将图片Id保存到视频创意表中
+//				if (!StringUtil.isEmpty(imageId)) {
+//					VideoModel videoModel = new VideoModel();
+//					videoModel.setId(videoId);
+//					videoModel.setImageId(imageId);
+//					videoDao.updateByPrimaryKeySelective(videoModel);
+//				}
+//				String tmplId = video.getTmplId();
+//				cmModel.setType(StatusConstant.CREATIVE_TYPE_VIDEO);
+//				cmModel.setTmplId(tmplId);
+//				cmModel.setId(UUID.randomUUID().toString());
+//				cmModel.setMaterialId(videoId);
+//				cmModel.setCampaignId(campaignId);
+//				creativeDao.insertSelective(cmModel);
+//			}
+//		}
+//		//添加信息流创意
+//		if (infoflows != null && infoflows.length > 0) {
+//			for (Infoflow info : infoflows) {
+//				cmModel = new CreativeModel();
+//				String infoId = UUID.randomUUID().toString();
+//				String tmplId = info.getTmplId();
+//				//添加信息流创意表信息
+//				InfoflowModel model = modelMapper.map(info, InfoflowModel.class);
+//				model.setId(infoId);
+//				infoflowDao.insertSelective(model);
+//				
+//				cmModel.setType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
+//				cmModel.setId(UUID.randomUUID().toString());
+//				cmModel.setMaterialId(infoId);
+//				cmModel.setTmplId(tmplId);
+//				cmModel.setCampaignId(campaignId);
+//				creativeDao.insertSelective(cmModel);
+//			}
+//		}
 	}
 	
 	/**
@@ -668,14 +671,14 @@ public class CreativeService extends BaseService {
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
-			CreativeImageBean image = null;
-			CreativeVideoBean video = null;
-			CreativeInfoflowBean info = null;
+			ImageCreativeBean image = null;
+			VideoCreativeBean video = null;
+			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
 				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageModel imageModel = imageDao.selectByPrimaryKey(creative.getMaterialId());
 					if (imageModel != null) {
-						image = new CreativeImageBean();
+						image = new ImageCreativeBean();
 						
 						image.setId(creative.getId());
 						image.setType(type);
@@ -692,7 +695,7 @@ public class CreativeService extends BaseService {
 				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					VideoModel videoModel = videoDao.selectByPrimaryKey(creative.getMaterialId());
 					if (videoModel != null) {
-						video = new CreativeVideoBean();
+						video = new VideoCreativeBean();
 						video.setId(creative.getId());
 						video.setType(type);
 						video.setCampaignId(campaignId);
@@ -710,7 +713,7 @@ public class CreativeService extends BaseService {
 				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 					InfoflowModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
 					if (infoflowModel != null) {
-						info = new CreativeInfoflowBean();
+						info = new InfoflowCreativeBean();
 						info.setId(creative.getId());
 						info.setType(type);
 						info.setCampaignId(campaignId);
