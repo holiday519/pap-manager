@@ -130,7 +130,5 @@ public class StatusConstant {
 	 * 落地页代码检查状态：代码安装失败
 	 */
 	public static final String LANDPAGE_CHECK_ERROR = "03";
-
-	
 	
 }

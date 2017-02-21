@@ -40,10 +40,7 @@ public class JedisUtils {
 	 * 从jedis连接池中获取获取jedis对象
 	 */
 	public static Jedis getJedis() {
-		Jedis jedis = jedisPool.getResource();
-		jedis.select(2);
-		return jedis;
-		//return jedisPool.getResource();
+		return jedisPool.getResource();
 	}
 
 	/**

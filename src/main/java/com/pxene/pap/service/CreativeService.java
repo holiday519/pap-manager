@@ -158,21 +158,19 @@ public class CreativeService extends BaseService {
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
 			creativeModel = modelMapper.map(vBean, CreativeModel.class);
-			
+			VideoMaterialModel videoMaterialModel = modelMapper.map(vBean, VideoMaterialModel.class);
+			videoeMaterialDao.insert(videoMaterialModel);
 		}
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
-			InfoflowMaterialModel infoflowModel = modelMapper.map(ifBean, InfoflowMaterialModel.class);
-			infoflowModel.setId(UUID.randomUUID().toString());
-			infoflowDao.insert(infoflowModel);
 			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
-			
+			InfoflowMaterialModel infoflowModel = modelMapper.map(ifBean, InfoflowMaterialModel.class);
+			infoMaterialDao.insert(infoflowModel);
 		}
 		
 		creativeModel.setId(UUID.randomUUID().toString());
 		creativeDao.insertSelective(creativeModel);
-		
 	}
 	
 	/**
@@ -409,7 +407,7 @@ public class CreativeService extends BaseService {
 			
 			result = addImage(imageBean, file);
 			
-		}else if (mediaBean instanceof VideoBean) {
+		} else if (mediaBean instanceof VideoBean) {
 			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
 			VideoTmplModel tmplModel = videoTmplDao.selectByPrimaryKey(tmplId);
 			if (tmplModel==null) {
