@@ -1,6 +1,5 @@
 package com.pxene.pap.service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +22,13 @@ import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.ImageMaterialModel;
+import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
@@ -37,21 +38,20 @@ import com.pxene.pap.domain.models.view.CreativeInfoflowModelExample;
 import com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs;
 import com.pxene.pap.domain.models.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs;
-import com.pxene.pap.domain.models.view.ImageSizeTypeModel;
-import com.pxene.pap.domain.models.view.ImageSizeTypeModelExample;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
-import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
+import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.ImageDao;
+import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
-import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 
 @Service
 public class RedisService {
@@ -83,13 +83,16 @@ public class RedisService {
 	private CreativeImageDao creativeImageDao;
 	
 	@Autowired
+	private ImageDao imageDao;
+	
+	@Autowired
 	private CreativeVideoDao creativeVideoDao;
 	
 	@Autowired
 	private CreativeInfoflowDao creativeInfoflowDao;
 	
 	@Autowired
-	private ImageSizeTypeDao imageSizeTypeDao;
+	private ImageMaterialDao imageMaterialDao;
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
@@ -394,11 +397,12 @@ public class RedisService {
 				someImage[4] = image5;
 			}
 			if (imgs == 1) {
-				ImageSizeTypeModel ist = selectImages(oneImag);
-				creativeObj.addProperty("w", GlobalUtil.parseInt(ist.getWidth(),0));
-				creativeObj.addProperty("h", GlobalUtil.parseInt(ist.getHeight(),0));
-				creativeObj.addProperty("ftype", ist.getCode());
-				creativeObj.addProperty("sourceurl", image_url + ist.getPath());
+				ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(oneImag);
+				ImageModel Imodel = imageDao.selectByPrimaryKey(materialModel.getImageId());
+				creativeObj.addProperty("w", GlobalUtil.parseInt(Imodel.getWidth(),0));
+				creativeObj.addProperty("h", GlobalUtil.parseInt(Imodel.getHeight(),0));
+				creativeObj.addProperty("ftype", Imodel.getFormat());
+				creativeObj.addProperty("sourceurl", image_url + Imodel.getPath());
 			} else if (imgs > 1) {
 				JsonArray bigImages = new JsonArray(); 
 				for(String str : someImage){
@@ -444,11 +448,12 @@ public class RedisService {
 	 */
 	private JsonObject getImageJson(String imageId) throws Exception {
 		JsonObject json = new JsonObject();
-		ImageSizeTypeModel model = selectImages(imageId);
+		ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageId);
+		ImageModel model = imageDao.selectByPrimaryKey(materialModel.getImageId());
 		if (model != null) {
 			json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
 			json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
-			json.addProperty("ftype", Integer.parseInt(model.getCode()));
+			json.addProperty("ftype", Integer.parseInt(model.getFormat()));
 			json.addProperty("sourceurl", image_url + model.getPath());
 		}
 		return json;
@@ -459,19 +464,19 @@ public class RedisService {
 	 * @param imageId
 	 * @return
 	 */
-	private ImageSizeTypeModel selectImages(String imageId) throws Exception {
-		ImageSizeTypeModelExample example = new ImageSizeTypeModelExample();
-		example.createCriteria().andIdEqualTo(imageId);
-		List<ImageSizeTypeModel> list = imageSizeTypeDao.selectByExample(example);
-		if (list == null || list.isEmpty()) {
-			return null;
-		}else{
-			for (ImageSizeTypeModel model : list) {
-				return model;
-			}
-		}
-		return null;
-	}
+//	private ImageSizeTypeModel selectImages(String imageId) throws Exception {
+//		ImageSizeTypeModelExample example = new ImageSizeTypeModelExample();
+//		example.createCriteria().andIdEqualTo(imageId);
+//		List<ImageSizeTypeModel> list = imageSizeTypeDao.selectByExample(example);
+//		if (list == null || list.isEmpty()) {
+//			return null;
+//		}else{
+//			for (ImageSizeTypeModel model : list) {
+//				return model;
+//			}
+//		}
+//		return null;
+//	}
 	
 	/**
 	 * 将活动基本信息写入redis

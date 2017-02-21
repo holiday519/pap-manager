@@ -13,13 +13,10 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ImageTmplBean;
-import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.domain.beans.VideoTmplBean;
-import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
@@ -261,43 +258,43 @@ public class TmplService extends BaseService {
 		return imageTmpl;
 	}
 	
-	/**
-	 * 根据模版Id查询App
-	 * @param tmplId
-	 * @return
-	 * @throws Exception
-	 */
-	private App[] getAppByTmplId(String tmplId) throws Exception {
-		AppTmplModelExample atExample = new AppTmplModelExample();
-		atExample.createCriteria().andTmplIdEqualTo(tmplId);
-		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(atExample);
-		List<String> appIdList = new ArrayList<String>();
-		if (appTmpls != null && !appTmpls.isEmpty()) {
-			for (AppTmplModel appTmpl : appTmpls) {
-				String appId = appTmpl.getAppId();
-				if (!appIdList.contains(appId)) {
-					appIdList.add(appId);
-				}
-			}
-		}
-		List<AppModel> appModels = null;
-		if (!appIdList.isEmpty()) {
-			AppModelExample example = new AppModelExample();
-			example.createCriteria().andIdIn(appIdList);
-			appModels = appDao.selectByExample(example);
-		}
-		App[] apps = null;
-		if (appModels != null) {
-			apps = new App[appModels.size()];
-			for (int i = 0; i < appModels.size(); i++) {
-				AppModel appModel = appModels.get(i);
-				App app = modelMapper.map(appModel, App.class);
-				apps[i] = app;
-			}
-		}
-		
-		return apps;
-	}
+//	/**
+//	 * 根据模版Id查询App
+//	 * @param tmplId
+//	 * @return
+//	 * @throws Exception
+//	 */
+//	private App[] getAppByTmplId(String tmplId) throws Exception {
+//		AppTmplModelExample atExample = new AppTmplModelExample();
+//		atExample.createCriteria().andTmplIdEqualTo(tmplId);
+//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(atExample);
+//		List<String> appIdList = new ArrayList<String>();
+//		if (appTmpls != null && !appTmpls.isEmpty()) {
+//			for (AppTmplModel appTmpl : appTmpls) {
+//				String appId = appTmpl.getAppId();
+//				if (!appIdList.contains(appId)) {
+//					appIdList.add(appId);
+//				}
+//			}
+//		}
+//		List<AppModel> appModels = null;
+//		if (!appIdList.isEmpty()) {
+//			AppModelExample example = new AppModelExample();
+//			example.createCriteria().andIdIn(appIdList);
+//			appModels = appDao.selectByExample(example);
+//		}
+//		App[] apps = null;
+//		if (appModels != null) {
+//			apps = new App[appModels.size()];
+//			for (int i = 0; i < appModels.size(); i++) {
+//				AppModel appModel = appModels.get(i);
+//				App app = modelMapper.map(appModel, App.class);
+//				apps[i] = app;
+//			}
+//		}
+//		
+//		return apps;
+//	}
 	
 	/**
 	 * 根据活动ID查询appid

@@ -60,7 +60,6 @@ import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
-import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 @Service
 public class AuditCreativeAdviewService {
 
@@ -111,9 +110,6 @@ public class AuditCreativeAdviewService {
 	
 	@Autowired
 	private CreativeInfoflowDao creativeInfoflowDao;
-	
-	@Autowired
-	private ImageSizeTypeDao imageSizeTypeDao;
 	
 	@Autowired
 	private IndustryAdxDao industryAdxDao;

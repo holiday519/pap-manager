@@ -26,6 +26,8 @@ import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.ImageMaterialModel;
+import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.IndustryAdxModel;
 import com.pxene.pap.domain.models.IndustryAdxModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
@@ -33,8 +35,6 @@ import com.pxene.pap.domain.models.view.CreativeImageModelExample;
 import com.pxene.pap.domain.models.view.CreativeImageModelWithBLOBs;
 import com.pxene.pap.domain.models.view.CreativeInfoflowModelExample;
 import com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs;
-import com.pxene.pap.domain.models.view.ImageSizeTypeModel;
-import com.pxene.pap.domain.models.view.ImageSizeTypeModelExample;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
@@ -42,12 +42,13 @@ import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.ImageDao;
+import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.IndustryAdxDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
-import com.pxene.pap.repository.basic.view.ImageSizeTypeDao;
 
 @Service
 public class AuditCreativeBaiduService {
@@ -84,7 +85,10 @@ public class AuditCreativeBaiduService {
 	private CreativeInfoflowDao creativeInfoflowDao;
 	
 	@Autowired
-	private ImageSizeTypeDao imageSizeTypeDao;
+	private ImageMaterialDao imageMaterialDao;
+	
+	@Autowired
+	private ImageDao imageDao;
 	
 	@Autowired
 	private IndustryAdxDao industryAdxDao;
@@ -333,24 +337,21 @@ public class AuditCreativeBaiduService {
 		String icon = creativeInfo.getIconId();
 		String image1 = creativeInfo.getImage1Id();
 		if(!StringUtils.isEmpty(icon)){
-			ImageSizeTypeModelExample istExample = new ImageSizeTypeModelExample();
-			istExample.createCriteria().andIdEqualTo(icon);
-			List<ImageSizeTypeModel> iconList = imageSizeTypeDao.selectByExample(istExample);
-			ImageSizeTypeModel imageModel = null;
-			for (ImageSizeTypeModel mol : iconList) {
-				imageModel = mol;
-			}
+//			ImageSizeTypeModelExample istExample = new ImageSizeTypeModelExample();
+//			istExample.createCriteria().andIdEqualTo(icon);
+//			List<ImageSizeTypeModel> iconList = imageSizeTypeDao.selectByExample(istExample);
+//			ImageSizeTypeModel imageModel = null;
+//			for (ImageSizeTypeModel mol : iconList) {
+//				imageModel = mol;
+//			}
+			ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(icon);
+			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getImageId());
 			String path = imageModel.getPath();
 			creativeUrls.add(image_url + path);
 		}
 		if(!StringUtils.isEmpty(image1)){
-			ImageSizeTypeModelExample istExample = new ImageSizeTypeModelExample();
-			istExample.createCriteria().andIdEqualTo(image1);
-			List<ImageSizeTypeModel> imageList = imageSizeTypeDao.selectByExample(istExample);
-			ImageSizeTypeModel imageModel = null;
-			for (ImageSizeTypeModel mol : imageList) {
-				imageModel = mol;
-			}
+			ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(icon);
+			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getImageId());
 			String path = imageModel.getPath();
 			creativeUrls.add(image_url + path);
 		}
