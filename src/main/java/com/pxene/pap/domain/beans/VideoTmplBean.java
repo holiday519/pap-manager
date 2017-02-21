@@ -1,4 +1,5 @@
 package com.pxene.pap.domain.beans;
+
 /**
  * 视频模版信息
  */
@@ -6,17 +7,17 @@ public class VideoTmplBean {
 
 	private String id;
 
-	private String sizeId;
+	private String formats;
 
 	private Float maxVolume;
 
 	private Integer maxTimelength;
 
-	private String imageTmplId;
+	private Integer width;
 
-	private String remark;
+	private Integer height;
 
-	private String imageTypeId;
+	private ImageTmplBean imageTmplBeanInVideo;
 
 	public String getId() {
 		return id;
@@ -26,12 +27,12 @@ public class VideoTmplBean {
 		this.id = id;
 	}
 
-	public String getSizeId() {
-		return sizeId;
+	public String getFormats() {
+		return formats;
 	}
 
-	public void setSizeId(String sizeId) {
-		this.sizeId = sizeId;
+	public void setFormats(String formats) {
+		this.formats = formats;
 	}
 
 	public Float getMaxVolume() {
@@ -50,35 +51,36 @@ public class VideoTmplBean {
 		this.maxTimelength = maxTimelength;
 	}
 
-	public String getImageTmplId() {
-		return imageTmplId;
+	public Integer getWidth() {
+		return width;
 	}
 
-	public void setImageTmplId(String imageTmplId) {
-		this.imageTmplId = imageTmplId;
+	public void setWidth(Integer width) {
+		this.width = width;
 	}
 
-	public String getRemark() {
-		return remark;
+	public Integer getHeight() {
+		return height;
 	}
 
-	public void setRemark(String remark) {
-		this.remark = remark;
+	public void setHeight(Integer height) {
+		this.height = height;
 	}
 
-	public String getImageTypeId() {
-		return imageTypeId;
+	public ImageTmplBean getImageTmplBeanInVideo() {
+		return imageTmplBeanInVideo;
 	}
 
-	public void setImageTypeId(String imageTypeId) {
-		this.imageTypeId = imageTypeId;
+	public void setImageTmplBeanInVideo(ImageTmplBean imageTmplBeanInVideo) {
+		this.imageTmplBeanInVideo = imageTmplBeanInVideo;
 	}
 
 	@Override
 	public String toString() {
-		return "VideoTmplBean [id=" + id + ", sizeId=" + sizeId
+		return "VideoTmplBean [id=" + id + ", formats=" + formats
 				+ ", maxVolume=" + maxVolume + ", maxTimelength="
-				+ maxTimelength + ", imageTmplId=" + imageTmplId + ", remark="
-				+ remark + ", imageTypeId=" + imageTypeId + "]";
+				+ maxTimelength + ", width=" + width + ", height=" + height
+				+ ", imageTmplBeanInVideo=" + imageTmplBeanInVideo + "]";
 	}
+
 }
