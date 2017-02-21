@@ -635,7 +635,7 @@ public class CreativeService extends BaseService {
 			example.createCriteria().andNameEqualTo(name);
 		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
 			example.createCriteria().andCampaignIdEqualTo(campaignId);
-		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
+		} else if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
 			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameEqualTo(name);
 		}
 		
@@ -1106,7 +1106,7 @@ public class CreativeService extends BaseService {
 						if (hkey.indexOf(day + "@") > -1) {
 							String value = map.get(hkey);
 							//根据不同的值来整合不同属性值
-							if (StringUtils.isEmpty(value)) {
+							if (!StringUtils.isEmpty(value)) {
 								if (hkey.indexOf("@m") > 0) {// 展现
 									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
 								} else if (hkey.indexOf("@c") > 0) {// 点击
@@ -1145,7 +1145,7 @@ public class CreativeService extends BaseService {
 						if (hkey.indexOf(day + hour + "@") > -1) {
 							String value = map.get(hkey);
 							//根据不同的值来整合不同属性值
-							if (StringUtils.isEmpty(value)) {
+							if (!StringUtils.isEmpty(value)) {
 								if (hkey.indexOf("@m") > 0) {// 展现
 									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
 								} else if (hkey.indexOf("@c") > 0) {// 点击
