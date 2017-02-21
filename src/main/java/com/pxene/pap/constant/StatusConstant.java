@@ -19,11 +19,11 @@ public class StatusConstant {
 	 */
 	public static final String CAMPAIGN_WAITING_PAUSE = "02";
 	/**
-	 * 活动状态：等待中/启动
+	 * 活动状态：投放中/启动
 	 */
 	public static final String CAMPAIGN_LAUNCH_PROCEED = "03";
 	/**
-	 * 活动状态：等待中/暂停
+	 * 活动状态：投放中/暂停
 	 */
 	public static final String CAMPAIGN_LAUNCH_PAUSE = "04";
 	/**

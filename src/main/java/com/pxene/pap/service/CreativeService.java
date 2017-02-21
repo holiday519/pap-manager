@@ -235,7 +235,8 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(campaignId)) {
 			//只有活动是等待中时才可删除创意
 			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-			if (!StatusConstant.CAMPAIGN_WAITING.equals(model.getStatus())) {
+			if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(model.getStatus()) 
+					|| StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(model.getStatus())) {
 				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
 			}
 		}
@@ -311,7 +312,8 @@ public class CreativeService extends BaseService {
 			if (!StringUtils.isEmpty(campaignId)) {
 				//只有活动是等待中时才可删除创意
 				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-				if (!StatusConstant.CAMPAIGN_WAITING.equals(model.getStatus())) {
+				if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(model.getStatus()) 
+						|| StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(model.getStatus())) {
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
 				}
 			}

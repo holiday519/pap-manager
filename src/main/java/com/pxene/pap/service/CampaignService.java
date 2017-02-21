@@ -202,7 +202,7 @@ public class CampaignService extends LaunchService{
 			//添加点击、展现监测地址
 			addCampaignMonitor(bean);
 			
-			campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING);
+			campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PAUSE);
 			// 添加投放量控制策略
 			addCampaignQuantity(bean);
 			// 添加活动基本信息
@@ -853,14 +853,19 @@ public class CampaignService extends LaunchService{
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			//活动存在，并且可以投放
 			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
-				String projectId = campaignModel.getProjectId();
-				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-					// 投放
-					launch(campaignId);
+				if (StatusConstant.CAMPAIGN_WAITING_PAUSE.equals(campaignModel.getStatus())) {
+					campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PROCEED);
+				} else if (StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(campaignModel.getStatus())) {
+					campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PROCEED);
+					//投放
+					String projectId = campaignModel.getProjectId();
+					ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+					if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
+						// 投放
+						launch(campaignId);
+					}
 				}
 				//改变数据库状态
-				campaignModel.setStatus(StatusConstant.CAMPAIGN_START);
 				campaignDao.updateByPrimaryKeySelective(campaignModel);
 			}
 		}
@@ -911,16 +916,19 @@ public class CampaignService extends LaunchService{
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			if (campaignModel != null) {
+				if (StatusConstant.CAMPAIGN_WAITING_PROCEED.equals(campaignModel.getStatus())) {
+					campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PAUSE);
+				} else if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(campaignModel.getStatus())) {
+					campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PAUSE);
+					//投放中的才变成暂停
+				}
 				String projectId = campaignModel.getProjectId();
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-				//投放中的才变成暂停
-				if (StatusConstant.CAMPAIGN_START.equals(campaignModel.getStatus())
-						&& StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
+				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 					//移除redis中key
 					pause(campaignId);
 				}
 				//改变数据库状态
-				campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 				campaignDao.updateByPrimaryKeySelective(campaignModel);
 			}
 		}

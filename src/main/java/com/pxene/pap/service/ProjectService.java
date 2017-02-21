@@ -359,7 +359,7 @@ public class ProjectService extends LaunchService {
 				}
 				for (CampaignModel campaign : campaigns) {
 					//活动是投放状态，并且活动可以投放
-					if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())
+					if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(campaign.getStatus())
 							&& campaignService.checkCampaignCanLaunch(campaign.getId())) {
 						// 投放
 						launch(campaign.getId());
@@ -394,7 +394,7 @@ public class ProjectService extends LaunchService {
 					continue;
 				}
 				for (CampaignModel campaign : campaigns) {
-					if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())
+					if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(campaign.getStatus())
 							&& StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 						//移除redis中key
 						pause(campaign.getId());

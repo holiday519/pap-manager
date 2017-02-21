@@ -50,7 +50,7 @@ public class DateUtils {
 	 * 
 	 * @return
 	 */
-	public static String getCurrentData() {
+	public static String getCurrentDate() {
 		DateTime time = new DateTime();
 		String string = time.toString("yyyy-MM-dd");
 		return string;
@@ -215,12 +215,12 @@ public class DateUtils {
     }
 	
     
-//	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		
 //		for (int i=0;i<=32;i++) {
 //			System.out.println(new DateTime(new Date(1355443200000L)).plusDays(i).toString("dd", Locale.CHINESE));
 //		}
-
+		System.out.println(Long.parseLong("20130901") < Long.parseLong("20160205"));
 //		String[] hourArrayBetweenTwoDate = getHourArrayBetweenTwoDate(new Date(1484020800000L), new Date(1484038800000L));
-//	}
+	}
 }
