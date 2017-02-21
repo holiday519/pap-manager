@@ -246,29 +246,22 @@ public class LandpageService extends BaseService {
 		}
 		
 		String codeStatus = StatusConstant.LANDPAGE_CHECK_NOTCHECK;
-		if (StringUtils.isEmpty(reCode)) {
-            // 如果没有结果集--无法完成检查
-            codeStatus = StatusConstant.LANDPAGE_CHECK_URLERRPR;
-        } else if (reCode.indexOf(landpageId) > 0) {
-            int headStart = reCode.indexOf(HTML_HEAD_START);
-            int headEnd = reCode.indexOf(HTML_HEAD_END);
-            if (headStart > 0
-                    && headEnd > 0) {
-                reCode = reCode.substring(headStart,
-                        headEnd).replaceAll(" ", "")
-                        .replaceAll("\"", "'").replaceAll("\n", "").replace("\t", "");
-                if (reCode.indexOf(CODE_START + landpageId
-                        + CODE_END) > 0) {
-                    codeStatus = StatusConstant.LANDPAGE_CHECK_SUCCESS;
-                } else {
-                    codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
-                }
-            } else {
-                codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
-            }
-        } else {
-            codeStatus = StatusConstant.LANDPAGE_CHECK_NOTFIND;
-        }
+		int headStart = reCode.indexOf(HTML_HEAD_START);
+		int headEnd = reCode.indexOf(HTML_HEAD_END);
+		if (headStart > 0
+				&& headEnd > 0) {
+			reCode = reCode.substring(headStart,
+					headEnd).replaceAll(" ", "")
+					.replaceAll("\"", "'").replaceAll("\n", "").replace("\t", "");
+			if (reCode.indexOf(CODE_START + landpageId
+					+ CODE_END) > 0) {
+				codeStatus = StatusConstant.LANDPAGE_CHECK_SUCCESS;
+			} else {
+				codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+			}
+		} else {
+			codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+		}
 		
 		model.setStatus(codeStatus);
 		landpageDao.updateByPrimaryKeySelective(model);
