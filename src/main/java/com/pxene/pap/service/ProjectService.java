@@ -94,7 +94,7 @@ public class ProjectService extends LaunchService {
 		model.setId(id);
 		try {
 			// 添加项目信息
-			model.setStatus(StatusConstant.PROJECT_START);//状态
+			model.setStatus(StatusConstant.PROJECT_PROCEED);//状态
 			projectDao.insertSelective(model);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
@@ -366,7 +366,7 @@ public class ProjectService extends LaunchService {
 					}
 				}
 				//项目投放之后修改状态
-				projectModel.setStatus(StatusConstant.PROJECT_START);
+				projectModel.setStatus(StatusConstant.PROJECT_PROCEED);
 				projectDao.updateByPrimaryKeySelective(projectModel);
 			}
 		}
@@ -395,7 +395,7 @@ public class ProjectService extends LaunchService {
 				}
 				for (CampaignModel campaign : campaigns) {
 					if (StatusConstant.CAMPAIGN_START.equals(campaign.getStatus())
-							&& StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
+							&& StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 						//移除redis中key
 						pause(campaign.getId());
 					}

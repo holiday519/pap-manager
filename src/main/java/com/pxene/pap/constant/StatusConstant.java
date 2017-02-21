@@ -2,38 +2,34 @@ package com.pxene.pap.constant;
 
 public class StatusConstant {
 
-//	/**
-//	 * 项目状态：未开启
-//	 */
-//	public static final String PROJECT_WATING = "01";
 	/**
-	 * 项目状态：投放中
+	 * 项目状态：启动
 	 */
-	public static final String PROJECT_START = "02";
+	public static final String PROJECT_PROCEED = "01";
 	/**
-	 * 项目状态：已暂停
+	 * 项目状态：暂停
 	 */
-	public static final String PROJECT_PAUSE = "03";
+	public static final String PROJECT_PAUSE = "02";
 	/**
-	 * 项目状态：已关闭
+	 * 活动状态：等待中/启动
 	 */
-	public static final String PROJECT_CLOSE = "04";
+	public static final String CAMPAIGN_WAITING_PROCEED = "01";
 	/**
-	 * 活动状态：未开启
+	 * 活动状态：等待中/暂停
 	 */
-	public static final String CAMPAIGN_WAITING = "01";
+	public static final String CAMPAIGN_WAITING_PAUSE = "02";
 	/**
-	 * 活动状态：投放中
+	 * 活动状态：等待中/启动
 	 */
-	public static final String CAMPAIGN_START = "02";
+	public static final String CAMPAIGN_LAUNCH_PROCEED = "03";
 	/**
-	 * 活动状态：已暂停
+	 * 活动状态：等待中/暂停
 	 */
-	public static final String CAMPAIGN_PAUSE = "03";
+	public static final String CAMPAIGN_LAUNCH_PAUSE = "04";
 	/**
 	 * 活动状态：已关闭
 	 */
-	public static final String CAMPAIGN_CLOSE = "04";
+	public static final String CAMPAIGN_CLOSE = "05";
 	/**
 	 * 广告主审核状态 ：审核中
 	 */

@@ -190,20 +190,22 @@ public class CampaignService extends LaunchService{
 		campaignModel.setId(id);
 		
 		try {
-			String frequencyId = UUID.randomUUID().toString();
 			Frequency frequency = bean.getFrequency();
 			//添加频次信息
-			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
-			frequencyModel.setId(frequencyId);
-			frequencyDao.insertSelective(frequencyModel);
+			if (frequency != null) {
+				String frequencyId = UUID.randomUUID().toString();
+				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+				frequencyModel.setId(frequencyId);
+				frequencyDao.insertSelective(frequencyModel);
+				campaignModel.setFrequencyId(frequencyId);
+			}
 			//添加点击、展现监测地址
 			addCampaignMonitor(bean);
-			//添加频次ID
-			campaignModel.setFrequencyId(frequencyId);
+			
 			campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING);
-			//添加投放量控制策略
+			// 添加投放量控制策略
 			addCampaignQuantity(bean);
-			//添加活动基本信息
+			// 添加活动基本信息
 			campaignDao.insertSelective(campaignModel);
 		} catch (DuplicateKeyException exception) {
 			throw new DuplicateEntityException();
@@ -853,7 +855,7 @@ public class CampaignService extends LaunchService{
 			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
 				String projectId = campaignModel.getProjectId();
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-				if (StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
+				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 					// 投放
 					launch(campaignId);
 				}
@@ -913,7 +915,7 @@ public class CampaignService extends LaunchService{
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 				//投放中的才变成暂停
 				if (StatusConstant.CAMPAIGN_START.equals(campaignModel.getStatus())
-						&& StatusConstant.PROJECT_START.equals(projectModel.getStatus())) {
+						&& StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 					//移除redis中key
 					pause(campaignId);
 				}
