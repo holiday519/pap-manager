@@ -136,7 +136,7 @@ public class ProjectService extends LaunchService {
 		if (StringUtils.isEmpty(map.get("action"))) {
 			throw new IllegalArgumentException();
 		}
-		CampaignModel model = campaignDao.selectByPrimaryKey(id);
+		ProjectModel model = projectDao.selectByPrimaryKey(id);
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}

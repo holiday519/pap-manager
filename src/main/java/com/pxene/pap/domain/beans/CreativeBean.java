@@ -35,12 +35,12 @@ public class CreativeBean extends BasicDataBean {
 	 */
 	private String campaignName;
 	/**
-	 * 备注
+	 * 价格
 	 */
 	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_IMAGE_PRICE)
 	private Float price;
 	/**
-	 * 备注
+	 * 模版ID
 	 */
 	private String tmplId;
 	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)

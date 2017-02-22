@@ -1054,16 +1054,16 @@ public class CreativeService extends BaseService {
 					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
 				List<String> days = new ArrayList<String>();
 				days.add(begin.toString("yyyyMMdd"));
-				getDataformDayTable(creativeIds, days, basicData);
+				getDatafromDayTable(creativeIds, days, basicData);
 			} else {//如果是今天就要查询小时数据
-				getDataformHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
+				getDatafromHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
 			}
     	} else {
     		String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
 			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
 			if (!begin.toString("HH").equals("00")) {
 				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
-				getDataformHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
+				getDatafromHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
 				if (daysList != null && daysList.size() > 0) {
 					for (int i = 0; i < daysList.size(); i++) {
 						if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
@@ -1074,7 +1074,7 @@ public class CreativeService extends BaseService {
 			}
 			if (!end.toString("HH").equals("23")) {
 				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
-				getDataformHourTable(creativeIds, smallHourOfDay, begin.toDate(), basicData);
+				getDatafromHourTable(creativeIds, smallHourOfDay, begin.toDate(), basicData);
 				if (daysList != null && daysList.size() > 0) {
 					for (int i = 0; i < daysList.size(); i++) {
 						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
@@ -1083,7 +1083,7 @@ public class CreativeService extends BaseService {
 					}
 				}
 			}
-			getDataformDayTable(creativeIds, daysList, basicData);
+			getDatafromDayTable(creativeIds, daysList, basicData);
     	}
     	
     	FormatBeanRate(basicData);
@@ -1097,7 +1097,7 @@ public class CreativeService extends BaseService {
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void getDataformDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
+	private void getDatafromDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
 		for (String creativeId : creativeIds) {
 			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + creativeId);//获取map集合
 			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + creativeId);//获取所有key
@@ -1134,7 +1134,7 @@ public class CreativeService extends BaseService {
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void getDataformHourTable(List<String> creativeIds, Date beginTime, Date endTime, BasicDataBean bean) throws Exception {
+	private void getDatafromHourTable(List<String> creativeIds, Date beginTime, Date endTime, BasicDataBean bean) throws Exception {
 		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
 		String day = new DateTime(beginTime).toString("yyyyMMdd");
 		for (String creativeId : creativeIds) {
