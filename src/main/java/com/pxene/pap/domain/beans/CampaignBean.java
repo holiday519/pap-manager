@@ -62,6 +62,8 @@ public class CampaignBean extends BasicDataBean {
 	 */
 	private String frequencyId;
 
+	private String uniform;
+
 	/**
 	 * 定向
 	 *
@@ -542,6 +544,14 @@ public class CampaignBean extends BasicDataBean {
 		this.dailyBudget = dailyBudget;
 	}
 
+	public String getUniform() {
+		return uniform;
+	}
+
+	public void setUniform(String uniform) {
+		this.uniform = uniform;
+	}
+
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
@@ -550,9 +560,9 @@ public class CampaignBean extends BasicDataBean {
 				+ ", dailyImpression=" + dailyImpression + ", dailyClick="
 				+ dailyClick + ", remark=" + remark + ", status=" + status
 				+ ", startDate=" + startDate + ", endDate=" + endDate
-				+ ", frequencyId=" + frequencyId + ", target=" + target
-				+ ", frequency=" + frequency + ", monitors="
-				+ Arrays.toString(monitors) + ", quantity="
+				+ ", frequencyId=" + frequencyId + ", uniform=" + uniform
+				+ ", target=" + target + ", frequency=" + frequency
+				+ ", monitors=" + Arrays.toString(monitors) + ", quantity="
 				+ Arrays.toString(quantity) + ", landpageId=" + landpageId
 				+ ", landpageName=" + landpageName + ", landpageUrl="
 				+ landpageUrl + "]";
