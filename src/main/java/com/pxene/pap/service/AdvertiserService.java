@@ -287,6 +287,9 @@ public class AdvertiserService extends BaseService
         	example.createCriteria().andNameLike("%" + name + "%");
         }
         
+        // 按更新时间进行倒序排序
+        example.setOrderByClause("update_time DESC");
+        
         List<AdvertiserModel> advertiserModels = advertiserDao.selectByExample(example);
         List<AdvertiserBean> advertiserList = new ArrayList<AdvertiserBean>();
         

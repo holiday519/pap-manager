@@ -659,6 +659,10 @@ public class CampaignService extends LaunchService{
 	 */
 	public List<CampaignBean> selectCampaigns(String name, String projectId, Long beginTime, Long endTime) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
+		
+		// 按更新时间进行倒序排序
+        example.setOrderByClause("update_time DESC");
+		
 		if(!StringUtils.isEmpty(name) && StringUtils.isEmpty(projectId)){
 			example.createCriteria().andNameLike("%" + name + "%");
 		} else if(!StringUtils.isEmpty(projectId) && StringUtils.isEmpty(name)){

@@ -633,6 +633,10 @@ public class CreativeService extends BaseService {
 	public List<BasicDataBean> selectCreatives(String campaignId, String name, String type, Long beginTime, Long endTime) throws Exception {
 		List<BasicDataBean> result = new ArrayList<BasicDataBean>();
 		CreativeModelExample example = new CreativeModelExample();
+		
+		// 按更新时间进行倒序排序
+        example.setOrderByClause("update_time DESC");
+		
 		if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(campaignId)) {
 			example.createCriteria().andNameEqualTo(name);
 		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
