@@ -75,7 +75,7 @@ import com.pxene.pap.repository.basic.VideoTmplDao;
 @Service
 public class CreativeService extends BaseService {
 	
-	private static String upload;
+	private final String UPLOAD;
 	
 	@Autowired
 	public CreativeService(Environment env)
@@ -83,7 +83,7 @@ public class CreativeService extends BaseService {
 		/**
 		 * 获取图片上传路径
 		 */
-		upload = env.getProperty("pap.fileserver.upload.dir");
+		UPLOAD = env.getProperty("pap.fileserver.upload.dir");
 	}
 	
 	@Autowired
@@ -183,7 +183,7 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(id)) {
 			ImageModel imageModel = imageDao.selectByPrimaryKey(id);
 			if (imageModel != null) {
-				String path = upload + imageModel.getPath();
+				String path = UPLOAD + imageModel.getPath();
 				// 删除图片服务器上的素材
 				org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
 			}
@@ -199,7 +199,7 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(id)) {
 			VideoModel videoModel = videoDao.selectByPrimaryKey(id);
 			if (videoModel != null) {
-				String path = upload + videoModel.getPath();
+				String path = UPLOAD + videoModel.getPath();
 				// 删除图片服务器上的素材
 				org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
 			}
@@ -448,7 +448,7 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public  Map<String, String> addImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = upload + "creative/image/";
+		String dir = UPLOAD + "creative/image/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
 //		String name = imageBean.getName();
 //		String path = imageBean.getPath().replace(upload, "");
@@ -473,7 +473,7 @@ public class CreativeService extends BaseService {
 		ImageModel model = new ImageModel();
 		model.setId(id);
 //		model.setName(name);
-		model.setPath(path.replace(upload, ""));
+		model.setPath(path.replace(UPLOAD, ""));
 		model.setFormat(type);
 		model.setVolume(Double.parseDouble(String.valueOf(volume)));
 		model.setWidth(width);
@@ -488,7 +488,7 @@ public class CreativeService extends BaseService {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", id);
-		map.put("path", path.replace(upload, ""));
+		map.put("path", path.replace(UPLOAD, ""));
 		return map;
 	}
 	
@@ -501,7 +501,7 @@ public class CreativeService extends BaseService {
 	 */
 	public Map<String, String> addVideo(VideoBean videoBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = upload + "creative/video/";
+		String dir = UPLOAD + "creative/video/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
 //		String name = videoBean.getName();
 //		String path = videoBean.getPath().replace(upload, "");
@@ -529,7 +529,7 @@ public class CreativeService extends BaseService {
 		//添加视频信息
 		model.setId(id);
 //		model.setName(name);
-		model.setPath(path.replace(upload, ""));
+		model.setPath(path.replace(UPLOAD, ""));
 		model.setFormat(type);
 		model.setWidth(width);
 		model.setHeight(height);
@@ -546,7 +546,7 @@ public class CreativeService extends BaseService {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", id);
-		map.put("path", path.replace(upload, ""));
+		map.put("path", path.replace(UPLOAD, ""));
 		return map;
 	}
 	
