@@ -71,9 +71,9 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers", method = RequestMethod.DELETE)
     @ResponseBody
-    public void deleteAdvertisers(@RequestBody String[] ids, HttpServletResponse response) throws Exception
+    public void deleteAdvertisers(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception
     {
-        advertiserService.deleteAdvertisers(ids);
+        advertiserService.deleteAdvertisers(ids.split(","));
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     

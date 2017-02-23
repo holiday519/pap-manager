@@ -96,9 +96,9 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/projects", method = RequestMethod.DELETE)
 	@ResponseBody
-	public void deleteProjects(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
+	public void deleteProjects(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
 		
-		projectService.deleteProjects(ids);
+		projectService.deleteProjects(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

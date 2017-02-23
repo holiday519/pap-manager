@@ -75,8 +75,8 @@ public class LandpageController {
 	 */
 	@RequestMapping(value = "/landpages", method = RequestMethod.DELETE)
 	@ResponseBody
-	public void deleteProject(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
-		landpageService.deleteLandpages(ids);
+	public void deleteProjects(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+		landpageService.deleteLandpages(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	/**
