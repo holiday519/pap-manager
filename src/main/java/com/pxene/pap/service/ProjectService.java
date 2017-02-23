@@ -37,7 +37,6 @@ import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
-import com.pxene.pap.repository.basic.view.ProjectDetailDao;
 
 @Service
 public class ProjectService extends LaunchService {
@@ -59,9 +58,6 @@ public class ProjectService extends LaunchService {
 	
 	@Autowired
 	private CreativeService creativeService;
-	
-	@Autowired
-	private ProjectDetailDao projectDetailDao;
 	
 	@Autowired
 	private IndustryDao industryDao;
