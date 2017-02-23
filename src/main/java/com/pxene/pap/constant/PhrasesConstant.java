@@ -72,6 +72,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_LENGTH_ERROR_PROJECTID = "项目ID长度不能超过36";
 	
 	public static final String CREATIVE_NOTNULL_CAMPAIGNID = "活动ID不能为空";
+	public static final String CREATIVE_NOTNULL_TMPLID = "模板ID不能为空";
 	public static final String CREATIVE_NOTNULL_IMAGE_ID = "图片素材ID不能为空";
 	public static final String CREATIVE_NOTNULL_IMAGE_TMPLID = "图片素材模版ID不能为空";
 	public static final String CREATIVE_NOTNULL_IMAGE_PRICE = "图片素材价格不能为空";

@@ -42,7 +42,12 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 模版ID
 	 */
+	@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
+	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_TMPLID)
 	private String tmplId;
+	
+	private String materialId;
+	
 	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 	
@@ -117,13 +122,21 @@ public class CreativeBean extends BasicDataBean {
 	public void setTmplId(String tmplId) {
 		this.tmplId = tmplId;
 	}
+	
+	public String getMaterialId() {
+		return materialId;
+	}
+
+	public void setMaterialId(String materialId) {
+		this.materialId = materialId;
+	}
 
 	@Override
 	public String toString() {
 		return "CreativeBean [id=" + id + ", name=" + name + ", type=" + type
 				+ ", status=" + status + ", campaignId=" + campaignId
 				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
-				+ ", remark=" + remark + "]";
+				+ ", remark=" + remark + ", materialId=" + materialId + "]";
 	}
 	
 }

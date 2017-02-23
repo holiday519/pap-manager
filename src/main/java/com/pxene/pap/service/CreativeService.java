@@ -151,27 +151,33 @@ public class CreativeService extends BaseService {
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
 			iBean.setId(UUID.randomUUID().toString());
+			String materialId = UUID.randomUUID().toString();
+			iBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(iBean, CreativeModel.class);
 			ImageMaterialModel imageMaterialModel = modelMapper.map(iBean, ImageMaterialModel.class);
-			imageMaterialModel.setId(UUID.randomUUID().toString());
+			imageMaterialModel.setId(materialId);
 			imageMaterialDao.insert(imageMaterialModel);
 		}
 		// 视频
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
 			vBean.setId(UUID.randomUUID().toString());
+			String materialId = UUID.randomUUID().toString();
+			vBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(vBean, CreativeModel.class);
 			VideoMaterialModel videoMaterialModel = modelMapper.map(vBean, VideoMaterialModel.class);
-			videoMaterialModel.setId(UUID.randomUUID().toString());
+			videoMaterialModel.setId(materialId);
 			videoeMaterialDao.insert(videoMaterialModel);
 		}
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
 			ifBean.setId(UUID.randomUUID().toString());
+			String materialId = UUID.randomUUID().toString();
+			ifBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
 			InfoflowMaterialModel infoflowModel = modelMapper.map(ifBean, InfoflowMaterialModel.class);
-			infoflowModel.setId(UUID.randomUUID().toString());
+			infoflowModel.setId(materialId);
 			infoMaterialDao.insert(infoflowModel);
 		}
 		
@@ -643,15 +649,16 @@ public class CreativeService extends BaseService {
         example.setOrderByClause("update_time DESC");
 		
 		if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(campaignId)) {
-			example.createCriteria().andNameEqualTo(name);
+			example.createCriteria().andNameLike("%" + name + "%");
 		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
 			example.createCriteria().andCampaignIdEqualTo(campaignId);
 		} else if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
-			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameEqualTo(name);
+			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameLike("%" + name + "%");
 		}
 		
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
+			CreativeBean bean = null;
 			ImageCreativeBean image = null;
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
@@ -783,6 +790,9 @@ public class CreativeService extends BaseService {
 						}
 						result.add(info);
 					}
+				} else {
+					bean = modelMapper.map(creative, CreativeBean.class);
+					result.add(bean);
 				}
 			}
 		}
