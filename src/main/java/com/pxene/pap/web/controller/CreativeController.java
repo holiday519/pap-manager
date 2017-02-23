@@ -194,10 +194,10 @@ public class CreativeController {
      */
 	@RequestMapping(value = "/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectCreatives(@RequestParam(required = true) String campaignId, @RequestParam(required = false) String type, @RequestParam(required = false) String name, @RequestParam(required = false) Long beginTime, @RequestParam(required = false) Long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String selectCreatives(@RequestParam(required = true) String campaignId, @RequestParam(required = false) String type, @RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
 		        
-		List<BasicDataBean> creatives = creativeService.selectCreatives(campaignId, name, type, beginTime, endTime);
+		List<BasicDataBean> creatives = creativeService.selectCreatives(campaignId, name, type, startDate, endDate);
 		
 		PaginationBean result = new PaginationBean(creatives, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

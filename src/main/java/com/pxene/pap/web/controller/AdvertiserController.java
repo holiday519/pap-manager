@@ -134,7 +134,7 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Long beginTime, @RequestParam(required = false) Long endTime, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception
+    public String listAdvertisers(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception
     {
         Page<Object> pager = null;
         if (pageNo != null && pageSize != null)
@@ -142,7 +142,7 @@ public class AdvertiserController
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-        List<AdvertiserBean> advertisers = advertiserService.listAdvertisers(name, beginTime, endTime);
+        List<AdvertiserBean> advertisers = advertiserService.listAdvertisers(name, startDate, endDate);
         
         PaginationBean result = new PaginationBean(advertisers, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
