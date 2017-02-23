@@ -9,13 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
@@ -23,10 +23,12 @@ import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
+import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.RegionDao;
 
 @Service
 public class DataService {
@@ -37,17 +39,11 @@ public class DataService {
 	private CampaignDao campaignDao;
 
 	@Autowired
+	private RegionDao regionDao;
+	
+	@Autowired
 	private ProjectDao projectDao;
 
-	public List<BasicDataBean> get(String type, List<String> creativeIds) throws Exception {
-		return null;
-	}
-
-	public List<String> findCreativeIdsByCampaignId(String campaignId) throws Exception {
-		// TODO 自动生成的方法存根
-		return null;
-	}
-	
 	/**
 	 * 查询小时数据
 	 * @param beginTime
@@ -68,89 +64,152 @@ public class DataService {
 		
 		return list;
 	}
-	
 	/**
-	 * 查询创意投放数据
-	 * @param creativeIds
+	 * 查询地域数据
 	 * @param beginTime
 	 * @param endTime
+	 * @param advertiserId
+	 * @param projectId
+	 * @param campaignId
+	 * @param creativeId
 	 * @return
 	 * @throws Exception
 	 */
-	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long beginTime, Long endTime) throws Exception {
-		BasicDataBean basicData = new BasicDataBean();
-		FormatBeanParams(basicData);//将属性值变成0
-		DateTime begin = new DateTime(beginTime);
-    	DateTime end = new DateTime(endTime);
-    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
-    		//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
-    		if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
-					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
-				List<String> days = new ArrayList<String>();
-				days.add(begin.toString("yyyyMMdd"));
-				getDatafromDayTable(creativeIds, days, basicData);
-			} else {//如果是今天就要查询小时数据
-				getDatafromHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
-			}
-    	} else {
-    		String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
-			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
-			if (!begin.toString("HH").equals("00")) {
-				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
-				getDatafromHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
-				if (daysList != null && daysList.size() > 0) {
-					for (int i = 0; i < daysList.size(); i++) {
-						if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
-							daysList.remove(i);
-						}
-					}
-				}
-			}
-			if (!end.toString("HH").equals("23")) {
-				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
-				getDatafromHourTable(creativeIds, smallHourOfDay, begin.toDate(), basicData);
-				if (daysList != null && daysList.size() > 0) {
-					for (int i = 0; i < daysList.size(); i++) {
-						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
-							daysList.remove(i);
-						}
-					}
-				}
-			}
-			getDatafromDayTable(creativeIds, daysList, basicData);
-    	}
-    	
-    	FormatBeanRate(basicData);
-		return basicData;
+	public List<Map<String, Object>> getDataForRegion(Long beginTime, Long endTime, String advertiserId, 
+			String projectId, String campaignId, String creativeId) throws Exception {
+		
+		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
+		
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "region");
+		
+		return list;
+	}
+	/**
+	 * 查询运营商数据
+	 * @param beginTime
+	 * @param endTime
+	 * @param advertiserId
+	 * @param projectId
+	 * @param campaignId
+	 * @param creativeId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String, Object>> getDataForOperator(Long beginTime, Long endTime, String advertiserId, 
+			String projectId, String campaignId, String creativeId) throws Exception {
+		
+		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
+		
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "operator");
+		
+		return list;
+	}
+	/**
+	 * 查询网络数据
+	 * @param beginTime
+	 * @param endTime
+	 * @param advertiserId
+	 * @param projectId
+	 * @param campaignId
+	 * @param creativeId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String, Object>> getDataForNetwork(Long beginTime, Long endTime, String advertiserId, 
+			String projectId, String campaignId, String creativeId) throws Exception {
+		
+		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
+		
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "network");
+		
+		return list;
+	}
+	/**
+	 * 查询系统数据
+	 * @param beginTime
+	 * @param endTime
+	 * @param advertiserId
+	 * @param projectId
+	 * @param campaignId
+	 * @param creativeId
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Map<String, Object>> getDataForSystem(Long beginTime, Long endTime, String advertiserId, 
+			String projectId, String campaignId, String creativeId) throws Exception {
+		
+		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
+		
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "os");
+		
+		return list;
 	}
 	
 	/**
-	 * 取天数据
+	 * 取天数据(其他数据查询用)
 	 * @param creativeIds
 	 * @param daysList
 	 * @param bean
+	 * @return 
 	 * @throws Exception
 	 */
-	private void getDatafromDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
+	private List<Map<String, Object>> getDatafromDayTable(List<String> creativeIds, Date beginTime, Date endTime, String type) throws Exception {
+		String[] days = DateUtils.getDaysBetween(beginTime, endTime);
+		
+		List<String> codes = new ArrayList<String>();//存放所有的code（例如：type为“region”时查询regioncode）
+		
+		Map<String, Long> mMap = new HashMap<String, Long>();//装展现
+		Map<String, Long> cMap = new HashMap<String, Long>();//装点击
+		Map<String, Long> jMap = new HashMap<String, Long>();//装二跳
+		Map<String, Float> eMap = new HashMap<String, Float>();//装花费
+		
 		for (String creativeId : creativeIds) {
 			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + creativeId);//获取map集合
 			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + creativeId);//获取所有key
 			if (hkeys != null && !hkeys.isEmpty()) {
+				//拿出所有的key中属于当前type的定向的值（比如：type为“region时”拿出所有的regioncode）
 				for (String hkey : hkeys) {
-					//必须要符合“日期”+“@”才是创意的数据
-					for (String day : daysList) {
-						if (hkey.indexOf(day + "@") > -1) {
-							String value = map.get(hkey);
-							//根据不同的值来整合不同属性值
-							if (!StringUtils.isEmpty(value)) {
-								if (hkey.indexOf("@m") > 0) {// 展现
-									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@c") > 0) {// 点击
-									bean.setClickAmount(bean.getClickAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@j") > 0) {// 二跳
-									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@e") > 0) {// 花费
-									bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(value));
+					if (hkey.indexOf(type) > -1 && daysContainKey(days, hkey.substring(0, 8))) {
+						//循环遍历所有创意文件，找出符合日期、type的key，不重复的放到map中
+						int befor = hkey.lastIndexOf("_") + 1;//此处想要的并不是“_”的索引，是他的后一位,即code的开始位
+						int after = hkey.indexOf("@");
+						String substring = hkey.substring(befor, after);//类别code（例如：type为“region”时，查询regioncode）
+						if (!codes.contains(substring)) {
+							codes.add(substring);
+						}
+						String newValue = map.get(hkey);
+						if (!StringUtils.isEmpty(newValue)) {
+							if (hkey.indexOf("@m") > 0) {// 展现
+								//如果map中已经有值，加起来，不然直接存入map
+								Long value = mMap.get(hkey);
+								if (value != null) {
+									mMap.put(substring, value + Long.parseLong(newValue));
+								} else {
+									mMap.put(substring, Long.parseLong(newValue));
+								}
+							} else if (hkey.indexOf("@c") > 0) {// 点击
+								//如果map中已经有值，加起来，不然直接存入map
+								Long value = cMap.get(hkey);
+								if (value != null) {
+									cMap.put(substring, value + Long.parseLong(newValue));
+								} else {
+									cMap.put(substring, Long.parseLong(newValue));
+								}
+							} else if (hkey.indexOf("@j") > 0) {// 二跳
+								//如果map中已经有值，加起来，不然直接存入map
+								Long value = mMap.get(hkey);
+								if (value != null) {
+									jMap.put(substring, value + Long.parseLong(newValue));
+								} else {
+									jMap.put(substring, Long.parseLong(newValue));
+								}
+							} else if (hkey.indexOf("@e") > 0) {// 花费
+								//如果map中已经有值，加起来，不然直接存入map
+								Long value = mMap.get(hkey);
+								if (value != null) {
+									eMap.put(substring, value + Float.parseFloat(newValue));
+								} else {
+									eMap.put(substring, Float.parseFloat(newValue));
 								}
 							}
 						}
@@ -158,47 +217,104 @@ public class DataService {
 				}
 			}
 		}
+		//整理结果集
+		List<Map<String,Object>> result = new ArrayList<Map<String,Object>>();
+		if (!codes.isEmpty()) {
+			Map<String, Object> map = null;
+			BasicDataBean bean = null;
+			for (String code : codes) {
+				bean = new BasicDataBean();
+				map = new HashMap<String, Object>();
+				FormatBeanParams(bean);
+				if (mMap.get(code) != null) {
+					bean.setImpressionAmount(mMap.get(code));
+				}
+				if (cMap.get(code) != null) {
+					bean.setClickAmount(cMap.get(code));
+				}
+				if (jMap.get(code) != null) {
+					bean.setJumpAmount(jMap.get(code));
+				}
+				if (eMap.get(code) != null) {
+					bean.setTotalCost(eMap.get(code));
+				}
+				FormatBeanRate(bean);
+				
+				String name = getNameByType(type, code);
+				map.put("name", name);
+				map.put("code", code);
+				map.put("impressionAmount", bean.getImpressionAmount());
+				map.put("clickAmount", bean.getClickAmount());
+				map.put("jumpAmount", bean.getJumpAmount());
+				map.put("clickRate", bean.getClickRate());
+				map.put("totalCost", bean.getTotalCost());
+				map.put("impressionCost", bean.getImpressionCost());
+				map.put("clickCost", bean.getClickCost());
+				map.put("jumpCost", bean.getJumpCost());
+				result.add(map);
+			}
+		}
+		return result;
 	}
 	
 	/**
-	 * 取小时数据
-	 * @param creativeIds
-	 * @param beginTime
-	 * @param endTime
-	 * @param bean
+	 * 检查日期是否在制定日期数组中
+	 * @param days
+	 * @param key
+	 * @return
 	 * @throws Exception
 	 */
-	private void getDatafromHourTable(List<String> creativeIds, Date beginTime, Date endTime, BasicDataBean bean) throws Exception {
-		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
-		String day = new DateTime(beginTime).toString("yyyyMMdd");
-		for (String creativeId : creativeIds) {
-			Map<String, String> map = JedisUtils.hget("creativeDataHour_" + creativeId);//获取map集合
-			Set<String> hkeys = JedisUtils.hkeys("creativeDataHour_" + creativeId);//获取所有key
-			if (hkeys != null && !hkeys.isEmpty()) {
-				for (String hkey : hkeys) {
-					//必须要符合“日期”+“小时”+“@”才是创意的数据
-					for (String hour : hours) {
-						if (hkey.indexOf(day + hour + "@") > -1) {
-							String value = map.get(hkey);
-							//根据不同的值来整合不同属性值
-							if (!StringUtils.isEmpty(value)) {
-								if (hkey.indexOf("@m") > 0) {// 展现
-									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@c") > 0) {// 点击
-									bean.setClickAmount(bean.getClickAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@j") > 0) {// 二跳
-									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@e") > 0) {// 花费
-									bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(value));
-								}
-							}
-						}
-					}
-				}
-			}
+	private boolean daysContainKey (String[] days, String key) throws Exception {
+		List<String> list = Arrays.asList(days);
+		if (list.contains(key)) {
+			return true;
 		}
+		return false;
 	}
 	
+	/**
+	 * 根据类型和code获取名称
+	 * @param type
+	 * @param code
+	 * @return
+	 */
+	private String getNameByType(String type, String code) {
+		if ("region".equals(type)) {
+			RegionModel model = regionDao.selectByPrimaryKey(code.substring(4, code.length()));
+			if (model != null) {
+				return model.getName();
+			}
+			return null;
+		} else if ("operator".equals(type)) {//运营商
+			if (CodeTableConstant.OPERATOR_CODE_YIDONG.equals(code)) {
+				return CodeTableConstant.OPERATOR_NAME_YIDONG;
+			} else if (CodeTableConstant.OPERATOR_CODE_LIANTONG.equals(code)) {
+				return CodeTableConstant.OPERATOR_NAME_LIANTONG;
+			} else if (CodeTableConstant.OPERATOR_CODE_DIANXIN.equals(code)) {
+				return CodeTableConstant.OPERATOR_NAME_DIANXIN;
+			}
+		} else if ("network".equals(type)) {
+			if (CodeTableConstant.NETWORK_CODE_2G.equals(code)) {
+				return CodeTableConstant.NETWORK_NAME_2G;
+			} else if (CodeTableConstant.NETWORK_CODE_3G.equals(code)) {
+				return CodeTableConstant.NETWORK_NAME_3G;
+			} else if (CodeTableConstant.NETWORK_CODE_4G.equals(code)) {
+				return CodeTableConstant.NETWORK_NAME_4G;
+			} else if (CodeTableConstant.NETWORK_CODE_WIFI.equals(code)) {
+				return CodeTableConstant.NETWORK_NAME_WIFI;
+			}
+		} else if ("os".equals(type)) {
+			if (CodeTableConstant.SYSTEM_CODE_IOS.equals(code)) {
+				return CodeTableConstant.SYSTEM_NAME_IOS;
+			} else if (CodeTableConstant.SYSTEM_CODE_ANDROID.equals(code)) {
+				return CodeTableConstant.SYSTEM_NAME_ANDROID;
+			} else if (CodeTableConstant.SYSTEM_CODE_WINDOWS.equals(code)) {
+				return CodeTableConstant.SYSTEM_NAME_WINDOWS;
+			}
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * 取小时数据(查询时间数据用)
@@ -210,7 +326,7 @@ public class DataService {
 	 */
 	private List<Map<String, Object>> getDatafromHourTableForTime(List<String> creativeIds, Date beginTime, Date endTime) throws Exception {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
-		String timeHours[] = new String[]{"00","01","02","03","04","05","06","07","07","08","09","10",
+		String timeHours[] = new String[]{"00","01","02","03","04","05","06","07","08","09","10",
 				"11","12","13","14","15","16","17","18","19","20","21","22","23"};
 		String[] days = DateUtils.getDaysBetween(beginTime, endTime);
 		BasicDataBean bean = null;
@@ -282,6 +398,7 @@ public class DataService {
 	 * 格式话“率”
 	 * @param bean
 	 * @throws Exception
+	 * 注：此方法传入bean中不能有NULL值，可以是0；
 	 */
 	private void FormatBeanRate(BasicDataBean bean) throws Exception {
 		DecimalFormat format = new DecimalFormat("0.00000");

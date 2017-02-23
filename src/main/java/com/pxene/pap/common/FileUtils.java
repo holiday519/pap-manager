@@ -71,7 +71,7 @@ public class FileUtils
     	{
     		String name = file.getOriginalFilename();
     		String contentType = file.getContentType();
-    		String fileExtension = getFileExtensionByDot(name);
+    		String fileExtension = getFileExtensionByDotCode(name);
     		float volume = file.getSize() / 1024.0f;
     		int width = 0;
     		int height = 0;
@@ -130,6 +130,26 @@ public class FileUtils
     public static String getFileExtensionByDot(String contentType)
     {
         return getFileExtension(".", contentType);
+    }
+    public static String getFileExtensionByDotCode(String contentType)
+    {
+    	String string = getFileExtension(".", contentType).toLowerCase();
+    	if ("jpg".equals(string)) {
+    		return "18";
+    	} else if ("png".equals(string)) {
+    		return "17";
+    	} else if ("jpeg".equals(string)) {
+    		return "18";
+    	} else if ("gif".equals(string)) {
+    		return "19";
+    	} else if ("gif".equals(string)) {
+    		return "19";
+    	} else if ("flv".equals(string)) {
+    		return "33";
+    	} else if ("mp4".equals(string)) {
+    		return "34";
+    	}
+        return "0";
     }
     public static String getFileExtension(String seperator, String source)
     {

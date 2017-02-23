@@ -8,15 +8,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.DataService;
 
-
+@Controller
 public class DataController
 {
     @Autowired
@@ -25,42 +28,57 @@ public class DataController
     
     @RequestMapping(value = "/data/times", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listTimes(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+    public String listTimes(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId, 
+    		@RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
     {
-    	List<Map<String, Object>> result = dataService.getDataForTime(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+    	Page<Object> pager = null;
+    	List<Map<String, Object>> Datas = dataService.getDataForTime(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+    	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 
     @RequestMapping(value = "/data/regions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String listRegions(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception
+            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
     {
-        return "";
+    	Page<Object> pager = null;
+    	List<Map<String, Object>> Datas = dataService.getDataForRegion(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+    	PaginationBean result = new PaginationBean(Datas, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @RequestMapping(value = "/data/operators", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String listOperators(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception
+            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
     {
-        return "";
+    	Page<Object> pager = null;
+    	List<Map<String, Object>> Datas = dataService.getDataForOperator(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+    	PaginationBean result = new PaginationBean(Datas, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @RequestMapping(value = "/data/networks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String listNetworks(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception
+            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
     {
-        return "";
+    	Page<Object> pager = null;
+    	List<Map<String, Object>> Datas = dataService.getDataForNetwork(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+    	PaginationBean result = new PaginationBean(Datas, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @RequestMapping(value = "/data/systems", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String listSystems(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception
+            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
     {
-        return "";
+    	Page<Object> pager = null;
+    	List<Map<String, Object>> Datas = dataService.getDataForSystem(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+    	PaginationBean result = new PaginationBean(Datas, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
 }
