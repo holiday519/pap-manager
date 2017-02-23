@@ -64,6 +64,7 @@ public class CampaignBean extends BasicDataBean {
 
 	private String uniform;
 
+	private Integer creativeNum;
 	/**
 	 * 定向
 	 *
@@ -552,6 +553,14 @@ public class CampaignBean extends BasicDataBean {
 		this.uniform = uniform;
 	}
 
+	public Integer getCreativeNum() {
+		return creativeNum;
+	}
+
+	public void setCreativeNum(Integer creativeNum) {
+		this.creativeNum = creativeNum;
+	}
+
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
@@ -561,8 +570,9 @@ public class CampaignBean extends BasicDataBean {
 				+ dailyClick + ", remark=" + remark + ", status=" + status
 				+ ", startDate=" + startDate + ", endDate=" + endDate
 				+ ", frequencyId=" + frequencyId + ", uniform=" + uniform
-				+ ", target=" + target + ", frequency=" + frequency
-				+ ", monitors=" + Arrays.toString(monitors) + ", quantity="
+				+ ", creativeNum=" + creativeNum + ", target=" + target
+				+ ", frequency=" + frequency + ", monitors="
+				+ Arrays.toString(monitors) + ", quantities="
 				+ Arrays.toString(quantities) + ", landpageId=" + landpageId
 				+ ", landpageName=" + landpageName + ", landpageUrl="
 				+ landpageUrl + "]";

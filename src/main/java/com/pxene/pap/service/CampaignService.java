@@ -826,6 +826,15 @@ public class CampaignService extends LaunchService{
 			bean.setQuantities(quanArray);
 		}
 		
+		//查询创意数
+		CreativeModelExample ex = new CreativeModelExample();
+		ex.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creatives = creativeDao.selectByExample(ex);
+		if (creatives == null) {
+			bean.setCreativeNum(0);
+		} else {
+			bean.setCreativeNum(creatives.size());
+		}
 	}
 	
 	/**
