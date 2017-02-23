@@ -10,7 +10,8 @@ public class PopulationBean {
 	private String path;
 	private Integer amount;
 	private String remark;
-	private Date updateDate;
+	private Date updateTime;
+	
 	public String getId() {
 		return id;
 	}
@@ -47,17 +48,17 @@ public class PopulationBean {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
-	public Date getUpdateDate() {
-		return updateDate;
+	public Date getUpdateTime() {
+		return updateTime;
 	}
-	public void setUpdateDate(Date updateDate) {
-		this.updateDate = updateDate;
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
 	}
 	@Override
 	public String toString() {
 		return "PopulationBean [id=" + id + ", name=" + name + ", type=" + type
 				+ ", path=" + path + ", amount=" + amount + ", remark="
-				+ remark + ", updateDate=" + updateDate + "]";
+				+ remark + ", updateTime=" + updateTime + "]";
 	}
 	
 }
