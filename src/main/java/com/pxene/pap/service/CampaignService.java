@@ -528,7 +528,7 @@ public class CampaignService extends LaunchService{
 	 */
 	@Transactional
 	public void addCampaignQuantity(CampaignBean bean) throws Exception {
-		Quantity[] quantitys = bean.getQuantity();
+		Quantity[] quantitys = bean.getQuantities();
 		if (quantitys != null && quantitys.length > 0) {
 			String id = bean.getId();
 			for (Quantity qt : quantitys) {
@@ -823,7 +823,7 @@ public class CampaignService extends LaunchService{
 				QuantityModel model = quans.get(i);
 				quanArray[i] = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Quantity.class);
 			}
-			bean.setQuantity(quanArray);
+			bean.setQuantities(quanArray);
 		}
 		
 	}

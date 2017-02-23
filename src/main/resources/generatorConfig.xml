@@ -13,7 +13,7 @@
         </commentGenerator>
         
         <!-- 数据库链接URL，用户名、密码 -->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://115.182.33.170:3306/pap-manager-new4?characterEncoding=utf8&amp;useSSL=true" userId="root" password="123456"> 
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.3.91:3306/pap-manager?characterEncoding=utf8&amp;useSSL=true" userId="root" password="123456"> 
         </jdbcConnection>
         
         <javaTypeResolver>
@@ -66,7 +66,7 @@
 <!-- 		<table tableName="pap_t_operatortarget" domainObjectName="OperatorTargetModel" mapperName="OperatorTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_ostarget" domainObjectName="OsTargetModel" mapperName="OsTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_project" domainObjectName="ProjectModel" mapperName="ProjectDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-<!-- 		<table tableName="pap_t_population" domainObjectName="PopulationModel" mapperName="PopulationDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+		<table tableName="pap_t_population" domainObjectName="PopulationModel" mapperName="PopulationDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>
 <!-- 		<table tableName="pap_t_populationtarget" domainObjectName="PopulationTargetModel" mapperName="PopulationTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_project" domainObjectName="ProjectModel" mapperName="ProjectDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_quantity" domainObjectName="QuantityModel" mapperName="QuantityDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->

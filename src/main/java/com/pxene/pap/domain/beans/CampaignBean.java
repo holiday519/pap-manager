@@ -338,7 +338,7 @@ public class CampaignBean extends BasicDataBean {
 	/**
 	 * 投放量控制策略
 	 */
-	private Quantity[] quantity;
+	private Quantity[] quantities;
 
 	public static class Quantity {
 		private Date startDate;
@@ -384,12 +384,12 @@ public class CampaignBean extends BasicDataBean {
 	private String landpageName;
 	private String landpageUrl;
 
-	public Quantity[] getQuantity() {
-		return quantity;
+	public Quantity[] getQuantities() {
+		return quantities;
 	}
 
-	public void setQuantity(Quantity[] quantity) {
-		this.quantity = quantity;
+	public void setQuantities(Quantity[] quantities) {
+		this.quantities = quantities;
 	}
 
 	public String getLandpageId() {
@@ -563,7 +563,7 @@ public class CampaignBean extends BasicDataBean {
 				+ ", frequencyId=" + frequencyId + ", uniform=" + uniform
 				+ ", target=" + target + ", frequency=" + frequency
 				+ ", monitors=" + Arrays.toString(monitors) + ", quantity="
-				+ Arrays.toString(quantity) + ", landpageId=" + landpageId
+				+ Arrays.toString(quantities) + ", landpageId=" + landpageId
 				+ ", landpageName=" + landpageName + ", landpageUrl="
 				+ landpageUrl + "]";
 	}

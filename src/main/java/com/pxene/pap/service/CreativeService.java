@@ -446,7 +446,7 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public  Map<String, String> addImage(ImageBean imageBean, MultipartFile file) throws Exception {
+	public Map<String, String> addImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
 		String dir = UPLOAD + "creative/image/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
