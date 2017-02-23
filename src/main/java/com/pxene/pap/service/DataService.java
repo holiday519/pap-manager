@@ -31,7 +31,10 @@ import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
 
 @Service
-public class DataService {
+public class DataService extends BaseService {
+	@Autowired
+	private CreativeService creativeService;
+	
 	@Autowired
 	private CreativeDao creativeDao;
 
@@ -46,8 +49,8 @@ public class DataService {
 
 	/**
 	 * 查询小时数据
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param advertiserId
 	 * @param projectId
 	 * @param campaignId
@@ -55,19 +58,19 @@ public class DataService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Map<String, Object>> getDataForTime(Long beginTime, Long endTime, String advertiserId, 
+	public List<Map<String, Object>> getDataForTime(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
 		
-		List<Map<String, Object>> list = getDatafromHourTableForTime(creativeIds, new Date(beginTime), new Date(endTime));
+		List<Map<String, Object>> list = getDatafromHourTableForTime(creativeIds, new Date(startDate), new Date(endDate));
 		
 		return list;
 	}
 	/**
 	 * 查询地域数据
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param advertiserId
 	 * @param projectId
 	 * @param campaignId
@@ -75,19 +78,19 @@ public class DataService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Map<String, Object>> getDataForRegion(Long beginTime, Long endTime, String advertiserId, 
+	public List<Map<String, Object>> getDataForRegion(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
 		
-		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "region");
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(startDate), new Date(endDate), "region");
 		
 		return list;
 	}
 	/**
 	 * 查询运营商数据
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param advertiserId
 	 * @param projectId
 	 * @param campaignId
@@ -95,19 +98,19 @@ public class DataService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Map<String, Object>> getDataForOperator(Long beginTime, Long endTime, String advertiserId, 
+	public List<Map<String, Object>> getDataForOperator(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
 		
-		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "operator");
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(startDate), new Date(endDate), "operator");
 		
 		return list;
 	}
 	/**
 	 * 查询网络数据
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param advertiserId
 	 * @param projectId
 	 * @param campaignId
@@ -115,19 +118,19 @@ public class DataService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Map<String, Object>> getDataForNetwork(Long beginTime, Long endTime, String advertiserId, 
+	public List<Map<String, Object>> getDataForNetwork(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
 		
-		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "network");
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(startDate), new Date(endDate), "network");
 		
 		return list;
 	}
 	/**
 	 * 查询系统数据
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param advertiserId
 	 * @param projectId
 	 * @param campaignId
@@ -135,12 +138,12 @@ public class DataService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Map<String, Object>> getDataForSystem(Long beginTime, Long endTime, String advertiserId, 
+	public List<Map<String, Object>> getDataForSystem(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
 		
-		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(beginTime), new Date(endTime), "os");
+		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(startDate), new Date(endDate), "os");
 		
 		return list;
 	}
@@ -153,8 +156,8 @@ public class DataService {
 	 * @return 
 	 * @throws Exception
 	 */
-	private List<Map<String, Object>> getDatafromDayTable(List<String> creativeIds, Date beginTime, Date endTime, String type) throws Exception {
-		String[] days = DateUtils.getDaysBetween(beginTime, endTime);
+	private List<Map<String, Object>> getDatafromDayTable(List<String> creativeIds, Date startDate, Date endDate, String type) throws Exception {
+		String[] days = DateUtils.getDaysBetween(startDate, endDate);
 		
 		List<String> codes = new ArrayList<String>();//存放所有的code（例如：type为“region”时查询regioncode）
 		
@@ -264,7 +267,7 @@ public class DataService {
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean daysContainKey (String[] days, String key) throws Exception {
+	private boolean daysContainKey(String[] days, String key) throws Exception {
 		List<String> list = Arrays.asList(days);
 		if (list.contains(key)) {
 			return true;
@@ -319,16 +322,16 @@ public class DataService {
 	/**
 	 * 取小时数据(查询时间数据用)
 	 * @param creativeIds
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param bean
 	 * @throws Exception
 	 */
-	private List<Map<String, Object>> getDatafromHourTableForTime(List<String> creativeIds, Date beginTime, Date endTime) throws Exception {
+	private List<Map<String, Object>> getDatafromHourTableForTime(List<String> creativeIds, Date startDate, Date endDate) throws Exception {
 		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		String timeHours[] = new String[]{"00","01","02","03","04","05","06","07","08","09","10",
 				"11","12","13","14","15","16","17","18","19","20","21","22","23"};
-		String[] days = DateUtils.getDaysBetween(beginTime, endTime);
+		String[] days = DateUtils.getDaysBetween(startDate, endDate);
 		BasicDataBean bean = null;
 		Map<String, Object> resultMap = null;
 		for (String hour : timeHours) {
@@ -527,7 +530,7 @@ public class DataService {
 	 *            广告主ID
 	 * @return
 	 */
-	public List<String> getCreAtiveIdListByAdvertiserId(String advertiserId)
+	public List<String> getCreativeIdListByAdvertiserId(String advertiserId)
 			throws Exception {
 		List<String> result = new ArrayList<String>();
 
@@ -543,5 +546,70 @@ public class DataService {
 
 		return result;
 	}
-
+	
+	public List<Map<String, Object>> getAdvertiserData(Long startDate, Long endDate, String id) throws Exception {
+		// 获取所有天
+		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+		List<String> creativeIds = getCreativeIdListByAdvertiserId(id);
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		for (String day : days) {
+			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			result.put("date", day);
+			results.add(result);
+		}
+		
+		return results;
+	}
+	
+	public List<Map<String, Object>> getProjectData(Long startDate, Long endDate, String id) throws Exception {
+		// 获取所有天
+		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+		List<String> creativeIds = getCreativeIdListByProjectId(id);
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		for (String day : days) {
+			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			result.put("date", day);
+			results.add(result);
+		}
+		
+		return results;
+	}
+	
+	public List<Map<String, Object>> getCampaignData(Long startDate, Long endDate, String id) throws Exception {
+		// 获取所有天
+		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+		List<String> creativeIds = getCreativeIdListByCampaignId(id);
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		for (String day : days) {
+			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			result.put("date", day);
+			results.add(result);
+		}
+		
+		return results;
+	}
+	
+	public List<Map<String, Object>> getCreativeData(Long startDate, Long endDate, String id) throws Exception {
+		// 获取所有天
+		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+		List<String> creativeIds = new ArrayList<String>();
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		creativeIds.add(id);
+		for (String day : days) {
+			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			result.put("date", day);
+			results.add(result);
+		}
+		
+		return results;
+	}
+	
 }

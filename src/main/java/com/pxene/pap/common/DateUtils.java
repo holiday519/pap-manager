@@ -1,5 +1,6 @@
 package com.pxene.pap.common;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -214,6 +215,18 @@ public class DateUtils {
     	return date;
     }
 	
+    
+    public static Date strToDate(String dateStr, String formatStr) {
+    	SimpleDateFormat format = new SimpleDateFormat(formatStr);
+    	Date date = null;
+    	try {
+			date = format.parse(dateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+    	
+    	return date;
+    }
     
 //	public static void main(String[] args) throws Exception {
 //		for (int i=0;i<=32;i++) {

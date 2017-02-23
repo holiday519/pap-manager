@@ -150,26 +150,31 @@ public class CreativeService extends BaseService {
 		// 图片
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
+			iBean.setId(UUID.randomUUID().toString());
 			creativeModel = modelMapper.map(iBean, CreativeModel.class);
 			ImageMaterialModel imageMaterialModel = modelMapper.map(iBean, ImageMaterialModel.class);
+			imageMaterialModel.setId(UUID.randomUUID().toString());
 			imageMaterialDao.insert(imageMaterialModel);
 		}
 		// 视频
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
+			vBean.setId(UUID.randomUUID().toString());
 			creativeModel = modelMapper.map(vBean, CreativeModel.class);
 			VideoMaterialModel videoMaterialModel = modelMapper.map(vBean, VideoMaterialModel.class);
+			videoMaterialModel.setId(UUID.randomUUID().toString());
 			videoeMaterialDao.insert(videoMaterialModel);
 		}
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
+			ifBean.setId(UUID.randomUUID().toString());
 			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
 			InfoflowMaterialModel infoflowModel = modelMapper.map(ifBean, InfoflowMaterialModel.class);
+			infoflowModel.setId(UUID.randomUUID().toString());
 			infoMaterialDao.insert(infoflowModel);
 		}
 		
-		creativeModel.setId(UUID.randomUUID().toString());
 		creativeDao.insertSelective(creativeModel);
 	}
 	
@@ -630,7 +635,7 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<BasicDataBean> selectCreatives(String campaignId, String name, String type, Long beginTime, Long endTime) throws Exception {
+	public List<BasicDataBean> selectCreatives(String campaignId, String name, String type, Long startDate, Long endDate) throws Exception {
 		List<BasicDataBean> result = new ArrayList<BasicDataBean>();
 		CreativeModelExample example = new CreativeModelExample();
 		
@@ -668,11 +673,11 @@ public class CreativeService extends BaseService {
 						image.setImageId(creative.getMaterialId());
 						image.setImagePath(imageModel.getPath());
 						//查询投放数据
-						if (beginTime != null && endTime != null) {
+						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
 							List<String> idList = new ArrayList<String>();
 							idList.add(creativeId);
-							BasicDataBean dataBean = getCreativeDatas(idList, beginTime, endTime);
+							BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
 							if (dataBean != null) {
 								image.setImpressionAmount(dataBean.getImpressionAmount());
 								image.setClickAmount(dataBean.getClickAmount());
@@ -705,11 +710,11 @@ public class CreativeService extends BaseService {
 						video.setVideoId(creative.getMaterialId());
 						video.setVideoPath(videoModel.getPath());
 						//查询投放数据
-						if (beginTime != null && endTime != null) {
+						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
 							List<String> idList = new ArrayList<String>();
 							idList.add(creativeId);
-							BasicDataBean dataBean = getCreativeDatas(idList, beginTime, endTime);
+							BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
 							if (dataBean != null) {
 								video.setImpressionAmount(dataBean.getImpressionAmount());
 								video.setClickAmount(dataBean.getClickAmount());
@@ -760,11 +765,11 @@ public class CreativeService extends BaseService {
 						}
 						info.setAppStar(infoflowModel.getAppStar());
 						//查询投放数据
-						if (beginTime != null && endTime != null) {
+						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
 							List<String> idList = new ArrayList<String>();
 							idList.add(creativeId);
-							BasicDataBean dataBean = getCreativeDatas(idList, beginTime, endTime);
+							BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
 							if (dataBean != null) {
 								info.setImpressionAmount(dataBean.getImpressionAmount());
 								info.setClickAmount(dataBean.getClickAmount());
@@ -791,7 +796,7 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<MaterialListBean> selectCreativeMaterials(String campaignId, long beginTime, long endTime) throws Exception {
+	public List<MaterialListBean> selectCreativeMaterials(String campaignId, long startDate, long endDate) throws Exception {
 		List<MaterialListBean> result = new ArrayList<MaterialListBean>();
 		
 		CreativeModelExample cmExample = new CreativeModelExample();
@@ -901,7 +906,7 @@ public class CreativeService extends BaseService {
 			List<String> list = new ArrayList<String>();
 			list.add(bean.getId());
 			//查询点击、展现等数据
-//			CreativeDataBean dataBean = creativeAllDataService.listCreativeData(list, beginTime, endTime);
+//			CreativeDataBean dataBean = creativeAllDataService.listCreativeData(list, startDate, endDate);
 //			Long impressionAmount = dataBean.getImpressionAmount();
 //			Long clickAmount = dataBean.getClickAmount();
 //			Float cost = dataBean.getCost();
@@ -1042,16 +1047,16 @@ public class CreativeService extends BaseService {
 	/**
 	 * 查询创意投放数据
 	 * @param creativeIds
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @return
 	 * @throws Exception
 	 */
-	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long beginTime, Long endTime) throws Exception {
+	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long startDate, Long endDate) throws Exception {
 		BasicDataBean basicData = new BasicDataBean();
 		FormatBeanParams(basicData);//将属性值变成0
-		DateTime begin = new DateTime(beginTime);
-    	DateTime end = new DateTime(endTime);
+		DateTime begin = new DateTime(startDate);
+    	DateTime end = new DateTime(endDate);
     	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
     		//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
     		if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
@@ -1133,14 +1138,14 @@ public class CreativeService extends BaseService {
 	/**
 	 * 取小时数据
 	 * @param creativeIds
-	 * @param beginTime
-	 * @param endTime
+	 * @param startDate
+	 * @param endDate
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void getDatafromHourTable(List<String> creativeIds, Date beginTime, Date endTime, BasicDataBean bean) throws Exception {
-		String[] hours = DateUtils.getHoursBetween(beginTime, endTime);
-		String day = new DateTime(beginTime).toString("yyyyMMdd");
+	private void getDatafromHourTable(List<String> creativeIds, Date startDate, Date endDate, BasicDataBean bean) throws Exception {
+		String[] hours = DateUtils.getHoursBetween(startDate, endDate);
+		String day = new DateTime(startDate).toString("yyyyMMdd");
 		for (String creativeId : creativeIds) {
 			Map<String, String> map = JedisUtils.hget("creativeDataHour_" + creativeId);//获取map集合
 			Set<String> hkeys = JedisUtils.hkeys("creativeDataHour_" + creativeId);//获取所有key

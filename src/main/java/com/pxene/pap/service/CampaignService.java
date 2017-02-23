@@ -86,7 +86,7 @@ import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
-public class CampaignService extends LaunchService{
+public class CampaignService extends LaunchService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
