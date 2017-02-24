@@ -57,6 +57,9 @@ public class ProjectService extends LaunchService {
 	private CampaignService campaignService;
 	
 	@Autowired
+	private DataService dataService;
+	
+	@Autowired
 	private CreativeService creativeService;
 	
 	@Autowired
@@ -275,6 +278,9 @@ public class ProjectService extends LaunchService {
     	CampaignModelExample campaignExample = new CampaignModelExample();
     	campaignExample.createCriteria().andProjectIdEqualTo(bean.getId());
     	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+    	BasicDataBean dataBean = new BasicDataBean();//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
+    	dataService.formatBeanParams(dataBean);
+    	dataService.formatBeanRate(dataBean);
     	if (campaigns != null && !campaigns.isEmpty()) {
     		List<String> campaignIds = new ArrayList<String>();
     		for (CampaignModel campaign : campaigns) {
@@ -289,18 +295,16 @@ public class ProjectService extends LaunchService {
     				creativeIds.add(model.getId());
     			}
     		}
-    		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
-    		if (dataBean != null) {
-    			bean.setImpressionAmount(dataBean.getImpressionAmount());
-    			bean.setClickAmount(dataBean.getClickAmount());
-    			bean.setTotalCost(dataBean.getTotalCost());
-    			bean.setJumpAmount(dataBean.getJumpAmount());
-    			bean.setImpressionCost(dataBean.getImpressionCost());
-    			bean.setClickCost(dataBean.getClickCost());
-    			bean.setClickRate(dataBean.getClickRate());
-    			bean.setJumpCost(dataBean.getJumpCost());
-    		}
+    		dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
     	}
+    	bean.setImpressionAmount(dataBean.getImpressionAmount());
+    	bean.setClickAmount(dataBean.getClickAmount());
+    	bean.setTotalCost(dataBean.getTotalCost());
+    	bean.setJumpAmount(dataBean.getJumpAmount());
+    	bean.setImpressionCost(dataBean.getImpressionCost());
+    	bean.setClickCost(dataBean.getClickCost());
+    	bean.setClickRate(dataBean.getClickRate());
+    	bean.setJumpCost(dataBean.getJumpCost());
     	
 	}
     

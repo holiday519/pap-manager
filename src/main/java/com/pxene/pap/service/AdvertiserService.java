@@ -66,6 +66,8 @@ public class AdvertiserService extends BaseService
     private AdxDao adxDao;
     @Autowired
     private AdvertiserAuditDao advertiserAuditDao;
+    @Autowired
+    private DataService dataService;
 	@Autowired
 	private ProjectDao projectDao;
 	@Autowired
@@ -348,6 +350,9 @@ public class AdvertiserService extends BaseService
     	ProjectModelExample projectExample = new ProjectModelExample();
     	projectExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
     	List<ProjectModel> projects = projectDao.selectByExample(projectExample);
+    	BasicDataBean dataBean = new BasicDataBean();//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
+    	dataService.formatBeanParams(dataBean);
+    	dataService.formatBeanRate(dataBean);
     	if (projects != null && !projects.isEmpty()) {
     		List<String> projectIds = new ArrayList<String>();
     		for (ProjectModel project : projects) {
@@ -370,19 +375,17 @@ public class AdvertiserService extends BaseService
     					creativeIds.add(model.getId());
     				}
     			}
-    			BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
-    			if (dataBean != null) {
-    				bean.setImpressionAmount(dataBean.getImpressionAmount());
-    				bean.setClickAmount(dataBean.getClickAmount());
-    				bean.setTotalCost(dataBean.getTotalCost());
-    				bean.setJumpAmount(dataBean.getJumpAmount());
-    				bean.setImpressionCost(dataBean.getImpressionCost());
-    				bean.setClickCost(dataBean.getClickCost());
-    				bean.setClickRate(dataBean.getClickRate());
-    				bean.setJumpCost(dataBean.getJumpCost());
-    			}
+    			dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
     		}
     	}
+    	bean.setImpressionAmount(dataBean.getImpressionAmount());
+		bean.setClickAmount(dataBean.getClickAmount());
+		bean.setTotalCost(dataBean.getTotalCost());
+		bean.setJumpAmount(dataBean.getJumpAmount());
+		bean.setImpressionCost(dataBean.getImpressionCost());
+		bean.setClickCost(dataBean.getClickCost());
+		bean.setClickRate(dataBean.getClickRate());
+		bean.setJumpCost(dataBean.getJumpCost());
 	}
     
     /**

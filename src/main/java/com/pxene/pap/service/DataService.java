@@ -391,7 +391,7 @@ public class DataService extends BaseService {
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void formatBeanParams(BasicDataBean bean) throws Exception {
+	public void formatBeanParams(BasicDataBean bean) throws Exception {
 		bean.setImpressionAmount(0L);
 		bean.setClickAmount(0L);
 		bean.setJumpAmount(0L);
@@ -409,7 +409,7 @@ public class DataService extends BaseService {
 	 * @throws Exception
 	 * 注：此方法传入bean中不能有NULL值，可以是0；
 	 */
-	private void formatBeanRate(BasicDataBean bean) throws Exception {
+	public void formatBeanRate(BasicDataBean bean) throws Exception {
 		DecimalFormat format = new DecimalFormat("0.00000");
 		if (bean.getTotalCost() > 0) {
 			double percent = (double)bean.getImpressionAmount() / bean.getTotalCost();
