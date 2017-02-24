@@ -241,8 +241,8 @@ public class CampaignService extends LaunchService {
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		
 		try {
-			//删除频次信息***
-			deletefrequency(id);
+//			//删除频次信息***
+//			deletefrequency(id);
 			//频次数据---如果以前有修改即可；若果以前没有，那就新建
 			Frequency frequency = bean.getFrequency();
 			String frequencyId = campaignInDB.getFrequencyId();
