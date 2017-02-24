@@ -121,10 +121,10 @@ public class LandpageController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/landpage/check/{id}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/landpage/check/{id}", method = RequestMethod.GET)
 	@ResponseBody
-	public void checkCode(@PathVariable String id, HttpServletResponse response) throws Exception {
-		landpageService.checkCode(id);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
+	public String checkCode(@PathVariable String id, HttpServletResponse response) throws Exception {
+		String status = landpageService.checkCode(id);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "status", status, response);
 	}
 }

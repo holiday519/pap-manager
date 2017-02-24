@@ -1,5 +1,9 @@
 package com.pxene.pap.constant;
 
+/**
+ * 码表
+ *
+ */
 public class CodeTableConstant {
 
 	//运营商

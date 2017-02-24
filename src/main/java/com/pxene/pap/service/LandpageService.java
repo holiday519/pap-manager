@@ -210,60 +210,67 @@ public class LandpageService extends BaseService {
 	 * @param landpageId
 	 * @throws Exception
 	 */
-	public void checkCode(String landpageId) throws Exception {
+	public String checkCode(String landpageId) throws Exception {
 		LandpageModel model = landpageDao.selectByPrimaryKey(landpageId);
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		String url = model.getUrl();
-		String reCode = "";
-		BufferedReader in = null;
-		URL realUrl = new URL(url);
-		// 打开和URL之间的连接
-		URLConnection connection = realUrl.openConnection();
-		// 设置通用的请求属性
-		connection.setRequestProperty(HTTP_ACCEPT, HTTP_ACCEPT_DEFAULT);
-		connection.setRequestProperty(HTTP_CONNECTION, HTTP_CONNECTION_VAL);
-		connection.setRequestProperty(HTTP_USER_AGENT, HTTP_USER_AGENT_VAL);
-		// 建立实际的连接
-		connection.connect();
-		// 获取所有响应头字段
+		try {
+			String url = model.getUrl();
+			String reCode = "";
+			BufferedReader in = null;
+			URL realUrl = new URL(url);
+			// 打开和URL之间的连接
+			URLConnection connection = realUrl.openConnection();
+			// 设置通用的请求属性
+			connection.setRequestProperty(HTTP_ACCEPT, HTTP_ACCEPT_DEFAULT);
+			connection.setRequestProperty(HTTP_CONNECTION, HTTP_CONNECTION_VAL);
+			connection.setRequestProperty(HTTP_USER_AGENT, HTTP_USER_AGENT_VAL);
+			// 建立实际的连接
+			connection.connect();
+			// 获取所有响应头字段
 //		Map<String, List<String>> map = connection.getHeaderFields();
 //		// 遍历所有的响应头字段
 //		for (String key : map.keySet()) {
 //			System.out.println(key + "--->" + map.get(key));
 //		}
-		// 定义 BufferedReader输入流来读取URL的响应
-		in = new BufferedReader(new InputStreamReader(
-				connection.getInputStream()));
-		String line;
-		while ((line = in.readLine()) != null) {
-			reCode += line;
-		}
-		
-		if (in != null) {
-			in.close();
-		}
-		
-		String codeStatus = StatusConstant.LANDPAGE_CHECK_NOTCHECK;
-		int headStart = reCode.indexOf(HTML_HEAD_START);
-		int headEnd = reCode.indexOf(HTML_HEAD_END);
-		if (headStart > 0
-				&& headEnd > 0) {
-			reCode = reCode.substring(headStart,
-					headEnd).replaceAll(" ", "")
-					.replaceAll("\"", "'").replaceAll("\n", "").replace("\t", "");
-			if (reCode.indexOf(CODE_START + landpageId
-					+ CODE_END) > 0) {
-				codeStatus = StatusConstant.LANDPAGE_CHECK_SUCCESS;
+			// 定义 BufferedReader输入流来读取URL的响应
+			in = new BufferedReader(new InputStreamReader(
+					connection.getInputStream()));
+			String line;
+			while ((line = in.readLine()) != null) {
+				reCode += line;
+			}
+			
+			if (in != null) {
+				in.close();
+			}
+			String codeStatus = StatusConstant.LANDPAGE_CHECK_NOTCHECK;
+			int headStart = reCode.indexOf(HTML_HEAD_START);
+			int headEnd = reCode.indexOf(HTML_HEAD_END);
+			if (headStart > 0
+					&& headEnd > 0) {
+				reCode = reCode.substring(headStart,
+						headEnd).replaceAll(" ", "")
+						.replaceAll("\"", "'").replaceAll("\n", "").replace("\t", "");
+				if (reCode.indexOf(CODE_START + landpageId
+						+ CODE_END) > 0) {
+					codeStatus = StatusConstant.LANDPAGE_CHECK_SUCCESS;
+				} else {
+					codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+				}
 			} else {
 				codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
 			}
-		} else {
-			codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+			model.setStatus(codeStatus);
+			landpageDao.updateByPrimaryKeySelective(model);
+			return codeStatus;
+		} catch (Exception e) {
+			String codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
+			model.setStatus(codeStatus);
+			landpageDao.updateByPrimaryKeySelective(model);
+			return codeStatus;
 		}
 		
-		model.setStatus(codeStatus);
-		landpageDao.updateByPrimaryKeySelective(model);
 	}
 }

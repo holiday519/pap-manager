@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.DataService;
@@ -99,6 +100,9 @@ public class DataController
     		@RequestParam(required = false) Integer pageNo, HttpServletResponse response) throws Exception
     {
     	Page<Object> pager = null;
+    	if (pageNo != null && pageSize != null) {
+			pager = PageHelper.startPage(pageNo, pageSize);
+		}
     	List<Map<String, Object>> Datas = dataService.getProjectData(startDate, endDate, id);
     	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
