@@ -228,7 +228,7 @@ public class DataService extends BaseService {
 			for (String code : codes) {
 				bean = new BasicDataBean();
 				map = new HashMap<String, Object>();
-				FormatBeanParams(bean);
+				formatBeanParams(bean);
 				if (mMap.get(code) != null) {
 					bean.setImpressionAmount(mMap.get(code));
 				}
@@ -241,7 +241,7 @@ public class DataService extends BaseService {
 				if (eMap.get(code) != null) {
 					bean.setTotalCost(eMap.get(code));
 				}
-				FormatBeanRate(bean);
+				formatBeanRate(bean);
 				
 				String name = getNameByType(type, code);
 				map.put("name", name);
@@ -337,7 +337,7 @@ public class DataService extends BaseService {
 		for (String hour : timeHours) {
 			bean = new BasicDataBean();
 			resultMap = new HashMap<String, Object>();
-			FormatBeanParams(bean);//将属性值变成0
+			formatBeanParams(bean);//将属性值变成0
 			for (String creativeId : creativeIds) {
 				Map<String, String> map = JedisUtils.hget("creativeDataHour_" + creativeId);//获取map集合
 				for (String day : days) {
@@ -363,7 +363,7 @@ public class DataService extends BaseService {
 					}
 				}
 			}
-			FormatBeanRate(bean);
+			formatBeanRate(bean);
 			
 			resultMap.put("time", hour);
 			resultMap.put("impressionAmount", bean.getImpressionAmount());
@@ -385,7 +385,7 @@ public class DataService extends BaseService {
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void FormatBeanParams(BasicDataBean bean) throws Exception {
+	private void formatBeanParams(BasicDataBean bean) throws Exception {
 		bean.setImpressionAmount(0L);
 		bean.setClickAmount(0L);
 		bean.setJumpAmount(0L);
@@ -403,7 +403,7 @@ public class DataService extends BaseService {
 	 * @throws Exception
 	 * 注：此方法传入bean中不能有NULL值，可以是0；
 	 */
-	private void FormatBeanRate(BasicDataBean bean) throws Exception {
+	private void formatBeanRate(BasicDataBean bean) throws Exception {
 		DecimalFormat format = new DecimalFormat("0.00000");
 		if (bean.getTotalCost() > 0) {
 			double percent = (double)bean.getImpressionAmount() / bean.getTotalCost();
@@ -555,6 +555,7 @@ public class DataService extends BaseService {
 		for (String day : days) {
 			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
 			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			formatBeanParams(bean);
 			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
 			result.put("date", day);
 			results.add(result);
