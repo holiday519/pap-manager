@@ -17,6 +17,7 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
@@ -25,6 +26,8 @@ import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ProjectDao;
@@ -34,6 +37,9 @@ import com.pxene.pap.repository.basic.RegionDao;
 public class DataService extends BaseService {
 	@Autowired
 	private CreativeService creativeService;
+	
+	@Autowired
+	private AdvertiserDao advertiserDao;
 	
 	@Autowired
 	private CreativeDao creativeDao;
@@ -552,12 +558,33 @@ public class DataService extends BaseService {
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 		List<String> creativeIds = getCreativeIdListByAdvertiserId(id);
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		
+		//查询名称
+		String name = null;
+		AdvertiserModel model = advertiserDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException();
+		}
+		name = model.getName();
+		
 		for (String day : days) {
 			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
 			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
-			formatBeanParams(bean);
-			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			
+			Map<String, Object> result = new HashMap<String, Object>();
+			
+			result.put("impressionAmount", bean.getImpressionAmount());
+			result.put("clickAmount", bean.getClickAmount());
+			result.put("jumpAmount", bean.getJumpAmount());
+			result.put("clickRate", bean.getClickRate());
+			result.put("totalCost", bean.getTotalCost());
+			result.put("impressionCost", bean.getImpressionCost());
+			result.put("clickCost", bean.getClickCost());
+			result.put("jumpCost", bean.getJumpCost());
+
 			result.put("date", day);
+			result.put("name", name);
+			
 			results.add(result);
 		}
 		
@@ -569,11 +596,32 @@ public class DataService extends BaseService {
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 		List<String> creativeIds = getCreativeIdListByProjectId(id);
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		
+		//查询名称
+		String name = null;
+		ProjectModel model = projectDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException();
+		}
+		name = model.getName();
+		
 		for (String day : days) {
 			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
 			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
-			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			Map<String, Object> result = new HashMap<String, Object>();
+			
+			result.put("impressionAmount", bean.getImpressionAmount());
+			result.put("clickAmount", bean.getClickAmount());
+			result.put("jumpAmount", bean.getJumpAmount());
+			result.put("clickRate", bean.getClickRate());
+			result.put("totalCost", bean.getTotalCost());
+			result.put("impressionCost", bean.getImpressionCost());
+			result.put("clickCost", bean.getClickCost());
+			result.put("jumpCost", bean.getJumpCost());
+
 			result.put("date", day);
+			result.put("name", name);
+			
 			results.add(result);
 		}
 		
@@ -585,11 +633,31 @@ public class DataService extends BaseService {
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 		List<String> creativeIds = getCreativeIdListByCampaignId(id);
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//查询名称
+		String name = null;
+		CampaignModel model = campaignDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException();
+		}
+		name = model.getName();
+		
 		for (String day : days) {
 			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
 			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
-			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			Map<String, Object> result = new HashMap<String, Object>();
+			
+			result.put("impressionAmount", bean.getImpressionAmount());
+			result.put("clickAmount", bean.getClickAmount());
+			result.put("jumpAmount", bean.getJumpAmount());
+			result.put("clickRate", bean.getClickRate());
+			result.put("totalCost", bean.getTotalCost());
+			result.put("impressionCost", bean.getImpressionCost());
+			result.put("clickCost", bean.getClickCost());
+			result.put("jumpCost", bean.getJumpCost());
+
 			result.put("date", day);
+			result.put("name", name);
+			
 			results.add(result);
 		}
 		
@@ -602,11 +670,32 @@ public class DataService extends BaseService {
 		List<String> creativeIds = new ArrayList<String>();
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 		creativeIds.add(id);
+		
+		//查询名称
+		String name = null;
+		CreativeModel model = creativeDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException();
+		}
+		name = model.getName();
+		
 		for (String day : days) {
 			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
 			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
-			Map<String, Object> result = modelMapper.map(bean, HashMap.class);
+			Map<String, Object> result = new HashMap<String, Object>();
+			
+			result.put("impressionAmount", bean.getImpressionAmount());
+			result.put("clickAmount", bean.getClickAmount());
+			result.put("jumpAmount", bean.getJumpAmount());
+			result.put("clickRate", bean.getClickRate());
+			result.put("totalCost", bean.getTotalCost());
+			result.put("impressionCost", bean.getImpressionCost());
+			result.put("clickCost", bean.getClickCost());
+			result.put("jumpCost", bean.getJumpCost());
+
 			result.put("date", day);
+			result.put("name", name);
+			
 			results.add(result);
 		}
 		
