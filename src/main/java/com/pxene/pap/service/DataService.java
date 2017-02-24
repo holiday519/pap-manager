@@ -380,7 +380,7 @@ public class DataService extends BaseService {
 			resultMap.put("impressionCost", bean.getImpressionCost());
 			resultMap.put("clickCost", bean.getClickCost());
 			resultMap.put("jumpCost", bean.getJumpCost());
-
+			
 			result.add(resultMap);
 		}
 		return result;
@@ -434,7 +434,7 @@ public class DataService extends BaseService {
 	/**
 	 * 获取创意ID数组
 	 * @param advertiserId
-	 * @param projectId
+	 * @param projectId 
 	 * @param campaignId
 	 * @param creativeId
 	 * @return
@@ -452,7 +452,7 @@ public class DataService extends BaseService {
 					creativeIds = getCreativeIdListByProjectId(projectId);
 				} else {
 					if (!StringUtils.isEmpty(advertiserId)) {
-						creativeIds = getCreativeIdListByCampaignId(campaignId);
+						creativeIds = getCreativeIdListByAdvertiserId(advertiserId);
 					} else {
 						throw new IllegalArgumentException();
 					}
@@ -568,24 +568,30 @@ public class DataService extends BaseService {
 		name = model.getName();
 		
 		for (String day : days) {
-			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Date time = DateUtils.strToDate(day, "yyyyMMdd");
+			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
 			
 			Map<String, Object> result = new HashMap<String, Object>();
-			
-			result.put("impressionAmount", bean.getImpressionAmount());
-			result.put("clickAmount", bean.getClickAmount());
-			result.put("jumpAmount", bean.getJumpAmount());
-			result.put("clickRate", bean.getClickRate());
-			result.put("totalCost", bean.getTotalCost());
-			result.put("impressionCost", bean.getImpressionCost());
-			result.put("clickCost", bean.getClickCost());
-			result.put("jumpCost", bean.getJumpCost());
-
-			result.put("date", day);
-			result.put("name", name);
-			
-			results.add(result);
+			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+				continue;
+			} else {
+				result.put("impressionAmount", bean.getImpressionAmount());
+				result.put("clickAmount", bean.getClickAmount());
+				result.put("jumpAmount", bean.getJumpAmount());
+				result.put("clickRate", bean.getClickRate());
+				result.put("totalCost", bean.getTotalCost());
+				result.put("impressionCost", bean.getImpressionCost());
+				result.put("clickCost", bean.getClickCost());
+				result.put("jumpCost", bean.getJumpCost());
+				
+				result.put("date", day);
+				result.put("name", name);
+				
+				results.add(result);
+			}
 		}
 		
 		return results;
@@ -606,23 +612,30 @@ public class DataService extends BaseService {
 		name = model.getName();
 		
 		for (String day : days) {
-			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Date time = DateUtils.strToDate(day, "yyyyMMdd");
+			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());;
 			Map<String, Object> result = new HashMap<String, Object>();
 			
-			result.put("impressionAmount", bean.getImpressionAmount());
-			result.put("clickAmount", bean.getClickAmount());
-			result.put("jumpAmount", bean.getJumpAmount());
-			result.put("clickRate", bean.getClickRate());
-			result.put("totalCost", bean.getTotalCost());
-			result.put("impressionCost", bean.getImpressionCost());
-			result.put("clickCost", bean.getClickCost());
-			result.put("jumpCost", bean.getJumpCost());
-
-			result.put("date", day);
-			result.put("name", name);
+			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+				continue;
+			} else {
+				result.put("impressionAmount", bean.getImpressionAmount());
+				result.put("clickAmount", bean.getClickAmount());
+				result.put("jumpAmount", bean.getJumpAmount());
+				result.put("clickRate", bean.getClickRate());
+				result.put("totalCost", bean.getTotalCost());
+				result.put("impressionCost", bean.getImpressionCost());
+				result.put("clickCost", bean.getClickCost());
+				result.put("jumpCost", bean.getJumpCost());
+				
+				result.put("date", day);
+				result.put("name", name);
+				results.add(result);
+			}
 			
-			results.add(result);
 		}
 		
 		return results;
@@ -642,23 +655,30 @@ public class DataService extends BaseService {
 		name = model.getName();
 		
 		for (String day : days) {
-			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Date time = DateUtils.strToDate(day, "yyyyMMdd");
+			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
 			Map<String, Object> result = new HashMap<String, Object>();
 			
-			result.put("impressionAmount", bean.getImpressionAmount());
-			result.put("clickAmount", bean.getClickAmount());
-			result.put("jumpAmount", bean.getJumpAmount());
-			result.put("clickRate", bean.getClickRate());
-			result.put("totalCost", bean.getTotalCost());
-			result.put("impressionCost", bean.getImpressionCost());
-			result.put("clickCost", bean.getClickCost());
-			result.put("jumpCost", bean.getJumpCost());
-
-			result.put("date", day);
-			result.put("name", name);
-			
-			results.add(result);
+			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+				continue;
+			} else {
+				result.put("impressionAmount", bean.getImpressionAmount());
+				result.put("clickAmount", bean.getClickAmount());
+				result.put("jumpAmount", bean.getJumpAmount());
+				result.put("clickRate", bean.getClickRate());
+				result.put("totalCost", bean.getTotalCost());
+				result.put("impressionCost", bean.getImpressionCost());
+				result.put("clickCost", bean.getClickCost());
+				result.put("jumpCost", bean.getJumpCost());
+				
+				result.put("date", day);
+				result.put("name", name);
+				
+				results.add(result);
+			}
 		}
 		
 		return results;
@@ -680,23 +700,30 @@ public class DataService extends BaseService {
 		name = model.getName();
 		
 		for (String day : days) {
-			Long time = DateUtils.strToDate(day, "yyyyMMdd").getTime();
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, time, time);
+			Date time = DateUtils.strToDate(day, "yyyyMMdd");
+			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
 			Map<String, Object> result = new HashMap<String, Object>();
 			
-			result.put("impressionAmount", bean.getImpressionAmount());
-			result.put("clickAmount", bean.getClickAmount());
-			result.put("jumpAmount", bean.getJumpAmount());
-			result.put("clickRate", bean.getClickRate());
-			result.put("totalCost", bean.getTotalCost());
-			result.put("impressionCost", bean.getImpressionCost());
-			result.put("clickCost", bean.getClickCost());
-			result.put("jumpCost", bean.getJumpCost());
-
-			result.put("date", day);
-			result.put("name", name);
-			
-			results.add(result);
+			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+				continue;
+			} else {
+				result.put("impressionAmount", bean.getImpressionAmount());
+				result.put("clickAmount", bean.getClickAmount());
+				result.put("jumpAmount", bean.getJumpAmount());
+				result.put("clickRate", bean.getClickRate());
+				result.put("totalCost", bean.getTotalCost());
+				result.put("impressionCost", bean.getImpressionCost());
+				result.put("clickCost", bean.getClickCost());
+				result.put("jumpCost", bean.getJumpCost());
+				
+				result.put("date", day);
+				result.put("name", name);
+				
+				results.add(result);
+			}
 		}
 		
 		return results;
