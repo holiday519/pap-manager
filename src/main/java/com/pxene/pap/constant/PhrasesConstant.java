@@ -19,6 +19,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_BUDGET_BIGGER_PROJECT_BUDGET = "活动预算不能大于项目预算";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
 	public static final String CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE = "活动已产生投放数据，创意不能删除。";
+	public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
 	
 	
 	

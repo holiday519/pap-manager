@@ -25,6 +25,7 @@ import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.LandpageModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -81,6 +82,16 @@ public class LandpageService extends BaseService {
 	 */
 	@Transactional
 	public void createLandpage(LandpageBean bean) throws Exception {
+		//验证名称重复
+    	if (!StringUtils.isEmpty(bean.getName())) {
+    		LandpageModelExample e = new LandpageModelExample();
+    		e.createCriteria().andNameEqualTo(bean.getName());
+    		List<LandpageModel> list = landpageDao.selectByExample(e);
+    		if (list != null && !list.isEmpty()) {
+    			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
+    		}
+    	}
+		
 		LandpageModel model = modelMapper.map(bean, LandpageModel.class);
 		String id = UUID.randomUUID().toString();
 		model.setId(id);

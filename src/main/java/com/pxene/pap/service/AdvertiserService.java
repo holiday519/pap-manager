@@ -41,6 +41,7 @@ import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
+import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
@@ -96,6 +97,16 @@ public class AdvertiserService extends BaseService
     @Transactional
     public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
     {
+    	//验证名称重复
+    	if (!StringUtils.isEmpty(advertiserBean.getName())) {
+    		AdvertiserModelExample e = new AdvertiserModelExample();
+    		e.createCriteria().andNameEqualTo(advertiserBean.getName());
+    		List<AdvertiserModel> list = advertiserDao.selectByExample(e);
+    		if (list != null && !list.isEmpty()) {
+    			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
+    		}
+    	}
+    	
         // 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
     	copyTempToFormal(advertiserBean);
     	// 将path替换成正式目录

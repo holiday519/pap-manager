@@ -158,6 +158,16 @@ public class CampaignService extends LaunchService {
 	 */
 	@Transactional
 	public void createCampaign(CampaignBean bean) throws Exception {
+		//验证名称重复
+    	if (!StringUtils.isEmpty(bean.getName())) {
+    		CampaignModelExample e = new CampaignModelExample();
+    		e.createCriteria().andNameEqualTo(bean.getName());
+    		List<CampaignModel> list = campaignDao.selectByExample(e);
+    		if (list != null && !list.isEmpty()) {
+    			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
+    		}
+    	}
+    	
 	    checkDateRange(bean);
 		
 		String projectId = bean.getProjectId();
