@@ -204,6 +204,10 @@ public class LandpageService extends BaseService {
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
 		}
+		
+		// 按更新时间降序排序
+		example.setOrderByClause("update_time DESC");
+		
 		List<LandpageBean> list = new ArrayList<LandpageBean>();
 		List<LandpageModel> models = landpageDao.selectByExample(example);
 		
