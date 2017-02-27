@@ -53,6 +53,7 @@ import com.pxene.pap.domain.models.PopulationModelExample;
 import com.pxene.pap.domain.models.PopulationTargetModel;
 import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.RegionTargetModel;
@@ -177,8 +178,16 @@ public class CampaignService extends LaunchService {
 			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 			Integer projectBudget = projectModel.getTotalBudget();
 			Integer campaignBueget = bean.getTotalBudget();
+			CampaignModelExample ex = new CampaignModelExample();
+			ex.createCriteria().andProjectIdEqualTo(projectId);
+			List<CampaignModel> list = campaignDao.selectByExample(ex);
+			if (list != null && !list.isEmpty()) {
+				for (CampaignModel cam : list) {
+					campaignBueget = campaignBueget + cam.getTotalBudget();
+				}
+			}
 			if (campaignBueget.compareTo(projectBudget) > 0) {
-				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_BUDGET_BIGGER_PROJECT_BUDGET);
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT);
 			}
 		}
 		
@@ -230,7 +239,7 @@ public class CampaignService extends LaunchService {
 	    Date endDate = bean.getEndDate();
 	    if (startDate != null && endDate != null && startDate.after(endDate))
 	    {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
 	    }
     }
 	
