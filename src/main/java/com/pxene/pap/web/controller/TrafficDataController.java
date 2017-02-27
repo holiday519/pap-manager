@@ -1,7 +1,6 @@
 package com.pxene.pap.web.controller;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileOutputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -48,16 +47,5 @@ public class TrafficDataController
         ByteArrayInputStream inputStream = (ByteArrayInputStream) ExcelUtil.writeExcelToStream(workbook, sheet);
         
         ExcelOperateUtil.downloadExcel(inputStream, response, "traffic-data.xls");
-        /*
-        FileOutputStream fileOut = new FileOutputStream("d:/demo_ningyu.xls");
-        
-        int data = inputStream.read();
-        while (data != -1)
-        {
-            fileOut.write(data);
-            data = inputStream.read();
-        }
-        fileOut.close();*/
-        
     }
 }
