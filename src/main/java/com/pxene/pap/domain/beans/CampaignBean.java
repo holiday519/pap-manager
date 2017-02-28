@@ -17,6 +17,10 @@ public class CampaignBean extends BasicDataBean {
 	 */
 	private String projectId;
 	/**
+	 * 项目名称
+	 */
+	private String projectName;
+	/**
 	 * 名称
 	 */
 	private String name;
@@ -634,6 +638,14 @@ public class CampaignBean extends BasicDataBean {
 	public void setCreativeNum(Integer creativeNum) {
 		this.creativeNum = creativeNum;
 	}
+	
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
 
 	@Override
 	public String toString() {
@@ -649,7 +661,7 @@ public class CampaignBean extends BasicDataBean {
 				+ Arrays.toString(monitors) + ", quantities="
 				+ Arrays.toString(quantities) + ", landpageId=" + landpageId
 				+ ", landpageName=" + landpageName + ", landpageUrl="
-				+ landpageUrl + "]";
+				+ landpageUrl + ", projectName=" + projectName + "]";
 	}
 
 }

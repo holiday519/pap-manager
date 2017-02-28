@@ -658,7 +658,7 @@ public class CreativeService extends BaseService {
 		
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
-			CreativeBean bean = null;
+			CreativeBean base = null;
 			ImageCreativeBean image = null;
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
@@ -791,8 +791,8 @@ public class CreativeService extends BaseService {
 						result.add(info);
 					}
 				} else {
-					bean = modelMapper.map(creative, CreativeBean.class);
-					result.add(bean);
+					base = modelMapper.map(creative, CreativeBean.class);
+					result.add(base);
 				}
 			}
 		}

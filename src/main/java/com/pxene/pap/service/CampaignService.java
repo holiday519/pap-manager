@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,7 @@ import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
+import com.sun.imageio.plugins.common.ReaderUtil;
 
 @Service
 public class CampaignService extends LaunchService {
@@ -701,16 +703,16 @@ public class CampaignService extends LaunchService {
 			example.createCriteria().andProjectIdEqualTo(projectId).andNameLike("%" + name + "%");
 		}
 		
-		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		List<CampaignModel> models = campaignDao.selectByExample(example);
 		List<CampaignBean> beans = new ArrayList<CampaignBean>();
 		
-		if (campaigns == null || campaigns.isEmpty()) {
+		if (models == null || models.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		
-		for (CampaignModel campaign : campaigns) {
-			CampaignBean map = modelMapper.map(campaign, CampaignBean.class);
-			addParamToCampaign(map, campaign.getId());
+		for (CampaignModel model : models) {
+			CampaignBean map = modelMapper.map(model, CampaignBean.class);
+			addParamToCampaign(map, model.getId());
 			
 			if (beginTime != null && endTime != null) {
 				//查询每个活动的投放信息
@@ -761,70 +763,24 @@ public class CampaignService extends LaunchService {
 	 * @return
 	 */
 	private void addParamToCampaign(CampaignBean bean, String campaignId) throws Exception{
-		CampaignTargetModelExample example = new CampaignTargetModelExample();
-		example.createCriteria().andIdEqualTo(campaignId);
+		CampaignTargetModelExample campaignTargetModelExample = new CampaignTargetModelExample();
+		campaignTargetModelExample.createCriteria().andIdEqualTo(campaignId);
 		// 查询定向信息
-		List<CampaignTargetModel> list = campaignTargetDao.selectByExampleWithBLOBs(example);
+		List<CampaignTargetModel> list = campaignTargetDao.selectByExampleWithBLOBs(campaignTargetModelExample);
 		if (list != null && !list.isEmpty()) {
-			CampaignTargetModel model = list.get(0);
-			if (model != null) {
+			CampaignTargetModel campaignTargetModel = list.get(0);
+			if (campaignTargetModel != null) {
 				Target target = new Target();
-				target.setAdType(formatTargetStringToArray(model.getAdType()));
-				target.setTime(formatTargetStringToArray(model.getTimeId()));
-				target.setNetwork(formatTargetStringToArray(model.getNetwork()));
-				target.setOperator(formatTargetStringToArray(model.getOperator()));
-				target.setDevice(formatTargetStringToArray(model.getDevice()));
-				target.setOs(formatTargetStringToArray(model.getOs()));
-				target.setBrand(formatTargetStringToArray(model.getBrandId()));
-				//地域定向信息返回名称和id
-				String[] regionArray = formatTargetStringToArray(model.getRegionId());
-				if (regionArray != null) {
-					RegionModel regionModel = null;
-					Region region = null;
-					List<Region> regionList = new ArrayList<CampaignBean.Target.Region>();
-					for (String re : regionArray) {
-						regionModel = regionDao.selectByPrimaryKey(re);
-						if (regionModel != null) {
-							region = new Region();
-							region.setName(regionModel.getName());
-							region.setId(regionModel.getId());
-							regionList.add(region);
-						}
-					}
-					if (!regionList.isEmpty()) {
-						Region[] regions = new Region[regionList.size()];
-						for (int i = 0; i < regionList.size(); i++) {
-							regions[i] = regionList.get(i);
-						}
-						target.setRegions(regions);
-					}
-				}
-				//app定向信息返回名称和id
-				String[] AppArray = formatTargetStringToArray(model.getAppId());
-				if (AppArray != null) {
-					AppModel appModel = null;
-					App app = null;
-					List<App> appList = new ArrayList<CampaignBean.Target.App>();
-					for (String ap : AppArray) {
-						appModel = appDao.selectByPrimaryKey(ap);
-						if (appModel != null) {
-							app = new App();
-							app.setName(appModel.getAppName());
-							app.setId(appModel.getId());
-							appList.add(app);
-						}
-					}
-					if (!appList.isEmpty()) {
-						App[] apps = new App[appList.size()];
-						for (int i = 0; i < appList.size(); i++) {
-							apps[i] = appList.get(i);
-						}
-						target.setApps(apps);
-					}
-				}
-				
-				//查询活动的人群定向信息
-				String populationId = model.getPopulationId();
+				target.setRegion(formatTargetStringToArray(campaignTargetModel.getRegionId()));
+				target.setAdType(formatTargetStringToArray(campaignTargetModel.getAdType()));
+				target.setTime(formatTargetStringToArray(campaignTargetModel.getTimeId()));
+				target.setNetwork(formatTargetStringToArray(campaignTargetModel.getNetwork()));
+				target.setOperator(formatTargetStringToArray(campaignTargetModel.getOperator()));
+				target.setDevice(formatTargetStringToArray(campaignTargetModel.getDevice()));
+				target.setOs(formatTargetStringToArray(campaignTargetModel.getOs()));
+				target.setBrand(formatTargetStringToArray(campaignTargetModel.getBrandId()));
+				target.setApp(formatTargetStringToArray(campaignTargetModel.getAppId()));
+				/*String populationId = campaignTargetModel.getPopulationId();//查询活动的人群定向信息
 				if (!StringUtils.isEmpty(populationId)) {
 					List<Population> PopulationList = new ArrayList<CampaignBean.Target.Population>();
 					String[] popids = populationId.split(",");
@@ -849,7 +805,7 @@ public class CampaignService extends LaunchService {
 						}
 						target.setPopulation(ps);
 					}
-				}
+				}*/
 				bean.setTarget(target);
 			}
 		}
@@ -857,7 +813,7 @@ public class CampaignService extends LaunchService {
 		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
 			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
 			if (frequencyModel != null) {
-				com.pxene.pap.domain.beans.CampaignBean.Frequency frequency = new com.pxene.pap.domain.beans.CampaignBean.Frequency();
+				Frequency frequency = new Frequency();
 				frequency.setControlObj(frequencyModel.getControlObj());
 				frequency.setNumber(frequencyModel.getNumber());
 				frequency.setTimeType(frequencyModel.getTimeType());
@@ -865,16 +821,16 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		// 查询检测地址
-		MonitorModelExample monitorExample = new MonitorModelExample();
-		monitorExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<MonitorModel> monitorList = monitorDao.selectByExample(monitorExample);
+		MonitorModelExample monitorModelExample = new MonitorModelExample();
+		monitorModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<MonitorModel> monitorModels = monitorDao.selectByExample(monitorModelExample);
 		// 如果没有查到点击展现地址数据，直接返回
-		if (monitorList != null && !monitorList.isEmpty()) {
-			com.pxene.pap.domain.beans.CampaignBean.Monitor[] monitors = new com.pxene.pap.domain.beans.CampaignBean.Monitor[monitorList.size()];
+		if (monitorModels != null && !monitorModels.isEmpty()) {
+			Monitor[] monitors = new Monitor[monitorModels.size()];
 			if (monitors != null) {
-				for (int i=0; i<monitorList.size(); i++) {
-					MonitorModel model = monitorList.get(i);
-					com.pxene.pap.domain.beans.CampaignBean.Monitor monitor = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Monitor.class);
+				for (int i=0; i<monitorModels.size(); i++) {
+					MonitorModel model = monitorModels.get(i);
+					Monitor monitor = modelMapper.map(model, Monitor.class);
 					monitors[i] = monitor;
 				}
 				bean.setMonitors(monitors);
@@ -890,27 +846,28 @@ public class CampaignService extends LaunchService {
 			bean.setLandpageUrl(url);
 		}
 		//投放量控制策略
-		QuantityModelExample qex = new QuantityModelExample();
-		qex.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<QuantityModel> quans = quantityDao.selectByExample(qex);
-		if (quans != null && !quans.isEmpty()) {
-			com.pxene.pap.domain.beans.CampaignBean.Quantity[] quanArray = new com.pxene.pap.domain.beans.CampaignBean.Quantity[quans.size()] ;
-			for (int i = 0; i < quans.size(); i++) {
-				QuantityModel model = quans.get(i);
-				quanArray[i] = modelMapper.map(model, com.pxene.pap.domain.beans.CampaignBean.Quantity.class);
+		QuantityModelExample quantityModelExample = new QuantityModelExample();
+		quantityModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<QuantityModel> quantityModels = quantityDao.selectByExample(quantityModelExample);
+		if (quantityModels != null && !quantityModels.isEmpty()) {
+			Quantity[] quanArray = new Quantity[quantityModels.size()] ;
+			for (int i = 0; i < quantityModels.size(); i++) {
+				QuantityModel quantityModel = quantityModels.get(i);
+				quanArray[i] = modelMapper.map(quantityModel, Quantity.class);
 			}
 			bean.setQuantities(quanArray);
 		}
-		
 		//查询创意数
-		CreativeModelExample ex = new CreativeModelExample();
-		ex.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(ex);
+		CreativeModelExample creativeModelExample = new CreativeModelExample();
+		creativeModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeModelExample);
 		if (creatives == null) {
 			bean.setCreativeNum(0);
 		} else {
 			bean.setCreativeNum(creatives.size());
 		}
+		//查询项目名称
+		
 	}
 	
 	/**
