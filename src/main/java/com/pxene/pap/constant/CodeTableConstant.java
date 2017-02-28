@@ -43,7 +43,7 @@ public class CodeTableConstant {
 	
 	public static final String SYSTEM_NAME_IOS = "ios";
 	
-	public static final String SYSTEM_NAME_ANDROID = "endroid";
+	public static final String SYSTEM_NAME_ANDROID = "android";
 	
 	public static final String SYSTEM_NAME_WINDOWS = "windows";
 }
