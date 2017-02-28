@@ -1067,7 +1067,7 @@ public class CreativeService extends BaseService {
 		FormatBeanParams(basicData);//将属性值变成0
 		DateTime begin = new DateTime(startDate);
     	DateTime end = new DateTime(endDate);
-    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
+    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {//开始时间结束时间相等时
     		//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
     		if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
 					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
@@ -1078,9 +1078,9 @@ public class CreativeService extends BaseService {
 				getDatafromHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
 			}
     	} else {
-    		String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
+			String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
 			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
-			if (!begin.toString("HH").equals("00")) {
+			if (!begin.toString("HH").equals("00") || begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
 				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
 				getDatafromHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
 				if (daysList != null && daysList.size() > 0) {
@@ -1091,9 +1091,9 @@ public class CreativeService extends BaseService {
 					}
 				}
 			}
-			if (!end.toString("HH").equals("23")) {
-				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
-				getDatafromHourTable(creativeIds, smallHourOfDay, begin.toDate(), basicData);
+			if (!end.toString("HH").equals("23") || end.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
+				Date smallHourOfDay = DateUtils.getSmallHourOfDay(end.toDate());
+				getDatafromHourTable(creativeIds, smallHourOfDay, end.toDate(), basicData);
 				if (daysList != null && daysList.size() > 0) {
 					for (int i = 0; i < daysList.size(); i++) {
 						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {

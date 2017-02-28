@@ -77,6 +77,36 @@ public class CampaignBean extends BasicDataBean {
 		 * 地域定向
 		 */
 		private String[] region;
+
+		private Region[] regions;
+
+		public static class Region {
+			private String id;
+			private String name;
+
+			public String getId() {
+				return id;
+			}
+
+			public void setId(String id) {
+				this.id = id;
+			}
+
+			public String getName() {
+				return name;
+			}
+
+			public void setName(String name) {
+				this.name = name;
+			}
+
+			@Override
+			public String toString() {
+				return "Region [id=" + id + ", name=" + name + "]";
+			}
+
+		}
+
 		/**
 		 * 广告类型定向
 		 */
@@ -109,6 +139,50 @@ public class CampaignBean extends BasicDataBean {
 		 * app定向
 		 */
 		private String[] app;
+
+		private App[] apps;
+
+		public static class App {
+			private String id;
+			private String name;
+
+			public String getId() {
+				return id;
+			}
+
+			public void setId(String id) {
+				this.id = id;
+			}
+
+			public String getName() {
+				return name;
+			}
+
+			public void setName(String name) {
+				this.name = name;
+			}
+
+			@Override
+			public String toString() {
+				return "App [id=" + id + ", name=" + name + "]";
+			}
+		}
+
+		public Region[] getRegions() {
+			return regions;
+		}
+
+		public void setRegions(Region[] regions) {
+			this.regions = regions;
+		}
+
+		public App[] getApps() {
+			return apps;
+		}
+
+		public void setApps(App[] apps) {
+			this.apps = apps;
+		}
 
 		/**
 		 * 人群定向

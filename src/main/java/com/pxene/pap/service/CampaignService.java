@@ -24,10 +24,13 @@ import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Monitor;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
+import com.pxene.pap.domain.beans.CampaignBean.Target.App;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Population;
+import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
+import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.BrandTargetModel;
@@ -53,9 +56,9 @@ import com.pxene.pap.domain.models.PopulationModelExample;
 import com.pxene.pap.domain.models.PopulationTargetModel;
 import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
-import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
+import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.domain.models.RegionTargetModel;
 import com.pxene.pap.domain.models.RegionTargetModelExample;
 import com.pxene.pap.domain.models.TimeTargetModel;
@@ -67,6 +70,7 @@ import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
+import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -82,6 +86,7 @@ import com.pxene.pap.repository.basic.PopulationDao;
 import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.QuantityDao;
+import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
@@ -96,6 +101,12 @@ public class CampaignService extends LaunchService {
 	
 	@Autowired
 	private ProjectDao projectDao; 
+	
+	@Autowired
+	private RegionDao regionDao;
+	
+	@Autowired
+	private AppDao appDao;
 	
 	@Autowired
 	private CreativeService creativeService; 
@@ -758,7 +769,6 @@ public class CampaignService extends LaunchService {
 			CampaignTargetModel model = list.get(0);
 			if (model != null) {
 				Target target = new Target();
-				target.setRegion(formatTargetStringToArray(model.getRegionId()));
 				target.setAdType(formatTargetStringToArray(model.getAdType()));
 				target.setTime(formatTargetStringToArray(model.getTimeId()));
 				target.setNetwork(formatTargetStringToArray(model.getNetwork()));
@@ -766,8 +776,55 @@ public class CampaignService extends LaunchService {
 				target.setDevice(formatTargetStringToArray(model.getDevice()));
 				target.setOs(formatTargetStringToArray(model.getOs()));
 				target.setBrand(formatTargetStringToArray(model.getBrandId()));
-				target.setApp(formatTargetStringToArray(model.getAppId()));
-				String populationId = model.getPopulationId();//查询活动的人群定向信息
+				//地域定向信息返回名称和id
+				String[] regionArray = formatTargetStringToArray(model.getRegionId());
+				if (regionArray != null) {
+					RegionModel regionModel = null;
+					Region region = null;
+					List<Region> regionList = new ArrayList<CampaignBean.Target.Region>();
+					for (String re : regionArray) {
+						regionModel = regionDao.selectByPrimaryKey(re);
+						if (regionModel != null) {
+							region = new Region();
+							region.setName(regionModel.getName());
+							region.setId(regionModel.getId());
+							regionList.add(region);
+						}
+					}
+					if (!regionList.isEmpty()) {
+						Region[] regions = new Region[regionList.size()];
+						for (int i = 0; i < regionList.size(); i++) {
+							regions[i] = regionList.get(i);
+						}
+						target.setRegions(regions);
+					}
+				}
+				//app定向信息返回名称和id
+				String[] AppArray = formatTargetStringToArray(model.getAppId());
+				if (AppArray != null) {
+					AppModel appModel = null;
+					App app = null;
+					List<App> appList = new ArrayList<CampaignBean.Target.App>();
+					for (String ap : AppArray) {
+						appModel = appDao.selectByPrimaryKey(ap);
+						if (appModel != null) {
+							app = new App();
+							app.setName(appModel.getAppName());
+							app.setId(appModel.getId());
+							appList.add(app);
+						}
+					}
+					if (!appList.isEmpty()) {
+						App[] apps = new App[appList.size()];
+						for (int i = 0; i < appList.size(); i++) {
+							apps[i] = appList.get(i);
+						}
+						target.setApps(apps);
+					}
+				}
+				
+				//查询活动的人群定向信息
+				String populationId = model.getPopulationId();
 				if (!StringUtils.isEmpty(populationId)) {
 					List<Population> PopulationList = new ArrayList<CampaignBean.Target.Population>();
 					String[] popids = populationId.split(",");
