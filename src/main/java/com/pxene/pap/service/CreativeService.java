@@ -1081,9 +1081,8 @@ public class CreativeService extends BaseService {
     		String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
 			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
 			if (!begin.toString("HH").equals("00")) {
-				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
 				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
-				getDatafromHourTable(creativeIds, smallHourOfDay, bigHourOfDay, basicData);
+				getDatafromHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
 				if (daysList != null && daysList.size() > 0) {
 					for (int i = 0; i < daysList.size(); i++) {
 						if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
@@ -1093,9 +1092,8 @@ public class CreativeService extends BaseService {
 				}
 			}
 			if (!end.toString("HH").equals("23")) {
-				Date smallHourOfDay = DateUtils.getSmallHourOfDay(end.toDate());
-				Date bigHourOfDay = DateUtils.getBigHourOfDay(end.toDate());
-				getDatafromHourTable(creativeIds, smallHourOfDay, bigHourOfDay, basicData);
+				Date smallHourOfDay = DateUtils.getSmallHourOfDay(begin.toDate());
+				getDatafromHourTable(creativeIds, smallHourOfDay, begin.toDate(), basicData);
 				if (daysList != null && daysList.size() > 0) {
 					for (int i = 0; i < daysList.size(); i++) {
 						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
