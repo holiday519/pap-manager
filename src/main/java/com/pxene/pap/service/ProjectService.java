@@ -244,6 +244,10 @@ public class ProjectService extends LaunchService {
 		} else if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(advertiserId)) {
 			example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andNameLike("%" + name + "%");
 		}
+		
+		// 设置按更新时间降序排序
+		example.setOrderByClause("update_time DESC");
+		
 		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 		
