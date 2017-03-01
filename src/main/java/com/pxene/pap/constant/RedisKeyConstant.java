@@ -18,6 +18,10 @@ public class RedisKeyConstant {
 	 */
 	public static final	String CAMPAIGN_TARGET = "dsp_groupid_target_";
 	/**
+	* 活动黑白名单
+	*/
+	public static final	String CAMPAIGN_WBLIST = "dsp_groupid_wblist_";
+	/**
 	 * 活动基本信息
 	 */
 	public static final	String CAMPAIGN_INFO = "dsp_groupid_info_";

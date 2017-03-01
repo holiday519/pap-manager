@@ -372,7 +372,7 @@ public class CampaignService extends LaunchService {
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
 		String[] appTarget = bean.getApp();//app
-		String[] populationTarget = bean.getPopulation();//人群
+		String populationTarget = bean.getPopulationId();//人群
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region;
 			for (String regionId : regionTarget) {
@@ -463,15 +463,12 @@ public class CampaignService extends LaunchService {
 				appTargetDao.insertSelective(app);
 			}
 		}
-		if (populationTarget != null && populationTarget.length > 0) {
-			PopulationTargetModel population;
-			for (String popId : populationTarget) {
-				population = new PopulationTargetModel();
-				population.setId(UUID.randomUUID().toString());
-				population.setCampaignId(id);
-				population.setPopulationId(popId);
-				populationTargetDao.insertSelective(population);
-			}
+		if (!StringUtils.isEmpty(populationTarget)) {
+			PopulationTargetModel population = new PopulationTargetModel();
+			population.setId(UUID.randomUUID().toString());
+			population.setCampaignId(id);
+			population.setPopulationId(populationTarget);
+			populationTargetDao.insertSelective(population);
 		}
 	}
 	
@@ -771,7 +768,7 @@ public class CampaignService extends LaunchService {
 			CampaignTargetModel campaignTargetModel = list.get(0);
 			if (campaignTargetModel != null) {
 				Target target = new Target();
-				target.setRegion(formatTargetStringToArray(campaignTargetModel.getRegionId()));
+//				target.setRegion(formatTargetStringToArray(campaignTargetModel.getRegionId()));
 				target.setAdType(formatTargetStringToArray(campaignTargetModel.getAdType()));
 				target.setTime(formatTargetStringToArray(campaignTargetModel.getTimeId()));
 				target.setNetwork(formatTargetStringToArray(campaignTargetModel.getNetwork()));
@@ -779,9 +776,58 @@ public class CampaignService extends LaunchService {
 				target.setDevice(formatTargetStringToArray(campaignTargetModel.getDevice()));
 				target.setOs(formatTargetStringToArray(campaignTargetModel.getOs()));
 				target.setBrand(formatTargetStringToArray(campaignTargetModel.getBrandId()));
-				target.setApp(formatTargetStringToArray(campaignTargetModel.getAppId()));
-				/*String populationId = campaignTargetModel.getPopulationId();//查询活动的人群定向信息
+//				target.setApp(formatTargetStringToArray(campaignTargetModel.getAppId()));
+				//地域定向信息返回名称和id
+				String[] regionArray = formatTargetStringToArray(campaignTargetModel.getRegionId());
+				if (regionArray != null) {
+					RegionModel regionModel = null;
+					Region region = null;
+					List<Region> regionList = new ArrayList<CampaignBean.Target.Region>();
+					for (String re : regionArray) {
+						regionModel = regionDao.selectByPrimaryKey(re);
+						if (regionModel != null) {
+							region = new Region();
+							region.setName(regionModel.getName());
+							region.setId(regionModel.getId());
+							regionList.add(region);
+						}
+					}
+					if (!regionList.isEmpty()) {
+						Region[] regions = new Region[regionList.size()];
+						for (int i = 0; i < regionList.size(); i++) {
+							regions[i] = regionList.get(i);
+						}
+						target.setRegions(regions);
+					}
+				}
+				//app定向信息返回名称和id
+				String[] AppArray = formatTargetStringToArray(campaignTargetModel.getAppId());
+				if (AppArray != null) {
+					AppModel appModel = null;
+					App app = null;
+					List<App> appList = new ArrayList<CampaignBean.Target.App>();
+					for (String ap : AppArray) {
+						appModel = appDao.selectByPrimaryKey(ap);
+						if (appModel != null) {
+							app = new App();
+							app.setName(appModel.getAppName());
+							app.setId(appModel.getId());
+							appList.add(app);
+						}
+					}
+					if (!appList.isEmpty()) {
+						App[] apps = new App[appList.size()];
+						for (int i = 0; i < appList.size(); i++) {
+							apps[i] = appList.get(i);
+						}
+						target.setApps(apps);
+					}
+				}
+				String populationId = campaignTargetModel.getPopulationId();//查询活动的人群定向信息
 				if (!StringUtils.isEmpty(populationId)) {
+					target.setPopulationId(populationId);
+				}
+				/*if (!StringUtils.isEmpty(populationId)) {
 					List<Population> PopulationList = new ArrayList<CampaignBean.Target.Population>();
 					String[] popids = populationId.split(",");
 					List<String> popIdList = Arrays.asList(popids);
@@ -929,8 +975,7 @@ public class CampaignService extends LaunchService {
 		if (model != null) {
 			String landpageId = model.getLandpageId();
 			if (StringUtils.isEmpty(landpageId)) {
-				LOGGER.info(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
-				return false;
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
 			}
 		} else {
 			return false;
@@ -940,8 +985,7 @@ public class CampaignService extends LaunchService {
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
 		if (creatives == null) {
-			LOGGER.info(PhrasesConstant.CAMPAIGN_NO_CREATIE);
-			return false;
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 		}
 		
 		return true;

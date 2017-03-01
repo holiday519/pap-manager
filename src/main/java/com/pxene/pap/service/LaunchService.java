@@ -121,6 +121,8 @@ public class LaunchService extends BaseService{
 		redisService.writeCampaignIds(campaignId);
 		//写入活动频次信息   dsp_groupid_frequencycapping_*
 //		redisService.writeCampaignFrequencyToRedis(campaignId);
+		//写入黑白名单信息
+		redisService.writeWhiteBlackToRedis(campaignId);
 	}
 	
 	/**

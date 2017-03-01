@@ -1,15 +1,16 @@
 package com.pxene.pap.common;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.springframework.util.StringUtils;
 
-import com.pxene.pap.domain.configs.JRedisPoolConfig;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
+import com.pxene.pap.domain.configs.JRedisPoolConfig;
 
 public class JedisUtils {
 	
@@ -262,4 +263,13 @@ public class JedisUtils {
 		return isexist;
 	}
 	
+	public static void sddKey(String key, List<String> values) {
+		if (values != null && !values.isEmpty()) {
+			Jedis jedis = getJedis();
+			for (String value : values) {
+				jedis.sadd(key, value);
+			}
+			close(jedis);
+		}
+	}
 }

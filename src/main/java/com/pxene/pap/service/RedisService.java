@@ -1,9 +1,11 @@
 package com.pxene.pap.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,9 @@ import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
+import com.pxene.pap.domain.models.PopulationModel;
+import com.pxene.pap.domain.models.PopulationTargetModel;
+import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
@@ -47,6 +52,8 @@ import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
 import com.pxene.pap.repository.basic.ImageMaterialDao;
+import com.pxene.pap.repository.basic.PopulationDao;
+import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
@@ -96,6 +103,12 @@ public class RedisService {
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
+	
+	@Autowired
+	private PopulationTargetDao populationTargetDao;
+	
+	@Autowired
+	private PopulationDao populationDao;
 	
 	@Autowired
 	private AdxDao adxDao;
@@ -829,6 +842,7 @@ public class RedisService {
 		deleteCampaignTargetFromredis(campaignId);
 		deleteCampaignFrequencyFromredis(campaignId);
 		deleteMapidsFromRedis(campaignId);
+		deleteCampaignWBListFromredis(campaignId);
 	}
 	/**
 	 * 删除redis中key：dsp_groupid_mapids_活动id
@@ -872,6 +886,17 @@ public class RedisService {
 		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);
 		if (!StringUtils.isEmpty(str)) {
 			JedisUtils.delete(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);
+		}
+	}
+	/**
+	 * 删除redis中key：dsp_groupid_wblist_"活动id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignWBListFromredis(String campaignId) throws Exception {
+		String str = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
+		if (!StringUtils.isEmpty(str)) {
+			JedisUtils.delete(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
 		}
 	}
 	/**
@@ -951,4 +976,114 @@ public class RedisService {
 			JedisUtils.hset(type + width + "X" + hight, map);
 		}
 	}
+	
+	/**
+	 * 将黑白名单写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void writeWhiteBlackToRedis(String campaignId) throws Exception {
+		PopulationTargetModelExample pex = new PopulationTargetModelExample();
+		pex.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<PopulationTargetModel> lists = populationTargetDao.selectByExample(pex);
+		String populationId = null;
+		if (lists != null && !lists.isEmpty()) {
+			for (PopulationTargetModel populationTargetModel : lists) {
+				populationId = populationTargetModel.getPopulationId();
+			}
+		}
+		if (!StringUtils.isEmpty(populationId)) {
+			PopulationModel population = populationDao.selectByPrimaryKey(populationId);
+			if (population != null) {
+				String path = population.getPath();
+				String type = population.getType();
+				readFile(campaignId, populationId, path, type);
+			}
+			
+		}
+	}
+	
+	/**
+	 * 读取文件写入redis
+	 * @param campaignId
+	 * @param populationId
+	 * @param path
+	 * @param type
+	 * @throws Exception
+	 */
+	public static void readFile(String campaignId,String populationId, String path, String type) throws Exception {
+		String wlType = "_wl_";
+		if ("02".equals(type)) {
+			wlType = "_bl_";
+		}
+		String key = null;//文本中的key
+		String name = null;//名称（拼接好的）
+		boolean flag = true;//是不是第一次遇到key（第一次碰到符合“[***]”字样）
+		File file = new File(path);
+		List<String> list = FileUtils.readLines(file,"GBK");
+		List<String> values = new ArrayList<String>();
+		JsonArray redisArray = new JsonArray();//redis中key用到
+		for (int i = 0; i < list.size(); i++) {
+			String str = list.get(i);
+			if (!StringUtils.isEmpty(str)) {
+				int left = str.indexOf("[");
+				int right = str.indexOf("]");
+				if ( left > -1 && right > -1) {
+					if (flag) {//如果是第一次遇到key不做操作
+						flag = false;//变成false，证明以后的不是第一次遇到key
+					} else {//不是第一次时候
+						JedisUtils.sddKey(name, values);//将刚才的name、values写入redis
+					}
+					values = new ArrayList<String>();//将数组置空
+					key = str.substring(left + 1, right);//不管是不是第一次，都让key等于当前这个符合“[***]”的字符串
+					if ("imei".equals(key.toLowerCase())) {//根据不同类型，redisArray中放入不同值
+						redisArray.add(16);
+					} else if ("imei_sha1".equals(key.toLowerCase())) {
+						redisArray.add(17);
+					} else if ("imei_md5".equals(key.toLowerCase())) {
+						redisArray.add(18);
+					} else if ("mac".equals(key.toLowerCase())) {
+						redisArray.add(32);
+					} else if ("mac_sha1".equals(key.toLowerCase())) {
+						redisArray.add(33);
+					} else if ("mac_md5".equals(key.toLowerCase())) {
+						redisArray.add(34);
+					} else if ("android".equals(key.toLowerCase())) {
+						redisArray.add(96);
+					} else if ("android_sha1".equals(key.toLowerCase())) {
+						redisArray.add(97);
+					} else if ("android_md5".equals(key.toLowerCase())) {
+						redisArray.add(98);
+					} else if ("idfa".equals(key.toLowerCase())) {
+						redisArray.add(112);
+					} else if ("idfa_sha1".equals(key.toLowerCase())) {
+						redisArray.add(113);
+					} else if ("idfa_md5".equals(key.toLowerCase())) {
+						redisArray.add(1153);
+					}
+					name = key + wlType +populationId;//不管是不是第一次yudaokey，都让name等于这个新名称
+					//这样新key、新name、新value，下一次再遇到key，直接放入redis
+				} else {
+					values.add(str);//如果不是key那就让如list中
+				}
+				if (i == list.size()-1) {
+					JedisUtils.sddKey(name, values);//最后一个key的值，循环完成后也要添加
+				}
+			}
+		}
+		if (!flag) {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("groupid", campaignId);
+			if ("02".equals(type)) {
+				obj.add("blacklist", redisArray);
+			} else if ("01".equals(type)) {
+				obj.add("whitelist", redisArray);
+			}
+			obj.addProperty("retio", 0);
+			obj.addProperty("mprice", 0);
+			String redisKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
+			JedisUtils.set(redisKey, obj.toString());
+		}
+	}
+
 }

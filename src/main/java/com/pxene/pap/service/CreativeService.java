@@ -1207,7 +1207,7 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	private void FormatBeanRate(BasicDataBean bean) throws Exception {
-		DecimalFormat format = new DecimalFormat("0.00000");
+		DecimalFormat format = new DecimalFormat("0.00");
 		if (bean.getClickAmount() > 0) {
 	        double percent = (double)bean.getTotalCost() / bean.getClickAmount();
 			Float result = Float.parseFloat(format.format(percent));
@@ -1219,11 +1219,11 @@ public class CreativeService extends BaseService {
 			bean.setJumpCost(result);
 		}
 		if (bean.getImpressionAmount() > 0) {
-			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
+			double percent = (double)bean.getClickAmount() * 1000 / bean.getImpressionAmount();
 	        Float result = Float.parseFloat(format.format(percent));
 	        bean.setClickRate(result);
 	        
-	        percent = (double)bean.getTotalCost() / bean.getImpressionAmount();
+	        percent = (double)bean.getTotalCost() * 1000 / bean.getImpressionAmount();
 	        result = Float.parseFloat(format.format(percent));
 	        bean.setImpressionCost(result);
 		}

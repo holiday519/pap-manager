@@ -188,6 +188,8 @@ public class CampaignBean extends BasicDataBean {
 			this.apps = apps;
 		}
 
+		private String populationId;
+
 		/**
 		 * 人群定向
 		 */
@@ -310,16 +312,26 @@ public class CampaignBean extends BasicDataBean {
 			this.population = population;
 		}
 
+		public String getPopulationId() {
+			return populationId;
+		}
+
+		public void setPopulationId(String populationId) {
+			this.populationId = populationId;
+		}
+
 		@Override
 		public String toString() {
-			return "Target [region=" + Arrays.toString(region) + ", adType="
+			return "Target [region=" + Arrays.toString(region) + ", regions="
+					+ Arrays.toString(regions) + ", adType="
 					+ Arrays.toString(adType) + ", time="
 					+ Arrays.toString(time) + ", network="
 					+ Arrays.toString(network) + ", operator="
 					+ Arrays.toString(operator) + ", device="
 					+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
 					+ ", brand=" + Arrays.toString(brand) + ", app="
-					+ Arrays.toString(app) + ", population="
+					+ Arrays.toString(app) + ", apps=" + Arrays.toString(apps)
+					+ ", populationId=" + populationId + ", population="
 					+ Arrays.toString(population) + "]";
 		}
 
@@ -638,7 +650,7 @@ public class CampaignBean extends BasicDataBean {
 	public void setCreativeNum(Integer creativeNum) {
 		this.creativeNum = creativeNum;
 	}
-	
+
 	public String getProjectName() {
 		return projectName;
 	}
