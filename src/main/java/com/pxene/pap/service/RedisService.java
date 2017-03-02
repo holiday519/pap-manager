@@ -999,7 +999,6 @@ public class RedisService {
 				String type = population.getType();
 				readFile(campaignId, populationId, path, type);
 			}
-			
 		}
 	}
 	
@@ -1020,69 +1019,71 @@ public class RedisService {
 		String name = null;//名称（拼接好的）
 		boolean flag = true;//是不是第一次遇到key（第一次碰到符合“[***]”字样）
 		File file = new File(path);
-		List<String> list = FileUtils.readLines(file,"GBK");
-		List<String> values = new ArrayList<String>();
-		JsonArray redisArray = new JsonArray();//redis中key用到
-		for (int i = 0; i < list.size(); i++) {
-			String str = list.get(i);
-			if (!StringUtils.isEmpty(str)) {
-				int left = str.indexOf("[");
-				int right = str.indexOf("]");
-				if ( left > -1 && right > -1) {
-					if (flag) {//如果是第一次遇到key不做操作
-						flag = false;//变成false，证明以后的不是第一次遇到key
-					} else {//不是第一次时候
-						JedisUtils.sddKey(name, values);//将刚才的name、values写入redis
+		if (file.exists()) {//文件是否存在
+			List<String> list = FileUtils.readLines(file,"GBK");
+			List<String> values = new ArrayList<String>();
+			JsonArray redisArray = new JsonArray();//redis中key用到
+			for (int i = 0; i < list.size(); i++) {
+				String str = list.get(i);
+				if (!StringUtils.isEmpty(str)) {
+					int left = str.indexOf("[");
+					int right = str.indexOf("]");
+					if ( left > -1 && right > -1) {
+						if (flag) {//如果是第一次遇到key不做操作
+							flag = false;//变成false，证明以后的不是第一次遇到key
+						} else {//不是第一次时候
+							JedisUtils.sddKey(name, values);//将刚才的name、values写入redis
+						}
+						values = new ArrayList<String>();//将数组置空
+						key = str.substring(left + 1, right);//不管是不是第一次，都让key等于当前这个符合“[***]”的字符串
+						if ("imei".equals(key.toLowerCase())) {//根据不同类型，redisArray中放入不同值
+							redisArray.add(16);
+						} else if ("imei_sha1".equals(key.toLowerCase())) {
+							redisArray.add(17);
+						} else if ("imei_md5".equals(key.toLowerCase())) {
+							redisArray.add(18);
+						} else if ("mac".equals(key.toLowerCase())) {
+							redisArray.add(32);
+						} else if ("mac_sha1".equals(key.toLowerCase())) {
+							redisArray.add(33);
+						} else if ("mac_md5".equals(key.toLowerCase())) {
+							redisArray.add(34);
+						} else if ("android".equals(key.toLowerCase())) {
+							redisArray.add(96);
+						} else if ("android_sha1".equals(key.toLowerCase())) {
+							redisArray.add(97);
+						} else if ("android_md5".equals(key.toLowerCase())) {
+							redisArray.add(98);
+						} else if ("idfa".equals(key.toLowerCase())) {
+							redisArray.add(112);
+						} else if ("idfa_sha1".equals(key.toLowerCase())) {
+							redisArray.add(113);
+						} else if ("idfa_md5".equals(key.toLowerCase())) {
+							redisArray.add(1153);
+						}
+						name = key + wlType +populationId;//不管是不是第一次yudaokey，都让name等于这个新名称
+						//这样新key、新name、新value，下一次再遇到key，直接放入redis
+					} else {
+						values.add(str);//如果不是key那就让如list中
 					}
-					values = new ArrayList<String>();//将数组置空
-					key = str.substring(left + 1, right);//不管是不是第一次，都让key等于当前这个符合“[***]”的字符串
-					if ("imei".equals(key.toLowerCase())) {//根据不同类型，redisArray中放入不同值
-						redisArray.add(16);
-					} else if ("imei_sha1".equals(key.toLowerCase())) {
-						redisArray.add(17);
-					} else if ("imei_md5".equals(key.toLowerCase())) {
-						redisArray.add(18);
-					} else if ("mac".equals(key.toLowerCase())) {
-						redisArray.add(32);
-					} else if ("mac_sha1".equals(key.toLowerCase())) {
-						redisArray.add(33);
-					} else if ("mac_md5".equals(key.toLowerCase())) {
-						redisArray.add(34);
-					} else if ("android".equals(key.toLowerCase())) {
-						redisArray.add(96);
-					} else if ("android_sha1".equals(key.toLowerCase())) {
-						redisArray.add(97);
-					} else if ("android_md5".equals(key.toLowerCase())) {
-						redisArray.add(98);
-					} else if ("idfa".equals(key.toLowerCase())) {
-						redisArray.add(112);
-					} else if ("idfa_sha1".equals(key.toLowerCase())) {
-						redisArray.add(113);
-					} else if ("idfa_md5".equals(key.toLowerCase())) {
-						redisArray.add(1153);
+					if (i == list.size()-1) {
+						JedisUtils.sddKey(name, values);//最后一个key的值，循环完成后也要添加
 					}
-					name = key + wlType +populationId;//不管是不是第一次yudaokey，都让name等于这个新名称
-					//这样新key、新name、新value，下一次再遇到key，直接放入redis
-				} else {
-					values.add(str);//如果不是key那就让如list中
-				}
-				if (i == list.size()-1) {
-					JedisUtils.sddKey(name, values);//最后一个key的值，循环完成后也要添加
 				}
 			}
-		}
-		if (!flag) {
-			JsonObject obj = new JsonObject();
-			obj.addProperty("groupid", campaignId);
-			if ("02".equals(type)) {
-				obj.add("blacklist", redisArray);
-			} else if ("01".equals(type)) {
-				obj.add("whitelist", redisArray);
+			if (!flag) {
+				JsonObject obj = new JsonObject();
+				obj.addProperty("groupid", campaignId);
+				if ("02".equals(type)) {
+					obj.add("blacklist", redisArray);
+				} else if ("01".equals(type)) {
+					obj.add("whitelist", redisArray);
+				}
+				obj.addProperty("retio", 0);
+				obj.addProperty("mprice", 0);
+				String redisKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
+				JedisUtils.set(redisKey, obj.toString());
 			}
-			obj.addProperty("retio", 0);
-			obj.addProperty("mprice", 0);
-			String redisKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
-			JedisUtils.set(redisKey, obj.toString());
 		}
 	}
 

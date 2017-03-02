@@ -63,7 +63,7 @@ public class LandpageService extends BaseService {
     /**
      * 监测代码片段_结束
      */
-    private static final String CODE_END = "';(function(){varpxejs=document.createElement('script');var_pxejsProtocol=(('https:'==document.location.protocol)?'https://':'http://');pxejs.src=_pxejsProtocol+'//"+MONITOR_URL+"';varone=document.getElementsByTagName('script')[0];one.parentNode.insertBefore(pxejs,one);})();</script>";
+    private static final String CODE_END = "';(function(){varpxejs=document.createElement('script');var_pxejsProtocol=(('https:'==document.location.protocol)?'https://':'http://');pxejs.src=_pxejsProtocol+'//img.pxene.com/pxene.js';varone=document.getElementsByTagName('script')[0];one.parentNode.insertBefore(pxejs,one);})();</script>";
     /**
      * HTML中头部开始标签
      */
@@ -261,15 +261,15 @@ public class LandpageService extends BaseService {
 				in.close();
 			}
 			String codeStatus = StatusConstant.LANDPAGE_CHECK_NOTCHECK;
-			int headStart = reCode.indexOf(HTML_HEAD_START);
-			int headEnd = reCode.indexOf(HTML_HEAD_END);
-			if (headStart > 0
-					&& headEnd > 0) {
+			int headStart = reCode.toUpperCase().indexOf(HTML_HEAD_START);
+			int headEnd = reCode.toUpperCase().indexOf(HTML_HEAD_END);
+			if (headStart > -1
+					&& headEnd > -1) {
 				reCode = reCode.substring(headStart,
 						headEnd).replaceAll(" ", "")
 						.replaceAll("\"", "'").replaceAll("\n", "").replace("\t", "");
 				if (reCode.indexOf(CODE_START + landpageId
-						+ CODE_END) > 0) {
+						+ CODE_END) > -1) {
 					codeStatus = StatusConstant.LANDPAGE_CHECK_SUCCESS;
 				} else {
 					codeStatus = StatusConstant.LANDPAGE_CHECK_ERROR;
