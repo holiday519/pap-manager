@@ -216,11 +216,11 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creative", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creative/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectCreative(@RequestParam(required = true) String creativeId, HttpServletResponse response, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception {
+	public String selectCreative(@PathVariable String id, HttpServletResponse response, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception {
 		
-		BasicDataBean creative = creativeService.getCreative(creativeId, startDate, endDate);
+		BasicDataBean creative = creativeService.getCreative(id, startDate, endDate);
 		
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), creative, response);
 	}
