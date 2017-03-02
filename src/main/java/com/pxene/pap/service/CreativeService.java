@@ -837,6 +837,175 @@ public class CreativeService extends BaseService {
 	}
 	
 	/**
+	 * 查询单个创意
+	 * @param id
+	 * @return
+	 */
+	public BasicDataBean getCreative(String id, Long startDate, Long endDate) throws Exception {
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		if (creative == null) {
+			throw new ResourceNotFoundException();
+		}
+		String campaignId = creative.getCampaignId();
+		String type = creative.getType();
+		BasicDataBean bean = new BasicDataBean();
+		CreativeBean base = null;
+		ImageCreativeBean image = null;
+		VideoCreativeBean video = null;
+		InfoflowCreativeBean info = null;
+		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
+			ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
+			if (imageModel != null) {
+				image = new ImageCreativeBean();
+				
+				image.setId(creative.getId());
+				image.setType(type);
+				image.setCampaignId(campaignId);
+				image.setName(creative.getName());
+				
+				image.setStatus(getCreativeAuditStatus(creative.getId()));
+				image.setPrice(creative.getPrice().floatValue());
+				
+				image.setImageId(creative.getMaterialId());
+				image.setImagePath(imageModel.getPath());
+				//查询投放数据
+				if (startDate != null && endDate != null) {
+					String creativeId = creative.getId();
+					List<String> idList = new ArrayList<String>();
+					idList.add(creativeId);
+					BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+					if (dataBean != null) {
+						image.setImpressionAmount(dataBean.getImpressionAmount());
+						image.setClickAmount(dataBean.getClickAmount());
+						image.setTotalCost(dataBean.getTotalCost());
+						image.setJumpAmount(dataBean.getJumpAmount());
+						image.setImpressionCost(dataBean.getImpressionCost());
+						image.setClickCost(dataBean.getClickCost());
+						image.setClickRate(dataBean.getClickRate());
+						image.setJumpCost(dataBean.getJumpCost());
+					}
+				}
+				bean = image;
+			}
+		} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+			VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(creative.getMaterialId());
+			String imageId = videoMaterialModel.getImageId();
+			
+			VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
+			if (videoModel != null) {
+				video = new VideoCreativeBean();
+				video.setId(creative.getId());
+				video.setType(type);
+				video.setCampaignId(campaignId);
+				video.setName(creative.getName());
+				video.setStatus(getCreativeAuditStatus(creative.getId()));
+				video.setPrice(creative.getPrice().floatValue());
+				
+				video.setImageId(imageId);
+				video.setImagePath(getImagePath(imageId));
+				video.setVideoId(creative.getMaterialId());
+				video.setVideoPath(videoModel.getPath());
+				//查询投放数据
+				if (startDate != null && endDate != null) {
+					String creativeId = creative.getId();
+					List<String> idList = new ArrayList<String>();
+					idList.add(creativeId);
+					BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+					if (dataBean != null) {
+						video.setImpressionAmount(dataBean.getImpressionAmount());
+						video.setClickAmount(dataBean.getClickAmount());
+						video.setTotalCost(dataBean.getTotalCost());
+						video.setJumpAmount(dataBean.getJumpAmount());
+						video.setImpressionCost(dataBean.getImpressionCost());
+						video.setClickCost(dataBean.getClickCost());
+						video.setClickRate(dataBean.getClickRate());
+						video.setJumpCost(dataBean.getJumpCost());
+					}
+				}
+				bean = video;
+			}
+		} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
+			InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
+			if (infoflowModel != null) {
+				info = new InfoflowCreativeBean();
+				info.setId(creative.getId());
+				info.setType(type);
+				info.setCampaignId(campaignId);
+				info.setName(creative.getName());
+				info.setStatus(getCreativeAuditStatus(creative.getId()));
+				info.setPrice(creative.getPrice().floatValue());
+				
+				if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
+					info.setIconId(infoflowModel.getIconId());
+					info.setIconPath(getImagePath(infoflowModel.getIconId()));
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage1Id())) {
+					info.setImage1Id(infoflowModel.getImage1Id());
+					info.setImage1Path(getImagePath(infoflowModel.getImage1Id()));
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage2Id())) {
+					info.setImage2Id(infoflowModel.getImage2Id());
+					info.setImage2Path(getImagePath(infoflowModel.getImage2Id()));
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage3Id())) {
+					info.setImage3Id(infoflowModel.getImage3Id());
+					info.setImage3Path(getImagePath(infoflowModel.getImage3Id()));
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage4Id())) {
+					info.setImage4Id(infoflowModel.getImage4Id());
+					info.setImage4Path(getImagePath(infoflowModel.getImage4Id()));
+				}
+				if (!StringUtils.isEmpty(infoflowModel.getImage5Id())) {
+					info.setImage5Id(infoflowModel.getImage5Id());
+					info.setImage5Path(getImagePath(infoflowModel.getImage5Id()));
+				}
+				info.setAppStar(infoflowModel.getAppStar());
+				//查询投放数据
+				if (startDate != null && endDate != null) {
+					String creativeId = creative.getId();
+					List<String> idList = new ArrayList<String>();
+					idList.add(creativeId);
+					BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+					if (dataBean != null) {
+						info.setImpressionAmount(dataBean.getImpressionAmount());
+						info.setClickAmount(dataBean.getClickAmount());
+						info.setTotalCost(dataBean.getTotalCost());
+						info.setJumpAmount(dataBean.getJumpAmount());
+						info.setImpressionCost(dataBean.getImpressionCost());
+						info.setClickCost(dataBean.getClickCost());
+						info.setClickRate(dataBean.getClickRate());
+						info.setJumpCost(dataBean.getJumpCost());
+					}
+				}
+				bean = info;
+			}
+		} else {
+			base = modelMapper.map(creative, CreativeBean.class);
+			//查询投放数据
+			if (startDate != null && endDate != null) {
+				String creativeId = creative.getId();
+				List<String> idList = new ArrayList<String>();
+				idList.add(creativeId);
+				BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+				if (dataBean != null) {
+					base.setImpressionAmount(dataBean.getImpressionAmount());
+					base.setClickAmount(dataBean.getClickAmount());
+					base.setTotalCost(dataBean.getTotalCost());
+					base.setJumpAmount(dataBean.getJumpAmount());
+					base.setImpressionCost(dataBean.getImpressionCost());
+					base.setClickCost(dataBean.getClickCost());
+					base.setClickRate(dataBean.getClickRate());
+					base.setJumpCost(dataBean.getJumpCost());
+				}
+			}
+			base.setStatus(getCreativeAuditStatus(creative.getId()));
+			bean = base;
+		}
+		return bean;
+	}
+	
+	/**
 	 * 列出所有素材
 	 * @param name
 	 * @param creativeId

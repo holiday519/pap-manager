@@ -37,11 +37,11 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/images", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectImageTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
+	public String selectImageTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String status, HttpServletResponse response) throws Exception {
 		
 		Page<Object> pager = null;
 		
-		List<ImageTmpl> bean = tmplService.selectImageTmpls(campaignId, creativeId);
+		List<ImageTmpl> bean = tmplService.selectImageTmpls(campaignId, status);
 		
 		PaginationBean result = new PaginationBean(bean, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -57,11 +57,11 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/videos", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectVideoTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
+	public String selectVideoTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String status, HttpServletResponse response) throws Exception {
 
 		Page<Object> pager = null;
 		
-		List<VideoTmpl> bean = tmplService.selectVideoTmpls(campaignId, creativeId);
+		List<VideoTmpl> bean = tmplService.selectVideoTmpls(campaignId, status);
 		
 		PaginationBean result = new PaginationBean(bean, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -77,11 +77,11 @@ public class TmplController {
 	 */
 	@RequestMapping(value = "/tmpl/infoflows", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectInfoflowTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, HttpServletResponse response) throws Exception {
+	public String selectInfoflowTmpls(@RequestParam(required = false) String campaignId, @RequestParam(required = false) String status, HttpServletResponse response) throws Exception {
 		
 		Page<Object> pager = null;
 		
-		List<InfoTmpl> bean = tmplService.selectInfoflowTmpls(campaignId, creativeId);
+		List<InfoTmpl> bean = tmplService.selectInfoflowTmpls(campaignId, status);
 		
 		PaginationBean result = new PaginationBean(bean, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

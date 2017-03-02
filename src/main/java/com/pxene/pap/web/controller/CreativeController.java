@@ -81,7 +81,7 @@ public class CreativeController {
 	}
 	
 	/**
-	 * 修改创意
+	 * 修改创意价格
 	 * @param id
 	 * @param bean
 	 * @param response
@@ -205,6 +205,24 @@ public class CreativeController {
 		
 		PaginationBean result = new PaginationBean(creatives, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+	}
+	/**
+	 * 查询单个创意
+	 * @param campaignId
+	 * @param pageNo
+	 * @param pageSize
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String selectCreative(@RequestParam(required = true) String creativeId, HttpServletResponse response, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate) throws Exception {
+		
+		BasicDataBean creative = creativeService.getCreative(creativeId, startDate, endDate);
+		
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), creative, response);
 	}
 	
 	/**

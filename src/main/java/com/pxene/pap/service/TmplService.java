@@ -21,6 +21,8 @@ import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
@@ -30,6 +32,7 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
+import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.InfoflowTmplDao;
 import com.pxene.pap.repository.basic.VideoTmplDao;
@@ -54,6 +57,9 @@ public class TmplService extends BaseService {
 	
 	@Autowired
 	private AppDao appDao;
+	
+	@Autowired
+	private CreativeDao creativeDao;
 	
 	@Autowired
 	private CreativeService creativeService;
@@ -105,7 +111,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ImageTmpl> selectImageTmpls(String campaignId, String creativeId) throws Exception {
+	public List<ImageTmpl> selectImageTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -113,6 +119,8 @@ public class TmplService extends BaseService {
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 		
 		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();
+		List<ImageTmpl> imageTmplListNotUse = new ArrayList<ImageTmpl>();
+		List<ImageTmpl> imageTmplListAll = new ArrayList<ImageTmpl>();
 
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
@@ -126,16 +134,29 @@ public class TmplService extends BaseService {
 				String tmplId = appTmpl.getTmplId();
 				if (!StringUtils.isEmpty(tmplId)) {
 					ImageTmpl imageTmpl = getImageTmplDetail(tmplId);
-					imageTmplList.add(imageTmpl);
+					if (StringUtils.isEmpty(status)) {
+						imageTmplListAll.add(imageTmpl);
+					} else {
+						if (tmplIsUsed(campaignId, tmplId)) {
+							imageTmplList.add(imageTmpl);
+						} else {
+							imageTmplListNotUse.add(imageTmpl);
+						}
+					}
 				}
 			}
 		}
 		
-		if (imageTmplList.isEmpty()) {
+		if (imageTmplList.isEmpty() && imageTmplListNotUse.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		
-		return imageTmplList;
+		if ("01".equals(status)) {//用着的
+			return imageTmplList;
+		} else if ("02".equals(status)) {
+			return imageTmplListNotUse;
+		} else {
+			return imageTmplListAll;
+		}
 	}
 	
 	/**
@@ -144,7 +165,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<VideoTmpl> selectVideoTmpls(String campaignId, String creativeId) throws Exception {
+	public List<VideoTmpl> selectVideoTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -152,6 +173,8 @@ public class TmplService extends BaseService {
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 				
 		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
+		List<VideoTmpl> videpTmplListNotUse = new ArrayList<VideoTmpl>();
+		List<VideoTmpl> videpTmplListAll = new ArrayList<VideoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
 		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_VIDEO);
@@ -169,13 +192,27 @@ public class TmplService extends BaseService {
 						videoTmpl.setImageTmpl(image);
 					}
 				}
-				videpTmplList.add(videoTmpl);
+				if (StringUtils.isEmpty(status)) {
+					videpTmplListAll.add(videoTmpl);
+				} else {
+					if (tmplIsUsed(campaignId, tmplId)) {
+						videpTmplList.add(videoTmpl);
+					} else {
+						videpTmplListNotUse.add(videoTmpl);
+					}
+				}
 			}
 		}
-		if (videpTmplList.isEmpty()) {
+		if (videpTmplList.isEmpty() && videpTmplListNotUse.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		return videpTmplList;
+		if ("01".equals(status)) {//用着的
+			return videpTmplList;
+		} else if ("02".equals(status)) {
+			return videpTmplListNotUse;
+		} else {
+			return videpTmplListAll;
+		}
 	}
 	
 	/**
@@ -184,7 +221,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<InfoTmpl> selectInfoflowTmpls(String campaignId, String creativeId) throws Exception {
+	public List<InfoTmpl> selectInfoflowTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -193,6 +230,8 @@ public class TmplService extends BaseService {
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 				
 		List<InfoTmpl> infoTmplList = new ArrayList<InfoTmpl>();
+		List<InfoTmpl> infoTmplListNotUse = new ArrayList<InfoTmpl>();
+		List<InfoTmpl> infoTmplListAll = new ArrayList<InfoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
 		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_INFOFLOW);
@@ -232,13 +271,27 @@ public class TmplService extends BaseService {
 					image = getImageTmplDetail(model.getImage5Id());
 					infoTmpl.setImage5(image);
 				}
-				infoTmplList.add(infoTmpl);
+				if (StringUtils.isEmpty(status)) {
+					infoTmplListAll.add(infoTmpl);
+				} else {
+					if (tmplIsUsed(campaignId, tmplId)) {
+						infoTmplList.add(infoTmpl);
+					} else {
+						infoTmplListNotUse.add(infoTmpl);
+					}
+				}
 			}
 		}
-		if (infoTmplList.isEmpty()) {
+		if (infoTmplList.isEmpty() && infoTmplListNotUse.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		return infoTmplList;
+		if ("01".equals(status)) {//用着的
+			return infoTmplList;
+		} else if ("02".equals(status)) {
+			return infoTmplListNotUse;
+		} else {
+			return infoTmplListAll;
+		}
 	}
 	
 	/**
@@ -246,7 +299,7 @@ public class TmplService extends BaseService {
 	 * @param imageTmplId
 	 * @return
 	 */
-	private ImageTmpl getImageTmplDetail(String imageTmplId) {
+	private ImageTmpl getImageTmplDetail(String imageTmplId) throws Exception {
 		ImageTmpl imageTmpl = null;
 		if (!StringUtils.isEmpty(imageTmplId)) {
 			ImageTmplModel model = imageTmplDao.selectByPrimaryKey(imageTmplId);
@@ -257,6 +310,23 @@ public class TmplService extends BaseService {
 		
 		return imageTmpl;
 	}
+	
+	/**
+	 * 判断模版是否已近使用
+	 * @param campaignId
+	 * @param tmplId
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean tmplIsUsed(String campaignId, String tmplId) throws Exception {
+		CreativeModelExample example = new CreativeModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId).andTmplIdEqualTo(tmplId);
+		List<CreativeModel> list = creativeDao.selectByExample(example);
+		if (list == null || list.isEmpty()) {
+			return false;
+		}
+		return true;
+	}	
 	
 //	/**
 //	 * 根据模版Id查询App
