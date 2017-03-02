@@ -228,7 +228,7 @@ public class CampaignService extends LaunchService {
 			//添加点击、展现监测地址
 			addCampaignMonitor(bean);
 			
-			campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PAUSE);
+			campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 			// 添加投放量控制策略
 			addCampaignQuantity(bean);
 			// 添加活动基本信息
@@ -938,27 +938,13 @@ public class CampaignService extends LaunchService {
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			//活动存在，并且可以投放
-			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
-				if (StatusConstant.CAMPAIGN_WAITING_PAUSE.equals(campaignModel.getStatus())) {
-					if (launchService.campaignIsInTimeTarget(campaignId)) {
-						campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PROCEED);
-						//投放
-						String projectId = campaignModel.getProjectId();
-						ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-						if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-							launch(campaignId);
-						}
-					} else {
-						campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PROCEED);
-					}
-				} else if (StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(campaignModel.getStatus())) {
-					campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PROCEED);
-					//投放
-					String projectId = campaignModel.getProjectId();
-					ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-					if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-						launch(campaignId);
-					}
+			if (campaignModel != null) {
+				campaignModel.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+				//投放
+				String projectId = campaignModel.getProjectId();
+				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
+					launch(campaignId);
 				}
 				//改变数据库状态
 				campaignDao.updateByPrimaryKeySelective(campaignModel);
@@ -1021,12 +1007,7 @@ public class CampaignService extends LaunchService {
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			if (campaignModel != null) {
-				if (StatusConstant.CAMPAIGN_WAITING_PROCEED.equals(campaignModel.getStatus())) {
-					campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PAUSE);
-				} else if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(campaignModel.getStatus())) {
-					campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PAUSE);
-					//投放中的才变成暂停
-				}
+				campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 				String projectId = campaignModel.getProjectId();
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {

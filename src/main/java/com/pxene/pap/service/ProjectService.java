@@ -149,7 +149,7 @@ public class ProjectService extends LaunchService {
 			launchProject(id);
 		} else if (StatusConstant.ACTION_TYPE_CLOSE.equals(action)) {
 			//结束
-			stopProject(id);
+//			stopProject(id);
 		}else {
 			throw new IllegalStatusException();
 		}
@@ -356,18 +356,14 @@ public class ProjectService extends LaunchService {
 			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 			if (projectModel != null) {
 				CampaignModelExample example = new CampaignModelExample();
-				example.createCriteria().andProjectIdEqualTo(projectId);
+				example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
 				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
 				if (campaigns == null || campaigns.isEmpty()) {
 					continue;
 				}
 				for (CampaignModel campaign : campaigns) {
-					//活动是投放状态，并且活动可以投放
-					if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(campaign.getStatus())
-							&& campaignService.checkCampaignCanLaunch(campaign.getId())) {
-						// 投放
-						launch(campaign.getId());
-					}
+					// 投放
+					launch(campaign.getId());
 				}
 				//项目投放之后修改状态
 				projectModel.setStatus(StatusConstant.PROJECT_PROCEED);
@@ -392,19 +388,16 @@ public class ProjectService extends LaunchService {
 			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 			if (projectModel != null) {
 				CampaignModelExample example = new CampaignModelExample();
-				example.createCriteria().andProjectIdEqualTo(projectId);
+				example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
 				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
 				if (campaigns == null || campaigns.isEmpty()) {
 					continue;
 				}
 				for (CampaignModel campaign : campaigns) {
-					if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(campaign.getStatus())
-							&& StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-						//移除redis中key
-						pause(campaign.getId());
-					}
+					//移除redis中key
+					pause(campaign.getId());
 				}
-				//项目投放之后修改状态
+				//项目暂停之后修改状态
 				projectModel.setStatus(StatusConstant.PROJECT_PAUSE);
 				projectDao.updateByPrimaryKeySelective(projectModel);
 			}
@@ -436,7 +429,7 @@ public class ProjectService extends LaunchService {
 					deleteKeyFromRedis(campaign.getId());
 				}
 				//项目投放之后修改状态
-				projectModel.setStatus(StatusConstant.CAMPAIGN_CLOSE);
+//				projectModel.setStatus(StatusConstant.CAMPAIGN_CLOSE);
 				projectDao.updateByPrimaryKeySelective(projectModel);
 			}
 		}

@@ -246,8 +246,7 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(campaignId)) {
 			//只有活动是等待中时才可删除创意
 			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-			if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(model.getStatus()) 
-					|| StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(model.getStatus())) {
+			if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
 				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
 			}
 		}
@@ -323,8 +322,7 @@ public class CreativeService extends BaseService {
 			if (!StringUtils.isEmpty(campaignId)) {
 				//只有活动是等待中时才可删除创意
 				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-				if (StatusConstant.CAMPAIGN_LAUNCH_PROCEED.equals(model.getStatus()) 
-						|| StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(model.getStatus())) {
+				if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
 				}
 			}
@@ -332,6 +330,27 @@ public class CreativeService extends BaseService {
 		// 删除创意数据
 		creativeDao.deleteByExample(ex);
 	}
+	
+	/**
+	 * 修改创意价格
+	 * @param id
+	 * @param price
+	 * @throws Exception
+	 */
+	@Transactional
+	public void updateCreativePrice(String id, Map<String, String> map) throws Exception{
+		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
+		if (creativeModel == null) {
+			throw new ResourceNotFoundException();
+		}
+		if (StringUtils.isEmpty(map.get("action"))) {
+			throw new IllegalArgumentException();
+		}
+		String price = map.get("price").toString();
+		creativeModel.setPrice(Float.parseFloat(price));
+		creativeDao.updateByPrimaryKey(creativeModel);
+	}
+	
 	
 //	/**
 //	 * 批量删除创意下素材

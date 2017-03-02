@@ -88,12 +88,12 @@ public class CreativeController {
 	 * @return
 	 * @throws Exception
 	 */
-//	@RequestMapping(value = "/creative/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-//	@ResponseBody
-//	public void updateCreative(@PathVariable String id, @RequestBody CreativeAddBean bean, HttpServletResponse response) throws Exception {
-//		creativeService.updateCreative(id, bean);
-//		response.setStatus(HttpStatus.NO_CONTENT.value());
-//	}
+	@RequestMapping(value = "/creative/price/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateCreative(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+		creativeService.updateCreativePrice(id, map);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 	
 	/**
 	 * 删除创意
@@ -115,8 +115,8 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creatives",method = RequestMethod.DELETE)
 	@ResponseBody
-	public void deleteCreatives(@RequestBody String[] ids, HttpServletResponse response) throws Exception {
-		creativeService.deleteCreatives(ids);
+	public void deleteCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+		creativeService.deleteCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

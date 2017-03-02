@@ -68,10 +68,10 @@ public class LaunchService extends BaseService{
 		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
 		if (campaign != null) {
 			String id = campaign.getId();
-			String status = campaign.getStatus();
-			if (StatusConstant.CAMPAIGN_CLOSE.equals(status)) {//如果已经结束了，直接返回“否”就可以
-				return Flag;
-			}
+//			String status = campaign.getStatus();
+//			if (StatusConstant.CAMPAIGN_PAUSE.equals(status)) {//如果已经结束了，直接返回“否”就可以
+//				return Flag;
+//			}
 			//判断当前时间是不是在活动的开始时间和结束时间之间
 			if (campaign.getStartDate() == null || campaign.getEndDate() == null) {
 				return Flag;
@@ -153,7 +153,7 @@ public class LaunchService extends BaseService{
 			String projectId = project.getId();
 			CampaignModelExample campaignExammple = new CampaignModelExample();
 			campaignExammple.createCriteria().andProjectIdEqualTo(projectId)
-					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_CLOSE);
+					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_PAUSE);
 			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExammple);
 			if (campaigns == null) {
 				continue;
@@ -162,7 +162,7 @@ public class LaunchService extends BaseService{
 			//查询活动的时间定向ID
 			for (CampaignModel campaign : campaigns) {
 				String id = campaign.getId();
-				String status = campaign.getStatus();
+//				String status = campaign.getStatus();
 				//判断当前时间是不是在活动的开始时间和结束时间之间
 //				DateTime startTime = new DateTime(campaign.getStartDate());
 				DateTime endTime = new DateTime(campaign.getEndDate());
@@ -173,17 +173,13 @@ public class LaunchService extends BaseService{
 				String now = nowTime.toString("yyyyMMdd");
 				
 				if (Long.parseLong(now) > Long.parseLong(end)) {//当前时间大于结束时间，状态变成已结束
-					campaign.setStatus(StatusConstant.CAMPAIGN_CLOSE);
+					campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 					redisService.deleteCampaignId(id);
 //				} else if (Long.parseLong(now) < Long.parseLong(start)) {//当前时间小于开始时间时无操作
 				} else {//当前时间在开始时间和结束时间之间
 					if (campaignIsInTimeTarget(id)) {
-						if (StatusConstant.CAMPAIGN_WAITING_PAUSE.equals(status)) {
-							campaign.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PAUSE);
-						} else if (StatusConstant.CAMPAIGN_WAITING_PROCEED.equals(status)) {
-							campaign.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PROCEED);
-							writeRedis(id);
-						}
+						writeRedis(id);
+						campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
 					} else {
 						redisService.deleteCampaignId(id);
 					}
