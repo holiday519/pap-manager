@@ -792,6 +792,24 @@ public class CreativeService extends BaseService {
 					}
 				} else {
 					base = modelMapper.map(creative, CreativeBean.class);
+					//查询投放数据
+					if (startDate != null && endDate != null) {
+						String creativeId = creative.getId();
+						List<String> idList = new ArrayList<String>();
+						idList.add(creativeId);
+						BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+						if (dataBean != null) {
+							base.setImpressionAmount(dataBean.getImpressionAmount());
+							base.setClickAmount(dataBean.getClickAmount());
+							base.setTotalCost(dataBean.getTotalCost());
+							base.setJumpAmount(dataBean.getJumpAmount());
+							base.setImpressionCost(dataBean.getImpressionCost());
+							base.setClickCost(dataBean.getClickCost());
+							base.setClickRate(dataBean.getClickRate());
+							base.setJumpCost(dataBean.getJumpCost());
+						}
+					}
+					base.setStatus(getCreativeAuditStatus(creative.getId()));
 					result.add(base);
 				}
 			}
@@ -944,7 +962,7 @@ public class CreativeService extends BaseService {
 	}
 	
 	/**
-	 * 活动审核状态
+	 * 创意审核状态
 	 * @param creativeId
 	 * @return
 	 */

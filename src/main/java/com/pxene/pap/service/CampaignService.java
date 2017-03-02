@@ -9,9 +9,6 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -26,7 +23,6 @@ import com.pxene.pap.domain.beans.CampaignBean.Monitor;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.beans.CampaignBean.Target.App;
-import com.pxene.pap.domain.beans.CampaignBean.Target.Population;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
@@ -52,8 +48,6 @@ import com.pxene.pap.domain.models.OperatorTargetModel;
 import com.pxene.pap.domain.models.OperatorTargetModelExample;
 import com.pxene.pap.domain.models.OsTargetModel;
 import com.pxene.pap.domain.models.OsTargetModelExample;
-import com.pxene.pap.domain.models.PopulationModel;
-import com.pxene.pap.domain.models.PopulationModelExample;
 import com.pxene.pap.domain.models.PopulationTargetModel;
 import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
@@ -91,12 +85,9 @@ import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
-import com.sun.imageio.plugins.common.ReaderUtil;
 
 @Service
 public class CampaignService extends LaunchService {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
 	@Autowired
 	private CampaignDao campaignDao; 
@@ -112,6 +103,9 @@ public class CampaignService extends LaunchService {
 	
 	@Autowired
 	private CreativeService creativeService; 
+	
+	@Autowired
+	private LaunchService launchService; 
 	
 	@Autowired
 	private CreativeDao creativeDao; 
@@ -946,14 +940,23 @@ public class CampaignService extends LaunchService {
 			//活动存在，并且可以投放
 			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
 				if (StatusConstant.CAMPAIGN_WAITING_PAUSE.equals(campaignModel.getStatus())) {
-					campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PROCEED);
+					if (launchService.campaignIsInTimeTarget(campaignId)) {
+						campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PROCEED);
+						//投放
+						String projectId = campaignModel.getProjectId();
+						ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+						if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
+							launch(campaignId);
+						}
+					} else {
+						campaignModel.setStatus(StatusConstant.CAMPAIGN_WAITING_PROCEED);
+					}
 				} else if (StatusConstant.CAMPAIGN_LAUNCH_PAUSE.equals(campaignModel.getStatus())) {
 					campaignModel.setStatus(StatusConstant.CAMPAIGN_LAUNCH_PROCEED);
 					//投放
 					String projectId = campaignModel.getProjectId();
 					ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 					if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-						// 投放
 						launch(campaignId);
 					}
 				}
@@ -984,11 +987,23 @@ public class CampaignService extends LaunchService {
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
-		if (creatives == null) {
+		if (creatives == null || creatives.isEmpty()) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 		}
-		
-		return true;
+		//检查创意状态是否有审核通过的
+		boolean flag = false;
+		for (CreativeModel cm : creatives) {
+			String cId = cm.getId();
+			if (!StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeService.getCreativeAuditStatus(cId))) {
+				flag = true;
+				break;
+			}
+		}
+		if (flag) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_PASS_CREATIE);
+		} else {
+			return true;
+		}
 	}
 	
 	/**

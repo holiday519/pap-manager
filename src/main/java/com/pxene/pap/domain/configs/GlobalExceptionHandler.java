@@ -39,7 +39,6 @@ public class GlobalExceptionHandler
     @ResponseBody
     public ResponseBean handleException(Exception exception, HttpServletResponse response)
     {
-    	exception.printStackTrace();
         if (!(exception instanceof BaseException))
         {
             if (MethodArgumentNotValidException.class.isInstance(exception))

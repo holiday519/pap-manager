@@ -58,7 +58,7 @@ public class LaunchService extends BaseService{
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean campaignIsInTimeTarget(String campaignId) throws Exception {
+	public boolean campaignIsInTimeTarget(String campaignId) throws Exception {
 		boolean Flag = false;
 		String currentWeek = DateUtils.getCurrentWeekInNumber();//当前星期
 		String currentHour = DateUtils.getCurrentHour();//当前小时
