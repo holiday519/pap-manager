@@ -3,6 +3,8 @@ package com.pxene.pap.domain.beans;
 import java.util.Arrays;
 import java.util.Date;
 
+import javax.validation.constraints.Max;
+
 import org.hibernate.validator.constraints.Length;
 
 import com.pxene.pap.constant.PhrasesConstant;
@@ -39,7 +41,7 @@ public class CampaignBean extends BasicDataBean {
 	/**
 	 * 总预算
 	 */
-//	@Length(max = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
+	@Max(value=99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
 	private Integer totalBudget;
 	
 	/**
