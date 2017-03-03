@@ -24,12 +24,16 @@ import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CampaignService;
+import com.pxene.pap.service.LaunchService;
 
 @Controller
 public class CampaignController {
 	
 	@Autowired
 	private CampaignService campaignService;
+	
+	@Autowired
+	private LaunchService launchService;
 	
 	/**
 	 * 创建活动
@@ -85,7 +89,8 @@ public class CampaignController {
 	@RequestMapping(value = "/campaign/status/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void updateCampaignStatus(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
-		campaignService.updateCampaignStatus(id, map);
+//		campaignService.updateCampaignStatus(id, map);
+		launchService.launchByTime();
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

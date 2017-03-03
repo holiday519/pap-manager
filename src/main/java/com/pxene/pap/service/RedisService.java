@@ -29,12 +29,15 @@ import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.FrequencyModel;
 import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.PopulationModel;
 import com.pxene.pap.domain.models.PopulationTargetModel;
 import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.QuantityModel;
+import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.domain.models.view.CreativeImageModelExample;
@@ -50,11 +53,13 @@ import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.FrequencyDao;
 import com.pxene.pap.repository.basic.ImageDao;
 import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.PopulationDao;
 import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.QuantityDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
@@ -91,6 +96,12 @@ public class RedisService {
 	
 	@Autowired
 	private ImageDao imageDao;
+	
+	@Autowired
+	private FrequencyDao frequencyDao;
+	
+	@Autowired
+	private QuantityDao quantityDao;
 	
 	@Autowired
 	private CreativeVideoDao creativeVideoDao;
@@ -630,8 +641,104 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void writeCampaignFrequencyToRedis(String campaignId) throws Exception {
+		if (!StringUtils.isEmpty(campaignId)) {
+			String key = RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId;
+			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+			if (campaignModel != null) {
+				JsonObject obj = new JsonObject();
+				obj.addProperty("groupid", campaignId);
+				JsonArray groupArray = new JsonArray();
+				JsonObject groupObject = null;
+				AdxModelExample adxExample = new AdxModelExample();
+				List<AdxModel> adxList = adxDao.selectByExample(adxExample);
+				if (adxList != null && !adxList.isEmpty()) {
+					for (AdxModel adx : adxList) {
+						groupObject = new JsonObject();
+						groupObject.addProperty("adx", adx.getId());
+						groupObject.addProperty("type", 1);
+						groupObject.addProperty("period", 3);
+						JsonArray fre = new JsonArray();
+						QuantityModelExample qEx = new QuantityModelExample();
+						qEx.createCriteria().andCampaignIdEqualTo(campaignId);
+						List<QuantityModel> qList = quantityDao.selectByExample(qEx);
+						if (qList != null && !qList.isEmpty()) {
+							Integer dailyImpression = qList.get(0).getDailyImpression();
+							fre.add(dailyImpression);
+						}
+						groupArray.add(groupObject);
+					}
+					obj.add("group", groupArray);
+				}
+				String frequencyId = campaignModel.getFrequencyId();
+				if (!StringUtils.isEmpty(frequencyId)) {
+					JsonObject userObj = new JsonObject();
+					FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
+					if (frequencyModel != null) {
+						String controlObj = frequencyModel.getControlObj();
+						Integer number = frequencyModel.getNumber();
+						String timeType = frequencyModel.getTimeType();
+						if ("02".equals(controlObj)) {
+							userObj.addProperty("type", 2);
+						} else if ("01".equals(controlObj)) {
+							userObj.addProperty("type", 1);
+						}
+						if ("02".equals(timeType)) {
+							userObj.addProperty("period", 2);
+						} else if ("01".equals(timeType)) {
+							userObj.addProperty("period", 3);
+						}
+						JsonArray capping = new JsonArray();
+						capping.add(campaignModel.getId());
+						userObj.add("capping", capping);
+						userObj.addProperty("frequency", number);
+					}
+					obj.add("user", userObj);
+				}
+				JedisUtils.set(key, obj.toString());
+			}
+		}
 		
 		
+	}
+	
+	/**
+	 * 活动预算写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void writeCampaignBudgetToRedis(String campaignId) throws Exception {
+		if (!StringUtils.isEmpty(campaignId)) {
+			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+			if (!JedisUtils.exists(key)) {
+				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+				if (model != null) {
+					Integer budget = model.getTotalBudget();
+					JedisUtils.set(key, budget * 100);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * 活动所属项目key写入redis
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void writeProjectBudgetToRedis(String campaignId) throws Exception {
+		if (!StringUtils.isEmpty(campaignId)) {
+			String key = RedisKeyConstant.PROJECT_BUDGET + campaignId;
+			if (!JedisUtils.exists(key)) {
+				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+				if (model != null) {
+					String projectId = model.getProjectId();
+					ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+					if (projectDao != null) {
+						Integer totalBudget = projectModel.getTotalBudget();
+						JedisUtils.set(key, totalBudget * 100);
+					}
+				}
+			}
+		}
 	}
 	
 	/**
