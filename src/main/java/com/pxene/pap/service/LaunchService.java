@@ -150,14 +150,14 @@ public class LaunchService extends BaseService{
 		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
 		//查询投放中的项目
 		ProjectModelExample projectExample = new ProjectModelExample();
-		projectExample.createCriteria().andStatusNotEqualTo(StatusConstant.PROJECT_PAUSE).andIdEqualTo("eda502b4-9ee5-4c7e-9601-d98e72bbc303");
+		projectExample.createCriteria().andStatusNotEqualTo(StatusConstant.PROJECT_PAUSE);
 		List<ProjectModel> projects = projectDao.selectByExample(projectExample);
 		//查询非“已结束”的活动
 		for (ProjectModel project : projects) {
 			String projectId = project.getId();
 			CampaignModelExample campaignExammple = new CampaignModelExample();
 			campaignExammple.createCriteria().andProjectIdEqualTo(projectId)
-					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_PAUSE).andIdEqualTo("4d9d655a-3963-42c2-ab62-58601638e83e");
+					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_PAUSE);
 			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExammple);
 			if (campaigns == null) {
 				continue;

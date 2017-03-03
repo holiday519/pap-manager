@@ -697,9 +697,9 @@ public class RedisService {
 				JedisUtils.set(key, obj.toString());
 			}
 		}
-		
-		
 	}
+	
+	
 	
 	/**
 	 * 活动预算写入redis
@@ -715,6 +715,20 @@ public class RedisService {
 					Integer budget = model.getTotalBudget();
 					JedisUtils.set(key, budget * 100);
 				}
+			}
+		}
+	}
+	
+	/**
+	 * 删除活动预算
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignBudgetFormRedis(String campaignId) throws Exception {
+		if (!StringUtils.isEmpty(campaignId)) {
+			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+			if (!JedisUtils.exists(key)) {
+				JedisUtils.delete(key);
 			}
 		}
 	}
@@ -950,6 +964,7 @@ public class RedisService {
 		deleteCampaignFrequencyFromredis(campaignId);
 		deleteMapidsFromRedis(campaignId);
 		deleteCampaignWBListFromredis(campaignId);
+		deleteCampaignBudgetFormRedis(campaignId);
 	}
 	/**
 	 * 删除redis中key：dsp_groupid_mapids_活动id
