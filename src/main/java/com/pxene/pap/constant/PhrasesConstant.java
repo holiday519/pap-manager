@@ -30,6 +30,7 @@ public class PhrasesConstant
 	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
 	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LENGTH_ERROR_REMARK = "备注长度不能超过400";
+	public static final String LENGTH_ERROR_BUDGET = "总预算不能超过99999999";
 	
 	public static final String ADVERTISER_NOTNULL_INDUSTY = "必须选择行业";
 	public static final String ADVERTISER_NOTNULL_COMPANY = "必须填写公司名称";

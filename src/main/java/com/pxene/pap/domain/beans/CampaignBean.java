@@ -3,6 +3,10 @@ package com.pxene.pap.domain.beans;
 import java.util.Arrays;
 import java.util.Date;
 
+import org.hibernate.validator.constraints.Length;
+
+import com.pxene.pap.constant.PhrasesConstant;
+
 /**
  * 活动所有信息
  */
@@ -20,18 +24,24 @@ public class CampaignBean extends BasicDataBean {
 	 * 项目名称
 	 */
 	private String projectName;
+	
 	/**
 	 * 名称
 	 */
+	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
+	
 	/**
 	 * 活动类型
 	 */
 	private String type;
+	
 	/**
 	 * 总预算
 	 */
+	@Length(max = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
 	private Integer totalBudget;
+	
 	/**
 	 * 日预算
 	 */
@@ -44,9 +54,11 @@ public class CampaignBean extends BasicDataBean {
 	 * 日点击
 	 */
 	private Integer dailyClick;
+	
 	/**
 	 * 备注
 	 */
+	@Length(max = 200, message = PhrasesConstant.LANDPAGE_LENGTH_ERROR_REMARK)
 	private String remark;
 	/**
 	 * 状态
