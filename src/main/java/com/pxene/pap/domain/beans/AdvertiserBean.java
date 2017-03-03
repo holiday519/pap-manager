@@ -59,8 +59,10 @@ public class AdvertiserBean extends BasicDataBean {
 	private String licensePath;
 
 	private String accountPath;
+	@Length(max = 200, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_SITEURL)
 	@NotNull(message = PhrasesConstant.ADVERTISER_NOTNULL_SITEURL)
 	private String siteUrl;
+	@Length(max = 200, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_SITENAME)
 	@NotNull(message = PhrasesConstant.ADVERTISER_NOTNULL_SITENAME)
 	private String siteName;
 
@@ -70,7 +72,7 @@ public class AdvertiserBean extends BasicDataBean {
 	private String zip;
 
 	private String address;
-	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
+	@Length(max = 200, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 
 	@JsonProperty(value = "create_time")

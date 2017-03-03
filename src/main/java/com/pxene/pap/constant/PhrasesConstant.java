@@ -42,7 +42,7 @@ public class PhrasesConstant
 	
 	public static final String ADVERTISER_LENGTH_ERROR_COMPANY = "公司名称长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_ADDRESS= "公司地址长度不能超过200";
-	public static final String ADVERTISER_LENGTH_ERROR_SITEUR = "公司官网地址长度不能超过200";
+	public static final String ADVERTISER_LENGTH_ERROR_SITEURL = "公司官网地址长度不能超过200";
 	public static final String ADVERTISER_LENGTH_ERROR_SITENAME = "公司官网名称长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_BRANDNAME = "品牌名称长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_CONTACT = "联系人长度不能超过20";

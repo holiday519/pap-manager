@@ -45,7 +45,7 @@ public class ProjectBean extends BasicDataBean {
 	/**
 	 * 备注
 	 */
-    @Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
+    @Length(max = 200, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 	/**
 	 * 状态
