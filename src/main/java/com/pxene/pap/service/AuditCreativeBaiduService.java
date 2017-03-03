@@ -622,7 +622,7 @@ public class AuditCreativeBaiduService {
 	 * @param industryId
 	 * @return
 	 */
-	private String getIndustry(String industryId) throws Exception {
+	private String getIndustry(Integer industryId) throws Exception {
 		IndustryAdxModelExample example = new IndustryAdxModelExample();
 		example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE)
 			.andIndustryIdEqualTo(industryId);

@@ -267,7 +267,7 @@ public class AdvertiserService extends BaseService
         }
         AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
         // 找出所属行业
-        String industryId = advertiserModel.getIndustryId();
+        Integer industryId = advertiserModel.getIndustryId();
         IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
         String industryName = industryModel.getName();
         bean.setIndustryName(industryName);
@@ -318,7 +318,7 @@ public class AdvertiserService extends BaseService
                 //advertiserList.add(modelMapper.map(advertiserModel, AdvertiserBean.class));
             	AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
                 // 找出所属行业
-                String industryId = advertiserModel.getIndustryId();
+                Integer industryId = advertiserModel.getIndustryId();
                 IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
                 String industryName = industryModel.getName();
                 bean.setIndustryName(industryName);

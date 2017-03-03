@@ -3,7 +3,7 @@ package com.pxene.pap.domain.models;
 import java.util.Date;
 
 public class IndustryModel {
-    private String id;
+    private Integer id;
 
     private String name;
 
@@ -13,12 +13,12 @@ public class IndustryModel {
 
     private Date updateTime;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
-        this.id = id == null ? null : id.trim();
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getName() {

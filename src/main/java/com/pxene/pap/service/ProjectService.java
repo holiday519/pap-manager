@@ -324,7 +324,7 @@ public class ProjectService extends LaunchService {
     		AdvertiserModel adv = advertiserDao.selectByPrimaryKey(advertiserId);
     		if (adv!=null) {
     			bean.setAdvertiserName(adv.getName());
-    			String industryId = adv.getIndustryId();
+    			Integer industryId = adv.getIndustryId();
     			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
     			bean.setIndustryId(industryId);
 				if (industryModel != null) {

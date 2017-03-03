@@ -188,7 +188,7 @@ public class AuditCreativeAdviewService {
 		//创意审核key
 		Integer businessType = 0;//businessType（行业类型查询）
 		long creativeIdvalue = getCrativeAuditValueByMapId(creativeId);
-		String industryId = advertiserModel.getIndustryId();//行业id
+		Integer industryId = advertiserModel.getIndustryId();//行业id
 		String industryCode  = getIndustry(industryId);// 行业idcode
 		if (StringUtils.isEmpty(industryCode)) {
 			businessType = Integer.parseInt(industryCode);
@@ -532,7 +532,7 @@ public class AuditCreativeAdviewService {
 	 * @param industryId
 	 * @return
 	 */
-	private String getIndustry(String industryId) throws Exception {
+	private String getIndustry(Integer industryId) throws Exception {
 		IndustryAdxModelExample example = new IndustryAdxModelExample();
 		example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_ADVIEW_VALUE).andIndustryIdEqualTo(industryId);
 		List<IndustryAdxModel> list = industryAdxDao.selectByExample(example);

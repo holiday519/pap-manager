@@ -27,7 +27,7 @@ public class AdvertiserModel {
 
     private String zip;
 
-    private String industryId;
+    private Integer industryId;
 
     private String licenseNo;
 
@@ -145,12 +145,12 @@ public class AdvertiserModel {
         this.zip = zip == null ? null : zip.trim();
     }
 
-    public String getIndustryId() {
+    public Integer getIndustryId() {
         return industryId;
     }
 
-    public void setIndustryId(String industryId) {
-        this.industryId = industryId == null ? null : industryId.trim();
+    public void setIndustryId(Integer industryId) {
+        this.industryId = industryId;
     }
 
     public String getLicenseNo() {

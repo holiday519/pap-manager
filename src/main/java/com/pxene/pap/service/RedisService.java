@@ -262,9 +262,9 @@ public class RedisService {
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
 			
 			//添加权重key
-			String type = "image_";
-			String materialName = model.getSourceUrl().substring(0, model.getSourceUrl().indexOf("|"));
-			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getW(),0), GlobalUtil.parseInt(model.getH(),0), materialName);
+//			String type = "image_";
+//			String materialName = model.getSourceUrl().substring(0, model.getSourceUrl().indexOf("|"));
+//			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getW(),0), GlobalUtil.parseInt(model.getH(),0), materialName);
 		}
 	}
 	
@@ -506,7 +506,7 @@ public class RedisService {
 		JsonArray catArr = new JsonArray();
 		JsonArray adxArr = new JsonArray();
 		JsonArray auctiontypeArr = new JsonArray();
-		int industryId = Integer.parseInt(advertiserModel.getIndustryId());
+		int industryId = advertiserModel.getIndustryId();
 		catArr.add(industryId);
 		campaignInfo.add("cat", catArr);
 		campaignInfo.addProperty("advcat", industryId);

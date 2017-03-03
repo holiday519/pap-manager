@@ -5,7 +5,7 @@ import java.util.Date;
 public class IndustryKpiModel {
     private String id;
 
-    private String industryId;
+    private Integer industryId;
 
     private String kpiId;
 
@@ -21,12 +21,12 @@ public class IndustryKpiModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getIndustryId() {
+    public Integer getIndustryId() {
         return industryId;
     }
 
-    public void setIndustryId(String industryId) {
-        this.industryId = industryId == null ? null : industryId.trim();
+    public void setIndustryId(Integer industryId) {
+        this.industryId = industryId;
     }
 
     public String getKpiId() {

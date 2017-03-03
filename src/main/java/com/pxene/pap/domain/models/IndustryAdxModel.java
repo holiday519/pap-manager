@@ -5,7 +5,7 @@ import java.util.Date;
 public class IndustryAdxModel {
     private String id;
 
-    private String industryId;
+    private Integer industryId;
 
     private String adxId;
 
@@ -23,12 +23,12 @@ public class IndustryAdxModel {
         this.id = id == null ? null : id.trim();
     }
 
-    public String getIndustryId() {
+    public Integer getIndustryId() {
         return industryId;
     }
 
-    public void setIndustryId(String industryId) {
-        this.industryId = industryId == null ? null : industryId.trim();
+    public void setIndustryId(Integer industryId) {
+        this.industryId = industryId;
     }
 
     public String getAdxId() {

@@ -10,7 +10,7 @@ public interface IndustryDao {
 
     int deleteByExample(IndustryModelExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(Integer id);
 
     int insert(IndustryModel record);
 
@@ -18,7 +18,7 @@ public interface IndustryDao {
 
     List<IndustryModel> selectByExample(IndustryModelExample example);
 
-    IndustryModel selectByPrimaryKey(String id);
+    IndustryModel selectByPrimaryKey(Integer id);
 
     int updateByExampleSelective(@Param("record") IndustryModel record, @Param("example") IndustryModelExample example);
 

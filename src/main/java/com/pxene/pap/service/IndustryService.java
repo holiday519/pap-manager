@@ -25,7 +25,7 @@ public class IndustryService {
 		List<Map<String, String>> results = new ArrayList<Map<String, String>>();
 		for (IndustryModel model : models) {
 			Map<String, String> result = new HashMap<String, String>();
-			result.put("id", model.getId());
+			result.put("id", String.valueOf(model.getId()));
 			result.put("name", model.getName());
 			results.add(result);
 		}
