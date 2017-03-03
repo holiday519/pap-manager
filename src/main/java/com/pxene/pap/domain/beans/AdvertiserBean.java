@@ -36,8 +36,7 @@ public class AdvertiserBean extends BasicDataBean {
 	@Length(max = 20, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_QQ)
 	private String qq;
 	@NotNull(message = PhrasesConstant.ADVERTISER_NOTNULL_INDUSTY)
-	@Length(max = 36, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_INDUSTRYID)
-	private String industryId;
+	private Integer industryId;
 
 	private String industryName;
 
@@ -153,11 +152,11 @@ public class AdvertiserBean extends BasicDataBean {
 		this.phone = phone;
 	}
 
-	public String getIndustryId() {
+	public Integer getIndustryId() {
 		return industryId;
 	}
 
-	public void setIndustryId(String industryId) {
+	public void setIndustryId(Integer industryId) {
 		this.industryId = industryId;
 	}
 

@@ -52,7 +52,6 @@ public class PhrasesConstant
 	public static final String ADVERTISER_LENGTH_ERROR_QQ = "QQ号码长度不能超过20";
 	public static final String ADVERTISER_LENGTH_ERROR_LICENSENO = "营业执照编号长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_ORGANIZATIONNO = "组织机构代码长度不能超过100";
-	public static final String ADVERTISER_LENGTH_ERROR_INDUSTRYID = "行业ID长度不能超过36";
 	
 	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
 	public static final String PROJECT_NOTNULL_KPI = "必须选择KPI指标";

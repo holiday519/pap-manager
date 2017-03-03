@@ -39,7 +39,7 @@ public class CampaignBean extends BasicDataBean {
 	/**
 	 * 总预算
 	 */
-	@Length(max = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
+//	@Length(max = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
 	private Integer totalBudget;
 	
 	/**
