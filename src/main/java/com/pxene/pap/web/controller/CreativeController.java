@@ -90,7 +90,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/price/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateCreative(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
+	public void updateCreativePrice(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
 		creativeService.updateCreativePrice(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -154,8 +154,8 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/upload", method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String addMaterial(@RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "tmplId") String tmplId, HttpServletResponse response) throws Exception {
-		Map<String, String> map = creativeService.addMaterial(tmplId, file);
+	public String uploadMaterial(@RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "tmplId") String tmplId, HttpServletResponse response) throws Exception {
+		Map<String, String> map = creativeService.uploadMaterial(tmplId, file);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), map, response);
 	}
 	

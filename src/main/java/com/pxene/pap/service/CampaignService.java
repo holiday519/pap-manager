@@ -10,7 +10,6 @@ import java.util.UUID;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -60,7 +59,6 @@ import com.pxene.pap.domain.models.TimeTargetModel;
 import com.pxene.pap.domain.models.TimeTargetModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
-import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
@@ -166,90 +164,63 @@ public class CampaignService extends LaunchService {
 	 */
 	@Transactional
 	public void createCampaign(CampaignBean bean) throws Exception {
-		//验证名称重复
-    	if (!StringUtils.isEmpty(bean.getName())) {
-    		CampaignModelExample e = new CampaignModelExample();
-    		e.createCriteria().andNameEqualTo(bean.getName());
-    		List<CampaignModel> list = campaignDao.selectByExample(e);
-    		if (list != null && !list.isEmpty()) {
-    			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
-    		}
-    	}
-    	
-	    checkDateRange(bean);
-		
-		String projectId = bean.getProjectId();
-		if (StringUtils.isEmpty(projectId)) {
-			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID);
-		} else {
-			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-			Integer projectBudget = projectModel.getTotalBudget();
-			Integer campaignBueget = bean.getTotalBudget();
-			CampaignModelExample ex = new CampaignModelExample();
-			ex.createCriteria().andProjectIdEqualTo(projectId);
-			List<CampaignModel> list = campaignDao.selectByExample(ex);
-			if (list != null && !list.isEmpty()) {
-				for (CampaignModel cam : list) {
-					campaignBueget = campaignBueget + cam.getTotalBudget();
-				}
-			}
-			if (campaignBueget.compareTo(projectBudget) > 0) {
-				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT);
-			}
+		// 验证名称重复
+		CampaignModelExample campaignModelExample = new CampaignModelExample();
+		campaignModelExample.createCriteria().andNameEqualTo(bean.getName());
+		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
+		if (campaignModels != null && !campaignModels.isEmpty()) {
+			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
-		
-		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
-		
-		if (bean != null && campaignModel != null && !StringUtils.isEmpty(bean.getName()))
-        {
-		    CampaignModelExample modelExample = new CampaignModelExample();
-            modelExample.createCriteria().andNameEqualTo(bean.getName());
-            List<CampaignModel> selectResult = campaignDao.selectByExample(modelExample);
-            if (selectResult != null && !selectResult.isEmpty())
-            {
-                throw new IllegalArgumentException("活动名称已存在");
-            }
-        }
-		
-		String id = UUID.randomUUID().toString();
-		bean.setId(id);//此处放入ID，添加活动相关联信息时用到
-		campaignModel.setId(id);
-		
-		try {
-			Frequency frequency = bean.getFrequency();
-			//添加频次信息
-			if (frequency != null) {
-				String frequencyId = UUID.randomUUID().toString();
-				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
-				frequencyModel.setId(frequencyId);
-				frequencyDao.insertSelective(frequencyModel);
-				campaignModel.setFrequencyId(frequencyId);
-			}
-			//添加点击、展现监测地址
-			addCampaignMonitor(bean);
-			
-			campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-			// 添加投放量控制策略
-			addCampaignQuantity(bean);
-			// 添加活动基本信息
-			campaignDao.insertSelective(campaignModel);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
-		
-//		BeanUtils.copyProperties(campaignModel, bean);
-	}
-
-    private void checkDateRange(CampaignBean bean) throws Exception
-    {
-        Date startDate = bean.getStartDate();
+    	// 监测日期范围是否正确
+		Date startDate = bean.getStartDate();
 	    Date endDate = bean.getEndDate();
-	    if (startDate != null && endDate != null && startDate.after(endDate))
-	    {
+	    if (startDate != null && endDate != null && startDate.after(endDate)) {
             throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
 	    }
-    }
-	
+		// 判断预算是否超出
+		String projectId = bean.getProjectId();
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+		Integer projectBudget = projectModel.getTotalBudget();
+		Integer campaignBueget = bean.getTotalBudget();
+		campaignModelExample = new CampaignModelExample();
+		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId);
+		campaignModels = campaignDao.selectByExample(campaignModelExample);
+		if (campaignModels != null && !campaignModels.isEmpty()) {
+			for (CampaignModel model : campaignModels) {
+				campaignBueget = campaignBueget + model.getTotalBudget();
+			}
+		}
+		if (campaignBueget.compareTo(projectBudget) > 0) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT);
+		}
+		
+		String id = UUID.randomUUID().toString();
+		bean.setId(id);
+		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
+		
+//		try {
+//			
+//		} catch (DuplicateKeyException exception) {
+//        	throw new DuplicateEntityException();
+//      }
+		
+		// 添加频次信息
+		Frequency frequency = bean.getFrequency();
+		if (frequency != null) {
+			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+			String frequencyId = UUID.randomUUID().toString();
+			frequencyModel.setId(frequencyId);
+			frequencyDao.insertSelective(frequencyModel);
+			campaignModel.setFrequencyId(frequencyId);
+		}
+		//添加点击、展现监测地址
+		addCampaignMonitor(bean);
+		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
+		// 添加投放量控制策略
+		addCampaignQuantity(bean);
+		campaignDao.insertSelective(campaignModel);
+	}
+
 	/**
 	 * 编辑活动
 	 * @param bean
@@ -258,55 +229,68 @@ public class CampaignService extends LaunchService {
 	 */
 	@Transactional
 	public void updateCampaign(String id, CampaignBean bean) throws Exception {
+		// 编辑的活动在数据库中不存在
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
-		if (campaignInDB == null || StringUtils.isEmpty(campaignInDB.getId())) {
+		if (campaignInDB == null) {
 			throw new ResourceNotFoundException();
 		}
-		
 		bean.setId(id);//bean中放入ID，用于更新关联关系表中数据
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		
-		try {
-//			//删除频次信息***
-//			deletefrequency(id);
-			//频次数据---如果以前有修改即可；若果以前没有，那就新建
-			Frequency frequency = bean.getFrequency();
-			String frequencyId = campaignInDB.getFrequencyId();
-			if(StringUtils.isEmpty(frequencyId)){
-				//以前就是null；如果现在还是null那就不处理，现在不是null添加
-				frequencyId = UUID.randomUUID().toString();
-				if (frequency != null) {
-					// 添加频次信息
-					FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
-					frequencyModel.setId(frequencyId);
-					frequencyDao.insertSelective(frequencyModel);
-				}
-			}else{
-				//以前就不是null；如果现在是null就删除frequencyId；如果现在不是null就修改frequencyId对应的频次信息
-				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
-				if (frequency != null) {
-					//修改频次信息
-					frequencyModel.setId(frequencyId);
-					frequencyDao.updateByPrimaryKeySelective(frequencyModel);
-				} else {
-					//删除频次后将活动表中FrequencyId变成空
-					campaignModel.setFrequencyId("");
-				}
-				
+		// 判断预算是否超出
+		String projectId = bean.getProjectId();
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+		Integer projectBudget = projectModel.getTotalBudget();
+		Integer campaignBueget = bean.getTotalBudget();
+		CampaignModelExample campaignModelExample = new CampaignModelExample();
+		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId);
+		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
+		if (campaignModels != null && !campaignModels.isEmpty()) {
+			for (CampaignModel model : campaignModels) {
+				campaignBueget = campaignBueget + model.getTotalBudget();
 			}
-			//删除点击、展现监测地址
-			deleteCampaignMonitor(id);
-			//重新添加点击、展现监测地址
-			addCampaignMonitor(bean);
-			//删除投放量控制策略
-			deleteCampaignQuantity(id);
-			//添加投放量控制策略
-			addCampaignQuantity(bean);
-			//修改基本信息
-			campaignDao.updateByPrimaryKeySelective(campaignModel);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
 		}
+		if (campaignBueget.compareTo(projectBudget) > 0) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT);
+		}
+		
+		// 编辑频次
+		Frequency frequency = bean.getFrequency();
+		String frequencyId = campaignInDB.getFrequencyId();
+		if (frequency == null) {
+			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，不动
+				
+			} else { // 活动以前存在频次，删除
+				campaignModel.setFrequencyId("");
+				frequencyDao.deleteByPrimaryKey(frequencyId);
+			}
+		} else {
+			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，添加
+				String fId = UUID.randomUUID().toString();
+				frequency.setId(fId);
+				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+				frequencyDao.insertSelective(frequencyModel);
+				campaignModel.setFrequencyId(fId);
+			} else { // 活动以前存在频次，删除再添加
+				frequencyDao.deleteByPrimaryKey(frequencyId);
+				String fId = UUID.randomUUID().toString();
+				frequency.setId(fId);
+				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+				frequencyDao.insertSelective(frequencyModel);
+				campaignModel.setFrequencyId(fId);
+			}
+		}
+		//删除点击、展现监测地址
+		deleteCampaignMonitor(id);
+		//重新添加点击、展现监测地址
+		addCampaignMonitor(bean);
+		//删除投放量控制策略
+		deleteCampaignQuantity(id);
+		//添加投放量控制策略
+		addCampaignQuantity(bean);
+		//修改基本信息
+		campaignDao.updateByPrimaryKeySelective(campaignModel);
+		
 	}
 	
 	/**

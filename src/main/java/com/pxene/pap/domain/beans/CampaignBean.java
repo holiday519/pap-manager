@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -21,6 +22,7 @@ public class CampaignBean extends BasicDataBean {
 	/**
 	 * 项目id
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID)
 	private String projectId;
 	/**
 	 * 项目名称
@@ -30,6 +32,7 @@ public class CampaignBean extends BasicDataBean {
 	/**
 	 * 名称
 	 */
+	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	
@@ -358,6 +361,7 @@ public class CampaignBean extends BasicDataBean {
 
 	public static class Frequency {
 
+		private String id;
 		/**
 		 * 控制对象
 		 */
@@ -370,6 +374,14 @@ public class CampaignBean extends BasicDataBean {
 		 * 频次
 		 */
 		private Integer number;
+		
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
 
 		public String getControlObj() {
 			return controlObj;
@@ -397,9 +409,10 @@ public class CampaignBean extends BasicDataBean {
 
 		@Override
 		public String toString() {
-			return "Frequency [controlObj=" + controlObj + ", timeType="
-					+ timeType + ", number=" + number + "]";
+			return "Frequency [id=" + id + ", controlObj=" + controlObj
+					+ ", timeType=" + timeType + ", number=" + number + "]";
 		}
+		
 	}
 
 	/**

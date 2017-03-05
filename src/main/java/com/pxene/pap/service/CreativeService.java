@@ -419,54 +419,48 @@ public class CreativeService extends BaseService {
 	 * @param file
 	 * @throws Exception
 	 */
-	public Map<String, String> addMaterial(String tmplId, MultipartFile file) throws Exception {
+	public Map<String, String> uploadMaterial(String tmplId, MultipartFile file) throws Exception {
 		MediaBean mediaBean = FileUtils.checkFile(file);
 		Map<String, String> result = null;
 		
-		if (mediaBean instanceof ImageBean){
+		if (mediaBean instanceof ImageBean) {
 			ImageBean imageBean = (ImageBean) FileUtils.checkFile(file);
 			ImageTmplModel tmplModel = imageTmplDao.selectByPrimaryKey(tmplId);
-			if (tmplModel==null) {
+			if (tmplModel == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
 			}
-//			String sizeId = tmplModel.getSizeId();
-//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			Integer tmplWidth = tmplModel.getWidth();//模版宽限制
-			Integer tmplHeight = tmplModel.getHeight();//模版高限制
-			Float maxVolume = tmplModel.getMaxVolume();//模版最大体积限制
-			int height = imageBean.getHeight();//文件高
-			int width = imageBean.getWidth();//文件宽
-			Float volume = imageBean.getVolume();//文件体积限制
+			Integer tmplWidth = tmplModel.getWidth(); //模版宽限制
+			Integer tmplHeight = tmplModel.getHeight(); //模版高限制
+			Float maxVolume = tmplModel.getMaxVolume(); //模版最大体积限制
+			int height = imageBean.getHeight(); //文件高
+			int width = imageBean.getWidth(); //文件宽
+			Float volume = imageBean.getVolume(); //文件体积限制
 			
 			if (tmplWidth != width || tmplHeight != height || maxVolume < volume) {
 				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_SIZE);
 			}
 			
-			result = addImage(imageBean, file);
-			
+			result = uploadImage(imageBean, file);
 		} else if (mediaBean instanceof VideoBean) {
 			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
 			VideoTmplModel tmplModel = videoTmplDao.selectByPrimaryKey(tmplId);
-			if (tmplModel==null) {
+			if (tmplModel == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
 			}
-//			String sizeId = tmplModel.getSizeId();
-//			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-			Integer tmplWidth = tmplModel.getWidth();//模版宽限制
-			Integer tmplHeight = tmplModel.getHeight();//模版高限制
-			Float maxVolume = tmplModel.getMaxVolume();//模版最大体积限制
-			Integer maxTimelength = tmplModel.getMaxTimelength();//模版最大时长
-			int height = videoBean.getHeight();//文件高
-			int width = videoBean.getWidth();//文件宽
-			Float volume = videoBean.getVolume();//文件体积限制
-			int timelength = videoBean.getTimelength();//文件时长
+			Integer tmplWidth = tmplModel.getWidth(); //模版宽限制
+			Integer tmplHeight = tmplModel.getHeight(); //模版高限制
+			Float maxVolume = tmplModel.getMaxVolume(); //模版最大体积限制
+			Integer maxTimelength = tmplModel.getMaxTimelength(); //模版最大时长
+			int height = videoBean.getHeight(); //文件高
+			int width = videoBean.getWidth(); //文件宽
+			Float volume = videoBean.getVolume(); //文件体积限制
+			int timelength = videoBean.getTimelength(); //文件时长
 			
 			if (tmplWidth != width || tmplHeight != height || maxVolume < volume || maxTimelength < timelength) {
 				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_SIZE);
 			}
 			
-			result = addVideo(videoBean, file);
-			
+			result = uploadVideo(videoBean, file);
 		}
 		
 		return result;
@@ -481,7 +475,7 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Map<String, String> addImage(ImageBean imageBean, MultipartFile file) throws Exception {
+	public Map<String, String> uploadImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
 		String dir = UPLOAD + "creative/image/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
@@ -534,7 +528,7 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Map<String, String> addVideo(VideoBean videoBean, MultipartFile file) throws Exception {
+	public Map<String, String> uploadVideo(VideoBean videoBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
 		String dir = UPLOAD + "creative/video/";
 		String path = FileUtils.uploadFile(dir, id, file);//上传
