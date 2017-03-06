@@ -190,7 +190,7 @@ public class DataService extends BaseService {
 						if (!StringUtils.isEmpty(newValue)) {
 							if (hkey.indexOf("@m") > 0) {// 展现
 								//如果map中已经有值，加起来，不然直接存入map
-								Long value = mMap.get(hkey);
+								Long value = mMap.get(substring);
 								if (value != null) {
 									mMap.put(substring, value + Long.parseLong(newValue));
 								} else {
@@ -198,7 +198,7 @@ public class DataService extends BaseService {
 								}
 							} else if (hkey.indexOf("@c") > 0) {// 点击
 								//如果map中已经有值，加起来，不然直接存入map
-								Long value = cMap.get(hkey);
+								Long value = cMap.get(substring);
 								if (value != null) {
 									cMap.put(substring, value + Long.parseLong(newValue));
 								} else {
@@ -206,7 +206,7 @@ public class DataService extends BaseService {
 								}
 							} else if (hkey.indexOf("@j") > 0) {// 二跳
 								//如果map中已经有值，加起来，不然直接存入map
-								Long value = mMap.get(hkey);
+								Long value = mMap.get(substring);
 								if (value != null) {
 									jMap.put(substring, value + Long.parseLong(newValue));
 								} else {
@@ -214,7 +214,7 @@ public class DataService extends BaseService {
 								}
 							} else if (hkey.indexOf("@e") > 0) {// 花费
 								//如果map中已经有值，加起来，不然直接存入map
-								Long value = mMap.get(hkey);
+								Long value = mMap.get(substring);
 								if (value != null) {
 									eMap.put(substring, value + Float.parseFloat(newValue));
 								} else {

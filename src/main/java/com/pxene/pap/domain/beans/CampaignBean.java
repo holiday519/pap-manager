@@ -491,6 +491,13 @@ public class CampaignBean extends BasicDataBean {
 			this.dailyImpression = dailyImpression;
 		}
 
+		@Override
+		public String toString() {
+			return "Quantity [startDate=" + startDate + ", endDate=" + endDate
+					+ ", dailyBudget=" + dailyBudget + ", dailyImpression="
+					+ dailyImpression + "]";
+		}
+
 	}
 
 	private String landpageId;

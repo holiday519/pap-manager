@@ -358,12 +358,11 @@ public class ProjectService extends LaunchService {
 				CampaignModelExample example = new CampaignModelExample();
 				example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
 				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
-				if (campaigns == null || campaigns.isEmpty()) {
-					continue;
-				}
-				for (CampaignModel campaign : campaigns) {
-					// 投放
-					launch(campaign.getId());
+				if (campaigns != null && !campaigns.isEmpty()) {
+					for (CampaignModel campaign : campaigns) {
+						// 投放
+						launch(campaign.getId());
+					}
 				}
 				//项目投放之后修改状态
 				projectModel.setStatus(StatusConstant.PROJECT_PROCEED);
@@ -390,12 +389,11 @@ public class ProjectService extends LaunchService {
 				CampaignModelExample example = new CampaignModelExample();
 				example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
 				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
-				if (campaigns == null || campaigns.isEmpty()) {
-					continue;
-				}
-				for (CampaignModel campaign : campaigns) {
-					//移除redis中key
-					pause(campaign.getId());
+				if (campaigns != null && !campaigns.isEmpty()) {
+					for (CampaignModel campaign : campaigns) {
+						//移除redis中key
+						pause(campaign.getId());
+					}
 				}
 				//项目暂停之后修改状态
 				projectModel.setStatus(StatusConstant.PROJECT_PAUSE);

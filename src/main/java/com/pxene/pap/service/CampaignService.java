@@ -833,7 +833,7 @@ public class CampaignService extends LaunchService {
 				bean.setTarget(target);
 			}
 		}
-		// 查询频次信息
+		// 查询频次信息 
 		
 		if (!StringUtils.isEmpty(frequencyId)) {
 			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
@@ -873,6 +873,7 @@ public class CampaignService extends LaunchService {
 		}
 		//投放量控制策略
 		QuantityModelExample quantityModelExample = new QuantityModelExample();
+		quantityModelExample.setOrderByClause("start_date");
 		quantityModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<QuantityModel> quantityModels = quantityDao.selectByExample(quantityModelExample);
 		if (quantityModels != null && !quantityModels.isEmpty()) {
@@ -924,7 +925,7 @@ public class CampaignService extends LaunchService {
 		for (String campaignId : campaignIds) {
 			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 			//活动存在，并且可以投放
-			if (campaignModel != null) {
+			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
 				campaignModel.setStatus(StatusConstant.CAMPAIGN_PROCEED);
 				//投放
 				String projectId = campaignModel.getProjectId();

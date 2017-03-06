@@ -46,6 +46,10 @@ public class RedisKeyConstant {
 	 */
 	public static final String PROJECT_BUDGET = "dsp_project_budget_"; 
 	/**
+	 * 活动展现上限
+	 */
+	public static final String CAMPAIGN_COUNTER = "dsp_campaign_counter_"; 
+	/**
 	 * 定向标志位
 	 */
 	public static final Map<String, Integer[]> TARGET_CODES = new HashMap<String, Integer[]>();
