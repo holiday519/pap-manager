@@ -28,7 +28,7 @@ public class RegionController {
 	
 	@RequestMapping(value = "/regions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-	public String listApps(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listRegions(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);

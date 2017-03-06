@@ -251,7 +251,7 @@ public class DataService extends BaseService {
 				
 				String name = getNameByType(type, code);
 				map.put("name", name);
-				map.put("code", code);
+				map.put("id", code);
 				map.put("impressionAmount", bean.getImpressionAmount());
 				map.put("clickAmount", bean.getClickAmount());
 				map.put("jumpAmount", bean.getJumpAmount());
