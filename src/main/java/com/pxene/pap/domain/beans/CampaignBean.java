@@ -28,25 +28,25 @@ public class CampaignBean extends BasicDataBean {
 	 * 项目名称
 	 */
 	private String projectName;
-	
+
 	/**
 	 * 名称
 	 */
 	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
-	
+
 	/**
 	 * 活动类型
 	 */
 	private String type;
-	
+
 	/**
 	 * 总预算
 	 */
-	@Max(value=99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
+	@Max(value = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
 	private Integer totalBudget;
-	
+
 	/**
 	 * 日预算
 	 */
@@ -59,7 +59,7 @@ public class CampaignBean extends BasicDataBean {
 	 * 日点击
 	 */
 	private Integer dailyClick;
-	
+
 	/**
 	 * 备注
 	 */
@@ -77,11 +77,6 @@ public class CampaignBean extends BasicDataBean {
 	 * 结束时间
 	 */
 	private Date endDate;
-
-	/**
-	 * 频次Id
-	 */
-	private String frequencyId;
 
 	private String uniform;
 
@@ -374,7 +369,7 @@ public class CampaignBean extends BasicDataBean {
 		 * 频次
 		 */
 		private Integer number;
-		
+
 		public String getId() {
 			return id;
 		}
@@ -412,7 +407,7 @@ public class CampaignBean extends BasicDataBean {
 			return "Frequency [id=" + id + ", controlObj=" + controlObj
 					+ ", timeType=" + timeType + ", number=" + number + "]";
 		}
-		
+
 	}
 
 	/**
@@ -646,14 +641,6 @@ public class CampaignBean extends BasicDataBean {
 		this.monitors = monitors;
 	}
 
-	public String getFrequencyId() {
-		return frequencyId;
-	}
-
-	public void setFrequencyId(String frequencyId) {
-		this.frequencyId = frequencyId;
-	}
-
 	public Integer getDailyBudget() {
 		return dailyBudget;
 	}
@@ -689,18 +676,18 @@ public class CampaignBean extends BasicDataBean {
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
-				+ ", name=" + name + ", type=" + type + ", totalBudget="
-				+ totalBudget + ", dailyBudget=" + dailyBudget
-				+ ", dailyImpression=" + dailyImpression + ", dailyClick="
-				+ dailyClick + ", remark=" + remark + ", status=" + status
-				+ ", startDate=" + startDate + ", endDate=" + endDate
-				+ ", frequencyId=" + frequencyId + ", uniform=" + uniform
+				+ ", projectName=" + projectName + ", name=" + name + ", type="
+				+ type + ", totalBudget=" + totalBudget + ", dailyBudget="
+				+ dailyBudget + ", dailyImpression=" + dailyImpression
+				+ ", dailyClick=" + dailyClick + ", remark=" + remark
+				+ ", status=" + status + ", startDate=" + startDate
+				+ ", endDate=" + endDate + ", uniform=" + uniform
 				+ ", creativeNum=" + creativeNum + ", target=" + target
 				+ ", frequency=" + frequency + ", monitors="
 				+ Arrays.toString(monitors) + ", quantities="
 				+ Arrays.toString(quantities) + ", landpageId=" + landpageId
 				+ ", landpageName=" + landpageName + ", landpageUrl="
-				+ landpageUrl + ", projectName=" + projectName + "]";
+				+ landpageUrl + "]";
 	}
 
 }

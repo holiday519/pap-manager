@@ -652,7 +652,7 @@ public class CampaignService extends LaunchService {
         	throw new ResourceNotFoundException();
         }
 		CampaignBean map = modelMapper.map(model, CampaignBean.class);
-		addParamToCampaign(map, model.getId());
+		addParamToCampaign(map, model.getId(), model.getFrequencyId());
 		return map;
 	}
 	
@@ -687,7 +687,7 @@ public class CampaignService extends LaunchService {
 		
 		for (CampaignModel model : models) {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);
-			addParamToCampaign(map, model.getId());
+			addParamToCampaign(map, model.getId(), model.getFrequencyId());
 			
 			if (beginTime != null && endTime != null) {
 				//查询每个活动的投放信息
@@ -737,7 +737,7 @@ public class CampaignService extends LaunchService {
 	 * @param campaignId
 	 * @return
 	 */
-	private void addParamToCampaign(CampaignBean bean, String campaignId) throws Exception{
+	private void addParamToCampaign(CampaignBean bean, String campaignId, String frequencyId) throws Exception{
 		CampaignTargetModelExample campaignTargetModelExample = new CampaignTargetModelExample();
 		campaignTargetModelExample.createCriteria().andIdEqualTo(campaignId);
 		// 查询定向信息
@@ -834,10 +834,12 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		// 查询频次信息
-		if (!StringUtils.isEmpty(bean.getFrequencyId())) {
-			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(bean.getFrequencyId());
+		
+		if (!StringUtils.isEmpty(frequencyId)) {
+			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
 			if (frequencyModel != null) {
 				Frequency frequency = new Frequency();
+				frequency.setId(frequencyId);
 				frequency.setControlObj(frequencyModel.getControlObj());
 				frequency.setNumber(frequencyModel.getNumber());
 				frequency.setTimeType(frequencyModel.getTimeType());
