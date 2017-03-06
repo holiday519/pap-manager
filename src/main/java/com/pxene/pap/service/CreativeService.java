@@ -645,10 +645,19 @@ public class CreativeService extends BaseService {
 		for (AdxModel adx : adxs) {
 			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
 				//百度
-				auditCreativeBaiduService.synchronize(id);
+//				auditCreativeBaiduService.synchronize(id);
+				
 			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
-				auditCreativeAdviewService.synchronize(id);
+//				auditCreativeAdviewService.synchronize(id);
 			}
+			
+			CreativeAuditModel model = new CreativeAuditModel();
+			model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+			model.setId(UUID.randomUUID().toString());
+			model.setAuditValue("1");
+			model.setCreativeId(id);
+			model.setAdxId(adx.getId());
+			creativeAuditDao.insertSelective(model);
 		}
 	}
 	
