@@ -12,6 +12,8 @@ public class PhrasesConstant
     public static final String CAMPAIGN_HAS_CREATIVE = "活动下还存在创建成功的创意，不能删除。";
     public static final String TEMPLET_NOT_FUOUND = "未找到模版";
     public static final String TEMPLET_NOT_MAP_SIZE = "素材尺寸与模版支持尺寸不符";
+    public static final String IMAGE_NOT_MAP_SIZE = "图片尺寸不符";
+    public static final String IMAGE_NOT_MAP_VOLUME = "图片大小超过最大限制";
     public static final String LANDPAGE_HAVE_CAMPAIGN = "落地页已绑定活动，不能删除。";
 	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放。";
 	public static final String CAMPAIGN_NO_PASS_CREATIE = "活动下有创意未通过审核，不能投放。";

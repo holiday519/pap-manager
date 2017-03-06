@@ -590,6 +590,7 @@ public class RedisService {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("brand")[1];
 				deviceJson.add("make", brand);
 			}
+			deviceJson.addProperty("make", flag);
 			targetJson.add("device", deviceJson);
 			// app定向
 			JsonObject appJson = createAppTargetJson(target.getAppId());

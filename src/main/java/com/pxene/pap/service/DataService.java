@@ -410,7 +410,7 @@ public class DataService extends BaseService {
 	 * 注：此方法传入bean中不能有NULL值，可以是0；
 	 */
 	public void formatBeanRate(BasicDataBean bean) throws Exception {
-		DecimalFormat format = new DecimalFormat("0.00");
+		DecimalFormat format = new DecimalFormat("0.0000");
 		if (bean.getClickAmount() > 0) {
 	        double percent = (double)bean.getTotalCost() / bean.getClickAmount();
 			Float result = Float.parseFloat(format.format(percent));

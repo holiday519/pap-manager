@@ -161,6 +161,19 @@ public class AdvertiserController
     	
     	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
     }
+    /**
+     * 上传广告主资质图片(logo)
+     * @param request
+     * @param response
+     * @return
+     */
+    @RequestMapping(value = "/advertiser/upload/logo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String uploadQualificationForLogo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
+    	String path = advertiserService.uploadQualificationForLogo(file);
+    	
+    	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
+    }
     
     /**
      * 广告主提交第三方审核

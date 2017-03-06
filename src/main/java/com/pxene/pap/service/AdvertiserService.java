@@ -24,6 +24,8 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.AdvertiserBean.Kpi;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.ImageBean;
+import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
@@ -440,6 +442,29 @@ public class AdvertiserService extends BaseService
     
     
     public String uploadQualification(MultipartFile file) throws Exception {
+    	// 图片绝对路径
+    	String path = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+    	// 返回相对路径
+    	return path.replace(UPLOAD_DIR, "");
+    }
+    
+    /**
+     * 品牌logo专用
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    public String uploadQualificationForLogo(MultipartFile file) throws Exception {
+    	ImageBean bean = (ImageBean) FileUtils.checkFile(file);
+    	Integer width = bean.getWidth();
+    	Integer height = bean.getHeight();
+    	if (width != 80 || height != 80 ) {
+    		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_SIZE);
+    	}
+    	Float volume = bean.getVolume();
+    	if (volume > 30 ) {
+    		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
+    	}
     	// 图片绝对路径
     	String path = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
     	// 返回相对路径
