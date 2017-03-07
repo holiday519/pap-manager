@@ -617,12 +617,20 @@ public class CreativeService extends BaseService {
 		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//审核创意
 		for (AdxModel adx : adxs) {
-			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-				//百度
-				auditCreativeBaiduService.audit(id);
-			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
-				auditCreativeAdviewService.audit(id);
-			}
+//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+//				//百度
+//				auditCreativeBaiduService.audit(id);
+//			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
+//				auditCreativeAdviewService.audit(id);
+//			}
+			CreativeAuditModel model = new CreativeAuditModel();
+			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+			model.setId(UUID.randomUUID().toString());
+			model.setAuditValue("1");
+			model.setCreativeId(id);
+			model.setAdxId(adx.getId());
+			creativeAuditDao.insertSelective(model);
+			
 		}
 	}
 
@@ -648,14 +656,23 @@ public class CreativeService extends BaseService {
 			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
 //				auditCreativeAdviewService.synchronize(id);
 			}
-			
-			CreativeAuditModel model = new CreativeAuditModel();
-			model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-			model.setId(UUID.randomUUID().toString());
-			model.setAuditValue("1");
-			model.setCreativeId(id);
-			model.setAdxId(adx.getId());
-			creativeAuditDao.insertSelective(model);
+			CreativeAuditModelExample ex = new CreativeAuditModelExample();
+			ex.createCriteria().andAdxIdEqualTo(adx.getId());
+			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
+			if (list ==null || list.isEmpty()) {
+				CreativeAuditModel model = new CreativeAuditModel();
+				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+				model.setId(UUID.randomUUID().toString());
+				model.setAuditValue("1");
+				model.setCreativeId(id);
+				model.setAdxId(adx.getId());
+				creativeAuditDao.insertSelective(model);
+			} else {
+				for (CreativeAuditModel ml : list) {
+					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					creativeAuditDao.updateByPrimaryKeySelective(ml);
+				}
+			}
 		}
 	}
 	
