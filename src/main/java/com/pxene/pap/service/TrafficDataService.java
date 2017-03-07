@@ -15,16 +15,20 @@ import com.pxene.pap.exception.IllegalArgumentException;
 @Service
 public class TrafficDataService
 {
+    private static final String SCOPE_PROJECT = "project";
+    private static final String SCOPE_CREATIVE = "creative";
+    private static final String SCOPE_CAMPAIGN = "campaign";
     @Autowired
     private DataService dataService;
 
     
     
-    public List<TrafficData> listData(String advertiserId, String projectId, String campaignId, String creativeId, Long startDate, Long endDate) throws Exception
+    public List<TrafficData> listData(String advertiserId, String projectId, String campaignId, String creativeId, String scope, Long startDate, Long endDate) throws Exception
     {
         List<TrafficData> result = new ArrayList<TrafficData>();
         TrafficData td = null;
         List<Map<String, Object>> serviceResult = null;
+        
         
         if (!StringUtils.isEmpty(creativeId))
         {
@@ -34,19 +38,109 @@ public class TrafficDataService
         {
             if (!StringUtils.isEmpty(campaignId))
             {
-                serviceResult = dataService.getCampaignData(startDate, endDate, campaignId);
+                // 不勾选Radio | 勾选Radio：“活动”
+                if (StringUtils.isEmpty(scope) || SCOPE_CAMPAIGN.equals(scope))
+                {
+                    serviceResult = dataService.getCampaignData(startDate, endDate, campaignId);
+                }
+                
+                // 勾选Radio：“创意”
+                if (SCOPE_CREATIVE.equals(scope))
+                {
+                    serviceResult = new ArrayList<Map<String, Object>>();
+                    
+                    List<String> creativeIdList = dataService.getCreativeIdListByCampaignId(campaignId);
+                    
+                    for (String id : creativeIdList)
+                    {
+                        List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
+                        serviceResult.addAll(creativeData);
+                    }
+                }
             }
             else
             {
                 if (!StringUtils.isEmpty(projectId))
                 {
-                    serviceResult = dataService.getProjectData(startDate, endDate, projectId);
+                    // 不勾选Radio | 勾选Radio：“项目”
+                    if (StringUtils.isEmpty(scope) || SCOPE_PROJECT.equals(scope))
+                    {
+                        serviceResult = dataService.getProjectData(startDate, endDate, projectId);
+                    }
+                    
+                    // 勾选Radio：“活动”
+                    if (SCOPE_CAMPAIGN.equals(scope))
+                    {
+                        serviceResult = new ArrayList<Map<String, Object>>();
+                        
+                        List<String> projectIdList = dataService.findCampaignIdListByProjectId(projectId);
+                        
+                        for (String id : projectIdList)
+                        {
+                            List<Map<String, Object>> campaignData = dataService.getCampaignData(startDate, endDate, id);
+                            serviceResult.addAll(campaignData);
+                        }
+                    }
+                    
+                    // 勾选Radio：“创意”
+                    if (SCOPE_CREATIVE.equals(scope))
+                    {
+                        serviceResult = new ArrayList<Map<String, Object>>();
+                        
+                        List<String> creativeIdList = dataService.getCreativeIdListByProjectId(projectId);
+                        
+                        for (String id : creativeIdList)
+                        {
+                            List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
+                            serviceResult.addAll(creativeData);
+                        }
+                    }
                 }
                 else
                 {
                     if (!StringUtils.isEmpty(advertiserId))
                     {
-                        serviceResult = dataService.getAdvertiserData(startDate, endDate, advertiserId);
+                        // 不勾选Radio
+                        if (StringUtils.isEmpty(scope))
+                        {
+                            serviceResult = dataService.getAdvertiserData(startDate, endDate, advertiserId);
+                        }
+                        
+                        // 勾选Radio：“项目”
+                        if (SCOPE_PROJECT.equals(scope))
+                        {
+                            List<String> projectIdList = dataService.getProjectIdListByAdvertiserId(advertiserId);
+                            
+                            for (String id : projectIdList)
+                            {
+                                List<Map<String, Object>> projectData = dataService.getProjectData(startDate, endDate, id);
+                                serviceResult.addAll(projectData);
+                            }
+                        }
+                        
+                        // 勾选Radio：“活动”
+                        if (SCOPE_CAMPAIGN.equals(scope))
+                        {
+                            List<String> campaignIdList = dataService.getCampaignIdListByAdvertiserId(advertiserId);
+                            
+                            for (String id : campaignIdList)
+                            {
+                                List<Map<String, Object>> campaignData = dataService.getCampaignData(startDate, endDate, id);
+                                serviceResult.addAll(campaignData);
+                            }
+                        }
+                        
+                        // 勾选Radio：“创意”
+                        if (SCOPE_CREATIVE.equals(scope))
+                        {
+                            List<String> creativeIdList = dataService.getCreativeIdListByAdvertiserId(advertiserId);
+                            
+                            for (String id : creativeIdList)
+                            {
+                                List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
+                                serviceResult.addAll(creativeData);
+                            }
+                        }
                     }
                     else
                     {

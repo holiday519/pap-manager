@@ -730,4 +730,56 @@ public class DataService extends BaseService {
 		return results;
 	}
 	
+	/**
+	 * 查询属于指定广告主的全部项目ID
+	 * @param advertiserId 广告主ID
+	 * @return
+	 */
+    public List<String> getProjectIdListByAdvertiserId(String advertiserId)
+    {
+        List<String> result = new ArrayList<String>();
+        
+        ProjectModelExample example = new ProjectModelExample();
+        example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+        
+        List<ProjectModel> projects = projectDao.selectByExample(example);
+        
+        if (projects != null && !projects.isEmpty())
+        {
+            for (ProjectModel project : projects)
+            {
+                result.add(project.getId());
+            }
+        }
+
+        return result;
+    }
+    
+    /**
+     * 查询属于指定广告主的全部活动ID
+     * @param advertiserId  广告主ID
+     * @return
+     */
+    public List<String> getCampaignIdListByAdvertiserId(String advertiserId)
+    {
+        List<String> result = new ArrayList<String>();
+        
+        List<String> projectIdList = getProjectIdListByAdvertiserId(advertiserId);
+        
+        for (String projectId : projectIdList)
+        {
+            CampaignModelExample example = new CampaignModelExample();
+            example.createCriteria().andProjectIdEqualTo(projectId);
+            
+            List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+            
+            for (CampaignModel campaign : campaigns)
+            {
+                result.add(campaign.getId());
+            }
+        }
+        
+        return result;
+    }
+	
 }
