@@ -632,10 +632,8 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void synchronize(String id) throws Exception {
-		CreativeModelExample mapExample = new CreativeModelExample();
-		mapExample.createCriteria().andCampaignIdEqualTo(id);
-		List<CreativeModel> mapModels = creativeDao.selectByExample(mapExample);
-		if (mapModels==null || mapModels.isEmpty()) {
+		CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
+		if (mapModel == null) {
 			throw new ResourceNotFoundException();
 		}
 		//查询adx列表

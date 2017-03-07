@@ -178,7 +178,7 @@ public class CreativeController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/creative/synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/creative/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void synchronizeCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
     	creativeService.synchronize(id);
