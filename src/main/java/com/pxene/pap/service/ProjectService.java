@@ -114,6 +114,23 @@ public class ProjectService extends LaunchService {
 			throw new ResourceNotFoundException();
 		}
 
+		CampaignModelExample example = new CampaignModelExample();
+		example.createCriteria().andProjectIdEqualTo(id);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		if (campaigns != null && !campaigns.isEmpty()) {
+			int budget = 0; 
+			for (CampaignModel campaign : campaigns) {
+				Integer totalBudget = campaign.getTotalBudget();
+				if (totalBudget != null) {
+					budget = budget + totalBudget;
+				}
+			}
+			if (bean.getTotalBudget() < budget) {
+				throw new IllegalArgumentException(PhrasesConstant.PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN);
+			}
+		}
+		
+		
 		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
 		model.setId(id);
 
