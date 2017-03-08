@@ -32,7 +32,7 @@ public class TrafficDataController
     public void exportExcel(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, @RequestParam(required = false) String scope, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
     {
         // 定义列名称和列宽度
-        String[] recoresColumns = new String[] { "时间_#_3000", "名称_#_7000", "展现数_#_7000", "点击数_#_7000", "CTR_#_7000", "转化_#_7000", "成本_#_7000", "展现成本_#_7000", "点击成本_#_7000", "转化成本_#_7000" };
+        String[] recoresColumns = new String[] { "日期_#_3000", "名称_#_7000", "展现数_#_7000", "点击数_#_7000", "CTR_#_7000", "二跳数_#_7000", "成本_#_7000", "展现成本_#_7000", "点击成本_#_7000", "二跳成本_#_7000" };
         
         // 定义需要显示在Excel行中的实体Bean中的属性名称
         String[] recoresFields = new String[] { "date", "name", "impressionAmount", "clickAmount", "clickRate", "conversionAmount", "totalCost", "impressionCost", "clickCost", "conversionCost" };
