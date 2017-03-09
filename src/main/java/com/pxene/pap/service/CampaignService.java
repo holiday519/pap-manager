@@ -243,7 +243,7 @@ public class CampaignService extends LaunchService {
 		Integer projectBudget = projectModel.getTotalBudget();
 		Integer campaignBueget = bean.getTotalBudget();
 		CampaignModelExample campaignModelExample = new CampaignModelExample();
-		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId);
+		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId).andIdNotEqualTo(bean.getId());
 		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
 		if (campaignModels != null && !campaignModels.isEmpty()) {
 			for (CampaignModel model : campaignModels) {

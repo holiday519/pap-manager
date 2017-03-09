@@ -784,6 +784,19 @@ public class RedisService {
 		}
 	}
 	
+	/**
+	 * 删除活动kpi
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void deleteCampaignCounterFromRedis(String campaignId) throws Exception {
+		if (!StringUtils.isEmpty(campaignId)) {
+			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+			if (!JedisUtils.exists(key)) {
+				JedisUtils.delete(key);
+			}
+		}
+	}
 	
 	/**
 	 * 活动下创意ID写入redis
@@ -995,6 +1008,7 @@ public class RedisService {
 		deleteMapidsFromRedis(campaignId);
 		deleteCampaignWBListFromredis(campaignId);
 		deleteCampaignBudgetFormRedis(campaignId);
+		deleteCampaignCounterFromRedis(campaignId);
 	}
 	/**
 	 * 删除redis中key：dsp_groupid_mapids_活动id
@@ -1238,5 +1252,4 @@ public class RedisService {
 			}
 		}
 	}
-
 }

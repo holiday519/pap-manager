@@ -127,6 +127,8 @@ public class LaunchService extends BaseService{
 		redisService.writeProjectBudgetToRedis(campaignId);
 		//写入活动预算
 		redisService.writeCampaignBudgetToRedis(campaignId);
+		//写入活动展现
+		redisService.writeCampaignCounterToRedis(campaignId);
 	}
 	
 	/**

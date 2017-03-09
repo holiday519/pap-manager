@@ -39,6 +39,7 @@ import com.pxene.pap.domain.models.IndustryAdxModelExample;
 import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.VideoMaterialModel;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
@@ -56,6 +57,7 @@ import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.VideoDao;
+import com.pxene.pap.repository.basic.VideoMaterialDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
@@ -80,6 +82,9 @@ public class AuditCreativeAdviewService {
 	
 	@Autowired
 	private ImageMaterialDao imageMaterialDao;
+	
+	@Autowired
+	private VideoMaterialDao videoMaterialDao;
 	
 	@Autowired
 	private InfoflowMaterialDao InfoflowDao;
@@ -204,7 +209,7 @@ public class AuditCreativeAdviewService {
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			String imageMaterialId = mapModel.getMaterialId();
 			ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageMaterialId);
-			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getId());
+			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getImageId());
 //			String sizeId = imageModel.getSizeId();
 //			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
 			String imageName = imageModel.getWidth() + "x" + imageModel.getHeight();//名称、尺寸
@@ -229,12 +234,13 @@ public class AuditCreativeAdviewService {
 			
 		} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			String videoId = mapModel.getMaterialId();
-			VideoModel videoModel = videoDao.selectByPrimaryKey(videoId);
+			VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(videoId);
+			VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
 //			String sizeId = videoModel.getSizeId();
 //			SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
 			String imageMaterialId = mapModel.getMaterialId();
 			ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageMaterialId);
-			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getId());
+			ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getImageId());
 			String videoName = imageModel.getWidth() + "x" + imageModel.getHeight();//名称、尺寸
 			String videoUrl = videoModel.getPath();
 			origs.addProperty("jumpLinkVideo", videoUrl);

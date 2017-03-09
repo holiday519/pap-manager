@@ -108,6 +108,9 @@ public class CreativeService extends BaseService {
 	private AuditCreativeAdviewService auditCreativeAdviewService;
 	
 	@Autowired
+	private AuditCreativeSohuService auditCreativeSohuService;
+	
+	@Autowired
 	private ImageDao imageDao;
 	
 	@Autowired
@@ -605,10 +608,8 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void auditCreative(String id) throws Exception {
-		CreativeModelExample mapExample = new CreativeModelExample();
-		mapExample.createCriteria().andCampaignIdEqualTo(id);
-		List<CreativeModel> mapModels = creativeDao.selectByExample(mapExample);
-		if (mapModels==null || mapModels.isEmpty()) {
+		CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
+		if (mapModel == null) {
 			throw new ResourceNotFoundException();
 		}
 		
@@ -623,14 +624,18 @@ public class CreativeService extends BaseService {
 //			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
 //				auditCreativeAdviewService.audit(id);
 //			}
-			CreativeAuditModel model = new CreativeAuditModel();
-			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-			model.setId(UUID.randomUUID().toString());
-			model.setAuditValue("1");
-			model.setCreativeId(id);
-			model.setAdxId(adx.getId());
-			creativeAuditDao.insertSelective(model);
-			
+			CreativeAuditModelExample ex = new CreativeAuditModelExample();
+			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
+			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
+			if (list == null || list.isEmpty()) {
+				CreativeAuditModel model = new CreativeAuditModel();
+				model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+				model.setId(UUID.randomUUID().toString());
+				model.setAuditValue("1");
+				model.setCreativeId(id);
+				model.setAdxId(adx.getId());
+				creativeAuditDao.insertSelective(model);
+			}
 		}
 	}
 
@@ -649,29 +654,22 @@ public class CreativeService extends BaseService {
 		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//同步结果
 		for (AdxModel adx : adxs) {
-			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
 				//百度
 //				auditCreativeBaiduService.synchronize(id);
-				
-			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
+//			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
 //				auditCreativeAdviewService.synchronize(id);
-			}
+//			}
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-			ex.createCriteria().andAdxIdEqualTo(adx.getId());
+			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
 			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-			if (list ==null || list.isEmpty()) {
-				CreativeAuditModel model = new CreativeAuditModel();
-				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				model.setId(UUID.randomUUID().toString());
-				model.setAuditValue("1");
-				model.setCreativeId(id);
-				model.setAdxId(adx.getId());
-				creativeAuditDao.insertSelective(model);
-			} else {
+			if (list != null && !list.isEmpty()) {
 				for (CreativeAuditModel ml : list) {
 					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 					creativeAuditDao.updateByPrimaryKeySelective(ml);
 				}
+			} else {
+				throw new ResourceNotFoundException();
 			}
 		}
 	}

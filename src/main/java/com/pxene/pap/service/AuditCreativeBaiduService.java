@@ -525,8 +525,8 @@ public class AuditCreativeBaiduService {
 	 */
 	public Long getAdvAuditValueByMapId (String mapId) throws Exception {
 		//查询活动ID
-		CreativeModel campaignCreativeModel = creativeDao.selectByPrimaryKey(mapId);
-		String campaignId = campaignCreativeModel.getCampaignId();
+		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(mapId);
+		String campaignId = creativeModel.getCampaignId();
 		//查询项目ID
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		String projectId = campaignModel.getProjectId();

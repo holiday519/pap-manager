@@ -257,7 +257,7 @@ public class AuditAdvertiserBaiduService {
 			if (state == 0) {
 				statu = StatusConstant.ADVERTISER_AUDIT_SUCCESS;// 审核通过
 			} else if (state == 1) {
-				statu = StatusConstant.ADVERTISER_AUDIT_WATING;// 待审核
+				statu = StatusConstant.ADVERTISER_AUDIT_WATING;// 审核中
 			} else if (state == 2) {
 				message = refuseReason;
 				statu = StatusConstant.ADVERTISER_AUDIT_FAILURE;// 审核未通过
