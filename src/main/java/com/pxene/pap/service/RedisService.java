@@ -591,7 +591,7 @@ public class RedisService {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("brand")[1];
 				deviceJson.add("make", brand);
 			}
-			deviceJson.addProperty("make", flag);
+			deviceJson.addProperty("flag", flag);
 			targetJson.add("device", deviceJson);
 			// app定向
 			JsonObject appJson = createAppTargetJson(target.getAppId());
@@ -628,7 +628,10 @@ public class RedisService {
 					appids.add(appModel.getAppId());
 				}
 			}
-			int flag = 1;//是中写入1；用于控制在app为空时，不投此媒体
+			int flag = 0;
+			if (appids.size()>0) {
+				flag = 1;
+			}
 			idObj.addProperty("flag", flag);
 			idObj.add("wlist", appids);
 			idArr.add(idObj);
@@ -925,9 +928,9 @@ public class RedisService {
 				.andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
 		if (list != null && !list.isEmpty()) {
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	/**

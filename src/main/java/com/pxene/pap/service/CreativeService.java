@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -109,6 +108,9 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private AuditCreativeSohuService auditCreativeSohuService;
+	
+	@Autowired
+	private AuditCreativeMomoService auditCreativeMomoService;
 	
 	@Autowired
 	private ImageDao imageDao;
@@ -1446,7 +1448,7 @@ public class CreativeService extends BaseService {
 			bean.setJumpCost(result);
 		}
 		if (bean.getImpressionAmount() > 0) {
-			double percent = (double)bean.getClickAmount() * 1000 / bean.getImpressionAmount();
+			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
 	        Float result = Float.parseFloat(format.format(percent));
 	        bean.setClickRate(result);
 	        

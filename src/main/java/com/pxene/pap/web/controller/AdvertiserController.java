@@ -194,7 +194,7 @@ public class AdvertiserController
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void synchronizeAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
     	advertiserService.synchronize(id);

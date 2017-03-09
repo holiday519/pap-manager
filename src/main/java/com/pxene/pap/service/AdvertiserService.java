@@ -555,8 +555,8 @@ public class AdvertiserService extends BaseService
 		AdvertiserBean advertiserBean = new AdvertiserBean();
 		BeanUtils.copyProperties(advertiserModel, advertiserBean);
 		//查询adx列表
-//		AdxModelExample adxExample = new AdxModelExample();
-//		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//广告主审核
 //		for (AdxModel adx : adxs) {
 //			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {//百度
@@ -575,21 +575,24 @@ public class AdvertiserService extends BaseService
 //				
 //			}
 //		}
-		//直接审核通过（现仅百度）
-		AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
-		example.createCriteria().andAdvertiserIdEqualTo(id);
-		List<AdvertiserAuditModel> auditModel = advertiserAuditDao.selectByExample(example);
-		if (auditModel == null || auditModel.isEmpty()) {
-			AdvertiserAuditModel aModel = new AdvertiserAuditModel();
-			aModel.setAdvertiserId(id);
-			aModel.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
-			long num =  (long) Math.floor((new Random()).nextDouble() * 1000000000D);
-			String auditValue = String.valueOf(num);
-			aModel.setAuditValue(auditValue);
-			aModel.setId(UUID.randomUUID().toString());
-			aModel.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
-			advertiserAuditDao.insertSelective(aModel);
+		for (AdxModel adx : adxs) {
+			//直接审核通过（现仅百度）
+			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+			example.createCriteria().andAdvertiserIdEqualTo(id);
+			List<AdvertiserAuditModel> auditModel = advertiserAuditDao.selectByExample(example);
+			if (auditModel == null || auditModel.isEmpty()) {
+				AdvertiserAuditModel aModel = new AdvertiserAuditModel();
+				aModel.setAdvertiserId(id);
+				aModel.setAdxId(adx.getId());
+//				long num =  (long) Math.floor((new Random()).nextDouble() * 1000000000D);
+//				String auditValue = String.valueOf(num);
+				aModel.setAuditValue("1");
+				aModel.setId(UUID.randomUUID().toString());
+				aModel.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
+				advertiserAuditDao.insertSelective(aModel);
+			}
 		}
+		
 
 	}
     
@@ -609,11 +612,21 @@ public class AdvertiserService extends BaseService
 		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//同步结果
 		for (AdxModel adx : adxs) {
-			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-				//百度
-				auditAdvertiserBaiduService.synchronize(id);
-			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
-				
+//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+//				//百度
+//				auditAdvertiserBaiduService.synchronize(id);
+//			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
+//				
+//			}
+			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+			example.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(adx.getId());
+			List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(example);
+			if (list == null || list.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
+			for (AdvertiserAuditModel model : list) {
+				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+				advertiserAuditDao.updateByExampleSelective(model, example);
 			}
 		}
 	}

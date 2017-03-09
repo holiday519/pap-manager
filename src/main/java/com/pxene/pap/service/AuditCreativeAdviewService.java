@@ -43,6 +43,7 @@ import com.pxene.pap.domain.models.VideoMaterialModel;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
@@ -337,6 +338,7 @@ public class AuditCreativeAdviewService {
 	 * @param creativeId
 	 * @throws Exception
 	 */
+	@Transactional
 	public void synchronize(String creativeId) throws Exception {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_ADVIEW_VALUE);
 		String cexamineResultUrl = adxModel.getCexamineResultUrl();
@@ -470,7 +472,7 @@ public class AuditCreativeAdviewService {
 		example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
 		List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(example);
 		if (list == null || list.isEmpty()) {
-			throw new IllegalAccessError("百度广告主未审核");
+			throw new IllegalStatusException("百度广告主未审核");
 		}
 		long value = -1L;
 		for (AdvertiserAuditModel adv : list) {

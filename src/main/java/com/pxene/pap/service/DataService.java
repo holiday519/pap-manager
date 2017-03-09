@@ -422,7 +422,7 @@ public class DataService extends BaseService {
 			bean.setJumpCost(result);
 		}
 		if (bean.getImpressionAmount() > 0) {
-			double percent = (double)bean.getClickAmount() * 1000 / bean.getImpressionAmount();
+			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
 	        Float result = Float.parseFloat(format.format(percent));
 	        bean.setClickRate(result);
 	        
