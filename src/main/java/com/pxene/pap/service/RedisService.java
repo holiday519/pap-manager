@@ -2,11 +2,13 @@ package com.pxene.pap.service;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import org.springframework.util.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.RedisKeyConstant;
@@ -715,10 +718,24 @@ public class RedisService {
 		if (!StringUtils.isEmpty(campaignId)) {//如果没有才新加，有，不操作
 			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 			if (!JedisUtils.exists(key)) {
-				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-				if (model != null) {
-					Integer budget = model.getTotalBudget();
-					JedisUtils.set(key, budget * 100);
+				QuantityModelExample example = new QuantityModelExample();
+				example.createCriteria().andCampaignIdEqualTo(campaignId);
+				List<QuantityModel> list = quantityDao.selectByExample(example);
+				if (list !=null && !list.isEmpty()) {
+					for (QuantityModel quan : list) {
+						Date startDate = quan.getStartDate();
+						Date endDate = quan.getEndDate();
+						String[] days = DateUtils.getDaysBetween(startDate, endDate);
+						List<String> dayList = Arrays.asList(days);
+						String time = new DateTime(new Date()).toString("yyyyMMdd");
+						if (dayList.contains(time)) {
+							Integer budget = quan.getDailyBudget();
+							if (!JedisUtils.exists(key)) {
+								JedisUtils.set(key, budget * 100);
+							}
+							break;
+						}
+					}
 				}
 			}
 		}
@@ -732,7 +749,7 @@ public class RedisService {
 	public void deleteCampaignBudgetFormRedis(String campaignId) throws Exception {
 		if (!StringUtils.isEmpty(campaignId)) {//如果没有才新加，有，不操作
 			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
-			if (!JedisUtils.exists(key)) {
+			if (JedisUtils.exists(key)) {
 				JedisUtils.delete(key);
 			}
 		}
@@ -767,20 +784,23 @@ public class RedisService {
 	 */
 	public void writeCampaignCounterToRedis(String campaignId) throws Exception {
 		if (!StringUtils.isEmpty(campaignId)) {
+			String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 			QuantityModelExample example = new QuantityModelExample();
 			example.createCriteria().andCampaignIdEqualTo(campaignId);
 			List<QuantityModel> list = quantityDao.selectByExample(example);
-			if (list != null && !list.isEmpty()) {
-				for (QuantityModel qm : list) {
-					Date startDate = qm.getStartDate();
-					Date endDate = qm.getEndDate();
-					Date nowDate = new Date(); 
-					if (startDate.getTime() <= nowDate.getTime() && endDate.getTime() >= nowDate.getTime()) {
-						Integer dailyBudget = qm.getDailyBudget();
-						String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-						if (!JedisUtils.exists(key)) {//如果没有才新加，有，不操作
-							JedisUtils.set(key, dailyBudget);
+			if (list !=null && !list.isEmpty()) {
+				for (QuantityModel quan : list) {
+					Date startDate = quan.getStartDate();
+					Date endDate = quan.getEndDate();
+					String[] days = DateUtils.getDaysBetween(startDate, endDate);
+					List<String> dayList = Arrays.asList(days);
+					String time = new DateTime(new Date()).toString("yyyyMMdd");
+					if (dayList.contains(time)) {
+						Integer counter = quan.getDailyImpression();
+						if (!JedisUtils.exists(key)) {
+							JedisUtils.set(key, counter);
 						}
+						break;
 					}
 				}
 			}
@@ -794,8 +814,8 @@ public class RedisService {
 	 */
 	public void deleteCampaignCounterFromRedis(String campaignId) throws Exception {
 		if (!StringUtils.isEmpty(campaignId)) {
-			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
-			if (!JedisUtils.exists(key)) {
+			String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
+			if (JedisUtils.exists(key)) {
 				JedisUtils.delete(key);
 			}
 		}
