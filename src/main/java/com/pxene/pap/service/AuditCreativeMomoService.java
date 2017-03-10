@@ -3,9 +3,11 @@ package com.pxene.pap.service;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +15,16 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -127,7 +139,7 @@ public class AuditCreativeMomoService {
             String title = infoflowModel.getTitle();
             native_creative.addProperty("title", title);
             if (!StringUtils.isEmpty(infoflowModel.getDescription())) {
-            	native_creative.addProperty("title", infoflowModel.getDescription());//推广语
+            	native_creative.addProperty("desc", infoflowModel.getDescription());//推广语
             }
             String iconId = infoflowModel.getIconId();
             if (StringUtils.isEmpty(iconId)) {
@@ -189,6 +201,8 @@ public class AuditCreativeMomoService {
         if (quality_level) { //质量等级(1：优质，附近动态、好友动态投放，不填：普通，附近动态、附近人投放)
             json.addProperty("quality_level", 1);//质量等级，可选字段，投放好友动态的素材设置为1
         }
+//        JsonArray arr = new JsonArray();
+//        json.add("display_labels", arr);
         json.add("cat", cats);//行业类目
         json.add("native_creative", native_creative);//信息流广告内容
         long uptime = System.currentTimeMillis()/1000;
@@ -200,7 +214,6 @@ public class AuditCreativeMomoService {
         String sign = GlobalUtil.MD5(signStr).toUpperCase();
         json.addProperty("sign", sign);
         String code = "data=" + json.toString();
-        
         String result = getResult(cexamineurl, code);
         Gson gson = new Gson();
         JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
@@ -282,6 +295,7 @@ public class AuditCreativeMomoService {
 			out.write(content.getBytes("utf-8"));
 			out.flush();
 			out.close();
+			
 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					connection.getInputStream(), "utf-8"));
@@ -329,6 +343,7 @@ public class AuditCreativeMomoService {
 		 ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
          JsonObject obj = new JsonObject();
          obj.addProperty("url", image_url +  imageModel.getPath());
+//         obj.addProperty("url", "http://www.immomo.com/static/w5/img/website/map.jpg");
          obj.addProperty("width", imageModel.getWidth());
          obj.addProperty("height", imageModel.getHeight());
          return obj;

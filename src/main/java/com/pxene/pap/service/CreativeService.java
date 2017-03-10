@@ -349,12 +349,9 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		
-		// FIXME 为什么要必传action参数？
-		/*
-		if (StringUtils.isEmpty(map.get("action"))) {
+		if (StringUtils.isEmpty(map.get("price"))) {
 			throw new IllegalArgumentException();
 		}
-		*/
 		
 		String price = map.get("price").toString();
 		creativeModel.setPrice(Float.parseFloat(price));
