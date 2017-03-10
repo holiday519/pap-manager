@@ -13,6 +13,8 @@ public class VideoTmplModel {
 
     private Float maxVolume;
 
+    private Integer minTimelength;
+
     private Integer maxTimelength;
 
     private String imagelId;
@@ -61,6 +63,14 @@ public class VideoTmplModel {
         this.maxVolume = maxVolume;
     }
 
+    public Integer getMinTimelength() {
+        return minTimelength;
+    }
+
+    public void setMinTimelength(Integer minTimelength) {
+        this.minTimelength = minTimelength;
+    }
+
     public Integer getMaxTimelength() {
         return maxTimelength;
     }
@@ -104,6 +114,7 @@ public class VideoTmplModel {
         sb.append(", height=").append(height);
         sb.append(", formats=").append(formats);
         sb.append(", maxVolume=").append(maxVolume);
+        sb.append(", minTimelength=").append(minTimelength);
         sb.append(", maxTimelength=").append(maxTimelength);
         sb.append(", imagelId=").append(imagelId);
         sb.append(", createTime=").append(createTime);

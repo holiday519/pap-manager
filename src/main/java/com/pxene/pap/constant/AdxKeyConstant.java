@@ -10,7 +10,7 @@ public class AdxKeyConstant {
 	
 	public static final String ADX_SOHU_VALUE = "9";
 	
-	public static final String ADX_MOMO_VALUE = "23";
+	public static final String ADX_MOMO_VALUE = "24";
 	
 
 }

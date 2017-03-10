@@ -342,8 +342,8 @@ public class AuditCreativeMomoService {
 	public JsonObject getImageInfo(String imageId) throws Exception {
 		 ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
          JsonObject obj = new JsonObject();
-         obj.addProperty("url", image_url +  imageModel.getPath());
-//         obj.addProperty("url", "http://www.immomo.com/static/w5/img/website/map.jpg");
+//         obj.addProperty("url", image_url +  imageModel.getPath());
+         obj.addProperty("url", "http://www.immomo.com/static/w5/img/website/map.jpg");
          obj.addProperty("width", imageModel.getWidth());
          obj.addProperty("height", imageModel.getHeight());
          return obj;

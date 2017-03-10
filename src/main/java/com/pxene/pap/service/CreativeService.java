@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -453,13 +454,20 @@ public class CreativeService extends BaseService {
 			Integer tmplHeight = tmplModel.getHeight(); //模版高限制
 			Float maxVolume = tmplModel.getMaxVolume(); //模版最大体积限制
 			Integer maxTimelength = tmplModel.getMaxTimelength(); //模版最大时长
+			Integer minTimelength = tmplModel.getMinTimelength();//最小时长
 			int height = videoBean.getHeight(); //文件高
 			int width = videoBean.getWidth(); //文件宽
 			Float volume = videoBean.getVolume(); //文件体积限制
 			int timelength = videoBean.getTimelength(); //文件时长
 			
-			if (tmplWidth != width || tmplHeight != height || maxVolume < volume || maxTimelength < timelength) {
+			if (tmplWidth != width || tmplHeight != height) {
 				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_SIZE);
+			}
+			if (maxVolume < volume) {
+				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_VOLUME);
+			}
+			if (maxTimelength < timelength || minTimelength > timelength) {
+				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_TIMELENGTH);
 			}
 			
 			result = uploadVideo(videoBean, file);
@@ -623,18 +631,19 @@ public class CreativeService extends BaseService {
 //			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
 //				auditCreativeAdviewService.audit(id);
 //			}
-			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
-			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-			if (list == null || list.isEmpty()) {
-				CreativeAuditModel model = new CreativeAuditModel();
-				model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-				model.setId(UUID.randomUUID().toString());
-				model.setAuditValue("1");
-				model.setCreativeId(id);
-				model.setAdxId(adx.getId());
-				creativeAuditDao.insertSelective(model);
-			}
+			auditCreativeMomoService.audit(id);
+//			CreativeAuditModelExample ex = new CreativeAuditModelExample();
+//			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
+//			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
+//			if (list == null || list.isEmpty()) {
+//				CreativeAuditModel model = new CreativeAuditModel();
+//				model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+//				model.setId(UUID.randomUUID().toString());
+//				model.setAuditValue("1");
+//				model.setCreativeId(id);
+//				model.setAdxId(adx.getId());
+//				creativeAuditDao.insertSelective(model);
+//			}
 		}
 	}
 

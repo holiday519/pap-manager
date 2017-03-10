@@ -477,12 +477,14 @@ public class RedisService {
 	private JsonObject getImageJson(String imageId) throws Exception {
 		JsonObject json = new JsonObject();
 		ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageId);
-		ImageModel model = imageDao.selectByPrimaryKey(materialModel.getImageId());
-		if (model != null) {
-			json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
-			json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
-			json.addProperty("ftype", Integer.parseInt(model.getFormat()));
-			json.addProperty("sourceurl", image_url + model.getPath());
+		if (materialModel != null) {
+			ImageModel model = imageDao.selectByPrimaryKey(materialModel.getImageId());
+			if (model != null) {
+				json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
+				json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
+				json.addProperty("ftype", Integer.parseInt(model.getFormat()));
+				json.addProperty("sourceurl", image_url + model.getPath());
+			}
 		}
 		return json;
 	}
@@ -707,8 +709,6 @@ public class RedisService {
 		}
 	}
 	
-	
-	
 	/**
 	 * 活动预算写入redis
 	 * @param campaignId
@@ -730,9 +730,7 @@ public class RedisService {
 						String time = new DateTime(new Date()).toString("yyyyMMdd");
 						if (dayList.contains(time)) {
 							Integer budget = quan.getDailyBudget();
-							if (!JedisUtils.exists(key)) {
-								JedisUtils.set(key, budget * 100);
-							}
+							JedisUtils.set(key, budget * 100);
 							break;
 						}
 					}
@@ -768,10 +766,8 @@ public class RedisService {
 				String key = RedisKeyConstant.PROJECT_BUDGET + projectId;
 				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 				if (projectModel != null) {
-					Integer totalBudget = projectModel.getTotalBudget();
-					if (!JedisUtils.exists(key)) {
-						JedisUtils.set(key, totalBudget * 100);
-					}
+					int totalBudget = projectModel.getTotalBudget();
+					JedisUtils.set(key, totalBudget * 100);
 				}
 			}
 		}
@@ -796,10 +792,8 @@ public class RedisService {
 					List<String> dayList = Arrays.asList(days);
 					String time = new DateTime(new Date()).toString("yyyyMMdd");
 					if (dayList.contains(time)) {
-						Integer counter = quan.getDailyImpression();
-						if (!JedisUtils.exists(key)) {
-							JedisUtils.set(key, counter);
-						}
+						int counter = quan.getDailyImpression();
+						JedisUtils.set(key, counter);
 						break;
 					}
 				}
