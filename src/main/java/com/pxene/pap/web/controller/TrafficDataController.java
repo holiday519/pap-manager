@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.ExcelOperateUtil;
 import com.pxene.pap.common.ExcelUtil;
+import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.TrafficData;
 import com.pxene.pap.service.TrafficDataService;
 
@@ -47,5 +49,13 @@ public class TrafficDataController
         ByteArrayInputStream inputStream = (ByteArrayInputStream) ExcelUtil.writeExcelToStream(workbook, sheet);
         
         ExcelOperateUtil.downloadExcel(inputStream, response, "traffic-data.xls");
+    }
+    
+    @RequestMapping(value = "/data/traffic-data", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String listTrafficData(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, @RequestParam(required = false) String scope, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+    {
+        List<TrafficData> datas = trafficDataService.listData(advertiserId, projectId, campaignId, creativeId, scope, startDate, endDate);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), datas, response);
     }
 }

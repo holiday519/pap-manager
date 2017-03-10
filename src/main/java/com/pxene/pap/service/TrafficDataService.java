@@ -27,7 +27,7 @@ public class TrafficDataService
     {
         List<TrafficData> result = new ArrayList<TrafficData>();
         TrafficData td = null;
-        List<Map<String, Object>> serviceResult = null;
+        List<Map<String, Object>> serviceResult = new ArrayList<Map<String, Object>>();;
         
         
         if (!StringUtils.isEmpty(creativeId))
@@ -38,8 +38,8 @@ public class TrafficDataService
         {
             if (!StringUtils.isEmpty(campaignId))
             {
-                // 不勾选Radio | 勾选Radio：“活动”
-                if (StringUtils.isEmpty(scope) || SCOPE_CAMPAIGN.equals(scope))
+                // 不勾选Radio | 勾选Radio：“活动” | 勾选Radio：“项目”
+                if (StringUtils.isEmpty(scope) || SCOPE_CAMPAIGN.equals(scope) || SCOPE_PROJECT.equals(scope))
                 {
                     serviceResult = dataService.getCampaignData(startDate, endDate, campaignId);
                 }
@@ -47,7 +47,7 @@ public class TrafficDataService
                 // 勾选Radio：“创意”
                 if (SCOPE_CREATIVE.equals(scope))
                 {
-                    serviceResult = new ArrayList<Map<String, Object>>();
+                    //serviceResult = new ArrayList<Map<String, Object>>();
                     
                     List<String> creativeIdList = dataService.getCreativeIdListByCampaignId(campaignId);
                     
@@ -71,7 +71,7 @@ public class TrafficDataService
                     // 勾选Radio：“活动”
                     if (SCOPE_CAMPAIGN.equals(scope))
                     {
-                        serviceResult = new ArrayList<Map<String, Object>>();
+                        //serviceResult = new ArrayList<Map<String, Object>>();
                         
                         List<String> projectIdList = dataService.findCampaignIdListByProjectId(projectId);
                         
@@ -85,7 +85,7 @@ public class TrafficDataService
                     // 勾选Radio：“创意”
                     if (SCOPE_CREATIVE.equals(scope))
                     {
-                        serviceResult = new ArrayList<Map<String, Object>>();
+                        //serviceResult = new ArrayList<Map<String, Object>>();
                         
                         List<String> creativeIdList = dataService.getCreativeIdListByProjectId(projectId);
                         
