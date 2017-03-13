@@ -145,7 +145,7 @@ public class LaunchService extends BaseService{
 	 * 根据时间定向投放活动，结束到期活动
 	 * @throws Exception
 	 */
-	@Scheduled(cron = "0 0 */1 * * ?")
+//	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
 		String currentHour = DateUtils.getCurrentHour();//当前小时
 		String currentDate = DateUtils.getCurrentDate();//当前日期
