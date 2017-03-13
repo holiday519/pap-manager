@@ -668,17 +668,18 @@ public class CreativeService extends BaseService {
 //			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
 //				auditCreativeAdviewService.synchronize(id);
 //			}
-			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
-			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-			if (list != null && !list.isEmpty()) {
-				for (CreativeAuditModel ml : list) {
-					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-					creativeAuditDao.updateByPrimaryKeySelective(ml);
-				}
-			} else {
-				throw new ResourceNotFoundException();
-			}
+			auditCreativeMomoService.synchronize(id);
+//			CreativeAuditModelExample ex = new CreativeAuditModelExample();
+//			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
+//			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
+//			if (list != null && !list.isEmpty()) {
+//				for (CreativeAuditModel ml : list) {
+//					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+//					creativeAuditDao.updateByPrimaryKeySelective(ml);
+//				}
+//			} else {
+//				throw new ResourceNotFoundException();
+//			}
 		}
 	}
 	

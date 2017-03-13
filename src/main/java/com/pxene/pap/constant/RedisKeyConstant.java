@@ -8,7 +8,7 @@ public class RedisKeyConstant {
 	/**
 	 * 正在投放的活动id
 	 */
-	public static final String CAMPAIGN_IDS = "pap_groupids";
+	public static final String CAMPAIGN_IDS = "dsp_groupids";
 	/**
 	 * 活动下创意
 	 */

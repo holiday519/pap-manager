@@ -221,6 +221,7 @@ public class AuditCreativeMomoService {
 			CreativeAuditModel mod = new CreativeAuditModel();
 			mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 			mod.setId(UUID.randomUUID().toString());
+			mod.setCreativeId(creativeId);
 			mod.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
 			creativeAuditDao.insertSelective(mod);
         } else {
@@ -254,8 +255,8 @@ public class AuditCreativeMomoService {
         		CreativeAuditModelExample example = new CreativeAuditModelExample();
     			example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
     			CreativeAuditModel model = new CreativeAuditModel();
-    			if (object.get("status").getAsInt() == 1) {// 未审核
-    				model.setStatus(StatusConstant.CREATIVE_AUDIT_NOCHECK);
+    			if (object.get("status").getAsInt() == 1) {// 待审核
+    				model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
     			} else if (object.get("status").getAsInt() == 2) {// 审核通过
     				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
     			} else if (object.get("status").getAsInt() == 3) {// 审核未通过
