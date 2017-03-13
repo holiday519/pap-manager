@@ -15,9 +15,11 @@ import com.pxene.pap.exception.IllegalArgumentException;
 @Service
 public class TrafficDataService
 {
+    private static final String SCOPE_ADVERTISER = "advertiser";
     private static final String SCOPE_PROJECT = "project";
-    private static final String SCOPE_CREATIVE = "creative";
     private static final String SCOPE_CAMPAIGN = "campaign";
+    private static final String SCOPE_CREATIVE = "creative";
+    
     @Autowired
     private DataService dataService;
 
@@ -38,8 +40,8 @@ public class TrafficDataService
         {
             if (!StringUtils.isEmpty(campaignId))
             {
-                // 不勾选Radio | 勾选Radio：“活动” | 勾选Radio：“项目”
-                if (StringUtils.isEmpty(scope) || SCOPE_CAMPAIGN.equals(scope) || SCOPE_PROJECT.equals(scope))
+                // 不勾选Radio | 勾选Radio：“活动” | 勾选Radio：“项目” | 勾选Radio：“广告主”
+                if (StringUtils.isEmpty(scope) || SCOPE_CAMPAIGN.equals(scope) || SCOPE_PROJECT.equals(scope) || SCOPE_ADVERTISER.equals(scope))
                 {
                     serviceResult = dataService.getCampaignData(startDate, endDate, campaignId);
                 }
@@ -62,8 +64,8 @@ public class TrafficDataService
             {
                 if (!StringUtils.isEmpty(projectId))
                 {
-                    // 不勾选Radio | 勾选Radio：“项目”
-                    if (StringUtils.isEmpty(scope) || SCOPE_PROJECT.equals(scope))
+                    // 不勾选Radio | 勾选Radio：“项目” | 勾选Radio：“广告主”
+                    if (StringUtils.isEmpty(scope) || SCOPE_PROJECT.equals(scope) || SCOPE_ADVERTISER.equals(scope) || SCOPE_ADVERTISER.equals(scope))
                     {
                         serviceResult = dataService.getProjectData(startDate, endDate, projectId);
                     }
@@ -100,8 +102,8 @@ public class TrafficDataService
                 {
                     if (!StringUtils.isEmpty(advertiserId))
                     {
-                        // 不勾选Radio
-                        if (StringUtils.isEmpty(scope))
+                        // 不勾选Radio | 勾选Radio：“广告主”
+                        if (StringUtils.isEmpty(scope) || SCOPE_ADVERTISER.equals(scope))
                         {
                             serviceResult = dataService.getAdvertiserData(startDate, endDate, advertiserId);
                         }
