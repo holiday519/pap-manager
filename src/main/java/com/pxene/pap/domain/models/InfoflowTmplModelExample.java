@@ -425,6 +425,76 @@ public class InfoflowTmplModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andMustCtaDescriptionIsNull() {
+            addCriterion("must_cta_description is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionIsNotNull() {
+            addCriterion("must_cta_description is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionEqualTo(String value) {
+            addCriterion("must_cta_description =", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionNotEqualTo(String value) {
+            addCriterion("must_cta_description <>", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionGreaterThan(String value) {
+            addCriterion("must_cta_description >", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionGreaterThanOrEqualTo(String value) {
+            addCriterion("must_cta_description >=", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionLessThan(String value) {
+            addCriterion("must_cta_description <", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionLessThanOrEqualTo(String value) {
+            addCriterion("must_cta_description <=", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionLike(String value) {
+            addCriterion("must_cta_description like", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionNotLike(String value) {
+            addCriterion("must_cta_description not like", value, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionIn(List<String> values) {
+            addCriterion("must_cta_description in", values, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionNotIn(List<String> values) {
+            addCriterion("must_cta_description not in", values, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionBetween(String value1, String value2) {
+            addCriterion("must_cta_description between", value1, value2, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustCtaDescriptionNotBetween(String value1, String value2) {
+            addCriterion("must_cta_description not between", value1, value2, "mustCtaDescription");
+            return (Criteria) this;
+        }
+
         public Criteria andIconIdIsNull() {
             addCriterion("icon_id is null");
             return (Criteria) this;

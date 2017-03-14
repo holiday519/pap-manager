@@ -138,6 +138,7 @@ public class TmplBean {
 		private Integer maxDescription;
 		private String mustDescription;
 		private Integer maxCtaDescription;
+		private String mustCtaDescription;
 		private ImageTmpl icon;
 		private ImageTmpl image1;
 		private ImageTmpl image2;
@@ -184,6 +185,14 @@ public class TmplBean {
 
 		public void setMustDescription(String mustDescription) {
 			this.mustDescription = mustDescription;
+		}
+
+		public String getMustCtaDescription() {
+			return mustCtaDescription;
+		}
+
+		public void setMustCtaDescription(String mustCtaDescription) {
+			this.mustCtaDescription = mustCtaDescription;
 		}
 
 		public ImageTmpl getIcon() {
@@ -247,7 +256,8 @@ public class TmplBean {
 			return "InfoTmpl [id=" + id + ", maxTitle=" + maxTitle
 					+ ", maxDescription=" + maxDescription
 					+ ", mustDescription=" + mustDescription
-					+ ", maxCtaDescription=" + maxCtaDescription + ", icon="
+					+ ", maxCtaDescription=" + maxCtaDescription
+					+ ", mustCtaDescription=" + mustCtaDescription + ", icon="
 					+ icon + ", image1=" + image1 + ", image2=" + image2
 					+ ", image3=" + image3 + ", image4=" + image4 + ", image5="
 					+ image5 + ", isAppStar=" + isAppStar + "]";

@@ -664,8 +664,8 @@ public class RedisService {
 				if (adxList != null && !adxList.isEmpty()) {
 					for (AdxModel adx : adxList) {
 						groupObject = new JsonObject();
-						groupObject.addProperty("adx", adx.getId());
-						groupObject.addProperty("type", 1);
+						groupObject.addProperty("adx", Integer.parseInt(adx.getId()));
+						groupObject.addProperty("type", 0);
 						groupObject.addProperty("period", 3);
 						JsonArray fre = new JsonArray();
 						QuantityModelExample qEx = new QuantityModelExample();
@@ -675,6 +675,7 @@ public class RedisService {
 							Integer dailyImpression = qList.get(0).getDailyImpression();
 							fre.add(dailyImpression);
 						}
+						groupObject.add("frequency", fre);
 						groupArray.add(groupObject);
 					}
 					obj.add("group", groupArray);
@@ -685,7 +686,7 @@ public class RedisService {
 					FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
 					if (frequencyModel != null) {
 						String controlObj = frequencyModel.getControlObj();
-						Integer number = frequencyModel.getNumber();
+//						Integer number = frequencyModel.getNumber();
 						String timeType = frequencyModel.getTimeType();
 						if ("02".equals(controlObj)) {
 							userObj.addProperty("type", 2);
@@ -698,9 +699,11 @@ public class RedisService {
 							userObj.addProperty("period", 3);
 						}
 						JsonArray capping = new JsonArray();
-						capping.add(campaignModel.getId());
+						JsonObject cap = new JsonObject();
+						cap.addProperty("id", campaignModel.getId());
+						capping.add(cap);
 						userObj.add("capping", capping);
-						userObj.addProperty("frequency", number);
+//						userObj.addProperty("frequency", number);
 					}
 					obj.add("user", userObj);
 				}

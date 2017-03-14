@@ -7,6 +7,7 @@ public class InfoflowCreativeBean extends CreativeBean {
 	private String description;
 	private String mustDescription;
 	private String ctaDescription;
+	private String mustCtaDescription;
 	private String iconId;
 	private String iconPath;
 	private String image1Id;
@@ -63,6 +64,14 @@ public class InfoflowCreativeBean extends CreativeBean {
 
 	public String getIconId() {
 		return iconId;
+	}
+
+	public String getMustCtaDescription() {
+		return mustCtaDescription;
+	}
+
+	public void setMustCtaDescription(String mustCtaDescription) {
+		this.mustCtaDescription = mustCtaDescription;
 	}
 
 	public void setIconId(String iconId) {
@@ -170,13 +179,13 @@ public class InfoflowCreativeBean extends CreativeBean {
 		return "InfoflowCreativeBean [infoflowId=" + infoflowId + ", title="
 				+ title + ", description=" + description + ", mustDescription="
 				+ mustDescription + ", ctaDescription=" + ctaDescription
-				+ ", iconId=" + iconId + ", iconPath=" + iconPath
-				+ ", image1Id=" + image1Id + ", image2Id=" + image2Id
-				+ ", image3Id=" + image3Id + ", image4Id=" + image4Id
-				+ ", image5Id=" + image5Id + ", image1Path=" + image1Path
-				+ ", image2Path=" + image2Path + ", image3Path=" + image3Path
-				+ ", image4Path=" + image4Path + ", image5Path=" + image5Path
-				+ ", appStar=" + appStar + "]";
+				+ ", mustCtaDescription=" + mustCtaDescription + ", iconId="
+				+ iconId + ", iconPath=" + iconPath + ", image1Id=" + image1Id
+				+ ", image2Id=" + image2Id + ", image3Id=" + image3Id
+				+ ", image4Id=" + image4Id + ", image5Id=" + image5Id
+				+ ", image1Path=" + image1Path + ", image2Path=" + image2Path
+				+ ", image3Path=" + image3Path + ", image4Path=" + image4Path
+				+ ", image5Path=" + image5Path + ", appStar=" + appStar + "]";
 	}
 
 }

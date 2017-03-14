@@ -207,6 +207,11 @@ public class CampaignService extends LaunchService {
 		// 添加频次信息
 		Frequency frequency = bean.getFrequency();
 		if (frequency != null) {
+			if (frequency.getControlObj() == null
+					|| frequency.getNumber() == null
+					|| StringUtils.isEmpty(frequency.getTimeType())) {
+				throw new IllegalArgumentException("频次信息不全！");
+			}
 			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 			String frequencyId = UUID.randomUUID().toString();
 			frequencyModel.setId(frequencyId);
