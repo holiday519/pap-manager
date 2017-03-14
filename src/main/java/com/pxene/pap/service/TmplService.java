@@ -147,9 +147,6 @@ public class TmplService extends BaseService {
 			}
 		}
 		
-		if (imageTmplList.isEmpty() && imageTmplListNotUse.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
 		if ("01".equals(status)) {//用着的
 			return imageTmplList;
 		} else if ("02".equals(status)) {
@@ -202,9 +199,6 @@ public class TmplService extends BaseService {
 					}
 				}
 			}
-		}
-		if (videpTmplList.isEmpty() && videpTmplListNotUse.isEmpty()) {
-			throw new ResourceNotFoundException();
 		}
 		if ("01".equals(status)) {//用着的
 			return videpTmplList;

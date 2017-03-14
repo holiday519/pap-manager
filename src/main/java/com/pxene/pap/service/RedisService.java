@@ -28,6 +28,9 @@ import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.AppModelExample;
+import com.pxene.pap.domain.models.AppTargetModel;
+import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
@@ -54,6 +57,7 @@ import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
+import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
@@ -91,6 +95,9 @@ public class RedisService {
 	
 	@Autowired
 	private ProjectDao projectDao;
+	
+	@Autowired
+	private AppTargetDao appTargetDao;
 	
 	@Autowired
 	private CreativeDao creativeDao;
@@ -234,8 +241,7 @@ public class RedisService {
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
 			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
-			AdxModelExample adxEcample = new AdxModelExample();
-			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
+			List<AdxModel> adxs = getAdxForCampaign(campaignId);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
@@ -272,7 +278,7 @@ public class RedisService {
             creativeObj.addProperty("sourceurl", image_url + model.getSourceUrl());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             //获取Exts
-    		JsonArray exts = getCreativeExts(mapId);
+    		JsonArray exts = getCreativeExts(mapId, campaignId);
 			creativeObj.add("exts", exts);
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
 			
@@ -301,8 +307,7 @@ public class RedisService {
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
 			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
-			AdxModelExample adxEcample = new AdxModelExample();
-			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
+			List<AdxModel> adxs = getAdxForCampaign(campaignId);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
@@ -339,7 +344,7 @@ public class RedisService {
             creativeObj.addProperty("sourceurl", image_url + model.getSourceUrl());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
           //获取Exts
-    		JsonArray exts = getCreativeExts(mapId);
+    		JsonArray exts = getCreativeExts(mapId, campaignId);
 			creativeObj.add("exts", exts);
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
 			
@@ -368,8 +373,7 @@ public class RedisService {
 			creativeObj.addProperty("groupid", model.getCampaignId());
 			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
 //			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
-			AdxModelExample adxEcample = new AdxModelExample();
-			List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
+			List<AdxModel> adxs = getAdxForCampaign(campaignId);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
@@ -463,7 +467,7 @@ public class RedisService {
             creativeObj.addProperty("rating", GlobalUtil.parseString(model.getRating(),""));
             creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtatext(),""));
             //获取Exts
-    		JsonArray exts = getCreativeExts(mapId);
+    		JsonArray exts = getCreativeExts(mapId, campaignId);
 			creativeObj.add("exts", exts);
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
 		}
@@ -529,8 +533,7 @@ public class RedisService {
 		campaignInfo.addProperty("advcat", industryId);
 		String adomain = GlobalUtil.parseString(advertiserModel.getSiteUrl(),"");
 		campaignInfo.addProperty("adomain", adomain.replace("http://www.", "").replace("www.", ""));
-		AdxModelExample adxEcample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxEcample);
+		List<AdxModel> adxs = getAdxForCampaign(campaignId);
 		for (AdxModel adx : adxs) {
 			//投放adx
 			JsonObject adxObj = new JsonObject();
@@ -599,7 +602,7 @@ public class RedisService {
 			deviceJson.addProperty("flag", flag);
 			targetJson.add("device", deviceJson);
 			// app定向
-			JsonObject appJson = createAppTargetJson(target.getAppId());
+			JsonObject appJson = createAppTargetJson(target.getAppId(), campaignId);
 			if (appJson != null) {
 				targetJson.add("app", appJson);
 			}
@@ -613,14 +616,13 @@ public class RedisService {
 	 * @return
 	 * @throws Exception
 	 */
-	public JsonObject createAppTargetJson(String appTarget) throws Exception {
+	public JsonObject createAppTargetJson(String appTarget, String campaignId) throws Exception {
 		if (appTarget == null || "".equals(appTarget)) {
 			return null;
 		}
 		JsonObject appJson = new JsonObject();
 		String[] apps = appTarget.split(",");
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		List<AdxModel> adxs = getAdxForCampaign(campaignId);
 		JsonArray idArr = new JsonArray();
 		for (AdxModel adx : adxs) {
 			JsonObject idObj = new JsonObject();
@@ -659,8 +661,7 @@ public class RedisService {
 				obj.addProperty("groupid", campaignId);
 				JsonArray groupArray = new JsonArray();
 				JsonObject groupObject = null;
-				AdxModelExample adxExample = new AdxModelExample();
-				List<AdxModel> adxList = adxDao.selectByExample(adxExample);
+				List<AdxModel> adxList = getAdxForCampaign(campaignId);
 				if (adxList != null && !adxList.isEmpty()) {
 					for (AdxModel adx : adxList) {
 						groupObject = new JsonObject();
@@ -877,8 +878,7 @@ public class RedisService {
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		String advertiserId = projectModel.getAdvertiserId();
 		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		List<AdxModel> adxs = getAdxForCampaign(campaignId);
 		//查询各个adx审核Value
 		JsonObject ext = null;
 		for (AdxModel adx : adxs) {
@@ -907,11 +907,10 @@ public class RedisService {
 	 * @return
 	 * @throws Exception
 	 */
-	private JsonArray getCreativeExts(String mapId) throws Exception {
+	private JsonArray getCreativeExts(String mapId, String campaignId) throws Exception {
 		JsonArray exts = new JsonArray();
 		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		List<AdxModel> adxs = getAdxForCampaign(campaignId);
 		//查询各个adx审核Value
 		JsonObject ext = null;
 		for (AdxModel adx : adxs) {
@@ -1272,4 +1271,39 @@ public class RedisService {
 			}
 		}
 	}
+	
+	/**
+	 * 查询活动定向ADX
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public List<AdxModel> getAdxForCampaign(String campaignId) throws Exception {
+		List<AdxModel> adxs = new ArrayList<AdxModel>();
+		AppTargetModelExample appTargetEx = new AppTargetModelExample();
+		appTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<AppTargetModel> appTargets = appTargetDao.selectByExample(appTargetEx);
+		List<String> appIds = new ArrayList<String>();
+		if (appTargets != null) {
+			for (AppTargetModel tar : appTargets) {
+				String appId = tar.getAppId();
+				appIds.add(appId);
+			}
+			List<String> adxIds = new ArrayList<String>();
+			AppModelExample appEx = new AppModelExample();
+			appEx.createCriteria().andIdIn(appIds);
+			List<AppModel> apps = appDao.selectByExample(appEx);
+			if (apps != null) {
+				for (AppModel app : apps) {
+					String adxId = app.getAdxId();
+					adxIds.add(adxId);
+				}
+				AdxModelExample adxEx = new AdxModelExample();
+				adxEx.createCriteria().andIdIn(adxIds);
+				adxs = adxDao.selectByExample(adxEx);
+			}
+		}
+		return adxs;
+	}
+	
+	
 }
