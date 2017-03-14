@@ -295,6 +295,76 @@ public class InfoflowTmplModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andMustDescriptionIsNull() {
+            addCriterion("must_description is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionIsNotNull() {
+            addCriterion("must_description is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionEqualTo(String value) {
+            addCriterion("must_description =", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionNotEqualTo(String value) {
+            addCriterion("must_description <>", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionGreaterThan(String value) {
+            addCriterion("must_description >", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionGreaterThanOrEqualTo(String value) {
+            addCriterion("must_description >=", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionLessThan(String value) {
+            addCriterion("must_description <", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionLessThanOrEqualTo(String value) {
+            addCriterion("must_description <=", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionLike(String value) {
+            addCriterion("must_description like", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionNotLike(String value) {
+            addCriterion("must_description not like", value, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionIn(List<String> values) {
+            addCriterion("must_description in", values, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionNotIn(List<String> values) {
+            addCriterion("must_description not in", values, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionBetween(String value1, String value2) {
+            addCriterion("must_description between", value1, value2, "mustDescription");
+            return (Criteria) this;
+        }
+
+        public Criteria andMustDescriptionNotBetween(String value1, String value2) {
+            addCriterion("must_description not between", value1, value2, "mustDescription");
+            return (Criteria) this;
+        }
+
         public Criteria andMaxCtaDescriptionIsNull() {
             addCriterion("max_cta_description is null");
             return (Criteria) this;

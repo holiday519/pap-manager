@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -617,35 +618,48 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void auditCreative(String id) throws Exception {
-		CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
-		if (mapModel == null) {
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		if (creative == null) {
 			throw new ResourceNotFoundException();
 		}
 		
-		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
-		//审核创意
-		for (AdxModel adx : adxs) {
-//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-//				//百度
-//				auditCreativeBaiduService.audit(id);
-//			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
-//				auditCreativeAdviewService.audit(id);
-//			}
-			auditCreativeMomoService.audit(id);
-//			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-//			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
-//			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-//			if (list == null || list.isEmpty()) {
-//				CreativeAuditModel model = new CreativeAuditModel();
-//				model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-//				model.setId(UUID.randomUUID().toString());
-//				model.setAuditValue("1");
-//				model.setCreativeId(id);
-//				model.setAdxId(adx.getId());
-//				creativeAuditDao.insertSelective(model);
-//			}
+		String tmplId = creative.getTmplId();
+		
+		AppTmplModelExample ex = new AppTmplModelExample();
+		ex.createCriteria().andTmplIdEqualTo(tmplId);
+		List<AppTmplModel> list = appTmplDao.selectByExample(ex);
+		if (list != null && !list.isEmpty()) {
+			for (AppTmplModel at : list) {
+				String appId = at.getAppId();
+				AppModel app = appDao.selectByPrimaryKey(appId);
+				if (app != null) {
+					String adxId = app.getAdxId();
+					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+						//百度--是不是第一次审核，在service中判断了
+						auditCreativeBaiduService.audit(id);
+					} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
+						//搜狐---判断是第一次审核，还是编辑
+						CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
+						CreativeAuditModelExample example = new CreativeAuditModelExample();
+						example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_SOHU_VALUE);
+						List<CreativeAuditModel> lists = creativeAuditDao.selectByExample(example);
+						if (lists == null || list.isEmpty()) {
+							auditCreativeSohuService.audit(id);
+						} else {
+							auditCreativeSohuService.editAudit(id);
+						}
+					} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+						//陌陌----第一次审核和再次审核编辑调用一个方法
+						auditCreativeMomoService.audit(id);
+					} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+						//汽车之家----第一次审核和再次审核编辑调用一个方法
+						auditCreativeAutoHomeService.audit(id);
+					} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+						//adview
+						auditCreativeAdviewService.audit(id);
+					} 
+				}
+			}
 		}
 	}
 
@@ -655,33 +669,39 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void synchronize(String id) throws Exception {
-		CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
-		if (mapModel == null) {
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		if (creative == null) {
 			throw new ResourceNotFoundException();
 		}
-		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
-		//同步结果
-		for (AdxModel adx : adxs) {
-//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-				//百度
-//				auditCreativeBaiduService.synchronize(id);
-//			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
-//				auditCreativeAdviewService.synchronize(id);
-//			}
-			auditCreativeMomoService.synchronize(id);
-//			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-//			ex.createCriteria().andAdxIdEqualTo(adx.getId()).andCreativeIdEqualTo(id);
-//			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-//			if (list != null && !list.isEmpty()) {
-//				for (CreativeAuditModel ml : list) {
-//					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-//					creativeAuditDao.updateByPrimaryKeySelective(ml);
-//				}
-//			} else {
-//				throw new ResourceNotFoundException();
-//			}
+		String tmplId = creative.getTmplId();
+		
+		AppTmplModelExample ex = new AppTmplModelExample();
+		ex.createCriteria().andTmplIdEqualTo(tmplId);
+		List<AppTmplModel> list = appTmplDao.selectByExample(ex);
+		if (list != null && !list.isEmpty()) {
+			for (AppTmplModel at : list) {
+				String appId = at.getAppId();
+				AppModel app = appDao.selectByPrimaryKey(appId);
+				if (app != null) {
+					String adxId = app.getAdxId();
+					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+						//百度
+						auditCreativeBaiduService.synchronize(id);
+					} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
+						//搜狐
+						auditCreativeSohuService.synchronize(id);
+					} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+						//陌陌
+						auditCreativeMomoService.synchronize(id);
+					} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+						//汽车之家
+						auditCreativeAutoHomeService.synchronize(id);
+					} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+						//adview
+						auditCreativeAdviewService.synchronize(id);
+					} 
+				}
+			}
 		}
 	}
 	

@@ -9,6 +9,8 @@ public class InfoflowTmplModel {
 
     private Integer maxDescription;
 
+    private String mustDescription;
+
     private Integer maxCtaDescription;
 
     private String iconId;
@@ -51,6 +53,14 @@ public class InfoflowTmplModel {
 
     public void setMaxDescription(Integer maxDescription) {
         this.maxDescription = maxDescription;
+    }
+
+    public String getMustDescription() {
+        return mustDescription;
+    }
+
+    public void setMustDescription(String mustDescription) {
+        this.mustDescription = mustDescription == null ? null : mustDescription.trim();
     }
 
     public Integer getMaxCtaDescription() {
@@ -142,6 +152,7 @@ public class InfoflowTmplModel {
         sb.append(", id=").append(id);
         sb.append(", maxTitle=").append(maxTitle);
         sb.append(", maxDescription=").append(maxDescription);
+        sb.append(", mustDescription=").append(mustDescription);
         sb.append(", maxCtaDescription=").append(maxCtaDescription);
         sb.append(", iconId=").append(iconId);
         sb.append(", image1Id=").append(image1Id);

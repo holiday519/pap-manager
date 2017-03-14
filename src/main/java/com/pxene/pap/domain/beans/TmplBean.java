@@ -1,6 +1,5 @@
 package com.pxene.pap.domain.beans;
 
-
 /**
  * app下所有模版
  */
@@ -137,6 +136,7 @@ public class TmplBean {
 		private String id;
 		private Integer maxTitle;
 		private Integer maxDescription;
+		private String mustDescription;
 		private Integer maxCtaDescription;
 		private ImageTmpl icon;
 		private ImageTmpl image1;
@@ -176,6 +176,14 @@ public class TmplBean {
 
 		public void setMaxCtaDescription(Integer maxCtaDescription) {
 			this.maxCtaDescription = maxCtaDescription;
+		}
+
+		public String getMustDescription() {
+			return mustDescription;
+		}
+
+		public void setMustDescription(String mustDescription) {
+			this.mustDescription = mustDescription;
 		}
 
 		public ImageTmpl getIcon() {
@@ -238,6 +246,7 @@ public class TmplBean {
 		public String toString() {
 			return "InfoTmpl [id=" + id + ", maxTitle=" + maxTitle
 					+ ", maxDescription=" + maxDescription
+					+ ", mustDescription=" + mustDescription
 					+ ", maxCtaDescription=" + maxCtaDescription + ", icon="
 					+ icon + ", image1=" + image1 + ", image2=" + image2
 					+ ", image3=" + image3 + ", image4=" + image4 + ", image5="

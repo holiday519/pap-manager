@@ -282,9 +282,6 @@ public class TmplService extends BaseService {
 				}
 			}
 		}
-		if (infoTmplList.isEmpty() && infoTmplListNotUse.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
 		if ("01".equals(status)) {//用着的
 			return infoTmplList;
 		} else if ("02".equals(status)) {
