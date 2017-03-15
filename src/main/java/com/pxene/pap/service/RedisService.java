@@ -46,6 +46,8 @@ import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
+import com.pxene.pap.domain.models.RegionTargetModel;
+import com.pxene.pap.domain.models.RegionTargetModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.domain.models.view.CreativeImageModelExample;
@@ -69,6 +71,7 @@ import com.pxene.pap.repository.basic.PopulationDao;
 import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.QuantityDao;
+import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
@@ -129,6 +132,9 @@ public class RedisService {
 	
 	@Autowired
 	private PopulationTargetDao populationTargetDao;
+	
+	@Autowired
+	private RegionTargetDao regionTargetDao;
 	
 	@Autowired
 	private PopulationDao populationDao;
@@ -570,7 +576,16 @@ public class RedisService {
 			int flag = 0;
 			CampaignTargetModel target = targets.get(0);
 			targetJson.addProperty("groupid", campaignId);
-			JsonArray region = targetStringToJsonArrayWithInt(target.getRegionId());
+//			JsonArray region = targetStringToJsonArrayWithInt(target.getRegionId());
+			JsonArray region = new JsonArray();
+			RegionTargetModelExample regionTargetModelExample = new RegionTargetModelExample();
+			regionTargetModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<RegionTargetModel> regionTargetList = regionTargetDao.selectByExample(regionTargetModelExample);
+			if (regionTargetList!=null && !regionTargetList.isEmpty()) {
+				for (RegionTargetModel mol : regionTargetList) {
+					region.add(Integer.parseInt(mol.getRegionId()));
+				}
+			}
 			JsonArray network = targetStringToJsonArrayWithInt(target.getNetwork());
 			JsonArray os = targetStringToJsonArrayWithInt(target.getOs());
 			JsonArray operator = targetStringToJsonArrayWithInt(target.getOperator());
@@ -688,7 +703,7 @@ public class RedisService {
 					FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
 					if (frequencyModel != null) {
 						String controlObj = frequencyModel.getControlObj();
-//						Integer number = frequencyModel.getNumber();
+						Integer number = frequencyModel.getNumber();
 						String timeType = frequencyModel.getTimeType();
 						if ("02".equals(controlObj)) {
 							userObj.addProperty("type", 2);
@@ -705,7 +720,7 @@ public class RedisService {
 						cap.addProperty("id", campaignModel.getId());
 						capping.add(cap);
 						userObj.add("capping", capping);
-//						userObj.addProperty("frequency", number);
+						userObj.addProperty("frequency", number);
 					}
 					obj.add("user", userObj);
 				}

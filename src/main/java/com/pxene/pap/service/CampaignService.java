@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.google.gson.JsonArray;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -681,7 +682,7 @@ public class CampaignService extends LaunchService {
 		CampaignModelExample example = new CampaignModelExample();
 		
 		// 按更新时间进行倒序排序
-        example.setOrderByClause("update_time DESC");
+        example.setOrderByClause("create_time DESC");
 		
 		if(!StringUtils.isEmpty(name) && StringUtils.isEmpty(projectId)){
 			example.createCriteria().andNameLike("%" + name + "%");
@@ -768,8 +769,23 @@ public class CampaignService extends LaunchService {
 				target.setOs(formatTargetStringToArray(campaignTargetModel.getOs()));
 				target.setBrand(formatTargetStringToArray(campaignTargetModel.getBrandId()));
 //				target.setApp(formatTargetStringToArray(campaignTargetModel.getAppId()));
+				JsonArray regionTargets = new JsonArray();//地域定向数据长度太长需要单独查询
+				RegionTargetModelExample regionTargetModelExample = new RegionTargetModelExample();
+				regionTargetModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+				List<RegionTargetModel> regionTargetList = regionTargetDao.selectByExample(regionTargetModelExample);
+				if (regionTargetList!=null && !regionTargetList.isEmpty()) {
+					for (RegionTargetModel mol : regionTargetList) {
+						regionTargets.add(Integer.parseInt(mol.getRegionId()));
+					}
+				}
 				//地域定向信息返回名称和id
-				String[] regionArray = formatTargetStringToArray(campaignTargetModel.getRegionId());
+//				String[] regionArray = formatTargetStringToArray(campaignTargetModel.getRegionId());
+				String[] regionArray = new String[regionTargets.size()];
+				if (regionTargets.size() > 0) {
+					for (int i = 0; i < regionTargets.size(); i++) {
+						regionArray[i] = regionTargets.get(i).getAsString();
+					}
+				}
 				if (regionArray != null) {
 					RegionModel regionModel = null;
 					Region region = null;
