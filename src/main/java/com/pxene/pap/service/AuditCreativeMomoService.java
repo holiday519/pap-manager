@@ -113,14 +113,15 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 //        String promotiontype = "b";//推广类型（a：应用推广（下载）  b：品牌推广  c：效果推广）
         boolean quality_level = true;//是否是高质量素材，默认是
         JsonObject native_creative = new JsonObject();
-        String expiry_date = DateUtils.getDayOfChange(new Date(), 120);
+        Date now = new Date();
+        String expiry_date = DateUtils.getDayOfChange(now, 120);
         if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeModel.getType())) {
         	//判断是先到自动过期时间（4个月）还是项目结束时间
         	//获取截止时间
         	//FIXME 为什么要设定结束日期是活动结束日期，为什么不直接120天
-        	if (new DateTime(new Date()).plusDays(120).toDate().after(campaignModel.getEndDate())) {
-        		expiry_date = new DateTime(campaignModel.getEndDate()).toString("yyyy-MM-dd", Locale.CHINESE);
-        	}
+//        	if (new DateTime(new Date()).plusDays(120).toDate().after(campaignModel.getEndDate())) {
+//        		expiry_date = new DateTime(campaignModel.getEndDate()).toString("yyyy-MM-dd", Locale.CHINESE);
+//        	}
         	expiry_date = expiry_date + " 23:59:59";
         	String puton_to;//广告样式 - 拼接使用（投放位置：附近动态、附近人、好友动态）
             String puton_type;//广告样式 - 拼接使用（投放类型：打开网页、下载（IOS、安卓））
@@ -216,12 +217,14 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 			if (list != null && !list.isEmpty()) {
 				for (CreativeAuditModel mod : list) {
 					mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+					mod.setExpiryDate(new DateTime(now).plusDays(120).toDate());
 					creativeAuditDao.updateByPrimaryKeySelective(mod);
 				}
 			} else {
 				CreativeAuditModel mod = new CreativeAuditModel();
 				mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 				mod.setId(UUID.randomUUID().toString());
+				mod.setExpiryDate(new DateTime(now).plusDays(120).toDate());
 				mod.setCreativeId(creativeId);
 				mod.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
 				creativeAuditDao.insertSelective(mod);

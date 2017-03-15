@@ -15,6 +15,8 @@ public class CreativeAuditModel {
 
     private String message;
 
+    private Date expiryDate;
+
     private Date createTime;
 
     private Date updateTime;
@@ -67,6 +69,14 @@ public class CreativeAuditModel {
         this.message = message == null ? null : message.trim();
     }
 
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -95,6 +105,7 @@ public class CreativeAuditModel {
         sb.append(", auditValue=").append(auditValue);
         sb.append(", status=").append(status);
         sb.append(", message=").append(message);
+        sb.append(", expiryDate=").append(expiryDate);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

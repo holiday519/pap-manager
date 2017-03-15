@@ -51,6 +51,10 @@ public class StatusConstant {
 	 */
 	public static final String CREATIVE_AUDIT_FAILURE = "04";
 	/**
+	 * 创意审核状态 ：已过期
+	 */
+	public static final String CREATIVE_AUDIT_EXPITY = "05";
+	/**
 	 * 创意类型 ： 图片
 	 */
 	public static final String CREATIVE_TYPE_IMAGE = "01";

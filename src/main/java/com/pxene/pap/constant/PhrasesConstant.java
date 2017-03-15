@@ -27,6 +27,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_DATE_ERROR = "活动周期错误，操作失败！";
 	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";
 	public static final String PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN = "项目预算不能小于项目下活动预算总和！";
+	public static final String CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL = "活动日预算不能大于活动总预算！";
 	
 	
 	

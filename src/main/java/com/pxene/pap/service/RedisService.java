@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -719,9 +720,12 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void writeCampaignBudgetToRedis(String campaignId) throws Exception {
-		if (!StringUtils.isEmpty(campaignId)) {//如果没有才新加，有，不操作
+		if (!StringUtils.isEmpty(campaignId)) {
+			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+			Integer totalBudget = campaignModel.getTotalBudget();
 			String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 			if (!JedisUtils.exists(key)) {
+				Integer budget = 0;
 				QuantityModelExample example = new QuantityModelExample();
 				example.createCriteria().andCampaignIdEqualTo(campaignId);
 				List<QuantityModel> list = quantityDao.selectByExample(example);
@@ -733,12 +737,15 @@ public class RedisService {
 						List<String> dayList = Arrays.asList(days);
 						String time = new DateTime(new Date()).toString("yyyyMMdd");
 						if (dayList.contains(time)) {
-							Integer budget = quan.getDailyBudget();
-							JedisUtils.set(key, budget * 100);
+							budget = quan.getDailyBudget();
 							break;
 						}
 					}
 				}
+				Map<String, String> value = new HashMap<String, String>();
+				value.put("total", String.valueOf(totalBudget * 100));
+				value.put("daily", String.valueOf(budget * 100));
+				JedisUtils.hset(key, value);
 			}
 		}
 	}
@@ -757,25 +764,25 @@ public class RedisService {
 		}
 	}
 	
-	/**
-	 * 活动所属项目预算key写入redis
-	 * @param campaignId
-	 * @throws Exception
-	 */
-	public void writeProjectBudgetToRedis(String campaignId) throws Exception {
-		if (!StringUtils.isEmpty(campaignId)) {//如果没有才新加，有，不操作
-			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-			if (model != null) {
-				String projectId = model.getProjectId();
-				String key = RedisKeyConstant.PROJECT_BUDGET + projectId;
-				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-				if (projectModel != null) {
-					int totalBudget = projectModel.getTotalBudget();
-					JedisUtils.set(key, totalBudget * 100);
-				}
-			}
-		}
-	}
+//	/**
+//	 * 活动所属项目预算key写入redis
+//	 * @param campaignId
+//	 * @throws Exception
+//	 */
+//	public void writeProjectBudgetToRedis(String campaignId) throws Exception {
+//		if (!StringUtils.isEmpty(campaignId)) {//如果没有才新加，有，不操作
+//			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+//			if (model != null) {
+//				String projectId = model.getProjectId();
+//				String key = RedisKeyConstant.PROJECT_BUDGET + projectId;
+//				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+//				if (projectModel != null) {
+//					int totalBudget = projectModel.getTotalBudget();
+//					JedisUtils.set(key, totalBudget * 100);
+//				}
+//			}
+//		}
+//	}
 	
 	/**
 	 * 活动kpi上限写如redis
@@ -785,39 +792,41 @@ public class RedisService {
 	public void writeCampaignCounterToRedis(String campaignId) throws Exception {
 		if (!StringUtils.isEmpty(campaignId)) {
 			String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-			QuantityModelExample example = new QuantityModelExample();
-			example.createCriteria().andCampaignIdEqualTo(campaignId);
-			List<QuantityModel> list = quantityDao.selectByExample(example);
-			if (list !=null && !list.isEmpty()) {
-				for (QuantityModel quan : list) {
-					Date startDate = quan.getStartDate();
-					Date endDate = quan.getEndDate();
-					String[] days = DateUtils.getDaysBetween(startDate, endDate);
-					List<String> dayList = Arrays.asList(days);
-					String time = new DateTime(new Date()).toString("yyyyMMdd");
-					if (dayList.contains(time)) {
-						int counter = quan.getDailyImpression();
-						JedisUtils.set(key, counter);
-						break;
+			if (!JedisUtils.exists(key)) {
+				QuantityModelExample example = new QuantityModelExample();
+				example.createCriteria().andCampaignIdEqualTo(campaignId);
+				List<QuantityModel> list = quantityDao.selectByExample(example);
+				if (list !=null && !list.isEmpty()) {
+					for (QuantityModel quan : list) {
+						Date startDate = quan.getStartDate();
+						Date endDate = quan.getEndDate();
+						String[] days = DateUtils.getDaysBetween(startDate, endDate);
+						List<String> dayList = Arrays.asList(days);
+						String time = new DateTime(new Date()).toString("yyyyMMdd");
+						if (dayList.contains(time)) {
+							int counter = quan.getDailyImpression();
+							JedisUtils.set(key, counter);
+							break;
+						}
 					}
 				}
 			}
 		}
 	}
 	
-	/**
-	 * 删除活动kpi
-	 * @param campaignId
-	 * @throws Exception
-	 */
-	public void deleteCampaignCounterFromRedis(String campaignId) throws Exception {
-		if (!StringUtils.isEmpty(campaignId)) {
-			String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-			if (JedisUtils.exists(key)) {
-				JedisUtils.delete(key);
-			}
-		}
-	}
+//	/**
+//	 * 删除活动kpi
+//	 * @param campaignId
+//	 * @throws Exception
+//	 */
+//	public void deleteCampaignCounterFromRedis(String campaignId) throws Exception {
+//		if (!StringUtils.isEmpty(campaignId)) {
+//			String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
+//			if (JedisUtils.exists(key)) {
+//				JedisUtils.delete(key);
+//			}
+//		}
+//	}
 	
 	/**
 	 * 活动下创意ID写入redis
@@ -1027,7 +1036,7 @@ public class RedisService {
 		deleteMapidsFromRedis(campaignId);
 		deleteCampaignWBListFromredis(campaignId);
 		deleteCampaignBudgetFormRedis(campaignId);
-		deleteCampaignCounterFromRedis(campaignId);
+//		deleteCampaignCounterFromRedis(campaignId);
 	}
 	/**
 	 * 删除redis中key：dsp_groupid_mapids_活动id

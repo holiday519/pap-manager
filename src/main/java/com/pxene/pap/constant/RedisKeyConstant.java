@@ -40,11 +40,11 @@ public class RedisKeyConstant {
 	/**
 	 * 活动预算
 	 */
-	public static final String CAMPAIGN_BUDGET = "dsp_campaign_budget_"; 
-	/**
-	 * 项目预算
-	 */
-	public static final String PROJECT_BUDGET = "dsp_project_budget_"; 
+	public static final String CAMPAIGN_BUDGET = "pap_budget_"; 
+//	/**
+//	 * 项目预算
+//	 */
+//	public static final String PROJECT_BUDGET = "dsp_project_budget_"; 
 	/**
 	 * 活动展现上限
 	 */

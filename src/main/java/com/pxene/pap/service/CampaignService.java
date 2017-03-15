@@ -543,7 +543,15 @@ public class CampaignService extends LaunchService {
 		Quantity[] quantitys = bean.getQuantities();
 		if (quantitys != null && quantitys.length > 0) {
 			String id = bean.getId();
+			Integer dailyBudget = null;
+			Integer totalBudget = null;
 			for (Quantity qt : quantitys) {
+				dailyBudget = qt.getDailyBudget();
+				totalBudget = bean.getTotalBudget();
+				if (dailyBudget != null && totalBudget != null
+						&& dailyBudget.compareTo(totalBudget) > 0) {
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL); 
+				}
 				QuantityModel model = modelMapper.map(qt, QuantityModel.class);
 				model.setCampaignId(id);
 				model.setId(UUID.randomUUID().toString());

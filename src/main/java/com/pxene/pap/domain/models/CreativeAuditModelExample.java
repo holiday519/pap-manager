@@ -2,6 +2,7 @@ package com.pxene.pap.domain.models;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class CreativeAuditModelExample {
@@ -103,6 +104,32 @@ public class CreativeAuditModelExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+        }
+
+        protected void addCriterionForJDBCDate(String condition, Date value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            addCriterion(condition, new java.sql.Date(value.getTime()), property);
+        }
+
+        protected void addCriterionForJDBCDate(String condition, List<Date> values, String property) {
+            if (values == null || values.size() == 0) {
+                throw new RuntimeException("Value list for " + property + " cannot be null or empty");
+            }
+            List<java.sql.Date> dateList = new ArrayList<java.sql.Date>();
+            Iterator<Date> iter = values.iterator();
+            while (iter.hasNext()) {
+                dateList.add(new java.sql.Date(iter.next().getTime()));
+            }
+            addCriterion(condition, dateList, property);
+        }
+
+        protected void addCriterionForJDBCDate(String condition, Date value1, Date value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            addCriterion(condition, new java.sql.Date(value1.getTime()), new java.sql.Date(value2.getTime()), property);
         }
 
         public Criteria andIdIsNull() {
@@ -522,6 +549,66 @@ public class CreativeAuditModelExample {
 
         public Criteria andMessageNotBetween(String value1, String value2) {
             addCriterion("message not between", value1, value2, "message");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateIsNull() {
+            addCriterion("expiry_date is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateIsNotNull() {
+            addCriterion("expiry_date is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateEqualTo(Date value) {
+            addCriterionForJDBCDate("expiry_date =", value, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateNotEqualTo(Date value) {
+            addCriterionForJDBCDate("expiry_date <>", value, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateGreaterThan(Date value) {
+            addCriterionForJDBCDate("expiry_date >", value, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateGreaterThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("expiry_date >=", value, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateLessThan(Date value) {
+            addCriterionForJDBCDate("expiry_date <", value, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateLessThanOrEqualTo(Date value) {
+            addCriterionForJDBCDate("expiry_date <=", value, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateIn(List<Date> values) {
+            addCriterionForJDBCDate("expiry_date in", values, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateNotIn(List<Date> values) {
+            addCriterionForJDBCDate("expiry_date not in", values, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("expiry_date between", value1, value2, "expiryDate");
+            return (Criteria) this;
+        }
+
+        public Criteria andExpiryDateNotBetween(Date value1, Date value2) {
+            addCriterionForJDBCDate("expiry_date not between", value1, value2, "expiryDate");
             return (Criteria) this;
         }
 

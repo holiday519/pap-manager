@@ -3,7 +3,9 @@ package com.pxene.pap.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -14,15 +16,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
+import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeAuditModel;
+import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
+import com.pxene.pap.domain.models.QuantityModel;
+import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.QuantityDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
@@ -37,10 +47,16 @@ public class LaunchService extends BaseService{
 	private ProjectDao projectDao;
 	
 	@Autowired
+	private QuantityDao quantityDao;
+	
+	@Autowired
 	private CampaignDao campaignDao;
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
+	
+	@Autowired
+	private CreativeAuditDao creativeAuditDao;
 	
 	/**
 	 * 投放
@@ -73,7 +89,8 @@ public class LaunchService extends BaseService{
 			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
 			DateTime nowTime = new DateTime();
 			String now = nowTime.toString("yyyyMMdd");
-			if (!daysList.contains(now)) {
+			if (daysList.contains(now)) {
+				Flag = true;
 				return Flag;
 			}
 		}
@@ -124,7 +141,7 @@ public class LaunchService extends BaseService{
 		return Flag;
 	}
 	
-	
+	//手动投放时调用
 	public void writeRedis(String campaignId) throws Exception {
 		//写入活动下的创意基本信息   dsp_mapid_*
 		redisService.writeCreativeInfoToRedis(campaignId);
@@ -141,11 +158,31 @@ public class LaunchService extends BaseService{
 		//写入黑白名单信息
 		redisService.writeWhiteBlackToRedis(campaignId);
 		//写入项目预算
-		redisService.writeProjectBudgetToRedis(campaignId);
+//		redisService.writeProjectBudgetToRedis(campaignId);
 		//写入活动预算
 		redisService.writeCampaignBudgetToRedis(campaignId);
 		//写入活动展现
 		redisService.writeCampaignCounterToRedis(campaignId);
+	}
+	
+	//定时器投放调用
+	public void writeRedisByTime(String campaignId) throws Exception {
+		//写入活动下的创意基本信息   dsp_mapid_*
+		redisService.writeCreativeInfoToRedis(campaignId);
+		//写入活动下的创意ID  dsp_group_mapids_*
+		redisService.writeMapidToRedis(campaignId);
+		//写入活动基本信息   dsp_group_info_*
+		redisService.writeCampaignInfoToRedis(campaignId);
+		//写入活动定向   dsp_group_target_*
+		redisService.writeCampaignTargetToRedis(campaignId);
+		//写入活动ID pap_groupids
+		redisService.writeCampaignIds(campaignId);
+		//写入活动频次信息   dsp_groupid_frequencycapping_*
+		redisService.writeCampaignFrequencyToRedis(campaignId);
+		//写入黑白名单信息
+		redisService.writeWhiteBlackToRedis(campaignId);
+
+		//活动预算、活动展现都由定时器方法中添加，在每天的00点时添加
 	}
 	
 	/**
@@ -159,7 +196,7 @@ public class LaunchService extends BaseService{
 	}
 	
 	/**
-	 * 根据时间定向投放活动，结束到期活动
+	 * 根据时间定向投放活动，结束到期活动————————————每小时投放项目定时器
 	 * @throws Exception
 	 */
 	@Scheduled(cron = "0 0 */1 * * ?")
@@ -184,7 +221,38 @@ public class LaunchService extends BaseService{
 			
 			//查询活动的时间定向ID
 			for (CampaignModel campaign : campaigns) {
-				String id = campaign.getId();
+				String campaitnId = campaign.getId();
+				if ("00".equals(currentHour)) {//每天零点写入预算和展现key
+					//日展现上限
+					Integer totalBudget = campaign.getTotalBudget();
+					Integer budget = 0;
+					Integer counter = 0;
+					String count_key = RedisKeyConstant.CAMPAIGN_COUNTER + campaitnId;
+					String budget_key = RedisKeyConstant.CAMPAIGN_BUDGET + campaitnId;
+					QuantityModelExample example = new QuantityModelExample();
+					example.createCriteria().andCampaignIdEqualTo(campaitnId);
+					List<QuantityModel> list = quantityDao.selectByExample(example);
+					if (list !=null && !list.isEmpty()) {
+						for (QuantityModel quan : list) {
+							Date startDate = quan.getStartDate();
+							Date endDate = quan.getEndDate();
+							String[] days = DateUtils.getDaysBetween(startDate, endDate);
+							List<String> dayList = Arrays.asList(days);
+							String time = new DateTime(new Date()).toString("yyyyMMdd");
+							if (dayList.contains(time)) {
+								counter = quan.getDailyImpression();
+								budget = quan.getDailyBudget();
+								break;
+							}
+						}
+					}
+					Map<String, String> value = new HashMap<String, String>();
+					value.put("total", String.valueOf(totalBudget * 100));
+					value.put("daily", String.valueOf(budget * 100));
+					
+					JedisUtils.set(count_key, counter);//预算
+					JedisUtils.hset(budget_key, value);//展现上限
+				}
 //				String status = campaign.getStatus();
 				//判断当前时间是不是在活动的开始时间和结束时间之间
 				Date start = campaign.getStartDate();
@@ -193,20 +261,43 @@ public class LaunchService extends BaseService{
 				
 				if (now.after(end)) {//当前时间大于结束时间，状态变成已结束
 					campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-					redisService.deleteCampaignId(id);
+					redisService.deleteCampaignId(campaitnId);
 				} else if (now.before(start)) {//当前时间小于开始时间时无操作
 				} else {//当前时间在开始时间和结束时间之间
-					if (campaignIsInWeekAndTimeTarget(id)) {
-						writeRedis(id);
+					if (campaignIsInWeekAndTimeTarget(campaitnId)) {
+						writeRedisByTime(campaitnId);
 						campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
 					} else {
-						redisService.deleteCampaignId(id);
+						redisService.deleteCampaignId(campaitnId);
 					}
 				}
 				campaignDao.updateByPrimaryKeySelective(campaign);
 			}
 		}
 		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器执行结束—————In LaunchService");
+	}
+	/**
+	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
+	 * @throws Exception
+	 */
+	@Scheduled(cron = "10 0 0 * * ?")
+	public void updateExpityDate() throws Exception {
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+		if (list != null && !list.isEmpty()) {
+			for (CreativeAuditModel model : list) {
+				Date expiryDate = model.getExpiryDate();
+				if (expiryDate != null) {
+					DateTime expiry = new DateTime(expiryDate);
+					expiry.toString("yyyy-MM-dd");
+					String now = new DateTime().toString("yyyy-MM-dd");
+					if (expiry.equals(now)) {
+						model.setStatus(StatusConstant.CREATIVE_AUDIT_EXPITY);
+						creativeAuditDao.updateByPrimaryKeySelective(model);
+					}
+				}
+			}
+		}
 	}
 	
 	/**
