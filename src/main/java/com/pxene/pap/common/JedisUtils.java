@@ -272,4 +272,26 @@ public class JedisUtils {
 			close(jedis);
 		}
 	}
+	
+	/**
+	 * 为哈希表 key 中的域 field 加上浮点数增量 increment。<br>
+	 * 如果命令执行成功，那么 key 的值会被更新为（执行加法之后的）新值，并且新值会以字符串的形式返回给调用者。
+	 * @param key          键名
+	 * @param field        域
+	 * @param increment    增量值，可正可负
+	 * @return 更新后的新值
+	 */
+	public static Double hincrbyFloat(String key, String field, float increment) 
+	{
+	    if (isBlank(key))
+	    {
+	        throw new IllegalArgumentException();
+	    }
+	    
+	    Jedis jedis = getJedis();
+        Double result = jedis.hincrByFloat(key, field, increment);
+        close(jedis);
+        
+        return result;
+    }
 }
