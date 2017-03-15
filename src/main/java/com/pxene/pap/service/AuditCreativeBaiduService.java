@@ -98,6 +98,8 @@ public class AuditCreativeBaiduService {
 	
 	private static String image_url;
 	
+	private static String impClick_url;
+	
 	@Autowired
 	public AuditCreativeBaiduService(Environment env)
 	{
@@ -105,6 +107,7 @@ public class AuditCreativeBaiduService {
 		 * 获取图片上传路径
 		 */
 		image_url = env.getProperty("pap.fileserver.url.prefix");
+		impClick_url = env.getProperty("pap.fileserver.url.impClick");
 	}
 	@Transactional
 	public void audit(String creativeId) throws Exception {
@@ -191,7 +194,7 @@ public class AuditCreativeBaiduService {
 
 		// 点击链接targetUrl
 		String encodeUrl = URLEncoder.encode(creativeImage.getCurl(), "UTF-8");
-		String targetUrl = "http://cl2.pxene.com" + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页——————需要点击地址————————————
+		String targetUrl = impClick_url + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页
 		creative.addProperty("targetUrl", targetUrl);
 		String imonitorUrl = creativeImage.getImonitorUrl();
 		String[] imonitors = imonitorUrl.split("##");
@@ -202,7 +205,7 @@ public class AuditCreativeBaiduService {
 			}
 		}
 		if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
-			imot.add("http://cl2.pxene.com" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
+			imot.add(impClick_url + adxModel.getImpressionUrl());
 		}
 		creative.add("monitorUrls", imot);
 		String creativeTradeId = getIndustry(getAdvertiserByMapId(mapId).getIndustryId());
@@ -359,7 +362,7 @@ public class AuditCreativeBaiduService {
 		
 		// 点击链接targetUrl
 		String encodeUrl = URLEncoder.encode(creativeInfo.getCurl(), "UTF-8");
-		String targetUrl = "http://cl2.pxene.com" + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页——————需要点击地址————————————
+		String targetUrl = impClick_url + adxModel.getClickUrl() + "&curl=" + encodeUrl;// 平台的点击地址 + 编码后的落地页
 		creative.addProperty("targetUrl", targetUrl);
 		String imonitorUrl = creativeInfo.getImonitorUrl();
 		String[] imonitors = imonitorUrl.split("##");
@@ -370,7 +373,7 @@ public class AuditCreativeBaiduService {
 			}
 		}
 		if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
-			imot.add("http://cl2.pxene.com" + adxModel.getImpressionUrl());// 需要点击地址——————————————————
+			imot.add(impClick_url + adxModel.getImpressionUrl());
 		}
 		creative.add("monitorUrls", imot);
 		String creativeTradeId = getIndustry(getAdvertiserByMapId(mapId).getIndustryId());

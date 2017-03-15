@@ -122,6 +122,8 @@ public class PhrasesConstant
 	public static final String LANDPAGE_LENGTH_ERROR_REMARK = "备注长度不能 超过200";
 	
 	
+	public static final String CREATIVE_HAVE_CHECKED = "审核过的创意不能再次提交审核";
+	public static final String CREATIVE_HAVE_SYCHRONIZED = "审核过的创意不能再次同步";
 	
     
 }

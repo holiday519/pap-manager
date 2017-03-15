@@ -37,8 +37,6 @@ import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
-import com.pxene.pap.domain.models.AdxModel;
-import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
@@ -623,6 +621,8 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		
+		
+		
 		String tmplId = creative.getTmplId();
 		
 		AppTmplModelExample ex = new AppTmplModelExample();
@@ -634,30 +634,37 @@ public class CreativeService extends BaseService {
 				AppModel app = appDao.selectByPrimaryKey(appId);
 				if (app != null) {
 					String adxId = app.getAdxId();
-					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-						//百度--是不是第一次审核，在service中判断了
-						auditCreativeBaiduService.audit(id);
-					} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
-						//搜狐---判断是第一次审核，还是编辑
-						CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
-						CreativeAuditModelExample example = new CreativeAuditModelExample();
-						example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_SOHU_VALUE);
-						List<CreativeAuditModel> lists = creativeAuditDao.selectByExample(example);
-						if (lists == null || list.isEmpty()) {
-							auditCreativeSohuService.audit(id);
-						} else {
-							auditCreativeSohuService.editAudit(id);
-						}
-					} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-						//陌陌----第一次审核和再次审核编辑调用一个方法
-						auditCreativeMomoService.audit(id);
-					} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-						//汽车之家----第一次审核和再次审核编辑调用一个方法
-						auditCreativeAutoHomeService.audit(id);
-					} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
-						//adview
-						auditCreativeAdviewService.audit(id);
-					} 
+					CreativeAuditModelExample caEx = new CreativeAuditModelExample();
+					caEx.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adxId).andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					List<CreativeAuditModel> haveAudit = creativeAuditDao.selectByExample(caEx);
+					if (haveAudit == null || haveAudit.isEmpty()) {
+						if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+							//百度--是不是第一次审核，在service中判断了
+							auditCreativeBaiduService.audit(id);
+						} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
+							//搜狐---判断是第一次审核，还是编辑
+							CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
+							CreativeAuditModelExample example = new CreativeAuditModelExample();
+							example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_SOHU_VALUE);
+							List<CreativeAuditModel> lists = creativeAuditDao.selectByExample(example);
+							if (lists == null || list.isEmpty()) {
+								auditCreativeSohuService.audit(id);
+							} else {
+								auditCreativeSohuService.editAudit(id);
+							}
+						} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+							//陌陌----第一次审核和再次审核编辑调用一个方法
+							auditCreativeMomoService.audit(id);
+						} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+							//汽车之家----第一次审核和再次审核编辑调用一个方法
+							auditCreativeAutoHomeService.audit(id);
+						} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+							//adview
+							auditCreativeAdviewService.audit(id);
+						} 
+					} else {
+						throw new IllegalStateException(PhrasesConstant.CREATIVE_HAVE_CHECKED);
+					}
 				}
 			}
 		}
@@ -684,22 +691,29 @@ public class CreativeService extends BaseService {
 				AppModel app = appDao.selectByPrimaryKey(appId);
 				if (app != null) {
 					String adxId = app.getAdxId();
-					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-						//百度
-						auditCreativeBaiduService.synchronize(id);
-					} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
-						//搜狐
-						auditCreativeSohuService.synchronize(id);
-					} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-						//陌陌
-						auditCreativeMomoService.synchronize(id);
-					} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-						//汽车之家
-						auditCreativeAutoHomeService.synchronize(id);
-					} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
-						//adview
-						auditCreativeAdviewService.synchronize(id);
-					} 
+					CreativeAuditModelExample caEx = new CreativeAuditModelExample();
+					caEx.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adxId).andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					List<CreativeAuditModel> haveAudit = creativeAuditDao.selectByExample(caEx);
+					if (haveAudit == null || haveAudit.isEmpty()) {
+						if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+							//百度
+							auditCreativeBaiduService.synchronize(id);
+						} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
+							//搜狐
+							auditCreativeSohuService.synchronize(id);
+						} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+							//陌陌
+							auditCreativeMomoService.synchronize(id);
+						} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+							//汽车之家
+							auditCreativeAutoHomeService.synchronize(id);
+						} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+							//adview
+							auditCreativeAdviewService.synchronize(id);
+						} 
+					} else {
+						throw new IllegalStateException(PhrasesConstant.CREATIVE_HAVE_SYCHRONIZED);
+					}
 				}
 			}
 		}

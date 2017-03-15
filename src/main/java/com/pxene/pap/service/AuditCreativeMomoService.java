@@ -3,11 +3,9 @@ package com.pxene.pap.service;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -15,16 +13,6 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -37,6 +25,7 @@ import com.google.gson.JsonObject;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
@@ -52,6 +41,7 @@ import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
+import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -64,7 +54,7 @@ import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
-public class AuditCreativeMomoService {
+public class AuditCreativeMomoService {//FIXME 能不能重新审核
 
 	@Autowired
 	private AdxDao adxDao;
@@ -100,7 +90,7 @@ public class AuditCreativeMomoService {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
 		String cexamineurl = adxModel.getCexamineUrl();
 		//私密key：dspid 和 appkey 为一个值"pxene"
-        String dspid = "pxene";
+        String dspid = AdxKeyConstant.AUDIT_NAME_MOMO;
         //发送POST方法的请求所需参数
         //查询活动ID
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
@@ -127,7 +117,8 @@ public class AuditCreativeMomoService {
         if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeModel.getType())) {
         	//判断是先到自动过期时间（4个月）还是项目结束时间
         	//获取截止时间
-        	if (campaignModel.getEndDate().after(new DateTime(new Date()).plusDays(120).toDate())) {
+        	//FIXME 为什么要设定结束日期是活动结束日期，为什么不直接120天
+        	if (new DateTime(new Date()).plusDays(120).toDate().after(campaignModel.getEndDate())) {
         		expiry_date = new DateTime(campaignModel.getEndDate()).toString("yyyy-MM-dd", Locale.CHINESE);
         	}
         	expiry_date = expiry_date + " 23:59:59";
@@ -138,12 +129,12 @@ public class AuditCreativeMomoService {
             InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creativeModel.getMaterialId());
             String title = infoflowModel.getTitle();
             native_creative.addProperty("title", title);
-            if (!StringUtils.isEmpty(infoflowModel.getDescription())) {
+//            if (!StringUtils.isEmpty(infoflowModel.getDescription())) {
             	native_creative.addProperty("desc", infoflowModel.getDescription());//推广语
-            }
+//            }
             String iconId = infoflowModel.getIconId();
             if (StringUtils.isEmpty(iconId)) {
-            	throw new IllegalArgumentException("陌陌创意提交第三方审核执行失败！原因：信息流广告必须上传logo！" );
+            	throw new IllegalArgumentException(AuditErrorConstant.MOMO_CREATIVE_NO_LOGO);
             }
             native_creative.add("logo", getImageInfo(iconId));
             
@@ -186,7 +177,7 @@ public class AuditCreativeMomoService {
             puton_type = "LANDING_PAGE";
             native_creative.addProperty("native_format", puton_to + "_" + puton_type + "_" + puton_img);//广告样式
         } else {
-        	throw new IllegalStatusException("陌陌创意提交第三方审核执行失败！原因：创意类型不支持！");
+        	throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_TYPE_NOT_SUPPORT);
         }
         JsonArray cats = new JsonArray();//行业id
         cats.add(getIndustry(advertiserModel.getIndustryId()));
@@ -195,7 +186,7 @@ public class AuditCreativeMomoService {
         json.addProperty("dspid", dspid);//DSP ID
         json.addProperty("cid", campaignId);//Campaign ID （cid、adid、crid可以填写同一值——现cid写campaignid，adid、crid写mapid）
         json.addProperty("adid", creativeId);//广告 ID
-        json.addProperty("crid", creativeId);//创意 ID
+        json.addProperty("crid", creativeId);//创意 ID//FIXME
         json.addProperty("advertiser_id", advertiserId);//广告主 ID
         json.addProperty("advertiser_name", advertiserName);//广告主名称（公司名称）
         if (quality_level) { //质量等级(1：优质，附近动态、好友动态投放，不填：普通，附近动态、附近人投放)
@@ -217,15 +208,26 @@ public class AuditCreativeMomoService {
         String result = getResult(cexamineurl, code);
         Gson gson = new Gson();
         JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
-        if (jsonMap.get("ec").getAsInt() == 200) {
-			CreativeAuditModel mod = new CreativeAuditModel();
-			mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-			mod.setId(UUID.randomUUID().toString());
-			mod.setCreativeId(creativeId);
-			mod.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
-			creativeAuditDao.insertSelective(mod);
+        
+        if (jsonMap.get("ec") != null && jsonMap.get("ec").getAsInt() == 200) {//fixme ec 是字符串不是字符串怎么办
+        	CreativeAuditModelExample example = new CreativeAuditModelExample();
+			example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
+			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+			if (list != null && !list.isEmpty()) {
+				for (CreativeAuditModel mod : list) {
+					mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+					creativeAuditDao.updateByPrimaryKeySelective(mod);
+				}
+			} else {
+				CreativeAuditModel mod = new CreativeAuditModel();
+				mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+				mod.setId(UUID.randomUUID().toString());
+				mod.setCreativeId(creativeId);
+				mod.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
+				creativeAuditDao.insertSelective(mod);
+			}
         } else {
-        	throw new IllegalStatusException("陌陌创意提交第三方审核执行失败！原因：" + jsonMap.get("em").getAsString());
+        	throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_AUDIT_ERROR_REASON + jsonMap.get("em").getAsString());//fixme 添加一个新的异常
         }
      } 
 	
@@ -234,7 +236,7 @@ public class AuditCreativeMomoService {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
 		String cexamineResultUrl = adxModel.getCexamineResultUrl();//创意审核结果
 		//私密key：dspid 和 appkey 为一个值"pxene"
-        String dspid = "pxene";
+		String dspid = AdxKeyConstant.AUDIT_NAME_MOMO;
         //发送POST方法的请求所需参数
         JsonObject json = new JsonObject();
         JsonArray arr = new JsonArray();
@@ -252,6 +254,7 @@ public class AuditCreativeMomoService {
         	JsonArray array = jsonMap.get("data").getAsJsonArray();
         	for (Object je : array) {
         		JsonObject object = gson.fromJson(je.toString(), new JsonObject().getClass());
+        		//创意数据表中查询当前创意当前媒体的审核数据
         		CreativeAuditModelExample example = new CreativeAuditModelExample();
     			example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
     			CreativeAuditModel model = new CreativeAuditModel();
@@ -268,7 +271,7 @@ public class AuditCreativeMomoService {
     			creativeAuditDao.updateByExampleSelective(model, example);
         	}
         } else {
-        	throw new IllegalStatusException("陌陌创意同步第三方审核状态执行失败！原因：" + jsonMap.get("em").getAsString());
+        	throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_SYCHRONIZE_ERROR_REASON + jsonMap.get("em").getAsString());
         }
 	}
 	
@@ -278,7 +281,7 @@ public class AuditCreativeMomoService {
     }
 	
 	/** 连接到TOP服务器并获取数据 */
-	public static String getResult(String urlStr, String content) {
+	public static String getResult(String urlStr, String content) throws Exception {
 		URL url = null;
 		HttpURLConnection connection = null;
 
@@ -308,13 +311,12 @@ public class AuditCreativeMomoService {
 			reader.close();
 			return buffer.toString();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new ServerFailureException();
 		} finally {
 			if (connection != null) {
 				connection.disconnect();
 			}
 		}
-		return null;
 	}
 	
 	/**
@@ -328,7 +330,7 @@ public class AuditCreativeMomoService {
 			.andIndustryIdEqualTo(industryId);
 		List<IndustryAdxModel> list = industryAdxDao.selectByExample(example);
 		String code = null;
-		if(list!=null && !list.isEmpty()){
+		if (list != null && !list.isEmpty()) {
 			IndustryAdxModel model = list.get(0);
 			code = model.getIndustryCode();
 		}

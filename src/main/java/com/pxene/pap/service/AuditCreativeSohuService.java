@@ -132,6 +132,8 @@ public class AuditCreativeSohuService {
 	
 	private static String image_url;
 	
+	private static String impClick_url;
+	
 	private static final String HTTP_ACCEPT = "accept";
 
 	private static final String HTTP_ACCEPT_DEFAULT = "*/*";
@@ -155,6 +157,7 @@ public class AuditCreativeSohuService {
 		 * 获取图片上传路径
 		 */
 		image_url = env.getProperty("pap.fileserver.url.prefix");
+		impClick_url = env.getProperty("pap.fileserver.url.impClick");
 	}
 	
 	@Transactional
@@ -217,7 +220,7 @@ public class AuditCreativeSohuService {
 		String clicklink = landpageModel.getUrl();//落地页地址
 		String auth_nonce = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 23);
 		String auth_timestampStr = (System.currentTimeMillis() + "").substring(0,10);
-		String click_monitor = "http://cl2.pxene.com" + landpageModel.getMonitorUrl();
+		String click_monitor = impClick_url + landpageModel.getMonitorUrl();
 		JsonArray impJson = new JsonArray();
 		impJson.add(adxModel.getImpressionUrl());
 		String imp = impJson.toString();

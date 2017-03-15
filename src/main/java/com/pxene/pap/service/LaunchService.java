@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.joda.time.DateTime;
@@ -47,7 +48,7 @@ public class LaunchService extends BaseService{
 	 * @throws Exception
 	 */
 	public void launch(String campaignId) throws Exception {
-		if (campaignIsInTimeTarget(campaignId)) {
+		if (campaignIsInDateTarget(campaignId) && campaignIsInWeekAndTimeTarget(campaignId)) {
 			writeRedis(campaignId);
 		}
 	}
@@ -58,7 +59,33 @@ public class LaunchService extends BaseService{
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean campaignIsInTimeTarget(String campaignId) throws Exception {
+	public boolean campaignIsInDateTarget(String campaignId) throws Exception {
+		boolean Flag = false;
+		//查询活动的时间定向ID
+		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
+		if (campaign != null) {
+			//如果开始时间或者结束时间为空，直接返回false
+			if (campaign.getStartDate() == null || campaign.getEndDate() == null) {
+				return Flag;
+			}
+			//获取出时间定向中的“天”（格式：“20170101”）数组，检查当前天是不是在数组中
+			String[] days = DateUtils.getDaysBetween(campaign.getStartDate(), campaign.getEndDate());
+			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
+			DateTime nowTime = new DateTime();
+			String now = nowTime.toString("yyyyMMdd");
+			if (!daysList.contains(now)) {
+				return Flag;
+			}
+		}
+		return Flag;
+	}
+	/**
+	 * 判断当前星期、时段是否是活动的定向星期、时段
+	 * @param campaignId
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean campaignIsInWeekAndTimeTarget(String campaignId) throws Exception {
 		boolean Flag = false;
 		String currentWeek = DateUtils.getCurrentWeekInNumber();//当前星期
 		String currentHour = DateUtils.getCurrentHour();//当前小时
@@ -68,22 +95,11 @@ public class LaunchService extends BaseService{
 		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
 		if (campaign != null) {
 			String id = campaign.getId();
-//			String status = campaign.getStatus();
-//			if (StatusConstant.CAMPAIGN_PAUSE.equals(status)) {//如果已经结束了，直接返回“否”就可以
-//				return Flag;
-//			}
 			//判断当前时间是不是在活动的开始时间和结束时间之间
 			if (campaign.getStartDate() == null || campaign.getEndDate() == null) {
 				return Flag;
 			}
-			String[] days = DateUtils.getDaysBetween(campaign.getStartDate(), campaign.getEndDate());
-			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
-			DateTime nowTime = new DateTime();
-			String now = nowTime.toString("yyyyMMdd");
-			if (!daysList.contains(now)) {
-				return Flag;
-			}
-			//检查当前小时、星期是不是在活动时间定向内
+			//检查当前星期是不是在活动时间定向内
 			CampaignTargetModelExample targetModelExample = new CampaignTargetModelExample();
 			targetModelExample.createCriteria().andIdEqualTo(id);
 			List<CampaignTargetModel> ctModels = campaignTargetDao.selectByExampleWithBLOBs(targetModelExample);
@@ -107,6 +123,7 @@ public class LaunchService extends BaseService{
 		}
 		return Flag;
 	}
+	
 	
 	public void writeRedis(String campaignId) throws Exception {
 		//写入活动下的创意基本信息   dsp_mapid_*
@@ -145,7 +162,7 @@ public class LaunchService extends BaseService{
 	 * 根据时间定向投放活动，结束到期活动
 	 * @throws Exception
 	 */
-//	@Scheduled(cron = "0 0 */1 * * ?")
+	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
 		String currentHour = DateUtils.getCurrentHour();//当前小时
 		String currentDate = DateUtils.getCurrentDate();//当前日期
@@ -161,7 +178,7 @@ public class LaunchService extends BaseService{
 			campaignExammple.createCriteria().andProjectIdEqualTo(projectId)
 					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_PAUSE);
 			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExammple);
-			if (campaigns == null) {
+			if (campaigns == null || campaigns.isEmpty()) {
 				continue;
 			}
 			
@@ -170,20 +187,16 @@ public class LaunchService extends BaseService{
 				String id = campaign.getId();
 //				String status = campaign.getStatus();
 				//判断当前时间是不是在活动的开始时间和结束时间之间
-//				DateTime startTime = new DateTime(campaign.getStartDate());
-				DateTime endTime = new DateTime(campaign.getEndDate());
-				DateTime nowTime = new DateTime();
+				Date start = campaign.getStartDate();
+				Date end = campaign.getEndDate();
+				Date now = new Date();
 				
-//				String start = startTime.toString("yyyyMMdd");
-				String end = endTime.toString("yyyyMMdd");
-				String now = nowTime.toString("yyyyMMdd");
-				
-				if (Long.parseLong(now) > Long.parseLong(end)) {//当前时间大于结束时间，状态变成已结束
+				if (now.after(end)) {//当前时间大于结束时间，状态变成已结束
 					campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 					redisService.deleteCampaignId(id);
-//				} else if (Long.parseLong(now) < Long.parseLong(start)) {//当前时间小于开始时间时无操作
+				} else if (now.before(start)) {//当前时间小于开始时间时无操作
 				} else {//当前时间在开始时间和结束时间之间
-					if (campaignIsInTimeTarget(id)) {
+					if (campaignIsInWeekAndTimeTarget(id)) {
 						writeRedis(id);
 						campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
 					} else {

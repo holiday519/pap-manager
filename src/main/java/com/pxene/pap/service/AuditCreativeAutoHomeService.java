@@ -2,7 +2,6 @@ package com.pxene.pap.service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -27,6 +26,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
@@ -48,6 +48,7 @@ import com.pxene.pap.domain.models.MonitorModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
@@ -114,17 +115,19 @@ public class AuditCreativeAutoHomeService {
 	public static final String SOHU_ADVER_SIGN = "http://api.ad.sohu.com/test/apiauth";
 	
 	private static String image_url;
+	private static String impClick_url;
 	
 	public AuditCreativeAutoHomeService(Environment env) {
 		/**
 		 * 获取图片上传路径
 		 */
 		image_url = env.getProperty("pap.fileserver.url.prefix");
+		impClick_url = env.getProperty("pap.fileserver.url.impClick");
 	}
 	
 	@Transactional
 	public void audit(String creativeId) throws Exception {
-		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
+		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
 		String cexamineurl = adxModel.getCexamineUrl();
 		CreativeModel mapModel = creativeDao.selectByPrimaryKey(creativeId);
 		if (mapModel == null) {
@@ -139,7 +142,7 @@ public class AuditCreativeAutoHomeService {
     	//发送POST方法的请求所需参数
     	String dspId = json.get("dspId").getAsString();
 		String signKey = json.get("signKey").getAsString();
-		String dspName = "pxene";
+		String dspName = AdxKeyConstant.AUDIT_NAME_AUTOHOME;
     	
 		//查询活动ID
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
@@ -165,22 +168,17 @@ public class AuditCreativeAutoHomeService {
         String clicklink = landpageModel.getUrl();//目标地址
         String cturl = "";
         if (!StringUtils.isEmpty(adxModel.getClickUrl())) {
-        	cturl = "http://cl2.pxene.com" + adxModel.getClickUrl();//------需要点击地址
+        	cturl = impClick_url + adxModel.getClickUrl();
         }
     	
         cturl = cturl.replace("#BID#","1").replace("#DEVICEID#","1").replace("#DEVICEIDTYPE#","1").replace("#MAPID#",creativeId);
         String iurl = "";
         if (!StringUtils.isEmpty(adxModel.getImpressionUrl())) {
-        	iurl = "http://cl2.pxene.com" + adxModel.getImpressionUrl();//------需要点击地址
+        	iurl = impClick_url + adxModel.getImpressionUrl();
         }
         long advertiserIdValue = getAdvertiserAuditValueByMapId(creativeId);//广告主数字id
         // 目标地址targetUrl
-        String encodeUrl = "";
-        try {
-            encodeUrl = URLEncoder.encode(clicklink, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String encodeUrl = URLEncoder.encode(clicklink, "UTF-8");
         //平台的点击地址 + 编码后的落地页
         String targetUrl = cturl + "&curl=" + encodeUrl;
     	JsonArray pvArray = new JsonArray();
@@ -214,7 +212,7 @@ public class AuditCreativeAutoHomeService {
             contentObject.addProperty("type", "img");
             contentArray.add(contentObject);
         } else if(type.equals(StatusConstant.CREATIVE_TYPE_VIDEO)){//视频
-            throw new IllegalStatusException("汽车之家创意提交第三方审核执行失败！原因：暂不支持视频素材");
+            throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_MATERIAL_NOT_SUPPORT);
         } else if(type.equals(StatusConstant.CREATIVE_TYPE_INFOFLOW)) {//信息流
         	creativeTypeId = 1003;
         	InfoflowMaterialModel materialModel = infoMaterialDao.selectByPrimaryKey(creativeModel.getMaterialId());
@@ -246,7 +244,7 @@ public class AuditCreativeAutoHomeService {
                 contentArray.add(contentObject);
         	} else {
         		if (StringUtils.isEmpty(materialModel.getImage1Id())) {
-            		throw new IllegalStatusException("汽车之家创意提交第三方审核执行失败！原因：暂不支持单张小图素材");
+            		throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_NOT_SUPPORT_ONE_SMALL_IMAGE);
             	}
         		 contentObject = new JsonObject();
         		 ImageModel imageModel = imageDao.selectByPrimaryKey(materialModel.getImage1Id());
@@ -293,16 +291,26 @@ public class AuditCreativeAutoHomeService {
         JsonObject jsonMap = gson.fromJson(result, new JsonObject().getClass());
         if (jsonMap.get("status").getAsInt() == 1) {
         	JsonArray array = jsonMap.get("statusInfo").getAsJsonArray();
-        	CreativeAuditModel mod = new CreativeAuditModel();
-			mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-			mod.setId(UUID.randomUUID().toString());
-			mod.setCreativeId(creativeId);
-			mod.setAuditValue(array.get(0).getAsString());//adx生成审核key
-			mod.setAdxId(AdxKeyConstant.ADX_AUTOHOME_VALUE);
-			creativeAuditDao.insertSelective(mod);
+        	CreativeAuditModelExample example = new CreativeAuditModelExample();
+			example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+			if (list != null && !list.isEmpty()) {
+				for (CreativeAuditModel mod : list) {
+					mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+					creativeAuditDao.updateByPrimaryKeySelective(mod);
+				}
+			} else {
+				CreativeAuditModel mod = new CreativeAuditModel();
+				mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+				mod.setId(UUID.randomUUID().toString());
+				mod.setAuditValue(array.get(0).getAsString());//adx生成审核key
+				mod.setCreativeId(creativeId);
+				mod.setAdxId(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+				creativeAuditDao.insertSelective(mod);
+			}
         } else {
         	JsonObject statusInfo = jsonMap.get("statusInfo").getAsJsonObject();
-        	throw new IllegalStatusException("汽车之家提交第三方审核执行失败！原因：" + statusInfo.get("global").getAsString());
+        	throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_AUDIT_ERROR_REASON + statusInfo.get("global").getAsString());
         }
 	}
 	
@@ -368,7 +376,7 @@ public class AuditCreativeAutoHomeService {
         	creativeAuditDao.updateByExampleSelective(model, example);
         } else {
         	JsonObject statusInfo = res.get("statusInfo").getAsJsonObject();
-        	throw new IllegalStatusException("汽车之家创意同步第三方审核状态执行失败！原因：" + statusInfo.get("global").getAsString());
+        	throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_SYCHRONIZE_ERROR_REASON + statusInfo.get("global").getAsString());
         }
 	}
 	
@@ -482,7 +490,7 @@ public class AuditCreativeAutoHomeService {
 	 *            请求参数，请求参数应该是 name1=value1&name2=value2 的形式。
 	 * @return URL 所代表远程资源的响应结果
 	 */
-	public static String sendGet(String url, String param) {
+	public static String sendGet(String url, String param) throws Exception{
 		String result = "";
 		BufferedReader in = null;
 		try {
@@ -504,8 +512,7 @@ public class AuditCreativeAutoHomeService {
 				result += line;
 			}
 		} catch (Exception e) {
-			System.out.println("发送GET请求出现异常！" + e);
-			e.printStackTrace();
+			throw new ServerFailureException();
 		}
 		// 使用finally块来关闭输入流
 		finally {
@@ -514,9 +521,11 @@ public class AuditCreativeAutoHomeService {
 					in.close();
 				}
 			} catch (Exception e2) {
-				e2.printStackTrace();
+				throw new ServerFailureException();
 			}
 		}
 		return result;
 	}
+
+	
 }

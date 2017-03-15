@@ -48,7 +48,7 @@ public class RedisKeyConstant {
 	/**
 	 * 活动展现上限
 	 */
-	public static final String CAMPAIGN_COUNTER = "dsp_campaign_counter_"; 
+	public static final String CAMPAIGN_COUNTER = "dsp_campaign_counter_";
 	/**
 	 * 定向标志位
 	 */
