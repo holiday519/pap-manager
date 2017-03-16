@@ -28,9 +28,9 @@ public class TrafficData
     private Float clickRate;
     
     /**
-     * 转化数
+     * 转化数(二跳数)
      */
-    private Long conversionAmount;
+    private Long jumpAmount;
     
     /**
      * 总成本
@@ -48,9 +48,9 @@ public class TrafficData
     private Float clickCost;
     
     /**
-     * 转化成本
+     * 转化成本(二跳成本)
      */
-    private Float conversionCost;
+    private Float jumpCost;
     
     
     public String getDate()
@@ -93,13 +93,13 @@ public class TrafficData
     {
         this.clickRate = clickRate;
     }
-    public Long getConversionAmount()
+    public Long getJumpAmount()
     {
-        return conversionAmount;
+        return jumpAmount;
     }
-    public void setConversionAmount(Long conversionAmount)
+    public void setJumpAmount(Long jumpAmount)
     {
-        this.conversionAmount = conversionAmount;
+        this.jumpAmount = jumpAmount;
     }
     public Float getTotalCost()
     {
@@ -125,13 +125,13 @@ public class TrafficData
     {
         this.clickCost = clickCost;
     }
-    public Float getConversionCost()
+    public Float getJumpCost()
     {
-        return conversionCost;
+        return jumpCost;
     }
-    public void setConversionCost(Float conversionCost)
+    public void setJumpCost(Float jumpCost)
     {
-        this.conversionCost = conversionCost;
+        this.jumpCost = jumpCost;
     }
     
     
@@ -139,8 +139,7 @@ public class TrafficData
     {
         super();
     }
-    public TrafficData(String date, String name, Long impressionAmount, Long clickAmount, Float clickRate, Long conversionAmount, Float totalCost, Float impressionCost, Float clickCost,
-            Float conversionCost)
+    public TrafficData(String date, String name, Long impressionAmount, Long clickAmount, Float clickRate, Long jumpAmount, Float totalCost, Float impressionCost, Float clickCost, Float jumpCost)
     {
         super();
         this.date = date;
@@ -148,18 +147,18 @@ public class TrafficData
         this.impressionAmount = impressionAmount;
         this.clickAmount = clickAmount;
         this.clickRate = clickRate;
-        this.conversionAmount = conversionAmount;
+        this.jumpAmount = jumpAmount;
         this.totalCost = totalCost;
         this.impressionCost = impressionCost;
         this.clickCost = clickCost;
-        this.conversionCost = conversionCost;
+        this.jumpCost = jumpCost;
     }
     
     
     @Override
     public String toString()
     {
-        return "TrafficData [date=" + date + ", name=" + name + ", impressionAmount=" + impressionAmount + ", clickAmount=" + clickAmount + ", clickRate=" + clickRate + ", conversionAmount="
-                + conversionAmount + ", totalCost=" + totalCost + ", impressionCost=" + impressionCost + ", clickCost=" + clickCost + ", conversionCost=" + conversionCost + "]";
+        return "TrafficData [date=" + date + ", name=" + name + ", impressionAmount=" + impressionAmount + ", clickAmount=" + clickAmount + ", clickRate=" + clickRate + ", jumpAmount=" + jumpAmount
+                + ", totalCost=" + totalCost + ", impressionCost=" + impressionCost + ", clickCost=" + clickCost + ", jumpCost=" + jumpCost + "]";
     }
 }

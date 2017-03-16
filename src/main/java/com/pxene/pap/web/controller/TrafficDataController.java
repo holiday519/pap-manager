@@ -37,7 +37,7 @@ public class TrafficDataController
         String[] recoresColumns = new String[] { "日期_#_3000", "名称_#_7000", "展现数_#_7000", "点击数_#_7000", "CTR_#_7000", "二跳数_#_7000", "成本_#_7000", "展现成本_#_7000", "点击成本_#_7000", "二跳成本_#_7000" };
         
         // 定义需要显示在Excel行中的实体Bean中的属性名称
-        String[] recoresFields = new String[] { "date", "name", "impressionAmount", "clickAmount", "clickRate", "conversionAmount", "totalCost", "impressionCost", "clickCost", "conversionCost" };
+        String[] recoresFields = new String[] { "date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
 
         List<TrafficData> datas = trafficDataService.listData(advertiserId, projectId, campaignId, creativeId, scope, startDate, endDate);
         

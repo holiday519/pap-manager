@@ -162,11 +162,11 @@ public class TrafficDataService
                 td.setImpressionAmount((Long) sr.get("impressionAmount"));
                 td.setClickAmount((Long) sr.get("clickAmount"));
                 td.setClickRate((Float) sr.get("clickRate"));
-                td.setConversionAmount((Long) sr.get("jumpAmount"));
+                td.setJumpAmount((Long) sr.get("jumpAmount"));
                 td.setTotalCost((Float) sr.get("totalCost"));
                 td.setImpressionCost((Float) sr.get("impressionCost"));
                 td.setClickCost((Float) sr.get("clickCost"));
-                td.setConversionCost((Float) sr.get("jumpCost"));
+                td.setJumpCost((Float) sr.get("jumpCost"));
                 
                 result.add(td);
             }
