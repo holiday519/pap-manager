@@ -1270,7 +1270,7 @@ public class RedisService {
 						} else if ("idfa_md5".equals(key.toLowerCase())) {
 							redisArray.add(1153);
 						}
-						name = key + wlType +populationId;//不管是不是第一次yudaokey，都让name等于这个新名称
+						name = key + wlType +populationId;//不管是不是第一次遇到key，都让name等于这个新名称
 						//这样新key、新name、新value，下一次再遇到key，直接放入redis
 					} else {
 						values.add(str);//如果不是key那就让如list中

@@ -55,7 +55,7 @@ public class LandpageService extends BaseService {
 	/**
 	 * 监测脚本地址
 	 */
-	public static final String MONITOR_URL = "img.pxene.com/pxene.js";
+	public static final String MONITOR_URL = "//192.168.3.93/pap/pxene.js";
     /**
      * 监测代码片段_开始
      */
@@ -63,7 +63,7 @@ public class LandpageService extends BaseService {
     /**
      * 监测代码片段_结束
      */
-    private static final String CODE_END = "';(function(){varpxejs=document.createElement('script');var_pxejsProtocol=(('https:'==document.location.protocol)?'https://':'http://');pxejs.src=_pxejsProtocol+'//img.pxene.com/pxene.js';varone=document.getElementsByTagName('script')[0];one.parentNode.insertBefore(pxejs,one);})();</script>";
+    private static final String CODE_END = "';(function(){varpxejs=document.createElement('script');var_pxejsProtocol=(('https:'==document.location.protocol)?'https://':'http://');pxejs.src=_pxejsProtocol+'"+MONITOR_URL+"';varone=document.getElementsByTagName('script')[0];one.parentNode.insertBefore(pxejs,one);})();</script>";
     /**
      * HTML中头部开始标签
      */

@@ -9,12 +9,16 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
+import com.pxene.pap.common.DateUtils;
+import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.CampaignBean;
@@ -241,13 +245,17 @@ public class CampaignService extends LaunchService {
 			throw new ResourceNotFoundException();
 		}
 		bean.setId(id);//bean中放入ID，用于更新关联关系表中数据
-		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
+		Integer campaignBueget = bean.getTotalBudget();//传值里的预算
+		Integer dbBudget = campaignInDB.getTotalBudget();//数据库中预算
+
+		//改变预算、展现时修改redis中的值
+		changeRedisBudget(id, dbBudget, campaignBueget, bean.getQuantities());//改变日预算和总预算
 		
+		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		// 判断预算是否超出
 		String projectId = bean.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		Integer projectBudget = projectModel.getTotalBudget();
-		Integer campaignBueget = bean.getTotalBudget();
 		CampaignModelExample campaignModelExample = new CampaignModelExample();
 		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId).andIdNotEqualTo(bean.getId());
 		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
@@ -297,6 +305,86 @@ public class CampaignService extends LaunchService {
 		//修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaignModel);
 		
+	}
+	
+	/**
+	 * 修改redis中活动总预算、日预算、日展现
+	 * @param campaignId
+	 * @param dbBudget
+	 * @param newBueget
+	 * @param quantities 
+	 * @throws Exception
+	 */
+	public void changeRedisBudget (String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
+		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
+		if (JedisUtils.exists(key)) {
+			Map<String, String> map = JedisUtils.hget(key);
+			//修改redis中总预算值
+			if (!StringUtils.isEmpty(map.get("total"))) {
+				String total = map.get("total").toString();//redis里值
+				Integer difVaue = (newBueget - dbBudget);//修改前后差值（新的减去旧的）
+				if (difVaue < 0 && Math.abs(difVaue) > Float.parseFloat(total)) {//小于0时，并且redis中值不够扣除，抛出异常
+						throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
+				}
+				if (difVaue != 0) {
+					JedisUtils.hincrbyFloat(key, "total", difVaue);
+				}
+			}
+			//修改redis中的日预算值
+			if (!StringUtils.isEmpty(map.get("daily")) && quantities != null) {
+				String daily = map.get("daily").toString();//redis里值
+				Integer budget = 0;//数据库里值
+				Integer impression = 0;//数据库里值
+				QuantityModelExample example = new QuantityModelExample();
+				example.createCriteria().andCampaignIdEqualTo(campaignId);
+				List<QuantityModel> list = quantityDao.selectByExample(example);
+				if (list !=null && !list.isEmpty()) {
+					for (QuantityModel quan : list) {
+						Date startDate = quan.getStartDate();
+						Date endDate = quan.getEndDate();
+						String[] days = DateUtils.getDaysBetween(startDate, endDate);
+						List<String> dayList = Arrays.asList(days);
+						String time = new DateTime(new Date()).toString("yyyyMMdd");
+						if (dayList.contains(time)) {
+							budget = quan.getDailyBudget();
+							impression = quan.getDailyImpression();
+							break;
+						}
+					}
+				}
+				Integer newDayBudget = 0;//修改后的值
+				Integer newImpression = 0;//修改后的值
+				for (Quantity qt : quantities) {
+					String[] days = DateUtils.getDaysBetween(qt.getStartDate(), qt.getEndDate());
+					List<String> dayList = Arrays.asList(days);
+					String time = new DateTime(new Date()).toString("yyyyMMdd");
+					if (dayList.contains(time)) {
+						newDayBudget = qt.getDailyBudget();
+						newImpression = qt.getDailyImpression();
+						break;
+					}
+				}
+				Integer difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
+				Integer difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
+				if (difVaue < 0 && Math.abs(difVaue) > Float.parseFloat(daily)) {//小于0时，并且redis中值不够扣除，抛出异常
+						throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
+				}
+				if (difVaue != 0) {
+					JedisUtils.hincrbyFloat(key, "total", difVaue);
+				}
+				//如果有日展现key
+				if (JedisUtils.exists(countKey)) {
+					Integer dayImpression  = JedisUtils.getInt(countKey);
+					if (difImpVaue < 0 && Math.abs(difImpVaue) > dayImpression) {//小于0时，并且redis中值不够扣除，抛出异常
+						throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
+					}
+					if (difVaue != 0) {
+						JedisUtils.incrybyInt(countKey, difImpVaue);
+					}
+				}
+			}
+		}
 	}
 	
 	/**

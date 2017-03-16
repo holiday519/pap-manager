@@ -24,7 +24,6 @@ import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.CampaignService;
-import com.pxene.pap.service.RedisService;
 
 @Controller
 public class CampaignController {

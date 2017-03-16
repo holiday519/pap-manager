@@ -126,5 +126,10 @@ public class PhrasesConstant
 	public static final String CREATIVE_HAVE_CHECKED = "审核过的创意不能再次提交审核";
 	public static final String CREATIVE_HAVE_SYCHRONIZED = "审核过的创意不能再次同步";
 	
+	
+	public static final String DIF_TOTAL_BIGGER_REDIS = "总预算减小值大于redis中剩余值，修改失败！";
+	public static final String DIF_DAILY_BIGGER_REDIS = "日预算减小值大于redis中剩余值，修改失败！";
+	public static final String DIF_IMPRESSION_BIGGER_REDIS = "日展现减小值大于redis中剩余值，修改失败！";
+	
     
 }
