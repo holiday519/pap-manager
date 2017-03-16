@@ -294,4 +294,18 @@ public class JedisUtils {
         
         return result;
     }
+	
+	public static Long incrybyInt(String key, long increment)
+	{
+	    if (isBlank(key))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        Jedis jedis = getJedis();
+        Long result = jedis.incrBy(key, increment);
+        close(jedis);
+        
+        return result;
+	}
 }
