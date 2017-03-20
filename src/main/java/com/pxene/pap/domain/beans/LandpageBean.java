@@ -19,7 +19,7 @@ public class LandpageBean {
 	/**
 	 * 活动目标名称
 	 */
-	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
+	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	/**

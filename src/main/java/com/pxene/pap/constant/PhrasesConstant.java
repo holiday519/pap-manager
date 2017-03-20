@@ -2,14 +2,24 @@ package com.pxene.pap.constant;
 
 public class PhrasesConstant
 {
-    public static final String INVALID_ADVERTISER_NAME = "广告主名称不能为空";
+	// 通用
+	public static final String ID_NOT_NULL = "ID不能为空";
+	public static final String NAME_NOT_NULL = "名称不能为空";
+	public static final String NAME_NOT_REPEAT = "名称不能重复";
+	public static final String OBJECT_NOT_FOUND = "该对象不存在";
+	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
+	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
+	
+	// 广告主
+	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
+	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
-    public static final String ADVERVISER_HAS_PROJECTS = "广告主还有创建成功的项目，不能删除。";
+    // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
     public static final String INVALID_CREATIVE_NAME = "创意名称不能为空";
     public static final String INVALID_TOTAL_BUDGET = "必须填写预算值";
-    public static final String PROJECT_HAS_CAMPAIGN = "项目下还存在创建成功的活动，不能删除。";
-    public static final String CAMPAIGN_HAS_CREATIVE = "活动下还存在创建成功的创意，不能删除。";
+    public static final String PROJECT_HAVE_CAMPAIGN = "项目下还存在创建成功的活动，不能删除。";
+    public static final String CAMPAIGN_HAVE_CREATIVE = "活动下还存在创建成功的创意，不能删除。";
     public static final String TEMPLET_NOT_FUOUND = "未找到模版";
     public static final String TEMPLET_NOT_MAP_SIZE = "素材尺寸与模版支持尺寸不符";
     public static final String TEMPLET_NOT_MAP_VOLUME = "素材大小与模版支持大小不符";
@@ -22,8 +32,8 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放。";
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
-	public static final String CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE = "活动已投放，创意不能删除。";
-	public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
+	public static final String CAMPAIGN_START = "活动已投放，创意不能删除。";
+	//public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
 	public static final String CAMPAIGN_DATE_ERROR = "活动周期错误，操作失败！";
 	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";
 	public static final String PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN = "项目预算不能小于项目下活动预算总和！";
@@ -31,10 +41,10 @@ public class PhrasesConstant
 	
 	
 	
-	public static final String NOTNULL_NAME = "必须填写名称";
+	//public static final String NAME_NOT_NULL = "名称不能为空";
 	
-	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
-	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
+	//public static final String LENGTH_ERROR_ID = "id长度不能超过36";
+	//public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LENGTH_ERROR_REMARK = "备注长度不能超过400";
 	public static final String LENGTH_ERROR_BUDGET = "总预算不能超过99999999";
 	

@@ -191,7 +191,7 @@ public class ProjectService extends LaunchService {
 		example.createCriteria().andProjectIdEqualTo(id);
 		List<CampaignModel> list = campaignDao.selectByExample(example);
 		if (list != null && !list.isEmpty()) {
-			throw new IllegalStatusException(PhrasesConstant.PROJECT_HAS_CAMPAIGN);
+			throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
 		}
 		
 		projectDao.deleteByPrimaryKey(id);
@@ -220,7 +220,7 @@ public class ProjectService extends LaunchService {
 			example.createCriteria().andProjectIdEqualTo(id);
 			List<CampaignModel> list = campaignDao.selectByExample(example);
 			if (list != null && !list.isEmpty()) {
-				throw new IllegalStatusException(PhrasesConstant.PROJECT_HAS_CAMPAIGN);
+				throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
 			}
 		}
 		

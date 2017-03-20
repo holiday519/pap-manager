@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -18,14 +17,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
-import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.AdvertiserBean.Kpi;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ImageBean;
-import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
@@ -97,35 +94,25 @@ public class AdvertiserService extends BaseService
     }
     
     @Transactional
-    public void saveAdvertiser(AdvertiserBean advertiserBean) throws Exception
+    public void createAdvertiser(AdvertiserBean bean) throws Exception
     {
-    	//验证名称重复
-    	if (!StringUtils.isEmpty(advertiserBean.getName())) {
-    		AdvertiserModelExample e = new AdvertiserModelExample();
-    		e.createCriteria().andNameEqualTo(advertiserBean.getName());
-    		List<AdvertiserModel> list = advertiserDao.selectByExample(e);
-    		if (list != null && !list.isEmpty()) {
-    			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
-    		}
-    	}
-    	
+    	// 验证名称重复
+    	AdvertiserModelExample example = new AdvertiserModelExample();
+    	example.createCriteria().andNameEqualTo(bean.getName());
+		List<AdvertiserModel> models = advertiserDao.selectByExample(example);
+		if (models != null && !models.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
         // 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
-    	copyTempToFormal(advertiserBean);
+    	copyTempToFormal(bean);
     	// 将path替换成正式目录
-        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
-        advertiserModel.setId(UUID.randomUUID().toString());
-        try
-        {
-            advertiserDao.insertSelective(advertiserModel);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
+        AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
+        model.setId(UUID.randomUUID().toString());
+        
+        advertiserDao.insertSelective(model);
         
         // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(advertiserModel, advertiserBean);
+        BeanUtils.copyProperties(model, bean);
     }
 
 
@@ -136,51 +123,51 @@ public class AdvertiserService extends BaseService
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andAdvertiserIdEqualTo(id);
         
-        List<ProjectModel> projects = projectDao.selectByExample(example);
+        List<ProjectModel> models = projectDao.selectByExample(example);
         
         // 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
-        if (projects != null && !projects.isEmpty())
+        if (models != null && !models.isEmpty())
         {
-            throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAS_PROJECTS);
+            throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAVE_PROJECT);
         }
-        else
-        {
-        	// 删除广告主下的资质图片
-        	removeImages(id);
-            advertiserDao.deleteByPrimaryKey(id);
-        }
+        
+        // 删除广告主下的资质图片
+    	removeImages(id);
+        advertiserDao.deleteByPrimaryKey(id);
     }
+    
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
-    	List<String> asList = Arrays.asList(ids);
+    	List<String> idList = Arrays.asList(ids);
     	// 操作前先查询一次数据库，判断指定的资源是否存在
-    	AdvertiserModelExample ex = new AdvertiserModelExample();
-    	ex.createCriteria().andIdIn(asList);
-    	List<AdvertiserModel> advertiserInDB = advertiserDao.selectByExample(ex);
-    	if (advertiserInDB == null || advertiserInDB.isEmpty())
+    	AdvertiserModelExample advertiserModelExample = new AdvertiserModelExample();
+    	advertiserModelExample.createCriteria().andIdIn(idList);
+    	List<AdvertiserModel> advertiserInDB = advertiserDao.selectByExample(advertiserModelExample);
+    	if (advertiserInDB == null || advertiserInDB.size() < ids.length)
     	{
-    		throw new ResourceNotFoundException();
+    		throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
     	}
+    	
 		for (String id : ids) {
-			ProjectModelExample example = new ProjectModelExample();
-			example.createCriteria().andAdvertiserIdEqualTo(id);
+			ProjectModelExample projectModelExample = new ProjectModelExample();
+			projectModelExample.createCriteria().andAdvertiserIdEqualTo(id);
 			
-			List<ProjectModel> projects = projectDao.selectByExample(example);
+			List<ProjectModel> models = projectDao.selectByExample(projectModelExample);
 			
 			// 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
-			if (projects != null && !projects.isEmpty())
+			if (models != null && !models.isEmpty())
 			{
-				throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAS_PROJECTS);
+				throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAVE_PROJECT);
 			}
 		}
-		advertiserDao.deleteByExample(ex);
+		advertiserDao.deleteByExample(advertiserModelExample);
     }
 
 //    @Transactional
@@ -224,48 +211,39 @@ public class AdvertiserService extends BaseService
 
 
     @Transactional
-    public void updateAdvertiser(String id, AdvertiserBean advertiserBean) throws Exception
+    public void updateAdvertiser(String id, AdvertiserBean bean) throws Exception
     {
-//        // 更新操作要求绑定到RequestBody中的资源ID必须为空
-//        if (!StringUtils.isEmpty(advertiserBean.getId()))
-//        {
-//            throw new IllegalArgumentException();
-//        }
-        
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
+        // 验证名称重复
+    	AdvertiserModelExample example = new AdvertiserModelExample();
+    	example.createCriteria().andNameEqualTo(bean.getName());
+		List<AdvertiserModel> models = advertiserDao.selectByExample(example);
+		if (models != null && !models.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
         
-        copyTempToFormal(advertiserBean);
+        copyTempToFormal(bean);
         // 将传输对象映射成数据库Model
-        AdvertiserModel advertiserModel = modelMapper.map(advertiserBean, AdvertiserModel.class);
-        advertiserModel.setId(id);
+        AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
+        model.setId(id);
         
-        try
-        {
-            advertiserDao.updateByPrimaryKey(advertiserModel);
-        }
-        catch (DuplicateKeyException exception)
-        {
-            // 违反数据库唯一约束时，向上抛出自定义异常，交给全局异常处理器处理
-            throw new DuplicateEntityException();
-        }
+        advertiserDao.updateByPrimaryKey(model);
         
-        // 将DAO编辑后的新对象复制回传输对象中
-        //BeanUtils.copyProperties(advertiserDao.selectByPrimaryKey(id), advertiserBean);
     }
 
 
-    public AdvertiserBean findAdvertiserById(String id) throws Exception
+    public AdvertiserBean getAdvertiser(String id) throws Exception
     {
         AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
         
         if (advertiserModel == null)
         {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
         // 找出所属行业
@@ -292,7 +270,7 @@ public class AdvertiserService extends BaseService
     }
 
 
-    public List<AdvertiserBean> listAdvertisers(String name, Long beginTime, Long endTime) throws Exception
+    public List<AdvertiserBean> listAdvertisers(String name, Long startDate, Long endDate) throws Exception
     {
         AdvertiserModelExample example = new AdvertiserModelExample();
         
@@ -306,49 +284,46 @@ public class AdvertiserService extends BaseService
         example.setOrderByClause("update_time DESC");
         
         List<AdvertiserModel> advertiserModels = advertiserDao.selectByExample(example);
-        List<AdvertiserBean> advertiserList = new ArrayList<AdvertiserBean>();
+        List<AdvertiserBean> advertiserBeans = new ArrayList<AdvertiserBean>();
         
         if (advertiserModels == null || advertiserModels.size() <= 0)
         {
-            throw new ResourceNotFoundException();
-        }
-        else
-        {
-            // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-            for (AdvertiserModel advertiserModel : advertiserModels)
-            {
-                //advertiserList.add(modelMapper.map(advertiserModel, AdvertiserBean.class));
-            	AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
-                // 找出所属行业
-                Integer industryId = advertiserModel.getIndustryId();
-                IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
-                String industryName = industryModel.getName();
-                bean.setIndustryName(industryName);
-                // 找出该行业下的kpi
-                IndustryKpiModelExample industryKpiModelExample = new IndustryKpiModelExample();
-                com.pxene.pap.domain.models.IndustryKpiModelExample.Criteria industryKpiModelExampleCriteria = industryKpiModelExample.createCriteria();
-                industryKpiModelExampleCriteria.andIndustryIdEqualTo(industryId);
-                List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(industryKpiModelExample);
-                Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
-                for (int i=0; i<kpis.length; i++) {
-                	String kpiId = industryKpiModels.get(i).getKpiId();
-                	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
-                	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
-                }
-                bean.setKpis(kpis);
-                //查询审核状态
-                bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
-                
-                if (beginTime != null && endTime != null) {
-					//查询投放数据
-    				getData(beginTime, endTime, bean);
-    			}
-                
-                advertiserList.add(bean);
-            }
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
-        return advertiserList;
+        // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
+        for (AdvertiserModel advertiserModel : advertiserModels)
+        {
+        	AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
+            // 找出所属行业
+            Integer industryId = advertiserModel.getIndustryId();
+            IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
+            String industryName = industryModel.getName();
+            bean.setIndustryName(industryName);
+            // 找出该行业下的kpi
+            IndustryKpiModelExample industryKpiModelExample = new IndustryKpiModelExample();
+            com.pxene.pap.domain.models.IndustryKpiModelExample.Criteria industryKpiModelExampleCriteria = industryKpiModelExample.createCriteria();
+            industryKpiModelExampleCriteria.andIndustryIdEqualTo(industryId);
+            List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(industryKpiModelExample);
+            Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
+            for (int i=0; i<kpis.length; i++) {
+            	String kpiId = industryKpiModels.get(i).getKpiId();
+            	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
+            	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
+            }
+            bean.setKpis(kpis);
+            //查询审核状态
+            bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
+            
+            if (startDate != null && endDate != null) {
+				//查询投放数据
+				getData(startDate, endDate, bean);
+			}
+            
+            advertiserBeans.add(bean);
+        }
+        
+        return advertiserBeans;
     }
     
     /**
@@ -359,17 +334,18 @@ public class AdvertiserService extends BaseService
      * @param bean
      * @throws Exception
      */
-    private void getData(Long beginTime, Long endTime,AdvertiserBean bean) throws Exception {
-    	ProjectModelExample projectExample = new ProjectModelExample();
-    	projectExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
-    	List<ProjectModel> projects = projectDao.selectByExample(projectExample);
-    	BasicDataBean dataBean = new BasicDataBean();//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
-    	dataService.formatBeanParams(dataBean);
-    	dataService.formatBeanRate(dataBean);
-    	if (projects != null && !projects.isEmpty()) {
+    private void getData(Long startDate, Long endDate, AdvertiserBean bean) throws Exception {
+    	ProjectModelExample projectModleExample = new ProjectModelExample();
+    	projectModleExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
+    	List<ProjectModel> models = projectDao.selectByExample(projectModleExample);
+    	//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
+//    	BasicDataBean dataBean = new BasicDataBean();
+//    	dataService.formatBeanParams(dataBean);
+//    	dataService.formatBeanRate(dataBean);
+    	if (models != null && !models.isEmpty()) {
     		List<String> projectIds = new ArrayList<String>();
-    		for (ProjectModel project : projects) {
-    			projectIds.add(project.getId());
+    		for (ProjectModel model : models) {
+    			projectIds.add(model.getId());
     		}
     		CampaignModelExample campaignExample = new CampaignModelExample();
     		campaignExample.createCriteria().andProjectIdIn(projectIds);
@@ -388,17 +364,18 @@ public class AdvertiserService extends BaseService
     					creativeIds.add(model.getId());
     				}
     			}
-    			dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
+    			BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, startDate, endDate);
+    			BeanUtils.copyProperties(dataBean, bean);
     		}
     	}
-    	bean.setImpressionAmount(dataBean.getImpressionAmount());
-		bean.setClickAmount(dataBean.getClickAmount());
-		bean.setTotalCost(dataBean.getTotalCost());
-		bean.setJumpAmount(dataBean.getJumpAmount());
-		bean.setImpressionCost(dataBean.getImpressionCost());
-		bean.setClickCost(dataBean.getClickCost());
-		bean.setClickRate(dataBean.getClickRate());
-		bean.setJumpCost(dataBean.getJumpCost());
+//    	bean.setImpressionAmount(dataBean.getImpressionAmount());
+//		bean.setClickAmount(dataBean.getClickAmount());
+//		bean.setTotalCost(dataBean.getTotalCost());
+//		bean.setJumpAmount(dataBean.getJumpAmount());
+//		bean.setImpressionCost(dataBean.getImpressionCost());
+//		bean.setClickCost(dataBean.getClickCost());
+//		bean.setClickRate(dataBean.getClickRate());
+//		bean.setJumpCost(dataBean.getJumpCost());
 	}
     
     /**
@@ -406,13 +383,13 @@ public class AdvertiserService extends BaseService
 	 * @param creativeId
 	 * @return
 	 */
-	public String getAdvertiserAuditStatus(String AdvertiserId) {
-		AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
-		ex.createCriteria().andAdvertiserIdEqualTo(AdvertiserId);
-		List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
+	private String getAdvertiserAuditStatus(String AdvertiserId) {
+		AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+		example.createCriteria().andAdvertiserIdEqualTo(AdvertiserId);
+		List<AdvertiserAuditModel> models = advertiserAuditDao.selectByExample(example);
 		String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
 		boolean successFlag = false;
-		for (AdvertiserAuditModel model : list) {
+		for (AdvertiserAuditModel model : models) {
 			if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(model.getStatus())) {
 				status = StatusConstant.ADVERTISER_AUDIT_SUCCESS;
 				successFlag  = true;
@@ -421,7 +398,7 @@ public class AdvertiserService extends BaseService
 		}
 		if (!successFlag) {
 			boolean watingFlag = false;
-			for (AdvertiserAuditModel model : list) {
+			for (AdvertiserAuditModel model : models) {
 				if (StatusConstant.ADVERTISER_AUDIT_WATING.equals(model.getStatus())) {
 					status = StatusConstant.ADVERTISER_AUDIT_WATING;
 					watingFlag = true;
@@ -429,7 +406,7 @@ public class AdvertiserService extends BaseService
 				}
 			}
 			if (!watingFlag) {
-				for (AdvertiserAuditModel model : list) {
+				for (AdvertiserAuditModel model : models) {
 					if (StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(model.getStatus())) {
 						status = StatusConstant.ADVERTISER_AUDIT_FAILURE;
 						break;
@@ -440,7 +417,12 @@ public class AdvertiserService extends BaseService
 		return status;
 	}
     
-    
+    /**
+     * 上传广告主资质
+     * @param file
+     * @return
+     * @throws Exception
+     */
     public String uploadQualification(MultipartFile file) throws Exception {
     	// 图片绝对路径
     	String path = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
@@ -449,7 +431,7 @@ public class AdvertiserService extends BaseService
     }
     
     /**
-     * 品牌logo专用
+     * 上传广告主资质，针对于广点通logo
      * @param file
      * @return
      * @throws Exception
@@ -602,7 +584,7 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void synchronize(String id) throws Exception {
+	public void synchronizeAdvertiser(String id) throws Exception {
 		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
 		if (advertiserModel == null) {
 			throw new ResourceNotFoundException();

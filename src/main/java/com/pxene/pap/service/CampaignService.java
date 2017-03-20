@@ -690,7 +690,7 @@ public class CampaignService extends LaunchService {
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 		if (list != null && !list.isEmpty()) {
-			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
+			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAVE_CREATIVE);
 		}
 		//删除监测地址
 		deleteCampaignMonitor(campaignId);
@@ -728,7 +728,7 @@ public class CampaignService extends LaunchService {
 			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 			List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
 			if (list != null && !list.isEmpty()) {
-				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAS_CREATIVE);
+				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAVE_CREATIVE);
 			}
 			//删除监测地址
 			deleteCampaignMonitor(campaignId);

@@ -37,6 +37,8 @@ import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
+import com.pxene.pap.domain.models.AdxModel;
+import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
@@ -104,15 +106,6 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private AuditCreativeAdviewService auditCreativeAdviewService;
-	
-	@Autowired
-	private AuditCreativeSohuService auditCreativeSohuService;
-	
-	@Autowired
-	private AuditCreativeMomoService auditCreativeMomoService;
-	
-	@Autowired
-	private AuditCreativeAutoHomeService auditCreativeAutoHomeService;
 	
 	@Autowired
 	private ImageDao imageDao;
@@ -254,7 +247,7 @@ public class CreativeService extends BaseService {
 			//只有活动是等待中时才可删除创意
 			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 			if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
-				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_START);
 			}
 		}
 		
@@ -330,7 +323,7 @@ public class CreativeService extends BaseService {
 				//只有活动是等待中时才可删除创意
 				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 				if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
-					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_START);
 				}
 			}
 		}
@@ -351,9 +344,12 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		
-		if (StringUtils.isEmpty(map.get("price"))) {
+		// FIXME 为什么要必传action参数？
+		/*
+		if (StringUtils.isEmpty(map.get("action"))) {
 			throw new IllegalArgumentException();
 		}
+		*/
 		
 		String price = map.get("price").toString();
 		creativeModel.setPrice(Float.parseFloat(price));
@@ -455,20 +451,13 @@ public class CreativeService extends BaseService {
 			Integer tmplHeight = tmplModel.getHeight(); //模版高限制
 			Float maxVolume = tmplModel.getMaxVolume(); //模版最大体积限制
 			Integer maxTimelength = tmplModel.getMaxTimelength(); //模版最大时长
-			Integer minTimelength = tmplModel.getMinTimelength();//最小时长
 			int height = videoBean.getHeight(); //文件高
 			int width = videoBean.getWidth(); //文件宽
 			Float volume = videoBean.getVolume(); //文件体积限制
 			int timelength = videoBean.getTimelength(); //文件时长
 			
-			if (tmplWidth != width || tmplHeight != height) {
+			if (tmplWidth != width || tmplHeight != height || maxVolume < volume || maxTimelength < timelength) {
 				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_SIZE);
-			}
-			if (maxVolume < volume) {
-				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_VOLUME);
-			}
-			if (maxTimelength < timelength || minTimelength > timelength) {
-				throw new IllegalArgumentException(PhrasesConstant.TEMPLET_NOT_MAP_TIMELENGTH);
 			}
 			
 			result = uploadVideo(videoBean, file);
@@ -616,57 +605,32 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void auditCreative(String id) throws Exception {
-		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
-		if (creative == null) {
+/*		CreativeModelExample mapExample = new CreativeModelExample();
+		mapExample.createCriteria().andCampaignIdEqualTo(id);
+		List<CreativeModel> mapModels = creativeDao.selectByExample(mapExample);
+		if (mapModels==null || mapModels.isEmpty()) {
 			throw new ResourceNotFoundException();
-		}
+		}*/
 		
-		
-		
-		String tmplId = creative.getTmplId();
-		
-		AppTmplModelExample ex = new AppTmplModelExample();
-		ex.createCriteria().andTmplIdEqualTo(tmplId);
-		List<AppTmplModel> list = appTmplDao.selectByExample(ex);
-		if (list != null && !list.isEmpty()) {
-			for (AppTmplModel at : list) {
-				String appId = at.getAppId();
-				AppModel app = appDao.selectByPrimaryKey(appId);
-				if (app != null) {
-					String adxId = app.getAdxId();
-					CreativeAuditModelExample caEx = new CreativeAuditModelExample();
-					caEx.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adxId).andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-					List<CreativeAuditModel> haveAudit = creativeAuditDao.selectByExample(caEx);
-					if (haveAudit == null || haveAudit.isEmpty()) {
-						if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-							//百度--是不是第一次审核，在service中判断了
-							auditCreativeBaiduService.audit(id);
-						} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
-							//搜狐---判断是第一次审核，还是编辑
-							CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
-							CreativeAuditModelExample example = new CreativeAuditModelExample();
-							example.createCriteria().andCreativeIdEqualTo(mapModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_SOHU_VALUE);
-							List<CreativeAuditModel> lists = creativeAuditDao.selectByExample(example);
-							if (lists == null || list.isEmpty()) {
-								auditCreativeSohuService.audit(id);
-							} else {
-								auditCreativeSohuService.editAudit(id);
-							}
-						} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-							//陌陌----第一次审核和再次审核编辑调用一个方法
-							auditCreativeMomoService.audit(id);
-						} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-							//汽车之家----第一次审核和再次审核编辑调用一个方法
-							auditCreativeAutoHomeService.audit(id);
-						} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
-							//adview
-							auditCreativeAdviewService.audit(id);
-						} 
-					} else {
-						throw new IllegalStateException(PhrasesConstant.CREATIVE_HAVE_CHECKED);
-					}
-				}
-			}
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//审核创意
+		for (AdxModel adx : adxs) {
+//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+//				//百度
+//				auditCreativeBaiduService.audit(id);
+//			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
+//				auditCreativeAdviewService.audit(id);
+//			}
+			CreativeAuditModel model = new CreativeAuditModel();
+			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+			model.setId(UUID.randomUUID().toString());
+			model.setAuditValue("1");
+			model.setCreativeId(id);
+			model.setAdxId(adx.getId());
+			creativeAuditDao.insertSelective(model);
+			
 		}
 	}
 
@@ -676,44 +640,37 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void synchronize(String id) throws Exception {
-		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
-		if (creative == null) {
+		CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
+		if (mapModel == null) {
 			throw new ResourceNotFoundException();
 		}
-		String tmplId = creative.getTmplId();
-		
-		AppTmplModelExample ex = new AppTmplModelExample();
-		ex.createCriteria().andTmplIdEqualTo(tmplId);
-		List<AppTmplModel> list = appTmplDao.selectByExample(ex);
-		if (list != null && !list.isEmpty()) {
-			for (AppTmplModel at : list) {
-				String appId = at.getAppId();
-				AppModel app = appDao.selectByPrimaryKey(appId);
-				if (app != null) {
-					String adxId = app.getAdxId();
-					CreativeAuditModelExample caEx = new CreativeAuditModelExample();
-					caEx.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adxId).andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-					List<CreativeAuditModel> haveAudit = creativeAuditDao.selectByExample(caEx);
-					if (haveAudit == null || haveAudit.isEmpty()) {
-						if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-							//百度
-							auditCreativeBaiduService.synchronize(id);
-						} else if (AdxKeyConstant.ADX_SOHU_VALUE.equals(adxId)) {
-							//搜狐
-							auditCreativeSohuService.synchronize(id);
-						} else if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-							//陌陌
-							auditCreativeMomoService.synchronize(id);
-						} else if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-							//汽车之家
-							auditCreativeAutoHomeService.synchronize(id);
-						} else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
-							//adview
-							auditCreativeAdviewService.synchronize(id);
-						} 
-					} else {
-						throw new IllegalStateException(PhrasesConstant.CREATIVE_HAVE_SYCHRONIZED);
-					}
+		//查询adx列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		//同步结果
+		for (AdxModel adx : adxs) {
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
+				//百度
+//				auditCreativeBaiduService.synchronize(id);
+				
+			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
+//				auditCreativeAdviewService.synchronize(id);
+			}
+			CreativeAuditModelExample ex = new CreativeAuditModelExample();
+			ex.createCriteria().andAdxIdEqualTo(adx.getId());
+			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
+			if (list ==null || list.isEmpty()) {
+				CreativeAuditModel model = new CreativeAuditModel();
+				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+				model.setId(UUID.randomUUID().toString());
+				model.setAuditValue("1");
+				model.setCreativeId(id);
+				model.setAdxId(adx.getId());
+				creativeAuditDao.insertSelective(model);
+			} else {
+				for (CreativeAuditModel ml : list) {
+					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					creativeAuditDao.updateByPrimaryKeySelective(ml);
 				}
 			}
 		}
@@ -1336,17 +1293,20 @@ public class CreativeService extends BaseService {
 	 */
 	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long startDate, Long endDate) throws Exception {
 		BasicDataBean basicData = new BasicDataBean();
-		FormatBeanParams(basicData);//将属性值变成0
+		//将属性值变成0
+		FormatBeanParams(basicData);
 		DateTime begin = new DateTime(startDate);
     	DateTime end = new DateTime(endDate);
-    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {//开始时间结束时间相等时
-    		//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
+    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
+    		//开始时间结束时间相等时
     		if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
 					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
+    			//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
 				List<String> days = new ArrayList<String>();
 				days.add(begin.toString("yyyyMMdd"));
 				getDatafromDayTable(creativeIds, days, basicData);
-			} else {//如果是今天就要查询小时数据
+			} else {
+				//如果是今天就要查询小时数据
 				getDatafromHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
 			}
     	} else {
@@ -1491,7 +1451,7 @@ public class CreativeService extends BaseService {
 			bean.setJumpCost(result);
 		}
 		if (bean.getImpressionAmount() > 0) {
-			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
+			double percent = (double)bean.getClickAmount() * 1000 / bean.getImpressionAmount();
 	        Float result = Float.parseFloat(format.format(percent));
 	        bean.setClickRate(result);
 	        

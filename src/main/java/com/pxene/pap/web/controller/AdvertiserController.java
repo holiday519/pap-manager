@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -24,16 +25,12 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.AdvertiserService;
-import com.pxene.pap.service.AuditAdvertiserBaiduService;
 
 @Controller
 public class AdvertiserController
 {
     @Autowired
     private AdvertiserService advertiserService;
-    
-    @Autowired
-    private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
     
     /**
      * 添加广告主。
@@ -43,12 +40,11 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertiser", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String addAdvertiser(@Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
+    public String createAdvertiser(@Valid @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
     {
-        advertiserService.saveAdvertiser(advertiser);
+        advertiserService.createAdvertiser(advertiser);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", advertiser.getId(), response);
     }
-    
     
     /**
      * 删除广告主。
@@ -63,6 +59,7 @@ public class AdvertiserController
         advertiserService.deleteAdvertiser(id);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
+    
     /**
      * 批量删除广告主
      * @param ids
@@ -105,7 +102,6 @@ public class AdvertiserController
 //    public String patchUpdateAdvertiser(@PathVariable String id, @RequestBody AdvertiserBean advertiser, HttpServletResponse response) throws Exception
 //    {
 //        advertiserService.patchUpdateAdvertiser(id, advertiser);
-//        
 //        return ResponseUtils.sendReponse(HttpStatusCode.OK, advertiser, response);
 //    }
     
@@ -120,8 +116,7 @@ public class AdvertiserController
     @ResponseBody
     public String getAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        AdvertiserBean advertiser = advertiserService.findAdvertiserById(id);
-        
+        AdvertiserBean advertiser = advertiserService.getAdvertiser(id);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), advertiser, response);
     }
     
@@ -158,9 +153,9 @@ public class AdvertiserController
     @ResponseBody
     public String uploadQualification(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
     	String path = advertiserService.uploadQualification(file);
-    	
     	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
     }
+    
     /**
      * 上传广告主资质图片(logo)
      * @param request
@@ -171,7 +166,6 @@ public class AdvertiserController
     @ResponseBody
     public String uploadQualificationForLogo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
     	String path = advertiserService.uploadQualificationForLogo(file);
-    	
     	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
     }
     
@@ -197,7 +191,8 @@ public class AdvertiserController
     @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void synchronizeAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
-    	advertiserService.synchronize(id);
+    	advertiserService.synchronizeAdvertiser(id);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
+    
 }

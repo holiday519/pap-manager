@@ -19,8 +19,7 @@ import com.pxene.pap.constant.RegexConstant;
 public class AdvertiserBean extends BasicDataBean {
 	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
-
-	@NotNull(message = PhrasesConstant.NOTNULL_NAME)
+	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	@NotNull(message = PhrasesConstant.ADVERTISER_NOTNULL_COMPANY)
