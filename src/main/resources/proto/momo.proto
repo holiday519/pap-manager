@@ -1,0 +1,234 @@
+//syntax = "proto2";
+//option java_package = "com.pxene.pap.domain.protobuf";
+option java_outer_classname = "MoMoEntity";
+
+
+message BidRequest {
+    // 竞价请求的唯一标识
+    required string id = 1;
+    
+    // 实时竞价协议的版本号
+    required string version = 2;
+    
+    // 是否是测试请求.测试请求的广告不会计费和展示
+    optional bool is_test = 3;
+    
+    // 是否是 Ping 请求.Ping 请求不会触发竞价
+    optional bool is_ping = 4;
+    
+    // Impression 信息.不同广告位对应不同 Imp,一次竞价请求至少包含一个 Imp 对象
+    repeated Imp imp = 5;
+    
+    // 设备信息
+    optional Device device = 6;
+    
+    // 应用信息
+    optional App app = 7;
+    
+    // 用户信息
+    optional User user = 8;
+    
+    message Imp {
+        // Imp 的唯一标识
+        required string id = 1;
+        
+        // 广告位 ID
+        required string slotid = 2;
+        
+        // 底价，单位元，小数点后最多两位
+        optional double bidfloor = 3;
+        
+        // 原生广告对象
+        required Native native = 4;
+        
+        // 屏蔽的广告主类别
+        repeated string bcat = 5;
+        
+        // 屏蔽的广告主 domain
+        repeated string badv = 6;
+    }
+    
+    message Native {
+        repeated NativeFormat native_format = 1;
+    }
+    
+    enum NativeFormat {
+        // 附近动态大图版落地页广告
+        FEED_LANDING_PAGE_LARGE_IMG = 1;
+        
+        //  附近动态三图版落地页广告
+        FEED_LANDING_PAGE_SMALL_IMG = 2;
+        
+        // 附近人无图版落地页广告
+        NEARBY_LANDING_PAGE_NO_IMG = 3;
+        
+        // 附近动态大图版 iOS 应用下载广告
+        FEED_APP_IOS_LARGE_IMG = 4;
+        
+        // 附近动态三图版 iOS 应用下载广告
+        FEED_APP_IOS_SMALL_IMG = 5;
+        
+        // 附近人无图版 iOS 应用下载广告
+        NEARBY_APP_IOS_NO_IMG = 6;
+        
+        // 附近动态大图版安卓应用下载广告
+        FEED_APP_ANDROID_LARGE_IMG = 7;
+        
+        // 附近动态三图版安卓应用下载广告
+        FEED_APP_ANDROID_SMALL_IMG = 8;
+        
+        // 附近人无图版安卓应用下载广告
+        NEARBY_APP_ANDROID_NO_IMG = 9;
+    }
+    
+    message Device {
+        // 操作系统类型, iOS 或 Android
+        optional string os = 1;
+        
+        // 操作系统版本,如 9.2
+        optional string osv = 2;
+        
+        // 设备型号,例如 Nexus,iphone
+        optional string model = 3;
+        
+        // 手机制造商,例如 apple,Samsung
+        optional string make = 4;
+        
+        // IP 地址
+        optional string ip = 5;
+        
+        // MD5 加密的设备 MAC 地址
+        optional string macmd5 = 6;
+        
+        // 设备号.安卓系统为 IMEI, iOS 系统为 IDFA
+        optional string did = 7;
+        
+        // MD5 加密的设备号.安卓系统为加密的 IMEI, iOS 系统为加密的 IDFA
+        optional string didmd5 = 8;
+        
+        // 网络类型
+        optional ConnectionType connectiontype = 9;
+        
+        // user agent
+        optional string ua = 10;
+        
+        // 设备当前的位置信息
+        optional Geo geo = 11;
+    }
+    
+    enum ConnectionType {
+        // 未知
+        CONNECTION_UNKNOWN = 0;
+        
+        // 以太网
+        ETHERNET = 1;
+        
+        // WiFi
+        WIFI = 2;
+        
+        // 蜂窝网络
+        CELL_UNKNOWN = 3;
+        
+        // 2G 蜂窝网络
+        CELL_2G = 4;
+        
+        // 3G 蜂窝网络
+        CELL_3G = 5;
+        
+        // 4G 蜂窝网络
+        CELL_4G = 6;
+    }
+    
+    message Geo {
+        // 纬度
+        optional double lat = 1;
+        
+        // 经度
+        optional double lon = 2;
+        
+        // 省
+        optional string province = 3;
+        
+        // 市
+        optional string city = 4;
+        
+        // 区
+        optional string district = 5;
+        
+        // 街道
+        optional string street = 6;
+    }
+    
+    message App {
+        // 应用的 ID
+        optional string id = 1;
+        
+        // 应用名称
+        optional string name = 2;
+        
+        // 版本号,例 6.5.0
+        optional string ver = 3;
+        
+        // 应用标识，iOS 为 iTunes Store ID, 安卓为package name.
+        optional string bundle = 4;
+    }
+    
+    message User {
+        // Exchange 提供的用户唯一标识
+        optional string id = 1;
+        
+        // 性别
+        optional Gender gender = 2;
+        
+        // 年龄范围，最小年龄
+        optional int32 age_low = 3;
+        
+        // 年龄范围，最大年龄
+        optional int32 age_high = 4;
+        
+        // 来自不同数据源的用户数据
+        optional Data data = 5;
+        
+        //用户兴趣关键词,逗号分隔
+        optional string keywords = 6;
+        
+        // 用户的常住地址,非实时
+        optional Geo geo = 7;
+        
+    }
+    
+    enum Gender {
+        // 男性
+        MALE = 1;
+        
+        // 女性
+        FEMALE = 2;
+        
+        // 其他
+        OTHER = 3;
+    }
+    
+    message Data {
+        // 数据提供商的 ID
+        optional string id = 1;
+        
+        // 数据提供商的名称
+        optional string name = 2;
+        
+        // Segment 数组 
+        optional Segment segment = 3;
+    }
+    
+    message Segment {
+        // Segment 的 ID
+        optional string id = 1;
+        
+        // Segment 的名称
+        optional string name = 2;
+        
+        // Segment 的值
+        optional string value = 3;
+    }
+}
+
+
