@@ -150,7 +150,9 @@ public class RedisService {
 	
 	@Autowired
 	private CreativeAuditDao creativeAuditDao;
-
+	
+	private static final String POPULATION_ROOT_PATH = "/data/population/";
+	
 	/**
 	 * 将活动ID 写入redis
 	 * @param campaignId
@@ -1206,7 +1208,7 @@ public class RedisService {
 			if (population != null) {
 				String path = population.getPath();
 				String type = population.getType();
-				readFile(campaignId, populationId, path, type);
+				readFile(campaignId, populationId, POPULATION_ROOT_PATH + path, type);
 			}
 		}
 	}
@@ -1219,7 +1221,7 @@ public class RedisService {
 	 * @param type
 	 * @throws Exception
 	 */
-	public static void readFile(String campaignId,String populationId, String path, String type) throws Exception {
+	public static void readFile(String campaignId, String populationId, String path, String type) throws Exception {
 		String wlType = "_wl_";
 		if ("02".equals(type)) {
 			wlType = "_bl_";
@@ -1229,7 +1231,7 @@ public class RedisService {
 		boolean flag = true;//是不是第一次遇到key（第一次碰到符合“[***]”字样）
 		File file = new File(path);
 		if (file.exists()) {//文件是否存在
-			List<String> list = FileUtils.readLines(file,"GBK");
+			List<String> list = FileUtils.readLines(file, "GBK");
 			List<String> values = new ArrayList<String>();
 			JsonArray redisArray = new JsonArray();//redis中key用到
 			for (int i = 0; i < list.size(); i++) {
@@ -1268,9 +1270,9 @@ public class RedisService {
 						} else if ("idfa_sha1".equals(key.toLowerCase())) {
 							redisArray.add(113);
 						} else if ("idfa_md5".equals(key.toLowerCase())) {
-							redisArray.add(1153);
+							redisArray.add(114);
 						}
-						name = key + wlType +populationId;//不管是不是第一次遇到key，都让name等于这个新名称
+						name = key + wlType + populationId;//不管是不是第一次遇到key，都让name等于这个新名称
 						//这样新key、新name、新value，下一次再遇到key，直接放入redis
 					} else {
 						values.add(str);//如果不是key那就让如list中
@@ -1288,6 +1290,10 @@ public class RedisService {
 				} else if ("01".equals(type)) {
 					obj.add("whitelist", redisArray);
 				}
+				JsonArray arr = new JsonArray();
+				arr.add(populationId);
+				obj.add("relationid", arr);
+				
 				obj.addProperty("retio", 0);
 				obj.addProperty("mprice", 0);
 				String redisKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;

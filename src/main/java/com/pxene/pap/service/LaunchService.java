@@ -201,25 +201,26 @@ public class LaunchService extends BaseService{
 	 */
 	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
-		String currentHour = DateUtils.getCurrentHour();//当前小时
-		String currentDate = DateUtils.getCurrentDate();//当前日期
+		// 当前小时
+		String currentHour = DateUtils.getCurrentHour();
+		// 当前日期
+		String currentDate = DateUtils.getCurrentDate();
 		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
-		//查询投放中的项目
-		ProjectModelExample projectExample = new ProjectModelExample();
-		projectExample.createCriteria().andStatusNotEqualTo(StatusConstant.PROJECT_PAUSE);
-		List<ProjectModel> projects = projectDao.selectByExample(projectExample);
-		//查询非“已结束”的活动
+		// 查询投放中的项目
+		ProjectModelExample projectModelExample = new ProjectModelExample();
+		projectModelExample.createCriteria().andStatusNotEqualTo(StatusConstant.PROJECT_PAUSE);
+		List<ProjectModel> projects = projectDao.selectByExample(projectModelExample);
+		// 查询非"已结束"的活动
 		for (ProjectModel project : projects) {
 			String projectId = project.getId();
-			CampaignModelExample campaignExammple = new CampaignModelExample();
-			campaignExammple.createCriteria().andProjectIdEqualTo(projectId)
+			CampaignModelExample campaignModelExammple = new CampaignModelExample();
+			campaignModelExammple.createCriteria().andProjectIdEqualTo(projectId)
 					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_PAUSE);
-			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExammple);
+			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignModelExammple);
 			if (campaigns == null || campaigns.isEmpty()) {
 				continue;
 			}
-			
-			//查询活动的时间定向ID
+			// 查询活动的时间定向ID
 			for (CampaignModel campaign : campaigns) {
 				String campaitnId = campaign.getId();
 				if ("00".equals(currentHour)) {//每天零点写入预算和展现key

@@ -13,6 +13,13 @@ public class PhrasesConstant
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	
+	// 项目
+	
+	// 活动
+	public static final String CAMPAIGN_DATE_ERROR = "活动周期设置有误";
+	public static final String CAMPAIGN_ALL_BUDGET_OVER_PROJECT = "项目下活动预算总和不能大于项目预算";
+	public static final String FREQUENCY_NOT_COMPLETE = "频次信息不全";
+	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
@@ -33,16 +40,15 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
 	public static final String CAMPAIGN_START = "活动已投放，创意不能删除。";
-	//public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
-	public static final String CAMPAIGN_DATE_ERROR = "活动周期错误，操作失败！";
-	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";
+//	public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
+//	public static final String CAMPAIGN_DATE_ERROR = "活动周期错误，操作失败！";
+//	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";
 	public static final String PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN = "项目预算不能小于项目下活动预算总和！";
 	public static final String CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL = "活动日预算不能大于活动总预算！";
 	
 	
 	
 	//public static final String NAME_NOT_NULL = "名称不能为空";
-	
 	//public static final String LENGTH_ERROR_ID = "id长度不能超过36";
 	//public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LENGTH_ERROR_REMARK = "备注长度不能超过400";

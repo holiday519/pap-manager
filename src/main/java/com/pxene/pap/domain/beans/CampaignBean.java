@@ -37,28 +37,10 @@ public class CampaignBean extends BasicDataBean {
 	private String name;
 
 	/**
-	 * 活动类型
-	 */
-	private String type;
-
-	/**
 	 * 总预算
 	 */
 	@Max(value = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
 	private Integer totalBudget;
-
-	/**
-	 * 日预算
-	 */
-	private Integer dailyBudget;
-	/**
-	 * 日展现
-	 */
-	private Integer dailyImpression;
-	/**
-	 * 日点击
-	 */
-	private Integer dailyClick;
 
 	/**
 	 * 备注
@@ -83,7 +65,6 @@ public class CampaignBean extends BasicDataBean {
 	private Integer creativeNum;
 	/**
 	 * 定向
-	 *
 	 */
 	private Target target;
 
@@ -200,49 +181,8 @@ public class CampaignBean extends BasicDataBean {
 			this.apps = apps;
 		}
 
-		private String populationId;
+		private String population;
 
-		/**
-		 * 人群定向
-		 */
-		private Population[] population;
-
-		public static class Population {
-			private String id;
-			private String type;
-			private String path;
-
-			public String getId() {
-				return id;
-			}
-
-			public void setId(String id) {
-				this.id = id;
-			}
-
-			public String getType() {
-				return type;
-			}
-
-			public void setType(String type) {
-				this.type = type;
-			}
-
-			public String getPath() {
-				return path;
-			}
-
-			public void setPath(String path) {
-				this.path = path;
-			}
-
-			@Override
-			public String toString() {
-				return "Population [id=" + id + ", type=" + type + ", path="
-						+ path + "]";
-			}
-
-		}
 
 		public String[] getRegion() {
 			return region;
@@ -315,21 +255,13 @@ public class CampaignBean extends BasicDataBean {
 		public void setApp(String[] app) {
 			this.app = app;
 		}
-
-		public Population[] getPopulation() {
+		
+		public String getPopulation() {
 			return population;
 		}
 
-		public void setPopulation(Population[] population) {
+		public void setPopulation(String population) {
 			this.population = population;
-		}
-
-		public String getPopulationId() {
-			return populationId;
-		}
-
-		public void setPopulationId(String populationId) {
-			this.populationId = populationId;
 		}
 
 		@Override
@@ -343,8 +275,7 @@ public class CampaignBean extends BasicDataBean {
 					+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
 					+ ", brand=" + Arrays.toString(brand) + ", app="
 					+ Arrays.toString(app) + ", apps=" + Arrays.toString(apps)
-					+ ", populationId=" + populationId + ", population="
-					+ Arrays.toString(population) + "]";
+					+ ", population=" + population + "]";
 		}
 
 	}
@@ -560,36 +491,12 @@ public class CampaignBean extends BasicDataBean {
 		this.name = name;
 	}
 
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
 	public Integer getTotalBudget() {
 		return totalBudget;
 	}
 
 	public void setTotalBudget(Integer totalBudget) {
 		this.totalBudget = totalBudget;
-	}
-
-	public Integer getDailyImpression() {
-		return dailyImpression;
-	}
-
-	public void setDailyImpression(Integer dailyImpression) {
-		this.dailyImpression = dailyImpression;
-	}
-
-	public Integer getDailyClick() {
-		return dailyClick;
-	}
-
-	public void setDailyClick(Integer dailyClick) {
-		this.dailyClick = dailyClick;
 	}
 
 	public String getRemark() {
@@ -648,14 +555,6 @@ public class CampaignBean extends BasicDataBean {
 		this.monitors = monitors;
 	}
 
-	public Integer getDailyBudget() {
-		return dailyBudget;
-	}
-
-	public void setDailyBudget(Integer dailyBudget) {
-		this.dailyBudget = dailyBudget;
-	}
-
 	public String getUniform() {
 		return uniform;
 	}
@@ -683,10 +582,8 @@ public class CampaignBean extends BasicDataBean {
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
-				+ ", projectName=" + projectName + ", name=" + name + ", type="
-				+ type + ", totalBudget=" + totalBudget + ", dailyBudget="
-				+ dailyBudget + ", dailyImpression=" + dailyImpression
-				+ ", dailyClick=" + dailyClick + ", remark=" + remark
+				+ ", projectName=" + projectName + ", name=" + name
+				+ ", totalBudget=" + totalBudget + ", remark=" + remark
 				+ ", status=" + status + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", uniform=" + uniform
 				+ ", creativeNum=" + creativeNum + ", target=" + target

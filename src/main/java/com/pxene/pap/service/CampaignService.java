@@ -196,26 +196,19 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (campaignBueget.compareTo(projectBudget) > 0) {
-			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT);
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
 		
 		String id = UUID.randomUUID().toString();
 		bean.setId(id);
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		
-//		try {
-//			
-//		} catch (DuplicateKeyException exception) {
-//        	throw new DuplicateEntityException();
-//      }
-		
 		// 添加频次信息
 		Frequency frequency = bean.getFrequency();
 		if (frequency != null) {
-			if (frequency.getControlObj() == null
-					|| frequency.getNumber() == null
+			if (StringUtils.isEmpty(frequency.getControlObj()) || frequency.getNumber() == null
 					|| StringUtils.isEmpty(frequency.getTimeType())) {
-				throw new IllegalArgumentException("频次信息不全！");
+				throw new IllegalArgumentException(PhrasesConstant.FREQUENCY_NOT_COMPLETE);
 			}
 			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 			String frequencyId = UUID.randomUUID().toString();
@@ -225,9 +218,10 @@ public class CampaignService extends LaunchService {
 		}
 		//添加点击、展现监测地址
 		addCampaignMonitor(bean);
-		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 		// 添加投放量控制策略
 		addCampaignQuantity(bean);
+		
+		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 		campaignDao.insertSelective(campaignModel);
 	}
 
@@ -242,13 +236,16 @@ public class CampaignService extends LaunchService {
 		// 编辑的活动在数据库中不存在
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		bean.setId(id);//bean中放入ID，用于更新关联关系表中数据
-		Integer campaignBueget = bean.getTotalBudget();//传值里的预算
-		Integer dbBudget = campaignInDB.getTotalBudget();//数据库中预算
+		// bean中放入ID，用于更新关联关系表中数据
+		bean.setId(id);
+		// 传值里的预算
+		Integer campaignBueget = bean.getTotalBudget();
+		// 数据库中预算
+		Integer dbBudget = campaignInDB.getTotalBudget();
 
-		//改变预算、展现时修改redis中的值
+		// 改变预算、展现时修改redis中的值
 		changeRedisBudget(id, dbBudget, campaignBueget, bean.getQuantities());//改变日预算和总预算
 		
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
@@ -265,7 +262,7 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (campaignBueget.compareTo(projectBudget) > 0) {
-			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT);
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
 		
 		// 编辑频次
@@ -315,23 +312,23 @@ public class CampaignService extends LaunchService {
 	 * @param quantities 
 	 * @throws Exception
 	 */
-	public void changeRedisBudget (String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
+	public void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
 		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (JedisUtils.exists(key)) {
 			Map<String, String> map = JedisUtils.hget(key);
-			//修改redis中总预算值
+			// 修改redis中总预算值
 			if (!StringUtils.isEmpty(map.get("total"))) {
 				String total = map.get("total").toString();//redis里值
 				Integer difVaue = (newBueget - dbBudget);//修改前后差值（新的减去旧的）
 				if (difVaue < 0 && Math.abs(difVaue) > Float.parseFloat(total)) {//小于0时，并且redis中值不够扣除，抛出异常
-						throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
+					throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
 					JedisUtils.hincrbyFloat(key, "total", difVaue);
 				}
 			}
-			//修改redis中的日预算值
+			// 修改redis中的日预算值
 			if (!StringUtils.isEmpty(map.get("daily")) && quantities != null) {
 				String daily = map.get("daily").toString();//redis里值
 				Integer budget = 0;//数据库里值
@@ -920,7 +917,7 @@ public class CampaignService extends LaunchService {
 				}
 				String populationId = campaignTargetModel.getPopulationId();//查询活动的人群定向信息
 				if (!StringUtils.isEmpty(populationId)) {
-					target.setPopulationId(populationId);
+					target.setPopulation(populationId);
 				}
 				/*if (!StringUtils.isEmpty(populationId)) {
 					List<Population> PopulationList = new ArrayList<CampaignBean.Target.Population>();
