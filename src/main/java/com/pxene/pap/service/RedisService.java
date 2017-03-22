@@ -1231,7 +1231,7 @@ public class RedisService {
 		boolean flag = true;//是不是第一次遇到key（第一次碰到符合“[***]”字样）
 		File file = new File(path);
 		if (file.exists()) {//文件是否存在
-			List<String> list = FileUtils.readLines(file, "GBK");
+			List<String> list = FileUtils.readLines(file);
 			List<String> values = new ArrayList<String>();
 			JsonArray redisArray = new JsonArray();//redis中key用到
 			for (int i = 0; i < list.size(); i++) {
@@ -1239,7 +1239,7 @@ public class RedisService {
 				if (!StringUtils.isEmpty(str)) {
 					int left = str.indexOf("[");
 					int right = str.indexOf("]");
-					if ( left > -1 && right > -1) {
+					if (left > -1 && right > -1) {
 						if (flag) {//如果是第一次遇到key不做操作
 							flag = false;//变成false，证明以后的不是第一次遇到key
 						} else {//不是第一次时候
@@ -1277,7 +1277,7 @@ public class RedisService {
 					} else {
 						values.add(str);//如果不是key那就让如list中
 					}
-					if (i == list.size()-1) {
+					if (i == list.size()-1 && name != null) {
 						JedisUtils.sddKey(name, values);//最后一个key的值，循环完成后也要添加
 					}
 				}

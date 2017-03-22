@@ -43,14 +43,14 @@ public class GlobalExceptionHandler
         {
             if (MethodArgumentNotValidException.class.isInstance(exception))
             {
-                LOGGER.warn(exception.toString());
+            	LOGGER.warn("", exception);
                 List<ArgumentInvalidBean> invalidArguments = getBindResultErrors(exception);
                 
                 response.setStatus(HttpStatus.BAD_REQUEST.value());
                 return new ResponseBean(IllegalArgumentException.ERROR_CODE, IllegalArgumentException.ERROR_MSG, invalidArguments);
             }
             
-            LOGGER.error(exception.toString());
+            LOGGER.error("", exception);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseBean(ServerFailureException.ERROR_CODE, ServerFailureException.ERROR_MSG);
         }
