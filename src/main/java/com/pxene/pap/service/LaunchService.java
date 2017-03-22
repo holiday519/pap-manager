@@ -251,7 +251,7 @@ public class LaunchService extends BaseService{
 					value.put("total", String.valueOf(totalBudget * 100));
 					value.put("daily", String.valueOf(budget * 100));
 					
-					JedisUtils.set(count_key, counter);//预算
+					JedisUtils.set(count_key, String.valueOf(counter));//预算
 					JedisUtils.hset(budget_key, value);//展现上限
 				}
 //				String status = campaign.getStatus();

@@ -204,16 +204,8 @@ public class CampaignService extends LaunchService {
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		
 		// 添加频次信息
-		Frequency frequency = bean.getFrequency();
-		if (frequency != null) {
-			if (StringUtils.isEmpty(frequency.getControlObj()) || frequency.getNumber() == null
-					|| StringUtils.isEmpty(frequency.getTimeType())) {
-				throw new IllegalArgumentException(PhrasesConstant.FREQUENCY_NOT_COMPLETE);
-			}
-			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
-			String frequencyId = UUID.randomUUID().toString();
-			frequencyModel.setId(frequencyId);
-			frequencyDao.insertSelective(frequencyModel);
+		String frequencyId = addFrequency(bean);
+		if (!StringUtils.isEmpty(frequencyId)) {
 			campaignModel.setFrequencyId(frequencyId);
 		}
 		//添加点击、展现监测地址
@@ -244,7 +236,6 @@ public class CampaignService extends LaunchService {
 		Integer campaignBueget = bean.getTotalBudget();
 		// 数据库中预算
 		Integer dbBudget = campaignInDB.getTotalBudget();
-
 		// 改变预算、展现时修改redis中的值
 		changeRedisBudget(id, dbBudget, campaignBueget, bean.getQuantities());//改变日预算和总预算
 		
@@ -313,19 +304,20 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	public void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
-		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-		if (JedisUtils.exists(key)) {
-			Map<String, String> map = JedisUtils.hget(key);
+		if (JedisUtils.exists(budgetKey)) {
+			Map<String, String> map = JedisUtils.hget(budgetKey);
 			// 修改redis中总预算值
 			if (!StringUtils.isEmpty(map.get("total"))) {
-				String total = map.get("total").toString();//redis里值
+				// redis里值
+				String total = map.get("total");
 				Integer difVaue = (newBueget - dbBudget);//修改前后差值（新的减去旧的）
 				if (difVaue < 0 && Math.abs(difVaue) > Float.parseFloat(total)) {//小于0时，并且redis中值不够扣除，抛出异常
 					throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(key, "total", difVaue);
+					JedisUtils.hincrbyFloat(budgetKey, "total", difVaue);
 				}
 			}
 			// 修改redis中的日预算值
@@ -368,7 +360,7 @@ public class CampaignService extends LaunchService {
 						throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(key, "total", difVaue);
+					JedisUtils.hincrbyFloat(budgetKey, "total", difVaue);
 				}
 				//如果有日展现key
 				if (JedisUtils.exists(countKey)) {
@@ -594,16 +586,16 @@ public class CampaignService extends LaunchService {
 	 * @param bean
 	 */
 	@Transactional
-	public void addCampaignMonitor(CampaignBean bean) throws Exception {
-		Monitor[] monitors = bean.getMonitors();
+	private void addCampaignMonitor(CampaignBean campaignBean) throws Exception {
+		Monitor[] monitors = campaignBean.getMonitors();
 		if (monitors != null && monitors.length > 0) {
-			String id = bean.getId();
-			for (Monitor mnt : monitors) {
+			String id = campaignBean.getId();
+			for (Monitor bean : monitors) {
 				String monitorId = UUID.randomUUID().toString();
-				MonitorModel monitor = modelMapper.map(mnt, MonitorModel.class);
-				monitor.setId(monitorId);
-				monitor.setCampaignId(id);
-				monitorDao.insertSelective(monitor);
+				MonitorModel model = modelMapper.map(bean, MonitorModel.class);
+				model.setId(monitorId);
+				model.setCampaignId(id);
+				monitorDao.insertSelective(model);
 			}
 		}
 	}
@@ -613,7 +605,7 @@ public class CampaignService extends LaunchService {
 	 * @param campaignId
 	 */
 	@Transactional
-	public void deleteCampaignMonitor(String campaignId) throws Exception {
+	private void deleteCampaignMonitor(String campaignId) throws Exception {
 		MonitorModelExample example = new MonitorModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
 		monitorDao.deleteByExample(example);
@@ -625,20 +617,17 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void addCampaignQuantity(CampaignBean bean) throws Exception {
-		Quantity[] quantitys = bean.getQuantities();
+	private void addCampaignQuantity(CampaignBean campaignBean) throws Exception {
+		Quantity[] quantitys = campaignBean.getQuantities();
 		if (quantitys != null && quantitys.length > 0) {
-			String id = bean.getId();
-			Integer dailyBudget = null;
-			Integer totalBudget = null;
-			for (Quantity qt : quantitys) {
-				dailyBudget = qt.getDailyBudget();
-				totalBudget = bean.getTotalBudget();
-				if (dailyBudget != null && totalBudget != null
-						&& dailyBudget.compareTo(totalBudget) > 0) {
-					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL); 
+			String id = campaignBean.getId();
+			for (Quantity bean : quantitys) {
+				Integer dailyBudget = bean.getDailyBudget();
+				Integer totalBudget = campaignBean.getTotalBudget();
+				if (dailyBudget != null && totalBudget != null && dailyBudget.compareTo(totalBudget) > 0) {
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_TOTAL); 
 				}
-				QuantityModel model = modelMapper.map(qt, QuantityModel.class);
+				QuantityModel model = modelMapper.map(bean, QuantityModel.class);
 				model.setCampaignId(id);
 				model.setId(UUID.randomUUID().toString());
 				quantityDao.insertSelective(model);
@@ -652,10 +641,26 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void deleteCampaignQuantity(String campaignId) throws Exception {
+	private void deleteCampaignQuantity(String campaignId) throws Exception {
 		QuantityModelExample example = new QuantityModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
 		quantityDao.deleteByExample(example);
+	}
+	
+	private String addFrequency(CampaignBean campaignBean) throws Exception {
+		Frequency frequency = campaignBean.getFrequency();
+		if (frequency != null) {
+			if (StringUtils.isEmpty(frequency.getControlObj()) || frequency.getNumber() == null
+					|| StringUtils.isEmpty(frequency.getTimeType())) {
+				throw new IllegalArgumentException(PhrasesConstant.FREQUENCY_NOT_COMPLETE);
+			}
+			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
+			String frequencyId = UUID.randomUUID().toString();
+			frequencyModel.setId(frequencyId);
+			frequencyDao.insertSelective(frequencyModel);
+			return frequencyId;
+		}
+		return "";
 	}
 	
 	/**
@@ -664,7 +669,7 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void deletefrequency(String campaignId) throws Exception {
+	private void deleteFrequency(String campaignId) throws Exception {
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		frequencyDao.deleteByPrimaryKey(campaignModel.getFrequencyId());
 	}
@@ -694,7 +699,7 @@ public class CampaignService extends LaunchService {
 		//删除定向
 		deleteCampaignTarget(campaignId);
 		//删除频次信息
-		deletefrequency(campaignId);
+		deleteFrequency(campaignId);
 		//删除控制策略
 		deleteCampaignMonitor(campaignId);
 		//删除活动
@@ -732,7 +737,7 @@ public class CampaignService extends LaunchService {
 			//删除定向
 			deleteCampaignTarget(campaignId);
 			//删除频次信息
-			deletefrequency(campaignId);
+			deleteFrequency(campaignId);
 			//删除控制策略
 			deleteCampaignMonitor(campaignId);
 		}

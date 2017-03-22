@@ -252,8 +252,7 @@ public class AdvertiserService extends BaseService
         bean.setIndustryName(industryName);
         // 找出该行业下的kpi
         IndustryKpiModelExample example = new IndustryKpiModelExample();
-        com.pxene.pap.domain.models.IndustryKpiModelExample.Criteria criteria = example.createCriteria();
-        criteria.andIndustryIdEqualTo(industryId);
+        example.createCriteria().andIndustryIdEqualTo(industryId);
         List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(example);
         Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
         for (int i=0; i<kpis.length; i++) {
@@ -301,8 +300,7 @@ public class AdvertiserService extends BaseService
             bean.setIndustryName(industryName);
             // 找出该行业下的kpi
             IndustryKpiModelExample industryKpiModelExample = new IndustryKpiModelExample();
-            com.pxene.pap.domain.models.IndustryKpiModelExample.Criteria industryKpiModelExampleCriteria = industryKpiModelExample.createCriteria();
-            industryKpiModelExampleCriteria.andIndustryIdEqualTo(industryId);
+            industryKpiModelExample.createCriteria().andIndustryIdEqualTo(industryId);
             List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(industryKpiModelExample);
             Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
             for (int i=0; i<kpis.length; i++) {
