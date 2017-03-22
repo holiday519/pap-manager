@@ -51,7 +51,7 @@ public class CampaignTargetBean {
 	/**
 	 * 人群定向
 	 */
-	private String populationId;
+	private String population;
 
 	public String getId() {
 		return id;
@@ -133,12 +133,12 @@ public class CampaignTargetBean {
 		this.app = app;
 	}
 
-	public String getPopulationId() {
-		return populationId;
+	public String getPopulation() {
+		return population;
 	}
 
-	public void setPopulationId(String populationId) {
-		this.populationId = populationId;
+	public void setPopulation(String population) {
+		this.population = population;
 	}
 
 	@Override
@@ -150,7 +150,7 @@ public class CampaignTargetBean {
 				+ Arrays.toString(operator) + ", device="
 				+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
 				+ ", brand=" + Arrays.toString(brand) + ", app="
-				+ Arrays.toString(app) + ", populationId=" + populationId + "]";
+				+ Arrays.toString(app) + ", population=" + population + "]";
 	}
 
 }

@@ -187,7 +187,8 @@ public class CampaignService extends LaunchService {
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		Integer projectBudget = projectModel.getTotalBudget();
 		Integer campaignBueget = bean.getTotalBudget();
-		campaignModelExample = new CampaignModelExample();
+//		campaignModelExample = new CampaignModelExample();
+		campaignModelExample.clear();
 		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId);
 		campaignModels = campaignDao.selectByExample(campaignModelExample);
 		if (campaignModels != null && !campaignModels.isEmpty()) {
@@ -433,7 +434,7 @@ public class CampaignService extends LaunchService {
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
 		String[] appTarget = bean.getApp();//app
-		String populationTarget = bean.getPopulationId();//人群
+		String populationTarget = bean.getPopulation();//人群
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region;
 			for (String regionId : regionTarget) {
