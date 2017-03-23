@@ -59,17 +59,6 @@ public class LaunchService extends BaseService{
 	private CreativeAuditDao creativeAuditDao;
 	
 	/**
-	 * 投放
-	 * @param campaignIds
-	 * @throws Exception
-	 */
-	public void launch(String campaignId) throws Exception {
-		if (campaignIsInDateTarget(campaignId) && campaignIsInWeekAndTimeTarget(campaignId)) {
-			writeRedis(campaignId);
-		}
-	}
-	
-	/**
 	 * 判断当前时间是否是活动的定向时间
 	 * @param campaignId
 	 * @return
@@ -183,16 +172,6 @@ public class LaunchService extends BaseService{
 		redisService.writeWhiteBlackToRedis(campaignId);
 
 		//活动预算、活动展现都由定时器方法中添加，在每天的00点时添加
-	}
-	
-	/**
-	 * 暂停
-	 * @param campaignId
-	 * @throws Exception
-	 */
-	public void pause(String campaignId) throws Exception {
-		//从redis中删除投放中的活动id
-		redisService.deleteCampaignId(campaignId);
 	}
 	
 	/**

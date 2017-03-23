@@ -68,6 +68,9 @@ public class ProjectService extends LaunchService {
 	@Autowired
 	private KpiDao kpiDao;
 	
+	@Autowired
+	private RedisService redisService;
+	
 	/**
 	 * 创建项目
 	 * @param bean
@@ -377,8 +380,10 @@ public class ProjectService extends LaunchService {
 				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
 				if (campaigns != null && !campaigns.isEmpty()) {
 					for (CampaignModel campaign : campaigns) {
-						// 投放
-						launch(campaign.getId());
+						String campaignId = campaign.getId();
+						if (campaignIsInDateTarget(campaignId) && campaignIsInWeekAndTimeTarget(campaignId)) {
+							writeRedis(campaignId);
+						}
 					}
 				}
 				//项目投放之后修改状态
@@ -408,8 +413,8 @@ public class ProjectService extends LaunchService {
 				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
 				if (campaigns != null && !campaigns.isEmpty()) {
 					for (CampaignModel campaign : campaigns) {
-						//移除redis中key
-						pause(campaign.getId());
+						// 移除redis中key
+						redisService.deleteCampaignId(campaign.getId());
 					}
 				}
 				//项目暂停之后修改状态

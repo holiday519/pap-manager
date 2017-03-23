@@ -161,6 +161,9 @@ public class CampaignService extends LaunchService {
 	@Autowired
 	private QuantityDao quantityDao;
 	
+	@Autowired
+	private RedisService redisService;
+	
 	/**
 	 * 创建活动
 	 * @param bean
@@ -234,11 +237,11 @@ public class CampaignService extends LaunchService {
 		// bean中放入ID，用于更新关联关系表中数据
 		bean.setId(id);
 		// 传值里的预算
-		Integer campaignBueget = bean.getTotalBudget();
+		Integer campaignBudget = bean.getTotalBudget();
 		// 数据库中预算
 		Integer dbBudget = campaignInDB.getTotalBudget();
 		// 改变预算、展现时修改redis中的值
-		changeRedisBudget(id, dbBudget, campaignBueget, bean.getQuantities());//改变日预算和总预算
+		changeRedisBudget(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
 		
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		// 判断预算是否超出
@@ -250,10 +253,10 @@ public class CampaignService extends LaunchService {
 		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
 		if (campaignModels != null && !campaignModels.isEmpty()) {
 			for (CampaignModel model : campaignModels) {
-				campaignBueget = campaignBueget + model.getTotalBudget();
+				campaignBudget = campaignBudget + model.getTotalBudget();
 			}
 		}
-		if (campaignBueget.compareTo(projectBudget) > 0) {
+		if (campaignBudget.compareTo(projectBudget) > 0) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
 		
@@ -304,7 +307,7 @@ public class CampaignService extends LaunchService {
 	 * @param quantities 
 	 * @throws Exception
 	 */
-	public void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
+	private void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (JedisUtils.exists(budgetKey)) {
@@ -385,21 +388,22 @@ public class CampaignService extends LaunchService {
 	 */
 	@Transactional
 	public void updateCampaignStatus(String id, Map<String, String> map) throws Exception {
-		if (StringUtils.isEmpty(map.get("action"))) {
+		String action = map.get("action");
+		
+		if (StringUtils.isEmpty(action)) {
 			throw new IllegalArgumentException();
 		}
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
 		if (campaignModel == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-		String action = map.get("action").toString();
 		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
-			pauseCampaign(id);
+			pauseCampaign(campaignModel);
 		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
-			launchCampaign(id);
-		}else {
-			throw new IllegalStatusException();
+			proceedCampaign(campaignModel);
+		} else {
+			throw new IllegalArgumentException();
 		}
 	}
 	
@@ -423,7 +427,7 @@ public class CampaignService extends LaunchService {
 	 * @param bean
 	 */
 	@Transactional
-	public void addCampaignTarget(CampaignTargetBean bean) throws Exception {
+	private void addCampaignTarget(CampaignTargetBean bean) throws Exception {
 		String id = bean.getId();
 		String[] regionTarget = bean.getRegion();//地域
 		String[] adTypeTarget = bean.getAdType();//广告类型
@@ -539,7 +543,7 @@ public class CampaignService extends LaunchService {
 	 * @param campaignId
 	 */
 	@Transactional
-	public void deleteCampaignTarget(String campaignId)  throws Exception {
+	private void deleteCampaignTarget(String campaignId)  throws Exception {
 		//删除地域定向
 		RegionTargetModelExample region = new RegionTargetModelExample();
 		region.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -1036,46 +1040,9 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void launchCampaign(String param) throws Exception {
-		if (StringUtils.isEmpty(param)) {
-			throw new ResourceNotFoundException();
-		}
-		String[] campaignIds = param.split(",");
-		
-		for (String campaignId : campaignIds) {
-			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
-			//活动存在，并且可以投放
-			if (campaignModel != null && checkCampaignCanLaunch(campaignId)) {
-				campaignModel.setStatus(StatusConstant.CAMPAIGN_PROCEED);
-				//投放
-				String projectId = campaignModel.getProjectId();
-				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-					launch(campaignId);
-				}
-				//改变数据库状态
-				campaignDao.updateByPrimaryKeySelective(campaignModel);
-			}
-		}
-	}
-	 
-	/**
-	 * 检查活动是否可以投放
-	 * @param campaignId
-	 * @return true：可投放；false：不可投放
-	 * @throws Exception
-	 */
-	public boolean checkCampaignCanLaunch(String campaignId) throws Exception {
-		// 检查是否有落地页
-		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-		if (model != null) {
-			String landpageId = model.getLandpageId();
-			if (StringUtils.isEmpty(landpageId)) {
-				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
-			}
-		} else {
-			return false;
-		}
+	private void proceedCampaign(CampaignModel campaignModel) throws Exception {
+		String campaignId = campaignModel.getId();
+		// 检查该活动是否可以投放
 		// 检查是否有创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -1083,20 +1050,29 @@ public class CampaignService extends LaunchService {
 		if (creatives == null || creatives.isEmpty()) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 		}
+		// 检查创意是否审核通过
 		//检查创意状态是否有审核通过的
-		boolean flag = false;
-		for (CreativeModel cm : creatives) {
-			String cId = cm.getId();
-			if (!StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeService.getCreativeAuditStatus(cId))) {
-				flag = true;
-				break;
+		for (CreativeModel creative : creatives) {
+			String creativeId = creative.getId();
+			if (!StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeService.getCreativeAuditStatus(creativeId))) {
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_PASS_CREATIE);
 			}
 		}
-		if (flag) {
-			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_PASS_CREATIE);
-		} else {
-			return true;
+		// 检查是否有落地页
+		String landpageId = campaignModel.getLandpageId();
+		if (StringUtils.isEmpty(landpageId)) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
 		}
+		campaignModel.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+		// 投放
+		String projectId = campaignModel.getProjectId();
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus()) && campaignIsInDateTarget(campaignId) 
+				&& campaignIsInWeekAndTimeTarget(campaignId)) {
+			writeRedis(campaignId);
+		}
+		//改变数据库状态
+		campaignDao.updateByPrimaryKeySelective(campaignModel);
 	}
 	
 	/**
@@ -1105,26 +1081,16 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void pauseCampaign(String param) throws Exception {
-		if (StringUtils.isEmpty(param)) {
-			throw new ResourceNotFoundException();
+	private void pauseCampaign(CampaignModel campaignModel) throws Exception {
+		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
+		String projectId = campaignModel.getProjectId();
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
+			//移除redis中key
+			redisService.deleteCampaignId(campaignModel.getId());
 		}
-		String[] campaignIds = param.split(",");
-		
-		for (String campaignId : campaignIds) {
-			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
-			if (campaignModel != null) {
-				campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-				String projectId = campaignModel.getProjectId();
-				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-				if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-					//移除redis中key
-					pause(campaignId);
-				}
-				//改变数据库状态
-				campaignDao.updateByPrimaryKeySelective(campaignModel);
-			}
-		}
+		//改变数据库状态
+		campaignDao.updateByPrimaryKeySelective(campaignModel);
 	}
-	
+	 
 }

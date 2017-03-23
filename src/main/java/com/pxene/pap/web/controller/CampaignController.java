@@ -124,7 +124,7 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public String getCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
 		CampaignBean bean = campaignService.selectCampaign(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
@@ -141,7 +141,7 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectCampaigns(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String projectId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listCampaigns(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String projectId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
 		if (pageNo != null && pageSize != null) {
 			pager = PageHelper.startPage(pageNo, pageSize);
@@ -151,32 +151,6 @@ public class CampaignController {
 		
 		PaginationBean result = new PaginationBean(selectCampaigns, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-	}
-	
-	/**
-	 * 投放活动
-	 * @param campaignIds
-	 * @param response
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/campaign/launch", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public void putOnByCampaign(@RequestParam(required = true) String campaignIds, HttpServletResponse response) throws Exception {
-		campaignService.launchCampaign(campaignIds);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}
-	
-	/**
-	 * 暂停活动
-	 * @param campaignIds
-	 * @param response
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/campaign/pause", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public void pauseByCampaign(@RequestParam(required = true) String campaignIds, HttpServletResponse response) throws Exception {
-		campaignService.pauseCampaign(campaignIds);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 }

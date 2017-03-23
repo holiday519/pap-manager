@@ -20,6 +20,8 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_ALL_BUDGET_OVER_PROJECT = "项目下活动预算总和不能大于项目预算";
 	public static final String FREQUENCY_NOT_COMPLETE = "频次信息不全";
 	public static final String CAMPAIGN_DAILY_BUDGET_OVER_TOTAL = "活动日预算不能大于活动总预算";
+	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放";
+	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放";
 	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
@@ -35,9 +37,9 @@ public class PhrasesConstant
     public static final String IMAGE_NOT_MAP_SIZE = "图片尺寸不符";
     public static final String IMAGE_NOT_MAP_VOLUME = "图片大小超过最大限制";
     public static final String LANDPAGE_HAVE_CAMPAIGN = "落地页已绑定活动，不能删除。";
-	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放。";
+//	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放。";
 	public static final String CAMPAIGN_NO_PASS_CREATIE = "活动下有创意未通过审核，不能投放。";
-	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放。";
+//	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放。";
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
 	public static final String CAMPAIGN_START = "活动已投放，创意不能删除。";
