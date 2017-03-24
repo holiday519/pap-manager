@@ -255,6 +255,11 @@ public class ProjectService extends LaunchService {
      * @throws Exception
      */
     public List<ProjectBean> selectProjects(String name, Long beginTime, Long endTime, String advertiserId) throws Exception {
+        // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
+    	if (!StringUtils.isEmpty(name) && name.contains("_"))
+    	{
+    	    name = name.replace("_", "\\_");
+    	}
     	
     	ProjectModelExample example = new ProjectModelExample();
 		if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(advertiserId)) {
