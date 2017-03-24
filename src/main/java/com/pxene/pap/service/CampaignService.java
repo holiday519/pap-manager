@@ -316,17 +316,19 @@ public class CampaignService extends LaunchService {
 			if (!StringUtils.isEmpty(map.get("total"))) {
 				// redis里值
 				String total = map.get("total");
+				Float totalFloat = Float.parseFloat(total) / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
 				Integer difVaue = (newBueget - dbBudget);//修改前后差值（新的减去旧的）
-				if (difVaue < 0 && Math.abs(difVaue) > Float.parseFloat(total)) {//小于0时，并且redis中值不够扣除，抛出异常
+				if (difVaue < 0 && Math.abs(difVaue) > totalFloat) {//小于0时，并且redis中值不够扣除，抛出异常
 					throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(budgetKey, "total", difVaue);
+					JedisUtils.hincrbyFloat(budgetKey, "total", difVaue * 100);
 				}
 			}
 			// 修改redis中的日预算值
 			if (!StringUtils.isEmpty(map.get("daily")) && quantities != null) {
-				String daily = map.get("daily").toString();//redis里值
+				String daily = map.get("daily");//redis里值
+				Float dailyFloat = Float.parseFloat(daily) / 100;// Redis中保存的费用单位是分，MySQL中保存的费用是元
 				Integer budget = 0;//数据库里值
 				Integer impression = 0;//数据库里值
 				QuantityModelExample example = new QuantityModelExample();
@@ -360,11 +362,11 @@ public class CampaignService extends LaunchService {
 				}
 				Integer difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
 				Integer difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
-				if (difVaue < 0 && Math.abs(difVaue) > Float.parseFloat(daily)) {//小于0时，并且redis中值不够扣除，抛出异常
+				if (difVaue < 0 && Math.abs(difVaue) > dailyFloat) {//小于0时，并且redis中值不够扣除，抛出异常
 						throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(budgetKey, "daily", difVaue);
+					JedisUtils.hincrbyFloat(budgetKey, "daily", difVaue * 100);
 				}
 				//如果有日展现key
 				if (JedisUtils.exists(countKey)) {
