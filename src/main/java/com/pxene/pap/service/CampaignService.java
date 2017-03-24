@@ -364,7 +364,7 @@ public class CampaignService extends LaunchService {
 						throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(budgetKey, "total", difVaue);
+					JedisUtils.hincrbyFloat(budgetKey, "daily", difVaue);
 				}
 				//如果有日展现key
 				if (JedisUtils.exists(countKey)) {
