@@ -111,9 +111,9 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProject(@PathVariable String id, HttpServletResponse response) throws Exception {
+	public String getProject(@PathVariable String id, HttpServletResponse response) throws Exception {
 		
-		ProjectBean projectDetailBean = projectService.selectProject(id);
+		ProjectBean projectDetailBean = projectService.getProject(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), projectDetailBean, response);
 	}
 	

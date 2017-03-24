@@ -1195,13 +1195,25 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void writeWhiteBlackToRedis(String campaignId) throws Exception {
-		PopulationTargetModelExample pex = new PopulationTargetModelExample();
-		pex.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<PopulationTargetModel> lists = populationTargetDao.selectByExample(pex);
-		String populationId = null;
-		if (lists != null && !lists.isEmpty()) {
-			for (PopulationTargetModel populationTargetModel : lists) {
-				populationId = populationTargetModel.getPopulationId();
+		// 先删除以前的黑白名单
+		if (JedisUtils.exists(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId)) {
+			
+		}
+		
+		PopulationTargetModelExample example = new PopulationTargetModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<PopulationTargetModel> models = populationTargetDao.selectByExample(example);
+		
+		if (models != null && !models.isEmpty()) {
+			
+		} else {
+			
+		}
+		
+/*		String populationId = null;
+		if (models != null && !models.isEmpty()) {
+			for (PopulationTargetModel model : models) {
+				populationId = model.getPopulationId();
 			}
 		}
 		if (!StringUtils.isEmpty(populationId)) {
@@ -1211,7 +1223,7 @@ public class RedisService {
 				String type = population.getType();
 				readFile(campaignId, populationId, POPULATION_ROOT_PATH + path, type);
 			}
-		}
+		}*/
 	}
 	
 	/**

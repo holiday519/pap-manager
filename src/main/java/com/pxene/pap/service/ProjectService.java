@@ -235,7 +235,7 @@ public class ProjectService extends LaunchService {
 	 * @param id
 	 * @return
 	 */
-    public ProjectBean selectProject(String id) throws Exception {
+    public ProjectBean getProject(String id) throws Exception {
     	//从视图中查询项目所相关信息
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andIdEqualTo(id);

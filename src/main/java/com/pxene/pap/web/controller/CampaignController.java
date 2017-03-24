@@ -125,7 +125,7 @@ public class CampaignController {
 	@RequestMapping(value = "/campaign/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String getCampaign(@PathVariable String id, HttpServletResponse response) throws Exception {
-		CampaignBean bean = campaignService.selectCampaign(id);
+		CampaignBean bean = campaignService.getCampaign(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
 	
@@ -147,9 +147,9 @@ public class CampaignController {
 			pager = PageHelper.startPage(pageNo, pageSize);
 		}
         
-		List<CampaignBean> selectCampaigns = campaignService.selectCampaigns(name, projectId, startDate, endDate);
+		List<CampaignBean> campaigns = campaignService.listCampaigns(name, projectId, startDate, endDate);
 		
-		PaginationBean result = new PaginationBean(selectCampaigns, pager);
+		PaginationBean result = new PaginationBean(campaigns, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	

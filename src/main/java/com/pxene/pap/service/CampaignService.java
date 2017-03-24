@@ -748,7 +748,7 @@ public class CampaignService extends LaunchService {
 	 * @param campaignId
 	 * @return
 	 */
-	public CampaignBean selectCampaign(String campaignId)  throws Exception {
+	public CampaignBean getCampaign(String campaignId)  throws Exception {
 		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 		if (model ==null || StringUtils.isEmpty(model.getId())) {
         	throw new ResourceNotFoundException();
@@ -766,7 +766,7 @@ public class CampaignService extends LaunchService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<CampaignBean> selectCampaigns(String name, String projectId, Long beginTime, Long endTime) throws Exception {
+	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
 		// 按更新时间进行倒序排序
