@@ -365,7 +365,9 @@ public class DataService extends BaseService {
 						bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(jump));
 					}
 					if (!StringUtils.isEmpty(exp)) {// 花费--expense
-						bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(exp));
+					    float totalCost = (bean.getTotalCost() + Float.parseFloat(exp)) / 100; //将Redis中取出的价格（分）转换成价格（元）
+						bean.setTotalCost(totalCost);
+						//bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(exp));
 					}
 				}
 			}
@@ -426,7 +428,8 @@ public class DataService extends BaseService {
 	        Float result = Float.parseFloat(format.format(percent));
 	        bean.setClickRate(result);
 	        
-	        percent = (double)bean.getTotalCost() * 1000 / bean.getImpressionAmount();
+	        // 除以1000，表示千次展现转化每次展现（分），再除以100，表示每次展现（元）
+	        percent = (double)bean.getTotalCost() * 1000 / bean.getImpressionAmount() / 100;
 	        result = Float.parseFloat(format.format(percent));
 	        bean.setImpressionCost(result);
 		}

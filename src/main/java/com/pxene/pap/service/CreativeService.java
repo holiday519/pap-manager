@@ -1361,7 +1361,8 @@ public class CreativeService extends BaseService {
 								} else if (hkey.indexOf("@j") > 0) {// 二跳
 									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
 								} else if (hkey.indexOf("@e") > 0) {// 花费
-									bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(value));
+								    float totalCost = (bean.getTotalCost() + Float.parseFloat(value)) / 100; //将Redis中取出的价格（分）转换成价格（元）
+									bean.setTotalCost(totalCost);
 								}
 							}
 						}
@@ -1400,7 +1401,8 @@ public class CreativeService extends BaseService {
 								} else if (hkey.indexOf("@j") > 0) {// 二跳
 									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
 								} else if (hkey.indexOf("@e") > 0) {// 花费
-									bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(value));
+									float totalCost = (bean.getTotalCost() + Float.parseFloat(value)) / 100; //将Redis中取出的价格（分）转换成价格（元）
+                                    bean.setTotalCost(totalCost);
 								}
 							}
 						}
