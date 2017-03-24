@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.basic.view.CreativeInfoflowDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.view.CreativeInfoflowModel">
+    <result column="creative_id" jdbcType="VARCHAR" property="creativeId" />
+    <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
+    <result column="landpage_url" jdbcType="VARCHAR" property="landpageUrl" />
+    <result column="monitor_url" jdbcType="VARCHAR" property="monitorUrl" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="app_star" jdbcType="INTEGER" property="appStar" />
+    <result column="cta_description" jdbcType="VARCHAR" property="ctaDescription" />
+    <result column="icon_id" jdbcType="VARCHAR" property="iconId" />
+    <result column="image1_id" jdbcType="VARCHAR" property="image1Id" />
+    <result column="image2_id" jdbcType="VARCHAR" property="image2Id" />
+    <result column="image3_id" jdbcType="VARCHAR" property="image3Id" />
+    <result column="image4_id" jdbcType="VARCHAR" property="image4Id" />
+    <result column="image5_id" jdbcType="VARCHAR" property="image5Id" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs">
+    <result column="impression_url" jdbcType="LONGVARCHAR" property="impressionUrl" />
+    <result column="click_url" jdbcType="LONGVARCHAR" property="clickUrl" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    creative_id, campaign_id, landpage_url, monitor_url, title, description, app_star, 
+    cta_description, icon_id, image1_id, image2_id, image3_id, image4_id, image5_id, 
+    project_id
+  </sql>
+  <sql id="Blob_Column_List">
+    impression_url, click_url
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.models.view.CreativeInfoflowModelExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from pap_v_creative_infoflow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.view.CreativeInfoflowModelExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_v_creative_infoflow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.view.CreativeInfoflowModelExample">
+    delete from pap_v_creative_infoflow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs">
+    insert into pap_v_creative_infoflow (creative_id, campaign_id, landpage_url, 
+      monitor_url, title, description, 
+      app_star, cta_description, icon_id, 
+      image1_id, image2_id, image3_id, 
+      image4_id, image5_id, project_id, 
+      impression_url, click_url)
+    values (#{creativeId,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, #{landpageUrl,jdbcType=VARCHAR}, 
+      #{monitorUrl,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{appStar,jdbcType=INTEGER}, #{ctaDescription,jdbcType=VARCHAR}, #{iconId,jdbcType=VARCHAR}, 
+      #{image1Id,jdbcType=VARCHAR}, #{image2Id,jdbcType=VARCHAR}, #{image3Id,jdbcType=VARCHAR}, 
+      #{image4Id,jdbcType=VARCHAR}, #{image5Id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{impressionUrl,jdbcType=LONGVARCHAR}, #{clickUrl,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs">
+    insert into pap_v_creative_infoflow
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="creativeId != null">
+        creative_id,
+      </if>
+      <if test="campaignId != null">
+        campaign_id,
+      </if>
+      <if test="landpageUrl != null">
+        landpage_url,
+      </if>
+      <if test="monitorUrl != null">
+        monitor_url,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="appStar != null">
+        app_star,
+      </if>
+      <if test="ctaDescription != null">
+        cta_description,
+      </if>
+      <if test="iconId != null">
+        icon_id,
+      </if>
+      <if test="image1Id != null">
+        image1_id,
+      </if>
+      <if test="image2Id != null">
+        image2_id,
+      </if>
+      <if test="image3Id != null">
+        image3_id,
+      </if>
+      <if test="image4Id != null">
+        image4_id,
+      </if>
+      <if test="image5Id != null">
+        image5_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="impressionUrl != null">
+        impression_url,
+      </if>
+      <if test="clickUrl != null">
+        click_url,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="creativeId != null">
+        #{creativeId,jdbcType=VARCHAR},
+      </if>
+      <if test="campaignId != null">
+        #{campaignId,jdbcType=VARCHAR},
+      </if>
+      <if test="landpageUrl != null">
+        #{landpageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="monitorUrl != null">
+        #{monitorUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="appStar != null">
+        #{appStar,jdbcType=INTEGER},
+      </if>
+      <if test="ctaDescription != null">
+        #{ctaDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="iconId != null">
+        #{iconId,jdbcType=VARCHAR},
+      </if>
+      <if test="image1Id != null">
+        #{image1Id,jdbcType=VARCHAR},
+      </if>
+      <if test="image2Id != null">
+        #{image2Id,jdbcType=VARCHAR},
+      </if>
+      <if test="image3Id != null">
+        #{image3Id,jdbcType=VARCHAR},
+      </if>
+      <if test="image4Id != null">
+        #{image4Id,jdbcType=VARCHAR},
+      </if>
+      <if test="image5Id != null">
+        #{image5Id,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="impressionUrl != null">
+        #{impressionUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="clickUrl != null">
+        #{clickUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.view.CreativeInfoflowModelExample" resultType="java.lang.Long">
+    select count(*) from pap_v_creative_infoflow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update pap_v_creative_infoflow
+    <set>
+      <if test="record.creativeId != null">
+        creative_id = #{record.creativeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.campaignId != null">
+        campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.landpageUrl != null">
+        landpage_url = #{record.landpageUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.monitorUrl != null">
+        monitor_url = #{record.monitorUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.title != null">
+        title = #{record.title,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appStar != null">
+        app_star = #{record.appStar,jdbcType=INTEGER},
+      </if>
+      <if test="record.ctaDescription != null">
+        cta_description = #{record.ctaDescription,jdbcType=VARCHAR},
+      </if>
+      <if test="record.iconId != null">
+        icon_id = #{record.iconId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image1Id != null">
+        image1_id = #{record.image1Id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image2Id != null">
+        image2_id = #{record.image2Id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image3Id != null">
+        image3_id = #{record.image3Id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image4Id != null">
+        image4_id = #{record.image4Id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.image5Id != null">
+        image5_id = #{record.image5Id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.impressionUrl != null">
+        impression_url = #{record.impressionUrl,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.clickUrl != null">
+        click_url = #{record.clickUrl,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update pap_v_creative_infoflow
+    set creative_id = #{record.creativeId,jdbcType=VARCHAR},
+      campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      landpage_url = #{record.landpageUrl,jdbcType=VARCHAR},
+      monitor_url = #{record.monitorUrl,jdbcType=VARCHAR},
+      title = #{record.title,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      app_star = #{record.appStar,jdbcType=INTEGER},
+      cta_description = #{record.ctaDescription,jdbcType=VARCHAR},
+      icon_id = #{record.iconId,jdbcType=VARCHAR},
+      image1_id = #{record.image1Id,jdbcType=VARCHAR},
+      image2_id = #{record.image2Id,jdbcType=VARCHAR},
+      image3_id = #{record.image3Id,jdbcType=VARCHAR},
+      image4_id = #{record.image4Id,jdbcType=VARCHAR},
+      image5_id = #{record.image5Id,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      impression_url = #{record.impressionUrl,jdbcType=LONGVARCHAR},
+      click_url = #{record.clickUrl,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update pap_v_creative_infoflow
+    set creative_id = #{record.creativeId,jdbcType=VARCHAR},
+      campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      landpage_url = #{record.landpageUrl,jdbcType=VARCHAR},
+      monitor_url = #{record.monitorUrl,jdbcType=VARCHAR},
+      title = #{record.title,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      app_star = #{record.appStar,jdbcType=INTEGER},
+      cta_description = #{record.ctaDescription,jdbcType=VARCHAR},
+      icon_id = #{record.iconId,jdbcType=VARCHAR},
+      image1_id = #{record.image1Id,jdbcType=VARCHAR},
+      image2_id = #{record.image2Id,jdbcType=VARCHAR},
+      image3_id = #{record.image3Id,jdbcType=VARCHAR},
+      image4_id = #{record.image4Id,jdbcType=VARCHAR},
+      image5_id = #{record.image5Id,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>
