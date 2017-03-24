@@ -102,12 +102,6 @@ public class CreativeService extends BaseService {
 	private CreativeAuditDao creativeAuditDao;
 	
 	@Autowired
-	private AuditCreativeBaiduService auditCreativeBaiduService;
-	
-	@Autowired
-	private AuditCreativeAdviewService auditCreativeAdviewService;
-	
-	@Autowired
 	private ImageDao imageDao;
 	
 	@Autowired

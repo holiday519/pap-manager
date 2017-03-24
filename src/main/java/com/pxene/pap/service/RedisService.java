@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
@@ -56,6 +57,7 @@ import com.pxene.pap.domain.models.view.CreativeInfoflowModelExample;
 import com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs;
 import com.pxene.pap.domain.models.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
@@ -207,24 +209,25 @@ public class RedisService {
 		}
 		// 根据创意id数组查询创意所对应的关联关系表数据
 		if (!creativeIds.isEmpty()) {
-			CreativeModelExample mapExample = new CreativeModelExample();
-			mapExample.createCriteria().andIdIn(creativeIds);
-			List<CreativeModel> mapModels = creativeDao.selectByExample(mapExample);
-			if (mapModels != null && !mapModels.isEmpty()) {
-				for (CreativeModel mapModel : mapModels) {
-					String mapId = mapModel.getId();
+//			CreativeModelExample mapExample = new CreativeModelExample();
+			creativeExample.clear();
+			creativeExample.createCriteria().andIdIn(creativeIds);
+			List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeExample);
+			if (creativeModels != null && !creativeModels.isEmpty()) {
+				for (CreativeModel creativeModel : creativeModels) {
+					String creativeId = creativeModel.getId();
 					//审核通过的创意才可以投放
-					if (getAuditSuccessMapId(mapId)) {
-						String creativeType = mapModel.getType();
+					if (getAuditSuccessCreativeId(creativeId)) {
+						String creativeType = creativeModel.getType();
 						// 图片创意
 						if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
-							writeImgCreativeInfoToRedis(mapId, campaignId);
+							writeImgCreativeInfoToRedis(creativeId, campaignId);
 							// 视频创意
 						} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
-							writeVideoCreativeInfoToRedis(mapId, campaignId);
+							writeVideoCreativeInfoToRedis(creativeId, campaignId);
 							// 信息流创意
 						} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
-							writeInfoCreativeInfoToRedis(mapId, campaignId);
+							writeInfoCreativeInfoToRedis(creativeId, campaignId);
 						}
 					}
 				}
@@ -237,40 +240,40 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	public void writeImgCreativeInfoToRedis(String mapId, String campaignId) throws Exception {
-		CreativeImageModelExample imageExaple = new CreativeImageModelExample();
-		imageExaple.createCriteria().andMapIdEqualTo(mapId);
-		List<CreativeImageModelWithBLOBs> list = creativeImageDao.selectByExampleWithBLOBs(imageExaple);
-		if (list == null || list.isEmpty()) {
+	public void writeImgCreativeInfoToRedis(String creativeId, String campaignId) throws Exception {
+		CreativeImageModelExample creativeImageExample = new CreativeImageModelExample();
+		creativeImageExample.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeImageModelWithBLOBs> models = creativeImageDao.selectByExampleWithBLOBs(creativeImageExample);
+		if (models == null || models.isEmpty()) {
 			throw new Exception();
 		}
-		for (CreativeImageModelWithBLOBs model : list) {
+		for (CreativeImageModelWithBLOBs model : models) {
 			JsonObject creativeObj = new JsonObject();
-			creativeObj.addProperty("mapid", model.getMapId());
+			creativeObj.addProperty("mapid", model.getCreativeId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
-			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
-			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
+			creativeObj.addProperty("type", 2);
+			creativeObj.addProperty("ftype", Integer.parseInt(model.getFormat()));
 			List<AdxModel> adxs = getAdxForCampaign(campaignId);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
 				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
-				adxObj.addProperty("price", getCreativePrice(mapId));
+				adxObj.addProperty("price", getCreativePrice(creativeId));
 				priceAdx.add(adxObj);
 			}
 			creativeObj.add("price_adx", priceAdx);
-			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
+			creativeObj.addProperty("ctype", 1);
 //			if ("2".equals(model.getCtype())) {
 //				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
 //				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
 //			}
-			creativeObj.addProperty("w", GlobalUtil.parseInt(model.getW(),0));
-			creativeObj.addProperty("h", GlobalUtil.parseInt(model.getH(),0));
-			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getCurl(),""));
-			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandingUrl(),""));
+			creativeObj.addProperty("w", GlobalUtil.parseInt(model.getWidth(), 0));
+			creativeObj.addProperty("h", GlobalUtil.parseInt(model.getHeight(), 0));
+			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getMonitorUrl(), model.getLandpageUrl()));
+			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandpageUrl(), ""));
 			
-			String[] tempImonitorUrl = GlobalUtil.parseString(model.getImonitorUrl(), "").split("##");//数据库查询时用"##"连接
-            String[] tempCmonitorUrl = GlobalUtil.parseString(model.getCmonitorUrl(), "").split("##");
+			String[] tempImonitorUrl = GlobalUtil.parseString(model.getImpressionUrl(), "").split("##");//数据库查询时用"##"连接
+            String[] tempCmonitorUrl = GlobalUtil.parseString(model.getClickUrl(), "").split("##");
 			JsonArray imoUrlStr = new JsonArray();
 			JsonArray cmoUrlStr = new JsonArray();
             String monitorcode = "";
@@ -284,12 +287,12 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("sourceurl", image_url + model.getSourceUrl());
+            creativeObj.addProperty("sourceurl", image_url + model.getPath());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
             //获取Exts
-    		JsonArray exts = getCreativeExts(mapId, campaignId);
+    		JsonArray exts = getCreativeExts(creativeId, campaignId);
 			creativeObj.add("exts", exts);
-			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, creativeObj.toString());
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 			
 			//添加权重key
 //			String type = "image_";
@@ -303,40 +306,40 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	public void writeVideoCreativeInfoToRedis(String mapId, String campaignId) throws Exception {
+	public void writeVideoCreativeInfoToRedis(String creativeId, String campaignId) throws Exception {
 		CreativeVideoModelExample videoExaple = new CreativeVideoModelExample();
-		videoExaple.createCriteria().andMapIdEqualTo(mapId);
-		List<CreativeVideoModelWithBLOBs> list = creativeVideoDao.selectByExampleWithBLOBs(videoExaple);
-		if (list == null || list.isEmpty()) {
-			throw new Exception();
+		videoExaple.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeVideoModelWithBLOBs> models = creativeVideoDao.selectByExampleWithBLOBs(videoExaple);
+		if (models == null || models.isEmpty()) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		for (CreativeVideoModelWithBLOBs model : list) {
+		for (CreativeVideoModelWithBLOBs model : models) {
 			JsonObject creativeObj = new JsonObject();
-			creativeObj.addProperty("mapid", model.getMapId());
+			creativeObj.addProperty("mapid", model.getCreativeId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
-			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
-			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
+			creativeObj.addProperty("type", 6);
+			creativeObj.addProperty("ftype", model.getFormat());
 			List<AdxModel> adxs = getAdxForCampaign(campaignId);
 			JsonArray priceAdx = new JsonArray();
 			for(AdxModel adx : adxs){
 				JsonObject adxObj = new JsonObject();
 				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
-				adxObj.addProperty("price", getCreativePrice(mapId));
+				adxObj.addProperty("price", getCreativePrice(creativeId));
 				priceAdx.add(adxObj);
 			}
 			creativeObj.add("price_adx", priceAdx);
-			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
+			creativeObj.addProperty("ctype", 1);
 //			if ("2".equals(model.getCtype())) {
 //				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(),""));
 //				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(),""));
 //			}
-			creativeObj.addProperty("w", GlobalUtil.parseInt(model.getW(),0));
-			creativeObj.addProperty("h", GlobalUtil.parseInt(model.getH(),0));
-			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getCurl(),""));
-			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandingUrl(),""));
+			creativeObj.addProperty("w", GlobalUtil.parseInt(model.getWidth(), 0));
+			creativeObj.addProperty("h", GlobalUtil.parseInt(model.getHeight(), 0));
+			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getMonitorUrl(), model.getLandpageUrl()));
+			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandpageUrl(), ""));
 			
-			String[] tempImonitorUrl = GlobalUtil.parseString(model.getImonitorUrl(), "").split("##");//数据库查询时用"##"连接
-            String[] tempCmonitorUrl = GlobalUtil.parseString(model.getCmonitorUrl(), "").split("##");
+			String[] tempImonitorUrl = GlobalUtil.parseString(model.getImpressionUrl(), "").split("##");//数据库查询时用"##"连接
+            String[] tempCmonitorUrl = GlobalUtil.parseString(model.getClickUrl(), "").split("##");
 			JsonArray imoUrlStr = new JsonArray();
 			JsonArray cmoUrlStr = new JsonArray();
             String monitorcode = "";
@@ -350,17 +353,16 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("sourceurl", image_url + model.getSourceUrl());
+            creativeObj.addProperty("sourceurl", image_url + model.getPath());
             creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
-          //获取Exts
-    		JsonArray exts = getCreativeExts(mapId, campaignId);
+            // 获取Exts
+    		JsonArray exts = getCreativeExts(creativeId, campaignId);
 			creativeObj.add("exts", exts);
-			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
-			
-			//添加权重key
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, exts.toString());
+			// 添加权重key
 			String type = "video_";
-			String materialName = model.getSourceUrl().substring(0, model.getSourceUrl().indexOf("|"));
-			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getW(),0), GlobalUtil.parseInt(model.getH(),0), materialName);
+			String materialName = model.getPath().substring(0, model.getPath().indexOf("|"));
+			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getWidth(), 0), GlobalUtil.parseInt(model.getHeight(), 0), materialName);
 		}
 	}
 	
@@ -369,29 +371,28 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	public void writeInfoCreativeInfoToRedis(String mapId, String campaignId) throws Exception {
+	public void writeInfoCreativeInfoToRedis(String creativeId, String campaignId) throws Exception {
 		CreativeInfoflowModelExample infoExaple = new CreativeInfoflowModelExample();
-		infoExaple.createCriteria().andMapIdEqualTo(mapId);
-		List<CreativeInfoflowModelWithBLOBs> list = creativeInfoflowDao.selectByExampleWithBLOBs(infoExaple);
-		if (list == null || list.isEmpty()) {
-			throw new Exception();
+		infoExaple.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeInfoflowModelWithBLOBs> models = creativeInfoflowDao.selectByExampleWithBLOBs(infoExaple);
+		if (models == null || models.isEmpty()) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		for (CreativeInfoflowModelWithBLOBs model : list) {
+		for (CreativeInfoflowModelWithBLOBs model : models) {
 			JsonObject creativeObj = new JsonObject();
-			creativeObj.addProperty("mapid", model.getMapId());
+			creativeObj.addProperty("mapid", model.getCreativeId());
 			creativeObj.addProperty("groupid", model.getCampaignId());
-			creativeObj.addProperty("type", Integer.parseInt(model.getType()));
-//			creativeObj.addProperty("ftype", Integer.parseInt(model.getFtype()));
+			creativeObj.addProperty("type", 9);
 			List<AdxModel> adxs = getAdxForCampaign(campaignId);
 			JsonArray priceAdx = new JsonArray();
-			for(AdxModel adx : adxs){
+			for (AdxModel adx : adxs) {
 				JsonObject adxObj = new JsonObject();
 				adxObj.addProperty("adx", Integer.parseInt(adx.getId()));
-				adxObj.addProperty("price", getCreativePrice(mapId));
+				adxObj.addProperty("price", getCreativePrice(creativeId));
 				priceAdx.add(adxObj);
 			}
 			creativeObj.add("price_adx", priceAdx);
-			creativeObj.addProperty("ctype", Integer.parseInt(model.getCtype()));
+			creativeObj.addProperty("ctype", 1);
 //			if ("2".equals(model.getCtype())) {
 //				creativeObj.addProperty("bundle", GlobalUtil.parseString(model.getMapId(), ""));
 //				creativeObj.addProperty("apkname", GlobalUtil.parseString(model.getApkName(), ""));
@@ -407,11 +408,11 @@ public class RedisService {
 			String image4 = model.getImage4Id();
 			String image5 = model.getImage5Id();
 			int imgs = 0;
-			//记录图片id（多张信息流大图）
+			// 记录图片id（多张信息流大图）
 			String []someImage = new String[5];
-			//记录哪一个图片不是NULL（如果只有一张大图时）
+			// 记录哪一个图片不是NULL（如果只有一张大图时）
 			String oneImag = "";
-			//逐个判断，如果有多图增加“imgs”，如果一个大图增加“w”“h”“ftype”“sourceurl”,没有则不增加
+			// 逐个判断，如果有多图增加“imgs”，如果一个大图增加“w”“h”“ftype”“sourceurl”,没有则不增加
 			if (image1 != null && !"".equals(image1)) {
 				imgs += 1;
 				oneImag = image1;
@@ -452,11 +453,11 @@ public class RedisService {
 				}
 				creativeObj.add("imgs", bigImages);
 			}
-			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getCurl(),""));
-			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandingUrl(),""));
+			creativeObj.addProperty("curl", GlobalUtil.parseString(model.getMonitorUrl(), model.getLandpageUrl()));
+			creativeObj.addProperty("landingurl", GlobalUtil.parseString(model.getLandpageUrl(), ""));
 			
-			String[] tempImonitorUrl = GlobalUtil.parseString(model.getImonitorUrl(), "").split("##");//数据库查询时用"##"连接
-            String[] tempCmonitorUrl = GlobalUtil.parseString(model.getCmonitorUrl(), "").split("##");
+			String[] tempImonitorUrl = GlobalUtil.parseString(model.getImpressionUrl(), "").split("##");//数据库查询时用"##"连接
+            String[] tempCmonitorUrl = GlobalUtil.parseString(model.getClickUrl(), "").split("##");
 			JsonArray imoUrlStr = new JsonArray();
 			JsonArray cmoUrlStr = new JsonArray();
             String monitorcode = "";
@@ -470,15 +471,15 @@ public class RedisService {
             creativeObj.add("imonitorurl", imoUrlStr);
             creativeObj.add("cmonitorurl", cmoUrlStr);
             creativeObj.addProperty("monitorcode", monitorcode);
-            creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(),""));
-            creativeObj.addProperty("title", GlobalUtil.parseString(model.getTitle(),""));
-            creativeObj.addProperty("description", GlobalUtil.parseString(model.getDescription(),""));
-            creativeObj.addProperty("rating", GlobalUtil.parseString(model.getRating(),""));
-            creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtatext(),""));
+            creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(), ""));
+            creativeObj.addProperty("title", GlobalUtil.parseString(model.getTitle(), ""));
+            creativeObj.addProperty("description", GlobalUtil.parseString(model.getDescription(), ""));
+            creativeObj.addProperty("rating", GlobalUtil.parseString(model.getAppStar(), ""));
+            creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtaDescription(), ""));
             //获取Exts
-    		JsonArray exts = getCreativeExts(mapId, campaignId);
+    		JsonArray exts = getCreativeExts(creativeId, campaignId);
 			creativeObj.add("exts", exts);
-			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + mapId, exts.toString());
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, exts.toString());
 		}
 	}
 	
@@ -850,7 +851,7 @@ public class RedisService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void writeMapidToRedis(String campaignId) throws Exception {
+	public void writeCreativeidToRedis(String campaignId) throws Exception {
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -862,7 +863,7 @@ public class RedisService {
 			for (CreativeModel creative : creatives) {
 				String creativeId = creative.getId();
 				//审核通过的创意才可以投放
-				if (getAuditSuccessMapId(creativeId)) {
+				if (getAuditSuccessCreativeId(creativeId)) {
 					mapidJson.add(creativeId);
 				}
 			}
@@ -964,9 +965,9 @@ public class RedisService {
 	 * @param mapId
 	 * @return true：是；false：否
 	 */
-	private boolean getAuditSuccessMapId(String mapId) throws Exception {
+	private boolean getAuditSuccessCreativeId(String creativeId) throws Exception {
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
-		example.createCriteria().andCreativeIdEqualTo(mapId)
+		example.createCriteria().andCreativeIdEqualTo(creativeId)
 				.andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
 		if (list != null && !list.isEmpty()) {

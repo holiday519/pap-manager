@@ -135,7 +135,7 @@ public class LaunchService extends BaseService{
 		//写入活动下的创意基本信息   dsp_mapid_*
 		redisService.writeCreativeInfoToRedis(campaignId);
 		//写入活动下的创意ID  dsp_group_mapids_*
-		redisService.writeMapidToRedis(campaignId);
+		redisService.writeCreativeidToRedis(campaignId);
 		//写入活动基本信息   dsp_group_info_*
 		redisService.writeCampaignInfoToRedis(campaignId);
 		//写入活动定向   dsp_group_target_*
@@ -159,7 +159,7 @@ public class LaunchService extends BaseService{
 		//写入活动下的创意基本信息   dsp_mapid_*
 		redisService.writeCreativeInfoToRedis(campaignId);
 		//写入活动下的创意ID  dsp_group_mapids_*
-		redisService.writeMapidToRedis(campaignId);
+		redisService.writeCreativeidToRedis(campaignId);
 		//写入活动基本信息   dsp_group_info_*
 		redisService.writeCampaignInfoToRedis(campaignId);
 		//写入活动定向   dsp_group_target_*

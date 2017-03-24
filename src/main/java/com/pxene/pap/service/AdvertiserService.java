@@ -58,8 +58,6 @@ public class AdvertiserService extends BaseService
     @Autowired
     private AdvertiserDao advertiserDao;
     @Autowired
-    private AuditAdvertiserBaiduService auditAdvertiserBaiduService;
-    @Autowired
     private CreativeService creativeService;
     @Autowired
     private AdxDao adxDao;
