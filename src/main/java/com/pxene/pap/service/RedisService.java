@@ -1295,7 +1295,7 @@ public class RedisService {
 				arr.add(populationId);
 				obj.add("relationid", arr);
 				
-				obj.addProperty("retio", 0);
+				obj.addProperty("ratio", 0);
 				obj.addProperty("mprice", 0);
 				String redisKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
 				JedisUtils.set(redisKey, obj.toString());
