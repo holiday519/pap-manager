@@ -1291,12 +1291,10 @@ public class RedisService {
 				} else if ("01".equals(type)) {
 					obj.add("whitelist", redisArray);
 				}
-				JsonArray arr = new JsonArray();
-				arr.add(populationId);
-				obj.add("relationid", arr);
+				obj.addProperty("relationid", populationId);
 				
-				obj.addProperty("ratio", 0);
-				obj.addProperty("mprice", 0);
+				obj.addProperty("ratio", 1);
+				obj.addProperty("mprice", 999);
 				String redisKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
 				JedisUtils.set(redisKey, obj.toString());
 			}

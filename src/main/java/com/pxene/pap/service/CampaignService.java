@@ -440,9 +440,8 @@ public class CampaignService extends LaunchService {
 		String[] appTarget = bean.getApp();//app
 		String populationTarget = bean.getPopulation();//人群
 		if (regionTarget != null && regionTarget.length > 0) {
-			RegionTargetModel region;
+			RegionTargetModel region = new RegionTargetModel();
 			for (String regionId : regionTarget) {
-				region = new RegionTargetModel();
 				region.setId(UUID.randomUUID().toString());
 				region.setCampaignId(id);
 				region.setRegionId(regionId);
@@ -450,9 +449,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (adTypeTarget != null && adTypeTarget.length > 0) {
-			AdTypeTargetModel adType;
+			AdTypeTargetModel adType = new AdTypeTargetModel();
 			for (String adTypeId : adTypeTarget) {
-				adType = new AdTypeTargetModel();
 				adType.setId(UUID.randomUUID().toString());
 				adType.setCampaignId(id);
 				adType.setAdType(adTypeId);
@@ -460,9 +458,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (timeTarget != null && timeTarget.length > 0) {
-			TimeTargetModel time;
+			TimeTargetModel time = new TimeTargetModel();
 			for (String timeId : timeTarget) {
-				time = new TimeTargetModel();
 				time.setId(UUID.randomUUID().toString());
 				time.setCampaignId(id);
 				time.setTime(timeId);
@@ -470,9 +467,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (networkTarget != null && networkTarget.length > 0) {
-			NetworkTargetModel network;
+			NetworkTargetModel network = new NetworkTargetModel();
 			for (String networkid : networkTarget) {
-				network = new NetworkTargetModel();
 				network.setId(UUID.randomUUID().toString());
 				network.setCampaignId(id);
 				network.setNetwork(networkid);
@@ -480,9 +476,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (operatorTarget != null && operatorTarget.length > 0) {
-			OperatorTargetModel operator;
+			OperatorTargetModel operator = new OperatorTargetModel();
 			for (String operatorId : operatorTarget) {
-				operator = new OperatorTargetModel();
 				operator.setId(UUID.randomUUID().toString());
 				operator.setCampaignId(id);
 				operator.setOperator(operatorId);
@@ -490,9 +485,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (deviceTarget != null && deviceTarget.length > 0) {
-			DeviceTargetModel device;
+			DeviceTargetModel device = new DeviceTargetModel();
 			for (String deviceId : deviceTarget) {
-				device = new DeviceTargetModel();
 				device.setId(UUID.randomUUID().toString());
 				device.setCampaignId(id);
 				device.setDevice(deviceId);
@@ -500,9 +494,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (osTarget != null && osTarget.length > 0) {
-			OsTargetModel os;
+			OsTargetModel os = new OsTargetModel();
 			for (String osId : osTarget) {
-				os = new OsTargetModel();
 				os.setId(UUID.randomUUID().toString());
 				os.setCampaignId(id);
 				os.setOs(osId);
@@ -510,9 +503,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (brandTarget != null && brandTarget.length > 0) {
-			BrandTargetModel brand;
+			BrandTargetModel brand = new BrandTargetModel();
 			for (String brandId : brandTarget) {
-				brand = new BrandTargetModel();
 				brand.setId(UUID.randomUUID().toString());
 				brand.setCampaignId(id);
 				brand.setBrandId(brandId);
@@ -520,9 +512,8 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		if (appTarget != null && appTarget.length > 0) {
-			AppTargetModel app;
+			AppTargetModel app = new AppTargetModel();
 			for (String appId : appTarget) {
-				app = new AppTargetModel();
 				app.setId(UUID.randomUUID().toString());
 				app.setCampaignId(id);
 				app.setAppId(appId);
