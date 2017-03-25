@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.JedisUtils;
@@ -782,25 +783,6 @@ public class RedisService {
 		}
 	}
 	
-//	/**
-//	 * 活动所属项目预算key写入redis
-//	 * @param campaignId
-//	 * @throws Exception
-//	 */
-//	public void writeProjectBudgetToRedis(String campaignId) throws Exception {
-//		if (!StringUtils.isEmpty(campaignId)) {//如果没有才新加，有，不操作
-//			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-//			if (model != null) {
-//				String projectId = model.getProjectId();
-//				String key = RedisKeyConstant.PROJECT_BUDGET + projectId;
-//				ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-//				if (projectModel != null) {
-//					int totalBudget = projectModel.getTotalBudget();
-//					JedisUtils.set(key, totalBudget * 100);
-//				}
-//			}
-//		}
-//	}
 	
 	/**
 	 * 活动kpi上限写如redis
@@ -1117,35 +1099,6 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void deleteMapidsFromRedis(String campaignId) throws Exception {
-		//		// 查询活动下创意
-//		CreativeModelExample creativeExample = new CreativeModelExample();
-//		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-//		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
-//		// 创意id数组
-//		List<String> creativeIds = new ArrayList<String>();
-//		//如果活动下无可投创意
-//		if(creatives == null || creatives.isEmpty()){
-//			return;
-//		}
-//		// 将查询出来的创意id放入创意id数组
-//		for (CreativeModel creative : creatives) {
-//			creativeIds.add(creative.getId());
-//		}
-//		// 根据创意id数组查询创意所对应的关联关系表数据
-//		if (!creativeIds.isEmpty()) {
-//			CreativeMaterialModelExample mapExample = new CreativeMaterialModelExample();
-//			mapExample.createCriteria().andCreativeIdIn(creativeIds);
-//			List<CreativeMaterialModel> mapModels = creativeMaterialDao.selectByExample(mapExample);
-//			if (mapModels != null && !mapModels.isEmpty()) {
-//				for (CreativeMaterialModel mapModel : mapModels) {
-//					String mapId = mapModel.getId();
-//					String str = JedisUtils.getStr(RedisKeyConstant.CREATIVE_INFO + mapId);
-//					if (!StringUtils.isEmpty(str)) {
-//						JedisUtils.delete(RedisKeyConstant.CREATIVE_INFO + mapId);
-//					}
-//				}
-//			}
-//		}
 		CreativeModelExample example = new CreativeModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> list = creativeDao.selectByExample(example);
@@ -1196,34 +1149,32 @@ public class RedisService {
 	 */
 	public void writeWhiteBlackToRedis(String campaignId) throws Exception {
 		// 先删除以前的黑白名单
-		if (JedisUtils.exists(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId)) {
-			
-		}
-		
-		PopulationTargetModelExample example = new PopulationTargetModelExample();
-		example.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<PopulationTargetModel> models = populationTargetDao.selectByExample(example);
-		
-		if (models != null && !models.isEmpty()) {
-			
-		} else {
-			
-		}
-		
-/*		String populationId = null;
-		if (models != null && !models.isEmpty()) {
-			for (PopulationTargetModel model : models) {
-				populationId = model.getPopulationId();
+		String wbKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
+		if (JedisUtils.exists(wbKey)) {
+			String wbStr = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
+			JsonObject wbObj = (new JsonParser()).parse(wbStr).getAsJsonObject();
+			String populationId = wbObj.get("relationid").getAsString();
+			String[] idKeys = JedisUtils.getKeys("*" + populationId);
+			for (String idKey : idKeys) {
+				JedisUtils.delete(idKey);
 			}
+			JedisUtils.delete(wbKey);
 		}
-		if (!StringUtils.isEmpty(populationId)) {
-			PopulationModel population = populationDao.selectByPrimaryKey(populationId);
-			if (population != null) {
-				String path = population.getPath();
-				String type = population.getType();
+		// 添加新的黑白名单
+		PopulationTargetModelExample populationTargetExample = new PopulationTargetModelExample();
+		populationTargetExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<PopulationTargetModel> populationTargetModels = populationTargetDao.selectByExample(populationTargetExample);
+		
+		if (populationTargetModels != null && !populationTargetModels.isEmpty()) {
+			String populationId = populationTargetModels.get(0).getPopulationId();
+			PopulationModel populationModel = populationDao.selectByPrimaryKey(populationId);
+			if (populationModel != null) {
+				String path = populationModel.getPath();
+				String type = populationModel.getType();
 				readFile(campaignId, populationId, POPULATION_ROOT_PATH + path, type);
 			}
-		}*/
+		}
+		
 	}
 	
 	/**

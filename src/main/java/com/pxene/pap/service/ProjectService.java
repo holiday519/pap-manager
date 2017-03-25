@@ -78,29 +78,19 @@ public class ProjectService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createProject(ProjectBean bean) throws Exception{
+	public void createProject(ProjectBean bean) throws Exception {
+		// 验证名称重复
+		ProjectModelExample example = new ProjectModelExample();
+		example.createCriteria().andNameEqualTo(bean.getName());
+		List<ProjectModel> models = projectDao.selectByExample(example);
+		if (models != null && !models.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
 		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
+		model.setId(UUID.randomUUID().toString());
+		model.setStatus(StatusConstant.PROJECT_PROCEED);
+		projectDao.insertSelective(model);
 		
-		if (bean != null && model != null && !StringUtils.isEmpty(bean.getName()))
-		{
-		    ProjectModelExample modelExample = new ProjectModelExample();
-		    modelExample.createCriteria().andNameEqualTo(bean.getName());
-		    List<ProjectModel> selectResult = projectDao.selectByExample(modelExample);
-		    if (selectResult != null && !selectResult.isEmpty())
-		    {
-		        throw new IllegalArgumentException("项目名称已存在");
-		    }
-		}
-		
-		String id = UUID.randomUUID().toString();
-		model.setId(id);
-		try {
-			// 添加项目信息
-			model.setStatus(StatusConstant.PROJECT_PROCEED);//状态
-			projectDao.insertSelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
 		BeanUtils.copyProperties(model, bean);
 	}
 	
@@ -114,7 +104,7 @@ public class ProjectService extends LaunchService {
 	public void updateProject(String id, ProjectBean bean) throws Exception {
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 
 		CampaignModelExample example = new CampaignModelExample();
@@ -129,7 +119,7 @@ public class ProjectService extends LaunchService {
 				}
 			}
 			if (bean.getTotalBudget() < budget) {
-				throw new IllegalArgumentException(PhrasesConstant.PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN);
+				throw new IllegalArgumentException(PhrasesConstant.PROJECT_BUDGET_UNDER_CAMPAIGN_ALL);
 			}
 		}
 		
