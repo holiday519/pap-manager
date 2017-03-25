@@ -1154,10 +1154,7 @@ public class RedisService {
 			String wbStr = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
 			JsonObject wbObj = (new JsonParser()).parse(wbStr).getAsJsonObject();
 			String populationId = wbObj.get("relationid").getAsString();
-			String[] idKeys = JedisUtils.getKeys("*" + populationId);
-			for (String idKey : idKeys) {
-				JedisUtils.delete(idKey);
-			}
+			JedisUtils.deleteByPattern("*" + populationId);
 			JedisUtils.delete(wbKey);
 		}
 		// 添加新的黑白名单
