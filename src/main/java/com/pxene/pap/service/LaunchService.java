@@ -146,8 +146,6 @@ public class LaunchService extends BaseService{
 		redisService.writeCampaignFrequencyToRedis(campaignId);
 		//写入黑白名单信息
 		redisService.writeWhiteBlackToRedis(campaignId);
-		//写入项目预算
-//		redisService.writeProjectBudgetToRedis(campaignId);
 		//写入活动预算
 		redisService.writeCampaignBudgetToRedis(campaignId);
 		//写入活动展现
@@ -180,37 +178,60 @@ public class LaunchService extends BaseService{
 	 */
 	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
+//		// 当前小时
+//		String currentHour = DateUtils.getCurrentHour();
+//		// 如果是0点，需要做如下事情：
+//		// 将今天开始投放的活动，所有数据写入redis
+//		// 将今天结束投放的活动，redis中的数据删除
+//		if ("00".equals(currentHour)) {
+//			// 找出今天开始投放的活动
+//			CampaignModelExample campaignExammple = new CampaignModelExample();
+//			
+//		}
+		
+		
+//		Date current = new Date();
+//		// 遍历所有到投放期的活动
+//		CampaignModelExample campaignExammple = new CampaignModelExample();
+//		campaignExammple.createCriteria().andStartDateLessThanOrEqualTo(current)
+//			.andEndDateGreaterThanOrEqualTo(current);
+//		List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExammple);
+//		for (CampaignModel campaign : addCampaigns) {
+//			
+//		}
+		
 		// 当前小时
 		String currentHour = DateUtils.getCurrentHour();
 		// 当前日期
 		String currentDate = DateUtils.getCurrentDate();
 		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
-		// 查询投放中的项目
+		// 查询开启的项目
 		ProjectModelExample projectModelExample = new ProjectModelExample();
-		projectModelExample.createCriteria().andStatusNotEqualTo(StatusConstant.PROJECT_PAUSE);
+		projectModelExample.createCriteria().andStatusEqualTo(StatusConstant.PROJECT_PROCEED);
 		List<ProjectModel> projects = projectDao.selectByExample(projectModelExample);
-		// 查询非"已结束"的活动
+		// 查询开启的活动
 		for (ProjectModel project : projects) {
 			String projectId = project.getId();
 			CampaignModelExample campaignModelExammple = new CampaignModelExample();
 			campaignModelExammple.createCriteria().andProjectIdEqualTo(projectId)
-					.andStatusNotEqualTo(StatusConstant.CAMPAIGN_PAUSE);
+					.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
 			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignModelExammple);
 			if (campaigns == null || campaigns.isEmpty()) {
 				continue;
 			}
 			// 查询活动的时间定向ID
 			for (CampaignModel campaign : campaigns) {
-				String campaitnId = campaign.getId();
-				if ("00".equals(currentHour)) {//每天零点写入预算和展现key
+				String campaignId = campaign.getId();
+				// 每天零点写入预算和展现key
+				if ("00".equals(currentHour)) {
 					//日展现上限
 					Integer totalBudget = campaign.getTotalBudget();
 					Integer budget = 0;
 					Integer counter = 0;
-					String count_key = RedisKeyConstant.CAMPAIGN_COUNTER + campaitnId;
-					String budget_key = RedisKeyConstant.CAMPAIGN_BUDGET + campaitnId;
+					String count_key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
+					String budget_key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 					QuantityModelExample example = new QuantityModelExample();
-					example.createCriteria().andCampaignIdEqualTo(campaitnId);
+					example.createCriteria().andCampaignIdEqualTo(campaignId);
 					List<QuantityModel> list = quantityDao.selectByExample(example);
 					if (list !=null && !list.isEmpty()) {
 						for (QuantityModel quan : list) {
@@ -241,14 +262,14 @@ public class LaunchService extends BaseService{
 				
 				if (now.after(end)) {//当前时间大于结束时间，状态变成已结束
 					campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-					redisService.deleteCampaignId(campaitnId);
+					redisService.deleteCampaignId(campaignId);
 				} else if (now.before(start)) {//当前时间小于开始时间时无操作
 				} else {//当前时间在开始时间和结束时间之间
-					if (campaignIsInWeekAndTimeTarget(campaitnId)) {
-						writeRedisByTime(campaitnId);
+					if (campaignIsInWeekAndTimeTarget(campaignId)) {
+						writeRedisByTime(campaignId);
 						campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
 					} else {
-						redisService.deleteCampaignId(campaitnId);
+						redisService.deleteCampaignId(campaignId);
 					}
 				}
 				campaignDao.updateByPrimaryKeySelective(campaign);
@@ -260,7 +281,7 @@ public class LaunchService extends BaseService{
 	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
 	 * @throws Exception
 	 */
-	@Scheduled(cron = "10 0 0 * * ?")
+	@Scheduled(cron = "0 0 0 * * ?")
 	public void updateExpityDate() throws Exception {
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);

@@ -228,10 +228,4 @@ public class DateUtils {
     	return date;
     }
     
-//	public static void main(String[] args) throws Exception {
-//		for (int i=0;i<=32;i++) {
-//			System.out.println(new DateTime(new Date(1355443200000L)).plusDays(i).toString("dd", Locale.CHINESE));
-//		}
-//		String[] hourArrayBetweenTwoDate = getHourArrayBetweenTwoDate(new Date(1484020800000L), new Date(1484038800000L));
-//	}
 }

@@ -295,10 +295,6 @@ public class RedisService {
 			creativeObj.add("exts", exts);
 			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 			
-			//添加权重key
-//			String type = "image_";
-//			String materialName = model.getSourceUrl().substring(0, model.getSourceUrl().indexOf("|"));
-//			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getW(),0), GlobalUtil.parseInt(model.getH(),0), materialName);
 		}
 	}
 	
@@ -359,11 +355,7 @@ public class RedisService {
             // 获取Exts
     		JsonArray exts = getCreativeExts(creativeId, campaignId);
 			creativeObj.add("exts", exts);
-			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, exts.toString());
-			// 添加权重key
-			String type = "video_";
-			String materialName = model.getPath().substring(0, model.getPath().indexOf("|"));
-			addRateForMaterial(campaignId, type, GlobalUtil.parseInt(model.getWidth(), 0), GlobalUtil.parseInt(model.getHeight(), 0), materialName);
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 		}
 	}
 	
@@ -480,7 +472,7 @@ public class RedisService {
             //获取Exts
     		JsonArray exts = getCreativeExts(creativeId, campaignId);
 			creativeObj.add("exts", exts);
-			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, exts.toString());
+			JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 		}
 	}
 	
@@ -556,9 +548,11 @@ public class RedisService {
 		}
 		campaignInfo.add("adx", adxArr);
 		campaignInfo.add("auctiontype", auctiontypeArr);
-		campaignInfo.addProperty("redirect", 0);//不重定向创意的curl
-		campaignInfo.addProperty("effectmonitor", 1);//需要效果监测
-		//获取Exts
+		// 不重定向创意的curl
+		campaignInfo.addProperty("redirect", 0);
+		// 需要效果监测
+		campaignInfo.addProperty("effectmonitor", 1);
+		// 获取Exts
 		JsonArray exts = getCampaignExts(campaignId);
 		campaignInfo.add("exts", exts);
 		JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignInfo.toString());
