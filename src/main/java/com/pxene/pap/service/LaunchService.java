@@ -2,10 +2,9 @@ package com.pxene.pap.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -16,17 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
-import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
-import com.pxene.pap.domain.models.ProjectModel;
-import com.pxene.pap.domain.models.ProjectModelExample;
-import com.pxene.pap.domain.models.QuantityModel;
-import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -130,29 +123,39 @@ public class LaunchService extends BaseService{
 		return Flag;
 	}
 	
-	//手动投放时调用
+	// 手动投放时调用
 	public void writeRedis(String campaignId) throws Exception {
 		//写入活动下的创意基本信息   dsp_mapid_*
-		redisService.writeCreativeInfoToRedis(campaignId);
-		//写入活动下的创意ID  dsp_group_mapids_*
-		redisService.writeCreativeidToRedis(campaignId);
+		redisService.writeCreativeInfo(campaignId);
+		//写入活动下的创意ID dsp_group_mapids_*
+		redisService.writeCreativeId(campaignId);
 		//写入活动基本信息   dsp_group_info_*
-		redisService.writeCampaignInfoToRedis(campaignId);
+		redisService.writeCampaignInfo(campaignId);
 		//写入活动定向   dsp_group_target_*
-		redisService.writeCampaignTargetToRedis(campaignId);
-		//写入活动ID pap_groupids
-		redisService.writeCampaignIds(campaignId);
+		redisService.writeCampaignTarget(campaignId);
 		//写入活动频次信息   dsp_groupid_frequencycapping_*
-		redisService.writeCampaignFrequencyToRedis(campaignId);
+		redisService.writeCampaignFrequency(campaignId);
 		//写入黑白名单信息
-		redisService.writeWhiteBlackToRedis(campaignId);
-		//写入活动预算
-		redisService.writeCampaignBudgetToRedis(campaignId);
-		//写入活动展现
-		redisService.writeCampaignCounterToRedis(campaignId);
+		redisService.writeWhiteBlack(campaignId);
+		
+//		//写入活动ID pap_groupids
+//		redisService.writeCampaignIds(campaignId);
+//		//写入活动预算
+//		redisService.writeCampaignBudget(campaignId);
+//		//写入活动展现
+//		redisService.writeCampaignCounter(campaignId);
 	}
 	
-	//定时器投放调用
+	public void removeRedis(String campaignId) throws Exception {
+		redisService.removeCreativeInfo(campaignId);
+		redisService.removeCreativeId(campaignId);
+		redisService.removeCampaignInfo(campaignId);
+		redisService.removeCampaignTarget(campaignId);
+		redisService.removeCampaignFrequency(campaignId);
+		redisService.removeWhiteBlack(campaignId);
+	}
+	
+/*	//定时器投放调用
 	public void writeRedisByTime(String campaignId) throws Exception {
 		//写入活动下的创意基本信息   dsp_mapid_*
 		redisService.writeCreativeInfoToRedis(campaignId);
@@ -170,7 +173,7 @@ public class LaunchService extends BaseService{
 		redisService.writeWhiteBlackToRedis(campaignId);
 
 		//活动预算、活动展现都由定时器方法中添加，在每天的00点时添加
-	}
+	}*/
 	
 	/**
 	 * 根据时间定向投放活动，结束到期活动————————————每小时投放项目定时器
@@ -178,107 +181,137 @@ public class LaunchService extends BaseService{
 	 */
 	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
-//		// 当前小时
-//		String currentHour = DateUtils.getCurrentHour();
-//		// yyyy-MM-dd
-//		String currrntDate = DateUtils.getCurrentDate();
-//		// 当前日期的整点时间
-//		Date current = DateUtils.strToDate(currrntDate, "yyyy-MM-dd");
-//		// 当前日期退后一秒钟的时间
-//		Date last = DateUtils.changeDate(current, Calendar.SECOND, -1);
-//		
-//		// 如果是0点，需要做如下事情：
-//		// 将今天开始投放的活动，所有数据写入redis
-//		// 将今天结束投放的活动，redis中的数据删除
-//		if ("00".equals(currentHour)) {
-//			// 找出今天开始投放的活动
-//			CampaignModelExample campaignExammple = new CampaignModelExample();
-//			campaignExammple.createCriteria().andStartDateEqualTo(current);
-//			List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExammple);
-//			
-//			campaignExammple.clear();
-//			campaignExammple.createCriteria().andEndDateEqualTo(last);
-//			List<CampaignModel> delCampaigns = campaignDao.selectByExample(campaignExammple);
-//		}
-		// 每个小时判断时间定向，将不在该时间内的活动移除
-		
-		
 		// 当前小时
 		String currentHour = DateUtils.getCurrentHour();
-		// 当前日期
+		// yyyy-MM-dd
 		String currentDate = DateUtils.getCurrentDate();
-		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
-		// 查询开启的项目
-		ProjectModelExample projectModelExample = new ProjectModelExample();
-		projectModelExample.createCriteria().andStatusEqualTo(StatusConstant.PROJECT_PROCEED);
-		List<ProjectModel> projects = projectDao.selectByExample(projectModelExample);
-		// 查询开启的活动
-		for (ProjectModel project : projects) {
-			String projectId = project.getId();
-			CampaignModelExample campaignModelExammple = new CampaignModelExample();
-			campaignModelExammple.createCriteria().andProjectIdEqualTo(projectId)
-					.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
-			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignModelExammple);
-			if (campaigns == null || campaigns.isEmpty()) {
-				continue;
-			}
-			// 查询活动的时间定向ID
-			for (CampaignModel campaign : campaigns) {
+		// 当前日期的整点时间
+		Date start = DateUtils.strToDate(currentDate, "yyyy-MM-dd");
+		// 当前日期退后一秒钟的时间
+		Date end = DateUtils.changeDate(start, Calendar.SECOND, -1);
+		
+		CampaignModelExample campaignExammple = new CampaignModelExample();
+		Date current = new Date();
+		campaignExammple.createCriteria().andStartDateLessThanOrEqualTo(current).andEndDateGreaterThanOrEqualTo(current);
+		// 所有正在投放的活动
+		List<CampaignModel> launchCampaigns = campaignDao.selectByExample(campaignExammple);
+		
+		// 如果是0点，需要做如下事情：
+		// 将今天开始投放的活动，所有数据写入redis
+		// 将今天结束投放的活动，redis中的数据删除
+		if ("00".equals(currentHour)) {
+			// 找出今天开始投放的活动
+			campaignExammple.clear();
+			campaignExammple.createCriteria().andStartDateEqualTo(start);
+			List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExammple);
+			for (CampaignModel campaign : addCampaigns) {
 				String campaignId = campaign.getId();
-				// 每天零点写入预算和展现key
-				if ("00".equals(currentHour)) {
-					//日展现上限
-					Integer totalBudget = campaign.getTotalBudget();
-					Integer budget = 0;
-					Integer counter = 0;
-					String count_key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-					String budget_key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
-					QuantityModelExample example = new QuantityModelExample();
-					example.createCriteria().andCampaignIdEqualTo(campaignId);
-					List<QuantityModel> list = quantityDao.selectByExample(example);
-					if (list !=null && !list.isEmpty()) {
-						for (QuantityModel quan : list) {
-							Date startDate = quan.getStartDate();
-							Date endDate = quan.getEndDate();
-							String[] days = DateUtils.getDaysBetween(startDate, endDate);
-							List<String> dayList = Arrays.asList(days);
-							String time = new DateTime(new Date()).toString("yyyyMMdd");
-							if (dayList.contains(time)) {
-								counter = quan.getDailyImpression();
-								budget = quan.getDailyBudget();
-								break;
-							}
-						}
-					}
-					Map<String, String> value = new HashMap<String, String>();
-					value.put("total", String.valueOf(totalBudget * 100));
-					value.put("daily", String.valueOf(budget * 100));
-					
-					JedisUtils.set(count_key, String.valueOf(counter));//预算
-					JedisUtils.hset(budget_key, value);//展现上限
-				}
-//				String status = campaign.getStatus();
-				//判断当前时间是不是在活动的开始时间和结束时间之间
-				Date start = campaign.getStartDate();
-				Date end = campaign.getEndDate();
-				Date now = new Date();
-				
-				if (now.after(end)) {//当前时间大于结束时间，状态变成已结束
-					campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-					redisService.deleteCampaignId(campaignId);
-				} else if (now.before(start)) {//当前时间小于开始时间时无操作
-				} else {//当前时间在开始时间和结束时间之间
-					if (campaignIsInWeekAndTimeTarget(campaignId)) {
-						writeRedisByTime(campaignId);
-						campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
-					} else {
-						redisService.deleteCampaignId(campaignId);
-					}
-				}
-				campaignDao.updateByPrimaryKeySelective(campaign);
+				writeRedis(campaignId);
+			}
+			
+			campaignExammple.clear();
+			campaignExammple.createCriteria().andEndDateEqualTo(end);
+			List<CampaignModel> delCampaigns = campaignDao.selectByExample(campaignExammple);
+			for (CampaignModel campaign : delCampaigns) {
+				String campaignId = campaign.getId();
+				removeRedis(campaignId);
+			}
+			
+			// 预算重新写入
+			for (CampaignModel campaign : launchCampaigns) {
+				String campaignId = campaign.getId();
+				redisService.writeCampaignBudget(campaignId);
+				redisService.writeCampaignCounter(campaignId);
 			}
 		}
-		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器执行结束—————In LaunchService");
+		// 每个小时判断时间定向，将不在该时间内的活动移除
+		for (CampaignModel campaign : launchCampaigns) {
+			String campaignId = campaign.getId();
+			// 如果当期时间在定向内
+			if (campaignIsInWeekAndTimeTarget(campaignId)) {
+				redisService.writeCampaignId(campaignId);
+			} else {
+				redisService.removeCampaignId(campaignId);
+			}
+		}
+		
+		
+//		// 当前小时
+//		String currentHour = DateUtils.getCurrentHour();
+//		// 当前日期
+//		String currentDate = DateUtils.getCurrentDate();
+//		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器开始执行—————In LaunchService");
+//		// 查询开启的项目
+//		ProjectModelExample projectModelExample = new ProjectModelExample();
+//		projectModelExample.createCriteria().andStatusEqualTo(StatusConstant.PROJECT_PROCEED);
+//		List<ProjectModel> projects = projectDao.selectByExample(projectModelExample);
+//		// 查询开启的活动
+//		for (ProjectModel project : projects) {
+//			String projectId = project.getId();
+//			CampaignModelExample campaignModelExammple = new CampaignModelExample();
+//			campaignModelExammple.createCriteria().andProjectIdEqualTo(projectId)
+//					.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
+//			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignModelExammple);
+//			if (campaigns == null || campaigns.isEmpty()) {
+//				continue;
+//			}
+//			// 查询活动的时间定向ID
+//			for (CampaignModel campaign : campaigns) {
+//				String campaignId = campaign.getId();
+//				// 每天零点写入预算和展现key
+//				if ("00".equals(currentHour)) {
+//					//日展现上限
+//					Integer totalBudget = campaign.getTotalBudget();
+//					Integer budget = 0;
+//					Integer counter = 0;
+//					String count_key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
+//					String budget_key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+//					QuantityModelExample example = new QuantityModelExample();
+//					example.createCriteria().andCampaignIdEqualTo(campaignId);
+//					List<QuantityModel> list = quantityDao.selectByExample(example);
+//					if (list !=null && !list.isEmpty()) {
+//						for (QuantityModel quan : list) {
+//							Date startDate = quan.getStartDate();
+//							Date endDate = quan.getEndDate();
+//							String[] days = DateUtils.getDaysBetween(startDate, endDate);
+//							List<String> dayList = Arrays.asList(days);
+//							String time = new DateTime(new Date()).toString("yyyyMMdd");
+//							if (dayList.contains(time)) {
+//								counter = quan.getDailyImpression();
+//								budget = quan.getDailyBudget();
+//								break;
+//							}
+//						}
+//					}
+//					Map<String, String> value = new HashMap<String, String>();
+//					value.put("total", String.valueOf(totalBudget * 100));
+//					value.put("daily", String.valueOf(budget * 100));
+//					
+//					JedisUtils.set(count_key, String.valueOf(counter));//预算
+//					JedisUtils.hset(budget_key, value);//展现上限
+//				}
+////				String status = campaign.getStatus();
+//				//判断当前时间是不是在活动的开始时间和结束时间之间
+//				Date start = campaign.getStartDate();
+//				Date end = campaign.getEndDate();
+//				Date now = new Date();
+//				
+//				if (now.after(end)) {//当前时间大于结束时间，状态变成已结束
+//					campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
+//					redisService.deleteCampaignId(campaignId);
+//				} else if (now.before(start)) {//当前时间小于开始时间时无操作
+//				} else {//当前时间在开始时间和结束时间之间
+//					if (campaignIsInWeekAndTimeTarget(campaignId)) {
+//						writeRedisByTime(campaignId);
+//						campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+//					} else {
+//						redisService.deleteCampaignId(campaignId);
+//					}
+//				}
+//				campaignDao.updateByPrimaryKeySelective(campaign);
+//			}
+//		}
+//		LOGGER.info(currentDate + " " + currentHour + ":00:00 定时器执行结束—————In LaunchService");
 	}
 	/**
 	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
@@ -302,15 +335,6 @@ public class LaunchService extends BaseService{
 				}
 			}
 		}
-	}
-	
-	/**
-	 * 删除redis中活动相关key
-	 * @param campaignId
-	 * @throws Exception
-	 */
-	public void deleteKeyFromRedis(String campaignId) throws Exception {
-		redisService.deleteKeyFromRedis(campaignId);
 	}
 	
 }

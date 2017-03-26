@@ -1091,7 +1091,7 @@ public class CampaignService extends LaunchService {
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 			//移除redis中key
-			redisService.deleteCampaignId(campaignModel.getId());
+			redisService.removeCampaignId(campaignModel.getId());
 		}
 		//改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaignModel);
