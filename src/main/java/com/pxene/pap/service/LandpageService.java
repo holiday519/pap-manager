@@ -13,7 +13,6 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -84,25 +83,20 @@ public class LandpageService extends BaseService {
 	public void createLandpage(LandpageBean bean) throws Exception {
 		//验证名称重复
     	if (!StringUtils.isEmpty(bean.getName())) {
-    		LandpageModelExample e = new LandpageModelExample();
-    		e.createCriteria().andNameEqualTo(bean.getName());
-    		List<LandpageModel> list = landpageDao.selectByExample(e);
-    		if (list != null && !list.isEmpty()) {
+    		LandpageModelExample landpageExample = new LandpageModelExample();
+    		landpageExample.createCriteria().andNameEqualTo(bean.getName());
+    		List<LandpageModel> landpages = landpageDao.selectByExample(landpageExample);
+    		if (landpages != null && !landpages.isEmpty()) {
     			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
     		}
     	}
 		
-		LandpageModel model = modelMapper.map(bean, LandpageModel.class);
+		LandpageModel landpage = modelMapper.map(bean, LandpageModel.class);
 		String id = UUID.randomUUID().toString();
-		model.setId(id);
-		model.setStatus(StatusConstant.LANDPAGE_CHECK_NOTCHECK);
-		try {
-			// 添加落地页信息
-			landpageDao.insertSelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
-		BeanUtils.copyProperties(model, bean);
+		landpage.setId(id);
+		landpage.setStatus(StatusConstant.LANDPAGE_CHECK_NOTCHECK);
+		landpageDao.insertSelective(landpage);
+		BeanUtils.copyProperties(landpage, bean);
 	}
 
 	/**
@@ -115,17 +109,23 @@ public class LandpageService extends BaseService {
 	public void updateLandpage(String id, LandpageBean bean) throws Exception {
 		LandpageModel landpageInDB = landpageDao.selectByPrimaryKey(id);
 		if (landpageInDB == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		} else {
+			String nameInDB = landpageInDB.getName();
+			String name = bean.getName();
+			if (!nameInDB.equals(name)) {
+				LandpageModelExample landpageExample = new LandpageModelExample();
+				landpageExample.createCriteria().andNameEqualTo(name);
+				List<LandpageModel> landpages = landpageDao.selectByExample(landpageExample);
+				if (landpages != null && !landpages.isEmpty()) {
+					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+				}
+			}
 		}
 
-		LandpageModel model = modelMapper.map(bean, LandpageModel.class);
-		model.setId(id);
-		try {
-			// 修改落地页信息
-			landpageDao.updateByPrimaryKeySelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
+		LandpageModel ladpage = modelMapper.map(bean, LandpageModel.class);
+		ladpage.setId(id);
+		landpageDao.updateByPrimaryKeySelective(ladpage);
 	}
 
 	/**
@@ -137,12 +137,12 @@ public class LandpageService extends BaseService {
 	public void deleteLandpage(String id) throws Exception {
 		LandpageModel landpageInDB = landpageDao.selectByPrimaryKey(id);
 		if (landpageInDB == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		CampaignModelExample example = new CampaignModelExample();
 		example.createCriteria().andLandpageIdEqualTo(id);
-		List<CampaignModel> list = campaignDao.selectByExample(example);
-		if (list == null || !list.isEmpty()) {
+		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		if (campaigns == null || !campaigns.isEmpty()) {
 			throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN);
 		}
 		
@@ -157,25 +157,24 @@ public class LandpageService extends BaseService {
 	@Transactional
 	public void deleteLandpages(String[] ids) throws Exception {
 		
-		List<String> asList = Arrays.asList(ids);
-		LandpageModelExample ex = new LandpageModelExample();
-		ex.createCriteria().andIdIn(asList);
+		LandpageModelExample landpageExample = new LandpageModelExample();
+		landpageExample.createCriteria().andIdIn(Arrays.asList(ids));
 		
-		List<LandpageModel> landpageInDB = landpageDao.selectByExample(ex);
-		if (landpageInDB == null || landpageInDB.isEmpty()) {
-			throw new ResourceNotFoundException();
+		List<LandpageModel> landpageInDB = landpageDao.selectByExample(landpageExample);
+		if (landpageInDB == null || landpageInDB.size() < ids.length) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		for (String id : ids) {
-			CampaignModelExample example = new CampaignModelExample();
-			example.createCriteria().andLandpageIdEqualTo(id);
-			List<CampaignModel> list = campaignDao.selectByExample(example);
+			CampaignModelExample campaignExample = new CampaignModelExample();
+			campaignExample.createCriteria().andLandpageIdEqualTo(id);
+			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
 			// 不是投放中才可以删除
-			if (list == null || !list.isEmpty()) {
+			if (campaigns == null || !campaigns.isEmpty()) {
 				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_HAVE_CAMPAIGN);
 			}
 		}
 		// 删除落地页
-		landpageDao.deleteByExample(ex);
+		landpageDao.deleteByExample(landpageExample);
 	}
 
 	/**

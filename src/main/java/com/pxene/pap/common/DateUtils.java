@@ -3,6 +3,7 @@ package com.pxene.pap.common;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -226,6 +227,14 @@ public class DateUtils {
 		}
     	
     	return date;
+    }
+    
+    public static Date changeDate(Date date, int field, int value) {
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(date);
+    	cal.add(field, value);
+    	
+    	return cal.getTime();
     }
     
 }

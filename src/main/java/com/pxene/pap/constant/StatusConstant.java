@@ -103,10 +103,6 @@ public class StatusConstant {
 	 */
 	public static final String ACTION_TYPE_PROCEES = "02";
 	/**
-	 * action操作类型：关闭
-	 */
-	public static final String ACTION_TYPE_CLOSE = "03";
-	/**
 	 * 落地页代码检查状态：未检查
 	 */
 	public static final String LANDPAGE_CHECK_NOTCHECK = "01";

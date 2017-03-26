@@ -9,6 +9,8 @@ public class PhrasesConstant
 	public static final String OBJECT_NOT_FOUND = "该对象不存在";
 	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
 	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
+	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
+	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
 	
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
@@ -77,6 +79,7 @@ public class PhrasesConstant
 	public static final String ADVERTISER_LENGTH_ERROR_QQ = "QQ号码长度不能超过20";
 	public static final String ADVERTISER_LENGTH_ERROR_LICENSENO = "营业执照编号长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_ORGANIZATIONNO = "组织机构代码长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_ZIP = "邮政编码长度不能超过6";
 	
 	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
 	public static final String PROJECT_NOTNULL_KPI = "必须选择KPI指标";

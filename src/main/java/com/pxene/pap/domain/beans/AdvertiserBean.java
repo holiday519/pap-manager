@@ -65,10 +65,11 @@ public class AdvertiserBean extends BasicDataBean {
 	private String siteName;
 
 	@Email
+	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_EMAIL)
 	private String email;
-
+	@Length(max = 8, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_ZIP)
 	private String zip;
-
+	@Length(max = 200, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_ADDRESS)
 	private String address;
 	@Length(max = 200, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;

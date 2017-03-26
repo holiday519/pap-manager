@@ -96,8 +96,8 @@ public class AdvertiserService extends BaseService
     	// 验证名称重复
     	AdvertiserModelExample example = new AdvertiserModelExample();
     	example.createCriteria().andNameEqualTo(bean.getName());
-		List<AdvertiserModel> models = advertiserDao.selectByExample(example);
-		if (models != null && !models.isEmpty()) {
+		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
+		if (advertisers != null && !advertisers.isEmpty()) {
 			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
         // 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
@@ -126,10 +126,10 @@ public class AdvertiserService extends BaseService
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andAdvertiserIdEqualTo(id);
         
-        List<ProjectModel> models = projectDao.selectByExample(example);
+        List<ProjectModel> projects = projectDao.selectByExample(example);
         
         // 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
-        if (models != null && !models.isEmpty())
+        if (projects != null && !projects.isEmpty())
         {
             throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAVE_PROJECT);
         }
@@ -142,10 +142,9 @@ public class AdvertiserService extends BaseService
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
-    	List<String> idList = Arrays.asList(ids);
     	// 操作前先查询一次数据库，判断指定的资源是否存在
     	AdvertiserModelExample advertiserModelExample = new AdvertiserModelExample();
-    	advertiserModelExample.createCriteria().andIdIn(idList);
+    	advertiserModelExample.createCriteria().andIdIn(Arrays.asList(ids));
     	List<AdvertiserModel> advertiserInDB = advertiserDao.selectByExample(advertiserModelExample);
     	if (advertiserInDB == null || advertiserInDB.size() < ids.length)
     	{
@@ -156,10 +155,10 @@ public class AdvertiserService extends BaseService
 			ProjectModelExample projectModelExample = new ProjectModelExample();
 			projectModelExample.createCriteria().andAdvertiserIdEqualTo(id);
 			
-			List<ProjectModel> models = projectDao.selectByExample(projectModelExample);
+			List<ProjectModel> projects = projectDao.selectByExample(projectModelExample);
 			
 			// 查看欲操作的广告主名下是否还有创建的项目，如果有，则不可以删除
-			if (models != null && !models.isEmpty())
+			if (projects != null && !projects.isEmpty())
 			{
 				throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAVE_PROJECT);
 			}
@@ -215,14 +214,19 @@ public class AdvertiserService extends BaseService
         if (advertiserInDB == null)
         {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        } else {
+        	String nameInDB = advertiserInDB.getName();
+        	String name = bean.getName();
+        	if (!nameInDB.equals(name)) {
+        		// 验证名称重复
+            	AdvertiserModelExample example = new AdvertiserModelExample();
+            	example.createCriteria().andNameEqualTo(bean.getName());
+        		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
+        		if (advertisers != null && !advertisers.isEmpty()) {
+        			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+        		}
+        	}
         }
-        // 验证名称重复
-    	AdvertiserModelExample example = new AdvertiserModelExample();
-    	example.createCriteria().andNameEqualTo(bean.getName());
-		List<AdvertiserModel> models = advertiserDao.selectByExample(example);
-		if (models != null && !models.isEmpty()) {
-			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-		}
         
         copyTempToFormal(bean);
         // 将传输对象映射成数据库Model
@@ -236,31 +240,31 @@ public class AdvertiserService extends BaseService
 
     public AdvertiserBean getAdvertiser(String id) throws Exception
     {
-        AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
+        AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
         
-        if (advertiserModel == null)
+        if (advertiser == null)
         {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
-        AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
+        AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
         // 找出所属行业
-        Integer industryId = advertiserModel.getIndustryId();
-        IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
-        String industryName = industryModel.getName();
+        Integer industryId = advertiser.getIndustryId();
+        IndustryModel industry = industryDao.selectByPrimaryKey(industryId);
+        String industryName = industry.getName();
         bean.setIndustryName(industryName);
         // 找出该行业下的kpi
         IndustryKpiModelExample example = new IndustryKpiModelExample();
         example.createCriteria().andIndustryIdEqualTo(industryId);
-        List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(example);
-        Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
+        List<IndustryKpiModel> industryKpis = industryKpiDao.selectByExample(example);
+        Kpi[] kpis = new Kpi[industryKpis.size()]; 
         for (int i=0; i<kpis.length; i++) {
-        	String kpiId = industryKpiModels.get(i).getKpiId();
+        	String kpiId = industryKpis.get(i).getKpiId();
         	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
         	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
         }
         bean.setKpis(kpis);
         
-        bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
+        bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
         // 将DAO创建的新对象复制回传输对象中
         return bean;
     }
@@ -279,36 +283,36 @@ public class AdvertiserService extends BaseService
         // 按更新时间进行倒序排序
         example.setOrderByClause("update_time DESC");
         
-        List<AdvertiserModel> advertiserModels = advertiserDao.selectByExample(example);
+        List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
         List<AdvertiserBean> advertiserBeans = new ArrayList<AdvertiserBean>();
         
-        if (advertiserModels == null || advertiserModels.size() <= 0)
+        if (advertisers == null || advertisers.size() <= 0)
         {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
         // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-        for (AdvertiserModel advertiserModel : advertiserModels)
+        for (AdvertiserModel advertiser : advertisers)
         {
-        	AdvertiserBean bean = modelMapper.map(advertiserModel, AdvertiserBean.class);
+        	AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
             // 找出所属行业
-            Integer industryId = advertiserModel.getIndustryId();
+            Integer industryId = advertiser.getIndustryId();
             IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
             String industryName = industryModel.getName();
             bean.setIndustryName(industryName);
             // 找出该行业下的kpi
             IndustryKpiModelExample industryKpiModelExample = new IndustryKpiModelExample();
             industryKpiModelExample.createCriteria().andIndustryIdEqualTo(industryId);
-            List<IndustryKpiModel> industryKpiModels = industryKpiDao.selectByExample(industryKpiModelExample);
-            Kpi[] kpis = new Kpi[industryKpiModels.size()]; 
+            List<IndustryKpiModel> industryKpis = industryKpiDao.selectByExample(industryKpiModelExample);
+            Kpi[] kpis = new Kpi[industryKpis.size()]; 
             for (int i=0; i<kpis.length; i++) {
-            	String kpiId = industryKpiModels.get(i).getKpiId();
-            	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
-            	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
+            	String kpiId = industryKpis.get(i).getKpiId();
+            	KpiModel kpi = kpiDao.selectByPrimaryKey(kpiId);
+            	kpis[i] = modelMapper.map(kpi, Kpi.class);
             }
             bean.setKpis(kpis);
             //查询审核状态
-            bean.setStatus(getAdvertiserAuditStatus(advertiserModel.getId()));
+            bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
             
             if (startDate != null && endDate != null) {
 				//查询投放数据
@@ -332,15 +336,11 @@ public class AdvertiserService extends BaseService
     private void getData(Long startDate, Long endDate, AdvertiserBean bean) throws Exception {
     	ProjectModelExample projectModleExample = new ProjectModelExample();
     	projectModleExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
-    	List<ProjectModel> models = projectDao.selectByExample(projectModleExample);
-    	//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
-//    	BasicDataBean dataBean = new BasicDataBean();
-//    	dataService.formatBeanParams(dataBean);
-//    	dataService.formatBeanRate(dataBean);
-    	if (models != null && !models.isEmpty()) {
+    	List<ProjectModel> projects = projectDao.selectByExample(projectModleExample);
+    	if (projects != null && !projects.isEmpty()) {
     		List<String> projectIds = new ArrayList<String>();
-    		for (ProjectModel model : models) {
-    			projectIds.add(model.getId());
+    		for (ProjectModel project : projects) {
+    			projectIds.add(project.getId());
     		}
     		CampaignModelExample campaignExample = new CampaignModelExample();
     		campaignExample.createCriteria().andProjectIdIn(projectIds);
@@ -350,27 +350,19 @@ public class AdvertiserService extends BaseService
     			for (CampaignModel campaign : campaigns) {
     				campaignIds.add(campaign.getId());
     			}
-    			CreativeModelExample cExample = new CreativeModelExample();
-    			cExample.createCriteria().andCampaignIdIn(campaignIds);
-    			List<CreativeModel> list = creativeDao.selectByExample(cExample);
+    			CreativeModelExample creativeExample = new CreativeModelExample();
+    			creativeExample.createCriteria().andCampaignIdIn(campaignIds);
+    			List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
     			List<String> creativeIds = new ArrayList<String>();
-    			if (list != null && !list.isEmpty()) {
-    				for (CreativeModel model : list) {
-    					creativeIds.add(model.getId());
+    			if (creatives != null && !creatives.isEmpty()) {
+    				for (CreativeModel creative : creatives) {
+    					creativeIds.add(creative.getId());
     				}
     			}
     			BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, startDate, endDate);
     			BeanUtils.copyProperties(dataBean, bean);
     		}
     	}
-//    	bean.setImpressionAmount(dataBean.getImpressionAmount());
-//		bean.setClickAmount(dataBean.getClickAmount());
-//		bean.setTotalCost(dataBean.getTotalCost());
-//		bean.setJumpAmount(dataBean.getJumpAmount());
-//		bean.setImpressionCost(dataBean.getImpressionCost());
-//		bean.setClickCost(dataBean.getClickCost());
-//		bean.setClickRate(dataBean.getClickRate());
-//		bean.setJumpCost(dataBean.getJumpCost());
 	}
     
     /**

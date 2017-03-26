@@ -64,6 +64,7 @@ import com.pxene.pap.domain.models.TimeTargetModel;
 import com.pxene.pap.domain.models.TimeTargetModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
+import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
@@ -233,6 +234,17 @@ public class CampaignService extends LaunchService {
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		} else {
+			String nameInDB = campaignInDB.getName();
+			String name = bean.getName();
+			if (!nameInDB.equals(name)) {
+				CampaignModelExample campaignExample = new CampaignModelExample();
+				campaignExample.createCriteria().andNameEqualTo(name);
+				List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+				if (campaigns != null && !campaigns.isEmpty()) {
+					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+				}
+			}
 		}
 		// bean中放入ID，用于更新关联关系表中数据
 		bean.setId(id);
@@ -240,26 +252,25 @@ public class CampaignService extends LaunchService {
 		Integer campaignBudget = bean.getTotalBudget();
 		// 数据库中预算
 		Integer dbBudget = campaignInDB.getTotalBudget();
-		// 改变预算、展现时修改redis中的值
-		changeRedisBudget(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
-		
-		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		// 判断预算是否超出
 		String projectId = bean.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		Integer projectBudget = projectModel.getTotalBudget();
-		CampaignModelExample campaignModelExample = new CampaignModelExample();
-		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId).andIdNotEqualTo(bean.getId());
-		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
-		if (campaignModels != null && !campaignModels.isEmpty()) {
-			for (CampaignModel model : campaignModels) {
-				campaignBudget = campaignBudget + model.getTotalBudget();
+		CampaignModelExample campaignExample = new CampaignModelExample();
+		campaignExample.createCriteria().andProjectIdEqualTo(projectId).andIdNotEqualTo(bean.getId());
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+		if (campaigns != null && !campaigns.isEmpty()) {
+			for (CampaignModel campaign : campaigns) {
+				campaignBudget = campaignBudget + campaign.getTotalBudget();
 			}
 		}
 		if (campaignBudget.compareTo(projectBudget) > 0) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
+		// 改变预算、展现时修改redis中的值
+		changeRedisBudget(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
 		
+		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
 		// 编辑频次
 		Frequency frequency = bean.getFrequency();
 		String frequencyId = campaignInDB.getFrequencyId();
@@ -267,7 +278,7 @@ public class CampaignService extends LaunchService {
 			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，不动
 				
 			} else { // 活动以前存在频次，删除
-				campaignModel.setFrequencyId("");
+				campaign.setFrequencyId("");
 				frequencyDao.deleteByPrimaryKey(frequencyId);
 			}
 		} else {
@@ -276,14 +287,14 @@ public class CampaignService extends LaunchService {
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 				frequencyDao.insertSelective(frequencyModel);
-				campaignModel.setFrequencyId(fId);
+				campaign.setFrequencyId(fId);
 			} else { // 活动以前存在频次，删除再添加
 				frequencyDao.deleteByPrimaryKey(frequencyId);
 				String fId = UUID.randomUUID().toString();
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 				frequencyDao.insertSelective(frequencyModel);
-				campaignModel.setFrequencyId(fId);
+				campaign.setFrequencyId(fId);
 			}
 		}
 		//删除点击、展现监测地址
@@ -295,7 +306,7 @@ public class CampaignService extends LaunchService {
 		//添加投放量控制策略
 		addCampaignQuantity(bean);
 		//修改基本信息
-		campaignDao.updateByPrimaryKeySelective(campaignModel);
+		campaignDao.updateByPrimaryKeySelective(campaign);
 		
 	}
 	

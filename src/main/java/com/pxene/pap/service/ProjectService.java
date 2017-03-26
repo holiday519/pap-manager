@@ -10,7 +10,6 @@ import javax.transaction.Transactional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -82,16 +81,16 @@ public class ProjectService extends LaunchService {
 		// 验证名称重复
 		ProjectModelExample example = new ProjectModelExample();
 		example.createCriteria().andNameEqualTo(bean.getName());
-		List<ProjectModel> models = projectDao.selectByExample(example);
-		if (models != null && !models.isEmpty()) {
+		List<ProjectModel> projects = projectDao.selectByExample(example);
+		if (projects != null && !projects.isEmpty()) {
 			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
-		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
-		model.setId(UUID.randomUUID().toString());
-		model.setStatus(StatusConstant.PROJECT_PROCEED);
-		projectDao.insertSelective(model);
+		ProjectModel project = modelMapper.map(bean, ProjectModel.class);
+		project.setId(UUID.randomUUID().toString());
+		project.setStatus(StatusConstant.PROJECT_PROCEED);
+		projectDao.insertSelective(project);
 		
-		BeanUtils.copyProperties(model, bean);
+		BeanUtils.copyProperties(project, bean);
 	}
 	
 	/**
@@ -105,11 +104,22 @@ public class ProjectService extends LaunchService {
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		} else {
+			String nameInDB = projectInDB.getName();
+			String name = bean.getName();
+			if (!nameInDB.equals(name)) {
+				ProjectModelExample projectExample = new ProjectModelExample();
+				projectExample.createCriteria().andNameEqualTo(name);
+				List<ProjectModel> projects = projectDao.selectByExample(projectExample);
+				if (projects != null & !projects.isEmpty()) {
+					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+				}
+			}
 		}
 
-		CampaignModelExample example = new CampaignModelExample();
-		example.createCriteria().andProjectIdEqualTo(id);
-		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		CampaignModelExample campaignExample = new CampaignModelExample();
+		campaignExample.createCriteria().andProjectIdEqualTo(id);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
 		if (campaigns != null && !campaigns.isEmpty()) {
 			int budget = 0; 
 			for (CampaignModel campaign : campaigns) {
@@ -123,16 +133,10 @@ public class ProjectService extends LaunchService {
 			}
 		}
 		
-		
 		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
 		model.setId(id);
 
-		try {
-			// 修改项目信息
-			projectDao.updateByPrimaryKeySelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
+		projectDao.updateByPrimaryKeySelective(model);
 	}
 	
 	/**
@@ -143,11 +147,11 @@ public class ProjectService extends LaunchService {
 	@Transactional
 	public void updateProjectStatus(String id, Map<String, String> map) throws Exception {
 		if (StringUtils.isEmpty(map.get("action"))) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
-		ProjectModel model = projectDao.selectByPrimaryKey(id);
-		if (model == null) {
-			throw new ResourceNotFoundException();
+		ProjectModel project = projectDao.selectByPrimaryKey(id);
+		if (project == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
 		String action = map.get("action").toString();
@@ -157,11 +161,8 @@ public class ProjectService extends LaunchService {
 		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
 			//投放
 			launchProject(id);
-		} else if (StatusConstant.ACTION_TYPE_CLOSE.equals(action)) {
-			//结束
-//			stopProject(id);
-		}else {
-			throw new IllegalStatusException();
+		} else {
+			throw new IllegalArgumentException(PhrasesConstant.PARAM_OUT_OF_RANGE);
 		}
 	}
 	
@@ -176,7 +177,7 @@ public class ProjectService extends LaunchService {
 		
 		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
 		if (projectInDB == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
 		//查询出项目下活动
@@ -199,25 +200,24 @@ public class ProjectService extends LaunchService {
 	@Transactional
 	public void deleteProjects(String[] ids) throws Exception {
 		
-		List<String> asList = Arrays.asList(ids);
-		ProjectModelExample ex = new ProjectModelExample();
-		ex.createCriteria().andIdIn(asList);
+		ProjectModelExample projectExample = new ProjectModelExample();
+		projectExample.createCriteria().andIdIn(Arrays.asList(ids));
 		
-		List<ProjectModel> projectInDB = projectDao.selectByExample(ex);
-		if (projectInDB == null || projectInDB.isEmpty()) {
-			throw new ResourceNotFoundException();
+		List<ProjectModel> projectInDB = projectDao.selectByExample(projectExample);
+		if (projectInDB == null || projectInDB.size() < ids.length) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		for (String id : ids) {
 			//查询出项目下活动
-			CampaignModelExample example = new CampaignModelExample();
-			example.createCriteria().andProjectIdEqualTo(id);
-			List<CampaignModel> list = campaignDao.selectByExample(example);
-			if (list != null && !list.isEmpty()) {
+			CampaignModelExample campaignExample = new CampaignModelExample();
+			campaignExample.createCriteria().andProjectIdEqualTo(id);
+			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+			if (campaigns != null && !campaigns.isEmpty()) {
 				throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
 			}
 		}
 		
-		projectDao.deleteByExample(ex);
+		projectDao.deleteByExample(projectExample);
 	}
 
 	/**
@@ -229,13 +229,13 @@ public class ProjectService extends LaunchService {
     	//从视图中查询项目所相关信息
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andIdEqualTo(id);
-		ProjectModel model = projectDao.selectByPrimaryKey(id);
-		if (model == null) {
+		ProjectModel project = projectDao.selectByPrimaryKey(id);
+		if (project == null) {
 			throw new ResourceNotFoundException();
 		}
-		ProjectBean bean = modelMapper.map(model, ProjectBean.class);
-        getParamForBean(bean);//查询属性，并放如结果中
-        return bean;
+		ProjectBean projectBean = modelMapper.map(project, ProjectBean.class);
+        getParamForBean(projectBean);//查询属性，并放如结果中
+        return projectBean;
     }
     
     /**

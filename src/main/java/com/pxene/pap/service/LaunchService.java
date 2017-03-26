@@ -180,25 +180,28 @@ public class LaunchService extends BaseService{
 	public void launchByTime() throws Exception {
 //		// 当前小时
 //		String currentHour = DateUtils.getCurrentHour();
+//		// yyyy-MM-dd
+//		String currrntDate = DateUtils.getCurrentDate();
+//		// 当前日期的整点时间
+//		Date current = DateUtils.strToDate(currrntDate, "yyyy-MM-dd");
+//		// 当前日期退后一秒钟的时间
+//		Date last = DateUtils.changeDate(current, Calendar.SECOND, -1);
+//		
 //		// 如果是0点，需要做如下事情：
 //		// 将今天开始投放的活动，所有数据写入redis
 //		// 将今天结束投放的活动，redis中的数据删除
 //		if ("00".equals(currentHour)) {
 //			// 找出今天开始投放的活动
 //			CampaignModelExample campaignExammple = new CampaignModelExample();
+//			campaignExammple.createCriteria().andStartDateEqualTo(current);
+//			List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExammple);
 //			
+//			campaignExammple.clear();
+//			campaignExammple.createCriteria().andEndDateEqualTo(last);
+//			List<CampaignModel> delCampaigns = campaignDao.selectByExample(campaignExammple);
 //		}
+		// 每个小时判断时间定向，将不在该时间内的活动移除
 		
-		
-//		Date current = new Date();
-//		// 遍历所有到投放期的活动
-//		CampaignModelExample campaignExammple = new CampaignModelExample();
-//		campaignExammple.createCriteria().andStartDateLessThanOrEqualTo(current)
-//			.andEndDateGreaterThanOrEqualTo(current);
-//		List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExammple);
-//		for (CampaignModel campaign : addCampaigns) {
-//			
-//		}
 		
 		// 当前小时
 		String currentHour = DateUtils.getCurrentHour();
