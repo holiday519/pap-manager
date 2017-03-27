@@ -758,9 +758,10 @@ public class RedisService {
 					JsonArray capping = new JsonArray();
 					JsonObject cap = new JsonObject();
 					cap.addProperty("id", campaign.getId());
+					cap.addProperty("frequency", number);
 					capping.add(cap);
 					userObj.add("capping", capping);
-					userObj.addProperty("frequency", number);
+					//userObj.addProperty("frequency", number);
 				}
 				obj.add("user", userObj);
 			}
