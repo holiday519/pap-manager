@@ -40,7 +40,6 @@ import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
-import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
 import com.pxene.pap.domain.models.PopulationModel;
 import com.pxene.pap.domain.models.PopulationTargetModel;
@@ -400,7 +399,7 @@ public class RedisService {
 			String icon = model.getIconId();
 			if (icon != null) {
 				JsonObject iconJson = getImageJson(icon);
-				creativeObj.add(icon, iconJson);
+				creativeObj.add("icon", iconJson);
 			}
 			String image1 = model.getImage1Id();
 			String image2 = model.getImage2Id();
@@ -439,8 +438,7 @@ public class RedisService {
 				someImage[4] = image5;
 			}
 			if (imgs == 1) {
-				ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(oneImag);
-				ImageModel Imodel = imageDao.selectByPrimaryKey(materialModel.getImageId());
+				ImageModel Imodel = imageDao.selectByPrimaryKey(oneImag);
 				creativeObj.addProperty("w", GlobalUtil.parseInt(Imodel.getWidth(),0));
 				creativeObj.addProperty("h", GlobalUtil.parseInt(Imodel.getHeight(),0));
 				creativeObj.addProperty("ftype", Imodel.getFormat());
@@ -490,37 +488,16 @@ public class RedisService {
 	 */
 	private JsonObject getImageJson(String imageId) throws Exception {
 		JsonObject json = new JsonObject();
-		ImageMaterialModel materialModel = imageMaterialDao.selectByPrimaryKey(imageId);
-		if (materialModel != null) {
-			ImageModel model = imageDao.selectByPrimaryKey(materialModel.getImageId());
-			if (model != null) {
-				json.addProperty("w", GlobalUtil.parseInt(model.getWidth(),0));
-				json.addProperty("h", GlobalUtil.parseInt(model.getHeight(),0));
-				json.addProperty("ftype", Integer.parseInt(model.getFormat()));
-				json.addProperty("sourceurl", image_url + model.getPath());
-			}
+		
+		ImageModel image = imageDao.selectByPrimaryKey(imageId);
+		if (image != null) {
+			json.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
+			json.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
+			json.addProperty("ftype", Integer.parseInt(image.getFormat()));
+			json.addProperty("sourceurl", image_url + image.getPath());
 		}
 		return json;
 	}
-	
-	/**
-	 * 查询图片的尺寸、类型信息
-	 * @param imageId
-	 * @return
-	 */
-//	private ImageSizeTypeModel selectImages(String imageId) throws Exception {
-//		ImageSizeTypeModelExample example = new ImageSizeTypeModelExample();
-//		example.createCriteria().andIdEqualTo(imageId);
-//		List<ImageSizeTypeModel> list = imageSizeTypeDao.selectByExample(example);
-//		if (list == null || list.isEmpty()) {
-//			return null;
-//		}else{
-//			for (ImageSizeTypeModel model : list) {
-//				return model;
-//			}
-//		}
-//		return null;
-//	}
 	
 	/**
 	 * 将活动基本信息写入redis

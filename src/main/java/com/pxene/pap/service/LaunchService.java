@@ -178,6 +178,7 @@ public class LaunchService extends BaseService{
 	 */
 	@Scheduled(cron = "0 0 */1 * * ?")
 	public void launchByTime() throws Exception {
+		LOGGER.info("###########ee-johnny#############start");
 		// 当前小时
 		String currentHour = DateUtils.getCurrentHour();
 		// 当前日期
@@ -228,6 +229,8 @@ public class LaunchService extends BaseService{
 					Map<String, String> value = new HashMap<String, String>();
 					value.put("total", String.valueOf(totalBudget * 100));
 					value.put("daily", String.valueOf(budget * 100));
+					
+					LOGGER.info("###########ee-johnny#############campaignId=" + campaignId);
 					
 					JedisUtils.set(count_key, String.valueOf(counter));//预算
 					JedisUtils.hset(budget_key, value);//展现上限
