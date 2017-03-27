@@ -51,8 +51,6 @@ import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.RegionTargetModel;
 import com.pxene.pap.domain.models.RegionTargetModelExample;
-import com.pxene.pap.domain.models.TimeTargetModel;
-import com.pxene.pap.domain.models.TimeTargetModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.domain.models.view.CreativeImageModelExample;
@@ -62,7 +60,6 @@ import com.pxene.pap.domain.models.view.CreativeInfoflowModelWithBLOBs;
 import com.pxene.pap.domain.models.view.CreativeVideoModelExample;
 import com.pxene.pap.domain.models.view.CreativeVideoModelWithBLOBs;
 import com.pxene.pap.exception.ResourceNotFoundException;
-import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
@@ -79,7 +76,6 @@ import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.QuantityDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
-import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
@@ -162,9 +158,6 @@ public class RedisService {
 	@Autowired
 	private CreativeAuditDao creativeAuditDao;
 	
-	@Autowired
-	private TimeTargetDao timeTargetDao;
-	
 	private static final String POPULATION_ROOT_PATH = "/data/population/";
 	
 	/**
@@ -235,7 +228,7 @@ public class RedisService {
 					writeVideoCreativeInfo(creativeId, campaignId);
 				// 信息流创意
 				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
-					writeInfoflowCreativeInfo(creativeId, campaignId);
+					writeInfoCreativeInfo(creativeId, campaignId);
 				}
 			}
 		}
@@ -385,7 +378,7 @@ public class RedisService {
 	 * @param mapId
 	 * @throws Exception
 	 */
-	private void writeInfoflowCreativeInfo(String creativeId, String campaignId) throws Exception {
+	private void writeInfoCreativeInfo(String creativeId, String campaignId) throws Exception {
 		CreativeInfoflowModelExample infoExaple = new CreativeInfoflowModelExample();
 		infoExaple.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeInfoflowModelWithBLOBs> models = creativeInfoflowDao.selectByExampleWithBLOBs(infoExaple);
@@ -686,70 +679,33 @@ public class RedisService {
 	 * @throws Exception
 	 */
 	public void writeCampaignFrequency(String campaignId) throws Exception {
-		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
-		if (campaign != null) {
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+		if (campaignModel != null) {
 			JsonObject obj = new JsonObject();
 			obj.addProperty("groupid", campaignId);
 			JsonArray groupArray = new JsonArray();
-			List<AdxModel> adxes = getAdxForCampaign(campaignId);
-			if (adxes != null && !adxes.isEmpty()) {
-				String uniform = campaign.getUniform();
-				JsonArray freqArr = null;
-				
-				// 匀速需要设置一天每小时的频次
-				if (StatusConstant.CAMPAIGN_UNIFORM.equals(uniform)) {
-					freqArr = new JsonArray();
-					// 获取今天总的展现次数
-					QuantityModelExample quantityExample = new QuantityModelExample();
-					Date current = new Date();
-					quantityExample.createCriteria().andCampaignIdEqualTo(campaignId)
-						.andStartDateLessThanOrEqualTo(current)
-						.andEndDateGreaterThanOrEqualTo(current);
-					List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
-					if (quantities != null && quantities.size() == 1) {
-						int dailyImpression = quantities.get(0).getDailyImpression();
-						// 获取今天的时间定向
-						String week = "0" + DateUtils.getCurrentWeekInNumber();
-						TimeTargetModelExample timeTargetExample = new TimeTargetModelExample();
-						timeTargetExample.createCriteria().andCampaignIdEqualTo(campaignId)
-							.andTimeLike(week + "%");
-						List<TimeTargetModel> timeTargets = timeTargetDao.selectByExample(timeTargetExample);
-						// 获取存在的日期定向
-						List<String> weekHours = new ArrayList<String>();
-						for (TimeTargetModel timeTarget : timeTargets) {
-							weekHours.add(timeTarget.getTime());
-						}
-						
-						int hourImpression = dailyImpression / adxes.size() / timeTargets.size();
-						for (int i=0; i<24; i++) {
-							String weekHour = week + String.format("%02d", i);
-							if (weekHours.contains(weekHour)) {
-								freqArr.add(hourImpression);
-							} else {
-								freqArr.add(0);
-							}
-						}
-					} else {
-						throw new ServerFailureException();
-					}
-				}
-				
-				for (AdxModel adx : adxes) {
-					JsonObject groupObject = new JsonObject();
+			JsonObject groupObject = null;
+			List<AdxModel> adxList = getAdxForCampaign(campaignId);
+			if (adxList != null && !adxList.isEmpty()) {
+				for (AdxModel adx : adxList) {
+					groupObject = new JsonObject();
 					groupObject.addProperty("adx", Integer.parseInt(adx.getId()));
-					if (freqArr == null) {
-						groupObject.addProperty("type", 0);
-						groupObject.addProperty("period", 3);
-					} else {
-						groupObject.addProperty("type", 1);
-						groupObject.addProperty("period", 2);
-						groupObject.add("frequency", freqArr);
+					groupObject.addProperty("type", 0);
+					groupObject.addProperty("period", 3);
+					JsonArray fre = new JsonArray();
+					QuantityModelExample qEx = new QuantityModelExample();
+					qEx.createCriteria().andCampaignIdEqualTo(campaignId);
+					List<QuantityModel> qList = quantityDao.selectByExample(qEx);
+					if (qList != null && !qList.isEmpty()) {
+						Integer dailyImpression = qList.get(0).getDailyImpression();
+						fre.add(dailyImpression);
 					}
+					groupObject.add("frequency", fre);
 					groupArray.add(groupObject);
 				}
 				obj.add("group", groupArray);
 			}
-			String frequencyId = campaign.getFrequencyId();
+			String frequencyId = campaignModel.getFrequencyId();
 			if (!StringUtils.isEmpty(frequencyId)) {
 				JsonObject userObj = new JsonObject();
 				FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
@@ -769,7 +725,7 @@ public class RedisService {
 					}
 					JsonArray capping = new JsonArray();
 					JsonObject cap = new JsonObject();
-					cap.addProperty("id", campaign.getId());
+					cap.addProperty("id", campaignModel.getId());
 					capping.add(cap);
 					userObj.add("capping", capping);
 					userObj.addProperty("frequency", number);

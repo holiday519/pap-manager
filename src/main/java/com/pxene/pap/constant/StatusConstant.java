@@ -115,8 +115,4 @@ public class StatusConstant {
 	 */
 	public static final String LANDPAGE_CHECK_ERROR = "03";
 	
-	public static final String CAMPAIGN_NOT_UNIFORM = "0";
-	
-	public static final String CAMPAIGN_UNIFORM = "1";
-	
 }
