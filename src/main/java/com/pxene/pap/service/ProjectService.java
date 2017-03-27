@@ -409,11 +409,42 @@ public class ProjectService extends LaunchService {
 				if (campaigns != null && !campaigns.isEmpty()) {
 					for (CampaignModel campaign : campaigns) {
 						// 移除redis中key
-						redisService.removeCampaignId(campaign.getId());
+						redisService.deleteCampaignId(campaign.getId());
 					}
 				}
 				//项目暂停之后修改状态
 				projectModel.setStatus(StatusConstant.PROJECT_PAUSE);
+				projectDao.updateByPrimaryKeySelective(projectModel);
+			}
+		}
+	}
+	
+	/**
+	 * 结束项目
+	 * @param projectIds
+	 * @throws Exception
+	 */
+	@Transactional
+	public void stopProject(String param) throws Exception {
+		if (StringUtils.isEmpty(param)) {
+			throw new ResourceNotFoundException();
+		}
+		String[] projectIds = param.split(",");
+		
+		for (String projectId : projectIds) {
+			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+			if (projectModel != null) {
+				CampaignModelExample example = new CampaignModelExample();
+				example.createCriteria().andProjectIdEqualTo(projectId);
+				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+				if (campaigns == null || campaigns.isEmpty()) {
+					continue;
+				}
+				for (CampaignModel campaign : campaigns) {
+					deleteKeyFromRedis(campaign.getId());
+				}
+				//项目投放之后修改状态
+//				projectModel.setStatus(StatusConstant.CAMPAIGN_CLOSE);
 				projectDao.updateByPrimaryKeySelective(projectModel);
 			}
 		}

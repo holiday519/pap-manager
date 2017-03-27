@@ -167,4 +167,16 @@ public class ProjectController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
+	/**
+	 * 结束项目
+	 * @param projectIds
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/project/stop", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void stopProject(@RequestParam(required = true) String projectIds, HttpServletResponse response) throws Exception {
+		projectService.stopProject(projectIds);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 }
