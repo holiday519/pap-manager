@@ -46,4 +46,6 @@ public class CodeTableConstant {
 	public static final String SYSTEM_NAME_ANDROID = "android";
 	
 	public static final String SYSTEM_NAME_WINDOWS = "windows";
+	
+	public static final String NAME_UNKNOW = "unknow";
 }

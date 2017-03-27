@@ -292,8 +292,9 @@ public class DataService extends BaseService {
 			RegionModel model = regionDao.selectByPrimaryKey(code.substring(4, code.length()));
 			if (model != null) {
 				return model.getName();
+			} else {
+				return CodeTableConstant.NAME_UNKNOW;
 			}
-			return null;
 		} else if ("operator".equals(type)) {//运营商
 			if (CodeTableConstant.OPERATOR_CODE_YIDONG.equals(code)) {
 				return CodeTableConstant.OPERATOR_NAME_YIDONG;
@@ -301,6 +302,8 @@ public class DataService extends BaseService {
 				return CodeTableConstant.OPERATOR_NAME_LIANTONG;
 			} else if (CodeTableConstant.OPERATOR_CODE_DIANXIN.equals(code)) {
 				return CodeTableConstant.OPERATOR_NAME_DIANXIN;
+			} else {
+				return CodeTableConstant.NAME_UNKNOW;
 			}
 		} else if ("network".equals(type)) {
 			if (CodeTableConstant.NETWORK_CODE_2G.equals(code)) {
@@ -311,6 +314,8 @@ public class DataService extends BaseService {
 				return CodeTableConstant.NETWORK_NAME_4G;
 			} else if (CodeTableConstant.NETWORK_CODE_WIFI.equals(code)) {
 				return CodeTableConstant.NETWORK_NAME_WIFI;
+			} else {
+				return CodeTableConstant.NAME_UNKNOW;
 			}
 		} else if ("os".equals(type)) {
 			if (CodeTableConstant.SYSTEM_CODE_IOS.equals(code)) {
@@ -319,6 +324,8 @@ public class DataService extends BaseService {
 				return CodeTableConstant.SYSTEM_NAME_ANDROID;
 			} else if (CodeTableConstant.SYSTEM_CODE_WINDOWS.equals(code)) {
 				return CodeTableConstant.SYSTEM_NAME_WINDOWS;
+			} else {
+				return CodeTableConstant.NAME_UNKNOW;
 			}
 		}
 		

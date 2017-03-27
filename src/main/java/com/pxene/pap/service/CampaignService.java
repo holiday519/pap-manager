@@ -297,6 +297,14 @@ public class CampaignService extends LaunchService {
 				campaign.setFrequencyId(fId);
 			}
 		}
+		
+		Date startDate = bean.getStartDate();
+		Date endDate = bean.getEndDate();
+		Date current = new Date();
+		if (current.after(endDate)) {
+			redisService.deleteCampaignId(id);
+		}
+		
 		//删除点击、展现监测地址
 		deleteCampaignMonitor(id);
 		//重新添加点击、展现监测地址
