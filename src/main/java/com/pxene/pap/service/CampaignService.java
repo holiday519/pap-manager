@@ -246,27 +246,43 @@ public class CampaignService extends LaunchService {
 				}
 			}
 		}
+		
 		// bean中放入ID，用于更新关联关系表中数据
 		bean.setId(id);
+		
 		// 传值里的预算
 		Integer campaignBudget = bean.getTotalBudget();
+		
 		// 数据库中预算
 		Integer dbBudget = campaignInDB.getTotalBudget();
+		
 		// 判断预算是否超出
 		String projectId = bean.getProjectId();
+
+		// 获得数据库中该活动隶属项目的项目总预算
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		Integer projectBudget = projectModel.getTotalBudget();
+		
+		// 获得当前项目除本活动之外的全部活动已占用多少预算
+		int campaignBudgetOthers = 0;
 		CampaignModelExample campaignExample = new CampaignModelExample();
 		campaignExample.createCriteria().andProjectIdEqualTo(projectId).andIdNotEqualTo(bean.getId());
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-		if (campaigns != null && !campaigns.isEmpty()) {
-			for (CampaignModel campaign : campaigns) {
-				campaignBudget = campaignBudget + campaign.getTotalBudget();
+		
+		if (campaigns != null && !campaigns.isEmpty()) 
+		{
+			for (CampaignModel campaign : campaigns) 
+			{
+			    campaignBudgetOthers = campaignBudget + campaign.getTotalBudget();
 			}
 		}
-		if (campaignBudget.compareTo(projectBudget) > 0) {
+		
+		// 如果修改后的预算 + 其他活动预算大于总预算，则抛出异常
+		if (campaignBudget + campaignBudgetOthers > projectBudget) 
+		{
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
+		
 		// 改变预算、展现时修改redis中的值
 		changeRedisBudget(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
 		
@@ -393,7 +409,7 @@ public class CampaignService extends LaunchService {
 					if (difImpVaue < 0 && Math.abs(difImpVaue) > dayImpression) {//小于0时，并且redis中值不够扣除，抛出异常
 						throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
 					}
-					if (difVaue != 0) {
+					if (difImpVaue != 0) {
 						JedisUtils.incrybyInt(countKey, difImpVaue);
 					}
 				}
