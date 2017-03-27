@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,6 +53,28 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private ProjectDao projectDao;
+	
+	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
+	
+	static {
+		Set<String> network = new HashSet<String>();
+		network.add("1");
+		network.add("3");
+		network.add("4");
+		network.add("5");
+		table.put("network", network);
+		Set<String> operator = new HashSet<String>();
+		operator.add("1");
+		operator.add("2");
+		operator.add("3");
+		table.put("operator", operator);
+		Set<String> os = new HashSet<String>();
+		os.add("1");
+		os.add("2");
+		os.add("3");
+		table.put("os", os);
+	}
+	
 
 	/**
 	 * 查询小时数据
@@ -165,12 +188,14 @@ public class DataService extends BaseService {
 	private List<Map<String, Object>> getDatafromDayTable(List<String> creativeIds, Date startDate, Date endDate, String type) throws Exception {
 		String[] days = DateUtils.getDaysBetween(startDate, endDate);
 		
-		List<String> codes = new ArrayList<String>();//存放所有的code（例如：type为“region”时查询regioncode）
+		Set<String> codes = new HashSet<String>();//存放所有的code（例如：type为“region”时查询regioncode）
 		
 		Map<String, Long> mMap = new HashMap<String, Long>();//装展现
 		Map<String, Long> cMap = new HashMap<String, Long>();//装点击
 		Map<String, Long> jMap = new HashMap<String, Long>();//装二跳
 		Map<String, Float> eMap = new HashMap<String, Float>();//装花费
+		
+		Set<String> set = table.get(type);
 		
 		for (String creativeId : creativeIds) {
 			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + creativeId);//获取map集合
@@ -183,42 +208,95 @@ public class DataService extends BaseService {
 						int befor = hkey.lastIndexOf("_") + 1;//此处想要的并不是“_”的索引，是他的后一位,即code的开始位
 						int after = hkey.indexOf("@");
 						String substring = hkey.substring(befor, after);//类别code（例如：type为“region”时，查询regioncode）
-						if (!codes.contains(substring)) {
+						if (set == null || set.isEmpty()) {
 							codes.add(substring);
+						} else if (set.contains(substring)) {
+							codes.add(substring);
+						} else {
+							codes.add("0");
 						}
+						
 						String newValue = map.get(hkey);
 						if (!StringUtils.isEmpty(newValue)) {
 							if (hkey.indexOf("@m") > 0) {// 展现
 								//如果map中已经有值，加起来，不然直接存入map
 								Long value = mMap.get(substring);
 								if (value != null) {
-									mMap.put(substring, value + Long.parseLong(newValue));
+									if (set == null || set.isEmpty()) {
+										mMap.put(substring, value + Long.parseLong(newValue));
+									} else if (set.contains(substring)) {
+										mMap.put(substring, value + Long.parseLong(newValue));
+									} else {
+										mMap.put("0", value + Long.parseLong(newValue));
+									}
 								} else {
-									mMap.put(substring, Long.parseLong(newValue));
+									if (set == null || set.isEmpty()) {
+										mMap.put(substring, Long.parseLong(newValue));
+									} else if (set.contains(substring)) {
+										mMap.put(substring, Long.parseLong(newValue));
+									} else {
+										mMap.put("0", Long.parseLong(newValue));
+									}
 								}
 							} else if (hkey.indexOf("@c") > 0) {// 点击
 								//如果map中已经有值，加起来，不然直接存入map
 								Long value = cMap.get(substring);
 								if (value != null) {
-									cMap.put(substring, value + Long.parseLong(newValue));
+									if (set == null || set.isEmpty()) {
+										cMap.put(substring, value + Long.parseLong(newValue));
+									} else if (set.contains(substring)) {
+										cMap.put(substring, value + Long.parseLong(newValue));
+									} else {
+										cMap.put("0", value + Long.parseLong(newValue));
+									}
 								} else {
-									cMap.put(substring, Long.parseLong(newValue));
+									if (set == null || set.isEmpty()) {
+										cMap.put(substring, Long.parseLong(newValue));
+									} else if (set.contains(substring)) {
+										cMap.put(substring, Long.parseLong(newValue));
+									} else {
+										cMap.put("0", Long.parseLong(newValue));
+									}
 								}
 							} else if (hkey.indexOf("@j") > 0) {// 二跳
 								//如果map中已经有值，加起来，不然直接存入map
 								Long value = mMap.get(substring);
 								if (value != null) {
-									jMap.put(substring, value + Long.parseLong(newValue));
+									if (set == null || set.isEmpty()) {
+										jMap.put(substring, value + Long.parseLong(newValue));
+									} else if (set.contains(substring)) {
+										jMap.put(substring, value + Long.parseLong(newValue));
+									} else {
+										jMap.put("0", value + Long.parseLong(newValue));
+									}
 								} else {
-									jMap.put(substring, Long.parseLong(newValue));
+									if (set == null || set.isEmpty()) {
+										jMap.put(substring, Long.parseLong(newValue));
+									} else if (set.contains(substring)) {
+										jMap.put(substring, Long.parseLong(newValue));
+									} else {
+										jMap.put("0", Long.parseLong(newValue));
+									}
 								}
 							} else if (hkey.indexOf("@e") > 0) {// 花费
 								//如果map中已经有值，加起来，不然直接存入map
 								Long value = mMap.get(substring);
 								if (value != null) {
-									eMap.put(substring, value + Float.parseFloat(newValue));
+									if (set == null || set.isEmpty()) {
+										eMap.put(substring, value + Float.parseFloat(newValue));
+									} else if (set.contains(substring)) {
+										eMap.put(substring, value + Float.parseFloat(newValue));
+									} else {
+										eMap.put("0", value + Float.parseFloat(newValue));
+									}
 								} else {
-									eMap.put(substring, Float.parseFloat(newValue));
+									if (set == null || set.isEmpty()) {
+										eMap.put(substring, Float.parseFloat(newValue));
+									} else if (set.contains(substring)) {
+										eMap.put(substring, Float.parseFloat(newValue));
+									} else {
+										eMap.put("0", Float.parseFloat(newValue));
+									}
 								}
 							}
 						}
