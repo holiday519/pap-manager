@@ -226,14 +226,23 @@ public class LaunchService extends BaseService{
 							}
 						}
 					}
-					Map<String, String> value = new HashMap<String, String>();
-					value.put("total", String.valueOf(totalBudget * 100));
-					value.put("daily", String.valueOf(budget * 100));
+					Map<String, String> value = null;
+					// 如果是已经投放的项目，总预算不能变
+					if (JedisUtils.exists(budget_key)) {
+						value = JedisUtils.hget(budget_key);
+						value.put("daily", String.valueOf(budget * 100));
+					} else {
+						value = new HashMap<String, String>();
+						value.put("total", String.valueOf(totalBudget * 100));
+						value.put("daily", String.valueOf(budget * 100));
+					}
 					
 					LOGGER.info("###########ee-johnny#############campaignId=" + campaignId);
 					
-					JedisUtils.set(count_key, String.valueOf(counter));//预算
-					JedisUtils.hset(budget_key, value);//展现上限
+					// 展现上限
+					JedisUtils.set(count_key, String.valueOf(counter));
+					// 预算
+					JedisUtils.hset(budget_key, value);
 				}
 //				String status = campaign.getStatus();
 				//判断当前时间是不是在活动的开始时间和结束时间之间
