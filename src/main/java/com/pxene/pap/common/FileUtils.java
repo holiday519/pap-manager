@@ -38,7 +38,7 @@ public class FileUtils
      * @param file
      * @return path
      */
-    public static String uploadFile(String uploadDir, String fileName, MultipartFile file)
+    public static String uploadFileToLocal(String uploadDir, String fileName, MultipartFile file)
     {
         String path = null;
         try
@@ -57,6 +57,30 @@ public class FileUtils
         }
         return path;
     }
+    
+    public static String uploadFileToRemote(ScpUtils scpUtils, String uploadDir, String fileName, MultipartFile file)
+    {
+        String path = null;
+        
+        try
+        {
+            String name = file.getOriginalFilename();
+            String fileExtension = getFileExtensionByDot(name);
+            String fullName = fileName + "." + fileExtension;
+            path = uploadDir + fullName;
+            
+            // 上传至远程
+            scpUtils.putFile(file.getBytes(), fullName, uploadDir);
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+            return null;
+        }
+        
+        return path;
+    }
+    
     
     /**
      * 检查上传素材属性

@@ -1,7 +1,6 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;

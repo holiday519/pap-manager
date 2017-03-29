@@ -1,6 +1,7 @@
 package com.pxene.pap.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -16,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
+import com.pxene.pap.common.ScpUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
@@ -78,16 +81,48 @@ public class AdvertiserService extends BaseService
     @Autowired
     private KpiDao kpiDao;
     
-    private final String UPLOAD_DIR;
+    private Environment env;
+    
+    private static String UPLOAD_MODE;
+    
+    private static String UPLOAD_DIR;
+    
+    private static ScpUtils scpUtils;
     
     private static final String TEMP_DIR = "temp/";
     
     private static final String FORMAL_DIR = "formal/";
     
+    
     @Autowired
     public AdvertiserService(Environment env)
     {
-    	UPLOAD_DIR = env.getProperty("pap.fileserver.upload.dir");
+        this.env = env;
+        
+        UPLOAD_MODE = env.getProperty("pap.fileserver.mode", "local");
+        
+        if ("local".equals(UPLOAD_MODE))
+        {
+            UPLOAD_DIR = env.getProperty("pap.fileserver.local.upload.dir");
+        }
+        else
+        {
+            UPLOAD_DIR = env.getProperty("pap.fileserver.remote.upload.dir");
+            
+            String host = env.getProperty("pap.fileserver.remote.host");
+            int port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
+            String username = env.getProperty("pap.fileserver.remote.username");
+            String password = env.getProperty("pap.fileserver.remote.password");
+            
+            try
+            {
+                scpUtils = ScpUtils.getInstance(host, port, username, password).connect();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
     
     @Transactional
@@ -410,13 +445,18 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
-    public String uploadQualification(MultipartFile file) throws Exception {
+    public String uploadQualification(MultipartFile file) throws Exception 
+    {
     	// 图片绝对路径
-    	String path = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+    	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+
+        // 获得图片上传至本地/远程文件服务器的物理绝对路径
+        String path = upload(env, file);
+        
     	// 返回相对路径
     	return path.replace(UPLOAD_DIR, "");
     }
-    
+
     /**
      * 上传广告主资质，针对于广点通logo
      * @param file
@@ -435,7 +475,7 @@ public class AdvertiserService extends BaseService
     		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
     	}
     	// 图片绝对路径
-    	String path = FileUtils.uploadFile(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+    	String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
     	// 返回相对路径
     	return path.replace(UPLOAD_DIR, "");
     }
@@ -452,31 +492,36 @@ public class AdvertiserService extends BaseService
         
         if (logoPath != null && logoPath.contains(TEMP_DIR))
         {
-            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
+            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
+            doCopy(logoPath, destDir);
             advertiserBean.setLogoPath(logoPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (accountPath != null && accountPath.contains(TEMP_DIR))
         {
-            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
+            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
+            doCopy(logoPath, destDir);
             advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (licensePath != null && licensePath.contains(TEMP_DIR))
         {
-            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
+            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
+            doCopy(logoPath, destDir);
             advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (organizationPath != null && organizationPath.contains(TEMP_DIR))
         {
-            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
+            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
+            doCopy(logoPath, destDir);
             advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (icpPath != null && icpPath.contains(TEMP_DIR))
         {
-            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
+            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
+            doCopy(logoPath, destDir);
             advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));
         }
     }
@@ -599,5 +644,35 @@ public class AdvertiserService extends BaseService
 			}
 		}
 	}
+
+    /**
+     * 根据配置文件中的设置，来绝定上传文件至本地文件服务器或远程文件服务器
+     * @param env   SpringBoot Environment配置
+     * @param file  multipart/form-data对象
+     * @return
+     */
+    private String upload(Environment env, MultipartFile file)
+    {
+        if ("local".equalsIgnoreCase(UPLOAD_MODE))
+        {
+            return FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+        }
+        else
+        {
+            return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+        }
+    }
+    
+    private void doCopy(String path, File destDir) throws IOException
+    {
+        if ("local".equalsIgnoreCase(UPLOAD_MODE))
+        {
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + path), destDir);
+        }
+        else
+        {
+            scpUtils.copy(UPLOAD_DIR + path, FilenameUtils.separatorsToUnix(destDir.getPath()));
+        }
+    }
     
 }

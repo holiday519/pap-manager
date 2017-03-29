@@ -1,6 +1,7 @@
 package com.pxene.pap.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -24,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.ScpUtils;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -75,15 +78,44 @@ import com.pxene.pap.repository.basic.VideoTmplDao;
 @Service
 public class CreativeService extends BaseService {
 	
-	private final String UPLOAD;
+	private static String uploadDir;
+	
+	private static String uploadMode;
+	
+	private static ScpUtils scpUtils;
+	
+	private Environment env;
+	
 	
 	@Autowired
 	public CreativeService(Environment env)
 	{
-		/**
-		 * 获取图片上传路径
-		 */
-		UPLOAD = env.getProperty("pap.fileserver.upload.dir");
+	    this.env = env;
+        
+        uploadMode = env.getProperty("pap.fileserver.mode", "local");
+        
+        if ("local".equals(uploadMode))
+        {
+            uploadDir = env.getProperty("pap.fileserver.local.upload.dir");
+        }
+        else
+        {
+            uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
+            
+            String host = env.getProperty("pap.fileserver.remote.host");
+            int port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
+            String username = env.getProperty("pap.fileserver.remote.username");
+            String password = env.getProperty("pap.fileserver.remote.password");
+            
+            try
+            {
+                scpUtils = ScpUtils.getInstance(host, port, username, password).connect();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
 	}
 	
 	@Autowired
@@ -188,9 +220,11 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(id)) {
 			ImageModel imageModel = imageDao.selectByPrimaryKey(id);
 			if (imageModel != null) {
-				String path = UPLOAD + imageModel.getPath();
+				String path = uploadDir + imageModel.getPath();
+				
 				// 删除图片服务器上的素材
-				org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+				doDeleteFile(path);
 			}
 		}
 	}
@@ -204,9 +238,11 @@ public class CreativeService extends BaseService {
 		if (!StringUtils.isEmpty(id)) {
 			VideoModel videoModel = videoDao.selectByPrimaryKey(id);
 			if (videoModel != null) {
-				String path = UPLOAD + videoModel.getPath();
+				String path = uploadDir + videoModel.getPath();
+				
 				// 删除图片服务器上的素材
-				org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+				doDeleteFile(path);
 			}
 		}
 	}
@@ -471,8 +507,11 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public Map<String, String> uploadImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = UPLOAD + "creative/image/";
-		String path = FileUtils.uploadFile(dir, id, file);//上传
+		String dir = uploadDir + "creative/image/";
+		
+		// String path = FileUtils.uploadFileToLocal(dir, id, file);//上传
+		String path = doUpload(dir, id, file);
+		
 //		String name = imageBean.getName();
 //		String path = imageBean.getPath().replace(upload, "");
 		String type = imageBean.getFormat();
@@ -496,7 +535,7 @@ public class CreativeService extends BaseService {
 		ImageModel model = new ImageModel();
 		model.setId(id);
 //		model.setName(name);
-		model.setPath(path.replace(UPLOAD, ""));
+		model.setPath(path.replace(uploadDir, ""));
 		model.setFormat(type);
 		model.setVolume(Double.parseDouble(String.valueOf(volume)));
 		model.setWidth(width);
@@ -511,7 +550,7 @@ public class CreativeService extends BaseService {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", id);
-		map.put("path", path.replace(UPLOAD, ""));
+		map.put("path", path.replace(uploadDir, ""));
 		return map;
 	}
 	
@@ -524,8 +563,11 @@ public class CreativeService extends BaseService {
 	 */
 	public Map<String, String> uploadVideo(VideoBean videoBean, MultipartFile file) throws Exception {
 		String id = UUID.randomUUID().toString();
-		String dir = UPLOAD + "creative/video/";
-		String path = FileUtils.uploadFile(dir, id, file);//上传
+		String dir = uploadDir + "creative/video/";
+		
+		// String path = FileUtils.uploadFileToLocal(dir, id, file);//上传
+		String path = doUpload(dir, id, file);
+		
 //		String name = videoBean.getName();
 //		String path = videoBean.getPath().replace(upload, "");
 		String type = videoBean.getFormat();
@@ -552,7 +594,7 @@ public class CreativeService extends BaseService {
 		//添加视频信息
 		model.setId(id);
 //		model.setName(name);
-		model.setPath(path.replace(UPLOAD, ""));
+		model.setPath(path.replace(uploadDir, ""));
 		model.setFormat(type);
 		model.setWidth(width);
 		model.setHeight(height);
@@ -569,7 +611,7 @@ public class CreativeService extends BaseService {
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", id);
-		map.put("path", path.replace(UPLOAD, ""));
+		map.put("path", path.replace(uploadDir, ""));
 		return map;
 	}
 	
@@ -1455,5 +1497,35 @@ public class CreativeService extends BaseService {
 	        result = Float.parseFloat(format.format(percent));
 	        bean.setImpressionCost(result);
 		}
+	}
+	
+	/**
+     * 根据配置文件中的设置，来绝定上传文件至本地文件服务器或远程文件服务器
+     * @param env   SpringBoot Environment配置
+     * @param file  multipart/form-data对象
+     * @return
+     */
+    private String doUpload(String uploadDir, String fileName, MultipartFile file)
+    {
+        if ("local".equalsIgnoreCase(uploadMode))
+        {
+            return FileUtils.uploadFileToLocal(uploadDir, fileName, file);
+        }
+        else
+        {
+            return FileUtils.uploadFileToRemote(scpUtils, uploadDir, fileName, file);
+        }
+    }
+	
+	private void doDeleteFile(String path) throws IOException
+	{
+	    if ("local".equalsIgnoreCase(uploadDir))
+        {
+            org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+        }
+        else
+        {
+            scpUtils.delete(path);
+        }
 	}
 }
