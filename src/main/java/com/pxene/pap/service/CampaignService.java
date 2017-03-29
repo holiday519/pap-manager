@@ -273,7 +273,7 @@ public class CampaignService extends LaunchService {
 		{
 			for (CampaignModel campaign : campaigns) 
 			{
-			    campaignBudgetOthers = campaignBudget + campaign.getTotalBudget();
+			    campaignBudgetOthers += campaign.getTotalBudget();
 			}
 		}
 		
