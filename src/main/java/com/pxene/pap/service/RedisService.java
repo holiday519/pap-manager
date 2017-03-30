@@ -22,6 +22,7 @@ import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.ScpUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -89,15 +90,6 @@ public class RedisService {
 	private static String image_url;
 	
 	@Autowired
-	public RedisService(Environment env)
-	{
-		/**
-		 * 获取图片上传路径
-		 */
-		image_url = env.getProperty("pap.fileserver.url.prefix");
-	}
-	
-	@Autowired
 	private AdvertiserDao advertiserDao;
 	
 	@Autowired
@@ -160,7 +152,17 @@ public class RedisService {
 	@Autowired
 	private TimeTargetDao timeTargetDao;
 	
-	private static final String POPULATION_ROOT_PATH = "/data/population/";
+	private static String POPULATION_ROOT_PATH;
+	
+	@Autowired
+    public RedisService(Environment env)
+    {
+		/**
+		 * 获取图片上传路径
+		 */
+		image_url = env.getProperty("pap.fileserver.url.prefix");
+		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
+    }
 	
 	/**
 	 * 将活动ID 写入redis
