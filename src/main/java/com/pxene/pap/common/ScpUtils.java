@@ -25,6 +25,8 @@ public class ScpUtils
     private String username;
     private String password;
     
+    private String mode = "0755";
+    
     public String getUsername()
     {
         return username;
@@ -98,7 +100,7 @@ public class ScpUtils
     public void putFile(byte[] data, String remoteFileName, String remoteTargetDirectory) throws IOException
     {
         SCPClient client = new SCPClient(connection);
-        client.put(data, remoteFileName, remoteTargetDirectory);
+        client.put(data, remoteFileName, remoteTargetDirectory, mode);
     }
     
     public void putFile(String localFile, String remoteFileName, String remoteTargetDirectory, String mode) throws IOException
