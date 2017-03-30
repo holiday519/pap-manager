@@ -500,28 +500,28 @@ public class AdvertiserService extends BaseService
         if (accountPath != null && accountPath.contains(TEMP_DIR))
         {
             //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
-            doCopy(logoPath, destDir);
+            doCopy(accountPath, destDir);
             advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (licensePath != null && licensePath.contains(TEMP_DIR))
         {
             //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
-            doCopy(logoPath, destDir);
+            doCopy(licensePath, destDir);
             advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (organizationPath != null && organizationPath.contains(TEMP_DIR))
         {
             //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
-            doCopy(logoPath, destDir);
+            doCopy(organizationPath, destDir);
             advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
         }
         
         if (icpPath != null && icpPath.contains(TEMP_DIR))
         {
             //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
-            doCopy(logoPath, destDir);
+            doCopy(icpPath, destDir);
             advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));
         }
     }
