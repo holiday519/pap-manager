@@ -635,12 +635,14 @@ public class AdvertiserService extends BaseService
 			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
 			example.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(adx.getId());
 			List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(example);
-			if (list == null || list.isEmpty()) {
+/*			if (list == null || list.isEmpty()) {
 				throw new ResourceNotFoundException();
-			}
-			for (AdvertiserAuditModel model : list) {
-				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				advertiserAuditDao.updateByExampleSelective(model, example);
+			}*/
+			if (list != null) {
+				for (AdvertiserAuditModel model : list) {
+					model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					advertiserAuditDao.updateByExampleSelective(model, example);
+				}
 			}
 		}
 	}
