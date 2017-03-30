@@ -615,26 +615,6 @@ public class CreativeService extends BaseService {
 		return map;
 	}
 	
-//	/**
-//	 * 根据长和宽查询尺寸ID
-//	 * @param width
-//	 * @param height
-//	 * @return
-//	 */
-//	private String getImageSizeId(int width, int height) {
-//		SizeModelExample sizeExample = new SizeModelExample();
-//		sizeExample.createCriteria().andHeightEqualTo(height).andWidthEqualTo(width);
-//		List<SizeModel> sizes = sizeDao.selectByExample(sizeExample);
-//		if (sizes==null || sizes.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-//		String id = null;
-//		for (SizeModel mol : sizes) {
-//			id = mol.getId();
-//		}
-//		return id;
-//	}
-
 	/**
 	 * 创意提交第三方审核
 	 * @param id
@@ -653,12 +633,6 @@ public class CreativeService extends BaseService {
 		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//审核创意
 		for (AdxModel adx : adxs) {
-//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-//				//百度
-//				auditCreativeBaiduService.audit(id);
-//			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
-//				auditCreativeAdviewService.audit(id);
-//			}
 			CreativeAuditModel model = new CreativeAuditModel();
 			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 			model.setId(UUID.randomUUID().toString());
@@ -666,7 +640,6 @@ public class CreativeService extends BaseService {
 			model.setCreativeId(id);
 			model.setAdxId(adx.getId());
 			creativeAuditDao.insertSelective(model);
-			
 		}
 	}
 
@@ -676,8 +649,8 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void synchronize(String id) throws Exception {
-		CreativeModel mapModel = creativeDao.selectByPrimaryKey(id);
-		if (mapModel == null) {
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		if (creative == null) {
 			throw new ResourceNotFoundException();
 		}
 		//查询adx列表
@@ -685,17 +658,10 @@ public class CreativeService extends BaseService {
 		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
 		//同步结果
 		for (AdxModel adx : adxs) {
-			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-				//百度
-//				auditCreativeBaiduService.synchronize(id);
-				
-			}else if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adx.getId())) {
-//				auditCreativeAdviewService.synchronize(id);
-			}
 			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-			ex.createCriteria().andAdxIdEqualTo(adx.getId());
+			ex.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adx.getId());
 			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-			if (list ==null || list.isEmpty()) {
+			if (list == null || list.isEmpty()) {
 				CreativeAuditModel model = new CreativeAuditModel();
 				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 				model.setId(UUID.randomUUID().toString());
