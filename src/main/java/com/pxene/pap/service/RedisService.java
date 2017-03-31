@@ -160,7 +160,19 @@ public class RedisService {
 		/**
 		 * 获取图片上传路径
 		 */
-		image_url = env.getProperty("pap.fileserver.url.prefix");
+		//image_url = env.getProperty("pap.fileserver.url.prefix");
+		
+		String uploadMode = env.getProperty("pap.fileserver.mode", "local");
+        
+        if ("local".equalsIgnoreCase(uploadMode))
+        {
+            image_url = env.getProperty("pap.fileserver.local.upload.dir");
+        }
+        else
+        {
+            image_url = env.getProperty("pap.fileserver.remote.upload.dir");
+        }
+		
 		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
     }
 	
