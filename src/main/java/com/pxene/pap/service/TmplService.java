@@ -17,6 +17,8 @@ import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.domain.beans.VideoTmplBean;
+import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
@@ -62,6 +64,7 @@ public class TmplService extends BaseService {
 	
 	@Autowired
 	private CreativeService creativeService;
+	
 	
 	/**
 	 * 添加图片模版
@@ -133,6 +136,17 @@ public class TmplService extends BaseService {
 				String tmplId = appTmpl.getTmplId();
 				if (!StringUtils.isEmpty(tmplId)) {
 					ImageTmpl imageTmpl = getImageTmplDetail(tmplId);
+					
+					AppModel app = getAppById(appTmpl.getAppId());
+	                if (app != null)
+	                {
+	                    String appName = app.getAppName();
+	                    if (!StringUtils.isEmpty(appName))
+	                    {
+	                        imageTmpl.setAppName(appName);
+	                    }
+	                }
+					
 					if (StringUtils.isEmpty(status)) {
 						imageTmplListAll.add(imageTmpl);
 					} else {
@@ -181,7 +195,19 @@ public class TmplService extends BaseService {
 			for (AppTmplModel appTmpl : appTmpls) {
 				String tmplId = appTmpl.getTmplId();
 				VideoTmplModel model = videoTmplDao.selectByPrimaryKey(tmplId);
+				
 				VideoTmpl videoTmpl = modelMapper.map(model, VideoTmpl.class);
+				
+				AppModel app = getAppById(appTmpl.getAppId());
+				if (app != null)
+				{
+				    String appName = app.getAppName();
+				    if (!StringUtils.isEmpty(appName))
+				    {
+				        videoTmpl.setAppName(appName);
+				    }
+				}
+				
 				if (!StringUtils.isEmpty(model.getImagelId())) {
 					ImageTmpl image = getImageTmplDetail(model.getImagelId());
 					if (image != null) {
@@ -207,6 +233,16 @@ public class TmplService extends BaseService {
 			return videpTmplListAll;
 		}
 	}
+
+	/**
+	 *  根据APPID获得APP信息
+	 * @param appId appid
+	 * @return
+	 */
+    private AppModel getAppById(String appId)
+    {
+        return appDao.selectByPrimaryKey(appId);
+    }
 	
 	/**
 	 * 查询信息流模版详细信息
@@ -237,6 +273,17 @@ public class TmplService extends BaseService {
 				tmplIds.add(tmplId);
 				InfoflowTmplModel model = infoflowTmplDao.selectByPrimaryKey(tmplId);
 				InfoTmpl infoTmpl = modelMapper.map(model, InfoTmpl.class);
+				
+				AppModel app = getAppById(appTmpl.getAppId());
+                if (app != null)
+                {
+                    String appName = app.getAppName();
+                    if (!StringUtils.isEmpty(appName))
+                    {
+                        infoTmpl.setAppName(appName);
+                    }
+                }
+				
 				// 小图信息
 				if (!StringUtils.isEmpty(model.getIconId())) {
 					ImageTmpl icon = getImageTmplDetail(model.getIconId());
