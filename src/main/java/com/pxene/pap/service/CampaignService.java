@@ -91,7 +91,7 @@ import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
 @Service
-public class CampaignService extends LaunchService {
+public class CampaignService extends BaseService {
 	
 	@Autowired
 	private CampaignDao campaignDao; 
@@ -107,9 +107,6 @@ public class CampaignService extends LaunchService {
 	
 	@Autowired
 	private CreativeService creativeService; 
-	
-	@Autowired
-	private LaunchService launchService; 
 	
 	@Autowired
 	private CreativeDao creativeDao; 
@@ -163,7 +160,7 @@ public class CampaignService extends LaunchService {
 	private QuantityDao quantityDao;
 	
 	@Autowired
-	private RedisService redisService;
+	private LaunchService launchService;
 	
 	/**
 	 * 创建活动
@@ -318,7 +315,7 @@ public class CampaignService extends LaunchService {
 		Date endDate = bean.getEndDate();
 		Date current = new Date();
 		if (current.after(endDate)) {
-			redisService.deleteCampaignId(id);
+			launchService.removeCampaignId(id);
 		}
 		
 		//删除点击、展现监测地址
@@ -957,31 +954,6 @@ public class CampaignService extends LaunchService {
 				if (!StringUtils.isEmpty(populationId)) {
 					target.setPopulation(populationId);
 				}
-				/*if (!StringUtils.isEmpty(populationId)) {
-					List<Population> PopulationList = new ArrayList<CampaignBean.Target.Population>();
-					String[] popids = populationId.split(",");
-					List<String> popIdList = Arrays.asList(popids);
-					PopulationModelExample ex = new PopulationModelExample();
-					ex.createCriteria().andIdIn(popIdList);
-					List<PopulationModel> pops = populationDao.selectByExample(ex);
-					if (pops != null && !pops.isEmpty()) {
-						Population popu = null;
-						for (PopulationModel p : pops) {
-							popu = new Population();
-							popu.setId(p.getId());
-							popu.setPath(p.getPath());
-							popu.setType(p.getType());
-							PopulationList.add(popu);
-						}
-					}
-					if (!PopulationList.isEmpty()) {
-						Population[] ps = new Population[PopulationList.size()];
-						for (int i=0;i<PopulationList.size();i++) {
-							ps[i] = PopulationList.get(i);
-						}
-						target.setPopulation(ps);
-					}
-				}*/
 				bean.setTarget(target);
 			}
 		}
@@ -1068,8 +1040,8 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	private void proceedCampaign(CampaignModel campaignModel) throws Exception {
-		String campaignId = campaignModel.getId();
+	private void proceedCampaign(CampaignModel campaign) throws Exception {
+		String campaignId = campaign.getId();
 		// 检查该活动是否可以投放
 		// 检查是否有创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
@@ -1087,20 +1059,24 @@ public class CampaignService extends LaunchService {
 			}
 		}
 		// 检查是否有落地页
-		String landpageId = campaignModel.getLandpageId();
+		String landpageId = campaign.getLandpageId();
 		if (StringUtils.isEmpty(landpageId)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
 		}
-		campaignModel.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+		campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
 		// 投放
-		String projectId = campaignModel.getProjectId();
-		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus()) && campaignIsInDateTarget(campaignId) 
-				&& campaignIsInWeekAndTimeTarget(campaignId)) {
-			writeRedis(campaignId);
+		String projectId = campaign.getProjectId();
+		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
+			if (launchService.isFirstLaunch(campaignId)) {
+				launchService.write4FirstTime(campaign);
+			}
+		}
+		if (isOnTargetTime(campaignId)) {
+			launchService.writeCampaignId(campaignId);
 		}
 		//改变数据库状态
-		campaignDao.updateByPrimaryKeySelective(campaignModel);
+		campaignDao.updateByPrimaryKeySelective(campaign);
 	}
 	
 	/**
@@ -1109,16 +1085,43 @@ public class CampaignService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	private void pauseCampaign(CampaignModel campaignModel) throws Exception {
-		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-		String projectId = campaignModel.getProjectId();
+	private void pauseCampaign(CampaignModel campaign) throws Exception {
+		campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
+		String projectId = campaign.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 			//移除redis中key
-			redisService.deleteCampaignId(campaignModel.getId());
+			launchService.removeCampaignId(campaign.getId());
 		}
 		//改变数据库状态
-		campaignDao.updateByPrimaryKeySelective(campaignModel);
+		campaignDao.updateByPrimaryKeySelective(campaign);
+	}
+	
+	/**
+	 * 判断当前活动是否在投放定向时间内
+	 * @return
+	 * @throws Exception
+	 */
+	public Boolean isOnTargetTime(String campaignId) throws Exception {
+		String currentWeek = DateUtils.getCurrentWeekInNumber();
+		String currentHour = DateUtils.getCurrentHour();
+		String current = "0" + currentWeek + currentHour;
+		TimeTargetModelExample targetExample = new TimeTargetModelExample();
+		targetExample.createCriteria().andCampaignIdEqualTo(campaignId).andTimeEqualTo(current);
+		List<TimeTargetModel> targets = timeTargetDao.selectByExample(targetExample);
+		
+		return targets.size() > 0;
+	}
+	
+	public Boolean isOnLaunchDate(String campaignId) throws Exception {
+		Date current = new Date();
+		CampaignModelExample campaignExample = new CampaignModelExample();
+		campaignExample.createCriteria().andStartDateLessThanOrEqualTo(current)
+			.andEndDateGreaterThanOrEqualTo(current)
+			.andIdEqualTo(campaignId);
+		List<CampaignModel> campaigns = new ArrayList<CampaignModel>();
+		
+		return campaigns.size() > 0;
 	}
 	 
 }

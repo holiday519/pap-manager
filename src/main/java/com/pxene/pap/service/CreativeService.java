@@ -19,6 +19,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -1493,5 +1494,29 @@ public class CreativeService extends BaseService {
         {
             scpUtils.delete(path);
         }
+	}
+	
+	/**
+	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
+	 * @throws Exception
+	 */
+	@Scheduled(cron = "0 0 0 * * ?")
+	public void updateExpityDate() throws Exception {
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		List<CreativeAuditModel> list = creativeAuditDao.selectByExample(example);
+		if (list != null && !list.isEmpty()) {
+			for (CreativeAuditModel model : list) {
+				Date expiryDate = model.getExpiryDate();
+				if (expiryDate != null) {
+					DateTime expiry = new DateTime(expiryDate);
+					expiry.toString("yyyy-MM-dd");
+					String now = new DateTime().toString("yyyy-MM-dd");
+					if (expiry.equals(now)) {
+						model.setStatus(StatusConstant.CREATIVE_AUDIT_EXPITY);
+						creativeAuditDao.updateByPrimaryKeySelective(model);
+					}
+				}
+			}
+		}
 	}
 }

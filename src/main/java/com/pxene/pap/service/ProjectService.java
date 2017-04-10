@@ -38,7 +38,7 @@ import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
-public class ProjectService extends LaunchService {
+public class ProjectService extends BaseService {
 	
 	@Autowired
 	private ProjectDao projectDao;
@@ -68,7 +68,7 @@ public class ProjectService extends LaunchService {
 	private KpiDao kpiDao;
 	
 	@Autowired
-	private RedisService redisService;
+	private LaunchService launchService;
 	
 	/**
 	 * 创建项目
@@ -157,10 +157,10 @@ public class ProjectService extends LaunchService {
 		String action = map.get("action").toString();
 		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
 			//暂停
-			pauseProject(id);
+			pauseProject(project);
 		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
 			//投放
-			launchProject(id);
+			proceedProject(project);
 		} else {
 			throw new IllegalArgumentException(PhrasesConstant.PARAM_OUT_OF_RANGE);
 		}
@@ -361,31 +361,28 @@ public class ProjectService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void launchProject(String param) throws Exception {
-		if (StringUtils.isEmpty(param)) {
-			throw new ResourceNotFoundException();
-		}
-		String[] projectIds = param.split(",");
-		
-		for (String projectId : projectIds) {
-			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-			if (projectModel != null) {
-				CampaignModelExample example = new CampaignModelExample();
-				example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
-				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
-				if (campaigns != null && !campaigns.isEmpty()) {
-					for (CampaignModel campaign : campaigns) {
-						String campaignId = campaign.getId();
-						if (campaignIsInDateTarget(campaignId) && campaignIsInWeekAndTimeTarget(campaignId)) {
-							writeRedis(campaignId);
-						}
+	public void proceedProject(ProjectModel project) throws Exception {
+		String projectId = project.getId();
+		CampaignModelExample example = new CampaignModelExample();
+		example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		if (campaigns != null && !campaigns.isEmpty()) {
+			for (CampaignModel campaign : campaigns) {
+				String campaignId = campaign.getId();
+				if (StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus()) 
+						&& campaignService.isOnLaunchDate(campaignId)) {
+					if (launchService.isFirstLaunch(campaignId)) {
+						launchService.write4FirstTime(campaign);
 					}
 				}
-				//项目投放之后修改状态
-				projectModel.setStatus(StatusConstant.PROJECT_PROCEED);
-				projectDao.updateByPrimaryKeySelective(projectModel);
+				if (campaignService.isOnTargetTime(campaignId)) {
+					launchService.writeCampaignId(campaignId);
+				}
 			}
 		}
+		//项目投放之后修改状态
+		project.setStatus(StatusConstant.PROJECT_PROCEED);
+		projectDao.updateByPrimaryKeySelective(project);
 	}
 	
 	/**
@@ -394,60 +391,19 @@ public class ProjectService extends LaunchService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void pauseProject(String param) throws Exception {
-		if (StringUtils.isEmpty(param)) {
-			throw new ResourceNotFoundException();
-		}
-		String[] projectIds = param.split(",");
-		
-		for (String projectId : projectIds) {
-			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-			if (projectModel != null) {
-				CampaignModelExample example = new CampaignModelExample();
-				example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
-				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
-				if (campaigns != null && !campaigns.isEmpty()) {
-					for (CampaignModel campaign : campaigns) {
-						// 移除redis中key
-						redisService.deleteCampaignId(campaign.getId());
-					}
-				}
-				//项目暂停之后修改状态
-				projectModel.setStatus(StatusConstant.PROJECT_PAUSE);
-				projectDao.updateByPrimaryKeySelective(projectModel);
+	public void pauseProject(ProjectModel project) throws Exception {
+		String projectId = project.getId();
+		CampaignModelExample example = new CampaignModelExample();
+		example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		if (campaigns != null && !campaigns.isEmpty()) {
+			for (CampaignModel campaign : campaigns) {
+				launchService.removeCampaignId(campaign.getId());
 			}
 		}
-	}
-	
-	/**
-	 * 结束项目
-	 * @param projectIds
-	 * @throws Exception
-	 */
-	@Transactional
-	public void stopProject(String param) throws Exception {
-		if (StringUtils.isEmpty(param)) {
-			throw new ResourceNotFoundException();
-		}
-		String[] projectIds = param.split(",");
-		
-		for (String projectId : projectIds) {
-			ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-			if (projectModel != null) {
-				CampaignModelExample example = new CampaignModelExample();
-				example.createCriteria().andProjectIdEqualTo(projectId);
-				List<CampaignModel> campaigns = campaignDao.selectByExample(example);
-				if (campaigns == null || campaigns.isEmpty()) {
-					continue;
-				}
-				for (CampaignModel campaign : campaigns) {
-					deleteKeyFromRedis(campaign.getId());
-				}
-				//项目投放之后修改状态
-//				projectModel.setStatus(StatusConstant.CAMPAIGN_CLOSE);
-				projectDao.updateByPrimaryKeySelective(projectModel);
-			}
-		}
+		//项目暂停之后修改状态
+		project.setStatus(StatusConstant.PROJECT_PAUSE);
+		projectDao.updateByPrimaryKeySelective(project);
 	}
 	
 }
