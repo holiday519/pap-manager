@@ -3,12 +3,13 @@ package com.pxene.pap.service;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.JwtUtils;
@@ -20,6 +21,8 @@ import com.pxene.pap.repository.basic.UserDao;
 @Service
 public class TokenService
 {
+    private static final String ACCESS_TOKEN = "access-token";
+
     @Autowired
     private UserDao userDao;
     
@@ -62,22 +65,13 @@ public class TokenService
         return accessToken;
     }
     
-    public void saveToken(AccessTokenBean token)
+    public void saveToken(AccessTokenBean token, HttpServletRequest request)
     {
-        saveToken(token, tokenExpiresSecond);
+        saveToken(token, tokenExpiresSecond, request);
     }
-    public void saveToken(AccessTokenBean token, long timeout)
+    public void saveToken(AccessTokenBean token, long timeout, HttpServletRequest request)
     {
-        ObjectMapper mapper = new ObjectMapper();
-        try
-        {
-            String tokenStr = mapper.writeValueAsString(token);
-            JedisUtils.set(token.getUserid(), tokenStr);
-        }
-        catch (JsonProcessingException e)
-        {
-            e.printStackTrace();
-        }
+        request.getSession().setAttribute(ACCESS_TOKEN, token);
     }
     
     public AccessTokenBean getToken(String username)
@@ -105,9 +99,9 @@ public class TokenService
         return accessToken;
     }
 
-    public void deleteToken(String userid)
+    public void deleteToken(String userid, HttpServletRequest request)
     {
-    	JedisUtils.delete(userid);
+        request.getSession().removeAttribute(ACCESS_TOKEN);
     }
     
 }

@@ -11,6 +11,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -52,11 +53,34 @@ public class JwtFilter implements Filter
         BaseException exception = null;
         
         HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpSession httpSession = httpRequest.getSession();
+        
+        AccessTokenBean tokenInSession = (AccessTokenBean) httpSession.getAttribute("access-token");
         
         String token = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
-        if (!StringUtils.isEmpty(token) && token.startsWith(BEARER))
+        
+        if (!StringUtils.isEmpty(token) && token.startsWith(BEARER) && tokenInSession != null)
         {
             token = token.substring(token.indexOf(BEARER) + 6);
+            
+            if (!token.trim().equals(tokenInSession.getToken().trim()))
+            {
+                exception = new TokenInvalidException();
+            }
+            else
+            {
+                if (new Date(tokenInSession.getExpiresAt()).after(new Date()))
+                {
+                    chain.doFilter(request, response);
+                    return;
+                }
+                else
+                {
+                    exception = new TokenOverdueException();
+                }
+            }
+            
+            /*
             String userId = TokenUtils.parseUserIdInToken(env, token.trim());
             
             AccessTokenBean accessToken = tokenService.getToken(userId);
@@ -69,13 +93,14 @@ public class JwtFilter implements Filter
                 }
                 else
                 {
-                	exception = new TokenOverdueException();
+                    exception = new TokenOverdueException();
                 }
             }
             else
             {
-            	exception = new TokenInvalidException();
+                exception = new TokenInvalidException();
             }
+            */        
         }
         else 
         {

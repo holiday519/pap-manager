@@ -84,7 +84,7 @@ public class Application
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         
         registrationBean.setFilter(new RateLimiterFilter());
-        registrationBean.addUrlPatterns("/v1/*");
+        registrationBean.addUrlPatterns("/advertisers*");
         
         return registrationBean;
     }
@@ -102,7 +102,7 @@ public class Application
         registrationBean.setFilter(jwtFilter);
         
         List<String> urlPatterns = new ArrayList<String>();
-        urlPatterns.add("/v1/test1111/*");
+        urlPatterns.add("/advertisers");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;

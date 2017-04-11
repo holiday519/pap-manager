@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import javax.security.auth.message.AuthException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class TokenController
      */
     @RequestMapping(value = "/auth", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String login(@RequestBody AuthBean authBean, HttpServletResponse response) throws Exception
+    public String login(@RequestBody AuthBean authBean, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
         String userName = authBean.getUserName();
         String password = authBean.getPassword();
@@ -67,8 +68,8 @@ public class TokenController
             // 生成accessToken
             AccessTokenBean token = tokenService.generateToken(userModel);
             
-            // 将新生成的Token保存至Redis中（同时设定TTL）
-            tokenService.saveToken(token);
+            // 将新生成的Token保存至Session中
+            tokenService.saveToken(token, request);
             
             return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), token, response);
         }
