@@ -82,9 +82,9 @@ public class TokenController
     
     @RequestMapping(value = "/auth/{userId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void logout(@PathVariable(required = true) String userId, HttpServletResponse response) throws Exception
+    public void logout(@PathVariable(required = true) String userId, HttpServletRequest request, HttpServletResponse response) throws Exception
     {
-        tokenService.deleteToken(userId);
+        tokenService.deleteToken(userId, request);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }
