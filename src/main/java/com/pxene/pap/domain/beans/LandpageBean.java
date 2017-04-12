@@ -14,7 +14,7 @@ public class LandpageBean {
 	/**
 	 * 活动目标ID
 	 */
-	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
+	@Length(max = 37, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 	/**
 	 * 活动目标名称

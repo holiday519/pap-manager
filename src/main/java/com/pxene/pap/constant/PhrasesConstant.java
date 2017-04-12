@@ -7,7 +7,7 @@ public class PhrasesConstant
 	public static final String NAME_NOT_NULL = "名称不能为空";
 	public static final String NAME_NOT_REPEAT = "名称不能重复";
 	public static final String OBJECT_NOT_FOUND = "该对象不存在";
-	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
+	public static final String LENGTH_ERROR_ID = "id长度不能超过37";
 	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
@@ -84,8 +84,8 @@ public class PhrasesConstant
 	public static final String PROJECT_NOTNULL_KPI = "必须选择KPI指标";
 	public static final String PROJECT_NOTNULL_KPI_VALUE = "必须填写KPI指标值";
 	
-	public static final String PROJECT_LENGTH_ERROR_ADVERTISERID = "广告主ID长度不能超过36";
-	public static final String PROJECT_LENGTH_ERROR_KPIID = "KPI指标ID长度不能超过36";
+	public static final String PROJECT_LENGTH_ERROR_ADVERTISERID = "广告主ID长度不能超过37";
+	public static final String PROJECT_LENGTH_ERROR_KPIID = "KPI指标ID长度不能超过37";
 	
 	public static final String CAMPAIGN_NOTNULL_PROJECTID = "项目ID不能为空";
 	public static final String CAMPAIGN_NOTNULL_TYPE = "活动类型不能为空";
@@ -99,7 +99,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NOTNULL_FREQUENCY_TIMETYPE = "活动频次控制时段类型不能为空";
 	public static final String CAMPAIGN_NOTNULL_FREQUENCY_NUMBER = "活动频次次数不能为空";
 	
-	public static final String CAMPAIGN_LENGTH_ERROR_PROJECTID = "项目ID长度不能超过36";
+	public static final String CAMPAIGN_LENGTH_ERROR_PROJECTID = "项目ID长度不能超过37";
 	
 	public static final String CREATIVE_NOTNULL_CAMPAIGNID = "活动ID不能为空";
 	public static final String CREATIVE_NOTNULL_TMPLID = "模板ID不能为空";
@@ -114,23 +114,23 @@ public class PhrasesConstant
 	public static final String CREATIVE_NOTNULL_INFO_PRICE = "信息流素材价格不能为空";
 	public static final String CREATIVE_NOTNULL_INFO_TMPLID = "信息流素材模版ID不能为空";
 	
-	public static final String CREATIVE_LENGTH_ERROR_CAMPAIGNID = "活动ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_IMAGE_ID = "图片素材ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_IMAGE_TMPLID = "图片素材模版ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_VIDEO_ID = "视频素材ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_VIDEO_TMPLID = "视频素材模版ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_VIDEO_IMAGEID = "视频素材图片ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_ID = "视频素材ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_CAMPAIGNID = "活动ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_IMAGE_ID = "图片素材ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_IMAGE_TMPLID = "图片素材模版ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_VIDEO_ID = "视频素材ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_VIDEO_TMPLID = "视频素材模版ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_VIDEO_IMAGEID = "视频素材图片ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_ID = "视频素材ID长度不能超过37";
 	public static final String CREATIVE_LENGTH_ERROR_INFO_TITLE = "信息流素材标题长度不能超过100";
 	public static final String CREATIVE_LENGTH_ERROR_INFO_DESCRIPTION = "信息流素材描述长度不能超过100";
 	public static final String CREATIVE_LENGTH_ERROR_INFO_CTADESCRIPTION = "信息流素材CTA描述长度不能超过100";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_ICONID = "信息流素材小图ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID1 = "信息流素材大图1 ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID2 = "信息流素材大图2 ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID3 = "信息流素材大图3 ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID4 = "信息流素材大图4 ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID5 = "信息流素材大图5 ID长度不能超过36";
-	public static final String CREATIVE_LENGTH_ERROR_INFO_TMPLID = "信息流素材模版ID长度不能超过36";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_ICONID = "信息流素材小图ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID1 = "信息流素材大图1 ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID2 = "信息流素材大图2 ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID3 = "信息流素材大图3 ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID4 = "信息流素材大图4 ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_IMAGEID5 = "信息流素材大图5 ID长度不能超过37";
+	public static final String CREATIVE_LENGTH_ERROR_INFO_TMPLID = "信息流素材模版ID长度不能超过37";
 	
 	
 	

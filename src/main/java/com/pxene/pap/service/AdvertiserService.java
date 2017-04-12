@@ -139,7 +139,8 @@ public class AdvertiserService extends BaseService
     	copyTempToFormal(bean);
     	// 将path替换成正式目录
         AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
-        model.setId(UUID.randomUUID().toString());
+        /*model.setId(UUID.randomUUID().toString());*/
+        model.setId(UUIDGenerator.getUUID());
         
         advertiserDao.insertSelective(model);
         
@@ -449,7 +450,7 @@ public class AdvertiserService extends BaseService
     {
     	// 图片绝对路径
     	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
-
+    	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
         // 获得图片上传至本地/远程文件服务器的物理绝对路径
         String path = upload(env, file);
         
@@ -475,7 +476,8 @@ public class AdvertiserService extends BaseService
     		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
     	}
     	// 图片绝对路径
-    	String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+    	/*String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
+    	String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
     	// 返回相对路径
     	return path.replace(UPLOAD_DIR, "");
     }
@@ -601,7 +603,8 @@ public class AdvertiserService extends BaseService
 //				long num =  (long) Math.floor((new Random()).nextDouble() * 1000000000D);
 //				String auditValue = String.valueOf(num);
 				aModel.setAuditValue("1");
-				aModel.setId(UUID.randomUUID().toString());
+				/*aModel.setId(UUID.randomUUID().toString());*/
+				aModel.setId(UUIDGenerator.getUUID());
 				aModel.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
 				advertiserAuditDao.insertSelective(aModel);
 			}
@@ -657,11 +660,13 @@ public class AdvertiserService extends BaseService
     {
         if ("local".equalsIgnoreCase(UPLOAD_MODE))
         {
-            return FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+            /*return FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
+        	return FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
         }
         else
         {
-            return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
+            /*return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
+        	return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
         }
     }
     

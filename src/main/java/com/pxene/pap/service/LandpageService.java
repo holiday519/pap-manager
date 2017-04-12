@@ -92,7 +92,8 @@ public class LandpageService extends BaseService {
     	}
 		
 		LandpageModel landpage = modelMapper.map(bean, LandpageModel.class);
-		String id = UUID.randomUUID().toString();
+		/*String id = UUID.randomUUID().toString();*/
+		String id = UUIDGenerator.getUUID();
 		landpage.setId(id);
 		landpage.setStatus(StatusConstant.LANDPAGE_CHECK_NOTCHECK);
 		landpageDao.insertSelective(landpage);

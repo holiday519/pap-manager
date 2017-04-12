@@ -8,7 +8,7 @@ public class BaseService {
 	protected static ModelMapper modelMapper = new ModelMapper();
 	
 	static {
-		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);		
 	}
 	
 }

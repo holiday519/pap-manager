@@ -14,7 +14,7 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 创意id
 	 */
-	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
+	@Length(max = 37, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 
 	private String name;
@@ -27,7 +27,7 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 活动id
 	 */
-	@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
+	@Length(max = 37, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
 	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_CAMPAIGNID)
 	private String campaignId;
 	/**
@@ -42,7 +42,7 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 模版ID
 	 */
-	@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
+	@Length(max = 37, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
 	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_TMPLID)
 	private String tmplId;
 	

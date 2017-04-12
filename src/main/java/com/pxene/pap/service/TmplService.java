@@ -80,13 +80,15 @@ public class TmplService extends BaseService {
 		// 如果id为null，则添加一个UUID
 		String id = bean.getId();
 		if (StringUtils.isEmpty(id)) {
-			id = UUID.randomUUID().toString();
+			/*id = UUID.randomUUID().toString();*/
+			id = UUIDGenerator.getUUID();
 		}
 //		// 如果图片类型ID 不为NULL，添加关联关系
 //		String imageTypeId = bean.getImageTypeId();
 //		if (!StringUtils.isEmpty(imageTypeId)) {
 //			ImageTmplTypeModel ittModel = new ImageTmplTypeModel();
 //			ittModel.setId(UUID.randomUUID().toString());
+//			ittModel.setId(UUIDGenerator.getUUID());
 //			ittModel.setImageTmplId(id);
 //			ittModel.setImageTypeId(imageTypeId);
 //			imageTmplTypeDao.insertSelective(ittModel);

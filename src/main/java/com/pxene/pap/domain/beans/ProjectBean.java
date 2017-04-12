@@ -23,7 +23,7 @@ public class ProjectBean extends BasicDataBean {
 	 * 广告主id
 	 */
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_ADVERTISERID)
-	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_ADVERTISERID)
+	@Length(max = 37, message = PhrasesConstant.PROJECT_LENGTH_ERROR_ADVERTISERID)
 	private String advertiserId;
 	/**
 	 * 名称
@@ -55,7 +55,7 @@ public class ProjectBean extends BasicDataBean {
 	 * KPI指标id
 	 */
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI)
-	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
+	@Length(max = 37, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
 	private String kpiId;
 	/**
 	 * kpi指标名称

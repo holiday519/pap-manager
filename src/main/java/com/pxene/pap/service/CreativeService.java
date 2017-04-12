@@ -177,8 +177,10 @@ public class CreativeService extends BaseService {
 		// 图片
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
-			iBean.setId(UUID.randomUUID().toString());
-			String materialId = UUID.randomUUID().toString();
+			/*iBean.setId(UUID.randomUUID().toString());*/
+			iBean.setId(UUIDGenerator.getUUID());
+			/*String materialId = UUID.randomUUID().toString();*/
+			String materialId = UUIDGenerator.getUUID();
 			iBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(iBean, CreativeModel.class);
 			ImageMaterialModel imageMaterialModel = modelMapper.map(iBean, ImageMaterialModel.class);
@@ -188,8 +190,10 @@ public class CreativeService extends BaseService {
 		// 视频
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
-			vBean.setId(UUID.randomUUID().toString());
-			String materialId = UUID.randomUUID().toString();
+			/*vBean.setId(UUID.randomUUID().toString());*/
+			vBean.setId(UUIDGenerator.getUUID());
+			/*String materialId = UUID.randomUUID().toString();*/
+			String materialId = UUIDGenerator.getUUID();
 			vBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(vBean, CreativeModel.class);
 			VideoMaterialModel videoMaterialModel = modelMapper.map(vBean, VideoMaterialModel.class);
@@ -199,8 +203,10 @@ public class CreativeService extends BaseService {
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
-			ifBean.setId(UUID.randomUUID().toString());
-			String materialId = UUID.randomUUID().toString();
+			/*ifBean.setId(UUID.randomUUID().toString());*/
+			ifBean.setId(UUIDGenerator.getUUID());
+			/*String materialId = UUID.randomUUID().toString();*/
+			String materialId = UUIDGenerator.getUUID();
 			ifBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
 			InfoflowMaterialModel infoflowModel = modelMapper.map(ifBean, InfoflowMaterialModel.class);
@@ -507,7 +513,8 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public Map<String, String> uploadImage(ImageBean imageBean, MultipartFile file) throws Exception {
-		String id = UUID.randomUUID().toString();
+		/*String id = UUID.randomUUID().toString();*/
+		String id = UUIDGenerator.getUUID();
 		String dir = uploadDir + "creative/image/";
 		
 		// String path = FileUtils.uploadFileToLocal(dir, id, file);//上传
@@ -563,7 +570,8 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public Map<String, String> uploadVideo(VideoBean videoBean, MultipartFile file) throws Exception {
-		String id = UUID.randomUUID().toString();
+		/*String id = UUID.randomUUID().toString();*/
+		String id = UUIDGenerator.getUUID();
 		String dir = uploadDir + "creative/video/";
 		
 		// String path = FileUtils.uploadFileToLocal(dir, id, file);//上传
@@ -636,7 +644,8 @@ public class CreativeService extends BaseService {
 		for (AdxModel adx : adxs) {
 			CreativeAuditModel model = new CreativeAuditModel();
 			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-			model.setId(UUID.randomUUID().toString());
+			/*model.setId(UUID.randomUUID().toString());*/
+			model.setId(UUIDGenerator.getUUID());
 			model.setAuditValue("1");
 			model.setCreativeId(id);
 			model.setAdxId(adx.getId());
@@ -665,7 +674,8 @@ public class CreativeService extends BaseService {
 			if (list == null || list.isEmpty()) {
 				CreativeAuditModel model = new CreativeAuditModel();
 				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				model.setId(UUID.randomUUID().toString());
+				/*model.setId(UUID.randomUUID().toString());*/
+				model.setId(UUIDGenerator.getUUID());
 				model.setAuditValue("1");
 				model.setCreativeId(id);
 				model.setAdxId(adx.getId());

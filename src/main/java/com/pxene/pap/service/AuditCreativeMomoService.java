@@ -223,7 +223,8 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 			} else {
 				CreativeAuditModel mod = new CreativeAuditModel();
 				mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-				mod.setId(UUID.randomUUID().toString());
+				/*mod.setId(UUID.randomUUID().toString());*/
+				mod.setId(UUIDGenerator.getUUID());
 				mod.setExpiryDate(new DateTime(now).plusDays(120).toDate());
 				mod.setCreativeId(creativeId);
 				mod.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);

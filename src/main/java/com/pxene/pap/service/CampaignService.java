@@ -201,7 +201,8 @@ public class CampaignService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
 		
-		String id = UUID.randomUUID().toString();
+		//String id = UUID.randomUUID().toString(); 
+		String id = UUIDGenerator.getUUID();
 		bean.setId(id);
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
 		
@@ -295,15 +296,17 @@ public class CampaignService extends BaseService {
 				frequencyDao.deleteByPrimaryKey(frequencyId);
 			}
 		} else {
-			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，添加
-				String fId = UUID.randomUUID().toString();
+			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，添加  
+				//String fId = UUID.randomUUID().toString();
+				String fId =UUIDGenerator.getUUID();
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 				frequencyDao.insertSelective(frequencyModel);
 				campaign.setFrequencyId(fId);
 			} else { // 活动以前存在频次，删除再添加
 				frequencyDao.deleteByPrimaryKey(frequencyId);
-				String fId = UUID.randomUUID().toString();
+				//String fId = UUID.randomUUID().toString();
+				String fId =UUIDGenerator.getUUID();
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 				frequencyDao.insertSelective(frequencyModel);
@@ -476,7 +479,8 @@ public class CampaignService extends BaseService {
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region = new RegionTargetModel();
 			for (String regionId : regionTarget) {
-				region.setId(UUID.randomUUID().toString());
+				//region.setId(UUID.randomUUID().toString());
+				region.setId(UUIDGenerator.getUUID());
 				region.setCampaignId(id);
 				region.setRegionId(regionId);
 				regionTargetDao.insertSelective(region);
@@ -485,7 +489,8 @@ public class CampaignService extends BaseService {
 		if (adTypeTarget != null && adTypeTarget.length > 0) {
 			AdTypeTargetModel adType = new AdTypeTargetModel();
 			for (String adTypeId : adTypeTarget) {
-				adType.setId(UUID.randomUUID().toString());
+				//adType.setId(UUID.randomUUID().toString());
+				adType.setId(UUIDGenerator.getUUID());
 				adType.setCampaignId(id);
 				adType.setAdType(adTypeId);
 				adtypeTargetDao.insertSelective(adType);
@@ -494,7 +499,8 @@ public class CampaignService extends BaseService {
 		if (timeTarget != null && timeTarget.length > 0) {
 			TimeTargetModel time = new TimeTargetModel();
 			for (String timeId : timeTarget) {
-				time.setId(UUID.randomUUID().toString());
+				//time.setId(UUID.randomUUID().toString());
+				time.setId(UUIDGenerator.getUUID());
 				time.setCampaignId(id);
 				time.setTime(timeId);
 				timeTargetDao.insertSelective(time);
@@ -503,7 +509,8 @@ public class CampaignService extends BaseService {
 		if (networkTarget != null && networkTarget.length > 0) {
 			NetworkTargetModel network = new NetworkTargetModel();
 			for (String networkid : networkTarget) {
-				network.setId(UUID.randomUUID().toString());
+				//network.setId(UUID.randomUUID().toString());
+				network.setId(UUIDGenerator.getUUID());
 				network.setCampaignId(id);
 				network.setNetwork(networkid);
 				networkTargetDao.insertSelective(network);
@@ -512,7 +519,8 @@ public class CampaignService extends BaseService {
 		if (operatorTarget != null && operatorTarget.length > 0) {
 			OperatorTargetModel operator = new OperatorTargetModel();
 			for (String operatorId : operatorTarget) {
-				operator.setId(UUID.randomUUID().toString());
+				//operator.setId(UUID.randomUUID().toString());
+				operator.setId(UUIDGenerator.getUUID());
 				operator.setCampaignId(id);
 				operator.setOperator(operatorId);
 				operatorTargetDao.insertSelective(operator);
@@ -521,7 +529,8 @@ public class CampaignService extends BaseService {
 		if (deviceTarget != null && deviceTarget.length > 0) {
 			DeviceTargetModel device = new DeviceTargetModel();
 			for (String deviceId : deviceTarget) {
-				device.setId(UUID.randomUUID().toString());
+				/*device.setId(UUID.randomUUID().toString());*/
+				device.setId(UUIDGenerator.getUUID());
 				device.setCampaignId(id);
 				device.setDevice(deviceId);
 				deviceTargetDao.insertSelective(device);
@@ -530,7 +539,8 @@ public class CampaignService extends BaseService {
 		if (osTarget != null && osTarget.length > 0) {
 			OsTargetModel os = new OsTargetModel();
 			for (String osId : osTarget) {
-				os.setId(UUID.randomUUID().toString());
+				/*os.setId(UUID.randomUUID().toString());*/
+				os.setId(UUIDGenerator.getUUID());
 				os.setCampaignId(id);
 				os.setOs(osId);
 				osTargetDao.insertSelective(os);
@@ -539,7 +549,8 @@ public class CampaignService extends BaseService {
 		if (brandTarget != null && brandTarget.length > 0) {
 			BrandTargetModel brand = new BrandTargetModel();
 			for (String brandId : brandTarget) {
-				brand.setId(UUID.randomUUID().toString());
+				/*brand.setId(UUID.randomUUID().toString());*/
+				brand.setId(UUIDGenerator.getUUID());
 				brand.setCampaignId(id);
 				brand.setBrandId(brandId);
 				brandTargetDao.insertSelective(brand);
@@ -548,7 +559,8 @@ public class CampaignService extends BaseService {
 		if (appTarget != null && appTarget.length > 0) {
 			AppTargetModel app = new AppTargetModel();
 			for (String appId : appTarget) {
-				app.setId(UUID.randomUUID().toString());
+				/*app.setId(UUID.randomUUID().toString());*/
+				app.setId(UUIDGenerator.getUUID());
 				app.setCampaignId(id);
 				app.setAppId(appId);
 				appTargetDao.insertSelective(app);
@@ -556,7 +568,8 @@ public class CampaignService extends BaseService {
 		}
 		if (!StringUtils.isEmpty(populationTarget)) {
 			PopulationTargetModel population = new PopulationTargetModel();
-			population.setId(UUID.randomUUID().toString());
+			/*population.setId(UUID.randomUUID().toString());*/
+			population.setId(UUIDGenerator.getUUID());
 			population.setCampaignId(id);
 			population.setPopulationId(populationTarget);
 			populationTargetDao.insertSelective(population);
@@ -621,7 +634,8 @@ public class CampaignService extends BaseService {
 		if (monitors != null && monitors.length > 0) {
 			String id = campaignBean.getId();
 			for (Monitor bean : monitors) {
-				String monitorId = UUID.randomUUID().toString();
+				/*String monitorId = UUID.randomUUID().toString();*/
+				String monitorId = UUIDGenerator.getUUID();
 				MonitorModel model = modelMapper.map(bean, MonitorModel.class);
 				model.setId(monitorId);
 				model.setCampaignId(id);
@@ -659,7 +673,8 @@ public class CampaignService extends BaseService {
 				}
 				QuantityModel model = modelMapper.map(bean, QuantityModel.class);
 				model.setCampaignId(id);
-				model.setId(UUID.randomUUID().toString());
+				/*model.setId(UUID.randomUUID().toString());*/
+				model.setId(UUIDGenerator.getUUID());
 				quantityDao.insertSelective(model);
 			}
 		}
@@ -685,7 +700,8 @@ public class CampaignService extends BaseService {
 				throw new IllegalArgumentException(PhrasesConstant.FREQUENCY_NOT_COMPLETE);
 			}
 			FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
-			String frequencyId = UUID.randomUUID().toString();
+			/*String frequencyId = UUID.randomUUID().toString();*/
+			String frequencyId = UUIDGenerator.getUUID();
 			frequencyModel.setId(frequencyId);
 			frequencyDao.insertSelective(frequencyModel);
 			return frequencyId;
@@ -1122,6 +1138,7 @@ public class CampaignService extends BaseService {
 		List<CampaignModel> campaigns = new ArrayList<CampaignModel>();
 		
 		return campaigns.size() > 0;
+		
 	}
 	 
 }

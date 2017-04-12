@@ -86,7 +86,8 @@ public class ProjectService extends BaseService {
 			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
 		ProjectModel project = modelMapper.map(bean, ProjectModel.class);
-		project.setId(UUID.randomUUID().toString());
+		/*project.setId(UUID.randomUUID().toString());*/
+		project.setId(UUIDGenerator.getUUID());
 		project.setStatus(StatusConstant.PROJECT_PROCEED);
 		projectDao.insertSelective(project);
 		
