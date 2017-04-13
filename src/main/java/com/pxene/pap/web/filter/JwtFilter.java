@@ -50,6 +50,13 @@ public class JwtFilter implements Filter
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
     {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        if ("OPTIONS".equalsIgnoreCase(httpServletRequest.getMethod()))
+        {
+            chain.doFilter(request, response);
+            return;
+        }
+        
         BaseException exception = null;
         
         HttpServletRequest httpRequest = (HttpServletRequest) request;
