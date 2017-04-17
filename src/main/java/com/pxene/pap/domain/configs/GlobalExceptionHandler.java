@@ -41,6 +41,7 @@ public class GlobalExceptionHandler
     {
         if (!(exception instanceof BaseException))
         {
+        	// bean中使用@Valid校验参数发生异常
             if (MethodArgumentNotValidException.class.isInstance(exception))
             {
             	LOGGER.warn("", exception);

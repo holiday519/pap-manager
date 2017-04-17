@@ -89,8 +89,6 @@ public class FileUtils
      */
     public static MediaBean checkFile(MultipartFile file)
     {
-//    	MediaBean result = null;
-    	
 		try
     	{
     		String name = file.getOriginalFilename();

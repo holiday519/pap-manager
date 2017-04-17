@@ -8,10 +8,8 @@ import java.util.UUID;
  *
  */
 public class UUIDGenerator {
-	 public UUIDGenerator() { }  	  
 	 public static String getUUID() {  
-		 UUID uuid = UUID.randomUUID();  
-		 String strUUID = uuid + "a".toString();  	      
-	     return strUUID;  
+		 String uuid = UUID.randomUUID().toString();  
+	     return uuid + "a";  
 	 }  
 }

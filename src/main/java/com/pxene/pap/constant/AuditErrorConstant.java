@@ -1,7 +1,6 @@
 package com.pxene.pap.constant;
 
 public class AuditErrorConstant {
-
 	public static final String MOMO_CREATIVE_NO_LOGO = "陌陌创意提交第三方审核执行失败！原因：信息流广告必须上传logo！";
 	public static final String MOMO_CREATIVE_TYPE_NOT_SUPPORT = "陌陌创意提交第三方审核执行失败！原因：创意类型不支持！";
 	public static final String MOMO_CREATIVE_AUDIT_ERROR_REASON = "陌陌创意提交第三方审核执行失败！原因：";

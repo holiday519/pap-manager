@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -623,12 +622,10 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void auditCreative(String id) throws Exception {
-/*		CreativeModelExample mapExample = new CreativeModelExample();
-		mapExample.createCriteria().andCampaignIdEqualTo(id);
-		List<CreativeModel> mapModels = creativeDao.selectByExample(mapExample);
-		if (mapModels==null || mapModels.isEmpty()) {
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		if (creative == null) {
 			throw new ResourceNotFoundException();
-		}*/
+		}
 		
 		//查询adx列表
 		AdxModelExample adxExample = new AdxModelExample();

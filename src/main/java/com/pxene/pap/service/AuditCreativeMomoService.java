@@ -1,4 +1,4 @@
-package com.pxene.pap.service;
+/*package com.pxene.pap.service;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -8,8 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -80,11 +78,12 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 	private static String image_url;
 	
 	public AuditCreativeMomoService(Environment env) {
-		/**
+		*//**
 		 * 获取图片上传路径
-		 */
+		 *//*
 		image_url = env.getProperty("pap.fileserver.url.prefix");
 	}
+	
 	@Transactional
 	public void audit(String creativeId) throws Exception {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
@@ -223,7 +222,7 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 			} else {
 				CreativeAuditModel mod = new CreativeAuditModel();
 				mod.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-				/*mod.setId(UUID.randomUUID().toString());*/
+				mod.setId(UUID.randomUUID().toString());
 				mod.setId(UUIDGenerator.getUUID());
 				mod.setExpiryDate(new DateTime(now).plusDays(120).toDate());
 				mod.setCreativeId(creativeId);
@@ -284,7 +283,7 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
         audit(creativeId);//直接调新建接口（再次提交，无论原来状态是什么，均变为“待审核”）
     }
 	
-	/** 连接到TOP服务器并获取数据 */
+	*//** 连接到TOP服务器并获取数据 *//*
 	public static String getResult(String urlStr, String content) throws Exception {
 		URL url = null;
 		HttpURLConnection connection = null;
@@ -323,11 +322,11 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 		}
 	}
 	
-	/**
+	*//**
 	 * 获取广告主对应的行业ID
 	 * @param industryId
 	 * @return
-	 */
+	 *//*
 	private String getIndustry(Integer industryId) throws Exception {
 		IndustryAdxModelExample example = new IndustryAdxModelExample();
 		example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE)
@@ -340,12 +339,12 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 		}
 		return code;
 	}
-	/**
+	*//**
 	 * 获取图片信息
 	 * @param imageId
 	 * @return
 	 * @throws Exception
-	 */
+	 *//*
 	public JsonObject getImageInfo(String imageId) throws Exception {
 		 ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
          JsonObject obj = new JsonObject();
@@ -357,3 +356,4 @@ public class AuditCreativeMomoService {//FIXME 能不能重新审核
 	}
 	
 }
+*/

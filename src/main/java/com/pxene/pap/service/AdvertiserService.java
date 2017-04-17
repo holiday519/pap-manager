@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -92,7 +91,6 @@ public class AdvertiserService extends BaseService
     private static final String TEMP_DIR = "temp/";
     
     private static final String FORMAL_DIR = "formal/";
-    
     
     @Autowired
     public AdvertiserService(Environment env)
@@ -247,8 +245,7 @@ public class AdvertiserService extends BaseService
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
-        if (advertiserInDB == null)
-        {
+        if (advertiserInDB == null) {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         } else {
         	String nameInDB = advertiserInDB.getName();
