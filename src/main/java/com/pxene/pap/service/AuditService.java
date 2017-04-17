@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -41,7 +42,10 @@ public abstract class AuditService {
 
 	public abstract void synchronizeCreative(String creativeId) throws Exception;
 	
-	public static AuditService newInstance(int adxId) {
+	public static AuditService newInstance(String adxId) {
+		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+			return new MomoAuditService();
+		}
 		return null;
 	}
 
