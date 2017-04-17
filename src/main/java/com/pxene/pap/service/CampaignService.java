@@ -766,7 +766,7 @@ public class CampaignService extends BaseService {
 		ex.createCriteria().andIdIn(asList);
 		
 		List<CampaignModel> campaignInDB = campaignDao.selectByExample(ex);
-		if (campaignInDB ==null || campaignInDB.isEmpty()) {
+		if (campaignInDB == null || campaignInDB.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		

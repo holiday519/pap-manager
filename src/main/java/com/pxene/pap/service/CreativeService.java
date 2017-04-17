@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
-import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -28,7 +27,6 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.ScpUtils;
-import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -85,14 +83,9 @@ public class CreativeService extends BaseService {
 	
 	private static ScpUtils scpUtils;
 	
-	private Environment env;
-	
-	
 	@Autowired
 	public CreativeService(Environment env)
 	{
-	    this.env = env;
-        
         uploadMode = env.getProperty("pap.fileserver.mode", "local");
         
         if ("local".equals(uploadMode))
