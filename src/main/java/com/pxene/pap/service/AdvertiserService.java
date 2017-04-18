@@ -560,54 +560,18 @@ public class AdvertiserService extends BaseService
      */
     @Transactional
 	public void auditAdvertiser(String id) throws Exception {
-		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
-		if (advertiserModel == null) {
-			throw new ResourceNotFoundException();
+		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
+		if (advertiser == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		//将属性复制到bean中
-		AdvertiserBean advertiserBean = new AdvertiserBean();
-		BeanUtils.copyProperties(advertiserModel, advertiserBean);
 		//查询adx列表
 		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		//广告主审核
-//		for (AdxModel adx : adxs) {
-//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {//百度
-//				//查询是否已经提交过审核
-//				AdvertiserAuditModelExample ex = new AdvertiserAuditModelExample();
-//				ex.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
-//				List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(ex);
-//				if (list == null || list.isEmpty()) {
-//					//百度广告主第一次审核
-//					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "add");
-//				} else {
-//					//百度广告主重新审核
-//					auditAdvertiserBaiduService.auditAndEdit(advertiserBean, "edit");
-//				}
-//			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
-//				
-//			}
-//		}
-		for (AdxModel adx : adxs) {
-			//直接审核通过（现仅百度）
-			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
-			example.createCriteria().andAdvertiserIdEqualTo(id);
-			List<AdvertiserAuditModel> auditModel = advertiserAuditDao.selectByExample(example);
-			if (auditModel == null || auditModel.isEmpty()) {
-				AdvertiserAuditModel aModel = new AdvertiserAuditModel();
-				aModel.setAdvertiserId(id);
-				aModel.setAdxId(adx.getId());
-//				long num =  (long) Math.floor((new Random()).nextDouble() * 1000000000D);
-//				String auditValue = String.valueOf(num);
-				aModel.setAuditValue("1");
-				/*aModel.setId(UUID.randomUUID().toString());*/
-				aModel.setId(UUIDGenerator.getUUID());
-				aModel.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
-				advertiserAuditDao.insertSelective(aModel);
-			}
+		for (AdxModel adx : adxes) {
+			AuditService service = AuditService.newInstance(adx.getId());
+			service.auditAdvertiser(id);
 		}
-		
-
 	}
     
     /**
@@ -617,33 +581,17 @@ public class AdvertiserService extends BaseService
      */
     @Transactional
 	public void synchronizeAdvertiser(String id) throws Exception {
-		AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(id);
-		if (advertiserModel == null) {
-			throw new ResourceNotFoundException();
+		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
+		if (advertiser == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		//查询adx列表
 		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		//同步结果
-		for (AdxModel adx : adxs) {
-//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adx.getId())) {
-//				//百度
-//				auditAdvertiserBaiduService.synchronize(id);
-//			}else if (AdxKeyConstant.ADX_TANX_VALUE.equals(adx.getId())) {
-//				
-//			}
-			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
-			example.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(adx.getId());
-			List<AdvertiserAuditModel> list = advertiserAuditDao.selectByExample(example);
-/*			if (list == null || list.isEmpty()) {
-				throw new ResourceNotFoundException();
-			}*/
-			if (list != null) {
-				for (AdvertiserAuditModel model : list) {
-					model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-					advertiserAuditDao.updateByExampleSelective(model, example);
-				}
-			}
+		for (AdxModel adx : adxes) {
+			AuditService service = AuditService.newInstance(adx.getId());
+			service.synchronizeAdvertiser(id);
 		}
 	}
 

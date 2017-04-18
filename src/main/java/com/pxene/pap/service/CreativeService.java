@@ -494,13 +494,15 @@ public class CreativeService extends BaseService {
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		// 审核创意
 		for (Map<String, String> adx : adxes) {
-			CreativeAuditModel model = new CreativeAuditModel();
-			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-			model.setId(UUIDGenerator.getUUID());
-			model.setAuditValue("1");
-			model.setCreativeId(id);
-			model.setAdxId(adx.get("adxId"));
-			creativeAuditDao.insertSelective(model);
+			AuditService service = AuditService.newInstance(adx.get("adxId"));
+			service.auditCreative(id);
+//			CreativeAuditModel model = new CreativeAuditModel();
+//			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+//			model.setId(UUIDGenerator.getUUID());
+//			model.setAuditValue("1");
+//			model.setCreativeId(id);
+//			model.setAdxId(adx.get("adxId"));
+//			creativeAuditDao.insertSelective(model);
 		}
 	}
 
@@ -524,9 +526,11 @@ public class CreativeService extends BaseService {
 			if (audits == null || audits.isEmpty()) {
 				throw new ThirdPartyAuditException();
 			} else {
-				CreativeAuditModel audit = audits.get(0);
-				audit.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				creativeAuditDao.updateByPrimaryKeySelective(audit);
+//				CreativeAuditModel audit = audits.get(0);
+//				audit.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+//				creativeAuditDao.updateByPrimaryKeySelective(audit);
+				AuditService service = AuditService.newInstance(adx.get("adxId"));
+				service.synchronizeCreative(id);
 			}
 		}
 	}

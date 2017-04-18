@@ -15,7 +15,6 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserModel;
-import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.ImageModel;
@@ -30,13 +29,13 @@ public class MomoAuditService extends AuditService {
 
 	@Override
 	@Transactional
-	public void auditAdvertiser() {
+	public void auditAdvertiser(String advertiserId) throws Exception {
 		
 	}
 
 	@Override
 	@Transactional
-	public void synchronizeAdvertiser() {
+	public void synchronizeAdvertiser(String advertiserId) throws Exception {
 		
 	}
 

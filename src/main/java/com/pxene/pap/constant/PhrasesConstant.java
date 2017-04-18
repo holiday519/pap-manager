@@ -11,6 +11,7 @@ public class PhrasesConstant
 	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
+	public static final String ADX_NOT_FOUND = "ADX不存在";
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目
@@ -23,8 +24,8 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放";
 	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放";
 	public static final String WBLIST_FILE_NOT_FOUND = "找不到人群定向文件";
-	public static final String CAMPAIGN_BEGIN = "活动已开始，创意不能删除。";
-	
+	public static final String CAMPAIGN_BEGIN = "活动已开始，创意不能删除";
+	// 创意
 	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
