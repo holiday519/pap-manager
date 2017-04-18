@@ -303,7 +303,6 @@ public class LaunchService extends BaseService {
 			// 如果当期时间在定向内
 			if (campaignService.isOnTargetTime(campaignId)) {
 				writeCampaignId(campaignId);
-				System.out.println("lzl789");
 			} else {
 				removeCampaignId(campaignId);
 			}			
@@ -1014,7 +1013,7 @@ public class LaunchService extends BaseService {
 				creativeIdJsons.add(creativeId);
 			}
 		}
-		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出（层次太深）
+		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出
 		resultJson.add("mapids", creativeIdJsons);
 		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
 	}
@@ -1172,6 +1171,12 @@ public class LaunchService extends BaseService {
 		}
 	}
 	
+	/**
+	 * 判断活动是不是第一次投放
+	 * @param campaignId 活动id
+	 * @return
+	 * @throws Exception
+	 */
 	public Boolean isFirstLaunch(String campaignId) throws Exception {
 		return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}

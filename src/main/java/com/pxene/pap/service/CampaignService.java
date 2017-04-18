@@ -1133,6 +1133,12 @@ public class CampaignService extends BaseService {
 		return targets.size() > 0;
 	}
 	
+	/**
+	 * 判断当前活动是否在投放的日期内
+	 * @param campaignId 活动id
+	 * @return
+	 * @throws Exception
+	 */
 	public Boolean isOnLaunchDate(String campaignId) throws Exception {
 		Date current = new Date();
 		CampaignModelExample campaignExample = new CampaignModelExample();
