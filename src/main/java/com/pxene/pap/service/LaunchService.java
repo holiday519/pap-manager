@@ -274,7 +274,7 @@ public class LaunchService extends BaseService {
 			for (ProjectModel project : projects) {
 				projectIds.add(project.getId());
 			}
-			// 找出今天开始投放的活动
+			// 找出今天开始投放的活动，将投放的基本信息写入redis中
 			campaignExample.clear();
 			campaignExample.createCriteria().andProjectIdIn(projectIds).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED).andStartDateEqualTo(start);
 			List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExample);
@@ -282,6 +282,7 @@ public class LaunchService extends BaseService {
 				write4StartDate(campaign);
 			}
 			
+			// 找出今天结束投放的活动，将基本信息和活动id等信息从redis中删除
 			campaignExample.clear();
 			campaignExample.createCriteria().andEndDateEqualTo(end);
 			List<CampaignModel> delCampaigns = campaignDao.selectByExample(campaignExample);
@@ -302,9 +303,10 @@ public class LaunchService extends BaseService {
 			// 如果当期时间在定向内
 			if (campaignService.isOnTargetTime(campaignId)) {
 				writeCampaignId(campaignId);
+				System.out.println("lzl789");
 			} else {
 				removeCampaignId(campaignId);
-			}
+			}			
 		}
 		
 	}
@@ -641,7 +643,6 @@ public class LaunchService extends BaseService {
 	            creativeObj.addProperty("description", GlobalUtil.parseString(model.getDescription(), ""));
 	            creativeObj.addProperty("rating", GlobalUtil.parseString(model.getAppStar(), ""));
 	            creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtaDescription(), ""));
-	            
 				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 			}
 		}
@@ -1013,7 +1014,8 @@ public class LaunchService extends BaseService {
 				creativeIdJsons.add(creativeId);
 			}
 		}
-		resultJson.add("mapids", resultJson);
+		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出（层次太深）
+		resultJson.add("mapids", creativeIdJsons);
 		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
 	}
 	
@@ -1081,7 +1083,8 @@ public class LaunchService extends BaseService {
 	public void removeCampaignBudget(String campaignId) throws Exception {
 		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		if (JedisUtils.exists(key)) {
-			JedisUtils.delete(key);
+			//JedisUtils.delete(key);
+			JedisUtils.hdelete(key);
 		}
 	}
 	

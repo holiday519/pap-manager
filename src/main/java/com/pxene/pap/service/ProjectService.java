@@ -357,12 +357,13 @@ public class ProjectService extends BaseService {
     }
     
 	/**
-	 * 按照项目投放
+	 * 按照项目投放（项目状态开启）
 	 * @param projectIds
 	 * @throws Exception
 	 */
 	@Transactional
 	public void proceedProject(ProjectModel project) throws Exception {
+		//查询改项目下活动状态为开启状态的活动信息
 		String projectId = project.getId();
 		CampaignModelExample example = new CampaignModelExample();
 		example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
@@ -372,13 +373,20 @@ public class ProjectService extends BaseService {
 				String campaignId = campaign.getId();
 				if (StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus()) 
 						&& campaignService.isOnLaunchDate(campaignId)) {
-					if (launchService.isFirstLaunch(campaignId)) {
+					//如果活动状态为开启，并且在活动的投放时间里
+					/*if (launchService.isFirstLaunch(campaignId)) {*/
+					if (!launchService.isFirstLaunch(campaignId)) {
+						//如果campaignId不在redis中说明是第一次投放改活动，则将投放的基本信息写入到redis中
 						launchService.write4FirstTime(campaign);
 					}
+					if (campaignService.isOnTargetTime(campaignId)) {
+						//如果在定向的时间里，将campaignId写入到redis的投放groups中
+						launchService.writeCampaignId(campaignId);
+					}
 				}
-				if (campaignService.isOnTargetTime(campaignId)) {
+				/*if (campaignService.isOnTargetTime(campaignId)) {
 					launchService.writeCampaignId(campaignId);
-				}
+				}*/
 			}
 		}
 		//项目投放之后修改状态
@@ -393,10 +401,12 @@ public class ProjectService extends BaseService {
 	 */
 	@Transactional
 	public void pauseProject(ProjectModel project) throws Exception {
+		//查询改项目下活动状态为开启状态的活动信息
 		String projectId = project.getId();
 		CampaignModelExample example = new CampaignModelExample();
 		example.createCriteria().andProjectIdEqualTo(projectId).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
 		List<CampaignModel> campaigns = campaignDao.selectByExample(example);
+		//从redis的groups中删除该项目下所有活动状态为开启的活动id
 		if (campaigns != null && !campaigns.isEmpty()) {
 			for (CampaignModel campaign : campaigns) {
 				launchService.removeCampaignId(campaign.getId());

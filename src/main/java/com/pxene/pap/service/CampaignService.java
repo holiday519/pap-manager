@@ -1083,14 +1083,18 @@ public class CampaignService extends BaseService {
 		// 投放
 		String projectId = campaign.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
-			if (launchService.isFirstLaunch(campaignId)) {
+		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {	
+			/*if (launchService.isFirstLaunch(campaignId)) {*/
+			if (!launchService.isFirstLaunch(campaignId)) {
 				launchService.write4FirstTime(campaign);
 			}
+			if (isOnTargetTime(campaignId)) {
+				launchService.writeCampaignId(campaignId);
+			}
 		}
-		if (isOnTargetTime(campaignId)) {
+		/*if (isOnTargetTime(campaignId)) {
 			launchService.writeCampaignId(campaignId);
-		}
+		}*/
 		//改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaign);
 	}
@@ -1135,10 +1139,8 @@ public class CampaignService extends BaseService {
 		campaignExample.createCriteria().andStartDateLessThanOrEqualTo(current)
 			.andEndDateGreaterThanOrEqualTo(current)
 			.andIdEqualTo(campaignId);
-		List<CampaignModel> campaigns = new ArrayList<CampaignModel>();
-		
-		return campaigns.size() > 0;
-		
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+		return campaigns.size() > 0;				
 	}
 	 
 }
