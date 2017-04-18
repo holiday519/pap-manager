@@ -457,6 +457,10 @@ public class CampaignService extends BaseService {
 		deleteCampaignTarget(id);
 		//添加定向
 		addCampaignTarget(bean);
+		//修改定向时更新redis中活动定向信息
+		if (launchService.isFirstLaunch(id)) {
+			launchService.writeCampaignTarget(id);
+		}				
 	}
 	
 	/**
