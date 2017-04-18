@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.ScpUtils;
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;

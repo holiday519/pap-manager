@@ -18,9 +18,9 @@ import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
-public abstract class AuditService {
+public abstract class AuditService extends BaseService {
 	
-	private static Map<String, AuditService> cache = new HashMap<String, AuditService>();
+	private static final Map<String, AuditService> CACHE = new HashMap<String, AuditService>();
 	@Autowired
 	protected AdxDao adxDao;
 	@Autowired
@@ -49,12 +49,12 @@ public abstract class AuditService {
 	public abstract void synchronizeCreative(String creativeId) throws Exception;
 	
 	public static AuditService newInstance(String adxId) {
-		if (cache.containsKey(adxId)) {
-			return cache.get(adxId);
+		if (CACHE.containsKey(adxId)) {
+			return CACHE.get(adxId);
 		}
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 			MomoAuditService service = new MomoAuditService();
-			cache.put(adxId, service);
+			CACHE.put(adxId, service);
 			return service;
 		}
 		throw new IllegalArgumentException(PhrasesConstant.ADX_NOT_FOUND);

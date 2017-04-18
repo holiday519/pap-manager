@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 import com.google.gson.JsonArray;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;

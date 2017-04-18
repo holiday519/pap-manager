@@ -23,6 +23,7 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.ScpUtils;
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;

@@ -11,6 +11,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ImageTmplBean;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;

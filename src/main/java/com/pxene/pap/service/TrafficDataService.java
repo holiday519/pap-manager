@@ -13,7 +13,7 @@ import com.pxene.pap.exception.IllegalArgumentException;
 
 
 @Service
-public class TrafficDataService
+public class TrafficDataService extends BaseService
 {
     private static final String SCOPE_ADVERTISER = "advertiser";
     private static final String SCOPE_PROJECT = "project";

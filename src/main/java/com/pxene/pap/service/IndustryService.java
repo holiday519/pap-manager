@@ -13,7 +13,7 @@ import com.pxene.pap.domain.models.IndustryModelExample;
 import com.pxene.pap.repository.basic.IndustryDao;
 
 @Service
-public class IndustryService {
+public class IndustryService extends BaseService {
 
 	@Autowired
 	private IndustryDao industryDao;

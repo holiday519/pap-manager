@@ -1,4 +1,4 @@
-package com.pxene.pap.service;
+package com.pxene.pap.common;
 
 import java.util.UUID;
 
