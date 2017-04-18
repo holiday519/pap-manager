@@ -375,8 +375,7 @@ public class ProjectService extends BaseService {
 				if (StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus()) 
 						&& campaignService.isOnLaunchDate(campaignId)) {
 					//如果活动状态为开启，并且在活动的投放时间里
-					/*if (launchService.isFirstLaunch(campaignId)) {*/
-					if (!launchService.isFirstLaunch(campaignId)) {
+					if (launchService.isFirstLaunch(campaignId)) {
 						//如果campaignId不在redis中说明是第一次投放改活动，则将投放的基本信息写入到redis中
 						launchService.write4FirstTime(campaign);
 					}

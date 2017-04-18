@@ -1178,6 +1178,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public Boolean isFirstLaunch(String campaignId) throws Exception {
-		return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		/*return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);*/
+		return !JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}
 }

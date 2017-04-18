@@ -461,7 +461,19 @@ public class CampaignService extends BaseService {
 		//修改定向时更新redis中活动定向信息
 		if (launchService.isFirstLaunch(id)) {
 			launchService.writeCampaignTarget(id);
-		}				
+		}
+		//编辑定向时间可添加、删除redis中的对应的groupids
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
+		String projectId = campaignModel.getProjectId();
+		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
+				isOnLaunchDate(id) && isOnTargetTime(id)) {
+			//在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
+			launchService.writeCampaignId(id);
+		}else{
+			//否则将活动ID移除redis
+			launchService.removeCampaignId(id);
+		}
 	}
 	
 	/**
@@ -1089,8 +1101,7 @@ public class CampaignService extends BaseService {
 		String projectId = campaign.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {	
-			/*if (launchService.isFirstLaunch(campaignId)) {*/
-			if (!launchService.isFirstLaunch(campaignId)) {
+			if (launchService.isFirstLaunch(campaignId)) {
 				launchService.write4FirstTime(campaign);
 			}
 			if (isOnTargetTime(campaignId)) {
