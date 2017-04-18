@@ -23,6 +23,8 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放";
 	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放";
 	public static final String WBLIST_FILE_NOT_FOUND = "找不到人群定向文件";
+	public static final String CAMPAIGN_BEGIN = "活动已开始，创意不能删除。";
+	
 	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
@@ -43,7 +45,7 @@ public class PhrasesConstant
 //	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放。";
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
-	public static final String CAMPAIGN_START = "活动已投放，创意不能删除。";
+//	public static final String CAMPAIGN_START = "活动已投放，创意不能删除。";
 //	public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
 //	public static final String CAMPAIGN_DATE_ERROR = "活动周期错误，操作失败！";
 //	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";

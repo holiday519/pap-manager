@@ -648,7 +648,7 @@ public class LaunchService extends BaseService {
 	}
 	
 	
-	private List<Map<String, String>> getAdxByCreative(CreativeModel creative) throws Exception {
+	public List<Map<String, String>> getAdxByCreative(CreativeModel creative) throws Exception {
 		List<Map<String, String>> results = new ArrayList<Map<String, String>>();
 		String campaignId = creative.getCampaignId();
 		String creativeId = creative.getId();

@@ -1,7 +1,5 @@
 package com.pxene.pap.service;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +14,6 @@ import javax.transaction.Transactional;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -38,13 +35,10 @@ import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
-import com.pxene.pap.domain.models.AdxModel;
-import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
-import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
@@ -56,9 +50,10 @@ import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.VideoMaterialModel;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
-import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.exception.ThirdPartyAuditException;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
@@ -153,6 +148,12 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private InfoflowMaterialDao infoMaterialDao;
 	
+	@Autowired
+	private CampaignService campaignService;
+	
+	@Autowired
+	private LaunchService launchService;
+	
 	/**
 	 * 创建创意
 	 * @param bean
@@ -163,15 +164,10 @@ public class CreativeService extends BaseService {
 	public void createCreative(CreativeBean bean) throws Exception {
 		String type = bean.getType();
 		CreativeModel creativeModel = null;
-		
-		// 创建创意的时候，要根据模板判断上传的创意是否符合模板要求，不符合要抛出异常
-		
 		// 图片
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
-			/*iBean.setId(UUID.randomUUID().toString());*/
 			iBean.setId(UUIDGenerator.getUUID());
-			/*String materialId = UUID.randomUUID().toString();*/
 			String materialId = UUIDGenerator.getUUID();
 			iBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(iBean, CreativeModel.class);
@@ -182,9 +178,7 @@ public class CreativeService extends BaseService {
 		// 视频
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
-			/*vBean.setId(UUID.randomUUID().toString());*/
 			vBean.setId(UUIDGenerator.getUUID());
-			/*String materialId = UUID.randomUUID().toString();*/
 			String materialId = UUIDGenerator.getUUID();
 			vBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(vBean, CreativeModel.class);
@@ -195,9 +189,7 @@ public class CreativeService extends BaseService {
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
-			/*ifBean.setId(UUID.randomUUID().toString());*/
 			ifBean.setId(UUIDGenerator.getUUID());
-			/*String materialId = UUID.randomUUID().toString();*/
 			String materialId = UUIDGenerator.getUUID();
 			ifBean.setMaterialId(materialId);
 			creativeModel = modelMapper.map(ifBean, CreativeModel.class);
@@ -209,54 +201,41 @@ public class CreativeService extends BaseService {
 		creativeDao.insertSelective(creativeModel);
 	}
 	
-	/**
-	 * 删除图片服务器上的图片素材
-	 * @param id
-	 * @throws Exception
-	 */
-	@Transactional
-	public void deleteImageMaterialById(String id) throws Exception{
-		if (!StringUtils.isEmpty(id)) {
-			ImageModel imageModel = imageDao.selectByPrimaryKey(id);
-			if (imageModel != null) {
-				String path = uploadDir + imageModel.getPath();
-				
-				// 删除图片服务器上的素材
-				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
-				doDeleteFile(path);
-			}
-		}
-	}
-	/**
-	 * 删除图片服务器上的视频素材
-	 * @param id
-	 * @throws Exception
-	 */
-	@Transactional
-	public void deleteVideoMaterialById(String id) throws Exception{
-		if (!StringUtils.isEmpty(id)) {
-			VideoModel videoModel = videoDao.selectByPrimaryKey(id);
-			if (videoModel != null) {
-				String path = uploadDir + videoModel.getPath();
-				
-				// 删除图片服务器上的素材
-				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
-				doDeleteFile(path);
-			}
-		}
-	}
-	
-	/**
-	 *  删除创意——素材关联关系
-	 * @param creativeId
-	 * @param mapId
-	 * @throws Exception
-	 */
+//	/**
+//	 * 删除图片服务器上的图片素材
+//	 * @param id
+//	 * @throws Exception
+//	 */
 //	@Transactional
-//	public void  deleteCreativeMaterial(String creativeId, String mapId) throws Exception {
-//		CreativeMaterialModelExample example = new CreativeMaterialModelExample();
-//		example.createCriteria().andCreativeIdEqualTo(creativeId).andMaterialIdEqualTo(mapId);
-//		creativeMaterialDao.deleteByExample(example);
+//	public void deleteImageMaterialById(String id) throws Exception{
+//		if (!StringUtils.isEmpty(id)) {
+//			ImageModel imageModel = imageDao.selectByPrimaryKey(id);
+//			if (imageModel != null) {
+//				String path = uploadDir + imageModel.getPath();
+//				
+//				// 删除图片服务器上的素材
+//				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+//				doDeleteFile(path);
+//			}
+//		}
+//	}
+//	/**
+//	 * 删除图片服务器上的视频素材
+//	 * @param id
+//	 * @throws Exception
+//	 */
+//	@Transactional
+//	public void deleteVideoMaterialById(String id) throws Exception{
+//		if (!StringUtils.isEmpty(id)) {
+//			VideoModel videoModel = videoDao.selectByPrimaryKey(id);
+//			if (videoModel != null) {
+//				String path = uploadDir + videoModel.getPath();
+//				
+//				// 删除图片服务器上的素材
+//				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+//				doDeleteFile(path);
+//			}
+//		}
 //	}
 	
 	/**
@@ -267,60 +246,14 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public void deleteCreative(String creativeId) throws Exception {
 		CreativeModel creativeInDB = creativeDao.selectByPrimaryKey(creativeId);
-		if (creativeInDB == null || StringUtils.isEmpty(creativeInDB.getId())) {
-			throw new ResourceNotFoundException();
+		if (creativeInDB == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		
 		String campaignId = creativeInDB.getCampaignId();
-		if (!StringUtils.isEmpty(campaignId)) {
-			//只有活动是等待中时才可删除创意
-			CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-			if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
-				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_START);
-			}
+		if (campaignService.isOnLaunchDate(campaignId)) {
+			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_BEGIN);
 		}
 		
-		//删除素材以及删除图片服务器上文件逻辑（暂无需执行）
-//		List<CreativeMaterialModel> cmList = creativeMaterialDao.selectByExample(cmExample);
-//		if (cmList != null && !cmList.isEmpty()) {
-//			// 删除各个素材
-//			for (CreativeMaterialModel cm : cmList) {
-//				String cmId = cm.getMaterialId();//素材ID
-//				String creativeType = cm.getCreativeType();//素材类型
-//				
-//				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {//图片
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(cmId);
-//					if (imageModel != null) {
-//						deleteImageMaterialById(imageModel.getId());
-//					}
-//					imageDao.deleteByPrimaryKey(cmId);
-//				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {//视频
-//					VideoModel videoModel = videoDao.selectByPrimaryKey(cmId);
-//					if (videoModel != null) {
-//						deleteVideoMaterialById(videoModel.getId());
-//					}
-//					videoDao.deleteByPrimaryKey(cmId);
-//				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {//信息流
-//					InfoflowModel infoModel = infoflowDao.selectByPrimaryKey(cmId);
-//					if (infoModel != null) {
-//						String icon = infoModel.getIconId();
-//						String image1 = infoModel.getImage1Id();
-//						String image2 = infoModel.getImage1Id();
-//						String image3 = infoModel.getImage1Id();
-//						String image4 = infoModel.getImage1Id();
-//						String image5 = infoModel.getImage1Id();
-//						deleteImageMaterialById(icon);
-//						deleteImageMaterialById(image1);
-//						deleteImageMaterialById(image2);
-//						deleteImageMaterialById(image3);
-//						deleteImageMaterialById(image4);
-//						deleteImageMaterialById(image5);
-//					}
-//					//删除信息流素材表数据
-//					infoflowDao.deleteByPrimaryKey(cmId);
-//				}
-//			}
-//		}
 		// 删除创意数据
 		creativeDao.deleteByPrimaryKey(creativeId);
 	}
@@ -332,32 +265,21 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void deleteCreatives(String[] creativeIds) throws Exception {
-		
-		List<String> asList = Arrays.asList(creativeIds);
-		CreativeModelExample ex = new CreativeModelExample();
-		ex.createCriteria().andIdIn(asList);
-		
-		List<CreativeModel> creativeInDB = creativeDao.selectByExample(ex);
-		if (creativeInDB == null || creativeInDB.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
-		
 		for (String creativeId : creativeIds) {
-			CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-			String campaignId = null;
-			if (creativeModel != null) {
-				campaignId = creativeModel.getCampaignId();
+			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+			if (creative == null) {
+				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
-			if (!StringUtils.isEmpty(campaignId)) {
-				//只有活动是等待中时才可删除创意
-				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-				if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
-					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_START);
-				}
+			String campaignId = creative.getCampaignId();
+			if (campaignService.isOnLaunchDate(campaignId)) {
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_BEGIN);
 			}
 		}
+		
 		// 删除创意数据
-		creativeDao.deleteByExample(ex);
+		CreativeModelExample creativeExample = new CreativeModelExample();
+		creativeExample.createCriteria().andIdIn(Arrays.asList(creativeIds));
+		creativeDao.deleteByExample(creativeExample);
 	}
 	
 	/**
@@ -368,21 +290,14 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void updateCreativePrice(String id, Map<String, String> map) throws Exception{
-		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
-		if (creativeModel == null) {
-			throw new ResourceNotFoundException();
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		if (creative == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-		// FIXME 为什么要必传action参数？
-		/*
-		if (StringUtils.isEmpty(map.get("action"))) {
-			throw new IllegalArgumentException();
-		}
-		*/
-		
-		String price = map.get("price").toString();
-		creativeModel.setPrice(Float.parseFloat(price));
-		creativeDao.updateByPrimaryKey(creativeModel);
+		String price = map.get("price");
+		creative.setPrice(Float.parseFloat(price));
+		creativeDao.updateByPrimaryKey(creative);
 	}
 	
 	
@@ -454,13 +369,13 @@ public class CreativeService extends BaseService {
 		
 		if (mediaBean instanceof ImageBean) {
 			ImageBean imageBean = (ImageBean) FileUtils.checkFile(file);
-			ImageTmplModel tmplModel = imageTmplDao.selectByPrimaryKey(tmplId);
-			if (tmplModel == null) {
+			ImageTmplModel tmpl = imageTmplDao.selectByPrimaryKey(tmplId);
+			if (tmpl == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
 			}
-			Integer tmplWidth = tmplModel.getWidth(); //模版宽限制
-			Integer tmplHeight = tmplModel.getHeight(); //模版高限制
-			Float maxVolume = tmplModel.getMaxVolume(); //模版最大体积限制
+			Integer tmplWidth = tmpl.getWidth(); //模版宽限制
+			Integer tmplHeight = tmpl.getHeight(); //模版高限制
+			Float maxVolume = tmpl.getMaxVolume(); //模版最大体积限制
 			int height = imageBean.getHeight(); //文件高
 			int width = imageBean.getWidth(); //文件宽
 			Float volume = imageBean.getVolume(); //文件体积限制
@@ -472,14 +387,14 @@ public class CreativeService extends BaseService {
 			result = uploadImage(imageBean, file);
 		} else if (mediaBean instanceof VideoBean) {
 			VideoBean videoBean = (VideoBean) FileUtils.checkFile(file);
-			VideoTmplModel tmplModel = videoTmplDao.selectByPrimaryKey(tmplId);
-			if (tmplModel == null) {
+			VideoTmplModel tmpl = videoTmplDao.selectByPrimaryKey(tmplId);
+			if (tmpl == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.TEMPLET_NOT_FUOUND);
 			}
-			Integer tmplWidth = tmplModel.getWidth(); //模版宽限制
-			Integer tmplHeight = tmplModel.getHeight(); //模版高限制
-			Float maxVolume = tmplModel.getMaxVolume(); //模版最大体积限制
-			Integer maxTimelength = tmplModel.getMaxTimelength(); //模版最大时长
+			Integer tmplWidth = tmpl.getWidth(); //模版宽限制
+			Integer tmplHeight = tmpl.getHeight(); //模版高限制
+			Float maxVolume = tmpl.getMaxVolume(); //模版最大体积限制
+			Integer maxTimelength = tmpl.getMaxTimelength(); //模版最大时长
 			int height = videoBean.getHeight(); //文件高
 			int width = videoBean.getWidth(); //文件宽
 			Float volume = videoBean.getVolume(); //文件体积限制
@@ -504,49 +419,25 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public Map<String, String> uploadImage(ImageBean imageBean, MultipartFile file) throws Exception {
-		/*String id = UUID.randomUUID().toString();*/
+	private Map<String, String> uploadImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUIDGenerator.getUUID();
 		String dir = uploadDir + "creative/image/";
 		
-		// String path = FileUtils.uploadFileToLocal(dir, id, file);//上传
 		String path = doUpload(dir, id, file);
-		
-//		String name = imageBean.getName();
-//		String path = imageBean.getPath().replace(upload, "");
 		String type = imageBean.getFormat();
 		Float volume = imageBean.getVolume();
-//		ImageTypeModelExample itExample = new ImageTypeModelExample();
-//		itExample.createCriteria().andNameEqualTo(type);
-//		//查询typeID
-//		List<ImageTypeModel> imageTypes = imageTypeDao.selectByExample(itExample);
-//		if (imageTypes == null || imageTypes.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-//		String typeId = null;
-//		for (ImageTypeModel mol : imageTypes) {
-//			typeId = mol.getId();
-//		}
 		//查询尺寸ID
 		int height = imageBean.getHeight();
 		int width = imageBean.getWidth();
-//		String sizeId = getImageSizeId(width, height);
 		//添加图片信息
 		ImageModel model = new ImageModel();
 		model.setId(id);
-//		model.setName(name);
 		model.setPath(path.replace(uploadDir, ""));
 		model.setFormat(type);
 		model.setVolume(Double.parseDouble(String.valueOf(volume)));
 		model.setWidth(width);
 		model.setHeight(height);
-//		model.setTypeId(typeId);
-//		model.setSizeId(sizeId);
-		try {
-			imageDao.insertSelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
+		imageDao.insertSelective(model);
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", id);
@@ -562,53 +453,26 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public Map<String, String> uploadVideo(VideoBean videoBean, MultipartFile file) throws Exception {
-		/*String id = UUID.randomUUID().toString();*/
 		String id = UUIDGenerator.getUUID();
 		String dir = uploadDir + "creative/video/";
-		
-		// String path = FileUtils.uploadFileToLocal(dir, id, file);//上传
 		String path = doUpload(dir, id, file);
 		
-//		String name = videoBean.getName();
-//		String path = videoBean.getPath().replace(upload, "");
 		String type = videoBean.getFormat();
 		Float volume = videoBean.getVolume();
-//		String size = videoBean.getSize();//视频图片的id
-//		int timeLength = videoBean.getTimelength();
-//		VideoTypeModelExample videoExample = new VideoTypeModelExample();
-//		videoExample.createCriteria().andNameEqualTo(type);
-//		//查询typeID
-//		List<VideoTypeModel> videoTypes = videoTypeDao.selectByExample(videoExample);
-//		if (videoTypes == null || videoTypes.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-//		String typeId = null;
-//		for (VideoTypeModel mol : videoTypes) {
-//			typeId = mol.getId();
-//		}
 		//查询尺寸ID
 		int height = videoBean.getHeight();
 		int width = videoBean.getWidth();
-//		String sizeId = getImageSizeId(width, height);
 		
 		VideoModel model = new VideoModel();
 		//添加视频信息
 		model.setId(id);
-//		model.setName(name);
 		model.setPath(path.replace(uploadDir, ""));
 		model.setFormat(type);
 		model.setWidth(width);
 		model.setHeight(height);
 		model.setVolume(Double.parseDouble(String.valueOf(volume)));
-//		model.setTypeId(typeId);
-//		model.setSizeId(sizeId);
 		model.setTimeLength(videoBean.getTimelength());
-//		model.setImageId(size);
-		try {
-			videoDao.insertSelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}		
+		videoDao.insertSelective(model);	
 		
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("id", id);
@@ -624,21 +488,18 @@ public class CreativeService extends BaseService {
 	public void auditCreative(String id) throws Exception {
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		if (creative == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		
-		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
-		//审核创意
-		for (AdxModel adx : adxs) {
+		// 查询adx列表
+		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
+		// 审核创意
+		for (Map<String, String> adx : adxes) {
 			CreativeAuditModel model = new CreativeAuditModel();
 			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-			/*model.setId(UUID.randomUUID().toString());*/
 			model.setId(UUIDGenerator.getUUID());
 			model.setAuditValue("1");
 			model.setCreativeId(id);
-			model.setAdxId(adx.getId());
+			model.setAdxId(adx.get("adxId"));
 			creativeAuditDao.insertSelective(model);
 		}
 	}
@@ -648,33 +509,24 @@ public class CreativeService extends BaseService {
 	 * @param id
 	 * @throws Exception
 	 */
-	public void synchronize(String id) throws Exception {
+	public void synchronizeCreative(String id) throws Exception {
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		if (creative == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		// 查询adx列表
+		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		//同步结果
-		for (AdxModel adx : adxs) {
-			CreativeAuditModelExample ex = new CreativeAuditModelExample();
-			ex.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adx.getId());
-			List<CreativeAuditModel> list = creativeAuditDao.selectByExample(ex);
-			if (list == null || list.isEmpty()) {
-				CreativeAuditModel model = new CreativeAuditModel();
-				model.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				/*model.setId(UUID.randomUUID().toString());*/
-				model.setId(UUIDGenerator.getUUID());
-				model.setAuditValue("1");
-				model.setCreativeId(id);
-				model.setAdxId(adx.getId());
-				creativeAuditDao.insertSelective(model);
+		for (Map<String, String> adx : adxes) {
+			CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
+			creativeAuditExample.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adx.get("adxId"));
+			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(creativeAuditExample);
+			if (audits == null || audits.isEmpty()) {
+				throw new ThirdPartyAuditException();
 			} else {
-				for (CreativeAuditModel ml : list) {
-					ml.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-					creativeAuditDao.updateByPrimaryKeySelective(ml);
-				}
+				CreativeAuditModel audit = audits.get(0);
+				audit.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+				creativeAuditDao.updateByPrimaryKeySelective(audit);
 			}
 		}
 	}
@@ -1484,17 +1336,17 @@ public class CreativeService extends BaseService {
         }
     }
 	
-	private void doDeleteFile(String path) throws IOException
-	{
-	    if ("local".equalsIgnoreCase(uploadDir))
-        {
-            org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
-        }
-        else
-        {
-            scpUtils.delete(path);
-        }
-	}
+//	private void doDeleteFile(String path) throws IOException
+//	{
+//	    if ("local".equalsIgnoreCase(uploadDir))
+//        {
+//            org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
+//        }
+//        else
+//        {
+//            scpUtils.delete(path);
+//        }
+//	}
 	
 	/**
 	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
