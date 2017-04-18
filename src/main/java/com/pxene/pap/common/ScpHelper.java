@@ -13,19 +13,16 @@ import org.slf4j.LoggerFactory;
 import ch.ethz.ssh2.Connection;
 import ch.ethz.ssh2.SCPClient;
 
-public class ScpUtils
+public class ScpHelper
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ScpUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScpHelper.class);
     
-    private static ScpUtils instance;
-    private static Connection connection;
-    
-    private String ip;
+    private String host;
     private int port;
     private String username;
     private String password;
-    
     private String mode = "0755";
+
     
     public String getUsername()
     {
@@ -58,54 +55,44 @@ public class ScpUtils
     }
     
     
-    public ScpUtils(String IP, int port, String username, String passward) 
+    public ScpHelper(String host, int port, String username, String password) throws Exception 
     {
-        this.ip = IP;
+        this.host = host;
         this.port = port;
         this.username = username;
-        this.password = passward;
+        this.password = password;
     }
     
     
-    public static synchronized ScpUtils getInstance(String IP, int port, String username, String passward)
+    public void getFile(String remoteFile, String localTargetDirectory) throws Exception
     {
-        if (instance == null)
-        {
-            doSync(IP, port, username, passward);
-        }
-        return instance;
-    }
-    
-    private synchronized static void doSync(String IP, int port, String username, String passward)
-    {
-        if (instance == null)
-        {
-            instance = new ScpUtils(IP, port, username, passward);
-        }
-    }
-    
-    
-    public void getFile(String remoteFile, String localTargetDirectory) throws IOException
-    {
+        Connection connection = connect(host, port, username, password);
         SCPClient client = new SCPClient(connection);
         client.get(remoteFile, localTargetDirectory);
+        connection.close();
     }
     
-    public void putFile(String localFile, String remoteTargetDirectory) throws IOException
+    public void putFile(String localFile, String remoteTargetDirectory) throws Exception
     {
+        Connection connection = connect(host, port, username, password);
         SCPClient client = new SCPClient(connection);
         client.put(localFile, remoteTargetDirectory);
+        connection.close();
     }
     
-    public void putFile(byte[] data, String remoteFileName, String remoteTargetDirectory) throws IOException
+    public void putFile(byte[] data, String remoteFileName, String remoteTargetDirectory) throws Exception
     {
+        Connection connection = connect(host, port, username, password);
         SCPClient client = new SCPClient(connection);
         client.put(data, remoteFileName, remoteTargetDirectory, mode);
+        connection.close();
     }
     
-    public void putFile(String localFile, String remoteFileName, String remoteTargetDirectory, String mode) throws IOException
+    public void putFile(String localFile, String remoteFileName, String remoteTargetDirectory, String mode) throws Exception
     {
+        Connection connection = connect(host, port, username, password);
         SCPClient client = new SCPClient(connection);
+        
         if ((mode == null) || (mode.length() == 0))
         {
             mode = "0600";
@@ -113,29 +100,36 @@ public class ScpUtils
         client.put(localFile, remoteFileName, remoteTargetDirectory, mode);
         
         // 重命名
-        ch.ethz.ssh2.Session sess = connection.openSession();
+        ch.ethz.ssh2.Session session = connection.openSession();
         String tmpPathName = remoteTargetDirectory + File.separator + remoteFileName;
         String newPathName = tmpPathName.substring(0, tmpPathName.lastIndexOf("."));
-        sess.execCommand("mv " + remoteFileName + " " + newPathName);// 重命名回来
+        session.execCommand("mv " + remoteFileName + " " + newPathName);// 重命名回来
+        
+        session.close();
+        connection.close();
     }
     
-    public void copy(String from, String to) throws IOException
+    public void copy(String from, String to) throws Exception
     {
-        ch.ethz.ssh2.Session sess = connection.openSession();
-        sess.execCommand("cp " + from + " " + to);
-        sess.close();
+        Connection connection = connect(host, port, username, password);
+        ch.ethz.ssh2.Session session = connection.openSession();
+        session.execCommand("cp " + from + " " + to);
+        connection.close();
     }
     
-    public void delete(String path) throws IOException
+    public void delete(String path) throws Exception
     {
-        ch.ethz.ssh2.Session sess = connection.openSession();
-        sess.execCommand("rm -rf " + path);
-        sess.close();
+        Connection connection = connect(host, port, username, password);
+        ch.ethz.ssh2.Session session = connection.openSession();
+        session.execCommand("rm -rf " + path);
+        session.close();
+        connection.close();
     }
 
-    public ScpUtils connect() throws Exception
+    public static Connection connect(String host, int port, String username, String password) throws Exception
     {
-        connection = new Connection(ip, port);
+        Connection connection = new Connection(host, port);
+        
         connection.connect();
         
         boolean isAuthenticated = connection.authenticateWithPassword(username, password);
@@ -145,12 +139,8 @@ public class ScpUtils
             LOGGER.error(msg);
             throw new ConnectException(msg);
         }
-        return instance;
-    }
-    
-    public void close()
-    {
-        connection.close();
+        
+        return connection;
     }
     
     public static byte[] getBytes(String filePath)

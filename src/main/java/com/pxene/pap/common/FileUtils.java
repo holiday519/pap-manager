@@ -1,9 +1,5 @@
 package com.pxene.pap.common;
 
-import it.sauronsoftware.jave.Encoder;
-import it.sauronsoftware.jave.MultimediaInfo;
-import it.sauronsoftware.jave.VideoSize;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,6 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
+
+import it.sauronsoftware.jave.Encoder;
+import it.sauronsoftware.jave.MultimediaInfo;
+import it.sauronsoftware.jave.VideoSize;
 
 public class FileUtils
 {
@@ -58,7 +58,7 @@ public class FileUtils
         return path;
     }
     
-    public static String uploadFileToRemote(ScpUtils scpUtils, String uploadDir, String fileName, MultipartFile file)
+    public static String uploadFileToRemote(String host, int port, String username, String password, String uploadDir, String fileName, MultipartFile file)
     {
         String path = null;
         
@@ -70,7 +70,8 @@ public class FileUtils
             path = uploadDir + fullName;
             
             // 上传至远程
-            scpUtils.putFile(file.getBytes(), fullName, uploadDir);
+            ScpHelper scp = new ScpHelper(host, port, username, password);
+            scp.putFile(file.getBytes(), fullName, uploadDir);
         }
         catch (Exception exception)
         {
@@ -81,7 +82,18 @@ public class FileUtils
         return path;
     }
     
-    
+    public static void copyRemoteFile(String host, int port, String username, String password, String from, String to) throws Exception
+    {
+        ScpHelper helper = new ScpHelper(host, port, username, password);
+        helper.copy(from, to);
+    }
+
+    public static void deleteRemoteFile(String host, int port, String username, String password, String path) throws Exception
+    {
+        ScpHelper helper = new ScpHelper(host, port, username, password);
+        helper.delete(path);
+    }
+
     /**
      * 检查上传素材属性
      * @param file

@@ -22,7 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
-import com.pxene.pap.common.ScpUtils;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -76,7 +75,16 @@ public class CreativeService extends BaseService {
 	
 	private static String uploadMode;
 	
-	private static ScpUtils scpUtils;
+	private Environment env;
+	
+	private String host;
+	
+	private int port;
+	
+	private String username;
+	
+	private String password;
+	
 	
 	@Autowired
 	public CreativeService(Environment env)
@@ -91,19 +99,12 @@ public class CreativeService extends BaseService {
         {
             uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
             
-            String host = env.getProperty("pap.fileserver.remote.host");
-            int port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
-            String username = env.getProperty("pap.fileserver.remote.username");
-            String password = env.getProperty("pap.fileserver.remote.password");
+            this.env = env;
             
-            try
-            {
-                scpUtils = ScpUtils.getInstance(host, port, username, password).connect();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
+            host = env.getProperty("pap.fileserver.remote.host");
+            port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
+            username = env.getProperty("pap.fileserver.remote.username");
+            password = env.getProperty("pap.fileserver.remote.password");
         }
 	}
 	
@@ -1337,7 +1338,7 @@ public class CreativeService extends BaseService {
         }
         else
         {
-            return FileUtils.uploadFileToRemote(scpUtils, uploadDir, fileName, file);
+            return FileUtils.uploadFileToRemote(host, port, username, password, uploadDir, fileName, file);
         }
     }
 	

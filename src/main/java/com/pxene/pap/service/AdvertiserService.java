@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
-import com.pxene.pap.common.ScpUtils;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -87,11 +85,18 @@ public class AdvertiserService extends BaseService
     
     private static String UPLOAD_DIR;
     
-    private static ScpUtils scpUtils;
-    
     private static final String TEMP_DIR = "temp/";
     
     private static final String FORMAL_DIR = "formal/";
+    
+    private String host;
+    
+    private int port;
+    
+    private String username;
+    
+    private String password;
+    
     
     @Autowired
     public AdvertiserService(Environment env)
@@ -100,6 +105,11 @@ public class AdvertiserService extends BaseService
         
         UPLOAD_MODE = env.getProperty("pap.fileserver.mode", "local");
         
+        host = env.getProperty("pap.fileserver.remote.host");
+        port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
+        username = env.getProperty("pap.fileserver.remote.username");
+        password = env.getProperty("pap.fileserver.remote.password");
+        
         if ("local".equals(UPLOAD_MODE))
         {
             UPLOAD_DIR = env.getProperty("pap.fileserver.local.upload.dir");
@@ -107,20 +117,6 @@ public class AdvertiserService extends BaseService
         else
         {
             UPLOAD_DIR = env.getProperty("pap.fileserver.remote.upload.dir");
-            
-            String host = env.getProperty("pap.fileserver.remote.host");
-            int port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
-            String username = env.getProperty("pap.fileserver.remote.username");
-            String password = env.getProperty("pap.fileserver.remote.password");
-            
-            try
-            {
-                scpUtils = ScpUtils.getInstance(host, port, username, password).connect();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
         }
     }
     
@@ -612,11 +608,11 @@ public class AdvertiserService extends BaseService
         else
         {
             /*return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
-        	return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
+        	return FileUtils.uploadFileToRemote(host, port, username, password, UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
         }
     }
     
-    private void doCopy(String path, File destDir) throws IOException
+    private void doCopy(String path, File destDir) throws Exception
     {
         if ("local".equalsIgnoreCase(UPLOAD_MODE))
         {
@@ -624,7 +620,7 @@ public class AdvertiserService extends BaseService
         }
         else
         {
-            scpUtils.copy(UPLOAD_DIR + path, FilenameUtils.separatorsToUnix(destDir.getPath()));
+            FileUtils.copyRemoteFile(host, port, username, password, UPLOAD_DIR + path, FilenameUtils.separatorsToUnix(destDir.getPath()));
         }
     }
     
