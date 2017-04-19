@@ -77,8 +77,6 @@ public class CreativeService extends BaseService {
 	
 	private static String uploadMode;
 	
-	private Environment env;
-	
 	private String host;
 	
 	private int port;
@@ -100,8 +98,6 @@ public class CreativeService extends BaseService {
         else
         {
             uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
-            
-            this.env = env;
             
             host = env.getProperty("pap.fileserver.remote.host");
             port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
@@ -305,62 +301,6 @@ public class CreativeService extends BaseService {
 	}
 	
 	
-//	/**
-//	 * 批量删除创意下素材
-//	 * @param mapIds
-//	 * @throws Exception
-//	 */
-//	@Transactional
-//	public void deleteCreativeMaterials(String[] mapIds) throws Exception {
-//		for (String mapId : mapIds) {
-//			CreativeMaterialModel material = creativeMaterialDao.selectByPrimaryKey(mapId);
-//			if (material == null) {
-//				continue;
-//			}
-//			String creativeId = material.getCreativeId();
-//			if (!StringUtils.isEmpty(creativeId)) {
-//				CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
-//				String campaignId = creative.getCampaignId();
-//				if (!StringUtils.isEmpty(campaignId)) {
-//					//只有活动是等待中时才可删除创意
-//					CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-//					if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
-//						throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
-//					}
-//				}
-//			}
-//		}
-//		
-//		List<String> asList = Arrays.asList(mapIds);
-//		CreativeMaterialModelExample ex = new CreativeMaterialModelExample();
-//		ex.createCriteria().andIdIn(asList);
-//		creativeMaterialDao.deleteByExample(ex);
-//	}
-//	/**
-//	 * 删除创意下素材
-//	 * @param creativeId
-//	 * @throws Exception
-//	 */
-//	@Transactional
-//	public void deleteCreativeMaterial(String mapId) throws Exception {
-//		CreativeMaterialModel material = creativeMaterialDao.selectByPrimaryKey(mapId);
-//		String creativeId = material.getCreativeId();
-//		if (!StringUtils.isEmpty(creativeId)) {
-//			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
-//			String campaignId = creative.getCampaignId();
-//			if (!StringUtils.isEmpty(campaignId)) {
-//				//只有活动是等待中时才可删除创意
-//				CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-//				if (!StatusConstant.CAMPAIGN_WATING.equals(model.getStatus())) {
-//					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_HAS_START_NOT_DELETE_CREATIVE);
-//				}
-//			}
-//		}
-//		
-//		creativeMaterialDao.deleteByPrimaryKey(mapId);
-//	}
-
-		
 	/**
 	 * 添加素材
 	 * @param tmplId

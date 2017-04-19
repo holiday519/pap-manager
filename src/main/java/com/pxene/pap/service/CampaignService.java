@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -461,6 +460,10 @@ public class CampaignService extends BaseService {
 		//修改定向时更新redis中活动定向信息
 		if (launchService.isFirstLaunch(id)) {
 			launchService.writeCampaignTarget(id);
+			// 先移除以前的白名单
+			launchService.removeWhiteBlack(id);
+			// 在添加最新的白名单
+			launchService.writeWhiteBlack(id);
 		}
 		//编辑定向时间可添加、删除redis中的对应的groupids
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
