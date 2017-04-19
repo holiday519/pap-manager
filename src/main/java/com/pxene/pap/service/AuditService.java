@@ -1,8 +1,5 @@
 package com.pxene.pap.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +18,6 @@ import com.pxene.pap.repository.basic.ProjectDao;
 @Service
 public abstract class AuditService extends BaseService {
 	
-	private static final Map<String, AuditService> CACHE = new HashMap<String, AuditService>();
 	@Autowired
 	protected AdxDao adxDao;
 	@Autowired
@@ -53,11 +49,7 @@ public abstract class AuditService extends BaseService {
 	public abstract void synchronizeCreative(String creativeId) throws Exception;
 	
 	public AuditService newInstance(String adxId) {
-		if (CACHE.containsKey(adxId)) {
-			return CACHE.get(adxId);
-		}
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-			CACHE.put(adxId, auditService);
 			return auditService;
 		}
 		throw new IllegalArgumentException(PhrasesConstant.ADX_NOT_FOUND);
