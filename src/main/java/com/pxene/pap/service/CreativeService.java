@@ -154,6 +154,9 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private LaunchService launchService;
 	
+	@Autowired
+	private AuditService auditService;
+	
 	/**
 	 * 创建创意
 	 * @param bean
@@ -441,7 +444,7 @@ public class CreativeService extends BaseService {
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		// 审核创意
 		for (Map<String, String> adx : adxes) {
-			AuditService service = AuditService.newInstance(adx.get("adxId"));
+			AuditService service = auditService.newInstance(adx.get("adxId"));
 			service.auditCreative(id);
 //			CreativeAuditModel model = new CreativeAuditModel();
 //			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
@@ -476,7 +479,7 @@ public class CreativeService extends BaseService {
 //				CreativeAuditModel audit = audits.get(0);
 //				audit.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 //				creativeAuditDao.updateByPrimaryKeySelective(audit);
-				AuditService service = AuditService.newInstance(adx.get("adxId"));
+				AuditService service = auditService.newInstance(adx.get("adxId"));
 				service.synchronizeCreative(id);
 			}
 		}

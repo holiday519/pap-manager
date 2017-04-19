@@ -79,6 +79,9 @@ public class AdvertiserService extends BaseService
     @Autowired
     private KpiDao kpiDao;
     
+    @Autowired
+    private AuditService auditService;
+    
     private Environment env;
     
     private static String UPLOAD_MODE;
@@ -566,7 +569,7 @@ public class AdvertiserService extends BaseService
 		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		//广告主审核
 		for (AdxModel adx : adxes) {
-			AuditService service = AuditService.newInstance(adx.getId());
+			AuditService service = auditService.newInstance(adx.getId());
 			service.auditAdvertiser(id);
 		}
 	}
@@ -587,7 +590,7 @@ public class AdvertiserService extends BaseService
 		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		//同步结果
 		for (AdxModel adx : adxes) {
-			AuditService service = AuditService.newInstance(adx.getId());
+			AuditService service = auditService.newInstance(adx.getId());
 			service.synchronizeAdvertiser(id);
 		}
 	}

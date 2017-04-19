@@ -40,6 +40,9 @@ public abstract class AuditService extends BaseService {
 	protected AdvertiserDao advertiserDao;
 	@Autowired
 	protected IndustryAdxDao industryAdxDao;
+	
+	@Autowired
+	private MomoAuditService auditService;
 
 	public abstract void auditAdvertiser(String advertiserId) throws Exception;
 
@@ -49,14 +52,13 @@ public abstract class AuditService extends BaseService {
 
 	public abstract void synchronizeCreative(String creativeId) throws Exception;
 	
-	public static AuditService newInstance(String adxId) {
+	public AuditService newInstance(String adxId) {
 		if (CACHE.containsKey(adxId)) {
 			return CACHE.get(adxId);
 		}
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-			MomoAuditService service = new MomoAuditService();
-			CACHE.put(adxId, service);
-			return service;
+			CACHE.put(adxId, auditService);
+			return auditService;
 		}
 		throw new IllegalArgumentException(PhrasesConstant.ADX_NOT_FOUND);
 	}
