@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
@@ -17,7 +18,7 @@ import com.pxene.pap.repository.basic.IndustryAdxDao;
 import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.ProjectDao;
-
+@Service
 public abstract class AuditService extends BaseService {
 	
 	private static final Map<String, AuditService> CACHE = new HashMap<String, AuditService>();

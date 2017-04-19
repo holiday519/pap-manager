@@ -661,13 +661,13 @@ public class LaunchService extends BaseService {
 			result.put("adxId", adxId);
 			CreativeAuditModelExample example = new CreativeAuditModelExample();
 			example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(creativeId);
-			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);
-			if (audits != null && !audits.isEmpty()) {
+			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);			
+			if (audits != null && !audits.isEmpty()) {			
 				CreativeAuditModel audit = audits.get(0);
 				String auditValue = audit.getAuditValue();
-				result.put("creativeAudit", auditValue);
-				results.add(result);
+				result.put("creativeAudit", auditValue);				
 			}
+			results.add(result);
 		}
 		return results;
 	}

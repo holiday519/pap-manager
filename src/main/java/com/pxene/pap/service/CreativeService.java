@@ -23,6 +23,7 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.UUIDGenerator;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -35,6 +36,7 @@ import com.pxene.pap.domain.beans.MaterialListBean.App;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
+import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTmplModel;
@@ -492,7 +494,10 @@ public class CreativeService extends BaseService {
 		if (creative == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		// 查询adx列表
+		
+		AdxModel momoAdx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
+		System.out.println(momoAdx);
+		// 查询adx列表，判断是哪个adx
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		// 审核创意
 		for (Map<String, String> adx : adxes) {
