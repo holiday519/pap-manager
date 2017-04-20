@@ -15,6 +15,7 @@ import com.pxene.pap.domain.configs.JRedisPoolConfig;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Transaction;
 
 
 @Component
@@ -33,11 +34,11 @@ public class RedisHelper
     
     public static RedisHelper open(String prefix)
     {
-        RedisHelper redisUtils = new RedisHelper();
+        RedisHelper redisHelper = new RedisHelper();
         
-        redisUtils.getJedisPool(prefix);
+        redisHelper.getJedisPool(prefix);
         
-        return redisUtils;
+        return redisHelper;
     }
     
     /**
@@ -387,5 +388,70 @@ public class RedisHelper
             }
             close(jedis);
         }
+    }
+    
+    public void checkAndSetDeadLoop(String key, String value)
+    {
+        if (isBlank(key))
+        {
+            return;
+        }
+        
+        Jedis jedis = getJedis();
+        Transaction transaction = null;
+        List<Object> list = null;
+        
+        while (true)
+        {
+            jedis.watch(key);
+            
+            transaction = jedis.multi();
+            transaction.set(key, value);
+            
+            list = transaction.exec();
+            
+            if (list != null && !list.isEmpty() && list.get(0) != null && "OK".equalsIgnoreCase(list.get(0).toString()))
+            {
+                break;
+            }
+        }
+        
+        close(jedis);
+    }
+    
+    /**
+     * 为哈希表 key 中的域 field 加上浮点数增量 increment。<br>
+     * 如果命令执行成功，那么 key 的值会被更新为（执行加法之后的）新值，并且新值会以字符串的形式返回给调用者。
+     * @param key          键名
+     * @param field        域
+     * @param increment    增量值，可正可负
+     * @return 更新后的新值
+     */
+    public Double hincrbyFloat(String key, String field, float increment) 
+    {
+        if (isBlank(key))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        Jedis jedis = getJedis();
+        Double result = jedis.hincrByFloat(key, field, increment);
+        close(jedis);
+        
+        return result;
+    }
+    
+    public Long incrybyInt(String key, long increment)
+    {
+        if (isBlank(key))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        Jedis jedis = getJedis();
+        Long result = jedis.incrBy(key, increment);
+        close(jedis);
+        
+        return result;
     }
 }

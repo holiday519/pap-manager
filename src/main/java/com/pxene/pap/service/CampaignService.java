@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
 import com.pxene.pap.common.DateUtils;
-import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
@@ -161,6 +161,14 @@ public class CampaignService extends BaseService {
 	
 	@Autowired
 	private LaunchService launchService;
+	
+	private RedisHelper redisHelper;
+	
+	
+	public CampaignService()
+    {
+	    redisHelper = RedisHelper.open("redis.primary.");
+    }
 	
 	/**
 	 * 创建活动
@@ -345,8 +353,8 @@ public class CampaignService extends BaseService {
 	private void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-		if (JedisUtils.exists(budgetKey)) {
-			Map<String, String> map = JedisUtils.hget(budgetKey);
+		if (redisHelper.exists(budgetKey)) {
+			Map<String, String> map = redisHelper.hget(budgetKey);
 			// 修改redis中总预算值
 			if (!StringUtils.isEmpty(map.get("total"))) {
 				// redis里值
@@ -357,7 +365,7 @@ public class CampaignService extends BaseService {
 					throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(budgetKey, "total", difVaue * 100);
+					redisHelper.hincrbyFloat(budgetKey, "total", difVaue * 100);
 				}
 			}
 			// 修改redis中的日预算值
@@ -401,16 +409,16 @@ public class CampaignService extends BaseService {
 						throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					JedisUtils.hincrbyFloat(budgetKey, "daily", difVaue * 100);
+					redisHelper.hincrbyFloat(budgetKey, "daily", difVaue * 100);
 				}
 				//如果有日展现key
-				if (JedisUtils.exists(countKey)) {
-					Integer dayImpression  = JedisUtils.getInt(countKey);
+				if (redisHelper.exists(countKey)) {
+					Integer dayImpression  = redisHelper.getInt(countKey);
 					if (difImpVaue < 0 && Math.abs(difImpVaue) > dayImpression) {//小于0时，并且redis中值不够扣除，抛出异常
 						throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
 					}
 					if (difImpVaue != 0) {
-						JedisUtils.incrybyInt(countKey, difImpVaue);
+					    redisHelper.incrybyInt(countKey, difImpVaue);
 					}
 				}
 			}

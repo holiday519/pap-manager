@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
-import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
@@ -85,6 +85,8 @@ public class CreativeService extends BaseService {
 	
 	private String password;
 	
+	private RedisHelper redisHelper;
+	
 	
 	@Autowired
 	public CreativeService(Environment env)
@@ -104,6 +106,9 @@ public class CreativeService extends BaseService {
             username = env.getProperty("pap.fileserver.remote.username");
             password = env.getProperty("pap.fileserver.remote.password");
         }
+        
+        // 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper = RedisHelper.open("redis.primary.");
 	}
 	
 	@Autowired
@@ -1159,8 +1164,8 @@ public class CreativeService extends BaseService {
 	 */
 	private void getDatafromDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
 		for (String creativeId : creativeIds) {
-			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + creativeId);//获取map集合
-			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + creativeId);//获取所有key
+			Map<String, String> map = redisHelper.hget("creativeDataDay_" + creativeId);//获取map集合
+			Set<String> hkeys = redisHelper.hkeys("creativeDataDay_" + creativeId);//获取所有key
 			if (hkeys != null && !hkeys.isEmpty()) {
 				for (String hkey : hkeys) {
 					//必须要符合“日期”+“@”才是创意的数据
@@ -1199,8 +1204,8 @@ public class CreativeService extends BaseService {
 		String[] hours = DateUtils.getHoursBetween(startDate, endDate);
 		String day = new DateTime(startDate).toString("yyyyMMdd");
 		for (String creativeId : creativeIds) {
-			Map<String, String> map = JedisUtils.hget("creativeDataHour_" + creativeId);//获取map集合
-			Set<String> hkeys = JedisUtils.hkeys("creativeDataHour_" + creativeId);//获取所有key
+			Map<String, String> map = redisHelper.hget("creativeDataHour_" + creativeId);//获取map集合
+			Set<String> hkeys = redisHelper.hkeys("creativeDataHour_" + creativeId);//获取所有key
 			if (hkeys != null && !hkeys.isEmpty()) {
 				for (String hkey : hkeys) {
 					//必须要符合“日期”+“小时”+“@”才是创意的数据

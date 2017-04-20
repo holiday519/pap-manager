@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.DateUtils;
-import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
@@ -56,6 +56,8 @@ public class DataService extends BaseService {
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
+	private RedisHelper redisHelper;
+	
 	static {
 		Set<String> network = new HashSet<String>();
 		network.add("1");
@@ -74,6 +76,13 @@ public class DataService extends BaseService {
 		os.add("3");
 		table.put("os", os);
 	}
+	
+	
+	public DataService()
+    {
+	    // 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper = RedisHelper.open("redis.primary.");
+    }
 	
 
 	/**
@@ -198,8 +207,8 @@ public class DataService extends BaseService {
 		Set<String> set = table.get(type);
 		
 		for (String creativeId : creativeIds) {
-			Map<String, String> map = JedisUtils.hget("creativeDataDay_" + creativeId);//获取map集合
-			Set<String> hkeys = JedisUtils.hkeys("creativeDataDay_" + creativeId);//获取所有key
+			Map<String, String> map = redisHelper.hget("creativeDataDay_" + creativeId);//获取map集合
+			Set<String> hkeys = redisHelper.hkeys("creativeDataDay_" + creativeId);//获取所有key
 			if (hkeys != null && !hkeys.isEmpty()) {
 				//拿出所有的key中属于当前type的定向的值（比如：type为“region时”拿出所有的regioncode）
 				for (String hkey : hkeys) {
@@ -430,7 +439,7 @@ public class DataService extends BaseService {
 			resultMap = new HashMap<String, Object>();
 			formatBeanParams(bean);//将属性值变成0
 			for (String creativeId : creativeIds) {
-				Map<String, String> map = JedisUtils.hget("creativeDataHour_" + creativeId);//获取map集合
+				Map<String, String> map = redisHelper.hget("creativeDataHour_" + creativeId);//获取map集合
 				for (String day : days) {
 					String hkey = day + hour + "@";
 					

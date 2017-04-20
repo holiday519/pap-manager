@@ -29,7 +29,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.GlobalUtil;
-import com.pxene.pap.common.JedisUtils;
+import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
@@ -97,6 +97,9 @@ public class LaunchService extends BaseService {
 	
 	private static String image_url;
 	
+	private RedisHelper redisHelper;
+	
+	
 	@Autowired
 	public LaunchService(Environment env)
 	{
@@ -104,6 +107,9 @@ public class LaunchService extends BaseService {
 		 * 获取图片上传路径
 		 */
 		image_url = env.getProperty("pap.fileserver.url.prefix");
+		
+		// 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper = RedisHelper.open("redis.primary.");
 	}
 	
 	@Autowired
@@ -317,7 +323,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void writeCampaignId(String campaignId) throws Exception {
-		String idStr = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+		String idStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
 		JsonObject idObj = null;
 		if (idStr == null) {
 			idObj = new JsonObject();
@@ -332,7 +338,7 @@ public class LaunchService extends BaseService {
 				idObj.add("groupids", idArray);
 			}
 		}
-		JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+		redisHelper.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 	}
 	/**
 	 * 将活动ID 移除redis
@@ -340,7 +346,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeCampaignId(String campaignId) throws Exception {
-		String idStr = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+		String idStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
 		if (idStr != null) {
 			JsonObject idObj = gson.fromJson(idStr, new JsonObject().getClass());
 			JsonArray idArray = idObj.get("groupids").getAsJsonArray();
@@ -349,7 +355,7 @@ public class LaunchService extends BaseService {
 				idArray.remove(id);
 			}
 			idObj.add("groupids", idArray);
-			JedisUtils.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+			redisHelper.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 		}
 	}
 	
@@ -394,7 +400,7 @@ public class LaunchService extends BaseService {
 		// 如果活动下无可投创意
 		if (creatives != null && !creatives.isEmpty()) {
 			for (CreativeModel creative : creatives) {
-				JedisUtils.delete(RedisKeyConstant.CREATIVE_INFO + creative.getId());
+			    redisHelper.delete(RedisKeyConstant.CREATIVE_INFO + creative.getId());
 			}
 		}
 	}
@@ -459,7 +465,7 @@ public class LaunchService extends BaseService {
 	            creativeObj.addProperty("sourceurl", image_url + model.getPath());
 	            creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(), ""));
 				
-				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
+	            redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 			}
 		}
 	}
@@ -524,7 +530,7 @@ public class LaunchService extends BaseService {
 	            creativeObj.addProperty("sourceurl", image_url + model.getPath());
 	            creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(), ""));
 	            
-				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
+	            redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 			}
 		}
 	}
@@ -642,7 +648,7 @@ public class LaunchService extends BaseService {
 	            creativeObj.addProperty("description", GlobalUtil.parseString(model.getDescription(), ""));
 	            creativeObj.addProperty("rating", GlobalUtil.parseString(model.getAppStar(), ""));
 	            creativeObj.addProperty("ctatext", GlobalUtil.parseString(model.getCtaDescription(), ""));
-				JedisUtils.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
+	            redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
 			}
 		}
 	}
@@ -768,7 +774,7 @@ public class LaunchService extends BaseService {
 		// 需要效果监测
 		campaignJson.addProperty("effectmonitor", 0);
 		
-		JedisUtils.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignJson.toString());
+		redisHelper.set(RedisKeyConstant.CAMPAIGN_INFO + campaignId, campaignJson.toString());
 	}
 	
 	/**
@@ -777,7 +783,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeCampaignInfo(String campaignId) throws Exception {
-		JedisUtils.delete(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+	    redisHelper.delete(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
 	}
 	
 	/**
@@ -858,7 +864,7 @@ public class LaunchService extends BaseService {
 			}
 			targetJson.add("id", appJsons);
 			
-			JedisUtils.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
+			redisHelper.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
 	}
 	
@@ -869,7 +875,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeCampaignTarget(String campaignId) throws Exception {
-		JedisUtils.delete(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
+	    redisHelper.delete(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
 	}
 	
 	/**
@@ -983,7 +989,7 @@ public class LaunchService extends BaseService {
 			}
 			resultJson.add("user", userJson);
 		}
-		JedisUtils.set(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId, resultJson.toString());
+		redisHelper.set(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId, resultJson.toString());
 	}
 	
 	/**
@@ -992,7 +998,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeCampaignFrequency(String campaignId) throws Exception {
-		JedisUtils.delete(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);
+	    redisHelper.delete(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);
 	}
 	
 	/**
@@ -1015,7 +1021,7 @@ public class LaunchService extends BaseService {
 		}
 		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出
 		resultJson.add("mapids", creativeIdJsons);
-		JedisUtils.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+		redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
 	}
 	
 	/**
@@ -1024,7 +1030,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeCreativeId(String campaignId) throws Exception {
-		JedisUtils.delete(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+	    redisHelper.delete(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}
 	
 	
@@ -1043,14 +1049,14 @@ public class LaunchService extends BaseService {
 		List<QuantityModel> quantities = quantityDao.selectByExample(example);
 		if (quantities !=null && !quantities.isEmpty()) {
 			int dailyImpression = quantities.get(0).getDailyImpression();
-			JedisUtils.set(key, dailyImpression);
+			redisHelper.set(key, dailyImpression);
 		}
 	}
 	
 	public void removeCampaignCounter(String campaignId) throws Exception {
 		String key = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-		if (JedisUtils.exists(key)) {
-			JedisUtils.delete(key);
+		if (redisHelper.exists(key)) {
+		    redisHelper.delete(key);
 		}
 	}
 	
@@ -1075,15 +1081,15 @@ public class LaunchService extends BaseService {
 			Map<String, String> value = new HashMap<String, String>();
 			value.put("total", String.valueOf(totalBudget * 100));
 			value.put("daily", String.valueOf(budget * 100));
-			JedisUtils.hset(key, value);
+			redisHelper.hset(key, value);
 		}
 	}
 	
 	public void removeCampaignBudget(String campaignId) throws Exception {
 		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
-		if (JedisUtils.exists(key)) {
+		if (redisHelper.exists(key)) {
 			//JedisUtils.delete(key);
-			JedisUtils.hdelete(key);
+		    redisHelper.hdelete(key);
 		}
 	}
 	
@@ -1146,9 +1152,9 @@ public class LaunchService extends BaseService {
 				
 				if (keySuffix != null) {
 					for (Entry<String, List<String>> entry : keyValues.entrySet()) {
-						JedisUtils.sddKey(entry.getKey() + keySuffix, entry.getValue());
+					    redisHelper.sddKey(entry.getKey() + keySuffix, entry.getValue());
 					}
-					JedisUtils.set(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId, wblistJson.toString());
+					redisHelper.set(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId, wblistJson.toString());
 				}
 			}
 		}
@@ -1162,12 +1168,12 @@ public class LaunchService extends BaseService {
 	public void removeWhiteBlack(String campaignId) throws Exception {
 		// 先删除以前的黑白名单
 		String wbKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
-		if (JedisUtils.exists(wbKey)) {
-			String wbStr = JedisUtils.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
+		if (redisHelper.exists(wbKey)) {
+			String wbStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
 			JsonObject wbObj = (new JsonParser()).parse(wbStr).getAsJsonObject();
 			String populationId = wbObj.get("relationid").getAsString();
-			JedisUtils.deleteByPattern("*" + populationId);
-			JedisUtils.delete(wbKey);
+			redisHelper.deleteByPattern("*" + populationId);
+			redisHelper.delete(wbKey);
 		}
 	}
 	
@@ -1179,6 +1185,6 @@ public class LaunchService extends BaseService {
 	 */
 	public Boolean isFirstLaunch(String campaignId) throws Exception {
 		/*return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);*/
-		return !JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		return !redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}
 }

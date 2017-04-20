@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pxene.pap.common.JedisUtils;
 import com.pxene.pap.common.JwtUtils;
+import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.models.UserModel;
 import com.pxene.pap.domain.models.UserModelExample;
@@ -29,6 +29,7 @@ public class TokenService
     private String tokenSecret;
     private String tokenExpiresSecondStr;
     private long tokenExpiresSecond;
+    private RedisHelper redisHelper;
     
     
     @Autowired
@@ -38,6 +39,9 @@ public class TokenService
         tokenSecret = env.getProperty("dmp.token.secret");
         tokenExpiresSecondStr = env.getProperty("dmp.token.expiresSecond");
         tokenExpiresSecond = (tokenExpiresSecondStr == null) ? 0L : Long.parseLong(tokenExpiresSecondStr);
+        
+        // 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper = RedisHelper.open("redis.primary.");
     }
 
     public UserModel loadUserByUsername(String username)
@@ -85,7 +89,7 @@ public class TokenService
         AccessTokenBean accessToken = null;
         try
         {
-            String content = JedisUtils.getStr(username);
+            String content = redisHelper.getStr(username);
             if (StringUtils.isEmpty(content))
             {
                 return null;
