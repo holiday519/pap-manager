@@ -419,6 +419,51 @@ public class RedisHelper
         close(jedis);
     }
     
+    public boolean checkAndSet(String key, String value)
+    {
+        if (isBlank(key))
+        {
+            return false;
+        }
+        
+        Jedis jedis = getJedis();
+        
+        jedis.watch(key);
+        
+        Transaction transaction = jedis.multi();
+        transaction.set(key, value);
+        
+        List<Object> list = transaction.exec();
+        
+        close(jedis);
+        
+        return checkIfAllOK(list);
+    }
+    
+    /**
+     * 检查Redis一个事务中的全部操作是否都成功（即，返回值是不是都为OK）
+     * @param list  事务操作的全部返回值，例如[OK, nil, OK]或[OK]
+     * @return
+     */
+    private static boolean checkIfAllOK(List<Object> list)
+    {
+        if (list != null && !list.isEmpty())
+        {
+            for (Object object : list)
+            {
+                if (!"OK".equalsIgnoreCase(object.toString()))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
     /**
      * 为哈希表 key 中的域 field 加上浮点数增量 increment。<br>
      * 如果命令执行成功，那么 key 的值会被更新为（执行加法之后的）新值，并且新值会以字符串的形式返回给调用者。
