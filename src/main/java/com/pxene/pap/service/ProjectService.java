@@ -31,6 +31,7 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
@@ -409,7 +410,14 @@ public class ProjectService extends BaseService {
 		//从redis的groups中删除该项目下所有活动状态为开启的活动id
 		if (campaigns != null && !campaigns.isEmpty()) {
 			for (CampaignModel campaign : campaigns) {
-				launchService.removeCampaignId(campaign.getId());
+				//launchService.removeCampaignId(campaign.getId());
+				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+				boolean removeResult = campaignService.pauseCampaignRepeatable(campaign.getId());
+				if(!removeResult){
+					//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+					//campaignService.pauseLaunchByDelCampaignInfo(campaign.getId());
+					throw new ServerFailureException();
+				}
 			}
 		}
 		//项目暂停之后修改状态

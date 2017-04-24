@@ -295,7 +295,8 @@ public class MomoAuditService extends AuditService {
 				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
 				if(creativeObject.get("status").getAsInt() == 1){
 					//待审核
-					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+					/*creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);*/
+					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 				}else if(creativeObject.get("status").getAsInt() == 2){
 					// 审核通过
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
@@ -308,7 +309,8 @@ public class MomoAuditService extends AuditService {
 					creativeAuditModel.setMessage(creativeObject.get("reason").toString());
 				}
 				//更新创意审核表
-				creativeAuditDao.updateByPrimaryKey(creativeAuditModel);
+				//creativeAuditDao.updateByPrimaryKey(creativeAuditModel);
+				creativeAuditDao.updateByExampleSelective(creativeAuditModel, creativeAuditExample);
 			}
 		}else{
 			//否则提示同步失败的原因

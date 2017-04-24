@@ -70,6 +70,7 @@ import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
@@ -170,7 +171,7 @@ public class CampaignService extends BaseService {
 	
 	private static final String REDIS_KEY_GROUPIDS = "dsp_groupids";
 	
-	private static final String REDIS_KEY_GROUPINFO = "dsp_groupid_info";
+	private static final String REDIS_KEY_GROUPINFO = "dsp_groupid_info_";
 	
 	private static final String JSON_KEY_GROUPIDS = "groupids";
 	
@@ -332,11 +333,19 @@ public class CampaignService extends BaseService {
 			}
 		}
 		
-		Date startDate = bean.getStartDate();
+		//Date startDate = bean.getStartDate();
 		Date endDate = bean.getEndDate();
 		Date current = new Date();
 		if (current.after(endDate)) {
-			launchService.removeCampaignId(id);
+			//launchService.removeCampaignId(id);
+			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+			pauseCampaignRepeatable(id);
+			boolean removeResult = pauseCampaignRepeatable(id);
+			if(!removeResult){	
+				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+				/*pauseLaunchByDelCampaignInfo(id);*/
+				throw new ServerFailureException();
+			}
 		}
 		
 		//删除点击、展现监测地址
@@ -493,7 +502,15 @@ public class CampaignService extends BaseService {
 			launchService.writeCampaignId(id);
 		}else{
 			//否则将活动ID移除redis
-			launchService.removeCampaignId(id);
+			//launchService.removeCampaignId(id);
+			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+			pauseCampaignRepeatable(id);
+			boolean removeResult = pauseCampaignRepeatable(id);
+			if(!removeResult){
+				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+				//pauseLaunchByDelCampaignInfo(id);
+				throw new ServerFailureException();
+			}
 		}
 	}
 	
@@ -1148,7 +1165,15 @@ public class CampaignService extends BaseService {
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
 			//移除redis中key
-			launchService.removeCampaignId(campaign.getId());
+			//launchService.removeCampaignId(campaign.getId());
+			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+			pauseCampaignRepeatable(campaign.getId());
+			boolean removeResult = pauseCampaignRepeatable(campaign.getId());
+			if(!removeResult){	
+				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+				//pauseLaunchByDelCampaignInfo(campaign.getId());
+				throw new ServerFailureException();
+			}
 		}
 		//改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaign);
@@ -1188,7 +1213,6 @@ public class CampaignService extends BaseService {
 	
 	/**
 	 * 暂停指定的活动（重复指定的次数）
-	 * @param jedis        Redis连接对象
 	 * @param campaignId   需要暂停的活动ID
 	 * @return
 	 */
@@ -1218,7 +1242,23 @@ public class CampaignService extends BaseService {
         
         return false;
     }
-	 
+	
+	/**
+	 * 通过删除投放信息终止投放
+	 * @param campaignId 活动id
+	 * @return
+	 */
+	public boolean pauseLaunchByDelCampaignInfo(String campaignId)
+	{		
+		Jedis jedis = redisHelper.getJedis();
+		boolean delCampaignInfo = delCampaignInfo (jedis, campaignId);			
+		if(delCampaignInfo)
+		{
+			return true;
+		}	
+		
+		return false;		
+	}
 	
 	/**
      * 从Redis中删除Key为dsp_mapid_活动ID的键值对
@@ -1268,5 +1308,5 @@ public class CampaignService extends BaseService {
         }
         
         return null;
-    }
+    }        
 }
