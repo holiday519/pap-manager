@@ -12,6 +12,7 @@ public class PhrasesConstant
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
 	public static final String ADX_NOT_FOUND = "ADX不存在";
+	public static final String REDIS_KEY_LOCK = "redis的key被死锁";
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目

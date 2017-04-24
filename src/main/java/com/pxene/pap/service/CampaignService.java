@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
@@ -169,11 +167,11 @@ public class CampaignService extends BaseService {
 	
 	private RedisHelper redisHelper;
 	
-	private static final String REDIS_KEY_GROUPIDS = "dsp_groupids";
-	
-	private static final String REDIS_KEY_GROUPINFO = "dsp_groupid_info_";
-	
-	private static final String JSON_KEY_GROUPIDS = "groupids";
+//	private static final String REDIS_KEY_GROUPIDS = "dsp_groupids";
+//	
+//	private static final String REDIS_KEY_GROUPINFO = "dsp_groupid_info_";
+//	
+//	private static final String JSON_KEY_GROUPIDS = "groupids";
 	
 	
 	public CampaignService()
@@ -339,12 +337,11 @@ public class CampaignService extends BaseService {
 		if (current.after(endDate)) {
 			//launchService.removeCampaignId(id);
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-			pauseCampaignRepeatable(id);
-			boolean removeResult = pauseCampaignRepeatable(id);
-			if(!removeResult){	
+			boolean removeResult = launchService.pauseCampaignRepeatable(id);
+			if (!removeResult) {	
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				/*pauseLaunchByDelCampaignInfo(id);*/
-				throw new ServerFailureException();
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 		
@@ -504,12 +501,11 @@ public class CampaignService extends BaseService {
 			//否则将活动ID移除redis
 			//launchService.removeCampaignId(id);
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-			pauseCampaignRepeatable(id);
-			boolean removeResult = pauseCampaignRepeatable(id);
-			if(!removeResult){
+			boolean removeResult = launchService.pauseCampaignRepeatable(id);
+			if (!removeResult) {
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				//pauseLaunchByDelCampaignInfo(id);
-				throw new ServerFailureException();
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 	}
@@ -1167,12 +1163,11 @@ public class CampaignService extends BaseService {
 			//移除redis中key
 			//launchService.removeCampaignId(campaign.getId());
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-			pauseCampaignRepeatable(campaign.getId());
-			boolean removeResult = pauseCampaignRepeatable(campaign.getId());
-			if(!removeResult){	
+			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
+			if (!removeResult) {	
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				//pauseLaunchByDelCampaignInfo(campaign.getId());
-				throw new ServerFailureException();
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 		//改变数据库状态
@@ -1211,37 +1206,37 @@ public class CampaignService extends BaseService {
 		return campaigns.size() > 0;				
 	}
 	
-	/**
-	 * 暂停指定的活动（重复指定的次数）
-	 * @param campaignId   需要暂停的活动ID
-	 * @return
-	 */
-	public boolean pauseCampaignRepeatable(String campaignId)
-    {
-        int i = 1;
-        int total = 10;
-        
-        while (i <= total)
-        {
-            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
-            String availableGroups = redisHelper.getStr(REDIS_KEY_GROUPIDS);
-
-            // 从JSON字符串中删除指定的活动ID
-            String operatedVal = removeCampaignId(availableGroups, campaignId);
-            if (operatedVal != null)
-            {
-                boolean casFlag = redisHelper.checkAndSet(REDIS_KEY_GROUPIDS, operatedVal);
-                if (casFlag)
-                {
-                    return true;
-                }
-            }
-            
-            i++;
-        }
-        
-        return false;
-    }
+//	/**
+//	 * 暂停指定的活动（重复指定的次数）
+//	 * @param campaignId   需要暂停的活动ID
+//	 * @return
+//	 */
+//	public boolean pauseCampaignRepeatable(String campaignId)
+//    {
+//        int i = 1;
+//        int total = 10;
+//        
+//        while (i <= total)
+//        {
+//            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
+//            String availableGroups = redisHelper.getStr(REDIS_KEY_GROUPIDS);
+//
+//            // 从JSON字符串中删除指定的活动ID
+//            String operatedVal = removeCampaignId(availableGroups, campaignId);
+//            if (operatedVal != null)
+//            {
+//                boolean casFlag = redisHelper.checkAndSet(REDIS_KEY_GROUPIDS, operatedVal);
+//                if (casFlag)
+//                {
+//                    return true;
+//                }
+//            }
+//            
+//            i++;
+//        }
+//        
+//        return false;
+//    }
 	
 	/**
 	 * 通过删除投放信息终止投放
@@ -1268,7 +1263,7 @@ public class CampaignService extends BaseService {
      */
     private static boolean delCampaignInfo(Jedis jedis, String campaignId)
     {
-        Long delResult= jedis.del(REDIS_KEY_GROUPINFO + campaignId);
+        Long delResult= jedis.del(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
         
         if (delResult == 1)
         {
@@ -1279,34 +1274,34 @@ public class CampaignService extends BaseService {
     }
 
     
-    /**
-     * 从正在投放的活动中删除指定的活动ID。
-     * @param redisValue    Redis中Key为dsp_groups的Value
-     * @param campaignId    欲删除的活动ID
-     * @return
-     */
-    private static String removeCampaignId(String redisValue, String campaignId)
-    {
-        JsonParser jsonParser = new JsonParser();
-        JsonObject tmpObj = jsonParser.parse(redisValue).getAsJsonObject();
-        
-        if (tmpObj != null)
-        {
-            JsonArray groudids = tmpObj.get(JSON_KEY_GROUPIDS).getAsJsonArray();
-            
-            // 判断是否已经含有当前campaignID
-            for (int i = 0; i < groudids.size(); i++)
-            {
-                if (campaignId.equals(groudids.get(i).getAsString()))
-                {
-                    groudids.remove(i);
-                    break;
-                }
-            }
-            
-            return tmpObj.toString();
-        }
-        
-        return null;
-    }        
+//    /**
+//     * 从正在投放的活动中删除指定的活动ID。
+//     * @param redisValue    Redis中Key为dsp_groups的Value
+//     * @param campaignId    欲删除的活动ID
+//     * @return
+//     */
+//    private static String removeCampaignId(String redisValue, String campaignId)
+//    {
+//        JsonParser jsonParser = new JsonParser();
+//        JsonObject tmpObj = jsonParser.parse(redisValue).getAsJsonObject();
+//        
+//        if (tmpObj != null)
+//        {
+//            JsonArray groudids = tmpObj.get(JSON_KEY_GROUPIDS).getAsJsonArray();
+//            
+//            // 判断是否已经含有当前campaignID
+//            for (int i = 0; i < groudids.size(); i++)
+//            {
+//                if (campaignId.equals(groudids.get(i).getAsString()))
+//                {
+//                    groudids.remove(i);
+//                    break;
+//                }
+//            }
+//            
+//            return tmpObj.toString();
+//        }
+//        
+//        return null;
+//    }        
 }

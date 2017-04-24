@@ -1,7 +1,6 @@
 package com.pxene.pap.service;
 
 import java.io.File;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -14,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -182,6 +180,8 @@ public class LaunchService extends BaseService {
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
 	
+	private static final String JSON_KEY_GROUPIDS = "groupids";
+	
 	private static Map<String, Integer> deviceIdType = new HashMap<String, Integer>();
 	static {
 		deviceIdType.put("imei", 16);
@@ -248,12 +248,11 @@ public class LaunchService extends BaseService {
 		removeCampaignCounter(campaignId);
 		//removeCampaignId(campaignId);
 		//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-		campaignService.pauseCampaignRepeatable(campaignId);
-		boolean removeResult = campaignService.pauseCampaignRepeatable(campaignId);
-		if(!removeResult){
+		boolean removeResult = pauseCampaignRepeatable(campaignId);
+		if (!removeResult) {
 			//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 			//campaignService.pauseLaunchByDelCampaignInfo(campaignId);
-			throw new ServerFailureException();
+			throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		}
 	}
 	
@@ -352,11 +351,11 @@ public class LaunchService extends BaseService {
 			} else {
 				//removeCampaignId(campaignId);	
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-				boolean removeResult = campaignService.pauseCampaignRepeatable(campaignId);
-				if(!removeResult){
+				boolean removeResult = pauseCampaignRepeatable(campaignId);
+				if (!removeResult) {
 					//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 					//campaignService.pauseLaunchByDelCampaignInfo(campaignId);
-					throw new ServerFailureException();
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
 		}		
@@ -1251,5 +1250,68 @@ public class LaunchService extends BaseService {
 		/*return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);*/
 		return !redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}
-			
+	
+	
+	/**
+	 * 暂停指定的活动（重复指定的次数）
+	 * @param campaignId   需要暂停的活动ID
+	 * @return
+	 */
+	public boolean pauseCampaignRepeatable(String campaignId)
+    {
+        int i = 1;
+        int total = 10;
+        
+        while (i <= total)
+        {
+            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
+            String availableGroups = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+
+            // 从JSON字符串中删除指定的活动ID
+            String operatedVal = removeCampaignId(availableGroups, campaignId);
+            if (operatedVal != null)
+            {
+                boolean casFlag = redisHelper.checkAndSet(RedisKeyConstant.CAMPAIGN_IDS, operatedVal);
+                if (casFlag)
+                {
+                    return true;
+                }
+            }
+            
+            i++;
+        }
+        
+        return false;
+    }
+	
+	/**
+     * 从正在投放的活动中删除指定的活动ID。
+     * @param redisValue    Redis中Key为dsp_groups的Value
+     * @param campaignId    欲删除的活动ID
+     * @return
+     */
+    private String removeCampaignId(String redisValue, String campaignId)
+    {
+        JsonParser jsonParser = new JsonParser();
+        JsonObject tmpObj = jsonParser.parse(redisValue).getAsJsonObject();
+        
+        if (tmpObj != null)
+        {
+            JsonArray groudids = tmpObj.get(JSON_KEY_GROUPIDS).getAsJsonArray();
+            
+            // 判断是否已经含有当前campaignID
+            for (int i = 0; i < groudids.size(); i++)
+            {
+                if (campaignId.equals(groudids.get(i).getAsString()))
+                {
+                    groudids.remove(i);
+                    break;
+                }
+            }
+            
+            return tmpObj.toString();
+        }
+        
+        return null;
+    }        
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -412,11 +411,11 @@ public class ProjectService extends BaseService {
 			for (CampaignModel campaign : campaigns) {
 				//launchService.removeCampaignId(campaign.getId());
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-				boolean removeResult = campaignService.pauseCampaignRepeatable(campaign.getId());
-				if(!removeResult){
+				boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
+				if (!removeResult) {
 					//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 					//campaignService.pauseLaunchByDelCampaignInfo(campaign.getId());
-					throw new ServerFailureException();
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
 		}
