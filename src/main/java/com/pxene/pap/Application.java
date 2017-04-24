@@ -93,7 +93,7 @@ public class Application
      * 注册Filter：自定义的Token认证过滤器
      * @return
      */
-    @Bean
+   /* @Bean
     protected FilterRegistrationBean customTokenFilterRegistrationBean()
     {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -106,6 +106,6 @@ public class Application
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;
-    }
+    }*/
     
 }
