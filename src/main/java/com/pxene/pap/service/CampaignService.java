@@ -493,9 +493,13 @@ public class CampaignService extends BaseService {
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
 		String projectId = campaignModel.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		/*if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
+		isOnLaunchDate(id) && isOnTargetTime(id){*/
 		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
-				isOnLaunchDate(id) && isOnTargetTime(id)) {
+				isOnLaunchDate(id) && isOnTargetTime(id) && launchService.dailyBudgetJudge(id)
+				&& launchService.dailyCounterJudge(id)) {
 			//在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
+			//活动没有超出每天的日预算并且日均最大展现未达到上限
 			launchService.writeCampaignId(id);
 		}else{
 			//否则将活动ID移除redis
@@ -1138,13 +1142,13 @@ public class CampaignService extends BaseService {
 			if (launchService.isFirstLaunch(campaignId)) {
 				launchService.write4FirstTime(campaign);
 			}
-			if (isOnTargetTime(campaignId)) {
+			/*if (isOnTargetTime(campaignId){*/
+			if (isOnTargetTime(campaignId) && launchService.dailyBudgetJudge(campaignId)
+					&& launchService.dailyCounterJudge(campaignId) ) {
+				//在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 				launchService.writeCampaignId(campaignId);
 			}
-		}
-		/*if (isOnTargetTime(campaignId)) {
-			launchService.writeCampaignId(campaignId);
-		}*/
+		}		
 		//改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaign);
 	}
@@ -1164,9 +1168,7 @@ public class CampaignService extends BaseService {
 			//launchService.removeCampaignId(campaign.getId());
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-			if (!removeResult) {	
-				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				//pauseLaunchByDelCampaignInfo(campaign.getId());
+			if (!removeResult) {					
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}

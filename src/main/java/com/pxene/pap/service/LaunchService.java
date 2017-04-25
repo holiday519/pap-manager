@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,6 +89,7 @@ import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
+import com.sun.tools.hat.internal.model.JavaObject;
 
 @Service
 public class LaunchService extends BaseService {
@@ -249,9 +252,7 @@ public class LaunchService extends BaseService {
 		//removeCampaignId(campaignId);
 		//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 		boolean removeResult = pauseCampaignRepeatable(campaignId);
-		if (!removeResult) {
-			//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-			//campaignService.pauseLaunchByDelCampaignInfo(campaignId);
+		if (!removeResult) {			
 			throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		}
 	}
@@ -270,6 +271,9 @@ public class LaunchService extends BaseService {
 		Date start = DateUtils.strToDate(currentDate, "yyyy-MM-dd");
 		// 当前日期退后一秒钟的时间
 		Date end = DateUtils.changeDate(start, Calendar.SECOND, -1);
+		//周日的零点
+		Calendar cal= Calendar.getInstance();;
+		int week= cal.get(Calendar.DAY_OF_WEEK)-1;  	      
 		
 		CampaignModelExample campaignExample = new CampaignModelExample();
 		Date current = new Date();
@@ -314,70 +318,72 @@ public class LaunchService extends BaseService {
 				writeCampaignCounter(campaignId);
 			}
 			
-			/*//每天晚上检查groupids中是否存在已经过期的campaignId，如果有则删除
-			//找出今天之前结束投放的活动，将活动id从redis中删除
-			campaignExample.clear();
-			campaignExample.createCriteria().andEndDateLessThan(end);
-			List<CampaignModel> oldCampaigns = campaignDao.selectByExample(campaignExample);
-			for(CampaignModel campaign : oldCampaigns){
-				String campaignId = campaign.getId();
-				if(campaignId.length()==37){
-					//removeCampaignId(campaignId);
-					//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-					boolean removeResult = campaignService.pauseCampaignRepeatable(campaignId);
-					if(!removeResult){
-						//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-						campaignService.pauseLaunchByDelCampaignInfo(campaignId);
-					}
-				}
-			}		*/	
-			//Long idLong = redisHelper.getLong(RedisKeyConstant.CAMPAIGN_IDS);
+			//每天晚上检查groupids中是否存在已经过期的campaignId，如果有则删除	
+			//1.获取redis中的Groupids
+			String strGroupids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS); 
+			//2.将gson字符串转成JsonObject对象
+			JsonObject returnData = new JsonParser().parse(strGroupids).getAsJsonObject();
+			//3.将data节点下的内容转为JsonArray  
+		    JsonArray jsonArray = returnData.getAsJsonArray("groupids"); 
+		    //4.判断每个groupid是否过期
+		    for (int i = 0; i < jsonArray.size(); i++){  
+		        //获取第i个数组元素  
+		         JsonElement elemGroupid = jsonArray.get(i);
+		         String strGroupid = elemGroupid.getAsString();
+		         if(strGroupid.length()==37){
+		        	 //如果UUID为37位，则查询相关的活动信息
+		        	 CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(strGroupid);
+		        	 Date end_date = oldCampaigns.getEndDate(); //活动的结束时间
+		        	 if(end_date.before(current)){
+		        		//如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
+		 				boolean removeResult = pauseCampaignRepeatable(strGroupid);
+		 				if(!removeResult){
+		 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+		 				} 
+		        	 }
+		         }
+		    }  
+			
 		}
 		// 每个小时判断时间定向，将不在该时间内的活动移除 
 		for (CampaignModel campaign : launchCampaigns) {
-			String campaignId = campaign.getId();
-			// 如果当期时间在定向内
-			/*if (campaignService.isOnTargetTime(campaignId)) {
-				writeCampaignId(campaignId);
-			} else {
-				removeCampaignId(campaignId);
-			}*/
-			// 投放需满足项目开启、活动开启、在活动时间范围里、在定向时间内
+			String campaignId = campaign.getId();			
+			// 投放需满足项目开启、活动开启、在活动时间范围里、当前时间在定向时间内，活动没有超出每天的日预算并且日均最大展现未达到上限
 			String projectId = campaign.getProjectId();
-			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+			ProjectModel project = projectDao.selectByPrimaryKey(projectId);			
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.PROJECT_PROCEED.equals(campaign.getStatus()) &&
-				campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)) {
+					campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
+					&& dailyBudgetJudge(campaignId)&& dailyCounterJudge(campaignId)) {
 				writeCampaignId(campaignId);
 			} else {
 				//removeCampaignId(campaignId);	
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = pauseCampaignRepeatable(campaignId);
-				if (!removeResult) {
-					//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-					//campaignService.pauseLaunchByDelCampaignInfo(campaignId);
+				if (!removeResult) {					
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
-		}		
-								
-	}
-	
-	/**
-	 * 每周定时删除一次redis中投放已经过期的活动信息，防止每天零点删除遗漏（每周一零点执行）  
-	 * @throws Exception 
-	 */
-	/*@Scheduled(cron = "0 0 0 ? * MON")
-	public void delLaunchInfoOnEveryWeek() throws Exception{
-		Date currentDate = new Date();
-		// 查询活动结束时间在今天之前的活动信息	
-		CampaignModelExample campaignExample = new CampaignModelExample();
-		campaignExample.createCriteria().andEndDateLessThan(currentDate);
-		List<CampaignModel> beforeLaunchCampaigns = campaignDao.selectByExample(campaignExample);
-		// 每周定时删除一次在redis中投放活动的信息，防止删除遗漏
-		for (CampaignModel campaign : beforeLaunchCampaigns) {
-			remove4EndDate(campaign);
 		}
-	}*/
+		
+		//每周日零点再删除一次redis中过期的投放信息，防止每天零点删除遗漏 
+		if(week==0 && "00".equals(currentHour)){ //0代表周日，6代表周六   
+			//查询redis中活动基本信息的keys
+			String[] strGroupids = redisHelper.getKeys(RedisKeyConstant.CAMPAIGN_INFO + "*");  
+			for(String strGroupid : strGroupids){
+				String groupid = strGroupid.substring(17); //截取前缀，获取37位UUID
+				if(groupid.length()==37){
+					//如果UUID为37位，则通过该id到数据库中查询相关的活动信息
+		        	 CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(groupid);
+		        	 Date end_date = oldCampaigns.getEndDate(); //活动的结束时间
+		        	 if(end_date.before(current)){
+		        		//如果活动的结束时间在今天之前则将其投放的基本信息从redis中删除
+		        		 remove4EndDate(oldCampaigns);
+		        	 }
+		         }
+			}	
+	    }
+								
+	}		
 	
 	/*******************************************************************************************************/
 	/**
@@ -1313,5 +1319,40 @@ public class LaunchService extends BaseService {
         }
         
         return null;
-    }        
+    } 
+   
+   /**
+    * 判断活动是否超出每天的日预算 
+    * @param campaignId 活动id
+    */
+   public Boolean dailyBudgetJudge(String campaignId){
+	   //获取redis中日预算
+	   Map<String, String> dailyBudgeMap = redisHelper.hget(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
+	   String budge = dailyBudgeMap.get("daily");
+	   //转换类型
+	   int dayJudge = Integer.parseInt(budge);  
+	   //判断是否超出日预算
+	   if(dayJudge > 0 ){
+		   return true;
+	   }else{
+		   throw new ServerFailureException(PhrasesConstant.REDIS_DAY_BUDGET);
+	   }	
+   }
+   
+   /**
+    * 日均最大展现是否达到上限 
+    * @param campaignId
+    */
+   public Boolean dailyCounterJudge(String campaignId){	   	  	   
+	   //获取redis中日均最大展现数
+	   String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
+	   //转换类型
+	   int dayCounter = Integer.parseInt(dailyCounter);
+	   //判断是否超出日均最大展现数
+	   if(dayCounter > 0){
+		   return true;
+	   }else{
+		   throw new ServerFailureException(PhrasesConstant.REDIS_DAY_COUNTER);
+	   }	
+   }
 }

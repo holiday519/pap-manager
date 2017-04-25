@@ -13,6 +13,8 @@ public class PhrasesConstant
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
 	public static final String ADX_NOT_FOUND = "ADX不存在";
 	public static final String REDIS_KEY_LOCK = "redis的key被死锁";
+	public static final String REDIS_DAY_BUDGET = "超出了最大日预算";
+	public static final String REDIS_DAY_COUNTER = "超出日均最大展现的上限";
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目

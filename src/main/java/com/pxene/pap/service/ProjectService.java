@@ -379,14 +379,14 @@ public class ProjectService extends BaseService {
 						//如果campaignId不在redis中说明是第一次投放改活动，则将投放的基本信息写入到redis中
 						launchService.write4FirstTime(campaign);
 					}
-					if (campaignService.isOnTargetTime(campaignId)) {
+					/*if (campaignService.isOnTargetTime(campaignId)) {*/
+					if (campaignService.isOnTargetTime(campaignId)&& launchService.dailyBudgetJudge(campaignId) 
+							&& launchService.dailyCounterJudge(campaignId)) {
 						//如果在定向的时间里，将campaignId写入到redis的投放groups中
+						//活动没有超出每天的日预算并且日均最大展现未达到上限
 						launchService.writeCampaignId(campaignId);
 					}
-				}
-				/*if (campaignService.isOnTargetTime(campaignId)) {
-					launchService.writeCampaignId(campaignId);
-				}*/
+				}				
 			}
 		}
 		//项目投放之后修改状态
@@ -412,9 +412,7 @@ public class ProjectService extends BaseService {
 				//launchService.removeCampaignId(campaign.getId());
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-				if (!removeResult) {
-					//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-					//campaignService.pauseLaunchByDelCampaignInfo(campaign.getId());
+				if (!removeResult) {					
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
