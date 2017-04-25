@@ -354,7 +354,11 @@ public class LaunchService extends BaseService {
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.PROJECT_PROCEED.equals(campaign.getStatus()) &&
 					campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
 					&& dailyBudgetJudge(campaignId)&& dailyCounterJudge(campaignId)) {
-				writeCampaignId(campaignId);
+				//writeCampaignId(campaignId);
+				boolean writeResult = launchCampaignRepeatable(campaignId);
+				if(!writeResult){
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				}
 			} else {
 				//removeCampaignId(campaignId);	
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放

@@ -384,7 +384,11 @@ public class ProjectService extends BaseService {
 							&& launchService.dailyCounterJudge(campaignId)) {
 						//如果在定向的时间里，将campaignId写入到redis的投放groups中
 						//活动没有超出每天的日预算并且日均最大展现未达到上限
-						launchService.writeCampaignId(campaignId);
+						//launchService.writeCampaignId(campaignId);
+						boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+						if(!writeResult){
+							throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+						}
 					}
 				}				
 			}

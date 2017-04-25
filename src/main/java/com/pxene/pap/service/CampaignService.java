@@ -500,7 +500,11 @@ public class CampaignService extends BaseService {
 				&& launchService.dailyCounterJudge(id)) {
 			//在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
 			//活动没有超出每天的日预算并且日均最大展现未达到上限
-			launchService.writeCampaignId(id);
+			//launchService.writeCampaignId(id);
+			boolean writeResult = launchService.launchCampaignRepeatable(id);
+			if(!writeResult){
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+			}
 		}else{
 			//否则将活动ID移除redis
 			//launchService.removeCampaignId(id);
@@ -1146,7 +1150,11 @@ public class CampaignService extends BaseService {
 			if (isOnTargetTime(campaignId) && launchService.dailyBudgetJudge(campaignId)
 					&& launchService.dailyCounterJudge(campaignId) ) {
 				//在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
-				launchService.writeCampaignId(campaignId);
+				//launchService.writeCampaignId(campaignId);
+				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+				if(!writeResult){
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				}
 			}
 		}		
 		//改变数据库状态
