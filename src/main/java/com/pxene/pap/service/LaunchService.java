@@ -409,6 +409,56 @@ public class LaunchService extends BaseService {
 		}
 		redisHelper.set(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
 	}
+	
+	/**
+     * 启动指定的活动（重复指定的次数）
+     * @param campaignId   需要开启的活动ID
+     * @return
+     */
+    public boolean launchCampaignRepeatable(String campaignId) throws Exception
+    {
+        int i = 1;
+        int total = 10;
+        
+        while (i <= total)
+        {
+            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
+            String idStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+            
+            JsonObject idObj = null;
+            if (idStr == null)
+            {
+                idObj = new JsonObject();
+                JsonArray idArray = new JsonArray();
+                idArray.add(campaignId);
+                idObj.add("groupids", idArray);
+            }
+            else
+            {
+                idObj = gson.fromJson(idStr, new JsonObject().getClass());
+                JsonArray idArray = idObj.get("groupids").getAsJsonArray();
+                if (!idArray.contains(parser.parse(campaignId)))
+                {
+                    idArray.add(campaignId);
+                    idObj.add("groupids", idArray);
+                }
+            }
+            
+            if (idObj != null)
+            {
+                boolean casFlag = redisHelper.checkAndSet(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+                if (casFlag)
+                {
+                    return true;
+                }
+            }
+            
+            i++;
+        }
+        
+        return false;
+    }
+	
 	/**
 	 * 将活动ID 移除redis
 	 * @param campaignId
