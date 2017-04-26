@@ -322,23 +322,25 @@ public class LaunchService extends BaseService {
 			//3.将data节点下的内容转为JsonArray  
 		    JsonArray jsonArray = returnData.getAsJsonArray("groupids"); 
 		    //4.判断每个groupid是否过期
-		    for (int i = 0; i < jsonArray.size(); i++) {  
-		        //获取第i个数组元素  
-		         JsonElement elemGroupid = jsonArray.get(i);
-		         String strGroupid = elemGroupid.getAsString();
-		         if (strGroupid.length()==37) {
-		        	 //如果UUID为37位，则查询相关的活动信息
-		        	 CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(strGroupid);
-		        	 Date end_date = oldCampaigns.getEndDate(); //活动的结束时间
-		        	 if (end_date.before(current)) {
-		        		//如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
-		 				boolean removeResult = pauseCampaignRepeatable(strGroupid);
-		 				if (!removeResult) {
-		 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-		 				} 
-		        	 }
-		         }
-		    }  
+			for (int i = 0; i < jsonArray.size(); i++) {
+				// 获取第i个数组元素
+				JsonElement elemGroupid = jsonArray.get(i);
+				String strGroupid = elemGroupid.getAsString();
+				if (strGroupid.length() == 37) {
+					// 如果UUID为37位，则查询相关的活动信息
+					CampaignModel oldCampaigns = campaignDao
+							.selectByPrimaryKey(strGroupid);
+					Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
+					if (end_date.before(current)) {
+						// 如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
+						boolean removeResult = pauseCampaignRepeatable(strGroupid);
+						if (!removeResult) {
+							throw new ServerFailureException(
+									PhrasesConstant.REDIS_KEY_LOCK);
+						}
+					}
+				}
+			}
 			
 		}
 		// 每个小时判断时间定向，将不在该时间内的活动移除 

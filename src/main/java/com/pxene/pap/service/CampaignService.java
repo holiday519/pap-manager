@@ -1165,7 +1165,7 @@ public class CampaignService extends BaseService {
 				//在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 				//launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
-				if(!writeResult){
+				if (!writeResult) {
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
