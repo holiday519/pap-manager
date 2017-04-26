@@ -2,12 +2,11 @@ package com.pxene.pap.service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,7 +19,6 @@ import com.pxene.pap.common.HttpClientUtil;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
-import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
@@ -37,19 +35,7 @@ import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.exception.IllegalStatusException;
-import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ThirdPartyAuditException;
-import com.pxene.pap.repository.basic.AdvertiserAuditDao;
-import com.pxene.pap.repository.basic.AdvertiserDao;
-import com.pxene.pap.repository.basic.AdxDao;
-import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.CreativeAuditDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.ImageDao;
-import com.pxene.pap.repository.basic.IndustryAdxDao;
-import com.pxene.pap.repository.basic.InfoflowMaterialDao;
-import com.pxene.pap.repository.basic.LandpageDao;
-import com.pxene.pap.repository.basic.ProjectDao;
 
 /**
  * 陌陌审核
@@ -59,31 +45,10 @@ import com.pxene.pap.repository.basic.ProjectDao;
 @Service
 public class MomoAuditService extends AuditService {
 
-	@Autowired
-	private CreativeAuditDao creativeAuditDao;
-	
-	@Autowired
-	private AdvertiserAuditDao advertiserAuditDao;
-	
-	@Autowired
-	private AdxDao adxDao;
-	@Autowired
-	private CreativeDao creativeDao;
-	@Autowired
-	private InfoflowMaterialDao infoflowMaterialDao;
-	@Autowired
-	private ImageDao imageDao;
-	@Autowired
-	private CampaignDao campaignDao;
-	@Autowired
-	private LandpageDao landpageDao;
-	@Autowired
-	private ProjectDao projectDao;
-	@Autowired
-	private AdvertiserDao advertiserDao;
-	@Autowired
-	private IndustryAdxDao industryAdxDao;
-	
+	public MomoAuditService(Environment env) {
+		super(env);
+	}
+
 	/**
 	 * 审核广告主（向广告主审核表插入数据）
 	 */
@@ -329,7 +294,8 @@ public class MomoAuditService extends AuditService {
 		ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
 		//将图片信息放入到JsonObject对象中
         JsonObject obj = new JsonObject();
-        obj.addProperty("url", "http://www.immomo.com/static/w5/img/website/map.jpg");
+        //obj.addProperty("url", "http://www.immomo.com/static/w5/img/website/map.jpg");
+        obj.addProperty("url", env.getProperty("pap.fileserver.remote.url.prefix") + imageModel.getPath());
         obj.addProperty("width", imageModel.getWidth());
         obj.addProperty("height", imageModel.getHeight());
         return obj;

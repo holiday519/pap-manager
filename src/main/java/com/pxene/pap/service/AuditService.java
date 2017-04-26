@@ -1,14 +1,17 @@
 package com.pxene.pap.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
 import com.pxene.pap.repository.basic.IndustryAdxDao;
@@ -36,6 +39,17 @@ public abstract class AuditService extends BaseService {
 	protected AdvertiserDao advertiserDao;
 	@Autowired
 	protected IndustryAdxDao industryAdxDao;
+	@Autowired
+	protected AdvertiserAuditDao advertiserAuditDao;
+	@Autowired
+	protected CreativeAuditDao creativeAuditDao;
+	
+	protected Environment env;
+	
+	@Autowired
+    public AuditService(Environment env) {
+        this.env = env;
+	}
 	
 	@Autowired
 	private MomoAuditService auditService;

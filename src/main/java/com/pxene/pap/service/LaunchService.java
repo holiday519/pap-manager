@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,7 +182,7 @@ public class LaunchService extends BaseService {
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
 	
-	private static final String JSON_KEY_GROUPIDS = "groupids";
+	private static Map<String, Integer> deviceIdType = new HashMap<String, Integer>();
 	
 	
 	
@@ -290,7 +288,6 @@ public class LaunchService extends BaseService {
 		// 将今天开始投放的活动，所有数据写入redis
 		// 将今天结束投放的活动，redis中的数据删除
 		if ("00".equals(currentHour)) {
-			
 			// 找出开启状态的项目
 			ProjectModelExample projectExample = new ProjectModelExample();
 			projectExample.createCriteria().andStatusEqualTo(StatusConstant.PROJECT_PROCEED);
@@ -327,7 +324,7 @@ public class LaunchService extends BaseService {
 			//1.获取redis中的Groupids
 			String strGroupids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS); 
 			//2.将gson字符串转成JsonObject对象
-			JsonObject returnData = new JsonParser().parse(strGroupids).getAsJsonObject();
+			JsonObject returnData = parser.parse(strGroupids).getAsJsonObject();
 			//3.将data节点下的内容转为JsonArray  
 		    JsonArray jsonArray = returnData.getAsJsonArray("groupids"); 
 		    //4.判断每个groupid是否过期
@@ -381,19 +378,19 @@ public class LaunchService extends BaseService {
 		}
 		
 		//每周日零点再删除一次redis中过期的投放信息，防止每天零点删除遗漏 
-		if(week==0 && "00".equals(currentHour)){ //0代表周日，6代表周六   
+		if (week == 0 && "00".equals(currentHour)) { //0代表周日，6代表周六   
 			//查询redis中活动基本信息的keys
 			String[] strGroupids = redisHelper.getKeys(RedisKeyConstant.CAMPAIGN_INFO + "*");  
-			for(String strGroupid : strGroupids){
+			for (String strGroupid : strGroupids) {
 				String groupid = strGroupid.substring(17); //截取前缀，获取37位UUID
-				if(groupid.length()==37){
+				if (groupid.length() == 37) {
 					//如果UUID为37位，则通过该id到数据库中查询相关的活动信息
-		        	 CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(groupid);
-		        	 Date end_date = oldCampaigns.getEndDate(); //活动的结束时间
-		        	 if(end_date.before(current)){
+		        	CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(groupid);
+		        	Date end_date = oldCampaigns.getEndDate(); //活动的结束时间
+		        	if(end_date.before(current)){
 		        		//如果活动的结束时间在今天之前则将其投放的基本信息从redis中删除
-		        		 remove4EndDate(oldCampaigns);
-		        	 }
+		        		remove4EndDate(oldCampaigns);
+		        	}
 		         }
 			}	
 	    }
@@ -1304,7 +1301,7 @@ public class LaunchService extends BaseService {
 		String wbKey = RedisKeyConstant.CAMPAIGN_WBLIST + campaignId;
 		if (redisHelper.exists(wbKey)) {
 			String wbStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
-			JsonObject wbObj = (new JsonParser()).parse(wbStr).getAsJsonObject();
+			JsonObject wbObj = parser.parse(wbStr).getAsJsonObject();
 			String populationId = wbObj.get("relationid").getAsString();
 			redisHelper.deleteByPattern("*" + populationId);
 			redisHelper.delete(wbKey);
@@ -1363,12 +1360,11 @@ public class LaunchService extends BaseService {
      */
     private String removeCampaignId(String redisValue, String campaignId)
     {
-        JsonParser jsonParser = new JsonParser();
-        JsonObject tmpObj = jsonParser.parse(redisValue).getAsJsonObject();
+        JsonObject tmpObj = parser.parse(redisValue).getAsJsonObject();
         
         if (tmpObj != null)
         {
-            JsonArray groudids = tmpObj.get(JSON_KEY_GROUPIDS).getAsJsonArray();
+            JsonArray groudids = tmpObj.get("groupids").getAsJsonArray();
             
             // 判断是否已经含有当前campaignID
             for (int i = 0; i < groudids.size(); i++)
