@@ -354,12 +354,12 @@ public class CampaignService extends BaseService {
 			//launchService.removeCampaignId(id);
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
-			LOGGER.info(id);
+			LOGGER.info("chaxunTrue." + id);
 			if (!removeResult) {	
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				/*pauseLaunchByDelCampaignInfo(id);*/
-				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
-				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info("chaxunFalse." + id);
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				
 			}
 		}
@@ -521,22 +521,22 @@ public class CampaignService extends BaseService {
 			//活动没有超出每天的日预算并且日均最大展现未达到上限
 			//launchService.writeCampaignId(id);
 			boolean writeResult = launchService.launchCampaignRepeatable(id);
-			LOGGER.info(id);
+			LOGGER.info("chaxunTrue." + id);
 			if(!writeResult){
-				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
-				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);				
+				LOGGER.info("chaxunFalse." + id);
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);				
 			}
 		}else{
 			//否则将活动ID移除redis
 			//launchService.removeCampaignId(id);
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
-			LOGGER.info(id);
+			LOGGER.info("chaxunTrue." + id);
 			if (!removeResult) {
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				//pauseLaunchByDelCampaignInfo(id);
-				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
-				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info("chaxunFalse." + id);
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 	}
@@ -1181,10 +1181,10 @@ public class CampaignService extends BaseService {
 				//在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 				//launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
-				LOGGER.info(campaignId);
+				LOGGER.info("chaxunTrue." + campaignId);
 				if(!writeResult){
-					LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
-					//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					LOGGER.info("chaxunFalse." + campaignId);
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
 		}		
@@ -1207,10 +1207,10 @@ public class CampaignService extends BaseService {
 			//launchService.removeCampaignId(campaign.getId());
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-			LOGGER.info(campaign.getId());
+			LOGGER.info("chaxunTrue." + campaign.getId());
 			if (!removeResult) {
-				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
-				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info("chaxunFalse." + campaign.getId());
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 		//改变数据库状态
