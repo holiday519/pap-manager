@@ -1205,6 +1205,9 @@ public class CreativeService extends BaseService {
 		String day = new DateTime(startDate).toString("yyyyMMdd");
 		for (String creativeId : creativeIds) {
 			Map<String, String> map = redisHelper.hget("creativeDataHour_" + creativeId);//获取map集合
+			if (map == null || map.isEmpty()) {
+				System.out.println("123");
+			}
 			Set<String> hkeys = redisHelper.hkeys("creativeDataHour_" + creativeId);//获取所有key
 			if (hkeys != null && !hkeys.isEmpty()) {
 				for (String hkey : hkeys) {

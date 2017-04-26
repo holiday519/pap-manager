@@ -8,12 +8,16 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+/*import org.hibernate.annotations.common.util.impl.Log_.logger;*/
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
+import com.mysql.jdbc.log.LogFactory;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
@@ -91,10 +95,13 @@ import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
+/*import org.apache.log4j.Logger;*/  
 import redis.clients.jedis.Jedis;
 
 @Service
 public class CampaignService extends BaseService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
 	@Autowired
 	private CampaignDao campaignDao; 
@@ -173,6 +180,8 @@ public class CampaignService extends BaseService {
 //	
 //	private static final String JSON_KEY_GROUPIDS = "groupids";
 	
+	//Logger log = Logger.getLogger("CampaignService"); 
+	
 	
 	public CampaignService()
     {
@@ -245,7 +254,7 @@ public class CampaignService extends BaseService {
 	 */
 	@Transactional
 	public void updateCampaign(String id, CampaignBean bean) throws Exception {
-		// 编辑的活动在数据库中不存在
+		// 编辑的活动在数据库中不存在		  
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
@@ -257,8 +266,8 @@ public class CampaignService extends BaseService {
 				campaignExample.createCriteria().andNameEqualTo(name);
 				List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
 				if (campaigns != null && !campaigns.isEmpty()) {
-					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-				}
+					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);					  
+				}				
 			}
 		}
 		
@@ -345,10 +354,13 @@ public class CampaignService extends BaseService {
 			//launchService.removeCampaignId(id);
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
+			LOGGER.info(id);
 			if (!removeResult) {	
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				/*pauseLaunchByDelCampaignInfo(id);*/
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				
 			}
 		}
 		
@@ -509,18 +521,22 @@ public class CampaignService extends BaseService {
 			//活动没有超出每天的日预算并且日均最大展现未达到上限
 			//launchService.writeCampaignId(id);
 			boolean writeResult = launchService.launchCampaignRepeatable(id);
+			LOGGER.info(id);
 			if(!writeResult){
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);				
 			}
 		}else{
 			//否则将活动ID移除redis
 			//launchService.removeCampaignId(id);
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
+			LOGGER.info(id);
 			if (!removeResult) {
 				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
 				//pauseLaunchByDelCampaignInfo(id);
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 	}
@@ -1165,8 +1181,10 @@ public class CampaignService extends BaseService {
 				//在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 				//launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+				LOGGER.info(campaignId);
 				if(!writeResult){
-					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+					//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
 		}		
@@ -1189,8 +1207,10 @@ public class CampaignService extends BaseService {
 			//launchService.removeCampaignId(campaign.getId());
 			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-			if (!removeResult) {					
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+			LOGGER.info(campaign.getId());
+			if (!removeResult) {
+				LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+				//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
 		//改变数据库状态

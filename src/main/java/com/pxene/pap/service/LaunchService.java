@@ -89,7 +89,8 @@ import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
-import com.sun.tools.hat.internal.model.JavaObject;
+//import org.apache.log4j.Logger;  
+
 
 @Service
 public class LaunchService extends BaseService {
@@ -185,6 +186,8 @@ public class LaunchService extends BaseService {
 	
 	private static final String JSON_KEY_GROUPIDS = "groupids";
 	
+	
+	
 	private static Map<String, Integer> deviceIdType = new HashMap<String, Integer>();
 	static {
 		deviceIdType.put("imei", 16);
@@ -252,8 +255,10 @@ public class LaunchService extends BaseService {
 		//removeCampaignId(campaignId);
 		//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 		boolean removeResult = pauseCampaignRepeatable(campaignId);
-		if (!removeResult) {			
-			throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+		LOGGER.info(campaignId);
+		if (!removeResult) {
+			LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+			//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		}
 	}
 	
@@ -337,8 +342,10 @@ public class LaunchService extends BaseService {
 		        	 if(end_date.before(current)){
 		        		//如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
 		 				boolean removeResult = pauseCampaignRepeatable(strGroupid);
+		 				LOGGER.info(strGroupid);
 		 				if(!removeResult){
-		 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+		 					LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+		 					//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		 				} 
 		        	 }
 		         }
@@ -356,15 +363,19 @@ public class LaunchService extends BaseService {
 					&& dailyBudgetJudge(campaignId)&& dailyCounterJudge(campaignId)) {
 				//writeCampaignId(campaignId);
 				boolean writeResult = launchCampaignRepeatable(campaignId);
+				LOGGER.info(campaignId);
 				if(!writeResult){
-					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+					//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			} else {
 				//removeCampaignId(campaignId);	
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = pauseCampaignRepeatable(campaignId);
-				if (!removeResult) {					
-					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info(campaignId);
+				if (!removeResult) {
+					LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+					//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
 		}

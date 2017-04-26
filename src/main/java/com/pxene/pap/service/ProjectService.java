@@ -38,8 +38,14 @@ import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
+import org.slf4j.Logger;
+/*import org.apache.log4j.Logger;*/
+import org.slf4j.LoggerFactory; 
+
 @Service
 public class ProjectService extends BaseService {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
 	@Autowired
 	private ProjectDao projectDao;
@@ -70,6 +76,8 @@ public class ProjectService extends BaseService {
 	
 	@Autowired
 	private LaunchService launchService;
+	
+	//Logger log = Logger.getLogger("ProjectService"); 
 	
 	/**
 	 * 创建项目
@@ -386,8 +394,10 @@ public class ProjectService extends BaseService {
 						//活动没有超出每天的日预算并且日均最大展现未达到上限
 						//launchService.writeCampaignId(campaignId);
 						boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+						LOGGER.info(campaignId);
 						if(!writeResult){
-							throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+							LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+							//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 						}
 					}
 				}				
@@ -416,8 +426,10 @@ public class ProjectService extends BaseService {
 				//launchService.removeCampaignId(campaign.getId());
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-				if (!removeResult) {					
-					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				LOGGER.info(campaign.getId());
+				if (!removeResult) {
+					LOGGER.info(PhrasesConstant.REDIS_KEY_LOCK);
+					//throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
 		}
