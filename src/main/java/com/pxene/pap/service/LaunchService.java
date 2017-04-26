@@ -250,9 +250,9 @@ public class LaunchService extends BaseService {
 		//removeCampaignId(campaignId);
 		//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 		boolean removeResult = pauseCampaignRepeatable(campaignId);
-		LOGGER.info("chaxunTrue."+campaignId);
+		LOGGER.info("chaxunPauseTrue."+campaignId);
 		if (!removeResult) {
-			LOGGER.info("chaxunFalse."+campaignId);
+			LOGGER.info("chaxunPauseFalse."+campaignId);
 			throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		}
 	}
@@ -336,9 +336,9 @@ public class LaunchService extends BaseService {
 		        	 if(end_date.before(current)){
 		        		//如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
 		 				boolean removeResult = pauseCampaignRepeatable(strGroupid);
-		 				LOGGER.info("chaxunTrue."+strGroupid);
+		 				LOGGER.info("chaxunPauseTrue."+strGroupid);
 		 				if(!removeResult){
-		 					LOGGER.info("chaxunFalse."+strGroupid);
+		 					LOGGER.info("chaxunPauseFalse."+strGroupid);
 		 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		 				} 
 		        	 }
@@ -357,18 +357,18 @@ public class LaunchService extends BaseService {
 					&& dailyBudgetJudge(campaignId)&& dailyCounterJudge(campaignId)) {
 				//writeCampaignId(campaignId);
 				boolean writeResult = launchCampaignRepeatable(campaignId);
-				LOGGER.info("chaxunTrue." + campaignId);
+				LOGGER.info("chaxunLaunchTrue." + campaignId);
 				if(!writeResult){
-					LOGGER.info("chaxunFalse." + campaignId);
+					LOGGER.info("chaxunLaunchFalse." + campaignId);
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			} else {
 				//removeCampaignId(campaignId);	
 				//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = pauseCampaignRepeatable(campaignId);
-				LOGGER.info("chaxunTrue."+campaignId);
+				LOGGER.info("chaxunPauseTrue."+campaignId);
 				if (!removeResult) {
-					LOGGER.info("chaxunFalse."+campaignId);
+					LOGGER.info("chaxunPauseFalse."+campaignId);
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
