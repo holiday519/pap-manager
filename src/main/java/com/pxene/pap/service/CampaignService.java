@@ -262,6 +262,13 @@ public class CampaignService extends BaseService {
 			}
 		}
 		
+		// 监测日期范围是否正确
+		Date startDate = bean.getStartDate();
+		Date endDate = bean.getEndDate();
+		if (startDate != null && endDate != null && startDate.after(endDate)) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
+		}	
+		
 		// bean中放入ID，用于更新关联关系表中数据
 		bean.setId(id);
 		
@@ -332,7 +339,7 @@ public class CampaignService extends BaseService {
 		}
 		
 		//Date startDate = bean.getStartDate();
-		Date endDate = bean.getEndDate();
+		//Date endDate = bean.getEndDate();
 		Date current = new Date();
 		if (current.after(endDate)) {
 			//launchService.removeCampaignId(id);
@@ -721,7 +728,13 @@ public class CampaignService extends BaseService {
 	 */
 	@Transactional
 	private void addCampaignQuantity(CampaignBean campaignBean) throws Exception {
-		Quantity[] quantitys = campaignBean.getQuantities();
+		// 监测日期范围是否正确
+		Date startDate = campaignBean.getStartDate();
+		Date endDate = campaignBean.getEndDate();
+		if (startDate != null && endDate != null && startDate.after(endDate)) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
+		}	
+		Quantity[] quantitys = campaignBean.getQuantities();			
 		if (quantitys != null && quantitys.length > 0) {
 			String id = campaignBean.getId();
 			for (Quantity bean : quantitys) {

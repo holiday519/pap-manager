@@ -1378,13 +1378,17 @@ public class LaunchService extends BaseService {
    /**
     * 判断活动是否超出每天的日预算 
     * @param campaignId 活动id
+ * @throws Exception 
     */
    public Boolean dailyBudgetJudge(String campaignId){
 	   //获取redis中日预算
 	   Map<String, String> dailyBudgeMap = redisHelper.hget(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
-	   String budge = dailyBudgeMap.get("daily");
+	   String budge = dailyBudgeMap.get("daily");	   
+	   if(budge == null || budge.equals("")){
+		   throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_BUDGET);
+	   }
 	   //转换类型
-	   int dayJudge = Integer.parseInt(budge);  
+	   int dayJudge = Integer.parseInt(budge);
 	   //判断是否超出日预算
 	   if(dayJudge > 0 ){
 		   return true;
@@ -1400,6 +1404,9 @@ public class LaunchService extends BaseService {
    public Boolean dailyCounterJudge(String campaignId){	   	  	   
 	   //获取redis中日均最大展现数
 	   String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
+	   if(dailyCounter == null || dailyCounter.equals("")){
+		   throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_COUNTER);
+	   }
 	   //转换类型
 	   int dayCounter = Integer.parseInt(dailyCounter);
 	   //判断是否超出日均最大展现数

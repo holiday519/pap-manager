@@ -15,6 +15,8 @@ public class PhrasesConstant
 	public static final String REDIS_KEY_LOCK = "redis的key被死锁";
 	public static final String REDIS_DAY_BUDGET = "超出了最大日预算";
 	public static final String REDIS_DAY_COUNTER = "超出日均最大展现的上限";
+	public static final String REDIS_DAILY_BUDGET = "日预算为空";
+	public static final String REDIS_DAILY_COUNTER = "日均最大展现为空";
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目
