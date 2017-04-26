@@ -87,6 +87,14 @@ public class FileUtils
         ScpHelper helper = new ScpHelper(host, port, username, password);
         helper.copy(from, to);
     }
+    
+    public static void deleteLocalFile(File file) throws IOException
+    {
+        if (file.isFile())
+        {
+            org.apache.commons.io.FileUtils.forceDelete(file);
+        }
+    }
 
     public static void deleteRemoteFile(String host, int port, String username, String password, String path) throws Exception
     {
