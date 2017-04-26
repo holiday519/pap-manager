@@ -182,10 +182,7 @@ public class LaunchService extends BaseService {
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
 	
-	private static Map<String, Integer> deviceIdType = new HashMap<String, Integer>();
-	
-	
-	
+	//private static Map<String, Integer> deviceIdType = new HashMap<String, Integer>();	
 	private static Map<String, Integer> deviceIdType = new HashMap<String, Integer>();
 	static {
 		deviceIdType.put("imei", 16);
