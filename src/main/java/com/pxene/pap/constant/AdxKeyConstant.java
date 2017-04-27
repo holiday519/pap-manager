@@ -14,6 +14,8 @@ public class AdxKeyConstant {
 	
 	public static final String ADX_AUTOHOME_VALUE = "23";
 	
+	public static final String ADX_INMOBI_VALUE = "3";
+	
 	public static final String AUDIT_NAME_MOMO = "pxene";
 	
 	public static final String AUDIT_NAME_AUTOHOME = "pxene";

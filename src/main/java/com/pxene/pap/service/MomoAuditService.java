@@ -56,20 +56,20 @@ public class MomoAuditService extends AuditService {
 	@Transactional
 	public void auditAdvertiser(String advertiserId) throws Exception {
 		//查询广告主审核信息
-		AdvertiserAuditModelExample advertiserAuditModelExample =new AdvertiserAuditModelExample();
-    	advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
-    	List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao.selectByExample(advertiserAuditModelExample);
-    	if(advertiserAuditList == null || advertiserAuditList.isEmpty()){
-    		//如果广告主审核信息为空，则向广告主审核表插入数据
-    		AdvertiserAuditModel advertiserAudit  = new AdvertiserAuditModel();
-    		advertiserAudit.setId(UUIDGenerator.getUUID());
-    		advertiserAudit.setAdvertiserId(advertiserId);
-    		advertiserAudit.setAuditValue("1");
-    		advertiserAudit.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
-    		advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
-    		//向广告主审核表插入数据
-    		advertiserAuditDao.insertSelective(advertiserAudit);
-    	}
+		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
+		advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
+		List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao.selectByExample(advertiserAuditModelExample);
+		if (advertiserAuditList == null || advertiserAuditList.isEmpty()) {
+			// 如果广告主审核信息为空，则向广告主审核表插入数据
+			AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
+			advertiserAudit.setId(UUIDGenerator.getUUID());
+			advertiserAudit.setAdvertiserId(advertiserId);
+			advertiserAudit.setAuditValue("1");
+			advertiserAudit.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
+			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
+			// 向广告主审核表插入数据
+			advertiserAuditDao.insertSelective(advertiserAudit);
+		}
     	
 	}
 
@@ -80,16 +80,16 @@ public class MomoAuditService extends AuditService {
 	@Transactional
 	public void synchronizeAdvertiser(String advertiserId) throws Exception {
 		//查询广告主审核信息
-		AdvertiserAuditModelExample advertiserAuditModelExample =new AdvertiserAuditModelExample();
-    	advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
+    	advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
     	List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao.selectByExample(advertiserAuditModelExample);
-    	if(advertiserAuditList != null && !advertiserAuditList.isEmpty()){
-    		//如果广告主审核信息不为空，则更新广告主审核表状态
-    		AdvertiserAuditModel advertiserAudit = advertiserAuditList.get(0);
-    		advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);   
-    		//更新广告主审核表数据
-    		advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
-    	}				
+		if (advertiserAuditList != null && !advertiserAuditList.isEmpty()) {
+			// 如果广告主审核信息不为空，则更新广告主审核表状态
+			AdvertiserAuditModel advertiserAudit = advertiserAuditList.get(0);
+			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
+			// 更新广告主审核表数据
+			advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
+		}		
 		
 	}
 
@@ -104,7 +104,7 @@ public class MomoAuditService extends AuditService {
 		//判断创意类型是否符合
 		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId); //根据传来的创意id查询创意信息
 		if (!StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creative.getType())) {
-			//如果创意类型不符合则提示
+			// 如果创意类型不符合则提示
 			throw new ThirdPartyAuditException(AuditErrorConstant.MOMO_CREATIVE_TYPE_NOT_SUPPORT);
 		}
 		//设置陌陌审核参数--本地创意信息
@@ -192,36 +192,37 @@ public class MomoAuditService extends AuditService {
         AdxModel momoAdx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
 		String cexamineurl = momoAdx.getCexamineUrl();
 		//提交陌陌审核并
-        String creativeAuditResult=HttpClientUtil.getInstance().sendHttpPostForm(cexamineurl, "data=" + data.toString());
+        String creativeAuditResult = HttpClientUtil.getInstance().sendHttpPostForm(cexamineurl, "data=" + data.toString());
         //转换陌陌审核数据格式
         Gson gson = new Gson();
         JsonObject creativeAuditJson = gson.fromJson(creativeAuditResult, new JsonObject().getClass()); 
-        if(creativeAuditJson.get("ec")!=null && creativeAuditJson.get("ec").getAsInt()==200){
-        	//如果creativeAuditJson的get("ec")不为空并且==200，说明审核成功，查询审核信息-->更新或插入创意审核表
-        	CreativeAuditModelExample creativeExample = new CreativeAuditModelExample();
-        	creativeExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
-        	List<CreativeAuditModel> creativeAuditList = creativeAuditDao.selectByExample(creativeExample);
-        	if(creativeAuditList != null && !creativeAuditList.isEmpty()){
-        		//如果创意审核表信息不为空，更新状态和时间
-        		for(CreativeAuditModel creativeAuditModel : creativeAuditList){
-        			creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-        			creativeAuditModel.setExpiryDate(new DateTime(current).plusDays(120).toDate());
+		if (creativeAuditJson.get("ec") != null && creativeAuditJson.get("ec").getAsInt() == 200) {
+			// 如果creativeAuditJson的get("ec")不为空并且==200，说明审核成功，查询审核信息-->更新或插入创意审核表
+			CreativeAuditModelExample creativeExample = new CreativeAuditModelExample();
+			creativeExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
+			List<CreativeAuditModel> creativeAuditList = creativeAuditDao.selectByExample(creativeExample);
+			if (creativeAuditList != null && !creativeAuditList.isEmpty()) {
+				// 如果创意审核表信息不为空，更新状态和时间
+				for (CreativeAuditModel creativeAuditModel : creativeAuditList) {
+					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+					creativeAuditModel.setExpiryDate(new DateTime(current).plusDays(120).toDate());
 					creativeAuditDao.updateByPrimaryKeySelective(creativeAuditModel);
-        		}
-        	}else{
-        		//如果创意审核表信息为空，添加加入相关信息
-        		CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
-        		creativeAuditModel.setId(UUIDGenerator.getUUID());
-        		creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);  
-        		creativeAuditModel.setExpiryDate(new DateTime(current).plusDays(120).toDate());
-        		creativeAuditModel.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
-        		creativeAuditModel.setCreativeId(creativeId);
-        		creativeAuditDao.insertSelective(creativeAuditModel);
-        	}        	
-        }else{
-        	//否则提示审核失败的原因
-        	throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_AUDIT_ERROR_REASON + creativeAuditJson.get("em").getAsString());
-        }
+				}
+			} else {
+				// 如果创意审核表信息为空，添加加入相关信息
+				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
+				creativeAuditModel.setId(UUIDGenerator.getUUID());
+				creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+				creativeAuditModel.setExpiryDate(new DateTime(current).plusDays(120).toDate());
+				creativeAuditModel.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
+				creativeAuditModel.setCreativeId(creativeId);
+				creativeAuditDao.insertSelective(creativeAuditModel);
+			}
+		} else {
+			// 否则提示审核失败的原因
+			throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_AUDIT_ERROR_REASON
+							+ creativeAuditJson.get("em").getAsString());
+		}
 		
 	}
 
@@ -249,35 +250,34 @@ public class MomoAuditService extends AuditService {
 		//转换数据格式
 		Gson gson = new Gson();
 		JsonObject jsonSynchronizeCreative = gson.fromJson(synchronizeCreativeResult, new JsonObject().getClass());
-		if("200".equals(jsonSynchronizeCreative.get("ec").getAsString())){
+		if (jsonSynchronizeCreative.get("ec") != null && jsonSynchronizeCreative.get("ec").getAsInt() == 200) {
 			//如果审核结果返回200，说明同步成功，根据同步信息更新创意审核表返回同步结果
 			JsonArray arrayCreative = jsonSynchronizeCreative.get("data").getAsJsonArray();
-			for(Object object : arrayCreative){
+			for (Object object : arrayCreative) {
 				JsonObject creativeObject = gson.fromJson(object.toString(), new JsonObject().getClass());
 				//创意数据表中查询当前创意当前媒体的审核数据
 				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
 				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
 				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
-				if(creativeObject.get("status").getAsInt() == 1){
-					//待审核
-					/*creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);*/
+				if (creativeObject.get("status").getAsInt() == 1) {
+					// 待审核
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				}else if(creativeObject.get("status").getAsInt() == 2){
+				} else if (creativeObject.get("status").getAsInt() == 2) {
 					// 审核通过
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-				}else if(creativeObject.get("status").getAsInt() == 3){
-					//审核未通过
+				} else if (creativeObject.get("status").getAsInt() == 3) {
+					// 审核未通过
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_FAILURE);
 				}
-				if(creativeObject.get("reason").toString()!=null && !"".equals(creativeObject.get("reason").toString())){
-					//如果创意审核信息不为空，则记录审核信息
+				if (creativeObject.get("reason").toString() != null && !"".equals(creativeObject.get("reason").toString())) {
+					// 如果创意审核信息不为空，则记录审核信息
 					creativeAuditModel.setMessage(creativeObject.get("reason").toString());
 				}
 				//更新创意审核表
 				//creativeAuditDao.updateByPrimaryKey(creativeAuditModel);
 				creativeAuditDao.updateByExampleSelective(creativeAuditModel, creativeAuditExample);
 			}
-		}else{
+		} else {
 			//否则提示同步失败的原因
 			throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_SYCHRONIZE_ERROR_REASON + jsonSynchronizeCreative.get("em").getAsString());
 		}
