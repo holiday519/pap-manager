@@ -18,6 +18,8 @@ public class PhrasesConstant
 	public static final String REDIS_DAILY_BUDGET = "日预算为空";
 	public static final String REDIS_DAILY_COUNTER = "日均最大展现为空";
 	public static final String CAMPAIGN_STATUS_TOP = "活动开启不能添加创意，请关闭活动"; 
+	public static final String REDIS_GROUPIDS_NULL = "redis中没有Groupids信息";
+	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目
@@ -31,6 +33,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放";
 	public static final String WBLIST_FILE_NOT_FOUND = "找不到人群定向文件";
 	public static final String CAMPAIGN_BEGIN = "活动已开始，创意不能删除";
+	public static final String LANDPAGE_INFO_NULL ="活动页信息为空，不能创建活动";
 	// 创意
 	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";

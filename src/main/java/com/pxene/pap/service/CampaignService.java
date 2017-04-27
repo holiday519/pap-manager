@@ -172,6 +172,9 @@ public class CampaignService extends BaseService {
 	@Autowired
 	private LaunchService launchService;
 	
+	@Autowired
+	private LandpageDao landpageDao;
+	
 	private RedisHelper redisHelper;
 	
 //	private static final String REDIS_KEY_GROUPIDS = "dsp_groupids";
@@ -202,6 +205,11 @@ public class CampaignService extends BaseService {
 		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
 		if (campaignModels != null && !campaignModels.isEmpty()) {
 			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
+		// 判断落地页信息是否为空，落地页信息为空则不能创建活动
+		LandpageModel landpageModel = landpageDao.selectByPrimaryKey(bean.getLandpageId());
+		if (landpageModel == null) {
+			throw new IllegalArgumentException(PhrasesConstant.LANDPAGE_INFO_NULL);
 		}
     	// 监测日期范围是否正确
 		Date startDate = bean.getStartDate();
@@ -346,21 +354,19 @@ public class CampaignService extends BaseService {
 				campaign.setFrequencyId(fId);
 			}
 		}
-		
-		//Date startDate = bean.getStartDate();
-		//Date endDate = bean.getEndDate();
+			
 		Date current = new Date();
 		if (current.after(endDate)) {
-			//launchService.removeCampaignId(id);
-			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+			// launchService.removeCampaignId(id);
+			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
 			LOGGER.info("chaxunPauseTrue." + id);
-			if (!removeResult) {	
-				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				/*pauseLaunchByDelCampaignInfo(id);*/
+			if (!removeResult) {
+				// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+				/* pauseLaunchByDelCampaignInfo(id); */
 				LOGGER.info("chaxunPauseFalse." + id);
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-				
+
 			}
 		}
 		
@@ -514,27 +520,27 @@ public class CampaignService extends BaseService {
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
 		/*if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
 		isOnLaunchDate(id) && isOnTargetTime(id){*/
-		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
-				isOnLaunchDate(id) && isOnTargetTime(id) && launchService.dailyBudgetJudge(id)
-				&& launchService.dailyCounterJudge(id)) {
-			//在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
-			//活动没有超出每天的日预算并且日均最大展现未达到上限
-			//launchService.writeCampaignId(id);
+		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
+				&& isOnTargetTime(id) && launchService.dailyBudgetJudge(id) && launchService.dailyCounterJudge(id)) {
+			// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
+			// 活动没有超出每天的日预算并且日均最大展现未达到上限
+			// launchService.writeCampaignId(id);
 			boolean writeResult = launchService.launchCampaignRepeatable(id);
 			LOGGER.info("chaxunLaunchTrue." + id);
-			if(!writeResult){
+			if (!writeResult) {
 				LOGGER.info("chaxunLaunchFalse." + id);
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);				
+				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
-		}else{
-			//否则将活动ID移除redis
-			//launchService.removeCampaignId(id);
-			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+		} else {
+			// 否则将活动ID移除redis
+			// launchService.removeCampaignId(id);
+			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
 			LOGGER.info("chaxunPauseTrue." + id);
 			if (!removeResult) {
-				//如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				//pauseLaunchByDelCampaignInfo(id);
+				// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+				// pauseLaunchByDelCampaignInfo(id);
 				LOGGER.info("chaxunPauseFalse." + id);
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
@@ -1155,7 +1161,7 @@ public class CampaignService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 		}
 		// 检查创意是否审核通过
-		//检查创意状态是否有审核通过的
+		// 检查创意状态是否有审核通过的
 		for (CreativeModel creative : creatives) {
 			String creativeId = creative.getId();
 			if (!StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeService.getCreativeAuditStatus(creativeId))) {
@@ -1171,20 +1177,20 @@ public class CampaignService extends BaseService {
 		// 投放
 		String projectId = campaign.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {	
+		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
 			if (launchService.isFirstLaunch(campaignId)) {
 				launchService.write4FirstTime(campaign);
 			}
-			//添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
-			//1.查询该活动在redis中的活动信息
+			// 添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
+			// 1.查询该活动在redis中的活动信息
 			String strCampaingInfo = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
 			if (strCampaingInfo != null && !strCampaingInfo.isEmpty()) {
-				//2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
+				// 2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
 				for (CreativeModel creative : creatives) {
-					//3.从redis中获取创意信息
+					// 3.从redis中获取创意信息
 					String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + creative.getId());
 					if (strCreativeId == null || strCreativeId.isEmpty()) {
-						//4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
+						// 4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
 						// 写入活动下的创意基本信息 dsp_mapid_*
 						launchService.writeCreativeInfo(campaignId);
 						// 写入活动下的创意ID dsp_group_mapids_*
@@ -1192,20 +1198,20 @@ public class CampaignService extends BaseService {
 					}
 				}
 			}
-			/*if (isOnTargetTime(campaignId){*/
+			/* if (isOnTargetTime(campaignId){ */
 			if (isOnTargetTime(campaignId) && launchService.dailyBudgetJudge(campaignId)
-					&& launchService.dailyCounterJudge(campaignId) ) {
-				//在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
-				//launchService.writeCampaignId(campaignId);
+					&& launchService.dailyCounterJudge(campaignId)) {
+				// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
+				// launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 				LOGGER.info("chaxunLaunchTrue." + campaignId);
-				if(!writeResult){
+				if (!writeResult) {
 					LOGGER.info("chaxunLaunchFalse." + campaignId);
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
-		}		
-		//改变数据库状态
+		}
+		// 改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaign);
 	}
 	
@@ -1220,9 +1226,9 @@ public class CampaignService extends BaseService {
 		String projectId = campaign.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-			//移除redis中key
-			//launchService.removeCampaignId(campaign.getId());
-			//将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+			// 移除redis中key
+			// launchService.removeCampaignId(campaign.getId());
+			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
 			LOGGER.info("chaxunPauseTrue." + campaign.getId());
 			if (!removeResult) {
@@ -1230,7 +1236,7 @@ public class CampaignService extends BaseService {
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
-		//改变数据库状态
+		// 改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaign);
 	}
 	

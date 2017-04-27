@@ -175,12 +175,12 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void createCreative(CreativeBean bean) throws Exception {
-		//判断活动是否开启，活动开启不能添加创意
+		// 判断活动是否开启，活动开启不能添加创意
 		CampaignModel model = campaignDao.selectByPrimaryKey(bean.getCampaignId());
 		if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
 			throw new ServerFailureException(PhrasesConstant.CAMPAIGN_STATUS_TOP);
 		}
-		//新建创意
+		// 新建创意
 		String type = bean.getType();
 		CreativeModel creativeModel = null;
 		// 图片
