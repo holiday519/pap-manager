@@ -4,9 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.pxene.pap.constant.AdxKeyConstant;
-import com.pxene.pap.constant.PhrasesConstant;
-import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
@@ -18,6 +15,7 @@ import com.pxene.pap.repository.basic.IndustryAdxDao;
 import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+
 @Service
 public abstract class AuditService extends BaseService {
 	
@@ -52,7 +50,9 @@ public abstract class AuditService extends BaseService {
 	}
 	
 	@Autowired
-	private MomoAuditService auditService;
+	private MomoAuditService momoAuditService;
+	@Autowired
+	private InmobiAuditService inmobiAuditService;
 
 	public abstract void auditAdvertiser(String advertiserId) throws Exception;
 
@@ -62,11 +62,14 @@ public abstract class AuditService extends BaseService {
 
 	public abstract void synchronizeCreative(String creativeId) throws Exception;
 	
-	public AuditService newInstance(String adxId) {
+/*	public AuditService newInstance(String adxId) {
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-			return auditService;
+			return momoAuditService;
+		}
+		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+			return inmobiAuditService;
 		}
 		throw new IllegalArgumentException(PhrasesConstant.ADX_NOT_FOUND);
-	}
+	}*/
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -45,6 +46,7 @@ import com.pxene.pap.exception.ThirdPartyAuditException;
 @Service
 public class MomoAuditService extends AuditService {
 
+	@Autowired
 	public MomoAuditService(Environment env) {
 		super(env);
 	}

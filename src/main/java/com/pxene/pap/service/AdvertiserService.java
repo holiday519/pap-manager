@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.UUIDGenerator;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
@@ -79,8 +80,15 @@ public class AdvertiserService extends BaseService
     @Autowired
     private KpiDao kpiDao;
     
-    @Autowired
-    private AuditService auditService;
+//    @Autowired
+//    private AuditService auditService;
+    
+	
+	@Autowired
+	private MomoAuditService momoAuditService;
+	
+	@Autowired
+	private InmobiAuditService inmobiAuditService;
     
     private Environment env;
     
@@ -569,8 +577,15 @@ public class AdvertiserService extends BaseService
 		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		//广告主审核
 		for (AdxModel adx : adxes) {
-			AuditService service = auditService.newInstance(adx.getId());
-			service.auditAdvertiser(id);
+//			AuditService service = auditService.newInstance(adx.getId());
+//			service.auditAdvertiser(id);
+			String adxId = adx.getId();
+			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+				momoAuditService.auditAdvertiser(id);
+			}
+			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+				inmobiAuditService.auditAdvertiser(id);
+			}
 		}
 	}
     
@@ -590,8 +605,15 @@ public class AdvertiserService extends BaseService
 		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		//同步结果
 		for (AdxModel adx : adxes) {
-			AuditService service = auditService.newInstance(adx.getId());
-			service.synchronizeAdvertiser(id);
+//			AuditService service = auditService.newInstance(adx.getId());
+//			service.synchronizeAdvertiser(id);
+			String adxId = adx.getId();
+			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+				momoAuditService.synchronizeAdvertiser(id);
+			}
+			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+				inmobiAuditService.synchronizeAdvertiser(id);
+			}
 		}
 	}
 

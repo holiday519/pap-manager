@@ -160,7 +160,10 @@ public class CreativeService extends BaseService {
 	private LaunchService launchService;
 	
 	@Autowired
-	private AuditService auditService;
+	private MomoAuditService momoAuditService;
+	
+	@Autowired
+	private InmobiAuditService inmobiAuditService;
 	
 	/**
 	 * 创建创意
@@ -449,8 +452,16 @@ public class CreativeService extends BaseService {
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		// 审核创意
 		for (Map<String, String> adx : adxes) {
-			AuditService service = auditService.newInstance(adx.get("adxId"));
-			service.auditCreative(id);
+//			AuditService service = auditService.newInstance(adx.get("adxId"));
+//			service.auditCreative(id);
+			String adxId = adx.get("adxId");
+			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+				momoAuditService.auditCreative(id);
+			}
+			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+				inmobiAuditService.auditCreative(id);
+			}
+			
 //			CreativeAuditModel model = new CreativeAuditModel();
 //			model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 //			model.setId(UUIDGenerator.getUUID());
@@ -484,8 +495,15 @@ public class CreativeService extends BaseService {
 //				CreativeAuditModel audit = audits.get(0);
 //				audit.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 //				creativeAuditDao.updateByPrimaryKeySelective(audit);
-				AuditService service = auditService.newInstance(adx.get("adxId"));
-				service.synchronizeCreative(id);
+//				AuditService service = auditService.newInstance(adx.get("adxId"));
+//				service.synchronizeCreative(id);
+				String adxId = adx.get("adxId");
+				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+					momoAuditService.synchronizeCreative(id);
+				}
+				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+					inmobiAuditService.synchronizeCreative(id);
+				}
 			}
 		}
 	}
