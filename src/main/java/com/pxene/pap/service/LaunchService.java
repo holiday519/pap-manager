@@ -89,6 +89,8 @@ import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
 //import org.apache.log4j.Logger;  
 
+import redis.clients.jedis.Jedis;
+
 
 @Service
 public class LaunchService extends BaseService {
@@ -428,11 +430,16 @@ public class LaunchService extends BaseService {
     {
         int i = 1;
         int total = 10;
+        Jedis jedis = null;
         
         while (i <= total)
         {
+            jedis = redisHelper.getJedis();
+            
+            jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
+            
             // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
-            String idStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+            String idStr = jedis.get(RedisKeyConstant.CAMPAIGN_IDS);
             
             JsonObject idObj = null;
             if (idStr == null)
@@ -455,7 +462,8 @@ public class LaunchService extends BaseService {
             
             if (idObj != null)
             {
-                boolean casFlag = redisHelper.checkAndSet(RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+                boolean casFlag = redisHelper.doTransaction(jedis, RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
+                
                 if (casFlag)
                 {
                     return true;
@@ -467,8 +475,8 @@ public class LaunchService extends BaseService {
         
         return false;
     }
-	
-	/**
+
+    /**
 	 * 将活动ID 移除redis
 	 * @param campaignId
 	 * @throws Exception

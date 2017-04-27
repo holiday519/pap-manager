@@ -440,6 +440,18 @@ public class RedisHelper
         return checkIfAllOK(list);
     }
     
+    public boolean doTransaction(Jedis jedis, String key, String value)
+    {
+        Transaction transaction = jedis.multi();
+        transaction.set(key, value);
+        
+        List<Object> list = transaction.exec();
+        
+        close(jedis);
+        
+        return checkIfAllOK(list);
+    }
+    
     /**
      * 检查Redis一个事务中的全部操作是否都成功（即，返回值是不是都为OK）
      * @param list  事务操作的全部返回值，例如[OK, nil, OK]或[OK]
