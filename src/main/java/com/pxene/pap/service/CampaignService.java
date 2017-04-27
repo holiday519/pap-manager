@@ -888,7 +888,7 @@ public class CampaignService extends BaseService {
 		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 		if (model ==null || StringUtils.isEmpty(model.getId())) {
         	throw new ResourceNotFoundException();
-        }
+        }						
 		CampaignBean map = modelMapper.map(model, CampaignBean.class);
 		addParamToCampaign(map, model.getId(), model.getFrequencyId());
 		return map;
@@ -1174,6 +1174,23 @@ public class CampaignService extends BaseService {
 		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {	
 			if (launchService.isFirstLaunch(campaignId)) {
 				launchService.write4FirstTime(campaign);
+			}
+			//添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
+			//1.查询该活动在redis中的活动信息
+			String strCampaingInfo = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+			if (strCampaingInfo != null && !strCampaingInfo.isEmpty()) {
+				//2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
+				for (CreativeModel creative : creatives) {
+					//3.从redis中获取创意信息
+					String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + creative.getId());
+					if (strCreativeId == null || strCreativeId.isEmpty()) {
+						//4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
+						// 写入活动下的创意基本信息 dsp_mapid_*
+						launchService.writeCreativeInfo(campaignId);
+						// 写入活动下的创意ID dsp_group_mapids_*
+						launchService.writeCreativeId(campaignId);
+					}
+				}
 			}
 			/*if (isOnTargetTime(campaignId){*/
 			if (isOnTargetTime(campaignId) && launchService.dailyBudgetJudge(campaignId)
