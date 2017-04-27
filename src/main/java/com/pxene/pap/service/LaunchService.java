@@ -495,7 +495,7 @@ public class LaunchService extends BaseService {
             jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
             
             // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
-            String availableGroups = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+            String availableGroups = jedis.get(RedisKeyConstant.CAMPAIGN_IDS);
     
             // 从JSON字符串中删除指定的活动ID
             String operatedVal = removeCampaignId(availableGroups, campaignId);
