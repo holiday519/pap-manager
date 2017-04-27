@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.session.SessionProperties.Redis;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -464,6 +465,43 @@ public class LaunchService extends BaseService {
             {
                 boolean casFlag = redisHelper.doTransaction(jedis, RedisKeyConstant.CAMPAIGN_IDS, idObj.toString());
                 
+                if (casFlag)
+                {
+                    return true;
+                }
+            }
+            
+            i++;
+        }
+        
+        return false;
+    }
+
+    /**
+     * 暂停指定的活动（重复指定的次数）
+     * @param campaignId   需要暂停的活动ID
+     * @return
+     */
+    public boolean pauseCampaignRepeatable(String campaignId)
+    {
+        int i = 1;
+        int total = 10;
+        Jedis jedis = null;
+        
+        while (i <= total)
+        {
+            jedis = redisHelper.getJedis();
+            
+            jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
+            
+            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
+            String availableGroups = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+    
+            // 从JSON字符串中删除指定的活动ID
+            String operatedVal = removeCampaignId(availableGroups, campaignId);
+            if (operatedVal != null)
+            {
+                boolean casFlag = redisHelper.doTransaction(jedis, RedisKeyConstant.CAMPAIGN_IDS, operatedVal);
                 if (casFlag)
                 {
                     return true;
@@ -1324,38 +1362,6 @@ public class LaunchService extends BaseService {
 		return !redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}
 	
-	
-	/**
-	 * 暂停指定的活动（重复指定的次数）
-	 * @param campaignId   需要暂停的活动ID
-	 * @return
-	 */
-	public boolean pauseCampaignRepeatable(String campaignId)
-    {
-        int i = 1;
-        int total = 10;
-        
-        while (i <= total)
-        {
-            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
-            String availableGroups = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
-
-            // 从JSON字符串中删除指定的活动ID
-            String operatedVal = removeCampaignId(availableGroups, campaignId);
-            if (operatedVal != null)
-            {
-                boolean casFlag = redisHelper.checkAndSet(RedisKeyConstant.CAMPAIGN_IDS, operatedVal);
-                if (casFlag)
-                {
-                    return true;
-                }
-            }
-            
-            i++;
-        }
-        
-        return false;
-    }
 	
 	/**
      * 从正在投放的活动中删除指定的活动ID。
