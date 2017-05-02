@@ -504,8 +504,12 @@ public class CampaignService extends BaseService {
 		bean.setId(id);
 		//删除掉定向
 		deleteCampaignTarget(id);
+		//活动定向移除redis
+		launchService.removeCampaignTarget(id);
 		//添加定向
 		addCampaignTarget(bean);
+		//写入活动定向   dsp_group_target_*
+		launchService.writeCampaignTarget(id);
 		//修改定向时更新redis中活动定向信息
 		if (launchService.isFirstLaunch(id)) {
 			launchService.writeCampaignTarget(id);
