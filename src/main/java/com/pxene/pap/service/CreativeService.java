@@ -453,9 +453,6 @@ public class CreativeService extends BaseService {
 		if (creative == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		
-		AdxModel momoAdx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
-		System.out.println(momoAdx);
 		// 查询adx列表，判断是哪个adx
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		// 审核创意
