@@ -2,10 +2,13 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class PopulationBean {
 
 	private String id;
 	private String name;
+	@JsonIgnore
 	private String type;
 	private String path;
 	private Integer amount;
