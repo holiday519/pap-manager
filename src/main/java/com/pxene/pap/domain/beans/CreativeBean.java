@@ -14,7 +14,7 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 创意id
 	 */
-	@Length(max = 37, message = PhrasesConstant.LENGTH_ERROR_ID)
+	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 
 	private String name;

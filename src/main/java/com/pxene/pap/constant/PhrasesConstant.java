@@ -7,7 +7,7 @@ public class PhrasesConstant
 	public static final String NAME_NOT_NULL = "名称不能为空";
 	public static final String NAME_NOT_REPEAT = "名称不能重复";
 	public static final String OBJECT_NOT_FOUND = "该对象不存在";
-	public static final String LENGTH_ERROR_ID = "id长度不能超过37";
+	//public static final String LENGTH_ERROR_ID = "id长度不能超过37";
 	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
@@ -65,7 +65,7 @@ public class PhrasesConstant
 	
 	
 	//public static final String NAME_NOT_NULL = "名称不能为空";
-	//public static final String LENGTH_ERROR_ID = "id长度不能超过36";
+	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
 	//public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LENGTH_ERROR_REMARK = "备注长度不能超过400";
 	public static final String LENGTH_ERROR_BUDGET = "总预算不能超过99999999";

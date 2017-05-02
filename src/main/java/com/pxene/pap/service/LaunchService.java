@@ -273,16 +273,17 @@ public class LaunchService extends BaseService {
 		Date start = DateUtils.strToDate(currentDate, "yyyy-MM-dd");
 		// 当前日期退后一秒钟的时间
 		Date end = DateUtils.changeDate(start, Calendar.SECOND, -1);
-		//周日的零点
-		Calendar cal= Calendar.getInstance();;
-		int week= cal.get(Calendar.DAY_OF_WEEK)-1;  	      
-		
+		// 周日的零点
+		Calendar cal = Calendar.getInstance();
+		;
+		int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
+
 		CampaignModelExample campaignExample = new CampaignModelExample();
 		Date current = new Date();
 		campaignExample.createCriteria().andStartDateLessThanOrEqualTo(current).andEndDateGreaterThanOrEqualTo(current);
 		// 所有正在投放的活动
-		List<CampaignModel> launchCampaigns = campaignDao.selectByExample(campaignExample);		
-		
+		List<CampaignModel> launchCampaigns = campaignDao.selectByExample(campaignExample);
+
 		// 如果是0点，需要做如下事情：
 		// 将今天开始投放的活动，所有数据写入redis
 		// 将今天结束投放的活动，redis中的数据删除
@@ -295,15 +296,16 @@ public class LaunchService extends BaseService {
 			for (ProjectModel project : projects) {
 				projectIds.add(project.getId());
 			}
-			
+
 			// 找出今天开始投放的活动，将投放的基本信息写入redis中
 			campaignExample.clear();
-			campaignExample.createCriteria().andProjectIdIn(projectIds).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED).andStartDateEqualTo(start);
+			campaignExample.createCriteria().andProjectIdIn(projectIds)
+					.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED).andStartDateEqualTo(start);
 			List<CampaignModel> addCampaigns = campaignDao.selectByExample(campaignExample);
 			for (CampaignModel campaign : addCampaigns) {
 				write4StartDate(campaign);
 			}
-			
+
 			// 找出今天结束投放的活动，将基本信息和活动id等信息从redis中删除
 			campaignExample.clear();
 			campaignExample.createCriteria().andEndDateEqualTo(end);
@@ -311,14 +313,14 @@ public class LaunchService extends BaseService {
 			for (CampaignModel campaign : delCampaigns) {
 				remove4EndDate(campaign);
 			}
-			
+
 			// 预算重新写入
 			for (CampaignModel campaign : launchCampaigns) {
 				String campaignId = campaign.getId();
 				writeCampaignBudget(campaign);
 				writeCampaignCounter(campaignId);
 			}
-			
+
 			// 每天晚上检查groupids中是否存在已经过期的campaignId，如果有则删除
 			// 1.获取redis中的Groupids
 			String strGroupids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
@@ -334,22 +336,19 @@ public class LaunchService extends BaseService {
 				// 获取第i个数组元素
 				JsonElement elemGroupid = jsonArray.get(i);
 				String strGroupid = elemGroupid.getAsString();
-				if (strGroupid.length() == 37) {
-					// 如果UUID为37位，则查询相关的活动信息
-					CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(strGroupid);
-					Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
-					if (end_date.before(current)) {
-						// 如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
-						boolean removeResult = pauseCampaignRepeatable(strGroupid);
-						LOGGER.info("chaxunPauseTrue." + strGroupid);
-						if (!removeResult) {
-							LOGGER.info("chaxunPauseFalse." + strGroupid);
-							throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-						}
+				// 查询相关的活动信息
+				CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(strGroupid);
+				Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
+				if (end_date.before(current)) {
+					// 如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
+					boolean removeResult = pauseCampaignRepeatable(strGroupid);
+					LOGGER.info("chaxunPauseTrue." + strGroupid);
+					if (!removeResult) {
+						LOGGER.info("chaxunPauseFalse." + strGroupid);
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 					}
 				}
 			}
-			
 		}
 		// 每个小时判断时间定向，将不在该时间内的活动移除
 		for (CampaignModel campaign : launchCampaigns) {
@@ -379,7 +378,7 @@ public class LaunchService extends BaseService {
 				}
 			}
 		}
-		
+
 		// 每周日零点再删除一次redis中过期的投放信息，防止每天零点删除遗漏
 		if (week == 0 && "00".equals(currentHour)) { // 0代表周日，6代表周六
 			// 查询redis中活动基本信息的keys
@@ -388,20 +387,17 @@ public class LaunchService extends BaseService {
 				throw new ServerFailureException(PhrasesConstant.REDIS_CAMPAIGNINFO_NULL);
 			}
 			for (String strCampaign : strCampaignInfo) {
-				String campaignid = strCampaign.substring(17); // 截取前缀，获取37位UUID
-				if (campaignid.length() == 37) {
-					// 如果UUID为37位，则通过该id到数据库中查询相关的活动信息
-					CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(campaignid);
-					Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
-					if (end_date.before(current)) {
-						// 如果活动的结束时间在今天之前则将其投放的基本信息从redis中删除
-						remove4EndDate(oldCampaigns);
-					}
+				String campaignid = strCampaign.substring(17); // 截取前缀，获取36位UUID
+				// 通过该id到数据库中查询相关的活动信息
+				CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(campaignid);
+				Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
+				if (end_date.before(current)) {
+					// 如果活动的结束时间在今天之前则将其投放的基本信息从redis中删除
+					remove4EndDate(oldCampaigns);
 				}
 			}
 		}
-								
-	}		
+	}
 	
 	/*******************************************************************************************************/
 	/**
@@ -445,7 +441,7 @@ public class LaunchService extends BaseService {
             
             jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
             
-            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
+            // 读取key为pap_groupids的value，即当前全部可投放的活动ID集合
             String idStr = jedis.get(RedisKeyConstant.CAMPAIGN_IDS);
             
             JsonObject idObj = null;
@@ -500,7 +496,7 @@ public class LaunchService extends BaseService {
             
             jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
             
-            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
+            // 读取key为pap_groupids的value，即当前全部可投放的活动ID集合
             String availableGroups = jedis.get(RedisKeyConstant.CAMPAIGN_IDS);
     
             // 从JSON字符串中删除指定的活动ID
