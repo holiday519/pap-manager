@@ -484,37 +484,31 @@ public class LaunchService extends BaseService {
      * @param campaignId   需要暂停的活动ID
      * @return
      */
-    public boolean pauseCampaignRepeatable(String campaignId)
-    {
-        int i = 1;
-        int total = 10;
-        Jedis jedis = null;
-        
-        while (i <= total)
-        {
-            jedis = redisHelper.getJedis();
-            
-            jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
-            
-            // 读取key为pap_groupids的value，即当前全部可投放的活动ID集合
-            String availableGroups = jedis.get(RedisKeyConstant.CAMPAIGN_IDS);
-    
-            // 从JSON字符串中删除指定的活动ID
-            String operatedVal = removeCampaignId(availableGroups, campaignId);
-            if (operatedVal != null)
-            {
-                boolean casFlag = redisHelper.doTransaction(jedis, RedisKeyConstant.CAMPAIGN_IDS, operatedVal);
-                if (casFlag)
-                {
-                    return true;
-                }
-            }
-            
-            i++;
-        }
-        
-        return false;
-    }
+	public boolean pauseCampaignRepeatable(String campaignId) {
+		int i = 1;
+		int total = 10;
+		Jedis jedis = null;
+
+		while (i <= total) {
+			jedis = redisHelper.getJedis();
+
+			jedis.watch(RedisKeyConstant.CAMPAIGN_IDS);
+
+			// 读取key为pap_groupids的value，即当前全部可投放的活动ID集合
+			String availableGroups = jedis.get(RedisKeyConstant.CAMPAIGN_IDS);
+			// 从JSON字符串中删除指定的活动ID
+			String operatedVal = removeCampaignId(availableGroups, campaignId);
+			if (operatedVal != null) {
+				boolean casFlag = redisHelper.doTransaction(jedis, RedisKeyConstant.CAMPAIGN_IDS, operatedVal);
+				if (casFlag) {
+					return true;
+				}
+			}
+			i++;
+		}
+
+		return false;
+	}
 
     /**
 	 * 将活动ID 移除redis
@@ -1371,29 +1365,23 @@ public class LaunchService extends BaseService {
      * @param campaignId    欲删除的活动ID
      * @return
      */
-    private String removeCampaignId(String redisValue, String campaignId)
-    {
-        JsonObject tmpObj = parser.parse(redisValue).getAsJsonObject();
-        
-        if (tmpObj != null)
-        {
-            JsonArray groudids = tmpObj.get("groupids").getAsJsonArray();
-            
-            // 判断是否已经含有当前campaignID
-            for (int i = 0; i < groudids.size(); i++)
-            {
-                if (campaignId.equals(groudids.get(i).getAsString()))
-                {
-                    groudids.remove(i);
-                    break;
-                }
-            }
-            
-            return tmpObj.toString();
-        }
-        
-        return null;
-    } 
+	private String removeCampaignId(String redisValue, String campaignId) {
+		JsonObject tmpObj = parser.parse(redisValue).getAsJsonObject();
+		if (tmpObj != null) {
+			JsonArray groudids = tmpObj.get("groupids").getAsJsonArray();
+
+			// 判断是否已经含有当前campaignID
+			for (int i = 0; i < groudids.size(); i++) {
+				if (campaignId.equals(groudids.get(i).getAsString())) {
+					groudids.remove(i);
+					break;
+				}
+			}
+
+			return tmpObj.toString();
+		}
+		return null;
+	}
    
    /**
     * 判断活动是否超出每天的日预算 

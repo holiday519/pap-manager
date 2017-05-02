@@ -539,14 +539,17 @@ public class CampaignService extends BaseService {
 		} else {
 			// 否则将活动ID移除redis
 			// launchService.removeCampaignId(id);
-			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-			boolean removeResult = launchService.pauseCampaignRepeatable(id);
-			LOGGER.info("chaxunPauseTrue." + id);
-			if (!removeResult) {
-				// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				// pauseLaunchByDelCampaignInfo(id);
-				LOGGER.info("chaxunPauseFalse." + id);
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放 get();
+			String availableGroups = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS + id);
+			if (availableGroups != null && !availableGroups.equals("")) {
+				boolean removeResult = launchService.pauseCampaignRepeatable(id);
+				LOGGER.info("chaxunPauseTrue." + id);
+				if (!removeResult) {
+					// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
+					// pauseLaunchByDelCampaignInfo(id);
+					LOGGER.info("chaxunPauseFalse." + id);
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				}
 			}
 		}
 	}
