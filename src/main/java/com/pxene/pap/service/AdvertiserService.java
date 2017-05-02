@@ -131,6 +131,11 @@ public class AdvertiserService extends BaseService
         }
     }
     
+    /**
+     * 创建广告主
+     * @param bean
+     * @throws Exception
+     */
     @Transactional
     public void createAdvertiser(AdvertiserBean bean) throws Exception
     {
@@ -154,7 +159,11 @@ public class AdvertiserService extends BaseService
         BeanUtils.copyProperties(model, bean);
     }
 
-
+    /**
+     * 删除广告主
+     * @param id
+     * @throws Exception
+     */
     @Transactional
     public void deleteAdvertiser(String id) throws Exception
     {
@@ -181,6 +190,11 @@ public class AdvertiserService extends BaseService
         advertiserDao.deleteByPrimaryKey(id);
     }
     
+    /**
+     * 批量删除广告主
+     * @param ids
+     * @throws Exception
+     */
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
@@ -247,7 +261,12 @@ public class AdvertiserService extends BaseService
 //        }
 //    }
 
-
+    /**
+     * 更新编辑广告主
+     * @param id
+     * @param bean
+     * @throws Exception
+     */
     @Transactional
     public void updateAdvertiser(String id, AdvertiserBean bean) throws Exception
     {
@@ -278,7 +297,12 @@ public class AdvertiserService extends BaseService
         
     }
 
-
+    /**
+     * 根据ID查询指定的广告主
+     * @param id
+     * @return
+     * @throws Exception
+     */
     public AdvertiserBean getAdvertiser(String id) throws Exception
     {
         AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
@@ -310,7 +334,14 @@ public class AdvertiserService extends BaseService
         return bean;
     }
 
-
+    /**
+     * 批量查询广告主
+     * @param name
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @return
+     * @throws Exception
+     */
     public List<AdvertiserBean> listAdvertisers(String name, Long startDate, Long endDate) throws Exception
     {
         AdvertiserModelExample example = new AdvertiserModelExample();
