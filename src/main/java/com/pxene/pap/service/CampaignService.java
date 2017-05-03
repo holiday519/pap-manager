@@ -334,7 +334,7 @@ public class CampaignService extends BaseService {
 				
 			} else { // 活动以前存在频次，删除
 				campaign.setFrequencyId("");
-				frequencyDao.deleteByPrimaryKey(frequencyId);
+				frequencyDao.deleteByPrimaryKey(frequencyId);				
 			}
 		} else {
 			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，添加  
@@ -343,7 +343,7 @@ public class CampaignService extends BaseService {
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 				frequencyDao.insertSelective(frequencyModel);
-				campaign.setFrequencyId(fId);
+				campaign.setFrequencyId(fId);				
 			} else { // 活动以前存在频次，删除再添加
 				frequencyDao.deleteByPrimaryKey(frequencyId);
 				//String fId = UUID.randomUUID().toString();
@@ -351,7 +351,7 @@ public class CampaignService extends BaseService {
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
 				frequencyDao.insertSelective(frequencyModel);
-				campaign.setFrequencyId(fId);
+				campaign.setFrequencyId(fId);				
 			}
 		}
 			
@@ -380,6 +380,8 @@ public class CampaignService extends BaseService {
 		addCampaignQuantity(bean);
 		//修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
+		//写入活动频次信息   dsp_groupid_frequencycapping_*
+		launchService.writeCampaignFrequency(campaign);
 		
 	}
 	

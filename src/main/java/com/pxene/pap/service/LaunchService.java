@@ -1078,6 +1078,7 @@ public class LaunchService extends BaseService {
 		JsonArray groupJsons = new JsonArray();
 		List<Map<String, String>> adxes = getAdxByCampaign(campaign);
 		if (adxes != null && !adxes.isEmpty()) {
+			// 如果adx信息不为空
 			String uniform = campaign.getUniform();
 			JsonArray frequencyJsons = null;
 			
@@ -1104,7 +1105,7 @@ public class LaunchService extends BaseService {
 					for (TimeTargetModel timeTarget : timeTargets) {
 						weekHours.add(timeTarget.getTime());
 					}
-					
+					// 每小时投放的数量 = 每日最大展现数 / adx的个数 / 时间定向（有几个时间段）
 					int hourImpression = dailyImpression / adxes.size() / timeTargets.size();
 					for (int i=0; i<24; i++) {
 						String weekHour = week + String.format("%02d", i);
@@ -1116,14 +1117,16 @@ public class LaunchService extends BaseService {
 					}
 				}
 			}
-			
+			// 是否匀速
 			for (Map<String, String> adx : adxes) {
 				JsonObject groupObject = new JsonObject();
 				groupObject.addProperty("adx", Integer.parseInt(adx.get("adxId")));
 				if (frequencyJsons == null) {
+					// 不匀速
 					groupObject.addProperty("type", 0);
 					groupObject.addProperty("period", 3);
 				} else {
+					// 匀速
 					groupObject.addProperty("type", 1);
 					groupObject.addProperty("period", 2);
 					groupObject.add("frequency", frequencyJsons);
@@ -1132,8 +1135,10 @@ public class LaunchService extends BaseService {
 			}
 			resultJson.add("group", groupJsons);
 		}
+		//设置频次
 		String frequencyId = campaign.getFrequencyId();
 		if (!StringUtils.isEmpty(frequencyId)) {
+			// 如果频次信息不为空，则添加频次信息
 			JsonObject userJson = new JsonObject();
 			FrequencyModel frequencyModel = frequencyDao.selectByPrimaryKey(frequencyId);
 			if (frequencyModel != null) {
