@@ -7,6 +7,9 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+/*import org.apache.log4j.Logger;*/
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +26,6 @@ import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
-import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -36,11 +38,7 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.KpiDao;
-import com.pxene.pap.repository.basic.ProjectDao;
-
-import org.slf4j.Logger;
-/*import org.apache.log4j.Logger;*/
-import org.slf4j.LoggerFactory; 
+import com.pxene.pap.repository.basic.ProjectDao; 
 
 @Service
 public class ProjectService extends BaseService {
@@ -156,7 +154,7 @@ public class ProjectService extends BaseService {
 	 */
 	@Transactional
 	public void updateProjectStatus(String id, Map<String, String> map) throws Exception {
-		if (StringUtils.isEmpty(map.get("action"))) {
+		if (StringUtils.isEmpty(map.get("status"))) {
 			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		ProjectModel project = projectDao.selectByPrimaryKey(id);
@@ -164,11 +162,11 @@ public class ProjectService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-		String action = map.get("action").toString();
-		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
+		String status = map.get("status").toString();
+		if (StatusConstant.ACTION_TYPE_PAUSE.equals(status)) {
 			//暂停
 			pauseProject(project);
-		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
+		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(status)) {
 			//投放
 			proceedProject(project);
 		} else {
@@ -357,12 +355,6 @@ public class ProjectService extends BaseService {
     			}
     		}
     	}
-    	String kpiId = bean.getKpiId();
-    	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
-    	if (kpiModel!=null) {
-    		bean.setKpiName(kpiModel.getName());
-    	}
-    	
     }
     
 	/**

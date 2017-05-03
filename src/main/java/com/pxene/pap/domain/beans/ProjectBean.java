@@ -51,28 +51,7 @@ public class ProjectBean extends BasicDataBean {
 	 * 状态
 	 */
 	private String status;
-	/**
-	 * KPI指标id
-	 */
-	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI)
-	@Length(max = 37, message = PhrasesConstant.PROJECT_LENGTH_ERROR_KPIID)
-	private String kpiId;
-	/**
-	 * kpi指标名称
-	 */
-	private String kpiName;
-	/**
-	 * KPI指标value
-	 */
-	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_KPI_VALUE)
-	private Integer kpiVal;
 	
-	public Integer getKpiVal() {
-		return kpiVal;
-	}
-	public void setKpiVal(Integer kpiVal) {
-		this.kpiVal = kpiVal;
-	}
 	public String getId() {
 		return id;
 	}
@@ -109,14 +88,6 @@ public class ProjectBean extends BasicDataBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-
-	public String getKpiId() {
-		return kpiId;
-	}
-	public void setKpiId(String kpiId) {
-		this.kpiId = kpiId;
-	}
-	
 	public String getAdvertiserName() {
 		return advertiserName;
 	}
@@ -135,18 +106,11 @@ public class ProjectBean extends BasicDataBean {
 	public void setIndustryName(String industryName) {
 		this.industryName = industryName;
 	}
-	public String getKpiName() {
-		return kpiName;
-	}
-	public void setKpiName(String kpiName) {
-		this.kpiName = kpiName;
-	}
 	@Override
-	public String toString() {
-		return "ProjectBean [id=" + id + ", advertiserId=" + advertiserId
-				+ ", name=" + name + ", totalBudget=" + totalBudget
-				+ ", remark=" + remark + ", status=" + status + ", kpiId="
-				+ kpiId + ", kpiVal=" + kpiVal + "]";
-	}
+    public String toString()
+    {
+        return "ProjectBean [id=" + id + ", name=" + name + ", advertiserId=" + advertiserId + ", advertiserName=" + advertiserName + ", industryId=" + industryId + ", industryName=" + industryName
+                + ", totalBudget=" + totalBudget + ", remark=" + remark + ", status=" + status + "]";
+    }
 	
 }
