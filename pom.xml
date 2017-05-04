@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>pap-manager</artifactId>
     <groupId>com.pxene.pap</groupId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <name>Pxene PAP Manager</name>
     <description>PowerXene PAP Project</description>
