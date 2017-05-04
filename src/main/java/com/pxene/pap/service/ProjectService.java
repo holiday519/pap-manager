@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -25,6 +26,8 @@ import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.EffectDicModel;
+import com.pxene.pap.domain.models.EffectDicModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
@@ -36,14 +39,18 @@ import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.EffectDicDao;
 import com.pxene.pap.repository.basic.IndustryDao;
-import com.pxene.pap.repository.basic.KpiDao;
-import com.pxene.pap.repository.basic.ProjectDao; 
+import com.pxene.pap.repository.basic.ProjectDao;
+
+import redis.clients.jedis.Jedis; 
 
 @Service
 public class ProjectService extends BaseService {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
+	private static final String PROJECT_BUDGET_PREFIX = "pap_project_budget_";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
 	@Autowired
 	private ProjectDao projectDao;
@@ -70,12 +77,18 @@ public class ProjectService extends BaseService {
 	private IndustryDao industryDao;
 	
 	@Autowired
-	private KpiDao kpiDao;
+	private EffectDicDao effectDicDao;
 	
 	@Autowired
 	private LaunchService launchService;
+
+    private RedisHelper redisHelper;
 	
-	//Logger log = Logger.getLogger("ProjectService"); 
+	
+	public ProjectService()
+    {
+        redisHelper = RedisHelper.open("redis.primary.");
+    }
 	
 	/**
 	 * 创建项目
@@ -84,22 +97,30 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createProject(ProjectBean bean) throws Exception {
-		// 验证名称重复
-		ProjectModelExample example = new ProjectModelExample();
-		example.createCriteria().andNameEqualTo(bean.getName());
-		List<ProjectModel> projects = projectDao.selectByExample(example);
-		if (projects != null && !projects.isEmpty()) {
-			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-		}
-		ProjectModel project = modelMapper.map(bean, ProjectModel.class);
-		/*project.setId(UUID.randomUUID().toString());*/
-		project.setId(UUIDGenerator.getUUID());
-		project.setStatus(StatusConstant.PROJECT_PROCEED);
-		projectDao.insertSelective(project);
-		
-		BeanUtils.copyProperties(project, bean);
-	}
+    public void createProject(ProjectBean bean) throws Exception
+    {
+        // 验证项目名称是否已存在
+        ProjectModelExample example = new ProjectModelExample();
+        example.createCriteria().andNameEqualTo(bean.getName());
+        List<ProjectModel> projects = projectDao.selectByExample(example);
+        if (projects != null && !projects.isEmpty())
+        {
+            throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+        }
+        
+        // 将项目信息插入MySQL
+        ProjectModel project = modelMapper.map(bean, ProjectModel.class);
+        project.setId(UUIDGenerator.getUUID());
+        project.setStatus(StatusConstant.PROJECT_PROCEED);
+        projectDao.insertSelective(project);
+        
+        // 复制置设好的属性回请求对象中
+        BeanUtils.copyProperties(project, bean);
+        
+        // 将项目总预算插入Redis
+        String projectBudgetKey = PROJECT_BUDGET_PREFIX + project.getId();
+        redisHelper.setNX(projectBudgetKey, project.getTotalBudget());
+    }
 	
 	/**
 	 * 编辑项目
@@ -108,44 +129,46 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void updateProject(String id, ProjectBean bean) throws Exception {
-		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
-		if (projectInDB == null) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		} else {
-			String nameInDB = projectInDB.getName();
-			String name = bean.getName();
-			if (!nameInDB.equals(name)) {
-				ProjectModelExample projectExample = new ProjectModelExample();
-				projectExample.createCriteria().andNameEqualTo(name);
-				List<ProjectModel> projects = projectDao.selectByExample(projectExample);
-				if (projects != null & !projects.isEmpty()) {
-					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-				}
-			}
-		}
-
-		CampaignModelExample campaignExample = new CampaignModelExample();
-		campaignExample.createCriteria().andProjectIdEqualTo(id);
-		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-		if (campaigns != null && !campaigns.isEmpty()) {
-			int budget = 0; 
-			for (CampaignModel campaign : campaigns) {
-				Integer totalBudget = campaign.getTotalBudget();
-				if (totalBudget != null) {
-					budget = budget + totalBudget;
-				}
-			}
-			if (bean.getTotalBudget() < budget) {
-				throw new IllegalArgumentException(PhrasesConstant.PROJECT_BUDGET_UNDER_CAMPAIGN_ALL);
-			}
-		}
-		
-		ProjectModel model = modelMapper.map(bean, ProjectModel.class);
-		model.setId(id);
-
-		projectDao.updateByPrimaryKeySelective(model);
-	}
+    public void updateProject(String id, ProjectBean bean) throws Exception
+    {
+	    // 判断指定ID的项目在MySQL中是否存在
+        ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
+        if (projectInDB == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        else
+        {
+            String nameInDB = projectInDB.getName(); // 数据库中的项目名
+            String name = bean.getName();            // 欲修改成的项目名
+            
+            if (!nameInDB.equals(name))
+            {
+                ProjectModelExample projectExample = new ProjectModelExample();
+                projectExample.createCriteria().andNameEqualTo(name);
+                
+                // 如果数据库中其它项目的名称与欲修改成的项目名称重复，则禁止修改
+                List<ProjectModel> projects = projectDao.selectByExample(projectExample);
+                if (projects != null & !projects.isEmpty())
+                {
+                    throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+                }
+            }
+        }
+        
+        // 修改Reids中保存的项目总预算
+        if (projectInDB.getTotalBudget() != bean.getTotalBudget())
+        {
+            changeBudgetInRedis(id, bean.getTotalBudget());
+        }
+        
+        // 将请求参数转换成MyBatis Model
+        ProjectModel model = modelMapper.map(bean, ProjectModel.class);
+        model.setId(id);
+        
+        // 更新MySQL中的指定ID的项目
+        projectDao.updateByPrimaryKeySelective(model);
+    }
 	
 	/**
 	 * 修改项目状态
@@ -181,23 +204,31 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void deleteProject(String id) throws Exception {
-		
-		ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
-		if (projectInDB == null) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
-		
-		//查询出项目下活动
-		CampaignModelExample example = new CampaignModelExample();
-		example.createCriteria().andProjectIdEqualTo(id);
-		List<CampaignModel> list = campaignDao.selectByExample(example);
-		if (list != null && !list.isEmpty()) {
-			throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
-		}
-		
-		projectDao.deleteByPrimaryKey(id);
-	}
+    public void deleteProject(String id) throws Exception
+    {
+	    // 判断指定ID的项目在MySQL中是否存在
+        ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
+        if (projectInDB == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        // 查询项目下是否存在活动
+        CampaignModelExample example = new CampaignModelExample();
+        example.createCriteria().andProjectIdEqualTo(id);
+        List<CampaignModel> list = campaignDao.selectByExample(example);
+        if (list != null && !list.isEmpty())
+        {
+            throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
+        }
+        
+        // 从MySQL中删除指定ID的项目
+        projectDao.deleteByPrimaryKey(id);
+        
+        // 从Redis中删除指定ID的项目总预算
+        String projectBudgetKey = PROJECT_BUDGET_PREFIX + id;
+        redisHelper.delete(projectBudgetKey);
+    }
 	
 	/**
 	 * 批量删除项目
@@ -206,27 +237,40 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void deleteProjects(String[] ids) throws Exception {
-		
-		ProjectModelExample projectExample = new ProjectModelExample();
-		projectExample.createCriteria().andIdIn(Arrays.asList(ids));
-		
-		List<ProjectModel> projectInDB = projectDao.selectByExample(projectExample);
-		if (projectInDB == null || projectInDB.size() < ids.length) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
-		for (String id : ids) {
-			//查询出项目下活动
-			CampaignModelExample campaignExample = new CampaignModelExample();
-			campaignExample.createCriteria().andProjectIdEqualTo(id);
-			List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-			if (campaigns != null && !campaigns.isEmpty()) {
-				throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
-			}
-		}
-		
-		projectDao.deleteByExample(projectExample);
-	}
+    public void deleteProjects(String[] ids) throws Exception
+    {
+	    // 判断指定的多个项目ID是否在MySQL中存在
+        ProjectModelExample projectExample = new ProjectModelExample();
+        projectExample.createCriteria().andIdIn(Arrays.asList(ids));
+        
+        List<ProjectModel> projectInDB = projectDao.selectByExample(projectExample);
+        if (projectInDB == null || projectInDB.size() < ids.length)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        // 遍历每一个项目，如果任何一个项目下存在活动，则放弃整个删除
+        for (String id : ids)
+        {
+            CampaignModelExample campaignExample = new CampaignModelExample();
+            campaignExample.createCriteria().andProjectIdEqualTo(id);
+            
+            List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+            if (campaigns != null && !campaigns.isEmpty())
+            {
+                throw new IllegalStatusException(PhrasesConstant.PROJECT_HAVE_CAMPAIGN);
+            }
+        }
+        
+        // 从MySQL中批量删除指定ID的项目
+        projectDao.deleteByExample(projectExample);
+        
+        // 从Redis中删除指定ID的项目总预算
+        for (String id : ids)
+        {
+            redisHelper.delete(PROJECT_BUDGET_PREFIX + id);
+        }
+    }
 
 	/**
 	 * 根据id查询项目
@@ -429,5 +473,124 @@ public class ProjectService extends BaseService {
 		project.setStatus(StatusConstant.PROJECT_PAUSE);
 		projectDao.updateByPrimaryKeySelective(project);
 	}
+
+	@Transactional
+    public void addEffectName(String projectId, Map<String, String> map)
+    {
+        String code = map.get("code");
+        String name = map.get("name");
+        
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(name))
+        {
+            throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+        }
+        
+        ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+        if (project == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        EffectDicModel record = new EffectDicModel();
+        record.setId(UUIDGenerator.getUUID());
+        record.setProjectId(projectId);
+        record.setColumnCode(code);
+        record.setColumnName(name);
+        record.setEnable(StatusConstant.EFFECT_STATUS_DISABLE);
+        
+        effectDicDao.insert(record);
+    }
+
+    public void changeEffectStatus(String projectId, Map<String, String> map)
+    {
+        String code = map.get("code");
+        String enable = map.get("enable");
+        
+        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(enable))
+        {
+            throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+        }
+        
+        ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+        if (project == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        EffectDicModel record = new EffectDicModel();
+        record.setEnable(enable);
+        
+        EffectDicModelExample example = new EffectDicModelExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        
+        effectDicDao.updateByExampleSelective(record, example);
+    }
+
+    public void changeProjectBudget(String projectId, Map<String, String> map)
+    {
+        String budgetStr = map.get("budget");
+        
+        if (StringUtils.isEmpty(budgetStr))
+        {
+            throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+        }
+        
+        int formVal = Integer.parseInt(budgetStr);
+        
+        // 修改Reids中保存的项目总预算
+        changeBudgetInRedis(projectId, formVal);
+        
+        // 将表单值更新回MySQL中
+        ProjectModel projectModel = new ProjectModel();
+        projectModel.setId(projectId);
+        projectModel.setTotalBudget(formVal);
+        
+        int effectedRows = projectDao.updateByPrimaryKeySelective(projectModel);
+        if (effectedRows <= 0)
+        {
+            throw new ServerFailureException();
+        }
+    }
+    
+    /**
+     * 修改Reids中保存的项目总预算
+     * @param projectId 项目ID
+     * @param formVal   欲修改成的项目总预算值（表单值）
+     */
+    private void changeBudgetInRedis(String projectId, int formVal)
+    {
+        String projectBudgetKey = PROJECT_BUDGET_PREFIX + projectId;
+        
+        // 如果项目不存在，则无必要再继续操作
+        ProjectModel projectInDB = projectDao.selectByPrimaryKey(projectId);
+        if (projectInDB == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        // MySQL中保存的项目总预算
+        int mysqlVal = projectInDB.getTotalBudget();
+        
+        // Redis中保存的项目剩余预算
+        Jedis jedis = redisHelper.getJedis();
+        jedis.watch(projectBudgetKey);
+        int redisVal = Integer.parseInt(jedis.get(projectBudgetKey));
+        
+        // 已消耗掉的项目预算
+        int used = mysqlVal - redisVal;
+        
+        // 如果欲修改的预算值不足以支付已消耗掉的项目预算，则抛出异常
+        if (formVal < used)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
+        }
+        
+        // 将表单值减去已消耗掉的值更新回Redis中
+        boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(formVal - used));
+        if (!casFlag)
+        {
+            throw new ServerFailureException();
+        }
+    }
 	
 }

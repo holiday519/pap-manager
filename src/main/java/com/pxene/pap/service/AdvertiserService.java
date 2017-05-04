@@ -293,18 +293,6 @@ public class AdvertiserService extends BaseService
         IndustryModel industry = industryDao.selectByPrimaryKey(industryId);
         String industryName = industry.getName();
         bean.setIndustryName(industryName);
-        // 找出该行业下的kpi
-        IndustryKpiModelExample example = new IndustryKpiModelExample();
-        example.createCriteria().andIndustryIdEqualTo(industryId);
-        List<IndustryKpiModel> industryKpis = industryKpiDao.selectByExample(example);
-        Kpi[] kpis = new Kpi[industryKpis.size()]; 
-        for (int i=0; i<kpis.length; i++) {
-        	String kpiId = industryKpis.get(i).getKpiId();
-        	KpiModel kpiModel = kpiDao.selectByPrimaryKey(kpiId);
-        	kpis[i] = modelMapper.map(kpiModel, Kpi.class);
-        }
-        bean.setKpis(kpis);
-        
         bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
         // 将DAO创建的新对象复制回传输对象中
         return bean;
@@ -341,17 +329,6 @@ public class AdvertiserService extends BaseService
             IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
             String industryName = industryModel.getName();
             bean.setIndustryName(industryName);
-            // 找出该行业下的kpi
-            IndustryKpiModelExample industryKpiModelExample = new IndustryKpiModelExample();
-            industryKpiModelExample.createCriteria().andIndustryIdEqualTo(industryId);
-            List<IndustryKpiModel> industryKpis = industryKpiDao.selectByExample(industryKpiModelExample);
-            Kpi[] kpis = new Kpi[industryKpis.size()]; 
-            for (int i=0; i<kpis.length; i++) {
-            	String kpiId = industryKpis.get(i).getKpiId();
-            	KpiModel kpi = kpiDao.selectByPrimaryKey(kpiId);
-            	kpis[i] = modelMapper.map(kpi, Kpi.class);
-            }
-            bean.setKpis(kpis);
             //查询审核状态
             bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
             

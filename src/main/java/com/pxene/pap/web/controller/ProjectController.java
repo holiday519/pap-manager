@@ -141,4 +141,46 @@ public class ProjectController {
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
+	/**
+	 * 转化字段命名
+	 * @param id   项目ID
+	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和转化字段名称name
+	 * @param response
+	 */
+	@RequestMapping(value = "/project/effect/name/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void addEffectName(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
+	{
+	    projectService.addEffectName(id, map);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 启用/禁用转化字段
+	 * @param id   项目ID
+	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和操作标识enable
+	 * @param response
+	 */
+	@RequestMapping(value = "/project/effect/enable/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void changeEffectStatus(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
+	{
+	    projectService.changeEffectStatus(id, map);
+	    response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 修改项目预算
+	 * @param id   项目ID
+	 * @param map  位于Http Body中的请求参数，包含项目预算budget
+	 * @param response
+	 */
+	@RequestMapping(value = "/project/budget/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void changeProjectBudget(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
+	{
+	    projectService.changeProjectBudget(id, map);
+	    response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
 }

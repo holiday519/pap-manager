@@ -184,6 +184,25 @@ public class RedisHelper
         set(key, String.valueOf(value));
     }
     
+    public boolean setNX(String key, int value)
+    {
+        if (isBlank(key))
+        {
+            return false;
+        }
+
+        Jedis jedis = getJedis();
+        Long flag = jedis.setnx(key, String.valueOf(value));
+        close(jedis);
+        
+        if (flag > 0)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+    
     public Float getFloat(String key)
     {
         if (isBlank(key))

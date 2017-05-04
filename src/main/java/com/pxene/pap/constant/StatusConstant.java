@@ -115,4 +115,14 @@ public class StatusConstant {
 	 */
 	public static final String LANDPAGE_CHECK_ERROR = "03";
 	
+	/**
+	 * 转义字段状态：启用
+	 */
+	public static final String EFFECT_STATUS_ENABLE = "01";
+	
+	/**
+	 * 转义字段状态：禁用
+	 */
+	public static final String EFFECT_STATUS_DISABLE = "02";
+	
 }
