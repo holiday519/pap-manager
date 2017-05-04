@@ -1354,14 +1354,14 @@ public class LaunchService extends BaseService {
 	}
 	
 	/**
-	 * 判断活动是不是第一次投放
+	 * 判断活动是不是已经投放了
 	 * @param campaignId 活动id
 	 * @return
 	 * @throws Exception
 	 */
-	public Boolean isFirstLaunch(String campaignId) throws Exception {
+	public Boolean isHaveLaunched(String campaignId) throws Exception {
 		/*return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);*/
-		return !redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		return redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 	}
 	
 	

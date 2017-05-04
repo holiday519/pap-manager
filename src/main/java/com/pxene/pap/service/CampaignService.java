@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
-import com.mysql.jdbc.log.LogFactory;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
@@ -182,9 +181,6 @@ public class CampaignService extends BaseService {
 //	private static final String REDIS_KEY_GROUPINFO = "dsp_groupid_info_";
 //	
 //	private static final String JSON_KEY_GROUPIDS = "groupids";
-	
-	//Logger log = Logger.getLogger("CampaignService"); 
-	
 	
 	public CampaignService()
     {
@@ -507,13 +503,13 @@ public class CampaignService extends BaseService {
 		//删除掉定向
 		deleteCampaignTarget(id);
 		//活动定向移除redis
-		// launchService.removeCampaignTarget(id);
+		//launchService.removeCampaignTarget(id);
 		//添加定向
 		addCampaignTarget(bean);
 		//写入活动定向   dsp_group_target_*
-		// launchService.writeCampaignTarget(id);
+		//launchService.writeCampaignTarget(id);
 		//修改定向时更新redis中活动定向信息（是否已经投放过，投放过再修改）
-		if (!launchService.isFirstLaunch(id)) {
+		if (launchService.isHaveLaunched(id)) {
 			launchService.writeCampaignTarget(id);
 			// 先移除以前的白名单
 			launchService.removeWhiteBlack(id);
@@ -555,7 +551,7 @@ public class CampaignService extends BaseService {
 			}
 		}
 		// 修改定向时更新redis中的活动基本信息和频次基本信息
-		if (!launchService.isFirstLaunch(id)) {
+		if (launchService.isHaveLaunched(id)) {
 			//写入活动基本信息   dsp_group_info_*
 			launchService.writeCampaignInfo(campaignModel);	
 			//写入活动频次信息   dsp_groupid_frequencycapping_*
@@ -1194,7 +1190,7 @@ public class CampaignService extends BaseService {
 		String projectId = campaign.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
-			if (launchService.isFirstLaunch(campaignId)) {
+			if (!launchService.isHaveLaunched(campaignId)) {
 				launchService.write4FirstTime(campaign);
 			}
 			// 添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
