@@ -507,13 +507,13 @@ public class CampaignService extends BaseService {
 		//删除掉定向
 		deleteCampaignTarget(id);
 		//活动定向移除redis
-		launchService.removeCampaignTarget(id);
+		// launchService.removeCampaignTarget(id);
 		//添加定向
 		addCampaignTarget(bean);
 		//写入活动定向   dsp_group_target_*
-		launchService.writeCampaignTarget(id);
-		//修改定向时更新redis中活动定向信息
-		if (launchService.isFirstLaunch(id)) {
+		// launchService.writeCampaignTarget(id);
+		//修改定向时更新redis中活动定向信息（是否已经投放过，投放过再修改）
+		if (!launchService.isFirstLaunch(id)) {
 			launchService.writeCampaignTarget(id);
 			// 先移除以前的白名单
 			launchService.removeWhiteBlack(id);
@@ -553,6 +553,13 @@ public class CampaignService extends BaseService {
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
+		}
+		// 修改定向时更新redis中的活动基本信息和频次基本信息
+		if (!launchService.isFirstLaunch(id)) {
+			//写入活动基本信息   dsp_group_info_*
+			launchService.writeCampaignInfo(campaignModel);	
+			//写入活动频次信息   dsp_groupid_frequencycapping_*
+			launchService.writeCampaignFrequency(campaignModel);
 		}
 	}
 	

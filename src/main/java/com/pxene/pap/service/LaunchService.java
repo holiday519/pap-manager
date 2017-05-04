@@ -357,7 +357,7 @@ public class LaunchService extends BaseService {
 			String projectId = campaign.getProjectId();
 			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-					&& StatusConstant.PROJECT_PROCEED.equals(campaign.getStatus())
+					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
 					&& campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
 					&& dailyBudgetJudge(campaignId) && dailyCounterJudge(campaignId)) {
 				// writeCampaignId(campaignId);
@@ -870,7 +870,7 @@ public class LaunchService extends BaseService {
 			appExample.createCriteria().andIdIn(appIds);
 			List<AppModel> apps = appDao.selectByExample(appExample);
 			if (apps != null && !apps.isEmpty()) {
-				Map<String, String> result = new HashMap<String, String>();
+				//Map<String, String> result = new HashMap<String, String>();
 				// 去重
 				Set<String> adxIds = new HashSet<String>();
 				for (AppModel app : apps) {
@@ -878,11 +878,12 @@ public class LaunchService extends BaseService {
 					adxIds.add(adxId);
 				}
 				for (String adxId : adxIds) {
+					Map<String, String> result = new HashMap<String, String>();
 					result.put("adxId", adxId);
 					AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
 					example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(adxId);
 					List<AdvertiserAuditModel> audits = advertiserAuditDao.selectByExample(example);
-					if (audits != null && !audits.isEmpty()) {
+					if (audits != null && !audits.isEmpty()) {						
 						AdvertiserAuditModel audit = audits.get(0);
 						String auditValue = audit.getAuditValue();
 						result.put("advertiserAudit", auditValue);
@@ -1397,7 +1398,7 @@ public class LaunchService extends BaseService {
 		// 获取redis中日预算
 		Map<String, String> dailyBudgeMap = redisHelper.hget(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
 		String budge = dailyBudgeMap.get("daily");
-		if (budge == null || budge.equals("")) {
+		if (budge == null || "".equals(budge)) {
 			throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_BUDGET);
 		}
 		// 转换类型
@@ -1417,7 +1418,7 @@ public class LaunchService extends BaseService {
    public Boolean dailyCounterJudge(String campaignId){	   	  	   
 		// 获取redis中日均最大展现数
 		String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
-		if (dailyCounter == null || dailyCounter.equals("")) {
+		if (dailyCounter == null || "".equals(dailyCounter)) {
 			throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_COUNTER);
 		}
 		// 转换类型
