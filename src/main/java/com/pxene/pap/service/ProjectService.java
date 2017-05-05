@@ -120,8 +120,11 @@ public class ProjectService extends BaseService {
         // 将项目总预算插入Redis
         String projectBudgetKey = PROJECT_BUDGET_PREFIX + project.getId();
         redisHelper.setNX(projectBudgetKey, project.getTotalBudget());
+        
+        // 初始化转化字段
+        initEffectField(bean.getId());
     }
-	
+
 	/**
 	 * 编辑项目
 	 * @param bean
@@ -228,6 +231,11 @@ public class ProjectService extends BaseService {
         // 从Redis中删除指定ID的项目总预算
         String projectBudgetKey = PROJECT_BUDGET_PREFIX + id;
         redisHelper.delete(projectBudgetKey);
+        
+        // 删除项目转化字段
+        List<String> projectIds = new ArrayList<>();
+        projectIds.add(id);
+        destoryEffectField(projectIds);
     }
 	
 	/**
@@ -270,6 +278,9 @@ public class ProjectService extends BaseService {
         {
             redisHelper.delete(PROJECT_BUDGET_PREFIX + id);
         }
+        
+        // 删除项目转化字段
+        destoryEffectField(Arrays.asList(ids));
     }
 
 	/**
@@ -475,7 +486,7 @@ public class ProjectService extends BaseService {
 	}
 
 	@Transactional
-    public void addEffectName(String projectId, Map<String, String> map)
+    public void changeEffectName(String projectId, Map<String, String> map)
     {
         String code = map.get("code");
         String name = map.get("name");
@@ -491,14 +502,23 @@ public class ProjectService extends BaseService {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
-        EffectDicModel record = new EffectDicModel();
-        record.setId(UUIDGenerator.getUUID());
-        record.setProjectId(projectId);
-        record.setColumnCode(code);
-        record.setColumnName(name);
-        record.setEnable(StatusConstant.EFFECT_STATUS_DISABLE);
+        // 查询指定项目ID和转化字段code是否存在于DB中
+        EffectDicModelExample example = new EffectDicModelExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andColumnCodeEqualTo(code);
         
-        effectDicDao.insert(record);
+        List<EffectDicModel> rows = effectDicDao.selectByExample(example);
+        if (rows == null || rows.isEmpty())
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.EFFECT_CODE_NOT_FOUND);
+        }
+        
+        EffectDicModel record = new EffectDicModel();
+        record.setColumnName(name);
+        
+        example.clear();
+        example.createCriteria().andProjectIdEqualTo(projectId).andColumnCodeEqualTo(code);
+        
+        effectDicDao.updateByExampleSelective(record, example);
     }
 
     public void changeEffectStatus(String projectId, Map<String, String> map)
@@ -510,17 +530,29 @@ public class ProjectService extends BaseService {
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
-        
+
+        // 检查指定ID的项目是否存在
         ProjectModel project = projectDao.selectByPrimaryKey(projectId);
         if (project == null)
         {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
+        // 查询指定项目ID和转化字段code是否存在于DB中
+        EffectDicModelExample example = new EffectDicModelExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andColumnCodeEqualTo(code);
+        
+        List<EffectDicModel> rows = effectDicDao.selectByExample(example);
+        if (rows == null || rows.isEmpty())
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.EFFECT_CODE_NOT_FOUND);
+        }
+        
+        // 更改转化字段状态
         EffectDicModel record = new EffectDicModel();
         record.setEnable(enable);
         
-        EffectDicModelExample example = new EffectDicModelExample();
+        example.clear();
         example.createCriteria().andProjectIdEqualTo(projectId);
         
         effectDicDao.updateByExampleSelective(record, example);
@@ -591,6 +623,36 @@ public class ProjectService extends BaseService {
         {
             throw new ServerFailureException();
         }
+    }
+
+    /**
+     * 创建A1~A10，十个转化字段
+     * @param projectId    项目ID
+     */
+    private void initEffectField(String projectId)
+    {
+        EffectDicModel record = null;
+        for (int i = 1; i <= 10; i++)
+        {
+            record = new EffectDicModel();
+            record.setId(UUIDGenerator.getUUID());
+            record.setProjectId(projectId);
+            record.setColumnCode("A" + i);
+            record.setColumnName("");
+            record.setEnable(StatusConstant.EFFECT_STATUS_DISABLE);
+            effectDicDao.insert(record);
+        }
+    }
+
+    /**
+     * 删除指定项目ID下的全部转化字段
+     * @param projectIds    待操作的全部项目ID
+     */
+    private void destoryEffectField(List<String> projectIds)
+    {
+        EffectDicModelExample example = new EffectDicModelExample();
+        example.createCriteria().andProjectIdIn(projectIds);
+        effectDicDao.deleteByExample(example);
     }
 	
 }

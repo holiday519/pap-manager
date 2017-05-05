@@ -151,7 +151,7 @@ public class ProjectController {
 	@ResponseBody
 	public void addEffectName(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
 	{
-	    projectService.addEffectName(id, map);
+	    projectService.changeEffectName(id, map);
         response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
