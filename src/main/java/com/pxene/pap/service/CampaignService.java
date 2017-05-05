@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
@@ -175,6 +178,8 @@ public class CampaignService extends BaseService {
 	private LandpageDao landpageDao;
 	
 	private RedisHelper redisHelper;
+	
+	private static JsonParser parser = new JsonParser();
 	
 //	private static final String REDIS_KEY_GROUPIDS = "dsp_groupids";
 //	
@@ -497,59 +502,65 @@ public class CampaignService extends BaseService {
 	@Transactional
 	public void createCampaignTarget(String id, CampaignTargetBean bean) throws Exception {
 		bean.setId(id);
-		//删除掉定向
+		// 删除掉定向
 		deleteCampaignTarget(id);
-		//活动定向移除redis
-		//launchService.removeCampaignTarget(id);
-		//添加定向
+		// 添加定向
 		addCampaignTarget(bean);
-		//写入活动定向   dsp_group_target_*
-		//launchService.writeCampaignTarget(id);
-		//修改定向时更新redis中活动定向信息（是否已经投放过，投放过再修改）
+		// 修改定向时更新redis中活动定向信息（是否已经投放过，投放过再修改）
 		if (launchService.isHaveLaunched(id)) {
+			// 活动定向写入redis
 			launchService.writeCampaignTarget(id);
 			// 先移除以前的白名单
 			launchService.removeWhiteBlack(id);
 			// 在添加最新的白名单
 			launchService.writeWhiteBlack(id);
-		}
-		//编辑定向时间可添加、删除redis中的对应的groupids
-		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
-		String projectId = campaignModel.getProjectId();
-		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-//		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
-//				isOnLaunchDate(id) && isOnTargetTime(id) {
-		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
-				&& isOnTargetTime(id) && launchService.dailyBudgetJudge(id) && launchService.dailyCounterJudge(id)) {
-			// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
-			// 活动没有超出每天的日预算并且日均最大展现未达到上限
-			//launchService.writeCampaignId(id);
-			boolean writeResult = launchService.launchCampaignRepeatable(id);
-			if (!writeResult) {
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+
+			// 查询项目信息
+			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
+			String projectId = campaignModel.getProjectId();
+			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+
+			// 编辑定向时间可添加、删除redis中的对应的groupids
+			// 1.投放过，判断该id是否在groupids中
+			String groupids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS);
+			if (groupids == null || groupids.isEmpty()) {
+				throw new ServerFailureException(PhrasesConstant.REDIS_GROUPIDS_NULL);
 			}
-		} else {
-			// 否则将活动ID移除redis
-			// launchService.removeCampaignId(id);
-			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放 get();
-			String availableGroups = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_IDS + id);
-			if (availableGroups != null && !availableGroups.equals("")) {
-				boolean removeResult = launchService.pauseCampaignRepeatable(id);
-				if (!removeResult) {
-					// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-					//pauseLaunchByDelCampaignInfo(id);
-					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+			// 将gson字符串转成JsonObject对象
+			JsonObject returnData = parser.parse(groupids).getAsJsonObject();
+			// 将data节点下的内容转为JsonArray
+			JsonArray jsonArray = returnData.getAsJsonArray("groupids");
+			// 判断该id是否在groupids中	
+			if (jsonArray.contains(parser.parse(id))) {
+				// 2.在groupids中，判断是否在定向时间
+				if (!isOnTargetTime(id)) {
+					// 不在定向时间则删除
+					boolean removeResult = launchService.pauseCampaignRepeatable(id);
+					if (!removeResult) {
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					}
+				}
+			} else {
+				// 3.不在groupids中，满足项目开启、活动开启、定向时间、日预算、最大展现向groupids添加活动id
+				if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
+						&& isOnTargetTime(id) && launchService.dailyBudgetJudge(id)
+						&& launchService.dailyCounterJudge(id)) {
+					// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
+					// 活动没有超出每天的日预算并且日均最大展现未达到上限
+					boolean writeResult = launchService.launchCampaignRepeatable(id);
+					if (!writeResult) {
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					}
 				}
 			}
-		}
-		// 修改定向时更新redis中的活动基本信息和频次基本信息
-		if (launchService.isHaveLaunched(id)) {
-			//写入活动基本信息   dsp_group_info_*
-			launchService.writeCampaignInfo(campaignModel);	
-			//写入活动频次信息   dsp_groupid_frequencycapping_*
+			
+			// 修改定向时更新redis中的活动基本信息和频次基本信息
+			// 1.写入活动基本信息 dsp_group_info_*
+			launchService.writeCampaignInfo(campaignModel);
+			// 2.写入活动频次信息 dsp_groupid_frequencycapping_*
 			launchService.writeCampaignFrequency(campaignModel);
-		}
+		}				
 	}
 	
 	/**
