@@ -394,9 +394,7 @@ public class ProjectService extends BaseService {
 						// 活动没有超出每天的日预算并且日均最大展现未达到上限
 						// launchService.writeCampaignId(campaignId);
 						boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
-						LOGGER.info("chaxunLaunchTrue." + campaignId);
 						if (!writeResult) {
-							LOGGER.info("chaxunLaunchFalse." + campaignId);
 							throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 						}
 					}
@@ -423,12 +421,10 @@ public class ProjectService extends BaseService {
 		// 从redis的groups中删除该项目下所有活动状态为开启的活动id
 		if (campaigns != null && !campaigns.isEmpty()) {
 			for (CampaignModel campaign : campaigns) {
-				// launchService.removeCampaignId(campaign.getId());
+				//launchService.removeCampaignId(campaign.getId());
 				// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-				LOGGER.info("chaxunPauseTrue." + campaign.getId());
 				if (!removeResult) {
-					LOGGER.info("chaxunPauseFalse." + campaign.getId());
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 				}
 			}
