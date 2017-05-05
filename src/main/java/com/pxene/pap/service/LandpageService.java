@@ -7,7 +7,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -22,6 +22,8 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.LandpageBean;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.LandpageCodeModel;
+import com.pxene.pap.domain.models.LandpageCodeModelExample;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.LandpageModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -29,7 +31,9 @@ import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.LandpageCodeDao;
 import com.pxene.pap.repository.basic.LandpageDao;
+import com.pxene.pap.repository.custom.CustomLandpageDao;
 
 @Service
 public class LandpageService extends BaseService {
@@ -39,6 +43,12 @@ public class LandpageService extends BaseService {
 
 	@Autowired
 	private CampaignDao campaignDao;
+	
+	@Autowired
+	private LandpageCodeDao landpageCodeDao;
+	
+	@Autowired
+	private CustomLandpageDao customLandpageDao;
 
 	private static final String HTTP_ACCEPT = "accept";
 
@@ -93,12 +103,26 @@ public class LandpageService extends BaseService {
     	}
 		
 		LandpageModel landpage = modelMapper.map(bean, LandpageModel.class);
-		/*String id = UUID.randomUUID().toString();*/
 		String id = UUIDGenerator.getUUID();
 		landpage.setId(id);
 		landpage.setStatus(StatusConstant.LANDPAGE_CHECK_NOTCHECK);
 		landpageDao.insertSelective(landpage);
 		BeanUtils.copyProperties(landpage, bean);
+		
+		// 插入落地页监测码
+		String[] codes = bean.getCodes();
+		if (codes != null)
+		{
+		    LandpageCodeModel landPageRecord = null;
+		    for (String code : codes)
+		    {
+		        landPageRecord = new LandpageCodeModel();
+		        landPageRecord.setId(UUIDGenerator.getUUID());
+		        landPageRecord.setLandpageId(id);
+		        landPageRecord.setCode(code);
+		        landpageCodeDao.insert(landPageRecord);
+		    }
+		}
 	}
 
 	/**
@@ -128,6 +152,27 @@ public class LandpageService extends BaseService {
 		LandpageModel ladpage = modelMapper.map(bean, LandpageModel.class);
 		ladpage.setId(id);
 		landpageDao.updateByPrimaryKeySelective(ladpage);
+		
+        String[] codes = bean.getCodes();
+        
+        // 删除落地页监测码
+        LandpageCodeModelExample landpageCodeModelExample = new LandpageCodeModelExample();
+        landpageCodeModelExample.createCriteria().andLandpageIdEqualTo(id);
+        landpageCodeDao.deleteByExample(landpageCodeModelExample);
+        
+        // 重新添加落地页监测码
+        if (codes != null)
+        {
+            LandpageCodeModel landPageRecord = null;
+            for (String code : codes)
+            {
+                landPageRecord = new LandpageCodeModel();
+                landPageRecord.setId(UUIDGenerator.getUUID());
+                landPageRecord.setLandpageId(id);
+                landPageRecord.setCode(code);
+                landpageCodeDao.insert(landPageRecord);
+            }
+        }
 	}
 
 	/**
@@ -150,6 +195,11 @@ public class LandpageService extends BaseService {
 		
 		// 删除落地页
 		landpageDao.deleteByPrimaryKey(id);
+		
+		// 删除落地页监测码
+        LandpageCodeModelExample landpageCodeModelExample = new LandpageCodeModelExample();
+        landpageCodeModelExample.createCriteria().andLandpageIdEqualTo(id);
+        landpageCodeDao.deleteByExample(landpageCodeModelExample);
 	}
 	/**
 	 * 批量删除落地页
@@ -177,6 +227,11 @@ public class LandpageService extends BaseService {
 		}
 		// 删除落地页
 		landpageDao.deleteByExample(landpageExample);
+		
+		// 删除落地页监测码
+        LandpageCodeModelExample landpageCodeModelExample = new LandpageCodeModelExample();
+        landpageCodeModelExample.createCriteria().andLandpageIdIn(Arrays.asList(ids));
+        landpageCodeDao.deleteByExample(landpageCodeModelExample);
 	}
 
 	/**
@@ -186,13 +241,23 @@ public class LandpageService extends BaseService {
 	 * @return
 	 */
 	public LandpageBean selectLandpage(String id) throws Exception {
-		LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
+		/*
+	    LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
 		if (landpageModel == null) {
 			throw new ResourceNotFoundException();
 		}
 		LandpageBean bean = modelMapper.map(landpageModel, LandpageBean.class);
+		*/
+	    Map<String, String> map = customLandpageDao.selectLandPagesByPrimaryKey(id);
 
-		return bean;
+		LandpageBean landpageModel = parseFromMap(map);
+		
+		if (landpageModel == null) 
+		{
+            throw new ResourceNotFoundException();
+        }
+		
+        return landpageModel;
 	}
 	/**
 	 * 查询落地页列表
@@ -201,7 +266,7 @@ public class LandpageService extends BaseService {
 	 * @throws Exception
 	 */
 	public List<LandpageBean> selectLandpages(String name) throws Exception {
-		LandpageModelExample example = new LandpageModelExample();
+		/*LandpageModelExample example = new LandpageModelExample();
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
 		}
@@ -217,10 +282,41 @@ public class LandpageService extends BaseService {
 		}
 		for (LandpageModel model : models) {
 			list.add(modelMapper.map(model, LandpageBean.class));
+		}*/
+		
+	    List<LandpageBean> result = new ArrayList<LandpageBean>();
+		List<Map<String, String>> list = customLandpageDao.selectLandPages();
+		
+		if (list == null || list.isEmpty())
+		{
+		    throw new ResourceNotFoundException();
 		}
 		
-		return list;
+		for (Map<String, String> item : list)
+        {
+		    LandpageBean bean = parseFromMap(item);
+            result.add(bean);
+        }
+		
+		return result;
 	}
+
+    private LandpageBean parseFromMap(Map<String, String> item)
+    {
+        LandpageBean bean = new LandpageBean();
+        bean.setId(item.get("id"));
+        bean.setName(item.get("name"));
+        bean.setUrl(item.get("url"));
+        bean.setMonitorUrl(item.get("monitor_url"));
+        bean.setStatus(item.get("remark"));
+        
+        String codes = item.get("monitor_codes");
+        if (!StringUtils.isEmpty(codes) && codes.contains(","))
+        {
+            bean.setCodes(StringUtils.split(codes, ","));
+        }
+        return bean;
+    }
 	/**
 	 * 检查落地页中监测代码安装状态
 	 * @param landpageId

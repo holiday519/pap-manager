@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pxene.pap.repository.custom.CustomLandpageDao">
+
+	<select id="selectLandPages" resultType="java.util.Map">
+        SELECT a.*,GROUP_CONCAT(b.`code`) as monitor_codes FROM pap_t_landpage a LEFT JOIN pap_t_landpage_code b ON a.id = b.landpage_id GROUP BY a.id ORDER BY a.update_time DESC
+	</select>
+    
+    <select id="selectLandPagesByPrimaryKey" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT a.*,GROUP_CONCAT(b.`code`) as monitor_codes FROM pap_t_landpage a LEFT JOIN pap_t_landpage_code b ON a.id = b.landpage_id GROUP BY a.id HAVING a.id = #{id,jdbcType=VARCHAR}
+    </select>
+    
+</mapper>

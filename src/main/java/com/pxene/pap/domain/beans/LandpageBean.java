@@ -1,5 +1,7 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Arrays;
+
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -52,6 +54,11 @@ public class LandpageBean {
 	 */
 	@Length(max = 200, message = PhrasesConstant.LANDPAGE_LENGTH_ERROR_REMARK)
 	private String remark;
+	
+	/**
+	 * 落地页监测码
+	 */
+	private String[] codes;
 
 	public String getId() {
 		return id;
@@ -117,12 +124,21 @@ public class LandpageBean {
 		this.status = status;
 	}
 
-	@Override
-	public String toString() {
-		return "LandpageBean [id=" + id + ", name=" + name + ", url=" + url
-				+ ", anidDeepLink=" + anidDeepLink + ", iosDeepLink="
-				+ iosDeepLink + ", monitorUrl=" + monitorUrl + ", status="
-				+ status + ", remark=" + remark + "]";
-	}
+	public String[] getCodes()
+    {
+        return codes;
+    }
+
+    public void setCodes(String[] codes)
+    {
+        this.codes = codes;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "LandpageBean [id=" + id + ", name=" + name + ", url=" + url + ", anidDeepLink=" + anidDeepLink + ", iosDeepLink=" + iosDeepLink + ", monitorUrl=" + monitorUrl + ", status=" + status
+                + ", remark=" + remark + ", codes=" + Arrays.toString(codes) + "]";
+    }
 
 }
