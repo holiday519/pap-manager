@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -15,13 +16,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.github.pagehelper.util.StringUtil;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
-import com.pxene.pap.domain.beans.AdvertiserBean.Kpi;
+import com.pxene.pap.domain.beans.AdvertiserBean.Adx;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
@@ -53,6 +55,8 @@ import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.IndustryKpiDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+
+import ch.qos.logback.core.status.StatusUtil;
 
 @Service
 public class AdvertiserService extends BaseService
@@ -131,30 +135,59 @@ public class AdvertiserService extends BaseService
         }
     }
     
+    /**
+     * 创建广告主
+     * @param bean
+     * @throws Exception
+     */
     @Transactional
     public void createAdvertiser(AdvertiserBean bean) throws Exception
     {
-    	// 验证名称重复
-    	AdvertiserModelExample example = new AdvertiserModelExample();
-    	example.createCriteria().andNameEqualTo(bean.getName());
+		// 验证名称重复
+		AdvertiserModelExample example = new AdvertiserModelExample();
+		example.createCriteria().andNameEqualTo(bean.getName());
 		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
 		if (advertisers != null && !advertisers.isEmpty()) {
 			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
-        // 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
-    	copyTempToFormal(bean);
-    	// 将path替换成正式目录
-        AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
-        /*model.setId(UUID.randomUUID().toString());*/
-        model.setId(UUIDGenerator.getUUID());
-        
-        advertiserDao.insertSelective(model);
-        
-        // 将DAO创建的新对象复制回传输对象中
-        BeanUtils.copyProperties(model, bean);
+		// 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
+		copyTempToFormal(bean);
+		// 将path替换成正式目录
+		AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
+		/* model.setId(UUID.randomUUID().toString()); */
+		model.setId(UUIDGenerator.getUUID());
+
+		advertiserDao.insertSelective(model);
+
+		// 将DAO创建的新对象复制回传输对象中
+		BeanUtils.copyProperties(model, bean);
+
+		// 创建广告主时向广告主审核表添加信息
+		// 1.查询广告主审核信息
+		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
+		advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(bean.getId())
+				.andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
+		List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao
+				.selectByExample(advertiserAuditModelExample);
+		if (advertiserAuditList == null || advertiserAuditList.isEmpty()) {
+			// 2.如果广告主审核信息为空，则向广告主审核表插入数据
+			AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
+			advertiserAudit.setId(UUIDGenerator.getUUID());
+			advertiserAudit.setAdvertiserId(bean.getId());
+			advertiserAudit.setAuditValue("1");
+			advertiserAudit.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
+			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_NOCHECK);
+			advertiserAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
+			// 3.向广告主审核表插入数据
+			advertiserAuditDao.insertSelective(advertiserAudit);
+		}
     }
 
-
+    /**
+     * 根据id删除广告主
+     * @param id
+     * @throws Exception
+     */
     @Transactional
     public void deleteAdvertiser(String id) throws Exception
     {
@@ -181,6 +214,11 @@ public class AdvertiserService extends BaseService
         advertiserDao.deleteByPrimaryKey(id);
     }
     
+    /**
+     * 批量删除广告主
+     * @param ids
+     * @throws Exception
+     */
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
@@ -247,7 +285,12 @@ public class AdvertiserService extends BaseService
 //        }
 //    }
 
-
+    /**
+     * 编辑更新广告主
+     * @param id
+     * @param bean
+     * @throws Exception
+     */
     @Transactional
     public void updateAdvertiser(String id, AdvertiserBean bean) throws Exception
     {
@@ -278,7 +321,12 @@ public class AdvertiserService extends BaseService
         
     }
 
-
+    /**
+     * 根据id查询广告主
+     * @param id
+     * @return
+     * @throws Exception
+     */
     public AdvertiserBean getAdvertiser(String id) throws Exception
     {
         AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
@@ -293,54 +341,99 @@ public class AdvertiserService extends BaseService
         IndustryModel industry = industryDao.selectByPrimaryKey(industryId);
         String industryName = industry.getName();
         bean.setIndustryName(industryName);
+		// 找出adxes
+		String advertiserId = advertiser.getId();
+		AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
+		advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
+		Adx[] adxes = new Adx[advertiserAudits.size()];
+		for (int i = 0; i < adxes.length; i++) {
+			// adx的基本信息
+			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
+			Adx adx = modelMapper.map(advertiserAudiModel, Adx.class);
+			// 获取adx的名称（从adx表中获得其名称）
+			String adxId = advertiserAudits.get(i).getAdxId();
+			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
+			Adx adxName = modelMapper.map(adxModel, Adx.class);
+			// 放到adx[]中
+			adxes[i] = adx;
+			adxes[i].setName(adxName.getName());
+		}
+		bean.setAdxes(adxes);
+                
         bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
         // 将DAO创建的新对象复制回传输对象中
         return bean;
     }
 
-
+    /**
+     * 批量查询广告主
+     * @param name
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws Exception
+     */
     public List<AdvertiserBean> listAdvertisers(String name, Long startDate, Long endDate) throws Exception
     {
-        AdvertiserModelExample example = new AdvertiserModelExample();
-        
-        // 根据用户名进行过滤（可选）
-        if (!StringUtils.isEmpty(name))
-        {
-        	example.createCriteria().andNameLike("%" + name + "%");
-        }
-        
-        // 按更新时间进行倒序排序
-        example.setOrderByClause("update_time DESC");
-        
-        List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
-        List<AdvertiserBean> advertiserBeans = new ArrayList<AdvertiserBean>();
-        
-        if (advertisers == null || advertisers.size() <= 0)
-        {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-        }
-        
-        // 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
-        for (AdvertiserModel advertiser : advertisers)
-        {
-        	AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
-            // 找出所属行业
-            Integer industryId = advertiser.getIndustryId();
-            IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
-            String industryName = industryModel.getName();
-            bean.setIndustryName(industryName);
-            //查询审核状态
-            bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
-            
-            if (startDate != null && endDate != null) {
-				//查询投放数据
+		AdvertiserModelExample example = new AdvertiserModelExample();
+
+		// 根据用户名进行过滤（可选）
+		if (!StringUtils.isEmpty(name)) {
+			example.createCriteria().andNameLike("%" + name + "%");
+		}
+
+		// 按更新时间进行倒序排序
+		example.setOrderByClause("update_time DESC");
+
+		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
+		List<AdvertiserBean> advertiserBeans = new ArrayList<AdvertiserBean>();
+
+		if (advertisers == null || advertisers.size() <= 0) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+
+		// 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
+		for (AdvertiserModel advertiser : advertisers) {
+			AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
+			// 找出所属行业
+			Integer industryId = advertiser.getIndustryId();
+			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
+			String industryName = industryModel.getName();
+			bean.setIndustryName(industryName);
+
+			// 找出adxes
+			String advertiserId = advertiser.getId();
+			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
+			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+			List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(auditExample);
+			Adx[] adxes = new Adx[advertiserAudits.size()];
+			for (int i = 0; i < adxes.length; i++) {
+				// adx的基本信息
+				AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(i);
+				Adx adx = modelMapper.map(advertiserAuditModel, Adx.class);
+				// 获取adx的名称（从adx表中获得其名称）
+				String adxId = advertiserAudits.get(i).getAdxId();
+				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
+				Adx adxName = modelMapper.map(adxModel, Adx.class);
+				// 放到adx[]数组中
+				adxes[i] = adx;
+				adxes[i].setName(adxName.getName());
+			}
+			bean.setAdxes(adxes);
+
+			// 查询审核状态
+			bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
+
+			if (startDate != null && endDate != null) {
+				// 查询投放数据
 				getData(startDate, endDate, bean);
 			}
-            
-            advertiserBeans.add(bean);
-        }
-        
-        return advertiserBeans;
+
+			advertiserBeans.add(bean);
+		}
+
+		return advertiserBeans;
     }
     
     /**
@@ -540,58 +633,50 @@ public class AdvertiserService extends BaseService
 
     /**
      * 广告主提交第三方审核
-     * @param id
+     * @param id 广告主id
+     * @param adxId ADX的id
      * @throws Exception
      */
     @Transactional
-	public void auditAdvertiser(String id) throws Exception {
+	public void auditAdvertiser(String id,String adxId) throws Exception {
+    	// 查询广告主信息判断是否存在广告主
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
 		if (advertiser == null) {
+			// 如果广告主不存在，则提示：该对象不存在
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
-		//广告主审核
-		for (AdxModel adx : adxes) {
-//			AuditService service = auditService.newInstance(adx.getId());
-//			service.auditAdvertiser(id);
-			String adxId = adx.getId();
-			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-				momoAuditService.auditAdvertiser(id);
-			}
-			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-				inmobiAuditService.auditAdvertiser(id);
-			}
+		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+			// 如果adxId是陌陌，则提交陌陌审核
+			momoAuditService.auditAdvertiser(id);
 		}
+		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+			// 如果adxId是INMOBI，则提交INMOBI审核
+			inmobiAuditService.auditAdvertiser(id);
+		}		
 	}
     
     /**
      * 同步广告主第三方审核结果
-     * @param id
+     * @param id 广告主id
+     * @param adxId ADX的id
      * @throws Exception
      */
     @Transactional
-	public void synchronizeAdvertiser(String id) throws Exception {
+	public void synchronizeAdvertiser(String id,String adxId) throws Exception {
+    	// 查询广告主信息判断是否存在广告主
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
 		if (advertiser == null) {
+			// 如果广告主不存在，则提示：该对象不存在
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-		//查询adx列表
-		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
-		//同步结果
-		for (AdxModel adx : adxes) {
-//			AuditService service = auditService.newInstance(adx.getId());
-//			service.synchronizeAdvertiser(id);
-			String adxId = adx.getId();
-			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-				momoAuditService.synchronizeAdvertiser(id);
-			}
-			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-				inmobiAuditService.synchronizeAdvertiser(id);
-			}
+		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+			// 如果adxId是陌陌，则同步陌陌审核结果
+			momoAuditService.synchronizeAdvertiser(id);
 		}
+		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+			// 如果adxId是INMOBI，则同步INMOBI审核结果
+			inmobiAuditService.synchronizeAdvertiser(id);
+		}		
 	}
 
     /**
@@ -626,4 +711,44 @@ public class AdvertiserService extends BaseService
         }
     }
     
+    /**
+     * 编辑广告主启用/禁用ADX，即修改数据库中的标志位
+     * @param id 广告主id
+     * @param adxId ADX的id
+     * @param map 广告主ADX的状态
+     * @throws Exception
+     */
+    @Transactional
+    public void updateAdvertiserAdxEnabled(String id, String adxId,Map<String,String>map) throws Exception{
+    	// 判断传来的状态是否为空  enabled
+    	if (StringUtil.isEmpty(map.get("enable"))) {
+    		// 如果传来状态为空，则抛异常  
+    		throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+    	}
+    	// 判断广告主对应adx审核信息是否存在
+    	AdvertiserAuditModelExample adAuditExample = new AdvertiserAuditModelExample();
+    	adAuditExample.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(adxId);
+    	List<AdvertiserAuditModel> advertiseAuditList = advertiserAuditDao.selectByExample(adAuditExample);
+    	if (advertiseAuditList == null || advertiseAuditList.size()==0) {
+    		// 如果信息不存在，则抛异常  
+    		throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+    	}
+    	String enable = map.get("enable").toString();
+    	if (StatusConstant.ADVERTISER_ADX_ENABLE.equals(enable)) {
+    		// 如果获得的状态为开启状态，则修改状态为禁用
+    		AdvertiserAuditModel advertiseAudit = advertiseAuditList.get(0);
+    		advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
+    		// 更新数据库
+    		advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
+    	} else if (StatusConstant.ADVERTISER_ADX_DISABLE.equals(enable)) {
+    		// 如果获得的状态为禁用状态，则修改状态为开启
+    		AdvertiserAuditModel advertiseAudit = advertiseAuditList.get(0);
+    		advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_ENABLE);
+    		// 更新数据库
+    		advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
+    	} else {
+    		// 否则抛出异常
+    		throw new IllegalArgumentException(PhrasesConstant.PARAM_OUT_OF_RANGE);
+    	}
+    }
 }

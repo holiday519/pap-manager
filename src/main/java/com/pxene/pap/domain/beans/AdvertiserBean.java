@@ -39,7 +39,8 @@ public class AdvertiserBean extends BasicDataBean {
 
 	private String industryName;
 
-	private Kpi[] kpis;
+	private Adx[] adxes;	
+
 	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_BRANDNAME)
 	private String brandName;
 	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_LICENSENO)
@@ -80,36 +81,38 @@ public class AdvertiserBean extends BasicDataBean {
 	@JsonProperty(value = "update_time")
 	private Date updateTime;
 
-	private String status;
-
-	public static class Kpi {
+	private String status;	
+	
+	public static class Adx {
 		private String id;
 		private String name;
-		private String unit;
-
+		private String status;
+		private String enable;
+		
 		public String getId() {
 			return id;
 		}
-
 		public void setId(String id) {
 			this.id = id;
 		}
-
 		public String getName() {
 			return name;
 		}
-
 		public void setName(String name) {
 			this.name = name;
 		}
-
-		public String getUnit() {
-			return unit;
+		public String getStatus() {
+			return status;
 		}
-
-		public void setUnit(String unit) {
-			this.unit = unit;
+		public void setStatus(String status) {
+			this.status = status;
 		}
+		public String getEnable() {
+			return enable;
+		}
+		public void setEnable(String enable) {
+			this.enable = enable;
+		}		
 	}
 
 	public String getId() {
@@ -302,16 +305,16 @@ public class AdvertiserBean extends BasicDataBean {
 
 	public void setIndustryName(String industryName) {
 		this.industryName = industryName;
+	}	
+
+	public Adx[] getAdxes() {
+		return adxes;
 	}
 
-	public Kpi[] getKpis() {
-		return kpis;
+	public void setAdxes(Adx[] adxes) {
+		this.adxes = adxes;
 	}
-
-	public void setKpis(Kpi[] kpis) {
-		this.kpis = kpis;
-	}
-
+	
 	public String getStatus() {
 		return status;
 	}
@@ -325,8 +328,8 @@ public class AdvertiserBean extends BasicDataBean {
 		return "AdvertiserBean [id=" + id + ", name=" + name + ", company="
 				+ company + ", contact=" + contact + ", phone=" + phone
 				+ ", qq=" + qq + ", industryId=" + industryId
-				+ ", industryName=" + industryName + ", kpis="
-				+ Arrays.toString(kpis) + ", brandName=" + brandName
+				+ ", industryName=" + industryName 
+				+ ", adxes=" + Arrays.toString(adxes) + ", brandName=" + brandName
 				+ ", licenseNo=" + licenseNo + ", organizationNo="
 				+ organizationNo + ", logoPath=" + logoPath + ", icpPath="
 				+ icpPath + ", organizationPath=" + organizationPath

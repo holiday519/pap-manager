@@ -30,7 +30,7 @@ public class InmobiAuditService extends AuditService {
 	}
 
 	/**
-	 * 审核广告主（向广告主审核表插入数据）
+	 * 审核广告主（更新广告主审核表数据）
 	 */
 	@Override
 	@Transactional
@@ -38,18 +38,14 @@ public class InmobiAuditService extends AuditService {
 		//查询广告主审核信息
 		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
     	advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_INMOBI_VALUE);
-    	List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao.selectByExample(advertiserAuditModelExample);
-    	if (advertiserAuditList == null || advertiserAuditList.isEmpty()) {
-    		//如果广告主审核信息为空，则向广告主审核表插入数据
-    		AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
-    		advertiserAudit.setId(UUIDGenerator.getUUID());
-    		advertiserAudit.setAdvertiserId(advertiserId);
-    		advertiserAudit.setAuditValue("1");
-    		advertiserAudit.setAdxId(AdxKeyConstant.ADX_INMOBI_VALUE);
-    		advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
-    		//向广告主审核表插入数据
-    		advertiserAuditDao.insertSelective(advertiserAudit);
-    	}
+    	List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao.selectByExample(advertiserAuditModelExample);    	
+    	if (advertiserAuditList != null && !advertiserAuditList.isEmpty()) {
+    		//如果广告主审核信息不为空，则更新广告主审核表状态
+    		AdvertiserAuditModel advertiserAudit = advertiserAuditList.get(0);
+    		advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);   
+    		//更新广告主审核表数据
+    		advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
+    	}	
     	
 	}
 

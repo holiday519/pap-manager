@@ -111,10 +111,17 @@ public class StatusConstant {
 	 */
 	public static final String LANDPAGE_CHECK_SUCCESS = "02";
 	/**
-	 * 落地页代码检查状态：代码安装失败
+	 * 落地页代码检查状态：代码安装失败   
 	 */
 	public static final String LANDPAGE_CHECK_ERROR = "03";
-	
+	/**
+	 * 广告主Adx的状态： 启用 
+	 */
+	public static final String ADVERTISER_ADX_ENABLE = "01";
+	/**
+	 * 广告主Adx的状态： 禁用 
+	 */
+	public static final String ADVERTISER_ADX_DISABLE = "02";
 	/**
 	 * 转义字段状态：启用
 	 */

@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -32,7 +33,7 @@ public class AdvertiserController
     private AdvertiserService advertiserService;
     
     /**
-     * 添加广告主。
+     * 添加广告主
      * @param advertiser    广告主DTO
      * @param response
      * @return
@@ -46,7 +47,7 @@ public class AdvertiserController
     }
     
     /**
-     * 删除广告主。
+     * 删除广告主
      * @param id        广告主ID
      * @param response
      * @return
@@ -74,7 +75,7 @@ public class AdvertiserController
     }
     
     /**
-     * 根据ID编辑指定的广告主（全部更新）。
+     * 根据ID编辑指定的广告主（全部更新）
      * @param id        广告主ID
      * @param response
      * @return
@@ -89,7 +90,7 @@ public class AdvertiserController
     
     
     /**
-     * 根据ID编辑指定的广告主（部分更新）。
+     * 根据ID编辑指定的广告主（部分更新）
      * @param id            广告主ID
      * @param advertiser    广告主DTO
      * @param response
@@ -106,7 +107,7 @@ public class AdvertiserController
     
     
     /**
-     * 根据ID查询指定的广告主。
+     * 根据ID查询指定的广告主
      * @param id        广告主ID
      * @param response
      * @return
@@ -121,7 +122,7 @@ public class AdvertiserController
     
     
     /**
-     * 列出广告主。
+     * 列出广告主
      * @param request
      * @param response
      * @return
@@ -143,7 +144,7 @@ public class AdvertiserController
     }
     
     /**
-     * 上传广告主资质图片。
+     * 上传广告主资质图片
      * @param request
      * @param response
      * @return
@@ -170,28 +171,44 @@ public class AdvertiserController
     
     /**
      * 广告主提交第三方审核
-     * @param id
+     * @param id 广告主id
+     * @param adxId ADX的id
      * @param response
      * @throws Exception
      */
     @RequestMapping(value = "/advertiser/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void auditAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
-    	advertiserService.auditAdvertiser(id);
+    public void auditAdvertiser(@PathVariable String id,@RequestParam String adxId, HttpServletResponse response) throws Exception {
+    	advertiserService.auditAdvertiser(id,adxId);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     /**
      * 同步广告主第三方审核结果
-     * @param id
+     * @param id 广告主id
+     * @param adxId ADX的id
      * @param response
      * @throws Exception
      */
     @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void synchronizeAdvertiser(@PathVariable String id, HttpServletResponse response) throws Exception {
-    	advertiserService.synchronizeAdvertiser(id);
+    public void synchronizeAdvertiser(@PathVariable String id,@RequestParam String adxId, HttpServletResponse response) throws Exception {
+    	advertiserService.synchronizeAdvertiser(id,adxId);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
+    /**
+     * 广告主启用/禁用ADX
+     * @param id 广告主的id
+     * @param adxId ADX的ID
+     * @param map 广告主ADX的状态
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/advertisers/adx/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void updateAdvertiserAdxEnabled(@PathVariable String id,@RequestParam String adxId,@RequestBody Map<String ,String> map,HttpServletResponse response) throws Exception{
+    	advertiserService.updateAdvertiserAdxEnabled(id, adxId, map);
+    	response.setStatus(HttpStatus.NO_CONTENT.value());
+    }
 }
