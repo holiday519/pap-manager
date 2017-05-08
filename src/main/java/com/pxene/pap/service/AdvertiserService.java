@@ -36,10 +36,7 @@ import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
-import com.pxene.pap.domain.models.IndustryKpiModel;
-import com.pxene.pap.domain.models.IndustryKpiModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
-import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -55,8 +52,6 @@ import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.IndustryKpiDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
-
-import ch.qos.logback.core.status.StatusUtil;
 
 @Service
 public class AdvertiserService extends BaseService
@@ -84,10 +79,6 @@ public class AdvertiserService extends BaseService
     @Autowired
     private KpiDao kpiDao;
     
-//    @Autowired
-//    private AuditService auditService;
-    
-	
 	@Autowired
 	private MomoAuditService momoAuditService;
 	
@@ -164,8 +155,8 @@ public class AdvertiserService extends BaseService
 		// 创建广告主时向广告主审核表添加信息，审核平台列表中有几个adx则向广告主审核表中加入几条数据
 		// 查询ADX列表
 		AdxModelExample adxExample = new AdxModelExample();
-		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
-		for (AdxModel adx : adxs) {
+		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
+		for (AdxModel adx : adxes) {
 			// 1.查询广告主审核信息
 			AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
 			advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(bean.getId())
@@ -511,39 +502,39 @@ public class AdvertiserService extends BaseService
 	 * @param creativeId
 	 * @return
 	 */
-	private String getAdvertiserAuditStatus(String AdvertiserId) {
-		AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
-		example.createCriteria().andAdvertiserIdEqualTo(AdvertiserId);
-		List<AdvertiserAuditModel> models = advertiserAuditDao.selectByExample(example);
-		String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
-		boolean successFlag = false;
-		for (AdvertiserAuditModel model : models) {
-			if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(model.getStatus())) {
-				status = StatusConstant.ADVERTISER_AUDIT_SUCCESS;
-				successFlag  = true;
-				break;
-			}
-		}
-		if (!successFlag) {
-			boolean watingFlag = false;
-			for (AdvertiserAuditModel model : models) {
-				if (StatusConstant.ADVERTISER_AUDIT_WATING.equals(model.getStatus())) {
-					status = StatusConstant.ADVERTISER_AUDIT_WATING;
-					watingFlag = true;
-					break;
-				}
-			}
-			if (!watingFlag) {
-				for (AdvertiserAuditModel model : models) {
-					if (StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(model.getStatus())) {
-						status = StatusConstant.ADVERTISER_AUDIT_FAILURE;
-						break;
-					}
-				}
-			}
-		}
-		return status;
-	}
+//	private String getAdvertiserAuditStatus(String AdvertiserId) {
+//		AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+//		example.createCriteria().andAdvertiserIdEqualTo(AdvertiserId);
+//		List<AdvertiserAuditModel> models = advertiserAuditDao.selectByExample(example);
+//		String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
+//		boolean successFlag = false;
+//		for (AdvertiserAuditModel model : models) {
+//			if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(model.getStatus())) {
+//				status = StatusConstant.ADVERTISER_AUDIT_SUCCESS;
+//				successFlag  = true;
+//				break;
+//			}
+//		}
+//		if (!successFlag) {
+//			boolean watingFlag = false;
+//			for (AdvertiserAuditModel model : models) {
+//				if (StatusConstant.ADVERTISER_AUDIT_WATING.equals(model.getStatus())) {
+//					status = StatusConstant.ADVERTISER_AUDIT_WATING;
+//					watingFlag = true;
+//					break;
+//				}
+//			}
+//			if (!watingFlag) {
+//				for (AdvertiserAuditModel model : models) {
+//					if (StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(model.getStatus())) {
+//						status = StatusConstant.ADVERTISER_AUDIT_FAILURE;
+//						break;
+//					}
+//				}
+//			}
+//		}
+//		return status;
+//	}
     
     /**
      * 上传广告主资质
