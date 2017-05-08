@@ -208,7 +208,6 @@ public class AdvertiserService extends BaseService
 		}
         
         advertiserDao.deleteByPrimaryKey(id);
-                
     }
     
     /**
@@ -252,7 +251,6 @@ public class AdvertiserService extends BaseService
 		} 
 		
 		advertiserDao.deleteByExample(advertiserModelExample);
-				     
     }
 
 //    @Transactional
@@ -327,7 +325,6 @@ public class AdvertiserService extends BaseService
         model.setId(id);
         
         advertiserDao.updateByPrimaryKey(model);
-        
     }
 
     /**
@@ -550,19 +547,18 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
-    public String uploadQualificationForLogo(MultipartFile file) throws Exception {
+    public String uploadQualification4Logo(MultipartFile file) throws Exception {
     	ImageBean bean = (ImageBean) FileUtils.checkFile(file);
     	Integer width = bean.getWidth();
     	Integer height = bean.getHeight();
-    	if (width != 80 || height != 80 ) {
+    	if (width != 80 || height != 80) {
     		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_SIZE);
     	}
     	Float volume = bean.getVolume();
-    	if (volume > 30 ) {
+    	if (volume > 30) {
     		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
     	}
     	// 图片绝对路径
-    	/*String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
     	String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
     	// 返回相对路径
     	return path.replace(UPLOAD_DIR, "");
@@ -649,7 +645,7 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void auditAdvertiser(String id,String adxId) throws Exception {
+	public void auditAdvertiser(String id, String adxId) throws Exception {
     	// 查询广告主信息判断是否存在广告主
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
 		if (advertiser == null) {
@@ -673,7 +669,7 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void synchronizeAdvertiser(String id,String adxId) throws Exception {
+	public void synchronizeAdvertiser(String id, String adxId) throws Exception {
     	// 查询广告主信息判断是否存在广告主
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
 		if (advertiser == null) {
@@ -730,9 +726,10 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public void updateAdvertiserAdxEnabled(String id, String adxId,Map<String,String>map) throws Exception{
+    public void updateAdvertiserAdxEnabled(String id, String adxId, Map<String,String> map) throws Exception {
+    	String enable = map.get("enable");
     	// 判断传来的状态是否为空  enabled
-    	if (StringUtil.isEmpty(map.get("enable"))) {
+    	if (StringUtil.isEmpty(enable)) {
     		// 如果传来状态为空，则抛异常  
     		throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
     	}
@@ -740,11 +737,10 @@ public class AdvertiserService extends BaseService
     	AdvertiserAuditModelExample adAuditExample = new AdvertiserAuditModelExample();
     	adAuditExample.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(adxId);
     	List<AdvertiserAuditModel> advertiseAuditList = advertiserAuditDao.selectByExample(adAuditExample);
-    	if (advertiseAuditList == null || advertiseAuditList.size()==0) {
+    	if (advertiseAuditList == null || advertiseAuditList.size() == 0) {
     		// 如果信息不存在，则抛异常  
     		throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
     	}
-    	String enable = map.get("enable").toString();
     	if (StatusConstant.ADVERTISER_ADX_ENABLE.equals(enable)) {
     		// 如果获得的状态为开启状态，则修改状态为禁用
     		AdvertiserAuditModel advertiseAudit = advertiseAuditList.get(0);

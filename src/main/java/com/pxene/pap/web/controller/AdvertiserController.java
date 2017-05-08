@@ -164,8 +164,8 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertiser/upload/logo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String uploadQualificationForLogo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-    	String path = advertiserService.uploadQualificationForLogo(file);
+    public String uploadQualification4Logo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
+    	String path = advertiserService.uploadQualification4Logo(file);
     	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
     }
     
