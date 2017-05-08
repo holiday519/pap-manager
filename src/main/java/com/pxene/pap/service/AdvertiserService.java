@@ -365,10 +365,9 @@ public class AdvertiserService extends BaseService
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-			Adx adxName = modelMapper.map(adxModel, Adx.class);
 			// 放到adx[]中
 			adxes[i] = adx;
-			adxes[i].setName(adxName.getName());
+			adxes[i].setName(adxModel.getName());
 		}
 		bean.setAdxes(adxes);
                 
@@ -428,10 +427,9 @@ public class AdvertiserService extends BaseService
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-				Adx adxName = modelMapper.map(adxModel, Adx.class);
 				// 放到adx[]数组中
 				adxes[i] = adx;
-				adxes[i].setName(adxName.getName());
+				adxes[i].setName(adxModel.getName());
 			}
 			bean.setAdxes(adxes);
 
