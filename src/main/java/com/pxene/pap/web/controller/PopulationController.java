@@ -31,13 +31,13 @@ public class PopulationController {
 	
 	@RequestMapping(value = "/populations", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectPopulations(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listPopulations(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<PopulationBean> beans = populationService.selectPopulations(name);
+		List<PopulationBean> beans = populationService.listPopulations(name);
 		
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -51,7 +51,7 @@ public class PopulationController {
     @ResponseBody
     public String createPopulation(@RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "name", required = true) String name, HttpServletResponse response) throws Exception 
 	{
-        String path = populationService.create(file, name);
+        String path = populationService.createPopulation(file, name);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", path, response);
     }
 	
@@ -60,9 +60,9 @@ public class PopulationController {
 	 */
 	@RequestMapping(value = "/population/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void modifyPopulation(@PathVariable String id, @RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "name", required = true) String name,HttpServletResponse response) throws Exception 
+    public void updatePopulation(@PathVariable String id, @RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "name", required = true) String name,HttpServletResponse response) throws Exception 
 	{
-	    populationService.modify(id, file, name);
+	    populationService.updatePopulation(id, file, name);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 	
@@ -73,7 +73,7 @@ public class PopulationController {
     @ResponseBody
     public void deletePopulations(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception
     {
-	    populationService.batchDelete(ids.split(","));
+	    populationService.deletePopulations(ids.split(","));
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }

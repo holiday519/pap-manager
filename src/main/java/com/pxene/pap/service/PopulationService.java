@@ -39,7 +39,7 @@ public class PopulationService extends BaseService {
 	}
 	
 	
-	public List<PopulationBean> selectPopulations(String name) throws Exception {
+	public List<PopulationBean> listPopulations(String name) throws Exception {
 		PopulationModelExample example = new PopulationModelExample();
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
@@ -65,7 +65,7 @@ public class PopulationService extends BaseService {
 	 * @param name 人群名称
 	 * @return
 	 */
-    public String create(MultipartFile file, String name)
+    public String createPopulation(MultipartFile file, String name) throws Exception
     {
         String populationUUID = UUIDGenerator.getUUID();
         String uploadFileUUID = UUIDGenerator.getUUID();
@@ -99,7 +99,7 @@ public class PopulationService extends BaseService {
      * @param file  人群文件
      * @param name  人群名称
      */
-    public void modify(String id, MultipartFile file, String name)
+    public void updatePopulation(String id, MultipartFile file, String name) throws Exception
     {
         try
         {
@@ -139,7 +139,7 @@ public class PopulationService extends BaseService {
      * 批量删除人群定向：定向文件、DB中人群信息。
      * @param ids
      */
-    public void batchDelete(String[] ids)
+    public void deletePopulations(String[] ids) throws Exception
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
         PopulationModelExample populationExample = new PopulationModelExample();
