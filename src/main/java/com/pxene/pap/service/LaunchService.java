@@ -354,7 +354,7 @@ public class LaunchService extends BaseService {
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
 					&& campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
-					&& dailyBudgetJudge(campaignId) && dailyCounterJudge(campaignId)) {
+					&& isOnDailyBudgetJudge(campaignId) && isOnDailyCounterJudge(campaignId)) {
 				// writeCampaignId(campaignId);
 				boolean writeResult = launchCampaignRepeatable(campaignId);
 				if (!writeResult) {
@@ -1385,7 +1385,7 @@ public class LaunchService extends BaseService {
     * @param campaignId 活动id
  * @throws Exception 
     */
-   public Boolean dailyBudgetJudge(String campaignId){
+   public Boolean isOnDailyBudgetJudge(String campaignId){
 		// 获取redis中日预算
 		Map<String, String> dailyBudgeMap = redisHelper.hget(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
 		String budge = dailyBudgeMap.get("daily");
@@ -1397,16 +1397,15 @@ public class LaunchService extends BaseService {
 		// 判断是否超出日预算
 		if (dayJudge > 0) {
 			return true;
-		} else {
-			throw new ServerFailureException(PhrasesConstant.REDIS_DAY_BUDGET);
-		}
+		} 
+		return false;
    }
    
    /**
     * 日均最大展现是否达到上限 
     * @param campaignId
     */
-   public Boolean dailyCounterJudge(String campaignId){	   	  	   
+   public Boolean isOnDailyCounterJudge(String campaignId){	   	  	   
 		// 获取redis中日均最大展现数
 		String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
 		if (dailyCounter == null || "".equals(dailyCounter)) {
@@ -1417,8 +1416,7 @@ public class LaunchService extends BaseService {
 		// 判断是否超出日均最大展现数
 		if (dayCounter > 0) {
 			return true;
-		} else {
-			throw new ServerFailureException(PhrasesConstant.REDIS_DAY_COUNTER);
-		}
+		} 
+		return false;
    }
 }

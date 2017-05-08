@@ -544,8 +544,8 @@ public class CampaignService extends BaseService {
 				// 3.不在groupids中，满足项目开启、活动开启、定向时间、日预算、最大展现向groupids添加活动id
 				if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
-						&& isOnTargetTime(id) && launchService.dailyBudgetJudge(id)
-						&& launchService.dailyCounterJudge(id)) {
+						&& isOnTargetTime(id) && launchService.isOnDailyBudgetJudge(id)
+						&& launchService.isOnDailyCounterJudge(id)) {
 					// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
 					// 活动没有超出每天的日预算并且日均最大展现未达到上限
 					boolean writeResult = launchService.launchCampaignRepeatable(id);
@@ -1215,8 +1215,8 @@ public class CampaignService extends BaseService {
 				}
 			}
 			/* if (isOnTargetTime(campaignId){ */
-			if (isOnTargetTime(campaignId) && launchService.dailyBudgetJudge(campaignId)
-					&& launchService.dailyCounterJudge(campaignId)) {
+			if (isOnTargetTime(campaignId) && launchService.isOnDailyBudgetJudge(campaignId)
+					&& launchService.isOnDailyCounterJudge(campaignId)) {
 				// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 				// launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
