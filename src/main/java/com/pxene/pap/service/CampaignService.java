@@ -324,7 +324,7 @@ public class CampaignService extends BaseService {
 		}
 		
 		// 改变预算、展现时修改redis中的值
-		changeRedisBudget(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
+		// changeBudgetAndCounter(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
 		
 		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
 		// 编辑频次
@@ -378,9 +378,15 @@ public class CampaignService extends BaseService {
 		addCampaignQuantity(bean);
 		//修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
-		//写入活动频次信息   dsp_groupid_frequencycapping_*
-		launchService.writeCampaignFrequency(campaign);
-		
+		//编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
+		if (launchService.isHaveLaunched(id)) {
+			//写入活动频次信息   dsp_groupid_frequencycapping_*，修改频次信息/是否匀速等相关信息
+			launchService.writeCampaignFrequency(campaign);
+			// 改变预算(日均预算、总预算)、展现时修改redis中的值
+			changeBudgetAndCounter(id, dbBudget, campaignBudget, bean.getQuantities());
+			//写入活动下的创意基本信息   dsp_mapid_*，修改落地页等相关信息
+			launchService.writeCreativeInfo(id);
+		}						
 	}
 	
 	/**
@@ -391,7 +397,7 @@ public class CampaignService extends BaseService {
 	 * @param quantities 
 	 * @throws Exception
 	 */
-	private void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
+	private void changeBudgetAndCounter(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (redisHelper.exists(budgetKey)) {
@@ -447,7 +453,7 @@ public class CampaignService extends BaseService {
 				Integer difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
 				Integer difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
 				if (difVaue < 0 && Math.abs(difVaue) > dailyFloat) {//小于0时，并且redis中值不够扣除，抛出异常
-						throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
+					throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
 					redisHelper.hincrbyFloat(budgetKey, "daily", difVaue * 100);
@@ -544,8 +550,8 @@ public class CampaignService extends BaseService {
 				// 3.不在groupids中，满足项目开启、活动开启、定向时间、日预算、最大展现向groupids添加活动id
 				if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
-						&& isOnTargetTime(id) && launchService.isOnDailyBudgetJudge(id)
-						&& launchService.isOnDailyCounterJudge(id)) {
+						&& isOnTargetTime(id) && launchService.notOverDailyBudget(id)
+						&& launchService.notOverDailyCounter(id)) {
 					// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
 					// 活动没有超出每天的日预算并且日均最大展现未达到上限
 					boolean writeResult = launchService.launchCampaignRepeatable(id);
@@ -1215,8 +1221,8 @@ public class CampaignService extends BaseService {
 				}
 			}
 			/* if (isOnTargetTime(campaignId){ */
-			if (isOnTargetTime(campaignId) && launchService.isOnDailyBudgetJudge(campaignId)
-					&& launchService.isOnDailyCounterJudge(campaignId)) {
+			if (isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
+					&& launchService.notOverDailyCounter(campaignId)) {
 				// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 				// launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
