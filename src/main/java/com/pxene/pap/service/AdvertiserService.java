@@ -31,11 +31,15 @@ import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdvertiserModelExample;
 import com.pxene.pap.domain.models.AdxModel;
+import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.IndustryKpiModel;
+import com.pxene.pap.domain.models.IndustryKpiModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
+import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -51,6 +55,8 @@ import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.IndustryKpiDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+
+import ch.qos.logback.core.status.StatusUtil;
 
 @Service
 public class AdvertiserService extends BaseService
@@ -148,32 +154,36 @@ public class AdvertiserService extends BaseService
 		copyTempToFormal(bean);
 		// 将path替换成正式目录
 		AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
-//		model.setId(UUID.randomUUID().toString());
+		
 		model.setId(UUIDGenerator.getUUID());
-
 		advertiserDao.insertSelective(model);
 
 		// 将DAO创建的新对象复制回传输对象中
 		BeanUtils.copyProperties(model, bean);
 
-		// 创建广告主时向广告主审核表添加信息
-		// 1.查询广告主审核信息
-		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
-		advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(bean.getId())
-				.andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
-		List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao
-				.selectByExample(advertiserAuditModelExample);
-		if (advertiserAuditList == null || advertiserAuditList.isEmpty()) {
-			// 2.如果广告主审核信息为空，则向广告主审核表插入数据
-			AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
-			advertiserAudit.setId(UUIDGenerator.getUUID());
-			advertiserAudit.setAdvertiserId(bean.getId());
-			advertiserAudit.setAuditValue("1");
-			advertiserAudit.setAdxId(AdxKeyConstant.ADX_MOMO_VALUE);
-			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_NOCHECK);
-			advertiserAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
-			// 3.向广告主审核表插入数据
-			advertiserAuditDao.insertSelective(advertiserAudit);
+		// 创建广告主时向广告主审核表添加信息，审核平台列表中有几个adx则向广告主审核表中加入几条数据
+		// 查询ADX列表
+		AdxModelExample adxExample = new AdxModelExample();
+		List<AdxModel> adxs = adxDao.selectByExample(adxExample);
+		for (AdxModel adx : adxs) {
+			// 1.查询广告主审核信息
+			AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
+			advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(bean.getId())
+					.andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
+			List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao
+					.selectByExample(advertiserAuditModelExample);
+			if (advertiserAuditList == null || advertiserAuditList.isEmpty()) {
+				// 2.如果广告主审核信息为空，则向广告主审核表插入数据
+				AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
+				advertiserAudit.setId(UUIDGenerator.getUUID());
+				advertiserAudit.setAdvertiserId(bean.getId());
+				advertiserAudit.setAuditValue("1");
+				advertiserAudit.setAdxId(adx.getId());
+				advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_NOCHECK);
+				advertiserAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
+				// 3.向广告主审核表插入数据
+				advertiserAuditDao.insertSelective(advertiserAudit);
+			}
 		}
     }
 
@@ -205,7 +215,17 @@ public class AdvertiserService extends BaseService
         
         // 删除广告主下的资质图片
     	removeImages(id);
+    	
+		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除
+		AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
+		auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserInDB.getId());
+		List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
+		for (AdvertiserAuditModel auditModel : auditModels) {
+			advertiserAuditDao.deleteByPrimaryKey(auditModel.getId());
+		}
+        
         advertiserDao.deleteByPrimaryKey(id);
+                
     }
     
     /**
@@ -237,7 +257,19 @@ public class AdvertiserService extends BaseService
 				throw new IllegalStatusException(PhrasesConstant.ADVERVISER_HAVE_PROJECT);
 			}
 		}
+		
+		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除
+		for (int i = 0; i < advertiserInDB.size(); i++) {
+			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
+			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserInDB.get(i).getId());
+			List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
+			for (AdvertiserAuditModel auditModel : auditModels) {
+				advertiserAuditDao.deleteByPrimaryKey(auditModel.getId());
+			}
+		} 
+		
 		advertiserDao.deleteByExample(advertiserModelExample);
+				     
     }
 
 //    @Transactional
@@ -333,8 +365,10 @@ public class AdvertiserService extends BaseService
         // 找出所属行业
         Integer industryId = advertiser.getIndustryId();
         IndustryModel industry = industryDao.selectByPrimaryKey(industryId);
-        String industryName = industry.getName();
-        bean.setIndustryName(industryName);
+        if (industry != null && !"".equals(industry)) {
+        	String industryName = industry.getName();
+            bean.setIndustryName(industryName);
+        }        
 		// 找出adxes
 		String advertiserId = advertiser.getId();
 		AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
@@ -344,18 +378,18 @@ public class AdvertiserService extends BaseService
 		for (int i = 0; i < adxes.length; i++) {
 			// adx的基本信息
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
-			adxes[i] = modelMapper.map(advertiserAudiModel, Adx.class);
+			Adx adx = modelMapper.map(advertiserAudiModel, Adx.class);
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 			Adx adxName = modelMapper.map(adxModel, Adx.class);
 			// 放到adx[]中
-			//adxes[i] = adx;
+			adxes[i] = adx;
 			adxes[i].setName(adxName.getName());
 		}
 		bean.setAdxes(adxes);
                 
-        bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
+        // bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
         // 将DAO创建的新对象复制回传输对象中
         return bean;
     }
@@ -393,8 +427,10 @@ public class AdvertiserService extends BaseService
 			// 找出所属行业
 			Integer industryId = advertiser.getIndustryId();
 			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
-			String industryName = industryModel.getName();
-			bean.setIndustryName(industryName);
+			if (industryModel != null && !"".equals(industryModel)) {
+	        	String industryName = industryModel.getName();
+	            bean.setIndustryName(industryName);
+	        }  
 
 			// 找出adxes
 			String advertiserId = advertiser.getId();
@@ -405,19 +441,19 @@ public class AdvertiserService extends BaseService
 			for (int i = 0; i < adxes.length; i++) {
 				// adx的基本信息
 				AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(i);
-				adxes[i] = modelMapper.map(advertiserAuditModel, Adx.class);
+				Adx adx = modelMapper.map(advertiserAuditModel, Adx.class);
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 				Adx adxName = modelMapper.map(adxModel, Adx.class);
 				// 放到adx[]数组中
-				//adxes[i] = adx;
+				adxes[i] = adx;
 				adxes[i].setName(adxName.getName());
 			}
 			bean.setAdxes(adxes);
 
 			// 查询审核状态
-			bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
+			//bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
 
 			if (startDate != null && endDate != null) {
 				// 查询投放数据
