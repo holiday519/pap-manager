@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
-/*import org.hibernate.annotations.common.util.impl.Log_.logger;*/
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
@@ -685,7 +683,7 @@ public class CampaignService extends BaseService {
 	 * @param campaignId
 	 */
 	@Transactional
-	private void deleteCampaignTarget(String campaignId)  throws Exception {
+	private void deleteCampaignTarget(String campaignId) throws Exception {
 		//删除地域定向
 		RegionTargetModelExample region = new RegionTargetModelExample();
 		region.createCriteria().andCampaignIdEqualTo(campaignId);
