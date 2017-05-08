@@ -354,7 +354,7 @@ public class LaunchService extends BaseService {
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
 					&& campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
-					&& isOnDailyBudgetJudge(campaignId) && isOnDailyCounterJudge(campaignId)) {
+					&& notOverDailyBudget(campaignId) && notOverDailyCounter(campaignId)) {
 				// writeCampaignId(campaignId);
 				boolean writeResult = launchCampaignRepeatable(campaignId);
 				if (!writeResult) {
@@ -1357,7 +1357,7 @@ public class LaunchService extends BaseService {
 	
 	
 	/**
-     * 从正在投放的活动中删除指定的活动ID。
+     * 从正在投放的活动中删除指定的活动ID
      * @param redisValue    Redis中Key为dsp_groups的Value
      * @param campaignId    欲删除的活动ID
      * @return
@@ -1385,7 +1385,7 @@ public class LaunchService extends BaseService {
     * @param campaignId 活动id
     * @throws Exception 
     */
-   public Boolean isOnDailyBudgetJudge(String campaignId){
+   public Boolean notOverDailyBudget(String campaignId){
 		// 获取redis中日预算
 		Map<String, String> dailyBudgetMap = redisHelper.hget(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
 		String budget = dailyBudgetMap.get("daily");
@@ -1405,7 +1405,7 @@ public class LaunchService extends BaseService {
     * 日均最大展现是否达到上限 
     * @param campaignId
     */
-   public Boolean isOnDailyCounterJudge(String campaignId){	   	  	   
+   public Boolean notOverDailyCounter(String campaignId){	   	  	   
 		// 获取redis中日均最大展现数
 		String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
 		if (dailyCounter == null || "".equals(dailyCounter)) {
