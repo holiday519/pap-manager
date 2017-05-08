@@ -31,15 +31,11 @@ import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdvertiserModelExample;
 import com.pxene.pap.domain.models.AdxModel;
-import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
-import com.pxene.pap.domain.models.IndustryKpiModel;
-import com.pxene.pap.domain.models.IndustryKpiModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
-import com.pxene.pap.domain.models.KpiModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -55,8 +51,6 @@ import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.IndustryKpiDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
-
-import ch.qos.logback.core.status.StatusUtil;
 
 @Service
 public class AdvertiserService extends BaseService
@@ -154,7 +148,7 @@ public class AdvertiserService extends BaseService
 		copyTempToFormal(bean);
 		// 将path替换成正式目录
 		AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
-		/* model.setId(UUID.randomUUID().toString()); */
+//		model.setId(UUID.randomUUID().toString());
 		model.setId(UUIDGenerator.getUUID());
 
 		advertiserDao.insertSelective(model);
@@ -350,13 +344,13 @@ public class AdvertiserService extends BaseService
 		for (int i = 0; i < adxes.length; i++) {
 			// adx的基本信息
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
-			Adx adx = modelMapper.map(advertiserAudiModel, Adx.class);
+			adxes[i] = modelMapper.map(advertiserAudiModel, Adx.class);
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 			Adx adxName = modelMapper.map(adxModel, Adx.class);
 			// 放到adx[]中
-			adxes[i] = adx;
+			//adxes[i] = adx;
 			adxes[i].setName(adxName.getName());
 		}
 		bean.setAdxes(adxes);
@@ -411,13 +405,13 @@ public class AdvertiserService extends BaseService
 			for (int i = 0; i < adxes.length; i++) {
 				// adx的基本信息
 				AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(i);
-				Adx adx = modelMapper.map(advertiserAuditModel, Adx.class);
+				adxes[i] = modelMapper.map(advertiserAuditModel, Adx.class);
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 				Adx adxName = modelMapper.map(adxModel, Adx.class);
 				// 放到adx[]数组中
-				adxes[i] = adx;
+				//adxes[i] = adx;
 				adxes[i].setName(adxName.getName());
 			}
 			bean.setAdxes(adxes);

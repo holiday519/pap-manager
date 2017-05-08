@@ -16,10 +16,6 @@
 
 package com.pxene.pap;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.Filter;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -33,7 +29,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import com.pxene.pap.web.filter.JwtFilter;
 import com.pxene.pap.web.filter.RateLimiterFilter;
 
 
