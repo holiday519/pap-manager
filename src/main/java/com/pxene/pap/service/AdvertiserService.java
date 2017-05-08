@@ -157,14 +157,7 @@ public class AdvertiserService extends BaseService
 		AdxModelExample adxExample = new AdxModelExample();
 		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		for (AdxModel adx : adxes) {
-			// 1.查询广告主审核信息
-			AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
-			advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(bean.getId())
-					.andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
-			List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao
-					.selectByExample(advertiserAuditModelExample);
-			if (advertiserAuditList == null || advertiserAuditList.isEmpty()) {
-				// 2.如果广告主审核信息为空，则向广告主审核表插入数据
+				// 1.如果广告主审核信息为空，则向广告主审核表插入数据
 				AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
 				advertiserAudit.setId(UUIDGenerator.getUUID());
 				advertiserAudit.setAdvertiserId(bean.getId());
@@ -172,9 +165,8 @@ public class AdvertiserService extends BaseService
 				advertiserAudit.setAdxId(adx.getId());
 				advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_NOCHECK);
 				advertiserAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
-				// 3.向广告主审核表插入数据
+				// 2.向广告主审核表插入数据
 				advertiserAuditDao.insertSelective(advertiserAudit);
-			}
 		}
     }
 
