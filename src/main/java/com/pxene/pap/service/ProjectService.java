@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
@@ -48,7 +49,7 @@ import redis.clients.jedis.Jedis;
 @Service
 public class ProjectService extends BaseService {
 	
-	private static final String PROJECT_BUDGET_PREFIX = "pap_project_budget_";
+//	private static final String PROJECT_BUDGET_PREFIX = "pap_project_budget_";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
@@ -118,7 +119,7 @@ public class ProjectService extends BaseService {
         BeanUtils.copyProperties(project, bean);
         
         // 将项目总预算插入Redis
-        String projectBudgetKey = PROJECT_BUDGET_PREFIX + project.getId();
+        String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + project.getId();
         redisHelper.setNX(projectBudgetKey, project.getTotalBudget());
         
         // 初始化转化字段
@@ -229,7 +230,7 @@ public class ProjectService extends BaseService {
         projectDao.deleteByPrimaryKey(id);
         
         // 从Redis中删除指定ID的项目总预算
-        String projectBudgetKey = PROJECT_BUDGET_PREFIX + id;
+        String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + id;
         redisHelper.delete(projectBudgetKey);
         
         // 删除项目转化字段
@@ -276,7 +277,7 @@ public class ProjectService extends BaseService {
         // 从Redis中删除指定ID的项目总预算
         for (String id : ids)
         {
-            redisHelper.delete(PROJECT_BUDGET_PREFIX + id);
+            redisHelper.delete(RedisKeyConstant.PROJECT_BUDGET + id);
         }
         
         // 删除项目转化字段
@@ -591,7 +592,7 @@ public class ProjectService extends BaseService {
      */
     private void changeBudgetInRedis(String projectId, int formVal)
     {
-        String projectBudgetKey = PROJECT_BUDGET_PREFIX + projectId;
+        String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
         
         // 如果项目不存在，则无必要再继续操作
         ProjectModel projectInDB = projectDao.selectByPrimaryKey(projectId);

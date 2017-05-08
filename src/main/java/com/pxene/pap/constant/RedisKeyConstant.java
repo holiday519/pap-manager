@@ -8,7 +8,6 @@ public class RedisKeyConstant {
 	/**
 	 * 正在投放的活动id
 	 */
-	//public static final String CAMPAIGN_IDS = "dsp_groupids";
 	public static final String CAMPAIGN_IDS = "pap_groupids";
 	/**
 	 * 活动下创意
@@ -46,6 +45,10 @@ public class RedisKeyConstant {
 	 * 活动展现上限
 	 */
 	public static final String CAMPAIGN_COUNTER = "pap_campaign_counter_";
+	/**
+	 * 项目预算
+	 */
+	public static final String PROJECT_BUDGET = "pap_project_budget_";
 	/**
 	 * 定向标志位
 	 */
