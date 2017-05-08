@@ -88,8 +88,8 @@ public class LandpageController {
 	 */
 	@RequestMapping(value = "/landpage/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectLandpage(@PathVariable String id, HttpServletResponse response) throws Exception {
-		LandpageBean bean = landpageService.selectLandpage(id);
+	public String getLandpage(@PathVariable String id, HttpServletResponse response) throws Exception {
+		LandpageBean bean = landpageService.getLandpage(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), bean, response);
 	}
 	/**
@@ -104,13 +104,13 @@ public class LandpageController {
 	 */
 	@RequestMapping(value = "/landpages", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectLandpages(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listLandpages(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<LandpageBean> beans = landpageService.selectLandpages(name);
+		List<LandpageBean> beans = landpageService.listLandpages(name);
 		
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

@@ -27,7 +27,6 @@ import com.pxene.pap.domain.models.LandpageCodeModelExample;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.LandpageModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
-import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
@@ -93,14 +92,12 @@ public class LandpageService extends BaseService {
 	@Transactional
 	public void createLandpage(LandpageBean bean) throws Exception {
 		//验证名称重复
-    	if (!StringUtils.isEmpty(bean.getName())) {
-    		LandpageModelExample landpageExample = new LandpageModelExample();
-    		landpageExample.createCriteria().andNameEqualTo(bean.getName());
-    		List<LandpageModel> landpages = landpageDao.selectByExample(landpageExample);
-    		if (landpages != null && !landpages.isEmpty()) {
-    			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
-    		}
-    	}
+		LandpageModelExample landpageExample = new LandpageModelExample();
+		landpageExample.createCriteria().andNameEqualTo(bean.getName());
+		List<LandpageModel> landpages = landpageDao.selectByExample(landpageExample);
+		if (landpages != null && !landpages.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
 		
 		LandpageModel landpage = modelMapper.map(bean, LandpageModel.class);
 		String id = UUIDGenerator.getUUID();
@@ -240,7 +237,7 @@ public class LandpageService extends BaseService {
 	 * @param id
 	 * @return
 	 */
-	public LandpageBean selectLandpage(String id) throws Exception {
+	public LandpageBean getLandpage(String id) throws Exception {
 		/*
 	    LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
 		if (landpageModel == null) {
@@ -265,7 +262,7 @@ public class LandpageService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<LandpageBean> selectLandpages(String name) throws Exception {
+	public List<LandpageBean> listLandpages(String name) throws Exception {
 		/*LandpageModelExample example = new LandpageModelExample();
 		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andNameLike("%" + name + "%");
@@ -340,12 +337,6 @@ public class LandpageService extends BaseService {
 			connection.setRequestProperty(HTTP_USER_AGENT, HTTP_USER_AGENT_VAL);
 			// 建立实际的连接
 			connection.connect();
-			// 获取所有响应头字段
-//		Map<String, List<String>> map = connection.getHeaderFields();
-//		// 遍历所有的响应头字段
-//		for (String key : map.keySet()) {
-//			System.out.println(key + "--->" + map.get(key));
-//		}
 			// 定义 BufferedReader输入流来读取URL的响应
 			in = new BufferedReader(new InputStreamReader(
 					connection.getInputStream()));

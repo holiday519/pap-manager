@@ -22,7 +22,7 @@ public class LandpageBean {
 	 * 活动目标名称
 	 */
 	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
-	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
+	@Length(max = 100, min = 1, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	/**
 	 * 落地页地址
