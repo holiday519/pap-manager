@@ -322,6 +322,11 @@ public class CampaignService extends BaseService {
 		
 		// 改变预算、展现时修改redis中的值
 		// changeBudgetAndCounter(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
+		// 编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
+		if (launchService.isHaveLaunched(id)) {			
+			// 改变预算(日均预算、总预算)、展现时修改redis中的值
+			changeBudgetAndCounter(id, dbBudget, campaignBudget, bean.getQuantities());
+		}
 		
 		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
 		// 编辑频次
@@ -370,18 +375,16 @@ public class CampaignService extends BaseService {
 		//删除投放量控制策略
 		deleteCampaignQuantity(id);
 		//添加投放量控制策略
-		addCampaignQuantity(bean);
-		//修改基本信息
+		addCampaignQuantity(bean);				
+		// 修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
-		//编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
+		// 编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {
-			//写入活动频次信息   dsp_groupid_frequencycapping_*，修改频次信息/是否匀速等相关信息
+			// 写入活动频次信息 dsp_groupid_frequencycapping_*，修改频次信息/是否匀速等相关信息
 			launchService.writeCampaignFrequency(campaign);
-			// 改变预算(日均预算、总预算)、展现时修改redis中的值
-			changeBudgetAndCounter(id, dbBudget, campaignBudget, bean.getQuantities());
-			//写入活动下的创意基本信息   dsp_mapid_*，修改落地页等相关信息
+			// 写入活动下的创意基本信息 dsp_mapid_*，修改落地页等相关信息
 			launchService.writeCreativeInfo(id);
-		}						
+		}
 	}
 	
 	/**
