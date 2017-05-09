@@ -160,7 +160,7 @@ public class DataService extends BaseService {
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
-		
+		//List<String> creativeIds = [{"131b7343-c147-4a79-93d3-4f25c9dc79c5",""}];
 		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(startDate), new Date(endDate), "network");
 		
 		return list;
@@ -222,12 +222,13 @@ public class DataService extends BaseService {
 						} else if (set.contains(substring)) {
 							codes.add(substring);
 						} else {
-							codes.add("0");
+							substring = "0";
+							codes.add(substring);
 						}
 						
 						String newValue = map.get(hkey);
 						if (!StringUtils.isEmpty(newValue)) {
-							if (hkey.indexOf("@m") > 0) {// 展现
+							if (hkey.indexOf("@m") > 0) {// 展现								
 								//如果map中已经有值，加起来，不然直接存入map
 								Long value = mMap.get(substring);
 								if (value != null) {
@@ -237,6 +238,7 @@ public class DataService extends BaseService {
 										mMap.put(substring, value + Long.parseLong(newValue));
 									} else {
 										mMap.put("0", value + Long.parseLong(newValue));
+										long n = value + Long.parseLong(newValue);
 									}
 								} else {
 									if (set == null || set.isEmpty()) {
@@ -246,7 +248,7 @@ public class DataService extends BaseService {
 									} else {
 										mMap.put("0", Long.parseLong(newValue));
 									}
-								}
+								}								
 							} else if (hkey.indexOf("@c") > 0) {// 点击
 								//如果map中已经有值，加起来，不然直接存入map
 								Long value = cMap.get(substring);
@@ -310,7 +312,7 @@ public class DataService extends BaseService {
 							}
 						}
 					}
-				}
+				}				
 			}
 		}
 		//整理结果集
