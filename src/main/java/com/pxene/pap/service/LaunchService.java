@@ -1281,7 +1281,7 @@ public class LaunchService extends BaseService {
 				String path = populationModel.getPath();
 				String type = populationModel.getType();
 				File file = new File(POPULATION_ROOT_PATH + path);
-				if (!file.exists()) {
+				if (!file.exists()) {					
 					throw new ResourceNotFoundException(PhrasesConstant.WBLIST_FILE_NOT_FOUND);
 				}
 				List<String> lines = FileUtils.readLines(file);
