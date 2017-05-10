@@ -311,7 +311,7 @@ public class LaunchService extends BaseService {
 				remove4EndDate(campaign);
 			}
 
-			// 预算重新写入
+			// 预算重新写入（每天需要写入当天的日预算和日均展现）
 			for (CampaignModel campaign : launchCampaigns) {
 				String campaignId = campaign.getId();
 				writeCampaignBudget(campaign);
@@ -1246,7 +1246,11 @@ public class LaunchService extends BaseService {
 		if (quantities !=null && !quantities.isEmpty()) {
 			int budget = quantities.get(0).getDailyBudget();
 			Map<String, String> value = new HashMap<String, String>();
-			value.put("total", String.valueOf(totalBudget * 100));
+			if (!isHaveLaunched(campaign.getId())) {
+				// 如果没有投放过需要写入总预算，已投放过总预算减即可不需要重新写入
+				value.put("total", String.valueOf(totalBudget * 100));
+			}
+			// 投放当天需要写入当天的预算，每天需要重新写入当天的预算
 			value.put("daily", String.valueOf(budget * 100));
 			redisHelper.hset(key, value);
 		}
@@ -1351,8 +1355,26 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public Boolean isHaveLaunched(String campaignId) throws Exception {
-		/*return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);*/
-		return redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		// return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		// return redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);		
+		// 判断活动下创意是否在redis中
+		Boolean isHaveMapids = redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		// 判断活动基本信息是否在redis中
+		Boolean isHaveInfo = redisHelper.exists(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+		// 判断活动定向是否在redis中
+		Boolean isHaveTarget = redisHelper.exists(RedisKeyConstant.CAMPAIGN_TARGET + campaignId);
+		// 判断活动频次信息是否在redis中  
+		Boolean isHaveFrequency = redisHelper.exists(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);		
+		// 判断活动预算是否在redis中
+		Boolean isHaveBudget = redisHelper.exists(RedisKeyConstant.CAMPAIGN_BUDGET  + campaignId);
+		// 判断日均展现是否在redis中
+		Boolean isHaveCounter = redisHelper.exists(RedisKeyConstant.CAMPAIGN_COUNTER   + campaignId);
+		if (isHaveMapids && isHaveInfo && isHaveTarget && isHaveFrequency 
+				&& isHaveBudget && isHaveCounter) {
+			return true;	
+		} else {
+			return false;	
+		}			
 	}
 	
 	
