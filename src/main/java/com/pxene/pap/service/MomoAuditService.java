@@ -263,7 +263,7 @@ public class MomoAuditService extends AuditService {
 				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
 				if (creativeObject.get("status").getAsInt() == 1) {
 					// 待审核
-					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 				} else if (creativeObject.get("status").getAsInt() == 2) {
 					// 审核通过
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
