@@ -160,7 +160,7 @@ public class DataService extends BaseService {
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
 		List<String> creativeIds = getCreativeIdListByParam(advertiserId, projectId, campaignId, creativeId);
-		//List<String> creativeIds = [{"131b7343-c147-4a79-93d3-4f25c9dc79c5",""}];
+
 		List<Map<String, Object>> list = getDatafromDayTable(creativeIds, new Date(startDate), new Date(endDate), "network");
 		
 		return list;
@@ -238,7 +238,6 @@ public class DataService extends BaseService {
 										mMap.put(substring, value + Long.parseLong(newValue));
 									} else {
 										mMap.put("0", value + Long.parseLong(newValue));
-										long n = value + Long.parseLong(newValue);
 									}
 								} else {
 									if (set == null || set.isEmpty()) {
