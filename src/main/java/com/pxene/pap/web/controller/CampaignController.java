@@ -1,5 +1,6 @@
 package com.pxene.pap.web.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +138,7 @@ public class CampaignController {
 	 * @param request
 	 * @param response
 	 * @return
-	 * @throws Exception
+	 * @throws Exception  
 	 */
 	@RequestMapping(value = "/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
@@ -153,4 +154,31 @@ public class CampaignController {
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 	
+	/**
+	 * 批量同步活动下创意
+	 * @param ids
+	 * @param response
+	 * @throws Exception   
+	 */
+	@RequestMapping(value = "/campaigns/synchronize",method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void synchronizeCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+		campaignService.synchronizeCreatives(ids.split(","));
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 修改活动开始结束日期
+	 * @param id
+	 * @param startDate
+	 * @param endDate
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaigns/date/{id}" ,method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateCampaignStartAndEndDate(@PathVariable String id, @RequestParam Date startDate, @RequestParam Date endDate, HttpServletResponse response) throws Exception {	
+		campaignService.updateCampaignStartAndEndDate(id, startDate, endDate);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 }

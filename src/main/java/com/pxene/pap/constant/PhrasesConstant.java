@@ -20,6 +20,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_STATUS_TOP = "活动开启不能添加创意，请关闭活动"; 
 	public static final String REDIS_GROUPIDS_NULL = "redis中没有Groupids信息";
 	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
+	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目

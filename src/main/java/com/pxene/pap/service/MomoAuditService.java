@@ -243,9 +243,7 @@ public class MomoAuditService extends AuditService {
 		arrCreativeInfo.add(creativeId);
 		jsonCreativeInfo.addProperty("dspid", dspid);
 		jsonCreativeInfo.add("crids", arrCreativeInfo);
-		//String dataStr = "data" + jsonCreativeInfo.toString(); //转换数据格式
-		//获取同步结果
-		//String synchronizeCreativeResult = HttpClientUtil.getInstance().sendHttpPostJson(cexamineResultUrl, dataStr);
+		//获取同步结果		
 		String synchronizeCreativeResult = HttpClientUtil.getInstance().sendHttpPostForm(cexamineResultUrl, "data=" + jsonCreativeInfo.toString());
 		//转换数据格式
 		Gson gson = new Gson();
@@ -258,7 +256,7 @@ public class MomoAuditService extends AuditService {
 				//创意数据表中查询当前创意当前媒体的审核数据
 				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
 				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
-				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
+				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();				
 				if (creativeObject.get("status").getAsInt() == 1) {
 					// 待审核
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
@@ -274,7 +272,6 @@ public class MomoAuditService extends AuditService {
 					creativeAuditModel.setMessage(creativeObject.get("reason").toString());
 				}
 				//更新创意审核表
-				//creativeAuditDao.updateByPrimaryKey(creativeAuditModel);
 				creativeAuditDao.updateByExampleSelective(creativeAuditModel, creativeAuditExample);
 			}
 		} else {

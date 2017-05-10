@@ -1436,4 +1436,24 @@ public class LaunchService extends BaseService {
 			throw new ServerFailureException(PhrasesConstant.REDIS_DAY_COUNTER);
 		}
    }
+   
+   /**
+    * 判断是否超出项目总预算
+    * @param campaignId
+    * @return
+    */
+	public Boolean notOverProjectBudget(String campaignId) {
+		// 获取redis中项目预算
+		String strProjectBudget = redisHelper.getStr(RedisKeyConstant.PROJECT_BUDGET + campaignId);
+		if (strProjectBudget == null || strProjectBudget.equals("")) {
+			throw new ServerFailureException(PhrasesConstant.REDIS_PROJECTBUDGET_NULL);
+		}
+		// 转换类型
+		int projectBudget = Integer.parseInt(strProjectBudget);
+		// 判断是否超出日均最大展现数
+		if (projectBudget > 0) {
+			return true;
+		}
+		return false;
+	}
 }

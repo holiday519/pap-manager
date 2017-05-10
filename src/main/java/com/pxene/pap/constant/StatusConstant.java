@@ -130,6 +130,18 @@ public class StatusConstant {
 	/**
 	 * 转义字段状态：禁用
 	 */
-	public static final String EFFECT_STATUS_DISABLE = "02";
+	public static final String EFFECT_STATUS_DISABLE = "02";  
 	
+	/**
+	 * 活动未正常投放原因：预算达到上限
+	 */
+	public static final String CAMPAIGN_BUDGET_OVER = "01";
+	/**
+	 * 活动未正常投放原因：展现数达到上限
+	 */
+	public static final String CAMPAIGN_COUNTER_OVER = "02";
+	/**
+	 * 活动未正常投放原因：不在定向时间段内
+	 */
+	public static final String CAMPAIGN_ISNOT_TARGETTIME = "03"; 
 }

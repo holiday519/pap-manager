@@ -34,13 +34,7 @@ public class CampaignBean extends BasicDataBean {
 	 */
 	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
-	private String name;
-
-	/**
-	 * 总预算
-	 */
-	@Max(value = 99999999, message = PhrasesConstant.LENGTH_ERROR_BUDGET)
-	private Integer totalBudget;
+	private String name;	
 
 	/**
 	 * 备注
@@ -52,9 +46,14 @@ public class CampaignBean extends BasicDataBean {
 	 */
 	private String status;
 	/**
+	 * 未正常投放原因
+	 */
+	private String reason;
+	/**
 	 * 开始时间
 	 */
-	private Date startDate;
+	private Date startDate;	
+
 	/**
 	 * 结束时间
 	 */
@@ -339,45 +338,7 @@ public class CampaignBean extends BasicDataBean {
 					+ ", timeType=" + timeType + ", number=" + number + "]";
 		}
 
-	}
-
-	/**
-	 * 监测地址
-	 */
-	private Monitor[] monitors;
-
-	public static class Monitor {
-		/**
-		 * 展现监测地址
-		 */
-		private String impressionUrl;
-		/**
-		 * 点击监测地址
-		 */
-		private String clickUrl;
-
-		public String getImpressionUrl() {
-			return impressionUrl;
-		}
-
-		public void setImpressionUrl(String impressionUrl) {
-			this.impressionUrl = impressionUrl;
-		}
-
-		public String getClickUrl() {
-			return clickUrl;
-		}
-
-		public void setClickUrl(String clickUrl) {
-			this.clickUrl = clickUrl;
-		}
-
-		@Override
-		public String toString() {
-			return "Monitor [impressionUrl=" + impressionUrl + ", clickUrl="
-					+ clickUrl + "]";
-		}
-	}
+	}	
 
 	/**
 	 * 投放量控制策略
@@ -491,14 +452,6 @@ public class CampaignBean extends BasicDataBean {
 		this.name = name;
 	}
 
-	public Integer getTotalBudget() {
-		return totalBudget;
-	}
-
-	public void setTotalBudget(Integer totalBudget) {
-		this.totalBudget = totalBudget;
-	}
-
 	public String getRemark() {
 		return remark;
 	}
@@ -514,7 +467,15 @@ public class CampaignBean extends BasicDataBean {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	
+	public String getReason() {
+		return reason;
+	}
 
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
+	
 	public Date getStartDate() {
 		return startDate;
 	}
@@ -545,15 +506,7 @@ public class CampaignBean extends BasicDataBean {
 
 	public void setFrequency(Frequency frequency) {
 		this.frequency = frequency;
-	}
-
-	public Monitor[] getMonitors() {
-		return monitors;
-	}
-
-	public void setMonitors(Monitor[] monitors) {
-		this.monitors = monitors;
-	}
+	}	
 
 	public String getUniform() {
 		return uniform;
@@ -583,12 +536,11 @@ public class CampaignBean extends BasicDataBean {
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
 				+ ", projectName=" + projectName + ", name=" + name
-				+ ", totalBudget=" + totalBudget + ", remark=" + remark
+				+ ", remark=" + remark
 				+ ", status=" + status + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", uniform=" + uniform
 				+ ", creativeNum=" + creativeNum + ", target=" + target
-				+ ", frequency=" + frequency + ", monitors="
-				+ Arrays.toString(monitors) + ", quantities="
+				+ ", frequency=" + frequency +  ", quantities="
 				+ Arrays.toString(quantities) + ", landpageId=" + landpageId
 				+ ", landpageName=" + landpageName + ", landpageUrl="
 				+ landpageUrl + "]";

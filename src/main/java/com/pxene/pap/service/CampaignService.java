@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
-/*import org.hibernate.annotations.common.util.impl.Log_.logger;*/
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,17 +16,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
-import com.mysql.jdbc.log.LogFactory;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
+import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
-import com.pxene.pap.domain.beans.CampaignBean.Monitor;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.beans.CampaignBean.Target.App;
@@ -42,13 +40,14 @@ import com.pxene.pap.domain.models.BrandTargetModel;
 import com.pxene.pap.domain.models.BrandTargetModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeAuditModel;
+import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.DeviceTargetModel;
 import com.pxene.pap.domain.models.DeviceTargetModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
 import com.pxene.pap.domain.models.LandpageModel;
-import com.pxene.pap.domain.models.MonitorModel;
 import com.pxene.pap.domain.models.MonitorModelExample;
 import com.pxene.pap.domain.models.NetworkTargetModel;
 import com.pxene.pap.domain.models.NetworkTargetModelExample;
@@ -73,11 +72,13 @@ import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
+import com.pxene.pap.exception.ThirdPartyAuditException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
@@ -86,7 +87,6 @@ import com.pxene.pap.repository.basic.MonitorDao;
 import com.pxene.pap.repository.basic.NetworkTargetDao;
 import com.pxene.pap.repository.basic.OperatorTargetDao;
 import com.pxene.pap.repository.basic.OsTargetDao;
-import com.pxene.pap.repository.basic.PopulationDao;
 import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.QuantityDao;
@@ -155,10 +155,7 @@ public class CampaignService extends BaseService {
 	private AppTargetDao appTargetDao;
 	
 	@Autowired
-	private PopulationTargetDao populationTargetDao;
-	
-	@Autowired
-	private PopulationDao populationDao;
+	private PopulationTargetDao populationTargetDao;	
 	
 	@Autowired
 	private CampaignTargetDao campaignTargetDao;
@@ -174,6 +171,15 @@ public class CampaignService extends BaseService {
 	
 	@Autowired
 	private LandpageDao landpageDao;
+	
+	@Autowired
+	private MomoAuditService momoAuditService;
+	
+	@Autowired
+	private InmobiAuditService inmobiAuditService;
+	
+	@Autowired
+	private CreativeAuditDao creativeAuditDao;
 	
 	private RedisHelper redisHelper;
 	
@@ -216,26 +222,28 @@ public class CampaignService extends BaseService {
 	    Date endDate = bean.getEndDate();
 	    if (startDate != null && endDate != null && startDate.after(endDate)) {
             throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
-	    }
-		// 判断预算是否超出
-		String projectId = bean.getProjectId();
+	    }		  
+		
+	    // 活动的日预算之和不能大于项目预算
+	    String projectId = bean.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		Integer projectBudget = projectModel.getTotalBudget();
-		Integer campaignBueget = bean.getTotalBudget();
-//		campaignModelExample = new CampaignModelExample();
+		Integer dailyBudget = bean.getQuantities()[0].getDailyBudget();			
 		campaignModelExample.clear();
 		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId);
 		campaignModels = campaignDao.selectByExample(campaignModelExample);
 		if (campaignModels != null && !campaignModels.isEmpty()) {
 			for (CampaignModel model : campaignModels) {
-				campaignBueget = campaignBueget + model.getTotalBudget();
+				QuantityModelExample quantityExample = new QuantityModelExample();
+				quantityExample.createCriteria().andCampaignIdEqualTo(model.getId());
+				List<QuantityModel> quantity = quantityDao.selectByExample(quantityExample);
+				dailyBudget = dailyBudget + quantity.get(0).getDailyBudget();
 			}
-		}
-		if (campaignBueget.compareTo(projectBudget) > 0) {
+		}		
+		if (dailyBudget.compareTo(projectBudget) > 0) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
-		}
-		
-		//String id = UUID.randomUUID().toString(); 
+		}	 
+	    // 添加活动信息	    
 		String id = UUIDGenerator.getUUID();
 		bean.setId(id);
 		CampaignModel campaignModel = modelMapper.map(bean, CampaignModel.class);
@@ -245,8 +253,7 @@ public class CampaignService extends BaseService {
 		if (!StringUtils.isEmpty(frequencyId)) {
 			campaignModel.setFrequencyId(frequencyId);
 		}
-		//添加点击、展现监测地址
-		addCampaignMonitor(bean);
+
 		// 添加投放量控制策略
 		addCampaignQuantity(bean);
 		
@@ -287,43 +294,40 @@ public class CampaignService extends BaseService {
 		}	
 		
 		// bean中放入ID，用于更新关联关系表中数据
-		bean.setId(id);
+		bean.setId(id);		
 		
-		// 传值里的预算
-		Integer campaignBudget = bean.getTotalBudget();
-		
-		// 数据库中预算
-		Integer dbBudget = campaignInDB.getTotalBudget();
+		// 传值里的日预算
+		Quantity[] quantity = bean.getQuantities();
+		Integer dailyBudget = quantity[0].getDailyBudget();
 		
 		// 判断预算是否超出
 		String projectId = bean.getProjectId();
-
 		// 获得数据库中该活动隶属项目的项目总预算
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-		Integer projectBudget = projectModel.getTotalBudget();
+		Integer projectBudget = projectModel.getTotalBudget();				
 		
-		// 获得当前项目除本活动之外的全部活动已占用多少预算
-		int campaignBudgetOthers = 0;
+		// 获得当前项目除本活动之外的全部活动已占用多少日预算
+		int dailyBudgetOthers = 0;
 		CampaignModelExample campaignExample = new CampaignModelExample();
 		campaignExample.createCriteria().andProjectIdEqualTo(projectId).andIdNotEqualTo(bean.getId());
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-		
-		if (campaigns != null && !campaigns.isEmpty()) 
-		{
-			for (CampaignModel campaign : campaigns) 
-			{
-			    campaignBudgetOthers += campaign.getTotalBudget();
+		if (campaigns != null && !campaigns.isEmpty()) {
+			for (CampaignModel campaign : campaigns) {
+				// 当前项目其他活动，数据库中的日预算
+				QuantityModelExample quantityExample = new QuantityModelExample();
+				quantityExample.createCriteria().andCampaignIdEqualTo(campaign.getId());
+				List<QuantityModel> quantityList = quantityDao.selectByExample(quantityExample);
+				if (quantityList != null && !quantityList.isEmpty()) {
+					dailyBudgetOthers += quantityList.get(0).getDailyBudget();
+				}
 			}
 		}
-		
-		// 如果修改后的预算 + 其他活动预算大于总预算，则抛出异常
-		if (campaignBudget + campaignBudgetOthers > projectBudget) 
-		{
+		// 如果修改后的日预算 + 其他活动日预算大于总日预算，则抛出异常
+		if (dailyBudget + dailyBudgetOthers > projectBudget) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}
-		
 		// 改变预算、展现时修改redis中的值
-		changeRedisBudget(id, dbBudget, campaignBudget, bean.getQuantities());//改变日预算和总预算
+		changeRedisBudget(id, bean.getQuantities());
 		
 		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
 		// 编辑频次
@@ -338,7 +342,6 @@ public class CampaignService extends BaseService {
 			}
 		} else {
 			if (StringUtils.isEmpty(frequencyId)) { // 活动以前不存在频次，添加  
-				//String fId = UUID.randomUUID().toString();
 				String fId =UUIDGenerator.getUUID();
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
@@ -346,7 +349,6 @@ public class CampaignService extends BaseService {
 				campaign.setFrequencyId(fId);
 			} else { // 活动以前存在频次，删除再添加
 				frequencyDao.deleteByPrimaryKey(frequencyId);
-				//String fId = UUID.randomUUID().toString();
 				String fId =UUIDGenerator.getUUID();
 				frequency.setId(fId);
 				FrequencyModel frequencyModel = modelMapper.map(frequency, FrequencyModel.class);
@@ -357,13 +359,10 @@ public class CampaignService extends BaseService {
 			
 		Date current = new Date();
 		if (current.after(endDate)) {
-			// launchService.removeCampaignId(id);
 			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
 			LOGGER.info("chaxunPauseTrue." + id);
 			if (!removeResult) {
-				// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				/* pauseLaunchByDelCampaignInfo(id); */
 				LOGGER.info("chaxunPauseFalse." + id);
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 
@@ -372,8 +371,6 @@ public class CampaignService extends BaseService {
 		
 		//删除点击、展现监测地址
 		deleteCampaignMonitor(id);
-		//重新添加点击、展现监测地址
-		addCampaignMonitor(bean);
 		//删除投放量控制策略
 		deleteCampaignQuantity(id);
 		//添加投放量控制策略
@@ -381,34 +378,19 @@ public class CampaignService extends BaseService {
 		//修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
 		
-	}
+	}		
 	
 	/**
-	 * 修改redis中活动总预算、日预算、日展现
+	 * 修改redis中活动日预算、日展现 
 	 * @param campaignId
-	 * @param dbBudget
-	 * @param newBueget
-	 * @param quantities 
+	 * @param quantities
 	 * @throws Exception
 	 */
-	private void changeRedisBudget(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
+	private void changeRedisBudget(String campaignId, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (redisHelper.exists(budgetKey)) {
-			Map<String, String> map = redisHelper.hget(budgetKey);
-			// 修改redis中总预算值
-			if (!StringUtils.isEmpty(map.get("total"))) {
-				// redis里值
-				String total = map.get("total");
-				Float totalFloat = Float.parseFloat(total) / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
-				Integer difVaue = (newBueget - dbBudget);//修改前后差值（新的减去旧的）
-				if (difVaue < 0 && Math.abs(difVaue) > totalFloat) {//小于0时，并且redis中值不够扣除，抛出异常
-					throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
-				}
-				if (difVaue != 0) {
-					redisHelper.hincrbyFloat(budgetKey, "total", difVaue * 100);
-				}
-			}
+			Map<String, String> map = redisHelper.hget(budgetKey);			
 			// 修改redis中的日预算值
 			if (!StringUtils.isEmpty(map.get("daily")) && quantities != null) {
 				String daily = map.get("daily");//redis里值
@@ -522,14 +504,11 @@ public class CampaignService extends BaseService {
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
 		String projectId = campaignModel.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		/*if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) &&
-		isOnLaunchDate(id) && isOnTargetTime(id){*/
 		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
 				&& isOnTargetTime(id) && launchService.dailyBudgetJudge(id) && launchService.dailyCounterJudge(id)) {
 			// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里，将活动ID写入redis
 			// 活动没有超出每天的日预算并且日均最大展现未达到上限
-			// launchService.writeCampaignId(id);
 			boolean writeResult = launchService.launchCampaignRepeatable(id);
 			LOGGER.info("chaxunLaunchTrue." + id);
 			if (!writeResult) {
@@ -537,14 +516,10 @@ public class CampaignService extends BaseService {
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		} else {
-			// 否则将活动ID移除redis
-			// launchService.removeCampaignId(id);
 			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
 			LOGGER.info("chaxunPauseTrue." + id);
 			if (!removeResult) {
-				// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				// pauseLaunchByDelCampaignInfo(id);
 				LOGGER.info("chaxunPauseFalse." + id);
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
@@ -571,7 +546,6 @@ public class CampaignService extends BaseService {
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region = new RegionTargetModel();
 			for (String regionId : regionTarget) {
-				//region.setId(UUID.randomUUID().toString());
 				region.setId(UUIDGenerator.getUUID());
 				region.setCampaignId(id);
 				region.setRegionId(regionId);
@@ -581,7 +555,6 @@ public class CampaignService extends BaseService {
 		if (adTypeTarget != null && adTypeTarget.length > 0) {
 			AdTypeTargetModel adType = new AdTypeTargetModel();
 			for (String adTypeId : adTypeTarget) {
-				//adType.setId(UUID.randomUUID().toString());
 				adType.setId(UUIDGenerator.getUUID());
 				adType.setCampaignId(id);
 				adType.setAdType(adTypeId);
@@ -601,7 +574,6 @@ public class CampaignService extends BaseService {
 		if (networkTarget != null && networkTarget.length > 0) {
 			NetworkTargetModel network = new NetworkTargetModel();
 			for (String networkid : networkTarget) {
-				//network.setId(UUID.randomUUID().toString());
 				network.setId(UUIDGenerator.getUUID());
 				network.setCampaignId(id);
 				network.setNetwork(networkid);
@@ -611,7 +583,6 @@ public class CampaignService extends BaseService {
 		if (operatorTarget != null && operatorTarget.length > 0) {
 			OperatorTargetModel operator = new OperatorTargetModel();
 			for (String operatorId : operatorTarget) {
-				//operator.setId(UUID.randomUUID().toString());
 				operator.setId(UUIDGenerator.getUUID());
 				operator.setCampaignId(id);
 				operator.setOperator(operatorId);
@@ -621,7 +592,6 @@ public class CampaignService extends BaseService {
 		if (deviceTarget != null && deviceTarget.length > 0) {
 			DeviceTargetModel device = new DeviceTargetModel();
 			for (String deviceId : deviceTarget) {
-				/*device.setId(UUID.randomUUID().toString());*/
 				device.setId(UUIDGenerator.getUUID());
 				device.setCampaignId(id);
 				device.setDevice(deviceId);
@@ -631,7 +601,6 @@ public class CampaignService extends BaseService {
 		if (osTarget != null && osTarget.length > 0) {
 			OsTargetModel os = new OsTargetModel();
 			for (String osId : osTarget) {
-				/*os.setId(UUID.randomUUID().toString());*/
 				os.setId(UUIDGenerator.getUUID());
 				os.setCampaignId(id);
 				os.setOs(osId);
@@ -641,7 +610,6 @@ public class CampaignService extends BaseService {
 		if (brandTarget != null && brandTarget.length > 0) {
 			BrandTargetModel brand = new BrandTargetModel();
 			for (String brandId : brandTarget) {
-				/*brand.setId(UUID.randomUUID().toString());*/
 				brand.setId(UUIDGenerator.getUUID());
 				brand.setCampaignId(id);
 				brand.setBrandId(brandId);
@@ -651,7 +619,6 @@ public class CampaignService extends BaseService {
 		if (appTarget != null && appTarget.length > 0) {
 			AppTargetModel app = new AppTargetModel();
 			for (String appId : appTarget) {
-				/*app.setId(UUID.randomUUID().toString());*/
 				app.setId(UUIDGenerator.getUUID());
 				app.setCampaignId(id);
 				app.setAppId(appId);
@@ -660,7 +627,6 @@ public class CampaignService extends BaseService {
 		}
 		if (!StringUtils.isEmpty(populationTarget)) {
 			PopulationTargetModel population = new PopulationTargetModel();
-			/*population.setId(UUID.randomUUID().toString());*/
 			population.setId(UUIDGenerator.getUUID());
 			population.setCampaignId(id);
 			population.setPopulationId(populationTarget);
@@ -720,13 +686,13 @@ public class CampaignService extends BaseService {
 	 * 添加活动监测地址
 	 * @param bean
 	 */
-	@Transactional
+	/*@Transactional
 	private void addCampaignMonitor(CampaignBean campaignBean) throws Exception {
 		Monitor[] monitors = campaignBean.getMonitors();
 		if (monitors != null && monitors.length > 0) {
 			String id = campaignBean.getId();
 			for (Monitor bean : monitors) {
-				/*String monitorId = UUID.randomUUID().toString();*/
+				String monitorId = UUID.randomUUID().toString();
 				String monitorId = UUIDGenerator.getUUID();
 				MonitorModel model = modelMapper.map(bean, MonitorModel.class);
 				model.setId(monitorId);
@@ -734,7 +700,7 @@ public class CampaignService extends BaseService {
 				monitorDao.insertSelective(model);
 			}
 		}
-	}
+	}*/
 	
 	/**
 	 * 删除活动监测地址
@@ -763,15 +729,9 @@ public class CampaignService extends BaseService {
 		Quantity[] quantitys = campaignBean.getQuantities();			
 		if (quantitys != null && quantitys.length > 0) {
 			String id = campaignBean.getId();
-			for (Quantity bean : quantitys) {
-				Integer dailyBudget = bean.getDailyBudget();
-				Integer totalBudget = campaignBean.getTotalBudget();
-				if (dailyBudget != null && totalBudget != null && dailyBudget.compareTo(totalBudget) > 0) {
-					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_TOTAL); 
-				}
+			for (Quantity bean : quantitys) {				 								
 				QuantityModel model = modelMapper.map(bean, QuantityModel.class);
 				model.setCampaignId(id);
-				/*model.setId(UUID.randomUUID().toString());*/
 				model.setId(UUIDGenerator.getUUID());
 				quantityDao.insertSelective(model);
 			}
@@ -839,7 +799,7 @@ public class CampaignService extends BaseService {
 			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAVE_CREATIVE);
 		}
 		//删除监测地址
-		deleteCampaignMonitor(campaignId);
+		// deleteCampaignMonitor(campaignId);
 		//删除定向
 		deleteCampaignTarget(campaignId);
 		//删除频次信息
@@ -877,7 +837,7 @@ public class CampaignService extends BaseService {
 				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAVE_CREATIVE);
 			}
 			//删除监测地址
-			deleteCampaignMonitor(campaignId);
+			// deleteCampaignMonitor(campaignId);
 			//删除定向
 			deleteCampaignTarget(campaignId);
 			//删除频次信息
@@ -894,13 +854,27 @@ public class CampaignService extends BaseService {
 	 * @param campaignId
 	 * @return
 	 */
-	public CampaignBean getCampaign(String campaignId)  throws Exception {
+	public CampaignBean getCampaign(String campaignId) throws Exception {
 		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
-		if (model ==null || StringUtils.isEmpty(model.getId())) {
-        	throw new ResourceNotFoundException();
-        }						
+		if (model == null || StringUtils.isEmpty(model.getId())) {
+			throw new ResourceNotFoundException();
+		}
 		CampaignBean map = modelMapper.map(model, CampaignBean.class);
 		addParamToCampaign(map, model.getId(), model.getFrequencyId());
+		// 活动未正常投放原因
+		if (!launchService.isFirstLaunch(model.getId())) {
+			// 是否已经投放过，投放过可能出现预算和展现数上限
+			if (!launchService.dailyBudgetJudge(model.getId()) || !launchService.notOverProjectBudget(model.getId())) {
+				// 预算达到上限
+				map.setReason(StatusConstant.CAMPAIGN_BUDGET_OVER);
+			} else if (!launchService.dailyCounterJudge(model.getId())) {
+				// 展现数达到上限
+				map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
+			}
+		} else if (!isOnTargetTime(model.getId())) {
+			// 不在定向时间段内
+			map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
+		}
 		return map;
 	}
 	
@@ -936,14 +910,30 @@ public class CampaignService extends BaseService {
 		for (CampaignModel model : models) {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);
 			addParamToCampaign(map, model.getId(), model.getFrequencyId());
-			
+
 			if (beginTime != null && endTime != null) {
-				//查询每个活动的投放信息
+				// 查询每个活动的投放信息
 				getData(beginTime, endTime, map);
 			}
-			
+			// 活动未正常投放原因
+			if (!launchService.isFirstLaunch(model.getId())) {
+				// 是否已经投放过，投放过可能出现预算和展现数上限
+				if (!launchService.dailyBudgetJudge(model.getId())
+						|| !launchService.notOverProjectBudget(model.getId())) {
+					// 预算达到上限
+					map.setReason(StatusConstant.CAMPAIGN_BUDGET_OVER);
+				} else if (!launchService.dailyCounterJudge(model.getId())) {
+					// 展现数达到上限
+					map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
+				}
+			} else if (!isOnTargetTime(model.getId())) {
+				// 不在定向时间段内
+				map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
+			}
+
 			beans.add(map);
 		}
+		
 		return beans;
 	}
 	
@@ -994,7 +984,6 @@ public class CampaignService extends BaseService {
 			CampaignTargetModel campaignTargetModel = list.get(0);
 			if (campaignTargetModel != null) {
 				Target target = new Target();
-//				target.setRegion(formatTargetStringToArray(campaignTargetModel.getRegionId()));
 				target.setAdType(formatTargetStringToArray(campaignTargetModel.getAdType()));
 				target.setTime(formatTargetStringToArray(campaignTargetModel.getTimeId()));
 				target.setNetwork(formatTargetStringToArray(campaignTargetModel.getNetwork()));
@@ -1002,7 +991,6 @@ public class CampaignService extends BaseService {
 				target.setDevice(formatTargetStringToArray(campaignTargetModel.getDevice()));
 				target.setOs(formatTargetStringToArray(campaignTargetModel.getOs()));
 				target.setBrand(formatTargetStringToArray(campaignTargetModel.getBrandId()));
-//				target.setApp(formatTargetStringToArray(campaignTargetModel.getAppId()));
 				JsonArray regionTargets = new JsonArray();//地域定向数据长度太长需要单独查询
 				RegionTargetModelExample regionTargetModelExample = new RegionTargetModelExample();
 				regionTargetModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -1013,7 +1001,6 @@ public class CampaignService extends BaseService {
 					}
 				}
 				//地域定向信息返回名称和id
-//				String[] regionArray = formatTargetStringToArray(campaignTargetModel.getRegionId());
 				String[] regionArray = new String[regionTargets.size()];
 				if (regionTargets.size() > 0) {
 					for (int i = 0; i < regionTargets.size(); i++) {
@@ -1083,23 +1070,8 @@ public class CampaignService extends BaseService {
 				frequency.setTimeType(frequencyModel.getTimeType());
 				bean.setFrequency(frequency);
 			}
-		}
-		// 查询检测地址
-		MonitorModelExample monitorModelExample = new MonitorModelExample();
-		monitorModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<MonitorModel> monitorModels = monitorDao.selectByExample(monitorModelExample);
-		// 如果没有查到点击展现地址数据，直接返回
-		if (monitorModels != null && !monitorModels.isEmpty()) {
-			Monitor[] monitors = new Monitor[monitorModels.size()];
-			if (monitors != null) {
-				for (int i=0; i<monitorModels.size(); i++) {
-					MonitorModel model = monitorModels.get(i);
-					Monitor monitor = modelMapper.map(model, Monitor.class);
-					monitors[i] = monitor;
-				}
-				bean.setMonitors(monitors);
-			}
-		}
+		}				
+		
 		//落地页信息
 		String landpageId = bean.getLandpageId();
 		LandpageModel landpageModel = LandpageDao.selectByPrimaryKey(landpageId);
@@ -1202,11 +1174,9 @@ public class CampaignService extends BaseService {
 					}
 				}
 			}
-			/* if (isOnTargetTime(campaignId){ */
 			if (isOnTargetTime(campaignId) && launchService.dailyBudgetJudge(campaignId)
 					&& launchService.dailyCounterJudge(campaignId)) {
 				// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
-				// launchService.writeCampaignId(campaignId);
 				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 				LOGGER.info("chaxunLaunchTrue." + campaignId);
 				if (!writeResult) {
@@ -1230,8 +1200,6 @@ public class CampaignService extends BaseService {
 		String projectId = campaign.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-			// 移除redis中key
-			// launchService.removeCampaignId(campaign.getId());
 			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
 			LOGGER.info("chaxunPauseTrue." + campaign.getId());
@@ -1343,9 +1311,93 @@ public class CampaignService extends BaseService {
         return false;
     }
 
+    /**
+     * 批量同步活动下创意
+     * @param ids
+     * @throws Exception
+     */
+    @Transactional
+    public void synchronizeCreatives(String[] campaignIds) throws Exception {
+    	// 根据活动ID列表查询活动信息
+		List<String> asList = Arrays.asList(campaignIds);
+		CampaignModelExample ex = new CampaignModelExample();
+		ex.createCriteria().andIdIn(asList);		
+		List<CampaignModel> campaignInDB = campaignDao.selectByExample(ex);
+		// 判断活动信息是否为空
+		if (campaignInDB == null || campaignInDB.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		for (String campaignId : campaignIds) {
+			//查询出活动下创意
+			CreativeModelExample creativeExample = new CreativeModelExample();
+			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<CreativeModel> creativeList = creativeDao.selectByExample(creativeExample);			
+			for (CreativeModel creativeModel : creativeList) {
+				String creativeId = creativeModel.getId();
+				CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+				if (creative == null) {
+					throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+				}
+				// 查询adx列表
+				List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
+				//同步结果
+				for (Map<String, String> adx : adxes) {
+					CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
+					creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adx.get("adxId"));
+					List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(creativeAuditExample);
+					if (audits == null || audits.isEmpty()) {
+						throw new ThirdPartyAuditException();
+					} else {
+						String adxId = adx.get("adxId");
+						if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+							momoAuditService.synchronizeCreative(creativeId);
+						}
+						if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+							inmobiAuditService.synchronizeCreative(creativeId);
+						}
+					}
+				}
+			}
+		}						
+    }
+    
+    /**
+     * 修改活动开始结束日期
+     * @param id 活动id
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @throws Exception
+     */
+    @Transactional
+    public void updateCampaignStartAndEndDate(String id,Date startDate,Date endDate) throws Exception{
+		// 编辑的活动在数据库中不存在
+		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
+		if (campaignInDB == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 监测日期范围是否正确
+		if (startDate != null && endDate != null && startDate.after(endDate)) {
+			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
+		}
+		campaignInDB.setStartDate(startDate);
+		campaignInDB.setEndDate(endDate);
+		//修改基本信息
+		campaignDao.updateByPrimaryKeySelective(campaignInDB);
+		// 修改redis中的信息
+		String projectId = campaignInDB.getProjectId();
+		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		if (isOnLaunchDate(id) && !launchService.isFirstLaunch(id)&&
+				StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus())) {
+			launchService.write4FirstTime(campaignInDB);
+		} else if (!isOnLaunchDate(id)) {
+			launchService.remove4EndDate(campaignInDB);
+		}
+				
+    }
     
 //    /**
-//     * 从正在投放的活动中删除指定的活动ID。
+//     * 从正在投放的活动中删除指定的活动ID
 //     * @param redisValue    Redis中Key为dsp_groups的Value
 //     * @param campaignId    欲删除的活动ID
 //     * @return
@@ -1373,5 +1425,6 @@ public class CampaignService extends BaseService {
 //        }
 //        
 //        return null;
-//    }        
+//    }
+    
 }
