@@ -10,8 +10,6 @@ import java.util.Set;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.pxene.pap.domain.configs.JRedisPoolConfig;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -50,7 +48,7 @@ public class RedisHelper
         Properties props = new Properties();
         try
         {
-            props.load(JRedisPoolConfig.class.getResourceAsStream("/redis.properties"));
+            props.load(RedisHelper.class.getResourceAsStream("/redis.properties"));
         }
         catch (FileNotFoundException e)
         {

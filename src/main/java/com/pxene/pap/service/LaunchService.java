@@ -102,7 +102,7 @@ public class LaunchService extends BaseService {
 	private static String image_url;
 	
 	private RedisHelper redisHelper;
-	
+	private RedisHelper redisHelper2;
 	
 	@Autowired
 	public LaunchService(Environment env)
@@ -114,6 +114,7 @@ public class LaunchService extends BaseService {
 		
 		// 指定使用配置文件中的哪个具体的Redis配置
         redisHelper = RedisHelper.open("redis.primary.");
+        redisHelper2 = RedisHelper.open("redis.secondary.");
 	}
 	
 	@Autowired
@@ -1323,7 +1324,7 @@ public class LaunchService extends BaseService {
 				
 				if (keySuffix != null) {
 					for (Entry<String, List<String>> entry : keyValues.entrySet()) {
-					    redisHelper.sddKey(entry.getKey() + keySuffix, entry.getValue());
+					    redisHelper2.sddKey(entry.getKey() + keySuffix, entry.getValue());
 					}
 					redisHelper.set(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId, wblistJson.toString());
 				}
@@ -1343,7 +1344,7 @@ public class LaunchService extends BaseService {
 			String wbStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
 			JsonObject wbObj = parser.parse(wbStr).getAsJsonObject();
 			String populationId = wbObj.get("relationid").getAsString();
-			redisHelper.deleteByPattern("*" + populationId);
+			redisHelper2.deleteByPattern("*" + populationId);
 			redisHelper.delete(wbKey);
 		}
 	}

@@ -1308,40 +1308,40 @@ public class CampaignService extends BaseService {
 //        return false;
 //    }
 	
-	/**
-	 * 通过删除投放信息终止投放
-	 * @param campaignId 活动id
-	 * @return
-	 */
-	public boolean pauseLaunchByDelCampaignInfo(String campaignId)
-	{		
-		Jedis jedis = redisHelper.getJedis();
-		boolean delCampaignInfo = delCampaignInfo (jedis, campaignId);			
-		if(delCampaignInfo)
-		{
-			return true;
-		}	
-		
-		return false;		
-	}
+//	/**
+//	 * 通过删除投放信息终止投放
+//	 * @param campaignId 活动id
+//	 * @return
+//	 */
+//	public boolean pauseLaunchByDelCampaignInfo(String campaignId)
+//	{		
+//		Jedis jedis = redisHelper.getJedis();
+//		boolean delCampaignInfo = delCampaignInfo(jedis, campaignId);			
+//		if(delCampaignInfo)
+//		{
+//			return true;
+//		}	
+//		
+//		return false;		
+//	}
 	
-	/**
-     * 从Redis中删除Key为dsp_mapid_活动ID的键值对
-     * @param jedis         Redis连接实例
-     * @param campaignId    活动ID
-     * @return
-     */
-    private static boolean delCampaignInfo(Jedis jedis, String campaignId)
-    {
-        Long delResult= jedis.del(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
-        
-        if (delResult == 1)
-        {
-            return true;
-        }
-        
-        return false;
-    }
+//	/**
+//     * 从Redis中删除Key为dsp_mapid_活动ID的键值对
+//     * @param jedis         Redis连接实例
+//     * @param campaignId    活动ID
+//     * @return
+//     */
+//    private static boolean delCampaignInfo(Jedis jedis, String campaignId)
+//    {
+//        Long delResult= jedis.del(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+//        
+//        if (delResult == 1)
+//        {
+//            return true;
+//        }
+//        
+//        return false;
+//    }
 
     
 //    /**

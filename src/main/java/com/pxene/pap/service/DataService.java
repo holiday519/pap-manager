@@ -56,7 +56,7 @@ public class DataService extends BaseService {
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
-	private RedisHelper redisHelper;
+	private RedisHelper redisHelper3;
 	
 	static {
 		Set<String> network = new HashSet<String>();
@@ -81,7 +81,7 @@ public class DataService extends BaseService {
 	public DataService()
     {
 	    // 指定使用配置文件中的哪个具体的Redis配置
-        redisHelper = RedisHelper.open("redis.primary.");
+        redisHelper3 = RedisHelper.open("redis.tertiary.");
     }
 	
 
@@ -207,8 +207,8 @@ public class DataService extends BaseService {
 		Set<String> set = table.get(type);
 		
 		for (String creativeId : creativeIds) {
-			Map<String, String> map = redisHelper.hget("creativeDataDay_" + creativeId);//获取map集合
-			Set<String> hkeys = redisHelper.hkeys("creativeDataDay_" + creativeId);//获取所有key
+			Map<String, String> map = redisHelper3.hget("creativeDataDay_" + creativeId);//获取map集合
+			Set<String> hkeys = redisHelper3.hkeys("creativeDataDay_" + creativeId);//获取所有key
 			if (hkeys != null && !hkeys.isEmpty()) {
 				//拿出所有的key中属于当前type的定向的值（比如：type为“region时”拿出所有的regioncode）
 				for (String hkey : hkeys) {
@@ -440,7 +440,7 @@ public class DataService extends BaseService {
 			resultMap = new HashMap<String, Object>();
 			formatBeanParams(bean);//将属性值变成0
 			for (String creativeId : creativeIds) {
-				Map<String, String> map = redisHelper.hget("creativeDataHour_" + creativeId);//获取map集合
+				Map<String, String> map = redisHelper3.hget("creativeDataHour_" + creativeId);//获取map集合
 				for (String day : days) {
 					String hkey = day + hour + "@";
 					
