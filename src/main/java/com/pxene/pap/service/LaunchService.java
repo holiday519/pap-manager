@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -1442,4 +1443,23 @@ public class LaunchService extends BaseService {
 		} 
 		return false;
    }
+      
+   /**
+    * 更新创意价格
+    * @param creative
+    * @throws Exception
+    */
+	public void updateCreativePrice(String id) throws Exception {
+		// 查询创意
+		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+		String creativeId = creative.getId();
+		String creativeMapid = redisHelper.getStr(RedisKeyConstant.CREATIVE_INFO + creativeId);
+		JsonObject returnData = parser.parse(creativeMapid).getAsJsonObject();
+		JsonArray jsonArray = returnData.get("price_adx").getAsJsonArray();
+		for (int i = 0; i < jsonArray.size(); i++) {
+			JsonObject price = jsonArray.get(i).getAsJsonObject();
+			price.addProperty("price", creative.getPrice());
+		}
+		redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, returnData.toString());
+	}
 }
