@@ -403,7 +403,7 @@ public class ProjectService extends BaseService {
     		AdvertiserModel adv = advertiserDao.selectByPrimaryKey(advertiserId);
     		if (adv!=null) {
     			bean.setAdvertiserName(adv.getName());
-    			Integer industryId = adv.getIndustryId();
+    			String industryId = adv.getIndustryId();
     			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
     			bean.setIndustryId(industryId);
 				if (industryModel != null) {

@@ -49,7 +49,6 @@ import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.IndustryDao;
-import com.pxene.pap.repository.basic.IndustryKpiDao;
 import com.pxene.pap.repository.basic.KpiDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 
@@ -74,8 +73,6 @@ public class AdvertiserService extends BaseService
 	private CreativeDao creativeDao;
     @Autowired
     private IndustryDao industryDao;
-    @Autowired
-    private IndustryKpiDao industryKpiDao;
     @Autowired
     private KpiDao kpiDao;
     
@@ -343,7 +340,7 @@ public class AdvertiserService extends BaseService
         }
         AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
         // 找出所属行业
-        Integer industryId = advertiser.getIndustryId();
+        String industryId = advertiser.getIndustryId();
         IndustryModel industry = industryDao.selectByPrimaryKey(industryId);
         if (industry != null && !"".equals(industry)) {
         	String industryName = industry.getName();
@@ -402,7 +399,7 @@ public class AdvertiserService extends BaseService
 		for (AdvertiserModel advertiser : advertisers) {
 			AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
 			// 找出所属行业
-			Integer industryId = advertiser.getIndustryId();
+			String industryId = advertiser.getIndustryId();
 			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
 			if (industryModel != null && !"".equals(industryModel)) {
 	        	String industryName = industryModel.getName();

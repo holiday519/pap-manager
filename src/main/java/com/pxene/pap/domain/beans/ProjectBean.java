@@ -32,7 +32,7 @@ public class ProjectBean extends BasicDataBean {
 	/**
 	 * 行业id
 	 */
-	private Integer industryId;
+	private String industryId;
 	/**
 	 * 行业名称
 	 */
@@ -94,10 +94,10 @@ public class ProjectBean extends BasicDataBean {
 	public void setAdvertiserName(String advertiserName) {
 		this.advertiserName = advertiserName;
 	}
-	public Integer getIndustryId() {
+	public String getIndustryId() {
 		return industryId;
 	}
-	public void setIndustryId(Integer industryId) {
+	public void setIndustryId(String industryId) {
 		this.industryId = industryId;
 	}
 	public String getIndustryName() {

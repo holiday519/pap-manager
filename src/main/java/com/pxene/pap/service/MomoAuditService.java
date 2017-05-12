@@ -304,7 +304,7 @@ public class MomoAuditService extends AuditService {
 	 * @return 返回广告主对应的code
 	 * @throws Exception
 	 */
-	private String getIndustry(Integer industryId) throws Exception {
+	private String getIndustry(String industryId) throws Exception {
 		//查询行业adxes信息，根据adx和行业id
 		IndustryAdxModelExample example = new IndustryAdxModelExample();
 		example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE)

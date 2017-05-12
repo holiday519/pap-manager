@@ -913,7 +913,7 @@ public class LaunchService extends BaseService {
 		String campaignId = campaign.getId();
 		
 		JsonObject campaignJson = new JsonObject();
-		int industryId = advertiser.getIndustryId();
+		String industryId = advertiser.getIndustryId();
 		JsonArray catJsons = new JsonArray();
 		JsonArray adxJsons = new JsonArray();
 		JsonArray extJsons = new JsonArray();
