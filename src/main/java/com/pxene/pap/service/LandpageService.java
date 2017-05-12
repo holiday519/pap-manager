@@ -281,21 +281,21 @@ public class LandpageService extends BaseService {
 			list.add(modelMapper.map(model, LandpageBean.class));
 		}*/
 		
-	    List<LandpageBean> result = new ArrayList<LandpageBean>();
-		List<Map<String, String>> list = customLandpageDao.selectLandPages();
+	    List<LandpageBean> beans = new ArrayList<LandpageBean>();
+		List<Map<String, String>> models = customLandpageDao.selectLandPages();
 		
-		if (list == null || list.isEmpty())
+		if (models == null || models.isEmpty())
 		{
-		    throw new ResourceNotFoundException();
+		    throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-		for (Map<String, String> item : list)
+		for (Map<String, String> model : models)
         {
-		    LandpageBean bean = parseFromMap(item);
-            result.add(bean);
+		    LandpageBean bean = parseFromMap(model);
+		    beans.add(bean);
         }
 		
-		return result;
+		return beans;
 	}
 
     private LandpageBean parseFromMap(Map<String, String> item)
@@ -308,9 +308,9 @@ public class LandpageService extends BaseService {
         bean.setStatus(item.get("remark"));
         
         String codes = item.get("monitor_codes");
-        if (!StringUtils.isEmpty(codes) && codes.contains(","))
+        if (!StringUtils.isEmpty(codes))
         {
-            bean.setCodes(StringUtils.split(codes, ","));
+            bean.setCodes(codes.split(","));
         }
         return bean;
     }
@@ -322,7 +322,7 @@ public class LandpageService extends BaseService {
 	public String checkCode(String landpageId) throws Exception {
 		LandpageModel model = landpageDao.selectByPrimaryKey(landpageId);
 		if (model == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		try {
 			String url = model.getUrl();
