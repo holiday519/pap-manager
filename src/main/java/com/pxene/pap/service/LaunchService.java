@@ -1152,9 +1152,9 @@ public class LaunchService extends BaseService {
 				JsonArray cappingJsons = new JsonArray();
 				JsonObject cappingJson = new JsonObject();
 				cappingJson.addProperty("id", campaign.getId());
+				cappingJson.addProperty("frequency", number);
 				cappingJsons.add(cappingJson);
 				userJson.add("capping", cappingJsons);
-				userJson.addProperty("frequency", number);
 			}
 			resultJson.add("user", userJson);
 		}
