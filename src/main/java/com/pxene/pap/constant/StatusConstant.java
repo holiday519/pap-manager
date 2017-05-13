@@ -95,14 +95,6 @@ public class StatusConstant {
 	 */
 	public static final String CAMPAIGN_RULE_TYPE_TIME = "05";
 	/**
-	 * action操作类型：暂停，即由打开-->关闭
-	 */
-	public static final String ACTION_TYPE_PAUSE = "02";
-	/**
-	 * action操作类型：恢复，即由关闭-->打开
-	 */
-	public static final String ACTION_TYPE_PROCEES = "01";
-	/**
 	 * 落地页代码检查状态：未检查
 	 */
 	public static final String LANDPAGE_CHECK_NOTCHECK = "01";

@@ -109,6 +109,13 @@ public class ProjectService extends BaseService {
             throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
         }
         
+        // 查询广告主是否存在
+        String advertiserId = bean.getAdvertiserId();
+        AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId);
+        if (advertiser == null) {
+        	throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
+        }
+        
         // 将项目信息插入MySQL
         ProjectModel project = modelMapper.map(bean, ProjectModel.class);
         project.setId(UUIDGenerator.getUUID());
@@ -139,7 +146,7 @@ public class ProjectService extends BaseService {
         ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
         if (projectInDB == null)
         {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
         }
         else
         {
@@ -158,6 +165,13 @@ public class ProjectService extends BaseService {
                     throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
                 }
             }
+        }
+        
+        // 查询广告主是否存在
+        String advertiserId = bean.getAdvertiserId();
+        AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId);
+        if (advertiser == null) {
+        	throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
         }
         
         // 修改Reids中保存的项目总预算

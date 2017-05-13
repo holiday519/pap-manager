@@ -2,7 +2,6 @@ package com.pxene.pap.service;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.stereotype.Service;
 
 public class BaseService {
 
