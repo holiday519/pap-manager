@@ -23,7 +23,7 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
-import com.pxene.pap.domain.beans.AdvertiserBean.Adx;
+import com.pxene.pap.domain.beans.AdvertiserBean.Audits;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
@@ -351,17 +351,17 @@ public class AdvertiserService extends BaseService
 		AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
 		advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
 		List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
-		Adx[] adxes = new Adx[advertiserAudits.size()];
-		for (int i = 0; i < adxes.length; i++) {
+		Audits[] audits = new Audits[advertiserAudits.size()];
+		for (int i = 0; i < audits.length; i++) {
 			// adx的基本信息
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
-			adxes[i] = modelMapper.map(advertiserAudiModel, Adx.class);
+			audits[i] = modelMapper.map(advertiserAudiModel, Audits.class);
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-			adxes[i].setName(adxModel.getName());
+			audits[i].setName(adxModel.getName());
 		}
-		bean.setAdxes(adxes);
+		bean.setAudits(audits);
                 
         // 将DAO创建的新对象复制回传输对象中
         return bean;
@@ -410,17 +410,17 @@ public class AdvertiserService extends BaseService
 			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
 			List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(auditExample);
-			Adx[] adxes = new Adx[advertiserAudits.size()];
-			for (int i = 0; i < adxes.length; i++) {
+			Audits[] audits = new Audits[advertiserAudits.size()];
+			for (int i = 0; i < audits.length; i++) {
 				// adx的基本信息
 				AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(i);
-				adxes[i] = modelMapper.map(advertiserAuditModel, Adx.class);
+				audits[i] = modelMapper.map(advertiserAuditModel, Audits.class);
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-				adxes[i].setName(adxModel.getName());
+				audits[i].setName(adxModel.getName());
 			}
-			bean.setAdxes(adxes);
+			bean.setAudits(audits);
 
 			// 查询审核状态
 			//bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));

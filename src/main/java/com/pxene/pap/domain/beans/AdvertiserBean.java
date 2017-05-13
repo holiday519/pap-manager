@@ -39,7 +39,7 @@ public class AdvertiserBean extends BasicDataBean {
 
 	private String industryName;
 
-	private Adx[] adxes;	
+	private Audits[] audits;	
 
 	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_BRANDNAME)
 	private String brandName;
@@ -83,8 +83,9 @@ public class AdvertiserBean extends BasicDataBean {
 
 	private String status;	
 	
-	public static class Adx {
+	public static class Audits {
 		private String id;
+		private String adxId;
 		private String name;
 		private String status;
 		private String enable;
@@ -95,6 +96,12 @@ public class AdvertiserBean extends BasicDataBean {
 		}
 		public void setId(String id) {
 			this.id = id;
+		}		
+		public String getAdxId() {
+			return adxId;
+		}
+		public void setAdxId(String adxId) {
+			this.adxId = adxId;
 		}
 		public String getName() {
 			return name;
@@ -312,16 +319,16 @@ public class AdvertiserBean extends BasicDataBean {
 
 	public void setIndustryName(String industryName) {
 		this.industryName = industryName;
-	}	
-
-	public Adx[] getAdxes() {
-		return adxes;
-	}
-
-	public void setAdxes(Adx[] adxes) {
-		this.adxes = adxes;
-	}
+	}		
 	
+	public Audits[] getAudits() {
+		return audits;
+	}
+
+	public void setAudits(Audits[] audits) {
+		this.audits = audits;
+	}
+
 	public String getStatus() {
 		return status;
 	}
@@ -336,7 +343,7 @@ public class AdvertiserBean extends BasicDataBean {
 				+ company + ", contact=" + contact + ", phone=" + phone
 				+ ", qq=" + qq + ", industryId=" + industryId
 				+ ", industryName=" + industryName 
-				+ ", adxes=" + Arrays.toString(adxes) + ", brandName=" + brandName
+				+ ", audits=" + Arrays.toString(audits) + ", brandName=" + brandName
 				+ ", licenseNo=" + licenseNo + ", organizationNo="
 				+ organizationNo + ", logoPath=" + logoPath + ", icpPath="
 				+ icpPath + ", organizationPath=" + organizationPath
