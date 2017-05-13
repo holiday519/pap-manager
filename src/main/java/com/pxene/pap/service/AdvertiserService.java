@@ -719,8 +719,9 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public void updateAdvertiserAdxEnabled(String id, String adxId, Map<String,String> map) throws Exception {
+    public void updateAdvertiserAdxEnabled(String id, Map<String,String> map) throws Exception {
     	String enable = map.get("enable");
+    	String adxId = map.get("adxId");
     	// 判断传来的状态是否为空  enabled
     	if (StringUtil.isEmpty(enable)) {
     		// 如果传来状态为空，则抛异常  

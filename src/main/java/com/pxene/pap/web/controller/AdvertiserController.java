@@ -178,7 +178,7 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertiser/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void auditAdvertiser(@PathVariable String id, @RequestParam String adxId, HttpServletResponse response) throws Exception {
+    public void auditAdvertiser(@PathVariable String id, @RequestPart(value = "adxId", required = true) String adxId, HttpServletResponse response) throws Exception {
     	advertiserService.auditAdvertiser(id, adxId);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
@@ -192,7 +192,7 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void synchronizeAdvertiser(@PathVariable String id, @RequestParam String adxId, HttpServletResponse response) throws Exception {
+    public void synchronizeAdvertiser(@PathVariable String id,@RequestPart(value = "adxId", required = true) String adxId, HttpServletResponse response) throws Exception {
     	advertiserService.synchronizeAdvertiser(id,adxId);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
@@ -207,8 +207,8 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers/adx/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void updateAdvertiserAdxEnabled(@PathVariable String id, @RequestParam String adxId, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception{
-    	advertiserService.updateAdvertiserAdxEnabled(id, adxId, map);
+    public void updateAdvertiserAdxEnabled(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception{
+    	advertiserService.updateAdvertiserAdxEnabled(id, map);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }
