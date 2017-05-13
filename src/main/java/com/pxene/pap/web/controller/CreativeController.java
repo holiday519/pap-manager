@@ -226,6 +226,88 @@ public class CreativeController {
 	}
 	
 	/**
+	 * 修改图片创意
+	 * @param id
+	 * @param imageBean
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/image/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateImageCreative(@PathVariable String id,@RequestBody ImageCreativeBean imageBean,HttpServletResponse response) throws Exception {
+		creativeService.updateCreative(id, imageBean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 修改视频创意
+	 * @param id
+	 * @param videoBean
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/video/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateVideoCreative(@PathVariable String id,@RequestBody VideoCreativeBean videoBean,HttpServletResponse response) throws Exception {
+		creativeService.updateCreative(id, videoBean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 修改信息流
+	 * @param id
+	 * @param infoBean
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/infoflow/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateInfoflowCreative(@PathVariable String id,@Valid @RequestBody InfoflowCreativeBean infoBean,HttpServletResponse response) throws Exception {
+		creativeService.updateCreative(id, infoBean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 批量同步创意，批量同步创意第三方审核结果
+	 * @param ids 创意ids
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creatives/synchronize",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody	
+	public void synchronizeCreatives(@RequestPart(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
+		creativeService.synchronizeCreatives(ids.split(","));
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 批量审核创意
+	 * @param ids 创意ids
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creatives/audit",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody	
+	public void auditCreatives(@RequestPart(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
+		creativeService.auditCreative(ids.split(","));
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 编辑创意的状态，启动/暂停创意
+	 * @param id
+	 * @param map
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creatives/enable/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateCreativeStatus(@PathVariable String id, @RequestBody Map<String,String> map,HttpServletResponse response) throws Exception {
+		creativeService.updateCreativeStatus(id, map);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
 	 * 列出所有素材
 	 * @param name
 	 * @param creativeId

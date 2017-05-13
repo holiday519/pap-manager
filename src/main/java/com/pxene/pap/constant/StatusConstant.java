@@ -141,7 +141,16 @@ public class StatusConstant {
 	 */
 	public static final String CAMPAIGN_COUNTER_OVER = "02";
 	/**
-	 * 活动未正常投放原因：不在定向时间段内
+	 * 活动未正常投放原因：不在定向时间段内enable
 	 */
 	public static final String CAMPAIGN_ISNOT_TARGETTIME = "03"; 
+	
+	/**
+	 * 创意状态：启动
+	 */
+	public static final String CREATIVE_IS_ENABLE = "01";
+	/**
+	 * 创意状态：暂停
+	 */
+	public static final String CREATIVE_ISNOT_ENABLE = "02";
 }

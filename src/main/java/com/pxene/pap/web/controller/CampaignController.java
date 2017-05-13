@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.Page;
@@ -157,12 +158,12 @@ public class CampaignController {
 	/**
 	 * 批量同步活动下创意
 	 * @param ids
-	 * @param response
+	 * @param response  
 	 * @throws Exception   
 	 */
 	@RequestMapping(value = "/campaigns/synchronize",method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void synchronizeCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+	public void synchronizeCreatives(@RequestPart(value = "ids",required = true)String ids, HttpServletResponse response) throws Exception {
 		campaignService.synchronizeCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -176,8 +177,8 @@ public class CampaignController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/campaigns/date/{id}" ,method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public void updateCampaignStartAndEndDate(@PathVariable String id, @RequestParam Date startDate, @RequestParam Date endDate, HttpServletResponse response) throws Exception {	
+	@ResponseBody	
+	public void updateCampaignStartAndEndDate(@PathVariable String id, @RequestPart(value = "startDate", required = true) Date startDate, @RequestPart(value = "endDate", required = true) Date endDate, HttpServletResponse response) throws Exception {	
 		campaignService.updateCampaignStartAndEndDate(id, startDate, endDate);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}

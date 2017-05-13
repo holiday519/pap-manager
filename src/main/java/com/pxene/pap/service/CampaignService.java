@@ -456,9 +456,9 @@ public class CampaignService extends BaseService {
 	 */
 	@Transactional
 	public void updateCampaignStatus(String id, Map<String, String> map) throws Exception {
-		String action = map.get("action");
+		String status = map.get("status");
 		
-		if (StringUtils.isEmpty(action)) {
+		if (StringUtils.isEmpty(status)) {
 			throw new IllegalArgumentException();
 		}
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
@@ -466,9 +466,9 @@ public class CampaignService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-		if (StatusConstant.ACTION_TYPE_PAUSE.equals(action)) {
+		if (StatusConstant.CAMPAIGN_PAUSE.equals(status)) {
 			pauseCampaign(campaignModel);
-		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(action)) {
+		} else if (StatusConstant.CAMPAIGN_PROCEED.equals(status)) {
 			proceedCampaign(campaignModel);
 		} else {
 			throw new IllegalArgumentException();

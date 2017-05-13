@@ -88,6 +88,7 @@ public class AdvertiserBean extends BasicDataBean {
 		private String name;
 		private String status;
 		private String enable;
+		private String message;
 		
 		public String getId() {
 			return id;
@@ -112,7 +113,13 @@ public class AdvertiserBean extends BasicDataBean {
 		}
 		public void setEnable(String enable) {
 			this.enable = enable;
-		}		
+		}
+		public String getMessage() {
+			return message;
+		}
+		public void setMessage(String message) {
+			this.message = message;
+		}			
 	}
 
 	public String getId() {

@@ -17,7 +17,6 @@ public class CreativeBean extends BasicDataBean {
 	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 
-	private String name;
 	/**
 	 * 创意类型（图片、视频、信息流）
 	 */
@@ -51,20 +50,25 @@ public class CreativeBean extends BasicDataBean {
 	@Length(max = 400, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 	
+	/**
+	 * APPID
+	 */
+	private String appId;
+	/**
+	 * APP名称
+	 */
+	private String appName;
+	/**
+	 * 创意的状态
+	 */
+	private String enable;
+	
 	public String getId() {
 		return id;
 	}
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getStatus() {
@@ -131,12 +135,37 @@ public class CreativeBean extends BasicDataBean {
 		this.materialId = materialId;
 	}
 
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+
+	public String getEnable() {
+		return enable;
+	}
+
+	public void setEnable(String enable) {
+		this.enable = enable;
+	}
+
 	@Override
 	public String toString() {
-		return "CreativeBean [id=" + id + ", name=" + name + ", type=" + type
+		return "CreativeBean [id=" + id + ", type=" + type
 				+ ", status=" + status + ", campaignId=" + campaignId
 				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
-				+ ", remark=" + remark + ", materialId=" + materialId + "]";
+				+ ", remark=" + remark + ", materialId=" + materialId  
+				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +"]";
 	}
 	
 }

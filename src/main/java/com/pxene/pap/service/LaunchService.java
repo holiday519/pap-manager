@@ -1456,4 +1456,30 @@ public class LaunchService extends BaseService {
 		}
 		return false;
 	}
+	
+	/**
+	 * 从redis中删除活动下一个创意id
+	 * @param campaignId
+	 * @throws Exception
+	 */
+	public void removeOneCreativeId(String campaignId,String creativeId) throws Exception {
+		String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		// 将gson字符串转成JsonObject对象
+		JsonObject returnData = parser.parse(mapids).getAsJsonObject();
+		// 将data节点下的内容转为JsonArray
+		JsonArray jsonArray = returnData.getAsJsonArray("mapids");		
+		// 删除单个创意id
+		for (int i = 0; i < jsonArray.size(); i++) {
+			// 转换格式
+			JsonElement elementCreativeId = parser.parse(creativeId);
+			if (jsonArray.contains(elementCreativeId)) {
+				// 如果包含这个元素则将这个元素删除
+				jsonArray.remove(elementCreativeId);			
+			}			
+		}
+		// 将删除后剩下的元素再放回redis中
+		JsonObject resultJson = new JsonObject();
+		resultJson.add("mapids", jsonArray);
+		redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+	}
 }

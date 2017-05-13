@@ -363,7 +363,6 @@ public class AdvertiserService extends BaseService
 		}
 		bean.setAdxes(adxes);
                 
-        // bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
         // 将DAO创建的新对象复制回传输对象中
         return bean;
     }
@@ -638,13 +637,21 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void auditAdvertiser(String id, String adxId) throws Exception {
+	public void auditAdvertiser(String id, String auditId) throws Exception {
     	// 查询广告主信息判断是否存在广告主
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
 		if (advertiser == null) {
 			// 如果广告主不存在，则提示：该对象不存在
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+		// 查询广告主审核信息判断是否存在
+		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+		if (advertiserAudit == null) {
+			// 如果广告主审核信息不存在，则提示：该对象不存在
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 获取adxId
+		String adxId = advertiserAudit.getAdxId();
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 			// 如果adxId是陌陌，则提交陌陌审核
 			momoAuditService.auditAdvertiser(id);
@@ -662,13 +669,21 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void synchronizeAdvertiser(String id, String adxId) throws Exception {
+	public void synchronizeAdvertiser(String id, String auditId) throws Exception {
     	// 查询广告主信息判断是否存在广告主
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
 		if (advertiser == null) {
 			// 如果广告主不存在，则提示：该对象不存在
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+		// 查询广告主审核信息判断是否存在
+		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+		if (advertiserAudit == null) {
+			// 如果广告主审核信息不存在，则提示：该对象不存在
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 获取adxId
+		String adxId = advertiserAudit.getAdxId();
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 			// 如果adxId是陌陌，则同步陌陌审核结果
 			momoAuditService.synchronizeAdvertiser(id);
@@ -720,36 +735,37 @@ public class AdvertiserService extends BaseService
      */
     @Transactional
     public void updateAdvertiserAdxEnabled(String id, Map<String,String> map) throws Exception {
-    	String enable = map.get("enable");
-    	String adxId = map.get("adxId");
-    	// 判断传来的状态是否为空  enabled
-    	if (StringUtil.isEmpty(enable)) {
-    		// 如果传来状态为空，则抛异常  
-    		throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-    	}
-    	// 判断广告主对应adx审核信息是否存在
-    	AdvertiserAuditModelExample adAuditExample = new AdvertiserAuditModelExample();
-    	adAuditExample.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(adxId);
-    	List<AdvertiserAuditModel> advertiseAuditList = advertiserAuditDao.selectByExample(adAuditExample);
-    	if (advertiseAuditList == null || advertiseAuditList.size() == 0) {
-    		// 如果信息不存在，则抛异常  
-    		throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-    	}
-    	if (StatusConstant.ADVERTISER_ADX_ENABLE.equals(enable)) {
-    		// 如果获得的状态为开启状态，则修改状态为禁用
-    		AdvertiserAuditModel advertiseAudit = advertiseAuditList.get(0);
-    		advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
-    		// 更新数据库
-    		advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
-    	} else if (StatusConstant.ADVERTISER_ADX_DISABLE.equals(enable)) {
-    		// 如果获得的状态为禁用状态，则修改状态为开启
-    		AdvertiserAuditModel advertiseAudit = advertiseAuditList.get(0);
-    		advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_ENABLE);
-    		// 更新数据库
-    		advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
-    	} else {
-    		// 否则抛出异常
-    		throw new IllegalArgumentException(PhrasesConstant.PARAM_OUT_OF_RANGE);
-    	}
+		String enable = map.get("enable");
+		// String adxId = map.get("adxId");
+		String auditId = map.get("auditId");
+		// 判断传来的状态是否为空 enabled
+		if (StringUtil.isEmpty(enable)) {
+			// 如果传来状态为空，则抛异常
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+		}
+		// 查询广告主审核信息
+		AdvertiserAuditModel advertiseAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+		// 判断广告主信息是否存在
+		if (advertiseAudit == null) {
+			// 如果信息不存在，则抛异常
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 如果广告主信息存在，则改变广告主adx的状态
+		if (StatusConstant.ADVERTISER_ADX_ENABLE.equals(enable)) {
+			// 如果获得的状态为开启状态，则修改状态为禁用
+			advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
+			advertiseAudit.setId(auditId);
+			// 更新数据库
+			advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
+		} else if (StatusConstant.ADVERTISER_ADX_DISABLE.equals(enable)) {
+			// 如果获得的状态为禁用状态，则修改状态为开启
+			advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_ENABLE);
+			advertiseAudit.setId(auditId);
+			// 更新数据库
+			advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
+		} else {
+			// 否则抛出异常
+			throw new IllegalArgumentException(PhrasesConstant.PARAM_OUT_OF_RANGE);
+		}
     }
 }

@@ -9,6 +9,7 @@
     <result column="tmpl_id" jdbcType="VARCHAR" property="tmplId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="price" jdbcType="REAL" property="price" />
+    <result column="enable" jdbcType="VARCHAR" property="enable" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
@@ -71,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, campaign_id, material_id, tmpl_id, type, price, create_time, update_time
+    id, name, campaign_id, material_id, tmpl_id, type, price, enable, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CreativeModelExample" resultMap="BaseResultMap">
     select
@@ -107,12 +108,12 @@
   <insert id="insert" parameterType="com.pxene.pap.domain.models.CreativeModel">
     insert into pap_t_creative (id, name, campaign_id, 
       material_id, tmpl_id, type, 
-      price, create_time, update_time
-      )
+      price, enable, create_time, 
+      update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, 
       #{materialId,jdbcType=VARCHAR}, #{tmplId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{price,jdbcType=REAL}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
-      )
+      #{price,jdbcType=REAL}, #{enable,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CreativeModel">
     insert into pap_t_creative
@@ -137,6 +138,9 @@
       </if>
       <if test="price != null">
         price,
+      </if>
+      <if test="enable != null">
+        enable,
       </if>
       <if test="createTime != null">
         create_time,
@@ -166,6 +170,9 @@
       </if>
       <if test="price != null">
         #{price,jdbcType=REAL},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
@@ -205,6 +212,9 @@
       <if test="record.price != null">
         price = #{record.price,jdbcType=REAL},
       </if>
+      <if test="record.enable != null">
+        enable = #{record.enable,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
@@ -225,6 +235,7 @@
       tmpl_id = #{record.tmplId,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
       price = #{record.price,jdbcType=REAL},
+      enable = #{record.enable,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
@@ -252,6 +263,9 @@
       <if test="price != null">
         price = #{price,jdbcType=REAL},
       </if>
+      <if test="enable != null">
+        enable = #{enable,jdbcType=VARCHAR},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
@@ -269,6 +283,7 @@
       tmpl_id = #{tmplId,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
       price = #{price,jdbcType=REAL},
+      enable = #{enable,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}

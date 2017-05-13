@@ -17,6 +17,8 @@ public class CreativeModel {
 
     private Float price;
 
+    private String enable;
+
     private Date createTime;
 
     private Date updateTime;
@@ -77,6 +79,14 @@ public class CreativeModel {
         this.price = price;
     }
 
+    public String getEnable() {
+        return enable;
+    }
+
+    public void setEnable(String enable) {
+        this.enable = enable == null ? null : enable.trim();
+    }
+
     public Date getCreateTime() {
         return createTime;
     }
@@ -106,6 +116,7 @@ public class CreativeModel {
         sb.append(", tmplId=").append(tmplId);
         sb.append(", type=").append(type);
         sb.append(", price=").append(price);
+        sb.append(", enable=").append(enable);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

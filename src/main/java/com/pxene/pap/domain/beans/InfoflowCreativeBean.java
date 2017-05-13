@@ -20,7 +20,6 @@ public class InfoflowCreativeBean extends CreativeBean {
 	private String image3Path;
 	private String image4Path;
 	private String image5Path;
-	private Integer appStar;
 
 	public String getInfoflowId() {
 		return infoflowId;
@@ -166,14 +165,6 @@ public class InfoflowCreativeBean extends CreativeBean {
 		this.image5Path = image5Path;
 	}
 
-	public Integer getAppStar() {
-		return appStar;
-	}
-
-	public void setAppStar(Integer appStar) {
-		this.appStar = appStar;
-	}
-
 	@Override
 	public String toString() {
 		return "InfoflowCreativeBean [infoflowId=" + infoflowId + ", title="
@@ -185,7 +176,7 @@ public class InfoflowCreativeBean extends CreativeBean {
 				+ ", image4Id=" + image4Id + ", image5Id=" + image5Id
 				+ ", image1Path=" + image1Path + ", image2Path=" + image2Path
 				+ ", image3Path=" + image3Path + ", image4Path=" + image4Path
-				+ ", image5Path=" + image5Path + ", appStar=" + appStar + "]";
+				+ ", image5Path=" + image5Path + "]";
 	}
 
 }

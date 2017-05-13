@@ -190,10 +190,10 @@ public class ProjectService extends BaseService {
 		}
 		
 		String status = map.get("status").toString();
-		if (StatusConstant.ACTION_TYPE_PAUSE.equals(status)) {
+		if (StatusConstant.PROJECT_PAUSE.equals(status)) {
 			//暂停
 			pauseProject(project);
-		} else if (StatusConstant.ACTION_TYPE_PROCEES.equals(status)) {
+		} else if (StatusConstant.PROJECT_PROCEED.equals(status)) {
 			//投放
 			proceedProject(project);
 		} else {
