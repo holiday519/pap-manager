@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.Page;
@@ -129,13 +130,13 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String selectProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String advertiserId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String advertiserId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
-		List<ProjectBean> beans = projectService.selectProjects(name, startDate, endDate, advertiserId);
+		List<ProjectBean> beans = projectService.listProjects(name, startDate, endDate, advertiserId);
 		
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -147,11 +148,11 @@ public class ProjectController {
 	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和转化字段名称name
 	 * @param response
 	 */
-	@RequestMapping(value = "/project/effect/name/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/effect/name/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void addEffectName(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
+	public void changeEffectName(@PathVariable String fieldId, @RequestPart String name, HttpServletResponse response)
 	{
-	    projectService.changeEffectName(id, map);
+	    projectService.changeEffectName(fieldId, name);
         response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -161,11 +162,11 @@ public class ProjectController {
 	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和操作标识enable
 	 * @param response
 	 */
-	@RequestMapping(value = "/project/effect/enable/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/effect/enable/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void changeEffectStatus(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
+	public void changeEffectEnable(@PathVariable String fieldId, @RequestPart String enable, HttpServletResponse response)
 	{
-	    projectService.changeEffectStatus(id, map);
+	    projectService.changeEffectEnable(fieldId, enable);
 	    response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

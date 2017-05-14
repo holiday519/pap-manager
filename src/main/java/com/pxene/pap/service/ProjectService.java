@@ -22,6 +22,7 @@ import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
+import com.pxene.pap.domain.beans.ProjectBean.EffectField;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
@@ -309,10 +310,10 @@ public class ProjectService extends BaseService {
         example.createCriteria().andIdEqualTo(id);
 		ProjectModel project = projectDao.selectByPrimaryKey(id);
 		if (project == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		ProjectBean projectBean = modelMapper.map(project, ProjectBean.class);
-        getParamForBean(projectBean);//查询属性，并放如结果中
+        getParam4Bean(projectBean);//查询属性，并放如结果中
         return projectBean;
     }
     
@@ -322,7 +323,7 @@ public class ProjectService extends BaseService {
      * @return
      * @throws Exception
      */
-    public List<ProjectBean> selectProjects(String name, Long beginTime, Long endTime, String advertiserId) throws Exception {
+    public List<ProjectBean> listProjects(String name, Long beginTime, Long endTime, String advertiserId) throws Exception {
         // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
     	if (!StringUtils.isEmpty(name) && name.contains("_"))
     	{
@@ -350,7 +351,7 @@ public class ProjectService extends BaseService {
 		
 		for (ProjectModel model : projects) {
 			ProjectBean bean = modelMapper.map(model, ProjectBean.class);
-			getParamForBean(bean);//查询属性，并放如结果中
+			getParam4Bean(bean);//查询属性，并放如结果中
 			
 			if (beginTime != null && endTime != null) {
 				//查询每个项目的投放信息
@@ -410,14 +411,13 @@ public class ProjectService extends BaseService {
      * @param bean
      * @throws Exception
      */
-    private void getParamForBean(ProjectBean bean) throws Exception {
-    	
+    private void getParam4Bean(ProjectBean bean) throws Exception {
     	String advertiserId = bean.getAdvertiserId();
     	if (!StringUtils.isEmpty(advertiserId)) {
-    		AdvertiserModel adv = advertiserDao.selectByPrimaryKey(advertiserId);
-    		if (adv!=null) {
-    			bean.setAdvertiserName(adv.getName());
-    			String industryId = adv.getIndustryId();
+    		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId);
+    		if (advertiser != null) {
+    			bean.setAdvertiserName(advertiser.getName());
+    			String industryId = advertiser.getIndustryId();
     			IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
     			bean.setIndustryId(industryId);
 				if (industryModel != null) {
@@ -425,6 +425,20 @@ public class ProjectService extends BaseService {
     			}
     		}
     	}
+    	String projectId = bean.getId();
+    	EffectDicModelExample example = new EffectDicModelExample();
+    	example.createCriteria().andProjectIdEqualTo(projectId);
+    	List<EffectDicModel> effectDics = effectDicDao.selectByExample(example);
+    	int len = effectDics.size();
+    	EffectField[] effectFields = new EffectField[len];
+    	for (int i=0; i<len; i++) {
+    		EffectDicModel dic = effectDics.get(i);
+    		effectFields[i].setId(dic.getId());
+    		effectFields[i].setName(dic.getColumnName());
+    		effectFields[i].setCode(dic.getColumnCode());
+    		effectFields[i].setEnable(dic.getEnable());
+    	}
+    	bean.setEffectFields(effectFields);
     }
     
 	/**
@@ -501,76 +515,30 @@ public class ProjectService extends BaseService {
 	}
 
 	@Transactional
-    public void changeEffectName(String projectId, Map<String, String> map)
+    public void changeEffectName(String fieldId, String name)
     {
-        String code = map.get("code");
-        String name = map.get("name");
-        
-        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(name))
+        if (StringUtils.isEmpty(fieldId) || StringUtils.isEmpty(name))
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
         
-        ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-        if (project == null)
-        {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-        }
-        
-        // 查询指定项目ID和转化字段code是否存在于DB中
-        EffectDicModelExample example = new EffectDicModelExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andColumnCodeEqualTo(code);
-        
-        List<EffectDicModel> rows = effectDicDao.selectByExample(example);
-        if (rows == null || rows.isEmpty())
-        {
-            throw new ResourceNotFoundException(PhrasesConstant.EFFECT_CODE_NOT_FOUND);
-        }
-        
         EffectDicModel record = new EffectDicModel();
+        record.setId(fieldId);
         record.setColumnName(name);
-        
-        example.clear();
-        example.createCriteria().andProjectIdEqualTo(projectId).andColumnCodeEqualTo(code);
-        
-        effectDicDao.updateByExampleSelective(record, example);
+        effectDicDao.updateByPrimaryKeySelective(record);
     }
 
-    public void changeEffectStatus(String projectId, Map<String, String> map)
+    public void changeEffectEnable(String fieldId, String enable)
     {
-        String code = map.get("code");
-        String enable = map.get("enable");
-        
-        if (StringUtils.isEmpty(code) || StringUtils.isEmpty(enable))
+        if (StringUtils.isEmpty(fieldId) || StringUtils.isEmpty(enable))
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
 
-        // 检查指定ID的项目是否存在
-        ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-        if (project == null)
-        {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-        }
-        
-        // 查询指定项目ID和转化字段code是否存在于DB中
-        EffectDicModelExample example = new EffectDicModelExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andColumnCodeEqualTo(code);
-        
-        List<EffectDicModel> rows = effectDicDao.selectByExample(example);
-        if (rows == null || rows.isEmpty())
-        {
-            throw new ResourceNotFoundException(PhrasesConstant.EFFECT_CODE_NOT_FOUND);
-        }
-        
-        // 更改转化字段状态
         EffectDicModel record = new EffectDicModel();
+        record.setId(fieldId);
         record.setEnable(enable);
-        
-        example.clear();
-        example.createCriteria().andProjectIdEqualTo(projectId);
-        
-        effectDicDao.updateByExampleSelective(record, example);
+        effectDicDao.updateByPrimaryKeySelective(record);
     }
 
     public void changeProjectBudget(String projectId, Map<String, String> map)

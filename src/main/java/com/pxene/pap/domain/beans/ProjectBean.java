@@ -52,6 +52,8 @@ public class ProjectBean extends BasicDataBean {
 	 */
 	private String status;
 	
+	private EffectField[] effectFields; 
+	
 	public String getId() {
 		return id;
 	}
@@ -106,6 +108,12 @@ public class ProjectBean extends BasicDataBean {
 	public void setIndustryName(String industryName) {
 		this.industryName = industryName;
 	}
+	public EffectField[] getEffectFields() {
+		return effectFields;
+	}
+	public void setEffectFields(EffectField[] effectFields) {
+		this.effectFields = effectFields;
+	}
 	@Override
     public String toString()
     {
@@ -113,4 +121,34 @@ public class ProjectBean extends BasicDataBean {
                 + ", totalBudget=" + totalBudget + ", remark=" + remark + ", status=" + status + "]";
     }
 	
+	public class EffectField {
+		private String id;
+		private String name;
+		private String code;
+		private String enable;
+		public String getId() {
+			return id;
+		}
+		public void setId(String id) {
+			this.id = id;
+		}
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		public String getCode() {
+			return code;
+		}
+		public void setCode(String code) {
+			this.code = code;
+		}
+		public String getEnable() {
+			return enable;
+		}
+		public void setEnable(String enable) {
+			this.enable = enable;
+		}
+	}
 }
