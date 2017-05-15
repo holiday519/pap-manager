@@ -64,57 +64,13 @@ public class TmplService extends BaseService {
 	@Autowired
 	private CreativeService creativeService;
 	
-	
-	/**
-	 * 添加图片模版
-	 * 
-	 * @param bean
-	 * @throws Exception
-	 */
-	@Transactional
-	public String addImageTmpl(ImageTmplBean bean) throws Exception {
-		if (bean == null) {
-			throw new IllegalArgumentException();
-		}
-		// 如果id为null，则添加一个UUID
-		String id = bean.getId();
-		if (StringUtils.isEmpty(id)) {
-			/*id = UUID.randomUUID().toString();*/
-			id = UUIDGenerator.getUUID();
-		}
-//		// 如果图片类型ID 不为NULL，添加关联关系
-//		String imageTypeId = bean.getImageTypeId();
-//		if (!StringUtils.isEmpty(imageTypeId)) {
-//			ImageTmplTypeModel ittModel = new ImageTmplTypeModel();
-//			ittModel.setId(UUID.randomUUID().toString());
-//			ittModel.setId(UUIDGenerator.getUUID());
-//			ittModel.setImageTmplId(id);
-//			ittModel.setImageTypeId(imageTypeId);
-//			imageTmplTypeDao.insertSelective(ittModel);
-//		}
-		// 转换参数
-		ImageTmplModel model = modelMapper.map(bean, ImageTmplModel.class);
-
-		try {
-			// 添加图片模版
-			imageTmplDao.insertSelective(model);
-		} catch (DuplicateKeyException exception) {
-			throw new DuplicateEntityException();
-		}
-		return id;
-	}
-
-	public void addVideoTmpl(VideoTmplBean bean) throws Exception {
-
-	}
-
 	/**
 	 * 查询图片模版详细信息
 	 * @param paramId
 	 * @return
 	 * @throws Exception
 	 */
-	public List<ImageTmpl> selectImageTmpls(String campaignId, String status) throws Exception {
+	public List<ImageTmpl> listImageTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -176,7 +132,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<VideoTmpl> selectVideoTmpls(String campaignId, String status) throws Exception {
+	public List<VideoTmpl> listVideoTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -251,7 +207,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<InfoTmpl> selectInfoflowTmpls(String campaignId, String status) throws Exception {
+	public List<InfoTmpl> listInfoflowTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
