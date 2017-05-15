@@ -49,11 +49,6 @@ public abstract class AuditService extends BaseService {
         this.env = env;
 	}
 	
-	@Autowired
-	private MomoAuditService momoAuditService;
-	@Autowired
-	private InmobiAuditService inmobiAuditService;
-
 	public abstract void auditAdvertiser(String advertiserId) throws Exception;
 
 	public abstract void synchronizeAdvertiser(String advertiserId) throws Exception;
@@ -62,14 +57,4 @@ public abstract class AuditService extends BaseService {
 
 	public abstract void synchronizeCreative(String creativeId) throws Exception;
 	
-/*	public AuditService newInstance(String adxId) {
-		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-			return momoAuditService;
-		}
-		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-			return inmobiAuditService;
-		}
-		throw new IllegalArgumentException(PhrasesConstant.ADX_NOT_FOUND);
-	}*/
-
 }

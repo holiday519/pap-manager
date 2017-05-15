@@ -157,7 +157,7 @@ public class MomoAuditService extends AuditService {
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId); //查询广告主信息
 		cats.add(getIndustry(advertiser.getIndustryId())); //在广告主信息中获取广告主所在的行业信息
 		data.add("cat", cats); // 行业类目
-		
+
 		String dspid = AdxKeyConstant.AUDIT_NAME_MOMO; //获取dspid
 		data.addProperty("dspid", dspid); //DSP ID
 		data.addProperty("cid", projectId); //项目 ID
@@ -247,7 +247,7 @@ public class MomoAuditService extends AuditService {
 				CreativeAuditModel creativeAuditModel = new CreativeAuditModel();				
 				if (creativeObject.get("status").getAsInt() == 1) {
 					// 待审核
-					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
 				} else if (creativeObject.get("status").getAsInt() == 2) {
 					// 审核通过
 					creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);

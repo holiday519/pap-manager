@@ -7,8 +7,8 @@
     <result column="height" jdbcType="INTEGER" property="height" />
     <result column="formats" jdbcType="VARCHAR" property="formats" />
     <result column="max_volume" jdbcType="REAL" property="maxVolume" />
-    <result column="min_timelength" jdbcType="INTEGER" property="minTimelength" />
     <result column="max_timelength" jdbcType="INTEGER" property="maxTimelength" />
+    <result column="min_timelength" jdbcType="INTEGER" property="minTimelength" />
     <result column="imagel_id" jdbcType="VARCHAR" property="imagelId" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -72,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, width, height, formats, max_volume, min_timelength, max_timelength, imagel_id, 
+    id, width, height, formats, max_volume, max_timelength, min_timelength, imagel_id, 
     create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="com.pxene.pap.domain.models.VideoTmplModelExample" resultMap="BaseResultMap">
@@ -108,12 +108,12 @@
   </delete>
   <insert id="insert" parameterType="com.pxene.pap.domain.models.VideoTmplModel">
     insert into pap_t_videotmpl (id, width, height, 
-      formats, max_volume, min_timelength, 
-      max_timelength, imagel_id, create_time, 
+      formats, max_volume, max_timelength, 
+      min_timelength, imagel_id, create_time, 
       update_time)
     values (#{id,jdbcType=VARCHAR}, #{width,jdbcType=INTEGER}, #{height,jdbcType=INTEGER}, 
-      #{formats,jdbcType=VARCHAR}, #{maxVolume,jdbcType=REAL}, #{minTimelength,jdbcType=INTEGER}, 
-      #{maxTimelength,jdbcType=INTEGER}, #{imagelId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{formats,jdbcType=VARCHAR}, #{maxVolume,jdbcType=REAL}, #{maxTimelength,jdbcType=INTEGER}, 
+      #{minTimelength,jdbcType=INTEGER}, #{imagelId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.VideoTmplModel">
@@ -134,11 +134,11 @@
       <if test="maxVolume != null">
         max_volume,
       </if>
-      <if test="minTimelength != null">
-        min_timelength,
-      </if>
       <if test="maxTimelength != null">
         max_timelength,
+      </if>
+      <if test="minTimelength != null">
+        min_timelength,
       </if>
       <if test="imagelId != null">
         imagel_id,
@@ -166,11 +166,11 @@
       <if test="maxVolume != null">
         #{maxVolume,jdbcType=REAL},
       </if>
-      <if test="minTimelength != null">
-        #{minTimelength,jdbcType=INTEGER},
-      </if>
       <if test="maxTimelength != null">
         #{maxTimelength,jdbcType=INTEGER},
+      </if>
+      <if test="minTimelength != null">
+        #{minTimelength,jdbcType=INTEGER},
       </if>
       <if test="imagelId != null">
         #{imagelId,jdbcType=VARCHAR},
@@ -207,11 +207,11 @@
       <if test="record.maxVolume != null">
         max_volume = #{record.maxVolume,jdbcType=REAL},
       </if>
-      <if test="record.minTimelength != null">
-        min_timelength = #{record.minTimelength,jdbcType=INTEGER},
-      </if>
       <if test="record.maxTimelength != null">
         max_timelength = #{record.maxTimelength,jdbcType=INTEGER},
+      </if>
+      <if test="record.minTimelength != null">
+        min_timelength = #{record.minTimelength,jdbcType=INTEGER},
       </if>
       <if test="record.imagelId != null">
         imagel_id = #{record.imagelId,jdbcType=VARCHAR},
@@ -234,8 +234,8 @@
       height = #{record.height,jdbcType=INTEGER},
       formats = #{record.formats,jdbcType=VARCHAR},
       max_volume = #{record.maxVolume,jdbcType=REAL},
-      min_timelength = #{record.minTimelength,jdbcType=INTEGER},
       max_timelength = #{record.maxTimelength,jdbcType=INTEGER},
+      min_timelength = #{record.minTimelength,jdbcType=INTEGER},
       imagel_id = #{record.imagelId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
@@ -258,11 +258,11 @@
       <if test="maxVolume != null">
         max_volume = #{maxVolume,jdbcType=REAL},
       </if>
-      <if test="minTimelength != null">
-        min_timelength = #{minTimelength,jdbcType=INTEGER},
-      </if>
       <if test="maxTimelength != null">
         max_timelength = #{maxTimelength,jdbcType=INTEGER},
+      </if>
+      <if test="minTimelength != null">
+        min_timelength = #{minTimelength,jdbcType=INTEGER},
       </if>
       <if test="imagelId != null">
         imagel_id = #{imagelId,jdbcType=VARCHAR},
@@ -282,8 +282,8 @@
       height = #{height,jdbcType=INTEGER},
       formats = #{formats,jdbcType=VARCHAR},
       max_volume = #{maxVolume,jdbcType=REAL},
-      min_timelength = #{minTimelength,jdbcType=INTEGER},
       max_timelength = #{maxTimelength,jdbcType=INTEGER},
+      min_timelength = #{minTimelength,jdbcType=INTEGER},
       imagel_id = #{imagelId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}

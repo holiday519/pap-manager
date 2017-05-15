@@ -425,66 +425,6 @@ public class VideoTmplModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andMinTimelengthIsNull() {
-            addCriterion("min_timelength is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthIsNotNull() {
-            addCriterion("min_timelength is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthEqualTo(Integer value) {
-            addCriterion("min_timelength =", value, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthNotEqualTo(Integer value) {
-            addCriterion("min_timelength <>", value, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthGreaterThan(Integer value) {
-            addCriterion("min_timelength >", value, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthGreaterThanOrEqualTo(Integer value) {
-            addCriterion("min_timelength >=", value, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthLessThan(Integer value) {
-            addCriterion("min_timelength <", value, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthLessThanOrEqualTo(Integer value) {
-            addCriterion("min_timelength <=", value, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthIn(List<Integer> values) {
-            addCriterion("min_timelength in", values, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthNotIn(List<Integer> values) {
-            addCriterion("min_timelength not in", values, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthBetween(Integer value1, Integer value2) {
-            addCriterion("min_timelength between", value1, value2, "minTimelength");
-            return (Criteria) this;
-        }
-
-        public Criteria andMinTimelengthNotBetween(Integer value1, Integer value2) {
-            addCriterion("min_timelength not between", value1, value2, "minTimelength");
-            return (Criteria) this;
-        }
-
         public Criteria andMaxTimelengthIsNull() {
             addCriterion("max_timelength is null");
             return (Criteria) this;
@@ -542,6 +482,66 @@ public class VideoTmplModelExample {
 
         public Criteria andMaxTimelengthNotBetween(Integer value1, Integer value2) {
             addCriterion("max_timelength not between", value1, value2, "maxTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthIsNull() {
+            addCriterion("min_timelength is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthIsNotNull() {
+            addCriterion("min_timelength is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthEqualTo(Integer value) {
+            addCriterion("min_timelength =", value, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthNotEqualTo(Integer value) {
+            addCriterion("min_timelength <>", value, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthGreaterThan(Integer value) {
+            addCriterion("min_timelength >", value, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthGreaterThanOrEqualTo(Integer value) {
+            addCriterion("min_timelength >=", value, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthLessThan(Integer value) {
+            addCriterion("min_timelength <", value, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthLessThanOrEqualTo(Integer value) {
+            addCriterion("min_timelength <=", value, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthIn(List<Integer> values) {
+            addCriterion("min_timelength in", values, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthNotIn(List<Integer> values) {
+            addCriterion("min_timelength not in", values, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthBetween(Integer value1, Integer value2) {
+            addCriterion("min_timelength between", value1, value2, "minTimelength");
+            return (Criteria) this;
+        }
+
+        public Criteria andMinTimelengthNotBetween(Integer value1, Integer value2) {
+            addCriterion("min_timelength not between", value1, value2, "minTimelength");
             return (Criteria) this;
         }
 

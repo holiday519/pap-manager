@@ -29,7 +29,7 @@ public class TokenService
     private String tokenSecret;
     private String tokenExpiresSecondStr;
     private long tokenExpiresSecond;
-    private RedisHelper redisHelper;
+    private RedisHelper redisHelper3;
     
     
     @Autowired
@@ -41,7 +41,7 @@ public class TokenService
         tokenExpiresSecond = (tokenExpiresSecondStr == null) ? 0L : Long.parseLong(tokenExpiresSecondStr);
         
         // 指定使用配置文件中的哪个具体的Redis配置
-        redisHelper = RedisHelper.open("redis.primary.");
+        redisHelper3 = RedisHelper.open("redis.tertiary.");
     }
 
     public UserModel loadUserByUsername(String username)
@@ -89,7 +89,7 @@ public class TokenService
         AccessTokenBean accessToken = null;
         try
         {
-            String content = redisHelper.getStr(username);
+            String content = redisHelper3.getStr(username);
             if (StringUtils.isEmpty(content))
             {
                 return null;
