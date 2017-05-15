@@ -207,7 +207,7 @@ public class AdvertiserController
      */
     @RequestMapping(value = "/advertisers/adx/{auditId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void updateAdvertiserAdxEnabled(@PathVariable String auditId, @RequestBody Map<String, String> map,HttpServletResponse response) throws Exception{
+    public void updateAdvertiserAdxEnabled(@PathVariable String auditId, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {
     	advertiserService.updateAdvertiserAdxEnabled(auditId, map);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
