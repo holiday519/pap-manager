@@ -171,44 +171,44 @@ public class AdvertiserController
     
     /**
      * 广告主提交第三方审核
-     * @param id 广告主id
+     * @param id 广告主ADX审核id
      * @param adxId ADX的id
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/audit/{auditId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void auditAdvertiser(@PathVariable String id, @RequestPart(value = "auditId", required = true) String auditId, HttpServletResponse response) throws Exception {
-    	advertiserService.auditAdvertiser(id, auditId);
+    public void auditAdvertiser(@PathVariable String auditId, HttpServletResponse response) throws Exception {
+    	advertiserService.auditAdvertiser(auditId);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     /**
      * 同步广告主第三方审核结果
-     * @param id 广告主id
+     * @param id 广告主ADX审核id
      * @param adxId ADX的id
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/synchronize/{auditId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void synchronizeAdvertiser(@PathVariable String id,@RequestPart(value = "auditId", required = true) String auditId, HttpServletResponse response) throws Exception {
-    	advertiserService.synchronizeAdvertiser(id,auditId);
+    public void synchronizeAdvertiser(@PathVariable String auditId, HttpServletResponse response) throws Exception {
+    	advertiserService.synchronizeAdvertiser(auditId);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
     /**
      * 广告主启用/禁用ADX
-     * @param id 广告主的id
+     * @param auditId 广告主ADX审核的id
      * @param adxId ADX的ID
      * @param map 广告主ADX的状态
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertisers/adx/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertisers/adx/{auditId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public void updateAdvertiserAdxEnabled(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception{
-    	advertiserService.updateAdvertiserAdxEnabled(id, map);
+    public void updateAdvertiserAdxEnabled(@PathVariable String auditId, @RequestBody Map<String, String> map,HttpServletResponse response) throws Exception{
+    	advertiserService.updateAdvertiserAdxEnabled(auditId, map);
     	response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 }

@@ -56,16 +56,10 @@ public class MomoAuditService extends AuditService {
 	 */
 	@Override
 	@Transactional
-	public void auditAdvertiser(String advertiserId) throws Exception {
-		// 查询广告主审核信息
-		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
-		advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId)
-				.andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
-		List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao
-				.selectByExample(advertiserAuditModelExample);		
-		if (advertiserAuditList != null && !advertiserAuditList.isEmpty()) {
+	public void auditAdvertiser(String auditId) throws Exception {
+		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+		if (advertiserAudit != null) {
 			// 如果广告主审核信息不为空，则更新广告主审核表状态
-			AdvertiserAuditModel advertiserAudit = advertiserAuditList.get(0);
 			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
 			// 更新广告主审核表数据
 			advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
@@ -77,20 +71,14 @@ public class MomoAuditService extends AuditService {
 	 */
 	@Override
 	@Transactional
-	public void synchronizeAdvertiser(String advertiserId) throws Exception {
-		// 查询广告主审核信息
-		AdvertiserAuditModelExample advertiserAuditModelExample = new AdvertiserAuditModelExample();
-		advertiserAuditModelExample.createCriteria().andAdvertiserIdEqualTo(advertiserId)
-				.andAdxIdEqualTo(AdxKeyConstant.ADX_MOMO_VALUE);
-		List<AdvertiserAuditModel> advertiserAuditList = advertiserAuditDao
-				.selectByExample(advertiserAuditModelExample);
-		if (advertiserAuditList != null && !advertiserAuditList.isEmpty()) {
+	public void synchronizeAdvertiser(String auditId) throws Exception {
+		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+		if (advertiserAudit != null) {
 			// 如果广告主审核信息不为空，则更新广告主审核表状态
-			AdvertiserAuditModel advertiserAudit = advertiserAuditList.get(0);
 			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
 			// 更新广告主审核表数据
 			advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
-		}		
+		}
 	}
 
 	/**

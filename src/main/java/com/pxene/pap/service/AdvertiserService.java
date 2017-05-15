@@ -637,13 +637,7 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void auditAdvertiser(String id, String auditId) throws Exception {
-    	// 查询广告主信息判断是否存在广告主
-		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
-		if (advertiser == null) {
-			// 如果广告主不存在，则提示：该对象不存在
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
+	public void auditAdvertiser(String auditId) throws Exception {
 		// 查询广告主审核信息判断是否存在
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit == null) {
@@ -654,12 +648,12 @@ public class AdvertiserService extends BaseService
 		String adxId = advertiserAudit.getAdxId();
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 			// 如果adxId是陌陌，则提交陌陌审核
-			momoAuditService.auditAdvertiser(id);
+			momoAuditService.auditAdvertiser(auditId);
 		}
 		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
 			// 如果adxId是INMOBI，则提交INMOBI审核
-			inmobiAuditService.auditAdvertiser(id);
-		}		
+			inmobiAuditService.auditAdvertiser(auditId);
+		}
 	}
     
     /**
@@ -669,13 +663,7 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-	public void synchronizeAdvertiser(String id, String auditId) throws Exception {
-    	// 查询广告主信息判断是否存在广告主
-		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
-		if (advertiser == null) {
-			// 如果广告主不存在，则提示：该对象不存在
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
+	public void synchronizeAdvertiser(String auditId) throws Exception {
 		// 查询广告主审核信息判断是否存在
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit == null) {
@@ -686,12 +674,12 @@ public class AdvertiserService extends BaseService
 		String adxId = advertiserAudit.getAdxId();
 		if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 			// 如果adxId是陌陌，则同步陌陌审核结果
-			momoAuditService.synchronizeAdvertiser(id);
+			momoAuditService.synchronizeAdvertiser(auditId);
 		}
 		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
 			// 如果adxId是INMOBI，则同步INMOBI审核结果
-			inmobiAuditService.synchronizeAdvertiser(id);
-		}		
+			inmobiAuditService.synchronizeAdvertiser(auditId);
+		}
 	}
 
     /**
@@ -728,16 +716,14 @@ public class AdvertiserService extends BaseService
     
     /**
      * 编辑广告主启用/禁用ADX，即修改数据库中的标志位
-     * @param id 广告主id
+     * @param auditId 广告主ADX审核id
      * @param adxId ADX的id
      * @param map 广告主ADX的状态
      * @throws Exception
      */
     @Transactional
-    public void updateAdvertiserAdxEnabled(String id, Map<String,String> map) throws Exception {
+    public void updateAdvertiserAdxEnabled(String auditId, Map<String,String> map) throws Exception {
 		String enable = map.get("enable");
-		// String adxId = map.get("adxId");
-		String auditId = map.get("auditId");
 		// 判断传来的状态是否为空 enabled
 		if (StringUtil.isEmpty(enable)) {
 			// 如果传来状态为空，则抛异常
