@@ -179,6 +179,7 @@ public class CampaignController {
 	@RequestMapping(value = "/campaigns/date/{id}" ,method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
 	public void updateCampaignStartAndEndDate(@PathVariable String id, @RequestPart(value = "startDate", required = true) Date startDate, @RequestPart(value = "endDate", required = true) Date endDate, HttpServletResponse response) throws Exception {	
+		// FIXME : 修改注解
 		campaignService.updateCampaignStartAndEndDate(id, startDate, endDate);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}

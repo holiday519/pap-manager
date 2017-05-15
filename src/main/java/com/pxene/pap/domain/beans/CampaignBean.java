@@ -392,6 +392,7 @@ public class CampaignBean extends BasicDataBean {
 
 	}
 
+	// FIXME 设置不为空的注解
 	private String landpageId;
 	private String landpageName;
 	private String landpageUrl;

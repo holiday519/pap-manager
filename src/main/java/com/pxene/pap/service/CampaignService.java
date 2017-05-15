@@ -210,6 +210,7 @@ public class CampaignService extends BaseService {
 		if (campaignModels != null && !campaignModels.isEmpty()) {
 			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
+		// FIXME 判断项目是否为空		
 		// 判断落地页信息是否为空，落地页信息为空则不能创建活动
 		LandpageModel landpageModel = landpageDao.selectByPrimaryKey(bean.getLandpageId());
 		if (landpageModel == null) {
@@ -225,10 +226,12 @@ public class CampaignService extends BaseService {
 	    // 活动的日预算之和不能大于项目预算
 	    String projectId = bean.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-		Integer projectBudget = projectModel.getTotalBudget();
+		int projectBudget = projectModel.getTotalBudget();
 
+		// FIXME ：活动 日预算不能超过项目总预算
+		// FIXME : 日预算不传如何处理
 		// 分段设置预算，分段预算总和小于或等于项目总预算
-		Integer dailyBudget = 0;
+		int dailyBudget = 0;
 		Quantity[] quantities = bean.getQuantities();
 		for (Quantity quantitie : quantities) {
 			// 分段设置预算总和
@@ -249,8 +252,7 @@ public class CampaignService extends BaseService {
 				}
 			}
 		}
-		System.out.println(dailyBudget);
-		if (dailyBudget.compareTo(projectBudget) > 0) {
+		if (dailyBudget-projectBudget > 0) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}	 
 	    // 添加活动信息	    
@@ -296,6 +298,7 @@ public class CampaignService extends BaseService {
 			}
 		}
 		
+		// FIXME : 落地页信息是否存在、项目信息是否存在
 		// 监测日期范围是否正确
 		Date startDate = bean.getStartDate();
 		Date endDate = bean.getEndDate();
@@ -550,6 +553,7 @@ public class CampaignService extends BaseService {
 				}
 			} else {
 				// 3.不在groupids中，满足项目开启、活动开启、定向时间、日预算、最大展现向groupids添加活动id
+				// FIXME : 判断项目的总预算，不用判断是否在投放周期中
 				if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus()) && isOnLaunchDate(id)
 						&& isOnTargetTime(id) && launchService.notOverDailyBudget(id)
@@ -912,8 +916,9 @@ public class CampaignService extends BaseService {
 		CampaignBean map = modelMapper.map(model, CampaignBean.class);
 		addParamToCampaign(map, model.getId(), model.getFrequencyId());
 		// 活动未正常投放原因
-		if (!launchService.isHaveLaunched(model.getId())) {
+		if (launchService.isHaveLaunched(model.getId())) {
 			// 是否已经投放过，投放过可能出现预算和展现数上限
+			// FIXME : 分清是哪个预算超出范围
 			if (!launchService.notOverDailyBudget(model.getId()) || !launchService.notOverProjectBudget(model.getId())) {
 				// 预算达到上限
 				map.setReason(StatusConstant.CAMPAIGN_BUDGET_OVER);
@@ -923,6 +928,7 @@ public class CampaignService extends BaseService {
 			}
 		} else if (!isOnTargetTime(model.getId())) {
 			// 不在定向时间段内
+			// FIXME ： 这个else应该在哪？
 			map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
 		}
 		return map;
@@ -966,7 +972,7 @@ public class CampaignService extends BaseService {
 				getData(beginTime, endTime, map);
 			}
 			// 活动未正常投放原因
-			if (!launchService.isHaveLaunched(model.getId())) {
+			if (launchService.isHaveLaunched(model.getId())) {
 				// 是否已经投放过，投放过可能出现预算和展现数上限  
 				if (!launchService.notOverDailyBudget(model.getId())
 						|| !launchService.notOverProjectBudget(model.getId())) {
@@ -1187,6 +1193,7 @@ public class CampaignService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_CREATIE);
 		}
 		// 检查创意是否审核通过
+		// FIXME : 点击打开不会有报错信息（项目相同）
 		// 检查创意状态是否有审核通过的
 		for (CreativeModel creative : creatives) {
 			String creativeId = creative.getId();
@@ -1366,6 +1373,7 @@ public class CampaignService extends BaseService {
      */
     @Transactional
     public void synchronizeCreatives(String[] campaignIds) throws Exception {
+    	// FIXME : 调用批量同步创意的方法
     	// 根据活动ID列表查询活动信息
 		List<String> asList = Arrays.asList(campaignIds);
 		CampaignModelExample ex = new CampaignModelExample();
@@ -1427,18 +1435,24 @@ public class CampaignService extends BaseService {
 		if (startDate != null && endDate != null && startDate.after(endDate)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
 		}
-		campaignInDB.setStartDate(startDate);
-		campaignInDB.setEndDate(endDate);
+		CampaignModel model = new CampaignModel();
+		model.setStartDate(startDate);
+		model.setEndDate(endDate);
+		model.setId(id);
 		//修改基本信息
-		campaignDao.updateByPrimaryKeySelective(campaignInDB);
+		campaignDao.updateByPrimaryKeySelective(model);
+		
+		// FIXME : 重新查询campaignInDB
 		// 修改redis中的信息
 		String projectId = campaignInDB.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (isOnLaunchDate(id) && !launchService.isHaveLaunched(id) &&
+		if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id)  &&
 				StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus())) {
 			launchService.write4FirstTime(campaignInDB);
-		} else if (!isOnLaunchDate(id)) {
+			// FIXME : 在定向时间可以投放
+			// 原来的状态、现在的状态---1.改了时间前后状态
+		} else if (launchService.isHaveLaunched(id) && !isOnLaunchDate(id)) {
 			launchService.remove4EndDate(campaignInDB);
 		}
 				

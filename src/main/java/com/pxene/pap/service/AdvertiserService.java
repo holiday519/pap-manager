@@ -82,8 +82,6 @@ public class AdvertiserService extends BaseService
 	@Autowired
 	private InmobiAuditService inmobiAuditService;
     
-    private Environment env;
-    
     private static String UPLOAD_MODE;
     
     private static String UPLOAD_DIR;
@@ -104,8 +102,6 @@ public class AdvertiserService extends BaseService
     @Autowired
     public AdvertiserService(Environment env)
     {
-        this.env = env;
-        
         UPLOAD_MODE = env.getProperty("pap.fileserver.mode", "local");
         
         host = env.getProperty("pap.fileserver.remote.host");
@@ -237,7 +233,8 @@ public class AdvertiserService extends BaseService
 			}
 		}
 		
-		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除
+		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除 
+		// FIXME 改成in的方式删除
 		for (int i = 0; i < advertiserInDB.size(); i++) {
 			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserInDB.get(i).getId());
@@ -347,13 +344,14 @@ public class AdvertiserService extends BaseService
             bean.setIndustryName(industryName);
         }        
 		// 找出adxes
-		String advertiserId = advertiser.getId();
+		// String advertiserId = advertiser.getId();
 		AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
-		advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(id);
 		List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
 		Audits[] audits = new Audits[advertiserAudits.size()];
 		for (int i = 0; i < audits.length; i++) {
 			// adx的基本信息
+			// FIXME 修改Audits名称为Audit
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
 			audits[i] = modelMapper.map(advertiserAudiModel, Audits.class);
 			// 获取adx的名称（从adx表中获得其名称）
@@ -527,7 +525,7 @@ public class AdvertiserService extends BaseService
     	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
     	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
         // 获得图片上传至本地/远程文件服务器的物理绝对路径
-        String path = upload(env, file);
+        String path = upload(file);
         
     	// 返回相对路径
     	return path.replace(UPLOAD_DIR, "");
@@ -688,7 +686,7 @@ public class AdvertiserService extends BaseService
      * @param file  multipart/form-data对象
      * @return
      */
-    private String upload(Environment env, MultipartFile file)
+    private String upload(MultipartFile file)
     {
         if ("local".equalsIgnoreCase(UPLOAD_MODE))
         {
@@ -737,14 +735,12 @@ public class AdvertiserService extends BaseService
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		// 如果广告主信息存在，则改变广告主adx的状态
-		if (StatusConstant.ADVERTISER_ADX_ENABLE.equals(enable)) {
-			// 如果获得的状态为开启状态，则修改状态为禁用
+		if (StatusConstant.ADVERTISER_ADX_DISABLE.equals(enable)) { 
 			advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
 			advertiseAudit.setId(auditId);
 			// 更新数据库
 			advertiserAuditDao.updateByPrimaryKeySelective(advertiseAudit);
-		} else if (StatusConstant.ADVERTISER_ADX_DISABLE.equals(enable)) {
-			// 如果获得的状态为禁用状态，则修改状态为开启
+		} else if (StatusConstant.ADVERTISER_ADX_ENABLE.equals(enable)) {
 			advertiseAudit.setEnable(StatusConstant.ADVERTISER_ADX_ENABLE);
 			advertiseAudit.setId(auditId);
 			// 更新数据库
