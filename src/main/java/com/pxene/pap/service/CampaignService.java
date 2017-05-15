@@ -97,9 +97,6 @@ import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 
-/*import org.apache.log4j.Logger;*/  
-import redis.clients.jedis.Jedis;
-
 @Service
 public class CampaignService extends BaseService {
 	
@@ -353,7 +350,7 @@ public class CampaignService extends BaseService {
 		// 编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {			
 			// 改变预算(日均预算、总预算)、展现时修改redis中的值
-			changeBudgetAndCounter(id, dbBudget, campaignBudget, bean.getQuantities());
+			changeBudgetAndCounter(id, bean.getQuantities());
 		}
 		
 		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
@@ -386,12 +383,8 @@ public class CampaignService extends BaseService {
 			
 		Date current = new Date();
 		if (current.after(endDate)) {
-			//launchService.removeCampaignId(id);
-			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 			boolean removeResult = launchService.pauseCampaignRepeatable(id);
 			if (!removeResult) {
-				// 如果尝试多次不能将不满足条件的活动id从redis的groupids中删除，则删除该活动在redis中的活动信息--停止投放
-				//pauseLaunchByDelCampaignInfo(id);
 				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 			}
 		}
@@ -419,7 +412,7 @@ public class CampaignService extends BaseService {
 	 * @param quantities
 	 * @throws Exception
 	 */
-	private void changeBudgetAndCounter(String campaignId, Integer dbBudget, Integer newBueget, Quantity[] quantities) throws Exception {
+	private void changeBudgetAndCounter(String campaignId, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (redisHelper.exists(budgetKey)) {
@@ -919,12 +912,12 @@ public class CampaignService extends BaseService {
 		CampaignBean map = modelMapper.map(model, CampaignBean.class);
 		addParamToCampaign(map, model.getId(), model.getFrequencyId());
 		// 活动未正常投放原因
-		if (!launchService.isFirstLaunch(model.getId())) {
+		if (!launchService.isHaveLaunched(model.getId())) {
 			// 是否已经投放过，投放过可能出现预算和展现数上限
-			if (!launchService.dailyBudgetJudge(model.getId()) || !launchService.notOverProjectBudget(model.getId())) {
+			if (!launchService.notOverDailyBudget(model.getId()) || !launchService.notOverProjectBudget(model.getId())) {
 				// 预算达到上限
 				map.setReason(StatusConstant.CAMPAIGN_BUDGET_OVER);
-			} else if (!launchService.dailyCounterJudge(model.getId())) {
+			} else if (!launchService.notOverDailyCounter(model.getId())) {
 				// 展现数达到上限
 				map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
 			}
@@ -973,13 +966,13 @@ public class CampaignService extends BaseService {
 				getData(beginTime, endTime, map);
 			}
 			// 活动未正常投放原因
-			if (!launchService.isFirstLaunch(model.getId())) {
-				// 是否已经投放过，投放过可能出现预算和展现数上限
-				if (!launchService.dailyBudgetJudge(model.getId())
+			if (!launchService.isHaveLaunched(model.getId())) {
+				// 是否已经投放过，投放过可能出现预算和展现数上限  
+				if (!launchService.notOverDailyBudget(model.getId())
 						|| !launchService.notOverProjectBudget(model.getId())) {
 					// 预算达到上限
 					map.setReason(StatusConstant.CAMPAIGN_BUDGET_OVER);
-				} else if (!launchService.dailyCounterJudge(model.getId())) {
+				} else if (!launchService.notOverDailyCounter(model.getId())) {
 					// 展现数达到上限
 					map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
 				}
@@ -1441,7 +1434,7 @@ public class CampaignService extends BaseService {
 		// 修改redis中的信息
 		String projectId = campaignInDB.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (isOnLaunchDate(id) && !launchService.isFirstLaunch(id)&&
+		if (isOnLaunchDate(id) && !launchService.isHaveLaunched(id) &&
 				StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus())) {
 			launchService.write4FirstTime(campaignInDB);

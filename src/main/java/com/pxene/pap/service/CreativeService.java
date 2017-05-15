@@ -1572,7 +1572,7 @@ public class CreativeService extends BaseService {
 			// 更新数据库的状态
 			creativeDao.updateByPrimaryKeySelective(creativeModel);
 			// 将创意id从redis的dsp_groupid_mapids_中删除
-			if (launchService.isFirstLaunch(campaignId)) {
+			if (launchService.isHaveLaunched(campaignId)) {
 				// 如果已经投放过，则将其从mapids中删除id
 				launchService.removeOneCreativeId(campaignId, creativeId);
 			}
