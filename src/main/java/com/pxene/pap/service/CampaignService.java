@@ -228,7 +228,15 @@ public class CampaignService extends BaseService {
 	    String projectId = bean.getProjectId();
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		Integer projectBudget = projectModel.getTotalBudget();
-		Integer dailyBudget = bean.getQuantities()[0].getDailyBudget();			
+
+		// 分段设置预算，分段预算总和小于或等于项目总预算
+		Integer dailyBudget = 0;
+		Quantity[] quantities = bean.getQuantities();
+		for (Quantity quantitie : quantities) {
+			// 分段设置预算总和
+			dailyBudget = dailyBudget + quantitie.getDailyBudget();
+		}
+
 		campaignModelExample.clear();
 		campaignModelExample.createCriteria().andProjectIdEqualTo(projectId);
 		campaignModels = campaignDao.selectByExample(campaignModelExample);
@@ -236,10 +244,14 @@ public class CampaignService extends BaseService {
 			for (CampaignModel model : campaignModels) {
 				QuantityModelExample quantityExample = new QuantityModelExample();
 				quantityExample.createCriteria().andCampaignIdEqualTo(model.getId());
-				List<QuantityModel> quantity = quantityDao.selectByExample(quantityExample);
-				dailyBudget = dailyBudget + quantity.get(0).getDailyBudget();
+				List<QuantityModel> quantitys = quantityDao.selectByExample(quantityExample);
+				for (QuantityModel quantity : quantitys) {
+					// 日预算总和
+					dailyBudget = dailyBudget + quantity.getDailyBudget();
+				}
 			}
-		}		
+		}
+		System.out.println(dailyBudget);
 		if (dailyBudget.compareTo(projectBudget) > 0) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
 		}	 
@@ -297,8 +309,13 @@ public class CampaignService extends BaseService {
 		bean.setId(id);		
 		
 		// 传值里的日预算
-		Quantity[] quantity = bean.getQuantities();
-		Integer dailyBudget = quantity[0].getDailyBudget();
+		Integer dailyBudget = 0;
+		Quantity[] quantities = bean.getQuantities();
+		for (Quantity quantitie : quantities) {
+			// 分段设置的预算总和
+			dailyBudget = dailyBudget + quantitie.getDailyBudget();
+		}
+		
 		
 		// 判断预算是否超出
 		String projectId = bean.getProjectId();
@@ -318,7 +335,11 @@ public class CampaignService extends BaseService {
 				quantityExample.createCriteria().andCampaignIdEqualTo(campaign.getId());
 				List<QuantityModel> quantityList = quantityDao.selectByExample(quantityExample);
 				if (quantityList != null && !quantityList.isEmpty()) {
-					dailyBudgetOthers += quantityList.get(0).getDailyBudget();
+					for (QuantityModel quantity : quantityList) {
+						// 当前项目其他活动分段设置日预算总和
+						dailyBudget = dailyBudget + quantity.getDailyBudget();
+					}
+					
 				}
 			}
 		}
@@ -726,10 +747,18 @@ public class CampaignService extends BaseService {
 		if (startDate != null && endDate != null && startDate.after(endDate)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
 		}	
+		// 项目总预算
+		ProjectModel projectModel = projectDao.selectByPrimaryKey(campaignBean.getProjectId());
+		Integer projectBudget = projectModel.getTotalBudget();
+		// 策略
 		Quantity[] quantitys = campaignBean.getQuantities();			
 		if (quantitys != null && quantitys.length > 0) {
 			String id = campaignBean.getId();
-			for (Quantity bean : quantitys) {				 								
+			for (Quantity bean : quantitys) {	
+				Integer dailyBudget = bean.getDailyBudget();
+				if (dailyBudget != null && projectBudget != null && dailyBudget.compareTo(projectBudget) > 0) {
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_TOTAL); 
+				}
 				QuantityModel model = modelMapper.map(bean, QuantityModel.class);
 				model.setCampaignId(id);
 				model.setId(UUIDGenerator.getUUID());
