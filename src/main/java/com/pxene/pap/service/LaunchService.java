@@ -1175,6 +1175,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void writeCreativeId(String campaignId) throws Exception {
+		// FIXME : 创意开关是开着、创意审核状态是通过
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -1505,6 +1506,7 @@ public class LaunchService extends BaseService {
 		// 将删除后剩下的元素再放回redis中
 		JsonObject resultJson = new JsonObject();
 		resultJson.add("mapids", jsonArray);
+		// FIXME : 去掉上两行代码是否写回redis？
 		redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
 	}
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -86,4 +87,43 @@ public class TmplController {
 		PaginationBean result = new PaginationBean(bean, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
+	
+	/**
+	 * 查询图片模版
+	 * @param id
+	 * @param response
+	 * @throws Exception
+	 */
+    @RequestMapping(value = "/tmpl/image/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void getImageTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
+    {
+        
+    }
+    
+    /**
+     * 查询视频模版
+     * @param id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/tmpl/video/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void getVideoTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
+    {
+        
+    }
+    
+    /**
+     * 查询信息流模版
+     * @param id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/tmpl/infoflow/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void getInfoflowTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
+    {
+        
+    }
 }

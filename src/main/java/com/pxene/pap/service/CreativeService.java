@@ -266,6 +266,7 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		String campaignId = creativeInDB.getCampaignId();
+		// FIXME : 开始投放不能删、redis中是否有数据--有数据不能删除；在开始时间内，或者该创意在redis中有数据不能删
 		if (campaignService.isOnLaunchDate(campaignId)) {
 			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_BEGIN);
 		}
@@ -281,11 +282,13 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void deleteCreatives(String[] creativeIds) throws Exception {
+		// FIXME : 改成in查
 		for (String creativeId : creativeIds) {
 			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
 			if (creative == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
+			//  FIXME :  开始投放不能删、redis中是否有数据--有数据不能删除；在开始时间内，或者该创意在redis中有数据不能删
 			String campaignId = creative.getCampaignId();
 			if (campaignService.isOnLaunchDate(campaignId)) {
 				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_BEGIN);
@@ -293,6 +296,7 @@ public class CreativeService extends BaseService {
 		}
 		
 		// 删除创意数据
+		// FIXME : 删除创意审核信息
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andIdIn(Arrays.asList(creativeIds));
 		creativeDao.deleteByExample(creativeExample);
@@ -327,7 +331,7 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public Map<String, String> uploadMaterial(String tmplId, MultipartFile file) throws Exception {
-		MediaBean mediaBean = FileUtils.checkFile(file);
+		MediaBean mediaBean = FileUtils.checkFile(file);  // 解析传来图片的宽高
 		Map<String, String> result = null;
 		
 		if (mediaBean instanceof ImageBean) {
@@ -511,7 +515,8 @@ public class CreativeService extends BaseService {
 		
 		// 按更新时间进行倒序排序
         example.setOrderByClause("update_time DESC");
-		
+	
+        // FIXME : 不用检验campaignId
 		if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(campaignId)) {
 			example.createCriteria().andNameLike("%" + name + "%");
 		} else if (StringUtils.isEmpty(name) && !StringUtils.isEmpty(campaignId)) {
@@ -783,6 +788,7 @@ public class CreativeService extends BaseService {
 	 * @return
 	 */
 	public BasicDataBean getCreative(String id, Long startDate, Long endDate) throws Exception {
+		// FIXME : 优化代码
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		if (creative == null) {
 			throw new ResourceNotFoundException();
@@ -799,6 +805,7 @@ public class CreativeService extends BaseService {
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			//如果创意类型是图片
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
+			// FIXME : imageMaterialModel是否为空
 			ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());			
 			if (imageModel != null) {
 				image = new ImageCreativeBean();				
@@ -1553,16 +1560,20 @@ public class CreativeService extends BaseService {
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andIdIn(creativesList);
 		// 判断创意是否为空
-		List<CreativeModel> creativeModel = creativeDao.selectByExample(creativeExample);
-		if (creativeModel == null || creativeModel.isEmpty()) {
+		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeExample);
+		// FIXME ： 同步的创意应该是审核用
+		// FIXME : 判断查出的个数与传来的creativeIds的个数是否相同
+		if (creativeModels == null || creativeModels.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		for (String creativeId : creativeIds) {
+		for (CreativeModel creative : creativeModels) {
+			//
 			// 查询adx列表，一个创意可以由多个ADX审核  
-			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+//			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
 			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
+			String creativeId = creative.getId();
 			// 同步审核结果
-			for (Map<String,String>adxe : adxes) {
+			for (Map<String,String> adxe : adxes) {
 				// 获取adxId
 				String adxId = adxe.get("adxId");
 				// 判断创意审核表中该创意的审核信息是否为空，不为空判断是由哪个adx广告平台审核--对应同步其审核结果
@@ -1599,14 +1610,16 @@ public class CreativeService extends BaseService {
 		List<String> creativesList = Arrays.asList(creativeIds);
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andIdIn(creativesList);
+		// FIXME : 只有未审核的才可以调下面的方法，检验
 		// 判断创意是否为空
 		List<CreativeModel> creativeModel = creativeDao.selectByExample(creativeExample);
 		if (creativeModel == null || creativeModel.isEmpty()) {
 			// 如果创意信息为空
 			throw new ResourceNotFoundException();
-		}
+		}		 
 		// 审核创意
 		for (String creativeId : creativeIds) {
+			// FIXME : 不需要再查询CreativeModel
 			// 查询ADX，一个创意可以对应多个广告审核平台
 			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
 			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
@@ -1647,7 +1660,7 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		String campaignId = creativeModel.getCampaignId();
-		if (StatusConstant.CREATIVE_IS_ENABLE.equals(enable)) {
+		if (StatusConstant.CREATIVE_ISNOT_ENABLE.equals(enable)) {
 			// 如果为启动状态，则修改为暂停状态
 			creativeModel.setEnable(StatusConstant.CREATIVE_ISNOT_ENABLE);
 			// 更新数据库的状态
@@ -1658,12 +1671,13 @@ public class CreativeService extends BaseService {
 				launchService.removeOneCreativeId(campaignId, creativeId);
 			}
 		}
-		if (StatusConstant.CREATIVE_ISNOT_ENABLE.equals(enable)) {
+		if (StatusConstant.CREATIVE_IS_ENABLE.equals(enable)) {
 			// 如果为暂停状态，则修改为启动状态
 			creativeModel.setEnable(StatusConstant.CREATIVE_IS_ENABLE);
 			// 更新数据库中状态
 			creativeDao.updateByPrimaryKeySelective(creativeModel);
 			// 如果创意已经审核通过，则将创意id写入门redis的dsp_groupid_mapids_中
+			// FIXME : 单独写入创意ID信息
 			writeCreativeIdToRedis(creativeModel);
 		}
 	}

@@ -3,20 +3,14 @@ package com.pxene.pap.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.ImageTmplBean;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
-import com.pxene.pap.domain.beans.VideoTmplBean;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
@@ -27,7 +21,6 @@ import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
-import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;

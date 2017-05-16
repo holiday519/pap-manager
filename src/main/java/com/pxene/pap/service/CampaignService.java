@@ -1366,6 +1366,7 @@ public class CampaignService extends BaseService {
 			}
 			// 把list生成一个数组
 			String[] creativeIds = listIds.toArray(new String[0]);
+			// FIXME : 凑齐creativeIds再调用同步创意方法，去重creativeId，new String[0]
 			// 同步创意
 			creativeService.synchronizeCreatives(creativeIds);			
 		}						
@@ -1418,7 +1419,7 @@ public class CampaignService extends BaseService {
 			launchService.write4FirstTime(campaignModel);
 			// FIXME : 在定向时间可以投放---OK
 			// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
-			if (isOnTargetTime(id) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+			if (isOnTargetTime(id) && launchService.notOverProjectBudget(id) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
 				boolean writeResult = launchService.launchCampaignRepeatable(id);
 				if (!writeResult) {
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);

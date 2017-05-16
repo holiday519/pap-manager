@@ -238,11 +238,11 @@ public class AdvertiserService extends BaseService
 		// 1.查询指定的多个广告主ID的审核信息是否存在
 		AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 		auditExample.createCriteria().andAdvertiserIdIn(Arrays.asList(ids));
-		List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
+//		List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
 		// 2.判断审核信息是否存在
-		if (auditModels == null || auditModels.size() < ids.length) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
+//		if (auditModels == null || auditModels.size() < ids.length) {
+//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+//		}
 		// 3.删除广告主审核信息
 		advertiserAuditDao.deleteByExample(auditExample);
 		
@@ -349,18 +349,18 @@ public class AdvertiserService extends BaseService
 		AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
 		advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(id);
 		List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
-		Audit[] audit = new Audit[advertiserAudits.size()];
-		for (int i = 0; i < audit.length; i++) {
+		Audit[] audits = new Audit[advertiserAudits.size()];
+		for (int i = 0; i < audits.length; i++) {
 			// adx的基本信息
 			// FIXME 修改Audits名称为Audit----OK
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
-			audit[i] = modelMapper.map(advertiserAudiModel, Audit.class);
+			audits[i] = modelMapper.map(advertiserAudiModel, Audit.class);
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-			audit[i].setName(adxModel.getName());
+			audits[i].setName(adxModel.getName());
 		}
-		bean.setAudit(audit);
+		bean.setAudits(audits);
                 
         // 将DAO创建的新对象复制回传输对象中
         return bean;
@@ -409,17 +409,17 @@ public class AdvertiserService extends BaseService
 			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
 			List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(auditExample);
-			Audit[] audit = new Audit[advertiserAudits.size()];
-			for (int i = 0; i < audit.length; i++) {
+			Audit[] audits = new Audit[advertiserAudits.size()];
+			for (int i = 0; i < audits.length; i++) {
 				// adx的基本信息
 				AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(i);
-				audit[i] = modelMapper.map(advertiserAuditModel, Audit.class);
+				audits[i] = modelMapper.map(advertiserAuditModel, Audit.class);
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-				audit[i].setName(adxModel.getName());
+				audits[i].setName(adxModel.getName());
 			}
-			bean.setAudit(audit);
+			bean.setAudits(audits);
 
 			// 查询审核状态
 			//bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
