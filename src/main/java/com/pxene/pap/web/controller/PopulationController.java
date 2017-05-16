@@ -1,5 +1,6 @@
 package com.pxene.pap.web.controller;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -51,6 +52,7 @@ public class PopulationController {
     @ResponseBody
     public String createPopulation(@RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "name", required = true) String name, HttpServletResponse response) throws Exception 
 	{
+	    name = new String(name.getBytes(Charset.forName("iso-8859-1")), Charset.forName("utf-8"));
         String path = populationService.createPopulation(file, name);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", path, response);
     }
