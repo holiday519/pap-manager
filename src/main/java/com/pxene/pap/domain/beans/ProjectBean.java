@@ -121,7 +121,7 @@ public class ProjectBean extends BasicDataBean {
                 + ", totalBudget=" + totalBudget + ", remark=" + remark + ", status=" + status + "]";
     }
 	
-	public class EffectField {
+	public static class EffectField {
 		private String id;
 		private String name;
 		private String code;

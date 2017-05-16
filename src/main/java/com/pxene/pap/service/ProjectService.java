@@ -429,16 +429,20 @@ public class ProjectService extends BaseService {
     	EffectDicModelExample example = new EffectDicModelExample();
     	example.createCriteria().andProjectIdEqualTo(projectId);
     	List<EffectDicModel> effectDics = effectDicDao.selectByExample(example);
-    	int len = effectDics.size();
-    	EffectField[] effectFields = new EffectField[len];
-    	for (int i=0; i<len; i++) {
-    		EffectDicModel dic = effectDics.get(i);
-    		effectFields[i].setId(dic.getId());
-    		effectFields[i].setName(dic.getColumnName());
-    		effectFields[i].setCode(dic.getColumnCode());
-    		effectFields[i].setEnable(dic.getEnable());
+    	if (effectDics != null) {
+    		int len = effectDics.size();
+        	EffectField[] effectFields = new EffectField[len];
+        	for (int i=0; i<len; i++) {
+        		EffectDicModel dic = effectDics.get(i);
+        		EffectField field = new EffectField();
+        		field.setId(dic.getId());
+        		field.setName(dic.getColumnName());
+        		field.setCode(dic.getColumnCode());
+        		field.setEnable(dic.getEnable());
+        		effectFields[i] = field;
+        	}
+        	bean.setEffectFields(effectFields);
     	}
-    	bean.setEffectFields(effectFields);
     }
     
 	/**

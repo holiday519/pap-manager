@@ -677,36 +677,77 @@ public class CreativeService extends BaseService {
 						ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 						if (imageMaterialModel != null) {
 							ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
-							String path = imageModel.getPath();
-							materialPaths = new String[1];
-							materialPaths[0] = path;
+							if (imageModel != null) {
+								String path = imageModel.getPath();
+								materialPaths = new String[1];
+								materialPaths[0] = path;
+							}
 						}
 					} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
 						VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 						if (videoMaterialModel != null) {
 							materialPaths = new String[2];
 							VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
-							String imageId = videoMaterialModel.getImageId();
-							if (!StringUtils.isEmpty(imageId)) {
-								ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
-								materialPaths = new String[2];
-								materialPaths[0] = videoModel.getPath();
-								materialPaths[1] = imageModel.getPath();
-							} else {
-								materialPaths = new String[1];
-								materialPaths[0] = videoModel.getPath();
+							if (videoModel != null) {
+								String imageId = videoMaterialModel.getImageId();
+								if (!StringUtils.isEmpty(imageId)) {
+									ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
+									materialPaths = new String[2];
+									materialPaths[0] = videoModel.getPath();
+									materialPaths[1] = imageModel.getPath();
+								} else {
+									materialPaths = new String[1];
+									materialPaths[0] = videoModel.getPath();
+								}
 							}
 						}
 					} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
 						InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
 						List<String> imgList = new ArrayList<String>();
-						imgList.add(infoflowModel.getIconId());
-						imgList.add(infoflowModel.getImage1Id());
-						imgList.add(infoflowModel.getImage2Id());
-						imgList.add(infoflowModel.getImage3Id());
-						imgList.add(infoflowModel.getImage4Id());
-						imgList.add(infoflowModel.getImage5Id());
-						materialPaths = (String[])imgList.toArray();
+						String iconId = infoflowModel.getIconId();
+						String image1Id = infoflowModel.getImage1Id();
+						String image2Id = infoflowModel.getImage2Id();
+						String image3Id = infoflowModel.getImage3Id();
+						String image4Id = infoflowModel.getImage4Id();
+						String image5Id = infoflowModel.getImage5Id();
+						if (!StringUtils.isEmpty(iconId)) {
+							ImageModel imageModel = imageDao.selectByPrimaryKey(iconId);
+							if (imageModel != null) {
+								imgList.add(imageModel.getPath());
+							}
+						}
+						if (!StringUtils.isEmpty(image1Id)) {
+							ImageModel imageModel = imageDao.selectByPrimaryKey(image1Id);
+							if (imageModel != null) {
+								imgList.add(imageModel.getPath());
+							}
+						}
+						if (!StringUtils.isEmpty(image2Id)) {
+							ImageModel imageModel = imageDao.selectByPrimaryKey(image2Id);
+							if (imageModel != null) {
+								imgList.add(imageModel.getPath());
+							}
+						}
+						if (!StringUtils.isEmpty(image3Id)) {
+							ImageModel imageModel = imageDao.selectByPrimaryKey(image3Id);
+							if (imageModel != null) {
+								imgList.add(imageModel.getPath());
+							}
+						}
+						if (!StringUtils.isEmpty(image4Id)) {
+							ImageModel imageModel = imageDao.selectByPrimaryKey(image4Id);
+							if (imageModel != null) {
+								imgList.add(imageModel.getPath());
+							}
+						}
+						if (!StringUtils.isEmpty(image5Id)) {
+							ImageModel imageModel = imageDao.selectByPrimaryKey(image5Id);
+							if (imageModel != null) {
+								imgList.add(imageModel.getPath());
+							}
+						}
+						materialPaths = new String[imgList.size()];
+						materialPaths = imgList.toArray(materialPaths);
 					} else {
 						throw new IllegalArgumentException();
 					}
