@@ -163,7 +163,7 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaigns/synchronize",method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void synchronizeCreatives(@RequestPart(value = "ids",required = true)String ids, HttpServletResponse response) throws Exception {
+	public void synchronizeCreatives(@RequestParam(value = "ids",required = true)String ids, HttpServletResponse response) throws Exception {
 		campaignService.synchronizeCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -177,10 +177,10 @@ public class CampaignController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/campaigns/date/{id}" ,method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody	
-	public void updateCampaignStartAndEndDate(@PathVariable String id, @RequestPart(value = "startDate", required = true) Date startDate, @RequestPart(value = "endDate", required = true) Date endDate, HttpServletResponse response) throws Exception {	
-		// FIXME : 修改注解
-		campaignService.updateCampaignStartAndEndDate(id, startDate, endDate);
+	@ResponseBody		
+	public void updateCampaignStartAndEndDate(@PathVariable String id,@RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {	
+		// FIXME : 修改注解---OK
+		campaignService.updateCampaignStartAndEndDate(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }

@@ -49,9 +49,9 @@ public abstract class AuditService extends BaseService {
         this.env = env;
 	}
 	
-	public abstract void auditAdvertiser(String advertiserId) throws Exception;
+	public abstract void auditAdvertiser(String auditId) throws Exception;
 
-	public abstract void synchronizeAdvertiser(String advertiserId) throws Exception;
+	public abstract void synchronizeAdvertiser(String auditId) throws Exception;
 
 	public abstract void auditCreative(String creativeId) throws Exception;
 

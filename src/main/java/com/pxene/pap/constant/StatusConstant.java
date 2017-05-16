@@ -125,9 +125,9 @@ public class StatusConstant {
 	public static final String EFFECT_STATUS_DISABLE = "02";  
 	
 	/**
-	 * 活动未正常投放原因：预算达到上限
+	 * 活动未正常投放原因：日预算达到上限
 	 */
-	public static final String CAMPAIGN_BUDGET_OVER = "01";
+	public static final String CAMPAIGN_DAILYBUDGET_OVER = "01";
 	/**
 	 * 活动未正常投放原因：展现数达到上限
 	 */
@@ -136,6 +136,10 @@ public class StatusConstant {
 	 * 活动未正常投放原因：不在定向时间段内enable
 	 */
 	public static final String CAMPAIGN_ISNOT_TARGETTIME = "03"; 
+	/**
+	 * 活动未正常投放原因：项目预算达到上限
+	 */
+	public static final String CAMPAIGN_PROJECTBUDGET_OVER = "04";
 	
 	/**
 	 * 创意状态：启动

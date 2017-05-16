@@ -37,7 +37,8 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放";
 	public static final String WBLIST_FILE_NOT_FOUND = "找不到人群定向文件";
 	public static final String CAMPAIGN_BEGIN = "活动已开始，创意不能删除";
-	public static final String LANDPAGE_INFO_NULL ="活动页信息为空，不能创建活动";
+	public static final String LANDPAGE_INFO_NULL = "活动页信息为空，不能创建活动";
+	public static final String PROJECT_INFO_NULL = "项目信息为空，不能创建活动";
 	// 创意
 	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";

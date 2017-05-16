@@ -23,7 +23,7 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
-import com.pxene.pap.domain.beans.AdvertiserBean.Audits;
+import com.pxene.pap.domain.beans.AdvertiserBean.Audit;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
@@ -234,15 +234,17 @@ public class AdvertiserService extends BaseService
 		}
 		
 		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除 
-		// FIXME 改成in的方式删除
-		for (int i = 0; i < advertiserInDB.size(); i++) {
-			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
-			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserInDB.get(i).getId());
-			List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
-			for (AdvertiserAuditModel auditModel : auditModels) {
-				advertiserAuditDao.deleteByPrimaryKey(auditModel.getId());
-			}
-		} 
+		// FIXME 改成in的方式删除 -----OK			
+		// 1.查询指定的多个广告主ID的审核信息是否存在
+		AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
+		auditExample.createCriteria().andAdvertiserIdIn(Arrays.asList(ids));
+		List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
+		// 2.判断审核信息是否存在
+		if (auditModels == null || auditModels.size() < ids.length) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 3.删除广告主审核信息
+		advertiserAuditDao.deleteByExample(auditExample);
 		
 		advertiserDao.deleteByExample(advertiserModelExample);
     }
@@ -344,22 +346,21 @@ public class AdvertiserService extends BaseService
             bean.setIndustryName(industryName);
         }        
 		// 找出adxes
-		// String advertiserId = advertiser.getId();
 		AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
 		advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(id);
 		List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
-		Audits[] audits = new Audits[advertiserAudits.size()];
-		for (int i = 0; i < audits.length; i++) {
+		Audit[] audit = new Audit[advertiserAudits.size()];
+		for (int i = 0; i < audit.length; i++) {
 			// adx的基本信息
-			// FIXME 修改Audits名称为Audit
+			// FIXME 修改Audits名称为Audit----OK
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
-			audits[i] = modelMapper.map(advertiserAudiModel, Audits.class);
+			audit[i] = modelMapper.map(advertiserAudiModel, Audit.class);
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-			audits[i].setName(adxModel.getName());
+			audit[i].setName(adxModel.getName());
 		}
-		bean.setAudits(audits);
+		bean.setAudit(audit);
                 
         // 将DAO创建的新对象复制回传输对象中
         return bean;
@@ -408,17 +409,17 @@ public class AdvertiserService extends BaseService
 			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
 			List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(auditExample);
-			Audits[] audits = new Audits[advertiserAudits.size()];
-			for (int i = 0; i < audits.length; i++) {
+			Audit[] audit = new Audit[advertiserAudits.size()];
+			for (int i = 0; i < audit.length; i++) {
 				// adx的基本信息
 				AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(i);
-				audits[i] = modelMapper.map(advertiserAuditModel, Audits.class);
+				audit[i] = modelMapper.map(advertiserAuditModel, Audit.class);
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-				audits[i].setName(adxModel.getName());
+				audit[i].setName(adxModel.getName());
 			}
-			bean.setAudits(audits);
+			bean.setAudit(audit);
 
 			// 查询审核状态
 			//bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));

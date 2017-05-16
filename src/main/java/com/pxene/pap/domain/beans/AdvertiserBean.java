@@ -39,7 +39,7 @@ public class AdvertiserBean extends BasicDataBean {
 
 	private String industryName;
 
-	private Audits[] audits;	
+	private Audit[] audit;	
 
 	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_BRANDNAME)
 	private String brandName;
@@ -83,7 +83,7 @@ public class AdvertiserBean extends BasicDataBean {
 
 	private String status;	
 	
-	public static class Audits {
+	public static class Audit {
 		private String id;
 		private String adxId;
 		private String name;
@@ -319,14 +319,14 @@ public class AdvertiserBean extends BasicDataBean {
 
 	public void setIndustryName(String industryName) {
 		this.industryName = industryName;
-	}		
-	
-	public Audits[] getAudits() {
-		return audits;
+	}				
+
+	public Audit[] getAudit() {
+		return audit;
 	}
 
-	public void setAudits(Audits[] audits) {
-		this.audits = audits;
+	public void setAudit(Audit[] audit) {
+		this.audit = audit;
 	}
 
 	public String getStatus() {
@@ -343,7 +343,7 @@ public class AdvertiserBean extends BasicDataBean {
 				+ company + ", contact=" + contact + ", phone=" + phone
 				+ ", qq=" + qq + ", industryId=" + industryId
 				+ ", industryName=" + industryName 
-				+ ", audits=" + Arrays.toString(audits) + ", brandName=" + brandName
+				+ ", audit=" + Arrays.toString(audit) + ", brandName=" + brandName
 				+ ", licenseNo=" + licenseNo + ", organizationNo="
 				+ organizationNo + ", logoPath=" + logoPath + ", icpPath="
 				+ icpPath + ", organizationPath=" + organizationPath
