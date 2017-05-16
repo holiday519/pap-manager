@@ -26,7 +26,7 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 活动id
 	 */
-	@Length(max = 37, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
+	@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
 	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_CAMPAIGNID)
 	private String campaignId;
 	/**
@@ -41,7 +41,7 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * 模版ID
 	 */
-	@Length(max = 37, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
+	@Length(max = 36, message = PhrasesConstant.CREATIVE_LENGTH_ERROR_CAMPAIGNID)
 	@NotNull(message = PhrasesConstant.CREATIVE_NOTNULL_TMPLID)
 	private String tmplId;
 	
@@ -62,6 +62,8 @@ public class CreativeBean extends BasicDataBean {
 	 * 创意的状态
 	 */
 	private String enable;
+	
+	private String materialPaths[];
 	
 	public String getId() {
 		return id;
@@ -157,6 +159,14 @@ public class CreativeBean extends BasicDataBean {
 
 	public void setEnable(String enable) {
 		this.enable = enable;
+	}
+	
+	public String[] getMaterialPaths() {
+		return materialPaths;
+	}
+
+	public void setMaterialPaths(String[] materialPaths) {
+		this.materialPaths = materialPaths;
 	}
 
 	@Override
