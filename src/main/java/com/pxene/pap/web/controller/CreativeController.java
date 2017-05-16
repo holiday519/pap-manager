@@ -275,7 +275,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creatives/synchronize",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
-	public void synchronizeCreatives(@RequestPart(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
+	public void synchronizeCreatives(@RequestParam(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
 		creativeService.synchronizeCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -288,7 +288,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creatives/audit",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
-	public void auditCreatives(@RequestPart(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
+	public void auditCreatives(@RequestParam(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
 		creativeService.auditCreative(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
