@@ -21,7 +21,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -273,9 +272,8 @@ public class LaunchService extends BaseService {
 		// 当前日期退后一秒钟的时间
 		Date end = DateUtils.changeDate(start, Calendar.SECOND, -1);
 		// 周日的零点
-		Calendar cal = Calendar.getInstance();
-		;
-		int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
+//		Calendar cal = Calendar.getInstance();
+//		int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
 
 		CampaignModelExample campaignExample = new CampaignModelExample();
 		Date current = new Date();
