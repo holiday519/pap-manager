@@ -45,10 +45,22 @@ import com.pxene.pap.exception.ThirdPartyAuditException;
  */
 @Service
 public class MomoAuditService extends AuditService {
-
+	
+    private static String UPLOAD_MODE;
+    private static String URL_PREFIX;
+	    
 	@Autowired
 	public MomoAuditService(Environment env) {
 		super(env);
+        UPLOAD_MODE = env.getProperty("pap.fileserver.mode", "local");
+        if ("local".equals(UPLOAD_MODE))
+        {
+        	URL_PREFIX = env.getProperty("pap.fileserver.local.url.prefix");
+        }
+        else
+        {
+        	URL_PREFIX = env.getProperty("pap.fileserver.remote.url.prefix");
+        }
 	}
 
 	/**
@@ -280,7 +292,7 @@ public class MomoAuditService extends AuditService {
 		//将图片信息放入到JsonObject对象中
         JsonObject obj = new JsonObject();
         //obj.addProperty("url", "http://www.immomo.com/static/w5/img/website/map.jpg");
-        obj.addProperty("url", env.getProperty("pap.fileserver.remote.url.prefix") + imageModel.getPath());
+        obj.addProperty("url", URL_PREFIX + imageModel.getPath());
         obj.addProperty("width", imageModel.getWidth());
         obj.addProperty("height", imageModel.getHeight());
         return obj;

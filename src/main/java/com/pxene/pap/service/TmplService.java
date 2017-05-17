@@ -158,8 +158,8 @@ public class TmplService extends BaseService {
 				    }
 				}
 				
-				if (!StringUtils.isEmpty(model.getImagelId())) {
-					ImageTmpl image = getImageTmplDetail(model.getImagelId());
+				if (!StringUtils.isEmpty(model.getImageId())) {
+					ImageTmpl image = getImageTmplDetail(model.getImageId());
 					if (image != null) {
 						videoTmpl.setImageTmpl(image);
 					}

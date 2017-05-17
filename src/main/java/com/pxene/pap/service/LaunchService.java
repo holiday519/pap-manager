@@ -272,9 +272,8 @@ public class LaunchService extends BaseService {
 		// 当前日期退后一秒钟的时间
 		Date end = DateUtils.changeDate(start, Calendar.SECOND, -1);
 		// 周日的零点
-		Calendar cal = Calendar.getInstance();
-		;
-		int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
+//		Calendar cal = Calendar.getInstance();
+//		int week = cal.get(Calendar.DAY_OF_WEEK) - 1;
 
 		CampaignModelExample campaignExample = new CampaignModelExample();
 		Date current = new Date();
@@ -372,23 +371,23 @@ public class LaunchService extends BaseService {
 		}
 
 		// 每周日零点再删除一次redis中过期的投放信息，防止每天零点删除遗漏
-		if (week == 0 && "00".equals(currentHour)) { // 0代表周日，6代表周六
-			// 查询redis中活动基本信息的keys
-			String[] strCampaignInfo = redisHelper.getKeys(RedisKeyConstant.CAMPAIGN_INFO + "*");
-			if (strCampaignInfo == null) {
-				throw new ServerFailureException(PhrasesConstant.REDIS_CAMPAIGNINFO_NULL);
-			}
-			for (String strCampaign : strCampaignInfo) {
-				String campaignid = strCampaign.substring(17); // 截取前缀，获取36位UUID
-				// 通过该id到数据库中查询相关的活动信息
-				CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(campaignid);
-				Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
-				if (end_date.before(current)) {
-					// 如果活动的结束时间在今天之前则将其投放的基本信息从redis中删除
-					remove4EndDate(oldCampaigns);
-				}
-			}
-		}
+//		if (week == 0 && "00".equals(currentHour)) { // 0代表周日，6代表周六
+//			// 查询redis中活动基本信息的keys
+//			String[] strCampaignInfo = redisHelper.getKeys(RedisKeyConstant.CAMPAIGN_INFO + "*");
+//			if (strCampaignInfo == null) {
+//				throw new ServerFailureException(PhrasesConstant.REDIS_CAMPAIGNINFO_NULL);
+//			}
+//			for (String strCampaign : strCampaignInfo) {
+//				String campaignid = strCampaign.substring(17); // 截取前缀，获取36位UUID
+//				// 通过该id到数据库中查询相关的活动信息
+//				CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(campaignid);
+//				Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
+//				if (end_date.before(current)) {
+//					// 如果活动的结束时间在今天之前则将其投放的基本信息从redis中删除
+//					remove4EndDate(oldCampaigns);
+//				}
+//			}
+//		}
 	}
 	
 	/*******************************************************************************************************/

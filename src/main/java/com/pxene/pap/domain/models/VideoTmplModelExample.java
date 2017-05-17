@@ -545,73 +545,73 @@ public class VideoTmplModelExample {
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdIsNull() {
-            addCriterion("imagel_id is null");
+        public Criteria andImageIdIsNull() {
+            addCriterion("image_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdIsNotNull() {
-            addCriterion("imagel_id is not null");
+        public Criteria andImageIdIsNotNull() {
+            addCriterion("image_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdEqualTo(String value) {
-            addCriterion("imagel_id =", value, "imagelId");
+        public Criteria andImageIdEqualTo(String value) {
+            addCriterion("image_id =", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdNotEqualTo(String value) {
-            addCriterion("imagel_id <>", value, "imagelId");
+        public Criteria andImageIdNotEqualTo(String value) {
+            addCriterion("image_id <>", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdGreaterThan(String value) {
-            addCriterion("imagel_id >", value, "imagelId");
+        public Criteria andImageIdGreaterThan(String value) {
+            addCriterion("image_id >", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdGreaterThanOrEqualTo(String value) {
-            addCriterion("imagel_id >=", value, "imagelId");
+        public Criteria andImageIdGreaterThanOrEqualTo(String value) {
+            addCriterion("image_id >=", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdLessThan(String value) {
-            addCriterion("imagel_id <", value, "imagelId");
+        public Criteria andImageIdLessThan(String value) {
+            addCriterion("image_id <", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdLessThanOrEqualTo(String value) {
-            addCriterion("imagel_id <=", value, "imagelId");
+        public Criteria andImageIdLessThanOrEqualTo(String value) {
+            addCriterion("image_id <=", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdLike(String value) {
-            addCriterion("imagel_id like", value, "imagelId");
+        public Criteria andImageIdLike(String value) {
+            addCriterion("image_id like", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdNotLike(String value) {
-            addCriterion("imagel_id not like", value, "imagelId");
+        public Criteria andImageIdNotLike(String value) {
+            addCriterion("image_id not like", value, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdIn(List<String> values) {
-            addCriterion("imagel_id in", values, "imagelId");
+        public Criteria andImageIdIn(List<String> values) {
+            addCriterion("image_id in", values, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdNotIn(List<String> values) {
-            addCriterion("imagel_id not in", values, "imagelId");
+        public Criteria andImageIdNotIn(List<String> values) {
+            addCriterion("image_id not in", values, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdBetween(String value1, String value2) {
-            addCriterion("imagel_id between", value1, value2, "imagelId");
+        public Criteria andImageIdBetween(String value1, String value2) {
+            addCriterion("image_id between", value1, value2, "imageId");
             return (Criteria) this;
         }
 
-        public Criteria andImagelIdNotBetween(String value1, String value2) {
-            addCriterion("imagel_id not between", value1, value2, "imagelId");
+        public Criteria andImageIdNotBetween(String value1, String value2) {
+            addCriterion("image_id not between", value1, value2, "imageId");
             return (Criteria) this;
         }
 

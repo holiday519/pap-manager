@@ -17,7 +17,7 @@ public class VideoTmplModel {
 
     private Integer minTimelength;
 
-    private String imagelId;
+    private String imageId;
 
     private Date createTime;
 
@@ -79,12 +79,12 @@ public class VideoTmplModel {
         this.minTimelength = minTimelength;
     }
 
-    public String getImagelId() {
-        return imagelId;
+    public String getImageId() {
+        return imageId;
     }
 
-    public void setImagelId(String imagelId) {
-        this.imagelId = imagelId == null ? null : imagelId.trim();
+    public void setImageId(String imageId) {
+        this.imageId = imageId == null ? null : imageId.trim();
     }
 
     public Date getCreateTime() {
@@ -116,7 +116,7 @@ public class VideoTmplModel {
         sb.append(", maxVolume=").append(maxVolume);
         sb.append(", maxTimelength=").append(maxTimelength);
         sb.append(", minTimelength=").append(minTimelength);
-        sb.append(", imagelId=").append(imagelId);
+        sb.append(", imageId=").append(imageId);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");
