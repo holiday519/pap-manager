@@ -1440,10 +1440,10 @@ public class DataService extends BaseService {
         int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
         
         // 获得第一行中共有多少个非空列
-        int phyNumOfCells = firstRow.getPhysicalNumberOfCells();
+        int phyNumOfCells = firstRow.getPhysicalNumberOfCells() - 2;
         
         // 获得第一行中第一个不为空的逻辑单元格（base 0），即，“指标”的第一列（最小为A1，最大为A10）
-        int firstCellIndex = firstRow.getFirstCellNum();
+        int firstCellIndex = 2;//firstRow.getFirstCellNum();
         
         // 获得第一行中最后一个不为空的逻辑单元格（base 1），即，“指标”的最后一列（最小为A1，最大为A10）
         int lastCellIndex = firstRow.getLastCellNum();
