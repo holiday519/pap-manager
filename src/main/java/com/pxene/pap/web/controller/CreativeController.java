@@ -234,7 +234,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/image/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateImageCreative(@PathVariable String id,@RequestBody ImageCreativeBean imageBean,HttpServletResponse response) throws Exception {
+	public void updateImageCreative(@PathVariable String id,@Valid @RequestBody ImageCreativeBean imageBean,HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, imageBean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -248,7 +248,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/video/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateVideoCreative(@PathVariable String id,@RequestBody VideoCreativeBean videoBean,HttpServletResponse response) throws Exception {
+	public void updateVideoCreative(@PathVariable String id,@Valid @RequestBody VideoCreativeBean videoBean,HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, videoBean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}

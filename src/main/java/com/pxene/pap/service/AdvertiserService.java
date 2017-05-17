@@ -233,17 +233,11 @@ public class AdvertiserService extends BaseService
 			}
 		}
 		
-		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除 
-		// FIXME 改成in的方式删除 -----OK			
+		// 删除广告主审核表信息，一个广告主可以有多条审核信息都删除 			
 		// 1.查询指定的多个广告主ID的审核信息是否存在
 		AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 		auditExample.createCriteria().andAdvertiserIdIn(Arrays.asList(ids));
-//		List<AdvertiserAuditModel> auditModels = advertiserAuditDao.selectByExample(auditExample);
-		// 2.判断审核信息是否存在
-//		if (auditModels == null || auditModels.size() < ids.length) {
-//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-//		}
-		// 3.删除广告主审核信息
+		// 2.删除广告主审核信息
 		advertiserAuditDao.deleteByExample(auditExample);
 		
 		advertiserDao.deleteByExample(advertiserModelExample);
@@ -352,7 +346,6 @@ public class AdvertiserService extends BaseService
 		Audit[] audits = new Audit[advertiserAudits.size()];
 		for (int i = 0; i < audits.length; i++) {
 			// adx的基本信息
-			// FIXME 修改Audits名称为Audit----OK
 			AdvertiserAuditModel advertiserAudiModel = advertiserAudits.get(i);
 			audits[i] = modelMapper.map(advertiserAudiModel, Audit.class);
 			// 获取adx的名称（从adx表中获得其名称）

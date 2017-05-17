@@ -1174,17 +1174,29 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void writeCreativeId(String campaignId) throws Exception {
-		// FIXME : 创意开关是开着、创意审核状态是通过
+		// FIXME : 创意开关是开着、创意审核状态是通过  --- OK
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+		// 活动下创意ID写入redis
 		JsonArray creativeIdJsons = new JsonArray();
 		JsonObject resultJson = new JsonObject();
 		if (creatives != null && !creatives.isEmpty()) {
+			// 如果创意信息不为空
 			for (CreativeModel creative : creatives) {
 				String creativeId = creative.getId();
-				creativeIdJsons.add(creativeId);
+				// 查询创意的审核信息
+				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
+				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId);
+				List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditExample);
+				// 获取创意的审核状态
+				String status = creativeAudit.get(0).getStatus();
+				// 创意开关是打开，并且创意审核通过
+				if (StatusConstant.CREATIVE_IS_ENABLE.equals(creative.getEnable()) 
+						&& StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status)) {
+					creativeIdJsons.add(creativeId);
+				}				
 			}
 		}
 		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出
@@ -1487,25 +1499,82 @@ public class LaunchService extends BaseService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void removeOneCreativeId(String campaignId,String creativeId) throws Exception {
+	public void removeOneCreativeId(String campaignId, String creativeId) throws Exception {
 		String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
-		// 将gson字符串转成JsonObject对象
-		JsonObject returnData = parser.parse(mapids).getAsJsonObject();
-		// 将data节点下的内容转为JsonArray
-		JsonArray jsonArray = returnData.getAsJsonArray("mapids");		
-		// 删除单个创意id
-		for (int i = 0; i < jsonArray.size(); i++) {
-			// 转换格式
-			JsonElement elementCreativeId = parser.parse(creativeId);
-			if (jsonArray.contains(elementCreativeId)) {
-				// 如果包含这个元素则将这个元素删除
-				jsonArray.remove(elementCreativeId);			
-			}			
+		if (mapids != null && !mapids.isEmpty()) {
+			// 将gson字符串转成JsonObject对象
+			JsonObject returnData = parser.parse(mapids).getAsJsonObject();
+			// 将data节点下的内容转为JsonArray
+			JsonArray jsonArray = returnData.getAsJsonArray("mapids");
+			// 删除单个创意id
+			for (int i = 0; i < jsonArray.size(); i++) {
+				// 转换格式
+				JsonElement elementCreativeId = parser.parse(creativeId);
+				if (jsonArray.contains(elementCreativeId)) {
+					// 如果包含这个元素则将这个元素删除
+					jsonArray.remove(elementCreativeId);
+				}
+			}
+			// 将删除后剩下的元素再放回redis中
+			JsonObject resultJson = new JsonObject();
+			resultJson.add("mapids", jsonArray);
+			// FIXME : 去掉上两行代码是否写回redis？write
+			redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
 		}
-		// 将删除后剩下的元素再放回redis中
-		JsonObject resultJson = new JsonObject();
-		resultJson.add("mapids", jsonArray);
-		// FIXME : 去掉上两行代码是否写回redis？
-		redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+	}
+	
+	/**
+	 * 向redis写入单个创意id（审核通过，则将创意id写入门到redis的mapids中）
+	 * @param campaignId 活动id
+	 * @param creativeId 创意id
+	 * @throws Exception
+	 */
+	public void writeOneCreativeId(String campaignId, String creativeId) throws Exception {
+		// 1.查询改创意的审核信息
+		CreativeAuditModelExample auditExample = new CreativeAuditModelExample();
+		auditExample.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(auditExample);
+		// 2.获取审核的状态
+		String auditStatus = creativeAudit.get(0).getStatus();
+		// 3.判断是否通过，通过则写入
+		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS)) {
+			String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+			if (mapids != null && !mapids.isEmpty()) {
+				// 判断redis的mapids中是否存在创意id，不存在则将其写入
+				// 1.将gson字符串转换成JsonObject对象
+				JsonObject mapidsObject = parser.parse(mapids).getAsJsonObject();
+				// 2.将mapidsObject节点下的内容转为JsonArray
+				JsonArray mapidsArray = mapidsObject.getAsJsonArray("mapids");
+				// 3.添加单个创意id
+				for (int i = 0; i < mapidsArray.size(); i++) {
+					// 转换格式
+					JsonElement elementCreativeId = parser.parse(creativeId);
+					if (!mapidsArray.contains(elementCreativeId)) {
+						// 如果不包含这个创意id，则将其添加
+						mapidsArray.add(creativeId);
+					}
+				}
+				// 将添加新创意id后的所有元素放回redis中
+				JsonObject resultJson = new JsonObject();
+				resultJson.add("mapids", mapidsArray);
+				redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+			}
+		}
+	}
+	
+	/**
+	 * 判断该创意ID是否存在回收数据
+	 * @param creativeId
+	 * @return
+	 * @throws Exception
+	 */
+	public Boolean isHaveCreativeInfo(String creativeId) throws Exception {
+		Boolean isHaveDataHour = redisHelper.exists("creativeDataHour_" + creativeId);
+		Boolean isHaveDataDay = redisHelper.exists("creativeDataDay" + creativeId);
+		if (isHaveDataHour && isHaveDataDay ) {
+			return true;	
+		} else {
+			return false;	
+		}	
 	}
 }
