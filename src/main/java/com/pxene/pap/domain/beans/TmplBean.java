@@ -13,6 +13,7 @@ public class TmplBean {
 		private Integer width;
 		private Integer height;
 		private String formats;
+		private String appId;
 		private String appName;
 
 		public String getId() {
@@ -65,7 +66,15 @@ public class TmplBean {
             this.appName = appName;
         }
 
-        @Override
+		public String getAppId() {
+			return appId;
+		}
+
+		public void setAppId(String appId) {
+			this.appId = appId;
+		}
+
+		@Override
         public String toString()
         {
             return "ImageTmpl [id=" + id + ", maxVolume=" + maxVolume + ", width=" + width + ", height=" + height + ", formats=" + formats + ", appName=" + appName + "]";
@@ -83,6 +92,7 @@ public class TmplBean {
 		private Integer height;
 		private ImageTmpl imageTmpl;
 		private String appName;
+		private String appId;
 
 		public String getId() {
 			return id;
@@ -142,7 +152,15 @@ public class TmplBean {
             this.appName = appName;
         }
 
-        @Override
+        public String getAppId() {
+			return appId;
+		}
+
+		public void setAppId(String appId) {
+			this.appId = appId;
+		}
+
+		@Override
         public String toString()
         {
             return "VideoTmpl [id=" + id + ", maxVolume=" + maxVolume + ", maxTimelength=" + maxTimelength + ", width=" + width + ", height=" + height + ", imageTmpl=" + imageTmpl + ", appName="
@@ -151,9 +169,9 @@ public class TmplBean {
 
 	}
 
-	private InfoTmpl[] infoTmpls;
+	private InfoflowTmpl[] infoflowTmpls;
 
-	public static class InfoTmpl {
+	public static class InfoflowTmpl {
 		private String id;
 		private Integer maxTitle;
 		private Integer maxDescription;
@@ -166,8 +184,9 @@ public class TmplBean {
 		private ImageTmpl image3;
 		private ImageTmpl image4;
 		private ImageTmpl image5;
-		private String isAppStar;
+//		private String isAppStar;
 		private String appName;
+		private String appId;
 
 		public String getId() {
 			return id;
@@ -265,13 +284,13 @@ public class TmplBean {
 			this.image5 = image5;
 		}
 
-		public String getIsAppStar() {
-			return isAppStar;
-		}
-
-		public void setIsAppStar(String isAppStar) {
-			this.isAppStar = isAppStar;
-		}
+//		public String getIsAppStar() {
+//			return isAppStar;
+//		}
+//
+//		public void setIsAppStar(String isAppStar) {
+//			this.isAppStar = isAppStar;
+//		}
 		
 		public String getAppName()
         {
@@ -283,12 +302,20 @@ public class TmplBean {
             this.appName = appName;
         }
 
-        @Override
+        public String getAppId() {
+			return appId;
+		}
+
+		public void setAppId(String appId) {
+			this.appId = appId;
+		}
+
+		@Override
         public String toString()
         {
             return "InfoTmpl [id=" + id + ", maxTitle=" + maxTitle + ", maxDescription=" + maxDescription + ", mustDescription=" + mustDescription + ", maxCtaDescription=" + maxCtaDescription
                     + ", mustCtaDescription=" + mustCtaDescription + ", icon=" + icon + ", image1=" + image1 + ", image2=" + image2 + ", image3=" + image3 + ", image4=" + image4 + ", image5=" + image5
-                    + ", isAppStar=" + isAppStar + ", appName=" + appName + "]";
+                    + ", appName=" + appName + "]";
         }
 
 	}
@@ -309,12 +336,12 @@ public class TmplBean {
 		this.videoTmpls = videoTmpls;
 	}
 
-	public InfoTmpl[] getInfoTmpls() {
-		return infoTmpls;
+	public InfoflowTmpl[] getInfoflowTmpls() {
+		return infoflowTmpls;
 	}
 
-	public void setInfoTmpls(InfoTmpl[] infoTmpls) {
-		this.infoTmpls = infoTmpls;
+	public void setInfoflowTmpls(InfoflowTmpl[] infoflowTmpls) {
+		this.infoflowTmpls = infoflowTmpls;
 	}
 
 }

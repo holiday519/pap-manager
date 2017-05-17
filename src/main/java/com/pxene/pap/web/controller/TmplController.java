@@ -18,7 +18,7 @@ import com.github.pagehelper.Page;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
-import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
+import com.pxene.pap.domain.beans.TmplBean.InfoflowTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.service.TmplService;
 
@@ -82,7 +82,7 @@ public class TmplController {
 		
 		Page<Object> pager = null;
 		
-		List<InfoTmpl> bean = tmplService.listInfoflowTmpls(campaignId, status);
+		List<InfoflowTmpl> bean = tmplService.listInfoflowTmpls(campaignId, status);
 		
 		PaginationBean result = new PaginationBean(bean, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -96,9 +96,10 @@ public class TmplController {
 	 */
     @RequestMapping(value = "/tmpl/image/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void getImageTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
+    public String getImageTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        
+        ImageTmpl imageTmpl = tmplService.getImageTmpl(id);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), imageTmpl, response);
     }
     
     /**
@@ -109,9 +110,10 @@ public class TmplController {
      */
     @RequestMapping(value = "/tmpl/video/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void getVideoTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
+    public String getVideoTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        
+    	VideoTmpl videoTmpl = tmplService.getVideoTmpl(id);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), videoTmpl, response);
     }
     
     /**
@@ -122,8 +124,9 @@ public class TmplController {
      */
     @RequestMapping(value = "/tmpl/infoflow/{id}", method = RequestMethod.DELETE)
     @ResponseBody
-    public void getInfoflowTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
+    public String getInfoflowTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        
+        InfoflowTmpl infoflowTmpl = tmplService.getInfoflowTmpl(id);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), infoflowTmpl, response);
     }
 }

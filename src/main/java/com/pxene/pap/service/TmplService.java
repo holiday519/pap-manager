@@ -3,13 +3,16 @@ package com.pxene.pap.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.TmplBean;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
-import com.pxene.pap.domain.beans.TmplBean.InfoTmpl;
+import com.pxene.pap.domain.beans.TmplBean.InfoflowTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppTargetModel;
@@ -63,6 +66,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<ImageTmpl> listImageTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
@@ -90,11 +94,8 @@ public class TmplService extends BaseService {
 					AppModel app = getAppById(appTmpl.getAppId());
 	                if (app != null)
 	                {
-	                    String appName = app.getAppName();
-	                    if (!StringUtils.isEmpty(appName))
-	                    {
-	                        imageTmpl.setAppName(appName);
-	                    }
+	                	imageTmpl.setAppId(app.getId());
+	                	imageTmpl.setAppName(app.getAppName());
 	                }
 					
 					if (StringUtils.isEmpty(status)) {
@@ -125,6 +126,7 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<VideoTmpl> listVideoTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
@@ -151,11 +153,8 @@ public class TmplService extends BaseService {
 				AppModel app = getAppById(appTmpl.getAppId());
 				if (app != null)
 				{
-				    String appName = app.getAppName();
-				    if (!StringUtils.isEmpty(appName))
-				    {
-				        videoTmpl.setAppName(appName);
-				    }
+					videoTmpl.setAppId(app.getId());
+					videoTmpl.setAppName(app.getAppName());
 				}
 				
 				if (!StringUtils.isEmpty(model.getImageId())) {
@@ -200,7 +199,8 @@ public class TmplService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<InfoTmpl> listInfoflowTmpls(String campaignId, String status) throws Exception {
+    @Transactional
+	public List<InfoflowTmpl> listInfoflowTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
 			throw new IllegalArgumentException();
 		}
@@ -208,9 +208,9 @@ public class TmplService extends BaseService {
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
 				
-		List<InfoTmpl> infoTmplList = new ArrayList<InfoTmpl>();
-		List<InfoTmpl> infoTmplListNotUse = new ArrayList<InfoTmpl>();
-		List<InfoTmpl> infoTmplListAll = new ArrayList<InfoTmpl>();
+		List<InfoflowTmpl> infoTmplList = new ArrayList<InfoflowTmpl>();
+		List<InfoflowTmpl> infoTmplListNotUse = new ArrayList<InfoflowTmpl>();
+		List<InfoflowTmpl> infoTmplListAll = new ArrayList<InfoflowTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
 		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_INFOFLOW);
@@ -222,52 +222,49 @@ public class TmplService extends BaseService {
 				String tmplId = appTmpl.getTmplId();
 				tmplIds.add(tmplId);
 				InfoflowTmplModel model = infoflowTmplDao.selectByPrimaryKey(tmplId);
-				InfoTmpl infoTmpl = modelMapper.map(model, InfoTmpl.class);
+				InfoflowTmpl infoflowTmpl = modelMapper.map(model, InfoflowTmpl.class);
 				
 				AppModel app = getAppById(appTmpl.getAppId());
                 if (app != null)
                 {
-                    String appName = app.getAppName();
-                    if (!StringUtils.isEmpty(appName))
-                    {
-                        infoTmpl.setAppName(appName);
-                    }
+                	infoflowTmpl.setAppId(app.getId());
+                	infoflowTmpl.setAppName(app.getAppName());
                 }
 				
 				// 小图信息
 				if (!StringUtils.isEmpty(model.getIconId())) {
 					ImageTmpl icon = getImageTmplDetail(model.getIconId());
-					infoTmpl.setIcon(icon);
+					infoflowTmpl.setIcon(icon);
 				}
 				ImageTmpl image = null;
 				// 大图信息（最多五个）
 				if (!StringUtils.isEmpty(model.getImage1Id())) {
 					image = getImageTmplDetail(model.getImage1Id());
-					infoTmpl.setImage1(image);
+					infoflowTmpl.setImage1(image);
 				}
 				if (!StringUtils.isEmpty(model.getImage2Id())) {
 					image = getImageTmplDetail(model.getImage2Id());
-					infoTmpl.setImage2(image);
+					infoflowTmpl.setImage2(image);
 				}
 				if (!StringUtils.isEmpty(model.getImage3Id())) {
 					image = getImageTmplDetail(model.getImage3Id());
-					infoTmpl.setImage3(image);
+					infoflowTmpl.setImage3(image);
 				}
 				if (!StringUtils.isEmpty(model.getImage4Id())) {
 					image = getImageTmplDetail(model.getImage4Id());
-					infoTmpl.setImage4(image);
+					infoflowTmpl.setImage4(image);
 				}
 				if (!StringUtils.isEmpty(model.getImage5Id())) {
 					image = getImageTmplDetail(model.getImage5Id());
-					infoTmpl.setImage5(image);
+					infoflowTmpl.setImage5(image);
 				}
 				if (StringUtils.isEmpty(status)) {
-					infoTmplListAll.add(infoTmpl);
+					infoTmplListAll.add(infoflowTmpl);
 				} else {
 					if (tmplIsUsed(campaignId, tmplId)) {
-						infoTmplList.add(infoTmpl);
+						infoTmplList.add(infoflowTmpl);
 					} else {
-						infoTmplListNotUse.add(infoTmpl);
+						infoTmplListNotUse.add(infoflowTmpl);
 					}
 				}
 			}
@@ -371,5 +368,61 @@ public class TmplService extends BaseService {
 			}
 		}
 		return appIds;
+	}
+	
+	@Transactional
+	public ImageTmpl getImageTmpl(String id) throws Exception {
+		ImageTmplModel imageTmplModel = imageTmplDao.selectByPrimaryKey(id);
+		return modelMapper.map(imageTmplModel, ImageTmpl.class);
+	}
+	
+	@Transactional
+	public VideoTmpl getVideoTmpl(String id) throws Exception {
+		VideoTmplModel videoTmplModel = videoTmplDao.selectByPrimaryKey(id);
+		VideoTmpl videoTmpl = modelMapper.map(videoTmplModel, VideoTmpl.class);
+		String imageTmplId = videoTmplModel.getImageId();
+		if (!StringUtils.isEmpty(imageTmplId)) {
+			ImageTmpl imageTmpl = getImageTmplDetail(imageTmplId);
+			videoTmpl.setImageTmpl(imageTmpl);
+		}
+		return videoTmpl;
+	}
+	
+	@Transactional
+	public InfoflowTmpl getInfoflowTmpl(String id) throws Exception {
+		InfoflowTmplModel infoflowTmplModel = infoflowTmplDao.selectByPrimaryKey(id);
+		InfoflowTmpl infoflowTmpl = modelMapper.map(infoflowTmplModel, InfoflowTmpl.class);
+		String iconTmplId = infoflowTmplModel.getIconId();
+		if (!StringUtils.isEmpty(iconTmplId)) {
+			ImageTmpl iconTmpl = getImageTmplDetail(iconTmplId);
+			infoflowTmpl.setIcon(iconTmpl);
+		}
+		String image1TmplId = infoflowTmplModel.getImage1Id();
+		if (!StringUtils.isEmpty(image1TmplId)) {
+			ImageTmpl image1Tmpl = getImageTmplDetail(image1TmplId);
+			infoflowTmpl.setImage1(image1Tmpl);
+		}
+		String image2TmplId = infoflowTmplModel.getImage2Id();
+		if (!StringUtils.isEmpty(image2TmplId)) {
+			ImageTmpl image2Tmpl = getImageTmplDetail(image2TmplId);
+			infoflowTmpl.setImage2(image2Tmpl);
+		}
+		String image3TmplId = infoflowTmplModel.getImage3Id();
+		if (!StringUtils.isEmpty(image3TmplId)) {
+			ImageTmpl image3Tmpl = getImageTmplDetail(image3TmplId);
+			infoflowTmpl.setImage3(image3Tmpl);
+		}
+		String image4TmplId = infoflowTmplModel.getImage1Id();
+		if (!StringUtils.isEmpty(image4TmplId)) {
+			ImageTmpl image4Tmpl = getImageTmplDetail(image4TmplId);
+			infoflowTmpl.setImage4(image4Tmpl);
+		}
+		String image5TmplId = infoflowTmplModel.getImage5Id();
+		if (!StringUtils.isEmpty(image5TmplId)) {
+			ImageTmpl image5Tmpl = getImageTmplDetail(image5TmplId);
+			infoflowTmpl.setImage5(image5Tmpl);
+		}
+		
+		return infoflowTmpl;
 	}
 }
