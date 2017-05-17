@@ -553,7 +553,7 @@ public class CreativeService extends BaseService {
 							
 							image.setAppId(appId);  
 							image.setAppName(appName); 
-							image.setEnable(creative.getEnable()); 
+							image.setEnable(creative.getEnable());
 							//查询投放数据
 							if (startDate != null && endDate != null) {
 								String creativeId = creative.getId();
@@ -677,6 +677,12 @@ public class CreativeService extends BaseService {
 					base.setAppName(appName);
 					String creativeType = creative.getType();
 					String[] materialPaths = null;
+					// 创意显示活动周期
+					CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
+					Date campaignStartDate = campaign.getStartDate();
+					Date campaignEndDate = campaign.getEndDate();
+					base.setStartDate(campaignStartDate);
+					base.setEndDate(campaignEndDate);
 					
 					if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 						ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
@@ -779,6 +785,7 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
+		
 		return result;
 	}
 	

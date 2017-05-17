@@ -25,6 +25,7 @@ import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
@@ -373,12 +374,18 @@ public class TmplService extends BaseService {
 	@Transactional
 	public ImageTmpl getImageTmpl(String id) throws Exception {
 		ImageTmplModel imageTmplModel = imageTmplDao.selectByPrimaryKey(id);
+		if (imageTmplModel == null) {
+			throw new ResourceNotFoundException();
+		}
 		return modelMapper.map(imageTmplModel, ImageTmpl.class);
 	}
 	
 	@Transactional
 	public VideoTmpl getVideoTmpl(String id) throws Exception {
 		VideoTmplModel videoTmplModel = videoTmplDao.selectByPrimaryKey(id);
+		if (videoTmplModel == null) {
+			throw new ResourceNotFoundException();
+		}
 		VideoTmpl videoTmpl = modelMapper.map(videoTmplModel, VideoTmpl.class);
 		String imageTmplId = videoTmplModel.getImageId();
 		if (!StringUtils.isEmpty(imageTmplId)) {
@@ -391,6 +398,9 @@ public class TmplService extends BaseService {
 	@Transactional
 	public InfoflowTmpl getInfoflowTmpl(String id) throws Exception {
 		InfoflowTmplModel infoflowTmplModel = infoflowTmplDao.selectByPrimaryKey(id);
+		if (infoflowTmplModel == null) {
+			throw new ResourceNotFoundException();
+		}
 		InfoflowTmpl infoflowTmpl = modelMapper.map(infoflowTmplModel, InfoflowTmpl.class);
 		String iconTmplId = infoflowTmplModel.getIconId();
 		if (!StringUtils.isEmpty(iconTmplId)) {

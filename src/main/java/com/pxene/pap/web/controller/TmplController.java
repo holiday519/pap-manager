@@ -94,7 +94,7 @@ public class TmplController {
 	 * @param response
 	 * @throws Exception
 	 */
-    @RequestMapping(value = "/tmpl/image/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/tmpl/image/{id}", method = RequestMethod.GET)
     @ResponseBody
     public String getImageTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
     {
@@ -108,7 +108,7 @@ public class TmplController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/tmpl/video/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/tmpl/video/{id}", method = RequestMethod.GET)
     @ResponseBody
     public String getVideoTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
     {
@@ -122,7 +122,7 @@ public class TmplController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/tmpl/infoflow/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/tmpl/infoflow/{id}", method = RequestMethod.GET)
     @ResponseBody
     public String getInfoflowTmpl(@PathVariable String id, HttpServletResponse response) throws Exception
     {

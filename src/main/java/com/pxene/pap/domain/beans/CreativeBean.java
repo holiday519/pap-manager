@@ -1,5 +1,7 @@
 package com.pxene.pap.domain.beans;
 
+import java.util.Date;
+
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -62,6 +64,10 @@ public class CreativeBean extends BasicDataBean {
 	 * 创意的状态
 	 */
 	private String enable;
+	
+	private Date startDate;
+	
+	private Date endDate;
 	
 	private String materialPaths[];
 	
@@ -167,6 +173,22 @@ public class CreativeBean extends BasicDataBean {
 
 	public void setMaterialPaths(String[] materialPaths) {
 		this.materialPaths = materialPaths;
+	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getEndDate() {
+		return endDate;
+	}
+
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 
 	@Override
