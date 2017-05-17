@@ -20,5 +20,4 @@ public class AdxKeyConstant {
 	
 	public static final String AUDIT_NAME_AUTOHOME = "pxene";
 	
-
 }

@@ -190,9 +190,9 @@ public class MomoAuditService extends AuditService {
         data.addProperty("sign", sign);
 		// 创意审核地址
         AdxModel momoAdx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
-		String cexamineurl = momoAdx.getCexamineUrl();
+		String auditUrl = momoAdx.getCreativeAuditUrl();
 		//提交陌陌审核并
-        String creativeAuditResult = HttpClientUtil.getInstance().sendHttpPostForm(cexamineurl, "data=" + data.toString());
+        String creativeAuditResult = HttpClientUtil.getInstance().sendHttpPostForm(auditUrl, "data=" + data.toString());
         //转换陌陌审核数据格式
         Gson gson = new Gson();
         JsonObject creativeAuditJson = gson.fromJson(creativeAuditResult, new JsonObject().getClass()); 
@@ -234,7 +234,7 @@ public class MomoAuditService extends AuditService {
 	public void synchronizeCreative(String creativeId) throws Exception{
 		//根据审核主查询adx信息，获取审核Url
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
-		String cexamineResultUrl = adxModel.getCexamineResultUrl();
+		String syncUrl = adxModel.getCreativeSyncUrl();
 		//私密key将dspid为一个值"pxene"
 		String dspid = AdxKeyConstant.AUDIT_NAME_MOMO;	
 		//设置同步方法参数
@@ -244,7 +244,7 @@ public class MomoAuditService extends AuditService {
 		jsonCreativeInfo.addProperty("dspid", dspid);
 		jsonCreativeInfo.add("crids", arrCreativeInfo);
 		//获取同步结果		
-		String synchronizeCreativeResult = HttpClientUtil.getInstance().sendHttpPostForm(cexamineResultUrl, "data=" + jsonCreativeInfo.toString());
+		String synchronizeCreativeResult = HttpClientUtil.getInstance().sendHttpPostForm(syncUrl, "data=" + jsonCreativeInfo.toString());
 		//转换数据格式
 		Gson gson = new Gson();
 		JsonObject jsonSynchronizeCreative = gson.fromJson(synchronizeCreativeResult, new JsonObject().getClass());
