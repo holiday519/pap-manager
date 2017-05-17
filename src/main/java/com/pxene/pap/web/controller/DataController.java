@@ -25,88 +25,88 @@ import com.pxene.pap.service.DataService;
 @Controller
 public class DataController
 {
-    @Autowired
-    private DataService dataService;
-    
-    @RequestMapping(value = "/data/times", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listTimes(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId, 
-    		@RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
-    {
-    	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getDataForTime(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
-    	PaginationBean result = new PaginationBean(Datas, pager);
-		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
+	@Autowired
+	private DataService dataService;
 
-    @RequestMapping(value = "/data/regions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listRegions(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
-    {
-    	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getDataForRegion(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
-    	PaginationBean result = new PaginationBean(Datas, pager);
+	@RequestMapping(value = "/data/times", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listTimes(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
+							@RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+	{
+		Page<Object> pager = null;
+		List<Map<String, Object>> Datas = dataService.getDataForTime(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/operators", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listOperators(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
-    {
-    	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getDataForOperator(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
-    	PaginationBean result = new PaginationBean(Datas, pager);
+	}
+
+	@RequestMapping(value = "/data/regions", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listRegions(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
+							  @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+	{
+		Page<Object> pager = null;
+		List<Map<String, Object>> Datas = dataService.getDataForRegion(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/networks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listNetworks(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
-    {
-    	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getDataForNetwork(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
-    	PaginationBean result = new PaginationBean(Datas, pager);
+	}
+
+	@RequestMapping(value = "/data/operators", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listOperators(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
+								@RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+	{
+		Page<Object> pager = null;
+		List<Map<String, Object>> Datas = dataService.getDataForOperator(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/systems", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listSystems(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
-            @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
-    {
-    	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getDataForSystem(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
-    	PaginationBean result = new PaginationBean(Datas, pager);
+	}
+
+	@RequestMapping(value = "/data/networks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listNetworks(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
+							   @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+	{
+		Page<Object> pager = null;
+		List<Map<String, Object>> Datas = dataService.getDataForNetwork(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
-    		@RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
-    {
+	}
+
+	@RequestMapping(value = "/data/systems", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listSystems(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId, @RequestParam(required = false) String campaignId,
+							  @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
+	{
+		Page<Object> pager = null;
+		List<Map<String, Object>> Datas = dataService.getDataForSystem(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		PaginationBean result = new PaginationBean(Datas, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+	}
+
+	@RequestMapping(value = "/data/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
+								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
+	{
 //		System.out.println("listAdvertisers----"+advertiserId+","+type+","+startDate+","+endDate);
 		Page<Object> pager = null;
 		List<Map<String, Object>> Datas;
 		if(advertiserId!=null) {
 			Datas = dataService.getAdvertiserDataByAdvertiserId(startDate, endDate, advertiserId, type);
 		}else{
-			//²éÑ¯È«²¿¿Í»§
+			//æŸ¥è¯¢å…¨éƒ¨å®¢æˆ·
 			Datas = dataService.getAllAdvertiserData(startDate, endDate, type);
 		}
-    	PaginationBean result = new PaginationBean(Datas, pager);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listProjects(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
-			@RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
-    		@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
-    {
+	}
+
+	@RequestMapping(value = "/data/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listProjects(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
+							   @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
+							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
+	{
 		System.out.println("listProjects["+advertiserId+","+projectId+","+type+","+startDate+","+endDate+"]");
 		Page<Object> pager = null;
 //    	if (pageNo != null && pageSize != null) {
@@ -114,81 +114,81 @@ public class DataController
 //		}
 		List<Map<String, Object>> Datas;
 		if(projectId!=null){
-			//Èç¹ûprojectId²»Îªnull£¬¸ù¾İprojectId²éÑ¯
+			//å¦‚æœprojectIdä¸ä¸ºnullï¼Œæ ¹æ®projectIdæŸ¥è¯¢
 			Datas = dataService.getProjectDataByProjectId(startDate, endDate, type, projectId);
 		}else if(projectId == null && advertiserId!=null){
-			//Èç¹ûprojectIdÎªnull,¸ù¾İ¿Í»§²éÑ¯
+			//å¦‚æœprojectIdä¸ºnull,æ ¹æ®å®¢æˆ·æŸ¥è¯¢
 			Datas = dataService.getProjectDataByAdvertiserId(startDate, endDate, type, advertiserId);
 		}else {
-			//²éÑ¯È«²¿¿Í»§µÄÏîÄ¿Êı¾İ
+			//æŸ¥è¯¢å…¨éƒ¨å®¢æˆ·çš„é¡¹ç›®æ•°æ®
 			Datas = dataService.getAllProjectData(startDate, endDate, type);
 		}
 
-    	PaginationBean result = new PaginationBean(Datas, pager);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listCampaigns(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
-    		@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
-    		@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
-    {
+	}
+
+	@RequestMapping(value = "/data/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listCampaigns(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
+								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
+	{
 		System.out.println("listCampaigns["+advertiserId+","+projectId+","+campaignId+","+type+","+startDate+","+endDate+"]");
-    	Page<Object> pager = null;
+		Page<Object> pager = null;
 		List<Map<String, Object>> Datas;
 		if(campaignId!=null) {
-			//²éÑ¯Ö¸¶¨»î¶¯µÄÊı¾İ
+			//æŸ¥è¯¢æŒ‡å®šæ´»åŠ¨çš„æ•°æ®
 			Datas = dataService.getCampaignDataByCampaignId(startDate, endDate, type, campaignId);
 		}else if(campaignId == null && projectId != null){
-			//²éÑ¯Ö¸¶¨ÏîÄ¿µÄÊı¾İ
+			//æŸ¥è¯¢æŒ‡å®šé¡¹ç›®çš„æ•°æ®
 			Datas = dataService.getCampaignDataByProjectId(startDate, endDate, type, projectId);
 		}else if(campaignId == null && projectId == null && advertiserId != null){
-			//²éÑ¯¿Í»§µÄÊı¾İ
+			//æŸ¥è¯¢å®¢æˆ·çš„æ•°æ®
 			Datas = dataService.getCampaignDataByAdvertiserId(startDate, endDate, type,advertiserId);
 		}else{
-			//²éÑ¯ËùÓĞ¿Í»§µÄÊı¾İ
+			//æŸ¥è¯¢æ‰€æœ‰å®¢æˆ·çš„æ•°æ®
 			Datas = dataService.getAllCampaignData(startDate, endDate, type);
 		}
-    	PaginationBean result = new PaginationBean(Datas, pager);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-    
-    @RequestMapping(value = "/data/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listCreatives(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
-			@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
-    		@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
-    {
+	}
+
+	@RequestMapping(value = "/data/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listCreatives(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
+								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
+	{
 		System.out.println("listCampaigns["+advertiserId+","+projectId+","+campaignId+","+type+","+startDate+","+endDate+"]");
-    	Page<Object> pager = null;
+		Page<Object> pager = null;
 		List<Map<String, Object>> Datas;
 		if(campaignId != null){
-			//²éÑ¯Ö¸¶¨»î¶¯µÄÊı¾İ
+			//æŸ¥è¯¢æŒ‡å®šæ´»åŠ¨çš„æ•°æ®
 			Datas = dataService.getCreativeDataByCampaignId(startDate, endDate, type, campaignId);
 		}else if(campaignId == null && projectId != null){
-			//²éÑ¯Ö¸¶¨ÏîÄ¿µÄÊı¾İ
+			//æŸ¥è¯¢æŒ‡å®šé¡¹ç›®çš„æ•°æ®
 			Datas = dataService.getCreativeDataByProjectId(startDate, endDate, type, projectId);
 		}else if(campaignId == null && projectId == null && advertiserId != null){
-			//²éÑ¯Ö¸¶¨ÓÃ»§µÄÊı¾İ
+			//æŸ¥è¯¢æŒ‡å®šç”¨æˆ·çš„æ•°æ®
 			Datas = dataService.getCreativeDataByAdvertiserId(startDate, endDate, type, advertiserId);
 		}else{
 			Datas = dataService.getAllCreativeData(startDate, endDate, type);
 		}
 
-    	PaginationBean result = new PaginationBean(Datas, pager);
+		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
+	}
 
 
 
 
-    @RequestMapping(value = "/data/action/import", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public void importEffect(@RequestPart(name = "file", required = true) MultipartFile file, @RequestPart(name = "projectId", required = true) String projectId, HttpServletResponse response) throws Exception
-    {
-        dataService.importEffect(file, projectId);
-        response.setStatus(HttpStatus.NO_CONTENT.value());
-    }
-    
+	@RequestMapping(value = "/data/action/import", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void importEffect(@RequestPart(name = "file", required = true) MultipartFile file, @RequestPart(name = "projectId", required = true) String projectId, HttpServletResponse response) throws Exception
+	{
+		dataService.importEffect(file, projectId);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+
 }
