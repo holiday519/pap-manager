@@ -7,6 +7,12 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import com.pxene.pap.common.ExcelUtil;
+import com.pxene.pap.domain.configs.ConmonConfigHelp;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFDataFormat;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 /*import org.apache.log4j.Logger;*/
 import org.slf4j.LoggerFactory;
@@ -85,10 +91,10 @@ public class ProjectService extends BaseService {
 	private LaunchService launchService;
 
     private RedisHelper redisHelper;
-	
-	
-	public ProjectService()
-    {
+
+    private String excelSavePath= ConmonConfigHelp.EXCEL_SAVEPATH;
+
+    public ProjectService(){
         redisHelper = RedisHelper.open("redis.primary.");
     }
 	
@@ -218,7 +224,7 @@ public class ProjectService extends BaseService {
 	
 	/**
 	 * 删除项目
-	 * @param projectId
+	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
@@ -256,7 +262,7 @@ public class ProjectService extends BaseService {
 	
 	/**
 	 * 批量删除项目
-	 * @param projectId
+	 * @param ids
 	 * @return
 	 * @throws Exception
 	 */
@@ -365,7 +371,6 @@ public class ProjectService extends BaseService {
     
     /**
      * 查询项目投放数据
-     * @param projectId
      * @param beginTime
      * @param endTime
      * @param bean
@@ -447,7 +452,7 @@ public class ProjectService extends BaseService {
     
 	/**
 	 * 按照项目投放（项目状态开启）
-	 * @param projectIds
+	 * @param project
 	 * @throws Exception
 	 */
 	@Transactional
@@ -488,7 +493,7 @@ public class ProjectService extends BaseService {
 	
 	/**
 	 * 按照项目暂停
-	 * @param projectIds
+	 * @param project
 	 * @throws Exception
 	 */
 	@Transactional
@@ -636,6 +641,60 @@ public class ProjectService extends BaseService {
         EffectDicModelExample example = new EffectDicModelExample();
         example.createCriteria().andProjectIdIn(projectIds);
         effectDicDao.deleteByExample(example);
+    }
+
+    /**
+     * 创建评分转化模板
+     * @param fileName 文件名（excel后缀必须是xls,可不加;如果不加，程序会自动加上）
+     * @param headerColumns 表头
+     * @param secondHeaderColums 第二列表头
+     * @return
+     */
+    public  boolean createTransformExcel(String fileName,String[] headerColumns,String[] secondHeaderColums){
+
+        //判断文件名后缀，如果不是.xls结尾，自动加上
+        if(!fileName.endsWith(".xls")){
+            fileName = fileName+".xls";
+        }
+        ExcelUtil<String> excelUtil = new ExcelUtil<String>();
+
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //在webbook中添加一个sheet,对应Excel文件中的sheet
+        String name = "sheet0";
+        HSSFSheet sheet = workbook.createSheet(name);
+
+        //日期这列，日期格式为yyyy/mm/dd
+        excelUtil.setColumStyleForDate(workbook,sheet,0,"2012/3/14");
+        //将检测码这列设置为文本格式
+        excelUtil.setColumStyleForText(workbook,sheet,1);
+
+        String[] fisrtHeaders =new String[headerColumns.length+2];
+        fisrtHeaders[0]="_#_3000";
+        fisrtHeaders[1]="_#_3000";
+        String[] sendHeaders =new String[secondHeaderColums.length+2];
+        sendHeaders[0]= "日期";
+        sendHeaders[1]= "检测码";
+
+        for(int i = 0;i<headerColumns.length;i++){
+            String columm=headerColumns[i];
+            if(!columm.contains("_#_")){
+                columm=columm+"_#_3000";
+            }
+            fisrtHeaders[i+2]=columm;
+        }
+        for(int i = 0;i<secondHeaderColums.length;i++){
+            sendHeaders[i+2]=secondHeaderColums[i];
+        }
+
+        //设置表头
+        excelUtil.generateHeader(workbook,sheet,fisrtHeaders);
+        //设置第二列表头
+        excelUtil.setCoumlns(workbook,sheet,1,sendHeaders);
+
+        //保存excel
+        boolean res = excelUtil.writeExcelTolocal(workbook,excelSavePath,fileName);
+
+        return res;
     }
 	
 }

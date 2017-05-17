@@ -85,55 +85,104 @@ public class DataController
     
     @RequestMapping(value = "/data/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listAdvertisers(@RequestParam(required = true) String id, @RequestParam(required = true) Long startDate, 
-    		@RequestParam(required = true) Long endDate, @RequestParam(required = false) Integer pageSize, 
-    		@RequestParam(required = false) Integer pageNo, HttpServletResponse response) throws Exception
+    public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
+    		@RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
     {
-    	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getAdvertiserData(startDate, endDate, id);
+//		System.out.println("listAdvertisers----"+advertiserId+","+type+","+startDate+","+endDate);
+		Page<Object> pager = null;
+		List<Map<String, Object>> Datas;
+		if(advertiserId!=null) {
+			Datas = dataService.getAdvertiserDataByAdvertiserId(startDate, endDate, advertiserId, type);
+		}else{
+			//查询全部客户
+			Datas = dataService.getAllAdvertiserData(startDate, endDate, type);
+		}
     	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @RequestMapping(value = "/data/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listProjects(@RequestParam(required = true) String id, @RequestParam(required = true) Long startDate, 
-    		@RequestParam(required = true) Long endDate, @RequestParam(required = false) Integer pageSize, 
-    		@RequestParam(required = false) Integer pageNo, HttpServletResponse response) throws Exception
+    public String listProjects(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
+			@RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
+    		@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
     {
-    	Page<Object> pager = null;
-    	if (pageNo != null && pageSize != null) {
-			pager = PageHelper.startPage(pageNo, pageSize);
+		System.out.println("listProjects["+advertiserId+","+projectId+","+type+","+startDate+","+endDate+"]");
+		Page<Object> pager = null;
+//    	if (pageNo != null && pageSize != null) {
+//			pager = PageHelper.startPage(pageNo, pageSize);
+//		}
+		List<Map<String, Object>> Datas;
+		if(projectId!=null){
+			//如果projectId不为null，根据projectId查询
+			Datas = dataService.getProjectDataByProjectId(startDate, endDate, type, projectId);
+		}else if(projectId == null && advertiserId!=null){
+			//如果projectId为null,根据客户查询
+			Datas = dataService.getProjectDataByAdvertiserId(startDate, endDate, type, advertiserId);
+		}else {
+			//查询全部客户的项目数据
+			Datas = dataService.getAllProjectData(startDate, endDate, type);
 		}
-    	List<Map<String, Object>> Datas = dataService.getProjectData(startDate, endDate, id);
+
     	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @RequestMapping(value = "/data/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listCampaigns(@RequestParam(required = true) String id, @RequestParam(required = true) Long startDate, 
-    		@RequestParam(required = true) Long endDate, @RequestParam(required = false) Integer pageSize, 
-    		@RequestParam(required = false) Integer pageNo, HttpServletResponse response) throws Exception
+    public String listCampaigns(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
+    		@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+    		@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
     {
+		System.out.println("listCampaigns["+advertiserId+","+projectId+","+campaignId+","+type+","+startDate+","+endDate+"]");
     	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getCampaignData(startDate, endDate, id);
+		List<Map<String, Object>> Datas;
+		if(campaignId!=null) {
+			//查询指定活动的数据
+			Datas = dataService.getCampaignDataByCampaignId(startDate, endDate, type, campaignId);
+		}else if(campaignId == null && projectId != null){
+			//查询指定项目的数据
+			Datas = dataService.getCampaignDataByProjectId(startDate, endDate, type, projectId);
+		}else if(campaignId == null && projectId == null && advertiserId != null){
+			//查询客户的数据
+			Datas = dataService.getCampaignDataByAdvertiserId(startDate, endDate, type,advertiserId);
+		}else{
+			//查询所有客户的数据
+			Datas = dataService.getAllCampaignData(startDate, endDate, type);
+		}
     	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
     
     @RequestMapping(value = "/data/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listCreatives(@RequestParam(required = true) String id, @RequestParam(required = true) Long startDate, 
-    		@RequestParam(required = true) Long endDate, @RequestParam(required = false) Integer pageSize, 
-    		@RequestParam(required = false) Integer pageNo, HttpServletResponse response) throws Exception
+    public String listCreatives(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
+			@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+    		@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
     {
+		System.out.println("listCampaigns["+advertiserId+","+projectId+","+campaignId+","+type+","+startDate+","+endDate+"]");
     	Page<Object> pager = null;
-    	List<Map<String, Object>> Datas = dataService.getCreativeData(startDate, endDate, id);
+		List<Map<String, Object>> Datas;
+		if(campaignId != null){
+			//查询指定活动的数据
+			Datas = dataService.getCreativeDataByCampaignId(startDate, endDate, type, campaignId);
+		}else if(campaignId == null && projectId != null){
+			//查询指定项目的数据
+			Datas = dataService.getCreativeDataByProjectId(startDate, endDate, type, projectId);
+		}else if(campaignId == null && projectId == null && advertiserId != null){
+			//查询指定用户的数据
+			Datas = dataService.getCreativeDataByAdvertiserId(startDate, endDate, type, advertiserId);
+		}else{
+			Datas = dataService.getAllCreativeData(startDate, endDate, type);
+		}
+
     	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
-    
+
+
+
+
     @RequestMapping(value = "/data/action/import", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void importEffect(@RequestPart(name = "file", required = true) MultipartFile file, @RequestPart(name = "projectId", required = true) String projectId, HttpServletResponse response) throws Exception

@@ -123,7 +123,16 @@ public class StatusConstant {
 	 * 转义字段状态：禁用
 	 */
 	public static final String EFFECT_STATUS_DISABLE = "02";  
-	
+
+	/**
+	 * 汇总方式：合计
+     */
+	public static final String SUMMARYWAY_TOTAL = "01";
+	/**
+	 * 汇总方式：分日
+     */
+	public static final String SUMMARYWAY_DAY = "02";
+
 	/**
 	 * 活动未正常投放原因：项目预算达到上限
 	 */

@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,6 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.pxene.pap.common.ExcelUtil;
+import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.TrafficData;
+import com.pxene.pap.domain.models.*;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -24,6 +31,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -211,8 +219,8 @@ public class DataService extends BaseService {
 	/**
 	 * 取天数据(其他数据查询用)
 	 * @param creativeIds
-	 * @param daysList
-	 * @param bean
+	 * @param startDate
+	 * @param endDate
 	 * @return 
 	 * @throws Exception
 	 */
@@ -447,7 +455,6 @@ public class DataService extends BaseService {
 	 * @param creativeIds
 	 * @param startDate
 	 * @param endDate
-	 * @param bean
 	 * @throws Exception
 	 */
 	private List<Map<String, Object>> getDatafromHourTableForTime(List<String> creativeIds, Date startDate, Date endDate) throws Exception {
@@ -673,27 +680,183 @@ public class DataService extends BaseService {
 
 		return result;
 	}
-	
-	public List<Map<String, Object>> getAdvertiserData(Long startDate, Long endDate, String id) throws Exception {
+
+	/**
+	 * 列出广告主数据--根据客户查
+	 * @param startDate
+	 * @param endDate
+	 * @param advertiserId
+	 * @param type
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getAdvertiserDataByAdvertiserId(Long startDate, Long endDate, String advertiserId,String type) throws Exception {
 		// 获取所有天
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
-		List<String> creativeIds = getCreativeIdListByAdvertiserId(id);
+		List<String> creativeIds = getCreativeIdListByAdvertiserId(advertiserId);
+		if(creativeIds == null){
+			return null;
+		}
+
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 		
-		//查询名称
-		String name = null;
-		AdvertiserModel model = advertiserDao.selectByPrimaryKey(id);
+		//查询客户名称
+		AdvertiserModel model = advertiserDao.selectByPrimaryKey(advertiserId);
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		name = model.getName();
+
+		String name = model.getName();
+
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+			List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,name);
+			results.addAll(result);
+		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+//			for (String day : days) {
+//				Date time = DateUtils.strToDate(day, "yyyyMMdd");
+//				Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+//				Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+//				BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
+//
+//				Map<String, Object> result = new HashMap<String, Object>();
+//				if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+//						&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+//					continue;
+//				} else {
+//					result.put("impressionAmount", bean.getImpressionAmount());
+//					result.put("clickAmount", bean.getClickAmount());
+//					result.put("jumpAmount", bean.getJumpAmount());
+//					result.put("clickRate", bean.getClickRate());
+//					result.put("totalCost", bean.getTotalCost());
+//					result.put("impressionCost", bean.getImpressionCost());
+//					result.put("clickCost", bean.getClickCost());
+//					result.put("jumpCost", bean.getJumpCost());
+//
+//					result.put("date", day);
+//					result.put("name", name);
+//
+//					results.add(result);
+//				}
+//			}
+			List<Map<String,Object>>result = getFlowData_Day(days, creativeIds, name);
+			results.addAll(result);
+		}
+
 		
+		return results;
+	}
+
+	/**
+	 * 按客户汇总客户数据（点击，展现等）
+	 * @param days 日期
+	 * @param creativeIds 创意id集合
+	 * @param advertiserName 客户名称
+	 * @return
+     * @throws Exception
+     */
+//	public Map<String, Object> getAdvertiserData_total(String[] days,List<String> creativeIds,String advertiserName) throws Exception{
+//		BasicDataBean basicData = new BasicDataBean();
+//		long impressionAmountTotal = 0L;
+//		long clickAmountTotal = 0L;
+//		long jumpAmountTotal = 0L;
+//		Float totalCost = 0F;
+//
+//		for (String day : days) {
+//			Date time = DateUtils.strToDate(day, "yyyyMMdd");
+//			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+//			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+//			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
+//
+//			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+//					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+//				continue;
+//			} else {
+//				impressionAmountTotal += bean.getImpressionAmount();
+//				clickAmountTotal += bean.getClickAmount();
+//				jumpAmountTotal += bean.getJumpAmount();
+//				totalCost += bean.getTotalCost();
+//
+//			}
+//		}
+//		basicData.setImpressionAmount(impressionAmountTotal);
+//		basicData.setClickAmount(clickAmountTotal);
+//		basicData.setJumpAmount(jumpAmountTotal);
+//		basicData.setTotalCost(totalCost);
+//
+//		formatBeanRate(basicData);
+//
+//		Map<String, Object> result = new HashMap<String, Object>();
+//		result.put("impressionAmount", basicData.getImpressionAmount());
+//		result.put("clickAmount", basicData.getClickAmount());
+//		result.put("jumpAmount", basicData.getJumpAmount());
+//		result.put("clickRate", basicData.getClickRate());
+//		result.put("totalCost", basicData.getTotalCost());
+//		result.put("impressionCost", basicData.getImpressionCost());
+//		result.put("clickCost", basicData.getClickCost());
+//		result.put("jumpCost", basicData.getJumpCost());
+//		result.put("name", advertiserName);
+//		return result;
+//	}
+
+	/**
+	 * 获取流量数据--汇总方式：合计
+	 * @param startDate
+	 * @param endDate
+	 * @param creativeIds
+	 * @param advertiserName
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getFlowData_total(Long startDate,Long endDate,List<String> creativeIds,String advertiserName) throws Exception{
+
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		Date startTime = sdf.parse(sdf.format(startDate));
+		Date endTime = sdf.parse(sdf.format(endDate));
+		Date smallHourOfDay = DateUtils.getSmallHourOfDay(startTime);
+		Date bigHourOfDay = DateUtils.getBigHourOfDay(endTime);
+		BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (bean!=null) {
+			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+				return null;
+			} else {
+				result.put("impressionAmount", bean.getImpressionAmount());
+				result.put("clickAmount", bean.getClickAmount());
+				result.put("jumpAmount", bean.getJumpAmount());
+				result.put("clickRate", bean.getClickRate());
+				result.put("totalCost", bean.getTotalCost());
+				result.put("impressionCost", bean.getImpressionCost());
+				result.put("clickCost", bean.getClickCost());
+				result.put("jumpCost", bean.getJumpCost());
+				result.put("name", advertiserName);
+
+				results.add(result);
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * 按天获取客户数据（点击展现等）
+	 * @param days
+	 * @param creativeIds
+	 * @param advertiserName
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getFlowData_Day(String[] days,List<String> creativeIds,String advertiserName) throws Exception{
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+
 		for (String day : days) {
 			Date time = DateUtils.strToDate(day, "yyyyMMdd");
 			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
 			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
 			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
-			
+
 			Map<String, Object> result = new HashMap<String, Object>();
 			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
 					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
@@ -707,149 +870,459 @@ public class DataService extends BaseService {
 				result.put("impressionCost", bean.getImpressionCost());
 				result.put("clickCost", bean.getClickCost());
 				result.put("jumpCost", bean.getJumpCost());
-				
+
 				result.put("date", day);
-				result.put("name", name);
-				
+				result.put("name", advertiserName);
+
 				results.add(result);
 			}
 		}
-		
 		return results;
 	}
-	
-	public List<Map<String, Object>> getProjectData(Long startDate, Long endDate, String id) throws Exception {
+
+	/**
+	 * 列出广告主数据--获取所有客户的数据
+	 * @param startDate 开始日期
+	 * @param endDate 结束日期
+	 * @param type 汇总方式
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getAllAdvertiserData(Long startDate, Long endDate,String type) throws Exception {
+		//获取所有客户信息
+		List<AdvertiserModel> advertiserList =advertiserDao.selectByExample(null);
+		if(advertiserList == null){
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		Map<AdvertiserModel,List<String>> advertiser_creative = new HashMap<>();
+		//循环获取每个用户的活动ID
+		for(AdvertiserModel advertiser: advertiserList){
+			List<String> creativeIds = getCreativeIdListByAdvertiserId(advertiser.getId());
+			if(creativeIds != null && creativeIds.size()>0) {
+				advertiser_creative.put(advertiser, creativeIds);
+			}
+		}
+
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总方式
+			//按代理人汇总
+			for(AdvertiserModel ad: advertiser_creative.keySet()) {
+				List<String> creativeIds = advertiser_creative.get(ad);
+				List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,ad.getName());
+				if(result != null) {
+					results.addAll(result);
+				}
+			}
+		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			// 获取所有天
+			String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+			//按代理人,按天
+			for(AdvertiserModel ad: advertiser_creative.keySet()) {
+				List<String> creativeIds = advertiser_creative.get(ad);
+				List<Map<String,Object>>result = getFlowData_Day(days, creativeIds, ad.getName());
+				if(result != null) {
+					results.addAll(result);
+				}
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * 列出项目数据--通过项目id获取项目数据
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param projectId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getProjectDataByProjectId(Long startDate, Long endDate,String type, String projectId) throws Exception {
 		// 获取所有天
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
-		List<String> creativeIds = getCreativeIdListByProjectId(id);
-		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-		
-		//查询名称
-		String name = null;
-		ProjectModel model = projectDao.selectByPrimaryKey(id);
+		List<String> creativeIds = getCreativeIdListByProjectId(projectId);
+		List<Map<String, Object>> results = null;
+		if(creativeIds == null){
+			return null;
+		}
+		//查询项目名称
+		ProjectModel model = projectDao.selectByPrimaryKey(projectId);
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		name = model.getName();
-		
-		for (String day : days) {
-			Date time = DateUtils.strToDate(day, "yyyyMMdd");
-			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
-			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());;
-			Map<String, Object> result = new HashMap<String, Object>();
-			
-			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
-					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
-				continue;
-			} else {
-				result.put("impressionAmount", bean.getImpressionAmount());
-				result.put("clickAmount", bean.getClickAmount());
-				result.put("jumpAmount", bean.getJumpAmount());
-				result.put("clickRate", bean.getClickRate());
-				result.put("totalCost", bean.getTotalCost());
-				result.put("impressionCost", bean.getImpressionCost());
-				result.put("clickCost", bean.getClickCost());
-				result.put("jumpCost", bean.getJumpCost());
-				
-				result.put("date", day);
-				result.put("name", name);
-				results.add(result);
-			}
-			
+		String name = model.getName();
+
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+			results = getFlowData_total(startDate,endDate,creativeIds,name);
+
+		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			results = getFlowData_Day(days,creativeIds,name);
 		}
-		
+
 		return results;
 	}
-	
-	public List<Map<String, Object>> getCampaignData(Long startDate, Long endDate, String id) throws Exception {
+
+	/**
+	 * 列出项目数据--根据客户汇总
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param advertiserId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getProjectDataByAdvertiserId(Long startDate, Long endDate,String type, String advertiserId) throws Exception {
+		//根据客户id获取下面的projectid
+		ProjectModelExample example = new ProjectModelExample();
+		example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		List<ProjectModel> projectList = projectDao.selectByExample(example);
+		if(projectList == null){
+			return  null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环项目id,按项目id汇总
+		for(ProjectModel projectModel: projectList){
+			List<Map<String, Object>> result = getProjectDataByProjectId(startDate,endDate,type,projectModel.getId());
+			if(result !=null) {
+				results.addAll(result);
+			}
+		}
+
+		return results;
+	}
+
+
+	/**
+	 * 列出项目数据--获取所有用户的所有项目数据
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getAllProjectData(Long startDate, Long endDate,String type) throws Exception {
+		//获取所有客户信息
+		List<AdvertiserModel> advertiserList =advertiserDao.selectByExample(null);
+		if(advertiserList == null){
+			return null;
+		}
+
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环客户信息，按项目汇总数据
+		for(AdvertiserModel advertiserModel: advertiserList){
+			List<Map<String, Object>> result = getProjectDataByAdvertiserId(startDate,endDate,type,advertiserModel.getId());
+			if(result != null) {
+				results.addAll(result);
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * 列出活动数据--根据活动id
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param campaignId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCampaignDataByCampaignId(Long startDate, Long endDate, String type, String campaignId) throws Exception {
 		// 获取所有天
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
-		List<String> creativeIds = getCreativeIdListByCampaignId(id);
+		//获取活动下的创意ID
+		List<String> creativeIds = getCreativeIdListByCampaignId(campaignId);
+		if(creativeIds == null){
+			return null;
+		}
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-		//查询名称
-		String name = null;
-		CampaignModel model = campaignDao.selectByPrimaryKey(id);
+		//查询活动名称
+		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		name = model.getName();
-		
-		for (String day : days) {
-			Date time = DateUtils.strToDate(day, "yyyyMMdd");
-			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
-			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
-			Map<String, Object> result = new HashMap<String, Object>();
-			
-			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
-					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
-				continue;
-			} else {
-				result.put("impressionAmount", bean.getImpressionAmount());
-				result.put("clickAmount", bean.getClickAmount());
-				result.put("jumpAmount", bean.getJumpAmount());
-				result.put("clickRate", bean.getClickRate());
-				result.put("totalCost", bean.getTotalCost());
-				result.put("impressionCost", bean.getImpressionCost());
-				result.put("clickCost", bean.getClickCost());
-				result.put("jumpCost", bean.getJumpCost());
-				
-				result.put("date", day);
-				result.put("name", name);
-				
-				results.add(result);
-			}
+		String name = model.getName();
+
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+			results = getFlowData_total(startDate,endDate,creativeIds,name);
+
+		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			results = getFlowData_Day(days,creativeIds,name);
 		}
-		
+
 		return results;
 	}
-	
-	public List<Map<String, Object>> getCreativeData(Long startDate, Long endDate, String id) throws Exception {
+
+	/**
+	 * 列出活动数据--根据项目id查询
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param projectId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCampaignDataByProjectId(Long startDate, Long endDate,String type, String projectId) throws Exception {
+		List<String> campaignIds = findCampaignIdListByProjectId(projectId);
+		if(campaignIds == null) {
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环活动id,根据活动汇总数据
+		for(String campaignId : campaignIds){
+			List<Map<String, Object>> result = getCampaignDataByCampaignId(startDate,endDate,type,campaignId);
+			if(result != null){
+				results.addAll(result);
+			}
+
+		}
+
+		return results;
+	}
+
+	/**
+	 * 列出活动数据--根据客户id查询
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param advertiserId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCampaignDataByAdvertiserId(Long startDate, Long endDate,String type, String advertiserId) throws Exception {
+		//根据客户id获取下面的projectid
+		ProjectModelExample example = new ProjectModelExample();
+		example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		List<ProjectModel> projectList = projectDao.selectByExample(example);
+		if(projectList == null){
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环项目信息，根据项目查
+		for(ProjectModel projectModel: projectList){
+			List<Map<String, Object>> result = getCampaignDataByProjectId(startDate,endDate,type,projectModel.getId());
+			if(result != null) {
+				results.addAll(result);
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * 列出活动数据--查询所有用户的所有活动数据
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getAllCampaignData (Long startDate, Long endDate,String type) throws Exception {
+		//获取所有客户信息
+		List<AdvertiserModel> advertiserList =advertiserDao.selectByExample(null);
+		if(advertiserList == null){
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环客户信息，按活动汇总数据
+		for(AdvertiserModel advertiserModel: advertiserList){
+			List<Map<String, Object>> result = getCampaignDataByAdvertiserId(startDate,endDate,type,advertiserModel.getId());
+			if(result !=null) {
+				results.addAll(result);
+			}
+		}
+
+		return results;
+	}
+
+
+//	public List<Map<String, Object>> getCreativeData(Long startDate, Long endDate, String id) throws Exception {
+//		// 获取所有天
+//		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+//		List<String> creativeIds = new ArrayList<String>();
+//		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+//		creativeIds.add(id);
+//
+//		//查询名称
+//		String name = null;
+//		CreativeModel model = creativeDao.selectByPrimaryKey(id);
+//		if (model == null) {
+//			throw new ResourceNotFoundException();
+//		}
+//		name = model.getName();
+//
+//		for (String day : days) {
+//			Date time = DateUtils.strToDate(day, "yyyyMMdd");
+//			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
+//			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
+//			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
+//			Map<String, Object> result = new HashMap<String, Object>();
+//
+//			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
+//					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
+//				continue;
+//			} else {
+//				result.put("impressionAmount", bean.getImpressionAmount());
+//				result.put("clickAmount", bean.getClickAmount());
+//				result.put("jumpAmount", bean.getJumpAmount());
+//				result.put("clickRate", bean.getClickRate());
+//				result.put("totalCost", bean.getTotalCost());
+//				result.put("impressionCost", bean.getImpressionCost());
+//				result.put("clickCost", bean.getClickCost());
+//				result.put("jumpCost", bean.getJumpCost());
+//
+//				result.put("date", day);
+//				result.put("name", name);
+//
+//				results.add(result);
+//			}
+//		}
+//
+//		return results;
+//	}
+
+	/**
+	 * 列出创意数据--根据创意ID查
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param creativeId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCreativeDataByCreativeId(Long startDate, Long endDate,String type, String creativeId) throws Exception {
 		// 获取所有天
 		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 		List<String> creativeIds = new ArrayList<String>();
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-		creativeIds.add(id);
-		
-		//查询名称
-		String name = null;
-		CreativeModel model = creativeDao.selectByPrimaryKey(id);
+		creativeIds.add(creativeId);
+
+		//查询创意名称
+		CreativeModel model = creativeDao.selectByPrimaryKey(creativeId);
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		name = model.getName();
-		
-		for (String day : days) {
-			Date time = DateUtils.strToDate(day, "yyyyMMdd");
-			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
-			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
-			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
-			Map<String, Object> result = new HashMap<String, Object>();
-			
-			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
-					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
-				continue;
-			} else {
-				result.put("impressionAmount", bean.getImpressionAmount());
-				result.put("clickAmount", bean.getClickAmount());
-				result.put("jumpAmount", bean.getJumpAmount());
-				result.put("clickRate", bean.getClickRate());
-				result.put("totalCost", bean.getTotalCost());
-				result.put("impressionCost", bean.getImpressionCost());
-				result.put("clickCost", bean.getClickCost());
-				result.put("jumpCost", bean.getJumpCost());
-				
-				result.put("date", day);
-				result.put("name", name);
-				
-				results.add(result);
-			}
+		String name = model.getName();
+
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+			results = getFlowData_total(startDate,endDate,creativeIds,name);
+
+		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			results = getFlowData_Day(days,creativeIds,name);
 		}
-		
+
 		return results;
 	}
-	
+
+	/**
+	 * 列出创意数据--根据活动查
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param campaignId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCreativeDataByCampaignId(Long startDate, Long endDate,String type, String campaignId) throws Exception {
+		//获取活动下的创意ID
+		List<String> creativeIds = getCreativeIdListByCampaignId(campaignId);
+		if(creativeIds == null){
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+
+		for(String creativeId : creativeIds){
+			List<Map<String, Object>> result = getCreativeDataByCreativeId(startDate,endDate,type,creativeId);
+			if(result != null){
+				results.addAll(result);
+			}
+		}
+		return results;
+	}
+
+	/**
+	 * 列出创意数据--根据项目查
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param projectId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCreativeDataByProjectId(Long startDate, Long endDate,String type, String projectId) throws Exception {
+		List<String> campaignIds = findCampaignIdListByProjectId(projectId);
+		if(campaignIds == null) {
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环活动id,根据活动汇总数据
+		for(String campaignId : campaignIds){
+			List<Map<String, Object>> result = getCreativeDataByCampaignId(startDate,endDate,type,campaignId);
+			if(result != null){
+				results.addAll(result);
+			}
+
+		}
+		return results;
+	}
+
+	/**
+	 * 列出创意数据--根据客户查找
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @param advertiserId
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getCreativeDataByAdvertiserId(Long startDate, Long endDate,String type, String advertiserId) throws Exception {
+		//根据客户id获取下面的projectid
+		ProjectModelExample example = new ProjectModelExample();
+		example.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		List<ProjectModel> projectList = projectDao.selectByExample(example);
+		if(projectList == null){
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环项目信息，根据项目查
+		for(ProjectModel projectModel: projectList){
+			List<Map<String, Object>> result = getCreativeDataByProjectId(startDate,endDate,type,projectModel.getId());
+			if(result != null) {
+				results.addAll(result);
+			}
+		}
+
+		return results;
+	}
+
+	/**
+	 * 列出创意数据--查询全部用户的创意数据
+	 * @param startDate
+	 * @param endDate
+	 * @param type
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> getAllCreativeData (Long startDate, Long endDate,String type) throws Exception {
+		//获取所有客户信息
+		List<AdvertiserModel> advertiserList =advertiserDao.selectByExample(null);
+		if(advertiserList == null){
+			return null;
+		}
+		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+		//循环客户信息，按活动汇总数据
+		for(AdvertiserModel advertiserModel: advertiserList){
+			List<Map<String, Object>> result = getCreativeDataByAdvertiserId(startDate,endDate,type,advertiserModel.getId());
+			if(result !=null) {
+				results.addAll(result);
+			}
+		}
+
+		return results;
+	}
+
 	/**
 	 * 查询属于指定广告主的全部项目ID
 	 * @param advertiserId 广告主ID

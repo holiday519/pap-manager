@@ -34,7 +34,7 @@ public class TrafficDataService extends BaseService
         
         if (!StringUtils.isEmpty(creativeId))
         {
-            serviceResult = dataService.getCreativeData(startDate, endDate, creativeId);
+//            serviceResult = dataService.getCreativeData(startDate, endDate, creativeId);
         }
         else
         {
@@ -43,7 +43,7 @@ public class TrafficDataService extends BaseService
                 // 不勾选Radio | 勾选Radio：“活动” | 勾选Radio：“项目” | 勾选Radio：“广告主”
                 if (StringUtils.isEmpty(scope) || SCOPE_CAMPAIGN.equals(scope) || SCOPE_PROJECT.equals(scope) || SCOPE_ADVERTISER.equals(scope))
                 {
-                    serviceResult = dataService.getCampaignData(startDate, endDate, campaignId);
+//                    serviceResult = dataService.getCampaignData(startDate, endDate, campaignId);
                 }
                 
                 // 勾选Radio：“创意”
@@ -55,8 +55,8 @@ public class TrafficDataService extends BaseService
                     
                     for (String id : creativeIdList)
                     {
-                        List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
-                        serviceResult.addAll(creativeData);
+//                        List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
+//                        serviceResult.addAll(creativeData);
                     }
                 }
             }
@@ -67,7 +67,7 @@ public class TrafficDataService extends BaseService
                     // 不勾选Radio | 勾选Radio：“项目” | 勾选Radio：“广告主”
                     if (StringUtils.isEmpty(scope) || SCOPE_PROJECT.equals(scope) || SCOPE_ADVERTISER.equals(scope) || SCOPE_ADVERTISER.equals(scope))
                     {
-                        serviceResult = dataService.getProjectData(startDate, endDate, projectId);
+//                        serviceResult = dataService.getProjectData(startDate, endDate, projectId);
                     }
                     
                     // 勾选Radio：“活动”
@@ -79,8 +79,8 @@ public class TrafficDataService extends BaseService
                         
                         for (String id : projectIdList)
                         {
-                            List<Map<String, Object>> campaignData = dataService.getCampaignData(startDate, endDate, id);
-                            serviceResult.addAll(campaignData);
+//                            List<Map<String, Object>> campaignData = dataService.getCampaignData(startDate, endDate, id);
+//                            serviceResult.addAll(campaignData);
                         }
                     }
                     
@@ -93,8 +93,8 @@ public class TrafficDataService extends BaseService
                         
                         for (String id : creativeIdList)
                         {
-                            List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
-                            serviceResult.addAll(creativeData);
+//                            List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
+//                            serviceResult.addAll(creativeData);
                         }
                     }
                 }
@@ -105,7 +105,7 @@ public class TrafficDataService extends BaseService
                         // 不勾选Radio | 勾选Radio：“广告主”
                         if (StringUtils.isEmpty(scope) || SCOPE_ADVERTISER.equals(scope))
                         {
-                            serviceResult = dataService.getAdvertiserData(startDate, endDate, advertiserId);
+//                            serviceResult = dataService.getAdvertiserData(startDate, endDate, advertiserId);
                         }
                         
                         // 勾选Radio：“项目”
@@ -115,8 +115,8 @@ public class TrafficDataService extends BaseService
                             
                             for (String id : projectIdList)
                             {
-                                List<Map<String, Object>> projectData = dataService.getProjectData(startDate, endDate, id);
-                                serviceResult.addAll(projectData);
+//                                List<Map<String, Object>> projectData = dataService.getProjectData(startDate, endDate, id);
+//                                serviceResult.addAll(projectData);
                             }
                         }
                         
@@ -127,8 +127,8 @@ public class TrafficDataService extends BaseService
                             
                             for (String id : campaignIdList)
                             {
-                                List<Map<String, Object>> campaignData = dataService.getCampaignData(startDate, endDate, id);
-                                serviceResult.addAll(campaignData);
+//                                List<Map<String, Object>> campaignData = dataService.getCampaignData(startDate, endDate, id);
+//                                serviceResult.addAll(campaignData);
                             }
                         }
                         
@@ -139,8 +139,8 @@ public class TrafficDataService extends BaseService
                             
                             for (String id : creativeIdList)
                             {
-                                List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
-                                serviceResult.addAll(creativeData);
+//                                List<Map<String, Object>> creativeData = dataService.getCreativeData(startDate, endDate, id);
+//                                serviceResult.addAll(creativeData);
                             }
                         }
                     }

@@ -1,19 +1,13 @@
 package com.pxene.pap.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
@@ -153,5 +147,77 @@ public class ExcelUtil<T>
             }
         }
         return sheet;
+    }
+
+    /**
+     * 设置第n-1行的格式
+     * @param workbook
+     * @param sheet
+     * @param n
+     * @param headerColumns
+     */
+    public  void setCoumlns(HSSFWorkbook workbook, HSSFSheet sheet,int n , String[] headerColumns)
+    {
+        HSSFCellStyle style = getCellStyle(workbook, true);
+
+        // 创建第n+1行
+        Row row = sheet.createRow(n);
+        // 设置行高
+        row.setHeightInPoints(20);
+
+        for (int i = 0; i < headerColumns.length; i++)
+        {
+            Cell cell = row.createCell(i);
+            cell.setCellValue(headerColumns[i]);
+            cell.setCellStyle(style);
+        }
+    }
+
+    public void setColumStyleForDate(HSSFWorkbook workbook, HSSFSheet sheet,int column,String dateFormate){
+        HSSFCellStyle cellStyle = workbook.createCellStyle();
+        HSSFDataFormat format = workbook.createDataFormat();
+        cellStyle.setDataFormat(format.getFormat(dateFormate));
+        sheet.setDefaultColumnStyle(column,cellStyle);
+    }
+
+    /**
+     * 把指定的列的格式设置为文本
+     * @param workbook
+     * @param sheet
+     * @param column
+     */
+    public void setColumStyleForText(HSSFWorkbook workbook, HSSFSheet sheet,int column){
+        HSSFCellStyle cellStyle = workbook.createCellStyle();
+        HSSFDataFormat format = workbook.createDataFormat();
+        cellStyle.setDataFormat(format.getFormat("@"));
+        sheet.setDefaultColumnStyle(column,cellStyle);
+    }
+
+    /**
+     * 将文件写入到本地
+     * @param workbook
+     * @param fileDirPath
+     * @param fileName
+     * @return
+     */
+    public  boolean writeExcelTolocal(HSSFWorkbook workbook,String fileDirPath,String fileName){
+
+        try {
+            //如果目录不存在，则创建
+            File fileDir = new File(fileDirPath);
+            if(!fileDir.exists()){
+                fileDir.mkdir();
+            }
+            String filePath = fileDir + "/"+fileName;
+
+            FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+            workbook.write(fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
