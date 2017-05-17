@@ -12,7 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -130,6 +132,14 @@ public class DataController
     	List<Map<String, Object>> Datas = dataService.getCreativeData(startDate, endDate, id);
     	PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+    }
+    
+    @RequestMapping(value = "/data/action/import", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void importEffect(@RequestPart(name = "file", required = true) MultipartFile file, @RequestPart(name = "projectId", required = true) String projectId, HttpServletResponse response) throws Exception
+    {
+        dataService.importEffect(file, projectId);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
 }

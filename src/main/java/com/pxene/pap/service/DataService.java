@@ -1,5 +1,10 @@
 package com.pxene.pap.service;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,19 +15,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.CodeTableConstant;
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.EffectModel;
+import com.pxene.pap.domain.models.EffectModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.RegionModel;
@@ -31,6 +49,7 @@ import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
+import com.pxene.pap.repository.basic.EffectDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
 
@@ -53,6 +72,9 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private ProjectDao projectDao;
+	
+	@Autowired
+	private EffectDao effectDao;
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
@@ -878,6 +900,172 @@ public class DataService extends BaseService {
         }
         
         return result;
+    }
+
+    /**
+     * 转化数据导入
+     * @param file      模版文件
+     * @param projectId 项目ID
+     */
+    public void importEffect(MultipartFile file, String projectId) throws IOException, EncryptedDocumentException, IllegalArgumentException, InvalidFormatException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, InvocationTargetException
+    {
+        InputStream inputStream = file.getInputStream();
+        List<EffectModel> modelList = readTemplateFile(inputStream);
+        
+        // 遍历Excel文件中的每个数据行
+        for (EffectModel model : modelList)
+        {
+            model.setId(UUIDGenerator.getUUID());
+            model.setProjectId(projectId);
+            
+            EffectModelExample example = new EffectModelExample();
+            
+            // 使用日期、监测码作为联合主键，查询该条记录是否已存在
+            example.createCriteria().andCodeEqualTo(model.getCode()).andDateEqualTo(model.getDate());
+
+            List<EffectModel> effectsInDB = effectDao.selectByExample(example);
+            
+            // 如果记录已存在，则更新，否则直接插入
+            if (effectsInDB != null && !effectsInDB.isEmpty())
+            {
+                effectDao.updateByExampleSelective(model, example);
+            }
+            else
+            {
+                effectDao.insert(model);
+            }
+        }
+    }
+    
+    /**
+     * 读取转化数据模板文件，转换成一个实体列表。
+     * @param inp   上传文件的字节输入流
+     * @return
+     * @throws EncryptedDocumentException
+     * @throws InvalidFormatException
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws SecurityException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     */
+    private List<EffectModel> readTemplateFile(InputStream inp) throws EncryptedDocumentException, InvalidFormatException, FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException
+    {
+        Workbook wb = WorkbookFactory.create(inp);
+       
+        Sheet sheet = wb.getSheetAt(0);
+        
+        Row firstRow = sheet.getRow(0);
+        
+        // 模板文件中数据行的行号（base 0）：除去指标行（A1，A2....A10)、除去列头（日期、监测码、注册数...）
+        int beginDataLine = 2;
+        
+        // 获得当前Sheet的总行数（不为空的行数）
+        int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+        
+        // 获得第一行中共有多少个非空列
+        int phyNumOfCells = firstRow.getPhysicalNumberOfCells();
+        
+        // 获得第一行中第一个不为空的逻辑单元格（base 0），即，“指标”的第一列（最小为A1，最大为A10）
+        int firstCellIndex = firstRow.getFirstCellNum();
+        
+        // 获得第一行中最后一个不为空的逻辑单元格（base 1），即，“指标”的最后一列（最小为A1，最大为A10）
+        int lastCellIndex = firstRow.getLastCellNum();
+        
+        // 构建第一行中的物理列号与单元格内容的映射
+        Map<Integer, String> titleMap = buildColumnCellMap(firstRow, firstCellIndex, lastCellIndex);
+        
+        // --> 检查列边界：保证“指标”列左侧有日期和监测码两列，保证“指标”列最多为10列，保证“指标列”不间断
+        if (firstCellIndex < 2 || lastCellIndex > 12)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+        }
+        if (lastCellIndex != firstCellIndex + phyNumOfCells)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+        }
+        
+        // --> 检查行边界
+        if (physicalNumberOfRows < beginDataLine)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+        }
+        
+        // --> 检查指标列映射
+        if (titleMap == null || titleMap.isEmpty())
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+        }
+        
+        // 遍历全部数据行
+        Row tmpRow = null;
+        Cell tmpCell = null;
+        List<EffectModel> list = new ArrayList<EffectModel>();
+        for (int i = beginDataLine; i < physicalNumberOfRows; i++)
+        {
+            tmpRow = sheet.getRow(i);
+            
+            Class<EffectModel> effectClass = EffectModel.class;
+            EffectModel td = effectClass.newInstance();
+            
+            td.setDate(tmpRow.getCell(0).getDateCellValue());
+            
+            CellType cellTypeEnum = tmpRow.getCell(1).getCellTypeEnum();
+            if (cellTypeEnum == CellType.NUMERIC)
+            {
+                td.setCode(String.valueOf(tmpRow.getCell(1).getNumericCellValue()));
+            }
+            else if (cellTypeEnum == CellType.STRING)
+            {
+                td.setCode(tmpRow.getCell(1).getStringCellValue());
+            }
+            else 
+            {
+                throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            }
+            
+            
+            // 遍历全部的“指标”列（不包含第一列日期，第二列监测码以外的全部列，形如A1, A2, ... , A10）
+            for (int j = firstCellIndex; j < lastCellIndex; j++)
+            {
+                tmpCell = tmpRow.getCell(j);
+                
+                String columnVal = titleMap.get(j);// 根据指定的物理列号，获得它是属于哪个指标，如：第2列，对应的是A3，则调用setA3()
+                
+                String methodName = "set" + columnVal;// 拼接成反射需要调用的方法名
+                
+                Method method = effectClass.getDeclaredMethod(methodName, Double.class);
+               
+                method.invoke(td, tmpCell.getNumericCellValue());
+            }
+            
+            list.add(td);
+        }
+        
+        wb.close();
+        return list;
+    }
+
+
+    /**
+     * 构建第一行中的自定义列名与物理列值的映射。
+     * 如物理单元格：C1,D1,E1中分别保存的值为A3,A2,A1，则构造一个Map，Key为物理列列号，Value为单元格中的值：2-A3, 3-A2, 4-A1
+     * @param firstRow          第一行对象
+     * @param firstCellIndex    获取第一个不为空的单元格是第几列（物理列号）
+     * @param lastCellIndex     获取最后一个不为空的单元格是第几列（物理列号）
+     * @return
+     */
+    private static Map<Integer, String> buildColumnCellMap(Row firstRow, int firstCellIndex, int lastCellIndex)
+    {
+        Map<Integer, String> titleMap = new HashMap<Integer, String>();
+        for (int i = firstCellIndex; i < lastCellIndex; i++)
+        {
+            titleMap.put(i, firstRow.getCell(i).getStringCellValue());
+        }
+        return titleMap;
     }
 	
 }
