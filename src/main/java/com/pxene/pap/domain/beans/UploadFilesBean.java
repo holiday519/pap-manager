@@ -12,6 +12,10 @@ public class UploadFilesBean {
 	 */
 	private String name;
 	/**
+	 * 项目ID
+	 */
+	private String projectId;
+	/**
 	 * 项目名称
 	 */
 	private String projectName;
@@ -35,6 +39,12 @@ public class UploadFilesBean {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}	
+	public String getProjectId() {
+		return projectId;
+	}
+	public void setProjectId(String projectId) {
+		this.projectId = projectId;
 	}
 	public String getProjectName() {
 		return projectName;
@@ -57,7 +67,8 @@ public class UploadFilesBean {
 	
 	@Override
 	public String toString(){
-		return "UploadFilesBean [id=" + id + ",name=" + name + ",projectName=" + projectName
+		return "UploadFilesBean [id=" + id + ",name=" + name + ",projectId=" + projectId
+				+ ",projectName=" + projectName
 				+ ",amount=" + amount + ",createTime=" + createTime + "]";
 	}
 }
