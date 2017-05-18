@@ -5,6 +5,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.exception.IllegalArgumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -88,7 +90,10 @@ public class DataController
 	public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
 	{
-//		System.out.println("listAdvertisers----"+advertiserId+","+type+","+startDate+","+endDate);
+		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException("参数不正确");
+		}
+
 		Page<Object> pager = null;
 		List<Map<String, Object>> Datas;
 		if(advertiserId!=null) {
@@ -107,7 +112,10 @@ public class DataController
 							   @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		System.out.println("listProjects["+advertiserId+","+projectId+","+type+","+startDate+","+endDate+"]");
+		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException("参数不正确");
+		}
+
 		Page<Object> pager = null;
 //    	if (pageNo != null && pageSize != null) {
 //			pager = PageHelper.startPage(pageNo, pageSize);
@@ -134,7 +142,10 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		System.out.println("listCampaigns["+advertiserId+","+projectId+","+campaignId+","+type+","+startDate+","+endDate+"]");
+		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException("参数不正确");
+		}
+
 		Page<Object> pager = null;
 		List<Map<String, Object>> Datas;
 		if(campaignId!=null) {
@@ -160,7 +171,10 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
-		System.out.println("listCampaigns["+advertiserId+","+projectId+","+campaignId+","+type+","+startDate+","+endDate+"]");
+		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException("参数不正确");
+		}
+
 		Page<Object> pager = null;
 		List<Map<String, Object>> Datas;
 		if(campaignId != null){

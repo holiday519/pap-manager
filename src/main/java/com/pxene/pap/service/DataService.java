@@ -821,7 +821,7 @@ public class DataService extends BaseService {
 		if (bean!=null) {
 			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
 					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
-				return null;
+				return results;
 			} else {
 				result.put("impressionAmount", bean.getImpressionAmount());
 				result.put("clickAmount", bean.getClickAmount());

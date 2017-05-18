@@ -699,7 +699,7 @@ public class ProjectService extends BaseService {
 				example.clear();
 				effectDics.clear();
 				example.createCriteria().andProjectIdEqualTo(projectId).andEnableEqualTo(StatusConstant.EFFECT_STATUS_ENABLE);
-				example.setOrderByClause("column_code ASC");
+				example.setOrderByClause("substring(column_code,2)+0 ASC");
 				effectDics = effectDicDao.selectByExample(example);
 				boolean res = createTransformExcel(projectId, effectDics);
 				return res;
