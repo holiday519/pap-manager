@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.TrafficData;
@@ -60,6 +62,7 @@ import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
+import com.pxene.pap.repository.basic.UploadFilesDao;
 
 @Service
 public class DataService extends BaseService {
@@ -83,6 +86,9 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private EffectDao effectDao;
+	
+	@Autowired
+	private UploadFilesDao uploadFilesDao;
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
@@ -1380,6 +1386,7 @@ public class DataService extends BaseService {
      * @param file      模版文件
      * @param projectId 项目ID
      */
+    @Transactional
     public void importEffect(MultipartFile file, String projectId) throws IOException, EncryptedDocumentException, IllegalArgumentException, InvalidFormatException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, InvocationTargetException
     {
         InputStream inputStream = file.getInputStream();
@@ -1408,6 +1415,20 @@ public class DataService extends BaseService {
                 effectDao.insert(model);
             }
         }
+        
+        // 向上传文件插入数据
+        // 1.获取项目名称
+        ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+        String projectName = project.getName();
+        // 2. 插入属性
+        UploadFilesModel uploadFiles = new UploadFilesModel();
+        uploadFiles.setId(UUIDGenerator.getUUID());             // 文件id
+        uploadFiles.setName(file.getName());                    // 文件名称
+        uploadFiles.setProjectId(projectId);                    // 项目id
+        uploadFiles.setProjectName(projectName);                // 项目名称
+        uploadFiles.setAmount(modelList.size());                // 匹配数量
+        // 3.插入
+        uploadFilesDao.insert(uploadFiles);
     }
     
     /**
