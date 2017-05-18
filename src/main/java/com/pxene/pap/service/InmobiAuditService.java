@@ -18,7 +18,7 @@ import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 
 /**
- * 陌陌审核
+ * Inmobi审核同步
  * @author lizhuoling
  *
  */

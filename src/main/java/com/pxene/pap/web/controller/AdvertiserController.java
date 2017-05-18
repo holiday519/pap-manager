@@ -176,7 +176,7 @@ public class AdvertiserController
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/advertiser/audit/{auditId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/advertiser/audit/{auditId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public void auditAdvertiser(@PathVariable String auditId, HttpServletResponse response) throws Exception {
     	advertiserService.auditAdvertiser(auditId);

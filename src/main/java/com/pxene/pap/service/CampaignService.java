@@ -49,6 +49,9 @@ import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.DeviceTargetModel;
 import com.pxene.pap.domain.models.DeviceTargetModelExample;
 import com.pxene.pap.domain.models.FrequencyModel;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
+import com.pxene.pap.domain.models.LandpageCodeModel;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.MonitorModelExample;
 import com.pxene.pap.domain.models.NetworkTargetModel;
@@ -83,6 +86,8 @@ import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
+import com.pxene.pap.repository.basic.LandpageCodeDao;
+import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.basic.MonitorDao;
 import com.pxene.pap.repository.basic.NetworkTargetDao;
@@ -179,6 +184,12 @@ public class CampaignService extends BaseService {
 	@Autowired
 	private CreativeAuditDao creativeAuditDao;
 	
+	@Autowired
+	private LandpageCodeHistoryDao landpageCodeHistoryDao;
+	
+	@Autowired
+	private LandpageCodeDao landpageCodeDao;
+	
 	private RedisHelper redisHelper;
 	
 	private static JsonParser parser = new JsonParser();
@@ -258,6 +269,9 @@ public class CampaignService extends BaseService {
 		
 		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 		campaignDao.insertSelective(campaignModel);
+		
+		// 向监测码历史表插入数据
+		creativeCodeHistoryInfo(id,bean);
 	}
 
 	/**
@@ -368,7 +382,27 @@ public class CampaignService extends BaseService {
 		//删除投放量控制策略
 		deleteCampaignQuantity(id);
 		//添加投放量控制策略
-		addCampaignQuantity(bean);				
+		addCampaignQuantity(bean);	
+		
+		// 编辑落地页信息，更新监测码历史记录表
+		String beanLandpageId = bean.getLandpageId(); // 页面出来的落地页id
+		String dbLandpageId = campaignInDB.getLandpageId(); // 编辑活动更改数据库前数据库里的落地页Id
+		if (!beanLandpageId.equals(dbLandpageId)) {
+			// 如果两个落地页id不相同
+			// 1.更新原来落地页的时间
+			LandpageCodeHistoryModelExample codeHistoryEx = new LandpageCodeHistoryModelExample();
+			codeHistoryEx.createCriteria().andCampaignIdEqualTo(id);
+			List<LandpageCodeHistoryModel> landpageCodeHistorys = landpageCodeHistoryDao.selectByExample(codeHistoryEx);
+			if (landpageCodeHistorys != null && !landpageCodeHistorys.isEmpty()) {
+				for (LandpageCodeHistoryModel codeHistory : landpageCodeHistorys) {
+					codeHistory.setEndTime(current);
+					landpageCodeHistoryDao.updateByPrimaryKeySelective(codeHistory);
+				}
+			}
+			// 2.重新插入一条数据
+			creativeCodeHistoryInfo(id,bean);
+		}
+		
 		// 修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
 		// 编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
@@ -378,6 +412,7 @@ public class CampaignService extends BaseService {
 			// 写入活动下的创意基本信息 dsp_mapid_*，修改落地页等相关信息
 			launchService.writeCreativeInfo(id);
 		}
+					
 	}		
 	
 	/**
@@ -1441,6 +1476,32 @@ public class CampaignService extends BaseService {
 			launchService.remove4EndDate(campaignModel);
 		}
 				
+    }
+    
+    /**
+     * 创建或编辑活动时向监测码历史表插入数据
+     * @param campaignId 活动Id
+     * @param bean 活动的信息
+     */
+    public void creativeCodeHistoryInfo(String campaignId,CampaignBean bean) throws Exception {
+    	// 查询落地页信息，获取落地页Id
+    	LandpageModel landpageModel = landpageDao.selectByPrimaryKey(bean.getLandpageId());
+		if (landpageModel == null) {
+			throw new IllegalArgumentException(PhrasesConstant.LANDPAGE_INFO_NULL);
+		}
+    	Date current = new Date(); 
+		String landpageId = landpageModel.getId();
+		// 获取检测码
+		LandpageCodeModel landpageCode = landpageCodeDao.selectByPrimaryKey(landpageId);
+		String codes = landpageCode.getCode();
+		// 写入数据的信息
+		LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
+		landpageCodeHistory.setId(UUIDGenerator.getUUID());  // id
+		landpageCodeHistory.setCampaignId(campaignId);       // 活动id
+		landpageCodeHistory.setCodes(codes);                 // 监测码
+		landpageCodeHistory.setStartTime(current);           // 创建活动的时间
+		// 插入数据
+		landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
     }
     
 //    /**
