@@ -16,10 +16,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ExcelOperateUtil;
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.TrafficData;
+import com.pxene.pap.domain.beans.UploadFilesBean;
 import com.pxene.pap.service.TrafficDataService;
 
 @Controller
@@ -58,4 +63,29 @@ public class TrafficDataController
         List<TrafficData> datas = trafficDataService.listData(advertiserId, projectId, campaignId, creativeId, scope, startDate, endDate);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), datas, response);
     }
+    
+    /**
+     * 列出转化数据文件
+     * @param pageNo
+     * @param pageSize
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/data/effect/list",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+	public String listUploadfiles(@RequestParam(required = false) Integer pageNo,
+			@RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+		// 定义分页对象
+		Page<Object> page = null;
+		if (pageNo != null && pageSize != null)
+        {
+            page = PageHelper.startPage(pageNo, pageSize);
+        }
+		// 查询转换数据文件
+		List<UploadFilesBean> uploadFiles = trafficDataService.listUploadFiles();
+		// 分页
+		PaginationBean result = new PaginationBean(uploadFiles, page);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+	}
 }

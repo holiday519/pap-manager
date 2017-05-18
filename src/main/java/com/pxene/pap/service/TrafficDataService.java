@@ -9,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.domain.beans.TrafficData;
+import com.pxene.pap.domain.beans.UploadFilesBean;
+import com.pxene.pap.domain.models.UploadFilesModel;
+import com.pxene.pap.domain.models.UploadFilesModelExample;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.repository.basic.UploadFilesDao;
 
 
 @Service
@@ -22,7 +26,9 @@ public class TrafficDataService extends BaseService
     
     @Autowired
     private DataService dataService;
-
+    
+    @Autowired
+    private UploadFilesDao uploadFilesDao;
     
     
     public List<TrafficData> listData(String advertiserId, String projectId, String campaignId, String creativeId, String scope, Long startDate, Long endDate) throws Exception
@@ -175,4 +181,22 @@ public class TrafficDataService extends BaseService
         return result;
     }
     
+    /**
+     * 列出转化数据文件（转换数据列表）
+     * @return
+     * @throws Exception
+     */
+    public List<UploadFilesBean> listUploadFiles() throws Exception {
+    	// 查询上传文件信息
+    	UploadFilesModelExample uploadFilesEx = new UploadFilesModelExample();
+    	List<UploadFilesModel> uploadFiles = uploadFilesDao.selectByExample(uploadFilesEx);
+    	// 定义返回的list
+    	List<UploadFilesBean> uploadFilesBean = new ArrayList<UploadFilesBean>();
+    	// 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
+    	for (UploadFilesModel uploadFile : uploadFiles) {
+    		UploadFilesBean bean = modelMapper.map(uploadFile, UploadFilesBean.class);
+    		uploadFilesBean.add(bean);
+    	}
+		return uploadFilesBean;   	
+    }
 }

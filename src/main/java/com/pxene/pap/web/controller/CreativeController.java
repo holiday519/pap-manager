@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -200,7 +201,9 @@ public class CreativeController {
 	@ResponseBody
 	public String listCreatives(@RequestParam(required = true) String campaignId, @RequestParam(required = false) String type, @RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
-		        
+		if (pageNo != null && pageSize != null) {
+			pager = PageHelper.startPage(pageNo,pageSize);
+		}
 		List<BasicDataBean> creatives = creativeService.listCreatives(campaignId, name, type, startDate, endDate);
 		
 		PaginationBean result = new PaginationBean(creatives, pager);
