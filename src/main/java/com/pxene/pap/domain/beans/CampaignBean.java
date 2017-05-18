@@ -348,8 +348,8 @@ public class CampaignBean extends BasicDataBean {
 	public static class Quantity {
 		private Date startDate;
 		private Date endDate;
-		private Integer dailyBudget;
-		private Integer dailyImpression;
+		private Integer budget;
+		private Integer impression;
 
 		public Date getStartDate() {
 			return startDate;
@@ -366,28 +366,28 @@ public class CampaignBean extends BasicDataBean {
 		public void setEndDate(Date endDate) {
 			this.endDate = endDate;
 		}
-
-		public Integer getDailyBudget() {
-			return dailyBudget;
+		
+		public Integer getBudget() {
+			return budget;
 		}
 
-		public void setDailyBudget(Integer dailyBudget) {
-			this.dailyBudget = dailyBudget;
+		public void setBudget(Integer budget) {
+			this.budget = budget;
 		}
 
-		public Integer getDailyImpression() {
-			return dailyImpression;
+		public Integer getImpression() {
+			return impression;
 		}
 
-		public void setDailyImpression(Integer dailyImpression) {
-			this.dailyImpression = dailyImpression;
+		public void setImpression(Integer impression) {
+			this.impression = impression;
 		}
 
 		@Override
 		public String toString() {
 			return "Quantity [startDate=" + startDate + ", endDate=" + endDate
-					+ ", dailyBudget=" + dailyBudget + ", dailyImpression="
-					+ dailyImpression + "]";
+					+ ", budget=" + budget + ", impression="
+					+ impression + "]";
 		}
 
 	}

@@ -52,6 +52,7 @@ import com.pxene.pap.domain.models.FrequencyModel;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
 import com.pxene.pap.domain.models.LandpageCodeModel;
+import com.pxene.pap.domain.models.LandpageCodeModelExample;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.MonitorModelExample;
 import com.pxene.pap.domain.models.NetworkTargetModel;
@@ -244,7 +245,7 @@ public class CampaignService extends BaseService {
 		if (quantities != null && quantities.length > 0) {
 			for (Quantity quantitie : quantities) {
 				// 日预算
-				dailyBudget = quantitie.getDailyBudget();
+				dailyBudget = quantitie.getBudget();
 				if (dailyBudget - projectBudget > 0) {
 					// 如果日预算大于项目总预算
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
@@ -327,7 +328,7 @@ public class CampaignService extends BaseService {
 		if (quantities != null && quantities.length > 0) {
 			for (Quantity quantitie : quantities) {
 				// 传值里的日预算
-				dailyBudget = quantitie.getDailyBudget();
+				dailyBudget = quantitie.getBudget();
 				if (dailyBudget - projectBudget > 0) {
 					// 如果日预算大于项目总预算
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
@@ -456,8 +457,8 @@ public class CampaignService extends BaseService {
 					List<String> dayList = Arrays.asList(days);
 					String time = new DateTime(new Date()).toString("yyyyMMdd");
 					if (dayList.contains(time)) {
-						newDayBudget = qt.getDailyBudget();
-						newImpression = qt.getDailyImpression();
+						newDayBudget = qt.getBudget();
+						newImpression = qt.getImpression();
 						break;
 					}
 				}
@@ -786,7 +787,7 @@ public class CampaignService extends BaseService {
 		if (quantitys != null && quantitys.length > 0) {
 			String id = campaignBean.getId();
 			for (Quantity bean : quantitys) {	
-				Integer dailyBudget = bean.getDailyBudget();
+				Integer dailyBudget = bean.getBudget();
 				if (dailyBudget != null && projectBudget != null && dailyBudget.compareTo(projectBudget) > 0) {
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_TOTAL); 
 				}
@@ -1306,8 +1307,6 @@ public class CampaignService extends BaseService {
 		Date current = new Date();
 		// 查询活动信息
 		CampaignModelExample campaignExample = new CampaignModelExample();
-		// 今天及之前开始投放 + 今天即之前结束投放
-//		campaignExample.createCriteria().andStartDateLessThanOrEqualTo(current).andEndDateLessThanOrEqualTo(current);
 		campaignExample.createCriteria().andStartDateLessThanOrEqualTo(current);
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
 		return campaigns.size() > 0;
@@ -1483,26 +1482,35 @@ public class CampaignService extends BaseService {
      * @param campaignId 活动Id
      * @param bean 活动的信息
      */
-    public void creativeCodeHistoryInfo(String campaignId,CampaignBean bean) throws Exception {
-    	// 查询落地页信息，获取落地页Id
-    	LandpageModel landpageModel = landpageDao.selectByPrimaryKey(bean.getLandpageId());
+	public void creativeCodeHistoryInfo(String campaignId, CampaignBean bean) throws Exception {
+		// 查询落地页信息，获取落地页Id
+		LandpageModel landpageModel = landpageDao.selectByPrimaryKey(bean.getLandpageId());
 		if (landpageModel == null) {
 			throw new IllegalArgumentException(PhrasesConstant.LANDPAGE_INFO_NULL);
 		}
-    	Date current = new Date(); 
+		Date current = new Date();
 		String landpageId = landpageModel.getId();
-		// 获取检测码
-		LandpageCodeModel landpageCode = landpageCodeDao.selectByPrimaryKey(landpageId);
-		String codes = landpageCode.getCode();
-		// 写入数据的信息
-		LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
-		landpageCodeHistory.setId(UUIDGenerator.getUUID());  // id
-		landpageCodeHistory.setCampaignId(campaignId);       // 活动id
-		landpageCodeHistory.setCodes(codes);                 // 监测码
-		landpageCodeHistory.setStartTime(current);           // 创建活动的时间
-		// 插入数据
-		landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
-    }
+		// 查询落地页监测码信息
+		LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
+		landpageCodeEx.createCriteria().andLandpageIdEqualTo(landpageId);
+		List<LandpageCodeModel> landpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
+		if (landpageCodes != null && !landpageCodes.isEmpty()) {
+			for (LandpageCodeModel landpageCode : landpageCodes) {
+				// 获取检测码
+				String codes = landpageCode.getCode();
+				// 写入数据的信息
+				LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
+				landpageCodeHistory.setId(UUIDGenerator.getUUID()); // id
+				landpageCodeHistory.setCampaignId(campaignId); // 活动id
+				landpageCodeHistory.setCodes(codes); // 监测码
+				landpageCodeHistory.setStartTime(current); // 创建活动的时间
+				// 插入数据
+				landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
+			}
+
+		}
+
+	}
     
 //    /**
 //     * 从正在投放的活动中删除指定的活动ID
