@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.exception.IllegalArgumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -144,30 +146,40 @@ public class ProjectController {
 	
 	/**
 	 * 转化字段命名
-	 * @param id   项目ID
-	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和转化字段名称name
+	 * @param fieldId   项目ID
+	 * @param name  位于Http Body中的请求参数，包含转化字段编号code和转化字段名称name
 	 * @param response
 	 */
 	@RequestMapping(value = "/project/effect/name/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void changeEffectName(@PathVariable String fieldId, @RequestPart String name, HttpServletResponse response)
 	{
+		if(fieldId.length()>36 || name.length()>100){
+			throw new IllegalArgumentException("参数长度过长");
+		}
 	    projectService.changeEffectName(fieldId, name);
         response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
 	 * 启用/禁用转化字段
-	 * @param id   项目ID
-	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和操作标识enable
+	 * @param fieldId   项目ID
+	 * @param enable  位于Http Body中的请求参数，包含转化字段编号code和操作标识enable
 	 * @param response
 	 */
 	@RequestMapping(value = "/project/effect/enable/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void changeEffectEnable(@PathVariable String fieldId, @RequestPart String enable, HttpServletResponse response)
 	{
-	    projectService.changeEffectEnable(fieldId, enable);
-	    response.setStatus(HttpStatus.NO_CONTENT.value());
+		if(fieldId.length()>36){
+			throw new IllegalArgumentException("参数长度过长");
+		}
+		if(!enable.equals(StatusConstant.EFFECT_STATUS_DISABLE) && !enable.equals(StatusConstant.EFFECT_STATUS_ENABLE)) {
+			throw new IllegalArgumentException("开关参数不正确");
+		}
+		projectService.changeEffectEnable(fieldId, enable);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+
 	}
 	
 	/**

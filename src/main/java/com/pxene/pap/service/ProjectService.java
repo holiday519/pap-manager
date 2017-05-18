@@ -1,18 +1,14 @@
 package com.pxene.pap.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.util.*;
 
 import javax.transaction.Transactional;
 
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.domain.configs.ConmonConfigHelp;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFDataFormat;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 /*import org.apache.log4j.Logger;*/
 import org.slf4j.LoggerFactory;
@@ -138,6 +134,12 @@ public class ProjectService extends BaseService {
         
         // 初始化转化字段
         initEffectField(bean.getId());
+
+		//初始化模板文件
+		boolean res = createTransformExcel(bean.getId(),null);
+		if(!res){
+			throw new IllegalStatusException("生成excel文件失败:projectId="+bean.getId());
+		}
     }
 
 	/**
@@ -258,6 +260,16 @@ public class ProjectService extends BaseService {
         List<String> projectIds = new ArrayList<>();
         projectIds.add(id);
         destoryEffectField(projectIds);
+
+
+		//删除对应的excel模板
+		File excelFile= new File(ConmonConfigHelp.EXCEL_SAVEPATH+"/"+id+".xlsx");
+		if(excelFile.exists()){
+			boolean res =excelFile.delete();
+			if(!res){
+				throw new IllegalStatusException("删除excel文件失败：projectid="+id);
+			}
+		}
     }
 	
 	/**
@@ -303,6 +315,19 @@ public class ProjectService extends BaseService {
         
         // 删除项目转化字段
         destoryEffectField(Arrays.asList(ids));
+
+
+		//删除对应的excel模板
+		File excelFile;
+		for(String id : ids) {
+			excelFile = new File(ConmonConfigHelp.EXCEL_SAVEPATH + "/" + id + ".xlsx");
+			if (excelFile.exists()) {
+				boolean res =excelFile.delete();
+				if(!res){
+					throw new IllegalStatusException("生成excel文件失败:projectId="+id);
+				}
+			}
+		}
     }
 
 	/**
@@ -531,8 +556,15 @@ public class ProjectService extends BaseService {
         record.setId(fieldId);
         record.setColumnName(name);
         effectDicDao.updateByPrimaryKeySelective(record);
+
+		//生成excel模板文件
+		boolean res = getEffectDataToCreateExcel(fieldId);
+		if(!res){
+			throw new IllegalStatusException("生成excel文件失败");
+		}
     }
 
+	@Transactional
     public void changeEffectEnable(String fieldId, String enable)
     {
         if (StringUtils.isEmpty(fieldId) || StringUtils.isEmpty(enable))
@@ -544,6 +576,12 @@ public class ProjectService extends BaseService {
         record.setId(fieldId);
         record.setEnable(enable);
         effectDicDao.updateByPrimaryKeySelective(record);
+
+		//生成excel模板文件
+		boolean res = getEffectDataToCreateExcel(fieldId);
+		if(!res){
+			throw new IllegalStatusException("生成excel文件失败");
+		}
     }
 
     public void changeProjectBudget(String projectId, Map<String, String> map)
@@ -630,6 +668,7 @@ public class ProjectService extends BaseService {
             record.setEnable(StatusConstant.EFFECT_STATUS_DISABLE);
             effectDicDao.insert(record);
         }
+        
     }
 
     /**
@@ -643,58 +682,84 @@ public class ProjectService extends BaseService {
         effectDicDao.deleteByExample(example);
     }
 
+	/**
+	 * 根据filedId得到转换数据，并生成excel文件
+	 * @param fieldId
+     */
+    public boolean getEffectDataToCreateExcel(String fieldId){
+    	//根据effectDic id找到projectId
+		EffectDicModelExample example = new EffectDicModelExample();
+		example.createCriteria().andIdEqualTo(fieldId);
+		List<EffectDicModel> effectDics = effectDicDao.selectByExample(example);
+		if(effectDics!= null && effectDics.size()>0){
+			EffectDicModel effectDicModel = effectDics.get(0);
+			//根据projectId查找转化数据
+			String projectId = effectDicModel.getProjectId();
+			if(projectId !=null) {
+				example.clear();
+				effectDics.clear();
+				example.createCriteria().andProjectIdEqualTo(projectId).andEnableEqualTo(StatusConstant.EFFECT_STATUS_ENABLE);
+				example.setOrderByClause("column_code ASC");
+				effectDics = effectDicDao.selectByExample(example);
+				boolean res = createTransformExcel(projectId, effectDics);
+				return res;
+			}
+		}
+		return false;
+	}
+
     /**
      * 创建评分转化模板
      * @param fileName 文件名（excel后缀必须是xls,可不加;如果不加，程序会自动加上）
-     * @param headerColumns 表头
-     * @param secondHeaderColums 第二列表头
+     * @param effectDics
      * @return
      */
-    public  boolean createTransformExcel(String fileName,String[] headerColumns,String[] secondHeaderColums){
+	public  boolean createTransformExcel(String fileName,List<EffectDicModel> effectDics){
 
-        //判断文件名后缀，如果不是.xls结尾，自动加上
-        if(!fileName.endsWith(".xls")){
-            fileName = fileName+".xls";
-        }
-        ExcelUtil<String> excelUtil = new ExcelUtil<String>();
+		//判断文件名后缀，如果不是.xls结尾，自动加上
+		if(!fileName.endsWith(".xlsx")){
+			fileName = fileName+".xlsx";
+		}
+		ExcelUtil<String> excelUtil = new ExcelUtil<String>();
 
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        //在webbook中添加一个sheet,对应Excel文件中的sheet
-        String name = "sheet0";
-        HSSFSheet sheet = workbook.createSheet(name);
+		XSSFWorkbook workBook = new XSSFWorkbook();
+		//设置sheetName
+		String sheetName = "sheet0";
+		XSSFSheet sheet = workBook.createSheet(sheetName);
 
-        //日期这列，日期格式为yyyy/mm/dd
-        excelUtil.setColumStyleForDate(workbook,sheet,0,"2012/3/14");
-        //将检测码这列设置为文本格式
-        excelUtil.setColumStyleForText(workbook,sheet,1);
+		//将检测码这列设置为文本格式
+		excelUtil.setColumStyleForText(workBook,sheet,1);
 
-        String[] fisrtHeaders =new String[headerColumns.length+2];
-        fisrtHeaders[0]="_#_3000";
-        fisrtHeaders[1]="_#_3000";
-        String[] sendHeaders =new String[secondHeaderColums.length+2];
-        sendHeaders[0]= "日期";
-        sendHeaders[1]= "检测码";
+		int arraySize = 2;
+		if(effectDics!=null){
+			arraySize += effectDics.size();
+		}
+		String[] fisrtHeaders =new String[arraySize];
+		fisrtHeaders[0]="_#_3000";
+		fisrtHeaders[1]="_#_3000";
+		String[] secondHeaders =new String[arraySize];
+		secondHeaders[0]= "日期";
+		secondHeaders[1]= "检测码";
 
-        for(int i = 0;i<headerColumns.length;i++){
-            String columm=headerColumns[i];
-            if(!columm.contains("_#_")){
-                columm=columm+"_#_3000";
-            }
-            fisrtHeaders[i+2]=columm;
-        }
-        for(int i = 0;i<secondHeaderColums.length;i++){
-            sendHeaders[i+2]=secondHeaderColums[i];
-        }
+		if(effectDics!=null) {
+			int i =0;
+			for (EffectDicModel effectDic_temp : effectDics) {
+				fisrtHeaders[i + 2] = effectDic_temp.getColumnCode()+ "_#_3000";
+				secondHeaders[i + 2] = effectDic_temp.getColumnName();
+				i++;
+			}
+		}
 
-        //设置表头
-        excelUtil.generateHeader(workbook,sheet,fisrtHeaders);
-        //设置第二列表头
-        excelUtil.setCoumlns(workbook,sheet,1,sendHeaders);
+		//设置表头
+		excelUtil.setGenerateHeader(workBook,sheet,fisrtHeaders);
+		//设置第二列表头
+		excelUtil.setCoumlns(workBook,sheet,1,secondHeaders);
 
-        //保存excel
-        boolean res = excelUtil.writeExcelTolocal(workbook,excelSavePath,fileName);
+		//保存excel
+		boolean res = excelUtil.writeExcelTolocal(workBook,excelSavePath,fileName);
 
-        return res;
-    }
-	
+		return res;
+	}
+
+
 }
