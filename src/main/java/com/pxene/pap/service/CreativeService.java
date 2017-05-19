@@ -664,6 +664,9 @@ public class CreativeService extends BaseService {
 						info.setCtaDescription(infoflowModel.getCtaDescription()); //CTA描述
 						info.setMustDescription(InfoflowTmpl.getMustDescription()); //描述是否必填
 						info.setMustCtaDescription(InfoflowTmpl.getMustCtaDescription()); //CTA描述是否必填
+						info.setHaveDescription(InfoflowTmpl.getHaveDescription());  // 是否有描述
+						info.setHaveCtaDescription(InfoflowTmpl.getHaveCtaDescription()); // 是否有CTA描述
+						
 						
 						if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
 							info.setIconId(infoflowModel.getIconId());
@@ -955,6 +958,8 @@ public class CreativeService extends BaseService {
 				info.setCtaDescription(infoflowModel.getCtaDescription()); //CTA描述
 				info.setMustDescription(InfoflowTmpl.getMustDescription()); //描述是否必填
 				info.setMustCtaDescription(InfoflowTmpl.getMustCtaDescription()); //CTA描述是否必填
+				info.setHaveDescription(InfoflowTmpl.getHaveDescription());  // 是否有描述
+				info.setHaveCtaDescription(InfoflowTmpl.getHaveCtaDescription()); // 是否有CTA描述
 				
 				if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
 					info.setIconId(infoflowModel.getIconId());                  //图标id
