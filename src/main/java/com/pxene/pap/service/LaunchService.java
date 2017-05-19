@@ -89,6 +89,7 @@ import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
 //import org.apache.log4j.Logger;  
 
+
 import redis.clients.jedis.Jedis;
 
 
@@ -99,7 +100,8 @@ public class LaunchService extends BaseService {
 	// 视图中的分隔符
 	private static final String MONITOR_SEPARATOR = "\\|";
 	
-	private static String image_url;
+	private static String UPLOAD_MODE;
+	private static String IMAGE_URL;
 	
 	private RedisHelper redisHelper;
 	private RedisHelper redisHelper2;
@@ -110,7 +112,15 @@ public class LaunchService extends BaseService {
 		/**
 		 * 获取图片上传路径
 		 */
-		image_url = env.getProperty("pap.fileserver.url.prefix");
+		UPLOAD_MODE = env.getProperty("pap.fileserver.mode", "local");
+		if ("local".equals(UPLOAD_MODE))
+        {
+			IMAGE_URL = env.getProperty("pap.fileserver.local.url.prefix");
+        }
+        else
+        {
+        	IMAGE_URL = env.getProperty("pap.fileserver.remote.url.prefix");
+        }
 		
 		// 指定使用配置文件中的哪个具体的Redis配置
         redisHelper = RedisHelper.open("redis.primary.");
@@ -623,7 +633,7 @@ public class LaunchService extends BaseService {
 	            creativeObj.add("imonitorurl", imoUrlStr);
 	            creativeObj.add("cmonitorurl", cmoUrlStr);
 	            creativeObj.addProperty("monitorcode", monitorcode);
-	            creativeObj.addProperty("sourceurl", image_url + model.getPath());
+	            creativeObj.addProperty("sourceurl", IMAGE_URL + model.getPath());
 	            creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(), ""));
 				
 	            redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
@@ -688,7 +698,7 @@ public class LaunchService extends BaseService {
 	            creativeObj.add("imonitorurl", imoUrlStr);
 	            creativeObj.add("cmonitorurl", cmoUrlStr);
 	            creativeObj.addProperty("monitorcode", monitorcode);
-	            creativeObj.addProperty("sourceurl", image_url + model.getPath());
+	            creativeObj.addProperty("sourceurl", IMAGE_URL + model.getPath());
 	            creativeObj.addProperty("cid", GlobalUtil.parseString(model.getProjectId(), ""));
 	            
 	            redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, creativeObj.toString());
@@ -741,7 +751,7 @@ public class LaunchService extends BaseService {
 						icon.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
 						icon.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
 						icon.addProperty("ftype", Integer.parseInt(image.getFormat()));
-						icon.addProperty("sourceurl", image_url + image.getPath());
+						icon.addProperty("sourceurl", IMAGE_URL + image.getPath());
 						creativeObj.add("icon", icon);
 					}
 				}
@@ -772,7 +782,7 @@ public class LaunchService extends BaseService {
 					creativeObj.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
 					creativeObj.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
 					creativeObj.addProperty("ftype", image.getFormat());
-					creativeObj.addProperty("sourceurl", image_url + image.getPath());
+					creativeObj.addProperty("sourceurl", IMAGE_URL + image.getPath());
 				} else if (imageIds.size() > 1) {
 					JsonArray imageJsons = new JsonArray(); 
 					for (String imageId : imageIds) {
@@ -781,7 +791,7 @@ public class LaunchService extends BaseService {
 						imageJson.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
 						imageJson.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
 						imageJson.addProperty("ftype", Integer.parseInt(image.getFormat()));
-						imageJson.addProperty("sourceurl", image_url + image.getPath());
+						imageJson.addProperty("sourceurl", IMAGE_URL + image.getPath());
 						imageJsons.add(imageJson);
 					}
 					creativeObj.add("imgs", imageJsons);
