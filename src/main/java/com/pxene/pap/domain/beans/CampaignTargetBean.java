@@ -51,7 +51,30 @@ public class CampaignTargetBean {
 	/**
 	 * 人群定向
 	 */
-	private String population;
+	private Population population;
+	public static class Population {
+		/**
+		 * 人群id
+		 */
+		private String populationId;
+		/**
+		 * 人群类型
+		 */
+		private String type;
+		
+		public String getPopulationId() {
+			return populationId;
+		}
+		public void setPopulationId(String populationId) {
+			this.populationId = populationId;
+		}
+		public String getType() {
+			return type;
+		}
+		public void setType(String type) {
+			this.type = type;
+		}				
+	}
 
 	public String getId() {
 		return id;
@@ -133,13 +156,15 @@ public class CampaignTargetBean {
 		this.app = app;
 	}
 
-	public String getPopulation() {
+	public Population getPopulation() {
 		return population;
 	}
 
-	public void setPopulation(String population) {
+	public void setPopulation(Population population) {
 		this.population = population;
 	}
+
+
 
 	@Override
 	public String toString() {
@@ -151,6 +176,6 @@ public class CampaignTargetBean {
 				+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
 				+ ", brand=" + Arrays.toString(brand) + ", app="
 				+ Arrays.toString(app) + ", population=" + population + "]";
-	}
-
+	}	
+	
 }

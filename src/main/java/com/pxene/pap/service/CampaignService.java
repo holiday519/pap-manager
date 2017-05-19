@@ -35,6 +35,8 @@ import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.beans.CampaignBean.Target.App;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
+import com.pxene.pap.domain.beans.CampaignTargetBean.Population;
+import com.pxene.pap.domain.beans.PopulationTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
 import com.pxene.pap.domain.models.AppModel;
@@ -597,7 +599,7 @@ public class CampaignService extends BaseService {
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
 		String[] appTarget = bean.getApp();//app
-		String populationTarget = bean.getPopulation();//人群
+		Population populationTarget = bean.getPopulation(); // 人群
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region = new RegionTargetModel();
 			for (String regionId : regionTarget) {
@@ -683,7 +685,8 @@ public class CampaignService extends BaseService {
 			PopulationTargetModel population = new PopulationTargetModel();
 			population.setId(UUIDGenerator.getUUID());
 			population.setCampaignId(id);
-			population.setPopulationId(populationTarget);
+			population.setPopulationId(populationTarget.getPopulationId());
+			population.setType(populationTarget.getType());
 			populationTargetDao.insertSelective(population);
 		}
 	}
@@ -1114,9 +1117,14 @@ public class CampaignService extends BaseService {
 						target.setApps(apps);
 					}
 				}
-				String populationId = campaignTargetModel.getPopulationId();//查询活动的人群定向信息
+				// 查询活动的人群定向信息
+				String populationId = campaignTargetModel.getPopulationId();
+				String populationType = campaignTargetModel.getPopulationType();
+				PopulationTargetBean population = new PopulationTargetBean();
+				population.setPopulationId(populationId);
+				population.setType(populationType);
 				if (!StringUtils.isEmpty(populationId)) {
-					target.setPopulation(populationId);
+					target.setPopulation(population);
 				}
 				bean.setTarget(target);
 			}

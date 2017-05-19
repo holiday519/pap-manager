@@ -10,6 +10,7 @@ import org.hibernate.validator.constraints.Length;
 
 import com.pxene.pap.constant.PhrasesConstant;
 
+
 /**
  * 活动所有信息
  */
@@ -179,9 +180,12 @@ public class CampaignBean extends BasicDataBean {
 		public void setApps(App[] apps) {
 			this.apps = apps;
 		}
-
-		private String population;
-
+		
+		/**
+		 * 人群定向
+		 */
+		private PopulationTargetBean population;		
+		
 
 		public String[] getRegion() {
 			return region;
@@ -255,11 +259,11 @@ public class CampaignBean extends BasicDataBean {
 			this.app = app;
 		}
 		
-		public String getPopulation() {
+		public PopulationTargetBean getPopulation() {
 			return population;
 		}
 
-		public void setPopulation(String population) {
+		public void setPopulation(PopulationTargetBean population) {
 			this.population = population;
 		}
 
@@ -275,8 +279,8 @@ public class CampaignBean extends BasicDataBean {
 					+ ", brand=" + Arrays.toString(brand) + ", app="
 					+ Arrays.toString(app) + ", apps=" + Arrays.toString(apps)
 					+ ", population=" + population + "]";
-		}
-
+		}	
+	
 	}
 
 	/**
