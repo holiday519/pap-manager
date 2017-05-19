@@ -1,5 +1,7 @@
 package com.pxene.pap.service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -28,6 +31,7 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
+import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -57,9 +61,19 @@ public class AutohomeAuditService extends AuditService
 	private static final int CREATIVE_AUDIT_EXPIRE_DAYS = 120;
 	
 	/**
-	 * 文件服务器的URL前缀
+	 * 素材文件服务器的URL前缀
 	 */
 	private String urlPrefix;
+	
+	/**
+	 * 点击URL前缀
+	 */
+	private String clkURLPrefix;
+	
+	/**
+	 * 展现URL前缀
+	 */
+	private String impURLPrefix;
 	
 	/**
 	 * Gson JSON解析器
@@ -77,41 +91,55 @@ public class AutohomeAuditService extends AuditService
         String uploadMode = env.getProperty("pap.fileserver.mode");
         String urlPrefixTemplate = "pap.fileserver.{0}.url.prefix";
         urlPrefix = env.getProperty(MessageFormat.format(urlPrefixTemplate, uploadMode));
+        
+        clkURLPrefix = env.getProperty("pap.click.url.prefix");
+        impURLPrefix = env.getProperty("pap.impression.url.prefix");
 	}
 	
 
 	/**
-	 * 审核广告主ADX（更新广告主审核表数据）
+	 * 提交广告主到ADX进行审核（更新广告主审核表数据）
 	 */
 	@Override
 	@Transactional
-	public void auditAdvertiser(String auditId) throws Exception {
-		// 查询广告主审核信息
-		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
-		if (advertiserAudit != null) {
-			// 如果广告主审核信息不为空，则修改广告审核的状态：审核中
-			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
-			// 更新数据库信息
-			advertiserAuditDao.updateByPrimaryKeySelective(advertiserAudit);
-		}
-
-	}
+    public void auditAdvertiser(String auditId) throws Exception
+    {
+        // 查询广告主审核信息
+        AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+        
+        if (advertiserAudit != null)
+        {
+            // 如果广告主审核信息不为空，则修改广告审核的状态：审核中
+            advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
+            
+            // DSP 侧内部的广告主ID，需要保证DSP内部不重复，由于ADX要求是int值，因此不能用UUID。
+            int auditValue = RandomUtils.nextInt();
+            advertiserAudit.setAuditValue(String.valueOf(auditValue));
+            
+            // 更新数据库信息
+            advertiserAuditDao.updateByPrimaryKeySelective(advertiserAudit);
+        }
+    }
 
 	/**
-	 * 同步广告主ADX（更新广告主审核表状态）
+	 * 查询广告主在ADX的审核状态（更新广告主审核表状态）
 	 */
 	@Override
 	@Transactional
-	public void synchronizeAdvertiser(String auditId) throws Exception {
-		// 查询广告主审核信息
-		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
-		if (advertiserAudit != null) {
-			// 如果广告主审核信息不为空，则修改广告主审核表状态：审核通过
-			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
-			// 更新广告主审核表数据
-			advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
-		}
-	}
+    public void synchronizeAdvertiser(String auditId) throws Exception
+    {
+        // 查询广告主审核信息
+        AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
+       
+        if (advertiserAudit != null)
+        {
+            // 如果广告主审核信息不为空，则修改广告主审核表状态：审核通过
+            advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
+            
+            // 更新广告主审核表数据
+            advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
+        }
+    }
 
 	/**
 	 * 提交创意到汽车之家进行审核
@@ -141,17 +169,30 @@ public class AutohomeAuditService extends AuditService
         int dspId = Integer.valueOf(adx.getDspId());                    // DSP ID
         String dspName = adx.getDspName();                              // DSP 名称
         String uploadURL = adx.getCreativeAuditUrl();                   // 创意审核URL
-        String signKey = "fbcc155a-a7fb-11e6-80f5-76304dec7eb7";        // 汽车之家为DSP颁发的SignKey
+        String signKey = adx.getSignKey();                              // 汽车之家为DSP颁发的SignKey
+        String iURL = adx.getIurl();                                    // 曝光监测地址
+        String cURL = adx.getCurl();                                    // 点击监测地址
         
         // 查询出创意的相关信息
         CreativeRichBean richCreative = buildRelation(creativeId);
         
         // 广告主信息
         AdvertiserModel advertiserModel = richCreative.getAdvertiserInfo();
-        int advertiserId = 101;//Integer.parseInt(advertiserModel.getId());   // 广告主id
-        String advertiserName = advertiserModel.getName();              // 广告主名称
-        String industryId = advertiserModel.getIndustryId();            // 行业ID
-        String industryName = getIndustryName(industryId);              // 行业名称
+        
+        // DSP端的广告主ID，采用包装类型是为了判断是否能成功取出
+        Integer advertiserIdObj = getAdvertiserIDInDSP(advertiserModel.getId());   
+        if (advertiserIdObj == null)
+        {
+            throw new ResourceNotFoundException();
+        }
+        
+        int advertiserId = advertiserIdObj;                                 // DSP端的广告主ID
+        String advertiserName = advertiserModel.getName();                  // 广告主名称
+        String industryId = advertiserModel.getIndustryId();                // 行业ID
+        String industryName = getIndustryName(industryId);                  // 行业名称
+        
+        getAdvertiserIDInDSP(advertiserModel.getId());
+        
 
         // 创意类型
         String creativeType = creativeModel.getType();
@@ -164,7 +205,7 @@ public class AutohomeAuditService extends AuditService
         
         // 落地页信息
         LandpageModel landpageInfo = richCreative.getLandpageInfo();
-        String landpageURL = landpageInfo.getUrl().replaceAll("&", "%26"); // 落地页地址，即，创意的点击后跳转地址
+        //String landpageURL = landpageInfo.getUrl().replaceAll("&", "%26"); // 落地页地址，即，创意的点击后跳转地址
         
         JsonObject contentObj = null;
         JsonArray contentArray = new JsonArray();
@@ -252,24 +293,33 @@ public class AutohomeAuditService extends AuditService
         {
             throw new UnsupportedOperationException();
         }
+        
+        // 拼接成点击地址（302跳转）
+        String link = clkURLPrefix + cURL;
+        String landpageURL = URLEncoder.encode(landpageInfo.getUrl(), StandardCharsets.UTF_8.displayName());
+        link = link + "&curl=" + landpageURL;
+        
+        // 拼接成监测地址
+        JsonArray pv = new JsonArray();
+        pv.add(impURLPrefix + iURL);
 
         // 获取当前时间戳
         long timestamp = System.currentTimeMillis();  
         
-        // #### 构建广告内容对象
+        // -####- 构建广告内容对象
         JsonObject adSnippetObj = new JsonObject();
         adSnippetObj.add("content", contentArray);
-        adSnippetObj.addProperty("link", landpageURL);
-        adSnippetObj.add("pv", new JsonArray());
+        adSnippetObj.addProperty("link", link);
+        adSnippetObj.add("pv", pv);
         
-        // ### 构建创意对象
+        // -###- 构建创意对象
         JsonObject creative = buildCreativeObj(advertiserId, advertiserName, industryId, industryName, creativeTypeId, null, adSnippetObj);                // 设置广告内容
         
-        // ## 构建创意对象数组
+        // -##- 构建创意对象数组
         JsonArray creatives = new JsonArray();
         creatives.add(creative);
         
-        //# 构建审核请求对象
+        // -#- 构建审核请求对象
         JsonObject auditObj = buildAuditObj(dspId, dspName, timestamp, creatives);
         
         // 生成请求验证签名时，需要将Json Object序列化为Json String，字段按照字典序从小到大排序，数组内容不排序，排序前不包含sign字段，null值不显示，无缩进，key带双引号
@@ -286,10 +336,12 @@ public class AutohomeAuditService extends AuditService
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
         if (!StringUtils.isEmpty(respStr))
         {
+            // 检查status是否为1
             boolean respFlag = checkResponseStatus(respStr);
-            if (respFlag && checkUploadStatus(respStr))
+            if (respFlag)
             {
-                //insertOrUpdateToDB(creativeId);
+                int auditValue = checkUploadStatus(respStr);
+                insertOrUpdateToDB(creativeId, auditValue);
             }
             else
             {
@@ -301,7 +353,7 @@ public class AutohomeAuditService extends AuditService
             throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
         }
     }
-	
+
 	/**
      * 查询汽车之前针对某创意的审核结果
      */
@@ -328,7 +380,7 @@ public class AutohomeAuditService extends AuditService
         }
         
         // 汽车之家在提交审核后返回的ADX端的创意ID
-        ArrayList<String> creativeIds = new ArrayList<>();
+        ArrayList<String> creativeIds = new ArrayList<String>();
         for (CreativeAuditModel model : modelList)
         {
             creativeIds.add(model.getAuditValue());
@@ -338,7 +390,7 @@ public class AutohomeAuditService extends AuditService
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
         int dspId = Integer.valueOf(adx.getDspId());                    // DSP ID
         String checkURL = adx.getCreativeSyncUrl();                     // 创意审核状态查询URL
-        String signKey = "fbcc155a-a7fb-11e6-80f5-76304dec7eb7";        // 汽车之家为DSP颁发的SignKey
+        String signKey = adx.getSignKey();                              // 汽车之家为DSP颁发的SignKey
      
         // 构建基础的请求URL参数
         Map<String, String> requestParams = new HashMap<String, String>();
@@ -355,7 +407,7 @@ public class AutohomeAuditService extends AuditService
         String httpUrl = checkURL + "?" + buildRequestParams(requestParams);
         String respStr = HttpClientUtil.getInstance().sendHttpGet(httpUrl);
         
-        // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则提示审核失败的原因
+        // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
         if (!StringUtils.isEmpty(respStr))
         {
             // 检查status是否为1
@@ -365,21 +417,19 @@ public class AutohomeAuditService extends AuditService
                 String errorMsg = checkAuditStatus(respStr);
                 if (StringUtils.isEmpty(errorMsg))
                 {
-                    /*CreativeAuditModelExample example = new CreativeAuditModelExample();
-                    example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
-                    
-                    CreativeAuditModel creativeAuditModel = new CreativeAuditModel();
-                    creativeAuditModel.setStatus(StatusConstant.CREATIVE_AUDIT_SUCCESS);
-                    
-                    creativeAuditDao.updateByExampleSelective(creativeAuditModel, example);*/
+                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS);
                 }
                 else
                 {
+                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE);
+                    
                     throw new IllegalStatusException(errorMsg);
                 }
             }
             else
             {
+                changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE);
+                
                 throw new IllegalStatusException(parseResponseErrorInfo(respStr));
             }
         }
@@ -387,7 +437,47 @@ public class AutohomeAuditService extends AuditService
         {
             throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
         }
+    }
+
+    /**
+     * 根据广告主的UUID获得DSP端的广告主ID（广告主审核表中保存的由ADX返回的审核后的广告主ID）
+     * @param id 广告主ID
+     * @return
+     */
+    private Integer getAdvertiserIDInDSP(String id)
+    {
+        Integer advertiserID = null;
         
+        AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
+        advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+    
+        List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
+        if (advertiserAudits != null && !advertiserAudits.isEmpty())
+        {
+            AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(0);
+            advertiserID = Integer.valueOf(advertiserAuditModel.getAuditValue());
+        }
+        return advertiserID;
+    }
+
+
+    /**
+     * 修改创意审核状态
+     * @param creativeId    创意ID
+     * @param status        欲修改为的创意审核状态
+     */
+    private void changeCreativeAuditStatus(String creativeId, String status)
+    {
+        CreativeAuditModelExample example = new CreativeAuditModelExample();
+        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+        
+        List<CreativeAuditModel> modelList = creativeAuditDao.selectByExample(example);
+        
+        for (CreativeAuditModel model : modelList)
+        {
+            model.setStatus(status);
+            creativeAuditDao.updateByPrimaryKeySelective(model);
+        }
     }
 
 
@@ -416,9 +506,8 @@ public class AutohomeAuditService extends AuditService
 	 * @param respStr
 	 * @return
 	 */
-	private boolean checkUploadStatus(String respStr)
+	private int checkUploadStatus(String respStr)
     {
-        boolean respFlag = false;
         JsonObject respObj = parser.parse(respStr).getAsJsonObject();
         
         if (respObj != null && respObj.has("data") && respObj.get("data").isJsonObject())
@@ -426,11 +515,15 @@ public class AutohomeAuditService extends AuditService
             JsonObject dataObj = respObj.get("data").getAsJsonObject();
             if (dataObj.has("creativeIds") && dataObj.get("creativeIds").isJsonArray())
             {
-                respFlag = true;
+                JsonArray array = dataObj.get("creativeIds").getAsJsonArray();
+                if (array != null && array.size() > 0)
+                {
+                    return array.get(0).getAsInt();
+                }
             }
         }
         
-        return respFlag;
+        return -1;
     }
 	
 	/**
@@ -599,7 +692,7 @@ public class AutohomeAuditService extends AuditService
 	 * @param creativeId 创意ID
 	 * @param auditValue ADX返回的创意ID
 	 */
-    private void insertOrUpdateToDB(String creativeId, String auditValue)
+    private void insertOrUpdateToDB(String creativeId, int auditValue)
     {
         // 根据创意ID 和 ADX ID查询指定创意的审核信息（二者组合可以确定唯一一条创意审核信息）
         CreativeAuditModelExample example = new CreativeAuditModelExample();
@@ -613,6 +706,7 @@ public class AutohomeAuditService extends AuditService
             {
                 auditInDB.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
                 auditInDB.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
+                auditInDB.setAuditValue(String.valueOf(auditValue));
                 creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
             }
         }
@@ -624,7 +718,7 @@ public class AutohomeAuditService extends AuditService
             model.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
             model.setAdxId(AdxKeyConstant.ADX_AUTOHOME_VALUE);
             model.setCreativeId(creativeId);
-            model.setAuditValue(auditValue);
+            model.setAuditValue(String.valueOf(auditValue));
             creativeAuditDao.insertSelective(model);
         }
     }
@@ -771,7 +865,7 @@ class CreativeRichBean
     @Override
     public String toString()
     {
-        return "CreativeRelationBean [id=" + id + ", landpageInfo=" + landpageInfo + ", creativeInfo=" + creativeInfo + ", campaignInfo=" + campaignInfo + ", projectInfo=" + projectInfo
+        return "CreativeRichBean [id=" + id + ", landpageInfo=" + landpageInfo + ", creativeInfo=" + creativeInfo + ", campaignInfo=" + campaignInfo + ", projectInfo=" + projectInfo
                 + ", advertiserInfo=" + advertiserInfo + "]";
     }
 }
