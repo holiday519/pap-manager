@@ -6,8 +6,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.exception.IllegalArgumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.Page;
@@ -152,12 +149,9 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/effect/name/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void changeEffectName(@PathVariable String fieldId, @RequestPart String name, HttpServletResponse response)
+	public void changeEffectName(@PathVariable String fieldId, @RequestBody Map<String,String> map, HttpServletResponse response)
 	{
-		if(fieldId.length()>36 || name.length()>100){
-			throw new IllegalArgumentException("参数长度过长");
-		}
-	    projectService.changeEffectName(fieldId, name);
+	    projectService.changeEffectName(fieldId, map);
         response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -169,15 +163,9 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/effect/enable/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void changeEffectEnable(@PathVariable String fieldId, @RequestPart String enable, HttpServletResponse response)
+	public void changeEffectEnable(@PathVariable String fieldId, @RequestBody Map<String,String> map, HttpServletResponse response)
 	{
-		if(fieldId.length()>36){
-			throw new IllegalArgumentException("参数长度过长");
-		}
-		if(!enable.equals(StatusConstant.EFFECT_STATUS_DISABLE) && !enable.equals(StatusConstant.EFFECT_STATUS_ENABLE)) {
-			throw new IllegalArgumentException("开关参数不正确");
-		}
-		projectService.changeEffectEnable(fieldId, enable);
+		projectService.changeEffectEnable(fieldId, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 
 	}

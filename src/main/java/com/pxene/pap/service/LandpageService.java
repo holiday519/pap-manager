@@ -146,9 +146,9 @@ public class LandpageService extends BaseService {
 			}
 		}
 
-		LandpageModel ladpage = modelMapper.map(bean, LandpageModel.class);
-		ladpage.setId(id);
-		landpageDao.updateByPrimaryKeySelective(ladpage);
+		LandpageModel landpage = modelMapper.map(bean, LandpageModel.class);
+		landpage.setId(id);
+		landpageDao.updateByPrimaryKey(landpage);
 		
         String[] codes = bean.getCodes();
         

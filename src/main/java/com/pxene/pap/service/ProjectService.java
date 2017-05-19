@@ -545,11 +545,15 @@ public class ProjectService extends BaseService {
 	}
 
 	@Transactional
-    public void changeEffectName(String fieldId, String name)
+    public void changeEffectName(String fieldId, Map<String, String> map)
     {
+		String name = map.get("name");
         if (StringUtils.isEmpty(fieldId) || StringUtils.isEmpty(name))
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+        }
+        if (name.length() > 100) {
+        	throw new IllegalArgumentException(PhrasesConstant.LENGTH_ERROR_NAME);
         }
         
         EffectDicModel record = new EffectDicModel();
@@ -565,8 +569,9 @@ public class ProjectService extends BaseService {
     }
 
 	@Transactional
-    public void changeEffectEnable(String fieldId, String enable)
+    public void changeEffectEnable(String fieldId, Map<String, String> map)
     {
+		String enable = map.get("enable");
         if (StringUtils.isEmpty(fieldId) || StringUtils.isEmpty(enable))
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
