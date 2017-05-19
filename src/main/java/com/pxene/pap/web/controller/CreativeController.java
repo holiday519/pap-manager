@@ -278,21 +278,21 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creatives/synchronize",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
-	public void synchronizeCreatives(@RequestParam(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
-		creativeService.synchronizeCreatives(ids.split(","));
+	public void synchronizeCreatives(@RequestBody(required = true)String[] ids,HttpServletResponse response) throws Exception {
+		creativeService.synchronizeCreatives(ids);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
 	/**
 	 * 批量审核创意
-	 * @param ids 创意ids
+	 * @param ids 创意ids  
 	 * @param response
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/creatives/audit",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
-	public void auditCreatives(@RequestParam(value = "ids",required = true)String ids,HttpServletResponse response) throws Exception {
-		creativeService.auditCreative(ids.split(","));
+	public void auditCreatives(@RequestBody(required = true)String[] ids,HttpServletResponse response) throws Exception {
+		creativeService.auditCreative(ids);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

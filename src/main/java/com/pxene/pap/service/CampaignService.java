@@ -1153,7 +1153,9 @@ public class CampaignService extends BaseService {
 			Quantity[] quanArray = new Quantity[quantityModels.size()] ;
 			for (int i = 0; i < quantityModels.size(); i++) {
 				QuantityModel quantityModel = quantityModels.get(i);
-				quanArray[i] = modelMapper.map(quantityModel, Quantity.class);
+				quanArray[i].setBudget(quantityModel.getDailyBudget());          // 日预算
+				quanArray[i].setImpression(quantityModel.getDailyImpression());  // 日均最大展现
+				quanArray[i] = modelMapper.map(quantityModel, Quantity.class);   // copy时间						
 			}
 			bean.setQuantities(quanArray);
 		}
@@ -1510,6 +1512,46 @@ public class CampaignService extends BaseService {
 
 		}
 
+	}
+	
+	/**
+	 * 批量修改创意价格
+	 * @param ids
+	 * @param map
+	 * @throws Exception
+	 */
+	public void updateCampaignsPrices(String[]ids,Map<String,String>map) throws Exception {
+		// 获取价格
+		String strPrice = map.get("price");
+		// 转换格式
+		float price = Float.parseFloat(strPrice);
+		// 查询活动信息
+		List<String> asList = Arrays.asList(ids);      // 转换类型
+		CampaignModelExample campaignModelEx = new CampaignModelExample();
+		campaignModelEx.createCriteria().andIdIn(asList);
+		// 判断活动信息是否为空
+		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelEx);
+		if (campaignModels == null && campaignModels.isEmpty()) {
+			throw new ResourceNotFoundException();
+		}
+		for (CampaignModel campaign : campaignModels) {
+			// 创意id
+			String campaignId = campaign.getId();
+			// 查询改活动下的创意
+			CreativeModelExample creativeEx = new CreativeModelExample();
+			creativeEx.createCriteria().andCampaignIdEqualTo(campaignId);
+			// 判断活动下的创意信息是否为空
+			List<CreativeModel> creativeList = creativeDao.selectByExample(creativeEx);
+			if (creativeList == null && creativeList.isEmpty()) {
+				throw new ResourceNotFoundException();
+			}
+			// 修改创意价格
+			for (CreativeModel creative : creativeList) {
+				creative.setPrice(price);
+				creativeDao.updateByPrimaryKeySelective(creative);
+			}			
+		}
+		
 	}
     
 //    /**

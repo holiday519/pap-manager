@@ -163,8 +163,8 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaigns/synchronize",method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void synchronizeCreatives(@RequestParam(value = "ids",required = true)String ids, HttpServletResponse response) throws Exception {
-		campaignService.synchronizeCreatives(ids.split(","));
+	public void synchronizeCreatives(@RequestBody(required = true)String[] ids, HttpServletResponse response) throws Exception {
+		campaignService.synchronizeCreatives(ids);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -180,6 +180,19 @@ public class CampaignController {
 	@ResponseBody		
 	public void updateCampaignStartAndEndDate(@PathVariable String id,@RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {	
 		campaignService.updateCampaignStartAndEndDate(id, map);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 批量修改活动下创意价格
+	 * @param ids
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/campaigns/prices/{ids}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateCampaignsPrices(@RequestParam(value="ids",required = true)String ids,@RequestBody Map<String,String> map,HttpServletResponse response) throws Exception {
+		campaignService.updateCampaignsPrices(ids.split(","), map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }
