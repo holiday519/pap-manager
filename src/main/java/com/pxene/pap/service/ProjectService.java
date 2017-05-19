@@ -458,7 +458,10 @@ public class ProjectService extends BaseService {
     	String projectId = bean.getId();
     	EffectDicModelExample example = new EffectDicModelExample();
     	example.createCriteria().andProjectIdEqualTo(projectId);
+		//排序
+		example.setOrderByClause("substring(column_code,2)+0 ASC");
     	List<EffectDicModel> effectDics = effectDicDao.selectByExample(example);
+
     	if (effectDics != null) {
     		int len = effectDics.size();
         	EffectField[] effectFields = new EffectField[len];
