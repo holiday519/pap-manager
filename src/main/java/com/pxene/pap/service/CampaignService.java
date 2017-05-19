@@ -1152,10 +1152,10 @@ public class CampaignService extends BaseService {
 		if (quantityModels != null && !quantityModels.isEmpty()) {
 			Quantity[] quanArray = new Quantity[quantityModels.size()] ;
 			for (int i = 0; i < quantityModels.size(); i++) {
-				QuantityModel quantityModel = quantityModels.get(i);
+				QuantityModel quantityModel = quantityModels.get(i);				
+				quanArray[i] = modelMapper.map(quantityModel, Quantity.class);   // copy时间	
 				quanArray[i].setBudget(quantityModel.getDailyBudget());          // 日预算
 				quanArray[i].setImpression(quantityModel.getDailyImpression());  // 日均最大展现
-				quanArray[i] = modelMapper.map(quantityModel, Quantity.class);   // copy时间						
 			}
 			bean.setQuantities(quanArray);
 		}
