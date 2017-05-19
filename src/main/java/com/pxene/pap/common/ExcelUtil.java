@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -273,4 +274,102 @@ public class ExcelUtil<T>
         }
         return true;
     }
+
+    /**
+     * 把数据添加到07版exel中
+     * @param workBook
+     * @param sheetName
+     * @param dataList
+     * @param headerColumns
+     * @param fieldColumns
+     * @return
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     */
+    public XSSFSheet setDataToExcel(XSSFWorkbook workBook, String sheetName, List<Map<String,Object>> dataList, String[] headerColumns, String[] fieldColumns)
+            throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException
+    {
+
+        XSSFSheet sheet = workBook.createSheet(sheetName);
+
+        // 自动对生成的Excel 文档第一行标题栏设置成filter 过滤形式, 方便用户使用
+//        char[] endChar = Character.toChars('A' + (headerColumns.length - 1));
+//        String rangeAddress = "A1:" + String.valueOf(endChar) + "1";
+//        sheet.setAutoFilter(CellRangeAddress.valueOf(rangeAddress));
+
+        setGenerateHeader(workBook, sheet, headerColumns);
+        XSSFCellStyle style = getCellStyle(workBook, false);
+        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+
+        int rowNum = 0;
+        for (Map<String,Object> dataMap : dataList)
+        {
+            rowNum++;
+            Row row = sheet.createRow(rowNum);
+            row.setHeightInPoints(25);
+            for (int i = 0; i < fieldColumns.length; i++)
+            {
+                String fieldName = fieldColumns[i];
+                try
+                {
+                    Object cellValue = dataMap.get(fieldName);
+                    Cell cell = row.createCell(i);
+                    cell.setCellStyle(style);
+                  if (cellValue instanceof String) {
+                        String stringValue = (String) cellValue;
+                        cell.setCellValue(stringValue);
+                    } else if (cellValue instanceof Double) {
+                        double doubleValue = ((Double) cellValue).doubleValue();
+                        cell.setCellValue(doubleValue);
+                    } else if (cellValue instanceof Float) {
+                        float floatValue = ((Float) cellValue).floatValue();
+                        cell.setCellValue(floatValue);
+                    } else if (cellValue instanceof Long) {
+                        long longValue = ((Long) cellValue).longValue();
+                        cell.setCellValue(longValue);
+                    }else  if (cellValue instanceof Integer) {
+                      int intValue = ((Integer) cellValue).intValue();
+                      cell.setCellValue(intValue);
+                  }
+
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return sheet;
+    }
+
+    /**
+     * 把(07版)excel文件写入流中
+     * @param workBook
+     * @return
+     */
+    public static InputStream writeExcelToStream(XSSFWorkbook workBook)
+    {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try
+        {
+            workBook.write(bos);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                workBook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 数据在bos中
+        ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+        return bis;
+    }
+
 }

@@ -1,8 +1,6 @@
 package com.pxene.pap.service;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
@@ -17,13 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.Transactional;
-
-import com.pxene.pap.common.ExcelUtil;
-import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.TrafficData;
-import com.pxene.pap.domain.models.*;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.pxene.pap.common.*;import com.pxene.pap.constant.StatusConstant;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,15 +24,12 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.pxene.pap.common.DateUtils;
-import com.pxene.pap.common.RedisHelper;
-import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -63,6 +52,8 @@ import com.pxene.pap.repository.basic.EffectDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.UploadFilesDao;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Service
 public class DataService extends BaseService {
@@ -688,6 +679,25 @@ public class DataService extends BaseService {
 	}
 
 	/**
+	 * 列出广告主数据
+	 * @param advertiserId
+	 * @param type
+	 * @param startDate
+	 * @param endDate
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> listAdvertisers(String advertiserId, String type, Long startDate, Long endDate) throws Exception {
+		List<Map<String, Object>> datas;
+		if(advertiserId!=null) {
+			datas = getAdvertiserDataByAdvertiserId(startDate, endDate, advertiserId, type);
+		}else{
+			//查询全部客户
+			datas = getAllAdvertiserData(startDate, endDate, type);
+		}
+		return datas;
+	}
+	/**
 	 * 列出广告主数据--根据客户查
 	 * @param startDate
 	 * @param endDate
@@ -752,57 +762,7 @@ public class DataService extends BaseService {
 		return results;
 	}
 
-	/**
-	 * 按客户汇总客户数据（点击，展现等）
-	 * @param days 日期
-	 * @param creativeIds 创意id集合
-	 * @param advertiserName 客户名称
-	 * @return
-     * @throws Exception
-     */
-//	public Map<String, Object> getAdvertiserData_total(String[] days,List<String> creativeIds,String advertiserName) throws Exception{
-//		BasicDataBean basicData = new BasicDataBean();
-//		long impressionAmountTotal = 0L;
-//		long clickAmountTotal = 0L;
-//		long jumpAmountTotal = 0L;
-//		Float totalCost = 0F;
-//
-//		for (String day : days) {
-//			Date time = DateUtils.strToDate(day, "yyyyMMdd");
-//			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
-//			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
-//			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
-//
-//			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
-//					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
-//				continue;
-//			} else {
-//				impressionAmountTotal += bean.getImpressionAmount();
-//				clickAmountTotal += bean.getClickAmount();
-//				jumpAmountTotal += bean.getJumpAmount();
-//				totalCost += bean.getTotalCost();
-//
-//			}
-//		}
-//		basicData.setImpressionAmount(impressionAmountTotal);
-//		basicData.setClickAmount(clickAmountTotal);
-//		basicData.setJumpAmount(jumpAmountTotal);
-//		basicData.setTotalCost(totalCost);
-//
-//		formatBeanRate(basicData);
-//
-//		Map<String, Object> result = new HashMap<String, Object>();
-//		result.put("impressionAmount", basicData.getImpressionAmount());
-//		result.put("clickAmount", basicData.getClickAmount());
-//		result.put("jumpAmount", basicData.getJumpAmount());
-//		result.put("clickRate", basicData.getClickRate());
-//		result.put("totalCost", basicData.getTotalCost());
-//		result.put("impressionCost", basicData.getImpressionCost());
-//		result.put("clickCost", basicData.getClickCost());
-//		result.put("jumpCost", basicData.getJumpCost());
-//		result.put("name", advertiserName);
-//		return result;
-//	}
+
 
 	/**
 	 * 获取流量数据--汇总方式：合计
@@ -936,6 +896,30 @@ public class DataService extends BaseService {
 	}
 
 	/**
+	 * 列出项目数据
+	 * @param advertiserId
+	 * @param projectId
+	 * @param type
+	 * @param startDate
+	 * @param endDate
+	 * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> listProjects(String advertiserId, String projectId, String type,Long startDate, Long endDate) throws Exception{
+		List<Map<String, Object>> datas;
+		if(projectId!=null){
+			//如果projectId不为null，根据projectId查询
+			datas =getProjectDataByProjectId(startDate, endDate, type, projectId);
+		}else if(projectId == null && advertiserId!=null){
+			//如果projectId为null,根据客户查询
+			datas = getProjectDataByAdvertiserId(startDate, endDate, type, advertiserId);
+		}else {
+			//查询全部客户的项目数据
+			datas = getAllProjectData(startDate, endDate, type);
+		}
+		return datas;
+	}
+	/**
 	 * 列出项目数据--通过项目id获取项目数据
 	 * @param startDate
 	 * @param endDate
@@ -1024,6 +1008,35 @@ public class DataService extends BaseService {
 		}
 
 		return results;
+	}
+
+	/**
+	 * 列出活动数据
+	 * @param advertiserId
+	 * @param projectId
+	 * @param campaignId
+	 * @param type
+	 * @param startDate
+	 * @param endDate
+     * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> listCampaigns(String advertiserId, String projectId, String campaignId,String type,Long startDate, Long endDate) throws Exception{
+		List<Map<String, Object>> datas;
+		if(campaignId!=null) {
+			//查询指定活动的数据
+			datas = getCampaignDataByCampaignId(startDate, endDate, type, campaignId);
+		}else if(campaignId == null && projectId != null){
+			//查询指定项目的数据
+			datas = getCampaignDataByProjectId(startDate, endDate, type, projectId);
+		}else if(campaignId == null && projectId == null && advertiserId != null){
+			//查询客户的数据
+			datas = getCampaignDataByAdvertiserId(startDate, endDate, type,advertiserId);
+		}else{
+			//查询所有客户的数据
+			datas = getAllCampaignData(startDate, endDate, type);
+		}
+		return datas;
 	}
 
 	/**
@@ -1143,51 +1156,33 @@ public class DataService extends BaseService {
 		return results;
 	}
 
-
-//	public List<Map<String, Object>> getCreativeData(Long startDate, Long endDate, String id) throws Exception {
-//		// 获取所有天
-//		String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
-//		List<String> creativeIds = new ArrayList<String>();
-//		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-//		creativeIds.add(id);
-//
-//		//查询名称
-//		String name = null;
-//		CreativeModel model = creativeDao.selectByPrimaryKey(id);
-//		if (model == null) {
-//			throw new ResourceNotFoundException();
-//		}
-//		name = model.getName();
-//
-//		for (String day : days) {
-//			Date time = DateUtils.strToDate(day, "yyyyMMdd");
-//			Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
-//			Date bigHourOfDay = DateUtils.getBigHourOfDay(time);
-//			BasicDataBean bean = creativeService.getCreativeDatas(creativeIds, smallHourOfDay.getTime(), bigHourOfDay.getTime());
-//			Map<String, Object> result = new HashMap<String, Object>();
-//
-//			if (bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0
-//					&& bean.getJumpCost() == 0 && bean.getTotalCost() == 0) {
-//				continue;
-//			} else {
-//				result.put("impressionAmount", bean.getImpressionAmount());
-//				result.put("clickAmount", bean.getClickAmount());
-//				result.put("jumpAmount", bean.getJumpAmount());
-//				result.put("clickRate", bean.getClickRate());
-//				result.put("totalCost", bean.getTotalCost());
-//				result.put("impressionCost", bean.getImpressionCost());
-//				result.put("clickCost", bean.getClickCost());
-//				result.put("jumpCost", bean.getJumpCost());
-//
-//				result.put("date", day);
-//				result.put("name", name);
-//
-//				results.add(result);
-//			}
-//		}
-//
-//		return results;
-//	}
+	/**
+	 * 列出创意数据
+	 * @param advertiserId
+	 * @param projectId
+	 * @param campaignId
+	 * @param type
+	 * @param startDate
+	 * @param endDate
+     * @return
+     * @throws Exception
+     */
+	public List<Map<String, Object>> listCreatives(String advertiserId, String projectId, String campaignId, String type,Long startDate, Long endDate) throws Exception{
+		List<Map<String, Object>> datas;
+		if(campaignId != null){
+			//查询指定活动的数据
+			datas = getCreativeDataByCampaignId(startDate, endDate, type, campaignId);
+		}else if(campaignId == null && projectId != null){
+			//查询指定项目的数据
+			datas = getCreativeDataByProjectId(startDate, endDate, type, projectId);
+		}else if(campaignId == null && projectId == null && advertiserId != null){
+			//查询指定用户的数据
+			datas = getCreativeDataByAdvertiserId(startDate, endDate, type, advertiserId);
+		}else{
+			datas = getAllCreativeData(startDate, endDate, type);
+		}
+		return datas;
+	}
 
 	/**
 	 * 列出创意数据--根据创意ID查
@@ -1561,5 +1556,64 @@ public class DataService extends BaseService {
         }
         return titleMap;
     }
+
+	/**
+	 * 把数据导入到07版Excel中，并下载
+	 * @param type
+	 * @param datas
+	 * @param fileName
+	 * @param response
+	 * @throws NoSuchMethodException
+	 * @throws IllegalAccessException
+	 * @throws InvocationTargetException
+	 * @throws UnsupportedEncodingException
+     */
+    public void exportDataToExcel(String type,List<Map<String, Object>> datas, String fileName, HttpServletResponse response) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, UnsupportedEncodingException {
+    	if(datas ==null){
+    		return ;
+		}
+
+		// 定义列名称和列宽度
+		String[] recoresColumns;
+		// 定义需要显示在Excel行中的实体Bean中的属性名称
+		String[] recoresFields;
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+			recoresColumns = new String[] { "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "展现成本_#_3000", "点击成本_#_3000", "二跳成本_#_3000" };
+			recoresFields = new String[] { "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
+		}else{
+			recoresColumns = new String[] { "日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "展现成本_#_3000", "点击成本_#_3000", "二跳成本_#_3000" };
+			recoresFields = new String[] { "date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
+		}
+
+		XSSFWorkbook workBook = new XSSFWorkbook();
+		ExcelUtil<BasicDataBean> excelUtil = new ExcelUtil<BasicDataBean>();
+		String sheetName ="sheet0";
+		//把数据添加到excel中
+		excelUtil.setDataToExcel(workBook, sheetName, datas, recoresColumns, recoresFields);
+		//把文件写入到流中
+		ByteArrayInputStream inputStream = (ByteArrayInputStream) ExcelUtil.writeExcelToStream(workBook);
+		//下载07Excelw文件
+		ExcelOperateUtil.downloadExcel07(inputStream, response, fileName);
+    }
+
+	/**
+	 * 给数据excel命名
+	 * @param type
+	 * @param startDate
+	 * @param endDate
+     * @return
+     */
+	public String renameDatasExcel(String type, Long startDate, Long endDate){
+
+		String typeName ="";
+		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)){
+			typeName="汇总";
+		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+			typeName="分日";
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String fileName = typeName+"-"+sdf.format(new Date(startDate))+"to"+sdf.format(new Date(endDate));
+		return fileName;
+	}
 	
 }
