@@ -4,7 +4,14 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -17,6 +24,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 
 public class GlobalUtil {
@@ -177,5 +189,89 @@ public class GlobalUtil {
             e.printStackTrace();
         }
         return "";
+    }
+	
+	public static JsonObject sortJsonObject(JsonObject obj)
+    {
+        Map<String, JsonElement> map = new TreeMap<String, JsonElement>();
+        Set<Entry<String, JsonElement>> entrySet = obj.entrySet();
+        for (Entry<String, JsonElement> entry : entrySet)
+        {
+            String key = entry.getKey();
+            JsonElement val = entry.getValue();
+            if (val.isJsonObject())
+            {
+                map.put(key, sortJsonObject(val.getAsJsonObject()));
+            }
+            else if (val.isJsonArray()) 
+            {
+                map.put(key, sortJsonArray(val.getAsJsonArray()));
+            }
+            else if (val.isJsonNull())
+            {
+                // do nothing
+            }
+            else
+            {
+                map.put(key, val.getAsJsonPrimitive());
+            }
+        }
+        
+        Gson gson = new Gson();
+        JsonElement jsonTree = gson.toJsonTree(map);
+        
+        return jsonTree.getAsJsonObject();
+    }
+    
+    public static JsonArray sortJsonArray(JsonArray array)
+    {
+        List<JsonElement> list = new ArrayList<JsonElement>();
+        int size = array.size();
+        
+        for (int i = 0; i < size; i++)
+        {
+            JsonElement obj = array.get(i);
+            if (obj.isJsonObject())
+            {
+                list.add(sortJsonObject(obj.getAsJsonObject()));
+            }
+            else if (obj.isJsonArray()) 
+            {
+                list.add(sortJsonArray(obj.getAsJsonArray()));
+            }
+            else if (obj.isJsonNull())
+            {
+                // do nothing
+            }
+            else
+            {
+                list.add(obj.getAsJsonPrimitive());
+            }
+        }
+        
+        Comparator<JsonElement> comparator = new Comparator<JsonElement>()
+        {
+
+            @Override
+            public int compare(JsonElement o1, JsonElement o2)
+            {
+                if (o1.toString().compareTo(o2.toString()) > 0)
+                {
+                    return 1;
+                }
+                else if (o1.toString().compareTo(o2.toString()) < 0)
+                {
+                    return -1;
+                }
+                return 0;
+            }
+            
+        };
+        Collections.sort(list, comparator);
+        
+        Gson gson = new Gson();
+        JsonElement jsonTree = gson.toJsonTree(list);
+        
+        return jsonTree.getAsJsonArray(); 
     }
 }

@@ -11,6 +11,7 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageDao;
+import com.pxene.pap.repository.basic.ImageMaterialDao;
 import com.pxene.pap.repository.basic.IndustryAdxDao;
 import com.pxene.pap.repository.basic.InfoflowMaterialDao;
 import com.pxene.pap.repository.basic.LandpageDao;
@@ -41,6 +42,8 @@ public abstract class AuditService extends BaseService {
 	protected AdvertiserAuditDao advertiserAuditDao;
 	@Autowired
 	protected CreativeAuditDao creativeAuditDao;
+	@Autowired
+	protected ImageMaterialDao imageMaterialDao;
 	
 	protected Environment env;
 	

@@ -168,6 +168,8 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private InmobiAuditService inmobiAuditService;
 		
+	@Autowired
+	private AutohomeAuditService autohomeAuditService;
 	
 	/**
 	 * 创建创意
@@ -494,7 +496,10 @@ public class CreativeService extends BaseService {
 			}
 			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
 				inmobiAuditService.auditCreative(id);
-			}			
+			}
+			if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+                autohomeAuditService.auditCreative(id);
+            }
 		}
 	}
 
@@ -525,6 +530,9 @@ public class CreativeService extends BaseService {
 				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
 					inmobiAuditService.synchronizeCreative(id);
 				}
+				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+				    autohomeAuditService.synchronizeCreative(id);
+                }
 			}
 		}
 	}
