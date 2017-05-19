@@ -797,6 +797,8 @@ public class CampaignService extends BaseService {
 				QuantityModel model = modelMapper.map(bean, QuantityModel.class);
 				model.setCampaignId(id);
 				model.setId(UUIDGenerator.getUUID());
+				model.setDailyBudget(dailyBudget);
+				model.setDailyImpression(bean.getImpression());
 				quantityDao.insertSelective(model);
 			}
 		}
