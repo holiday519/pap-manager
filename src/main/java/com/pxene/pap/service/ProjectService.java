@@ -1,12 +1,13 @@
 package com.pxene.pap.service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
-import com.pxene.pap.common.ExcelUtil;
-import com.pxene.pap.domain.configs.ConmonConfigHelp;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
@@ -25,6 +27,7 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectBean.EffectField;
+import com.pxene.pap.domain.configs.ConmonConfigHelp;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
@@ -130,7 +133,9 @@ public class ProjectService extends BaseService {
         
         // 将项目总预算插入Redis
         String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + project.getId();
-        redisHelper.setNX(projectBudgetKey, project.getTotalBudget());
+        Integer totalBudget = project.getTotalBudget();
+        totalBudget = totalBudget * 100; // 将元转换成分
+        redisHelper.setNX(projectBudgetKey, totalBudget);
         
         // 初始化转化字段
         initEffectField(bean.getId());
@@ -634,25 +639,25 @@ public class ProjectService extends BaseService {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
-        // MySQL中保存的项目总预算
+        // MySQL中保存的项目总预算(元)
         int mysqlVal = projectInDB.getTotalBudget();
         
-        // Redis中保存的项目剩余预算
+        // Redis中保存的项目剩余预算(分)
         Jedis jedis = redisHelper.getJedis();
         jedis.watch(projectBudgetKey);
         int redisVal = Integer.parseInt(jedis.get(projectBudgetKey));
         
-        // 已消耗掉的项目预算
-        int used = mysqlVal - redisVal;
+        // 已消耗掉的项目预算(分)
+        int used = mysqlVal * 100 - redisVal;
         
         // 如果欲修改的预算值不足以支付已消耗掉的项目预算，则抛出异常
-        if (formVal < used)
+        if (formVal * 100 < used)
         {
             throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
         }
         
         // 将表单值减去已消耗掉的值更新回Redis中
-        boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(formVal - used));
+        boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(formVal * 100 - used));
         if (!casFlag)
         {
             throw new ServerFailureException();
