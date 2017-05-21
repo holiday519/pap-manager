@@ -103,7 +103,22 @@ public class Application
         
         List<String> urlPatterns = new ArrayList<String>();
         urlPatterns.add("/advertisers");
+        urlPatterns.add("/advertiser");
+        urlPatterns.add("/project");
         urlPatterns.add("/projects");
+        urlPatterns.add("/campaign");
+        urlPatterns.add("/campaigns");
+        urlPatterns.add("/creative");
+        urlPatterns.add("/creativs");
+        urlPatterns.add("/landpage");
+        urlPatterns.add("/landpages");
+        urlPatterns.add("/apps");
+        urlPatterns.add("/tmpl");
+        urlPatterns.add("/industries");
+        urlPatterns.add("/data");
+        urlPatterns.add("/population");
+        urlPatterns.add("/populations");
+        urlPatterns.add("/regions");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;
