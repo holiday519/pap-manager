@@ -302,6 +302,10 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void deleteCreatives(String[] creativeIds) throws Exception {
+		if (creativeIds.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		
 		// FIXME : 改成in查 --- OK 
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andIdIn(Arrays.asList(creativeIds));
@@ -1624,6 +1628,9 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public void synchronizeCreatives(String[] creativeIds) throws Exception {
+		if (creativeIds.length == 0) {
+			throw new IllegalArgumentException();
+		}
 		// 根据创意id列表查询创意信息
 		List<String> creativeIdsList = Arrays.asList(creativeIds);
 		CreativeModelExample creativeExample = new CreativeModelExample();

@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.TmplBean;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoflowTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
@@ -25,6 +25,7 @@ import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
 import com.pxene.pap.domain.models.VideoTmplModel;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
@@ -74,6 +75,10 @@ public class TmplService extends BaseService {
 		}
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
+		
+		if (appIdList.size() == 0) {
+			throw new IllegalStatusException(PhrasesConstant.APP_NOT_FOUND);
+		}
 		
 		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();
 		List<ImageTmpl> imageTmplListNotUse = new ArrayList<ImageTmpl>();
