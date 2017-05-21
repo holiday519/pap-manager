@@ -81,6 +81,9 @@ public class AdvertiserService extends BaseService
 	
 	@Autowired
 	private InmobiAuditService inmobiAuditService;
+	
+	@Autowired
+	private AutohomeAuditService autohomeAuditService;
     
     private static String UPLOAD_MODE;
     
@@ -646,6 +649,10 @@ public class AdvertiserService extends BaseService
 			// 如果adxId是INMOBI，则提交INMOBI审核
 			inmobiAuditService.auditAdvertiser(auditId);
 		}
+		if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+			// 如果adxId是汽车之家，则提交汽车之家审核
+			autohomeAuditService.auditAdvertiser(auditId);
+		}
 	}
     
     /**
@@ -671,6 +678,10 @@ public class AdvertiserService extends BaseService
 		if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
 			// 如果adxId是INMOBI，则同步INMOBI审核结果
 			inmobiAuditService.synchronizeAdvertiser(auditId);
+		}
+		if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+			// 如果adxId是汽车之家，则同步汽车之家审核结果
+			autohomeAuditService.synchronizeAdvertiser(auditId);
 		}
 	}
 

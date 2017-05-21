@@ -6,6 +6,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,8 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.LandpageBean;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
 import com.pxene.pap.domain.models.LandpageCodeModel;
 import com.pxene.pap.domain.models.LandpageCodeModelExample;
 import com.pxene.pap.domain.models.LandpageModel;
@@ -31,6 +34,7 @@ import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.LandpageCodeDao;
+import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.LandpageDao;
 import com.pxene.pap.repository.custom.CustomLandpageDao;
 
@@ -48,6 +52,9 @@ public class LandpageService extends BaseService {
 	
 	@Autowired
 	private CustomLandpageDao customLandpageDao;
+	
+	@Autowired
+	private LandpageCodeHistoryDao landpageCodeHistoryDao;
 
 	private static final String HTTP_ACCEPT = "accept";
 
@@ -170,6 +177,35 @@ public class LandpageService extends BaseService {
                 landpageCodeDao.insert(landPageRecord);
             }
         }
+        
+        // 修改监测码历史记录表的codes
+        // 通过落地页id查询活动信息
+		CampaignModelExample campaginEx = new CampaignModelExample();
+		campaginEx.createCriteria().andLandpageIdEqualTo(id);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaginEx);
+		Date crrunt = new Date();
+		if (campaigns != null && !campaigns.isEmpty()) {
+			// 如果活动信息不为空
+			for (CampaignModel campaign : campaigns) {
+				// 一个落地页可以对应多个活动
+				String campaignId = campaign.getId();
+				// 根据活动id查询监测码历史记录信息
+				LandpageCodeHistoryModelExample codeHistoryEx = new LandpageCodeHistoryModelExample();
+				codeHistoryEx.createCriteria().andCampaignIdEqualTo(campaignId);
+				// 按开始时间进行倒序排序
+				codeHistoryEx.setOrderByClause("start_time DESC");
+				List<LandpageCodeHistoryModel> landpageCodeHistorys = landpageCodeHistoryDao
+						.selectByExample(codeHistoryEx);
+				if (landpageCodeHistorys != null && !landpageCodeHistorys.isEmpty()) {
+					// 如果监测码历史记录不为空，更新距离现在时间最近的一条监测码历史记录的结束时间
+					LandpageCodeHistoryModel codeHistory = landpageCodeHistorys.get(0);
+					// 一个活动可以对应多个监测码历史记录
+					codeHistory.setEndTime(crrunt);
+					codeHistory.setId(codeHistory.getId());
+					landpageCodeHistoryDao.updateByPrimaryKeySelective(codeHistory);
+				}
+			}
+		}
 	}
 
 	/**

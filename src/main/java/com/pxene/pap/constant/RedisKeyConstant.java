@@ -41,7 +41,7 @@ public class RedisKeyConstant {
 	 * 活动预算
 	 */
 	//public static final String CAMPAIGN_BUDGET = "pap_budget_"; 
-	public static final String CAMPAIGN_BUDGET = "pap_campaign_budget_$campaignid"; 
+	public static final String CAMPAIGN_BUDGET = "pap_campaign_budget_"; 
 	/**
 	 * 活动展现上限
 	 */

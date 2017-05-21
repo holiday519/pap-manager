@@ -1264,7 +1264,6 @@ public class LaunchService extends BaseService {
 	public void writeCampaignBudget(CampaignModel campaign) throws Exception {
 		String campaignId = campaign.getId();
 		Date current = new Date();
-		int totalBudget = campaign.getTotalBudget();
 		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		
 		QuantityModelExample quantityExample = new QuantityModelExample();
@@ -1272,24 +1271,17 @@ public class LaunchService extends BaseService {
 			.andStartDateLessThanOrEqualTo(current)
 			.andEndDateGreaterThanOrEqualTo(current);
 		List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
-		if (quantities !=null && !quantities.isEmpty()) {
+		if (quantities !=null && !quantities.isEmpty() && quantities.size()>0) {
 			int budget = quantities.get(0).getDailyBudget();
-			Map<String, String> value = new HashMap<String, String>();
-			if (!isHaveLaunched(campaign.getId())) {
-				// 如果没有投放过需要写入总预算，已投放过总预算减即可不需要重新写入
-				value.put("total", String.valueOf(totalBudget * 100));
-			}
-			// 投放当天需要写入当天的预算，每天需要重新写入当天的预算
-			value.put("daily", String.valueOf(budget * 100));
-			redisHelper.hset(key, value);
+			int value = budget * 100;
+			redisHelper.setNX(key, value);
 		}
 	}
 	
 	public void removeCampaignBudget(String campaignId) throws Exception {
 		String key = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		if (redisHelper.exists(key)) {
-			//JedisUtils.delete(key);
-		    redisHelper.hdelete(key);
+			redisHelper.delete(key);
 		}
 	}
 	
