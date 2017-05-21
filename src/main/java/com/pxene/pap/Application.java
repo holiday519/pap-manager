@@ -16,6 +16,10 @@
 
 package com.pxene.pap;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.Filter;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -29,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import com.pxene.pap.web.filter.JwtFilter;
 import com.pxene.pap.web.filter.RateLimiterFilter;
 
 
@@ -88,7 +93,7 @@ public class Application
      * 注册Filter：自定义的Token认证过滤器
      * @return
      */
-   /* @Bean
+    @Bean
     protected FilterRegistrationBean customTokenFilterRegistrationBean()
     {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
@@ -98,9 +103,10 @@ public class Application
         
         List<String> urlPatterns = new ArrayList<String>();
         urlPatterns.add("/advertisers");
+        urlPatterns.add("/projects");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;
-    }*/
+    }
     
 }
