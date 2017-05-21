@@ -1515,7 +1515,8 @@ public class CampaignService extends BaseService {
 				landpageCodeHistory.setId(UUIDGenerator.getUUID()); // id
 				landpageCodeHistory.setCampaignId(campaignId); // 活动id
 				landpageCodeHistory.setCodes(codes); // 监测码
-				landpageCodeHistory.setStartTime(current); // 创建活动的时间
+				landpageCodeHistory.setStartTime(current); // 监测码使用的开始时间为创建活动的时间
+				landpageCodeHistory.setEndTime(current);   // 监测码使用的结束时间设置为当前时间，防止0000-00-00 00:00:00格式转换错误
 				// 插入数据
 				landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
 			}
