@@ -2,6 +2,7 @@ package com.pxene.pap.web.controller;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,6 +67,17 @@ public class PopulationController {
     public void updatePopulation(@PathVariable String id, @RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "name", required = true) String name,HttpServletResponse response) throws Exception 
 	{
 	    populationService.updatePopulation(id, file, name);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
+    }
+	
+	/*
+	 * 修改人群名称
+	 */
+	@RequestMapping(value = "/population/name/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public void updatePopulation4Name(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception 
+	{
+	    populationService.updatePopulation4Name(id, map.get("name"));
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
 	

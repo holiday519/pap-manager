@@ -21,6 +21,7 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.PopulationBean;
 import com.pxene.pap.domain.models.PopulationModel;
 import com.pxene.pap.domain.models.PopulationModelExample;
+import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.PopulationDao;
@@ -103,45 +104,81 @@ public class PopulationService extends BaseService {
 	@Transactional
     public void updatePopulation(String id, MultipartFile file, String name) throws Exception
     {
-        if (file != null) {
-        	try
+		// 验证id是否存在
+		PopulationModel model = populationDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		} else {
+			String nameInDB = model.getName();
+			if (!nameInDB.equals(name)) {
+				PopulationModelExample example = new PopulationModelExample();
+				example.createCriteria().andNameEqualTo(name);
+				List<PopulationModel> models = populationDao.selectByExample(example);
+				if (models != null && !models.isEmpty()) {
+					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+				}
+			}
+		}
+		
+		try
+        {
+            Integer amount = getAmount(file);
+            
+            if (amount != null && amount > 0)
             {
-                Integer amount = getAmount(file);
+                // 从DB中查询出原有的人群定向文件保存路径，删除掉旧的文件。
+                PopulationModel population = populationDao.selectByPrimaryKey(id);
+                FileUtils.deleteLocalFile(new File(population.getPath()));
                 
-                if (amount != null && amount > 0)
-                {
-                    // 从DB中查询出原有的人群定向文件保存路径，删除掉旧的文件。
-                    PopulationModel population = populationDao.selectByPrimaryKey(id);
-                    FileUtils.deleteLocalFile(new File(population.getPath()));
-                    
-                    // 上传新的文件到本地服务器
-                    String fileName = file.getOriginalFilename();
-                    FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
-                    
-                    // 将新的名称和文件路径保存回DB
-                    PopulationModel newPopulcation = new PopulationModel();
-                    newPopulcation.setId(id);
-                    newPopulcation.setName(name);
-                    newPopulcation.setAmount(amount);
-                    newPopulcation.setFileName(fileName);
-                    
-                    populationDao.updateByPrimaryKey(newPopulcation);
-                }
-                else
-                {
-                    throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
-                }
+                // 上传新的文件到本地服务器
+                String fileName = file.getOriginalFilename();
+                FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
+                
+                // 将新的名称和文件路径保存回DB
+                PopulationModel newPopulcation = new PopulationModel();
+                newPopulcation.setId(id);
+                newPopulcation.setName(name);
+                newPopulcation.setAmount(amount);
+                newPopulcation.setFileName(fileName);
+                
+                populationDao.updateByPrimaryKey(newPopulcation);
             }
-            catch (IOException e)
+            else
             {
                 throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
             }
-        } else {
-        	PopulationModel population = new PopulationModel();
-        	population.setName(name);
-        	populationDao.updateByPrimaryKey(population);
+        }
+        catch (IOException e)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
         }
 		
+    }
+	
+	@Transactional
+    public void updatePopulation4Name(String id, String name) throws Exception
+    {
+		if (StringUtils.isEmpty(name)) {
+			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_NULL);
+		}
+		// 验证id是否存在
+		PopulationModel model = populationDao.selectByPrimaryKey(id);
+		if (model == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		
+		PopulationModelExample example = new PopulationModelExample();
+		example.createCriteria().andNameEqualTo(name);
+		List<PopulationModel> models = populationDao.selectByExample(example);
+		if (models != null && !models.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
+		
+		PopulationModel newPopulcation = new PopulationModel();
+		newPopulcation.setId(id);
+		newPopulcation.setName(name);
+      
+		populationDao.updateByPrimaryKeySelective(newPopulcation);
     }
 
     /**
