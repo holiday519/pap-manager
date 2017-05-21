@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.basic.UploadFilesDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.UploadFilesModel">
+<mapper namespace="com.pxene.pap.repository.basic.EffectFileDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.EffectFileModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
@@ -71,14 +71,14 @@
   <sql id="Base_Column_List">
     id, name, project_id, project_name, amount, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.UploadFilesModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.EffectFileModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_uploadfiles
+    from pap_t_effectfile
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,29 +89,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from pap_t_uploadfiles
+    from pap_t_effectfile
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from pap_t_uploadfiles
+    delete from pap_t_effectfile
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.UploadFilesModelExample">
-    delete from pap_t_uploadfiles
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.EffectFileModelExample">
+    delete from pap_t_effectfile
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.models.UploadFilesModel">
-    insert into pap_t_uploadfiles (id, name, project_id, 
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.EffectFileModel">
+    insert into pap_t_effectfile (id, name, project_id, 
       project_name, amount, create_time, 
       update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{projectName,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.UploadFilesModel">
-    insert into pap_t_uploadfiles
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.EffectFileModel">
+    insert into pap_t_effectfile
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -159,14 +159,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.models.UploadFilesModelExample" resultType="java.lang.Long">
-    select count(*) from pap_t_uploadfiles
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.EffectFileModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_effectfile
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update pap_t_uploadfiles
+    update pap_t_effectfile
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -195,7 +195,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update pap_t_uploadfiles
+    update pap_t_effectfile
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -207,8 +207,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.UploadFilesModel">
-    update pap_t_uploadfiles
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.EffectFileModel">
+    update pap_t_effectfile
     <set>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
@@ -231,8 +231,8 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.UploadFilesModel">
-    update pap_t_uploadfiles
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.EffectFileModel">
+    update pap_t_effectfile
     set name = #{name,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       project_name = #{projectName,jdbcType=VARCHAR},

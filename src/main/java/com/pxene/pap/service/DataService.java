@@ -15,9 +15,14 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.Transactional;
-import com.pxene.pap.common.*;
+
+import com.pxene.pap.common.DateUtils;
+import com.pxene.pap.common.ExcelOperateUtil;
+import com.pxene.pap.common.ExcelUtil;
+import com.pxene.pap.common.RedisHelper;
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.models.*;
+
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -35,15 +40,26 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.models.AdvertiserModel;
+import com.pxene.pap.domain.models.CampaignModel;
+import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.EffectFileModel;
+import com.pxene.pap.domain.models.EffectModel;
+import com.pxene.pap.domain.models.EffectModelExample;
+import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.ProjectModelExample;
+import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDao;
+import com.pxene.pap.repository.basic.EffectFileDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
-import com.pxene.pap.repository.basic.UploadFilesDao;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -71,7 +87,7 @@ public class DataService extends BaseService {
 	private EffectDao effectDao;
 	
 	@Autowired
-	private UploadFilesDao uploadFilesDao;
+	private EffectFileDao effectFileDao;
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
@@ -1408,14 +1424,14 @@ public class DataService extends BaseService {
         ProjectModel project = projectDao.selectByPrimaryKey(projectId);
         String projectName = project.getName();
         // 2. 插入属性
-        UploadFilesModel uploadFiles = new UploadFilesModel();
-        uploadFiles.setId(UUIDGenerator.getUUID());             // 文件id
-        uploadFiles.setName(file.getName());                    // 文件名称
-        uploadFiles.setProjectId(projectId);                    // 项目id
-        uploadFiles.setProjectName(projectName);                // 项目名称
-        uploadFiles.setAmount(modelList.size());                // 匹配数量
+        EffectFileModel effectFile = new EffectFileModel();
+        effectFile.setId(UUIDGenerator.getUUID());             // 文件id
+        effectFile.setName(file.getName());                    // 文件名称
+        effectFile.setProjectId(projectId);                    // 项目id
+        effectFile.setProjectName(projectName);                // 项目名称
+        effectFile.setAmount(modelList.size());                // 匹配数量
         // 3.插入
-        uploadFilesDao.insert(uploadFiles);
+        effectFileDao.insert(effectFile);
     }
     
     /**

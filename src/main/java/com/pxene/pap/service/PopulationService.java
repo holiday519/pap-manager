@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -38,7 +40,7 @@ public class PopulationService extends BaseService {
 	    UPLOAD_DIR = env.getProperty("pap.population.path");
 	}
 	
-	
+	@Transactional
 	public List<PopulationBean> listPopulations(String name) throws Exception {
 		PopulationModelExample example = new PopulationModelExample();
 		if (!StringUtils.isEmpty(name)) {
@@ -65,12 +67,11 @@ public class PopulationService extends BaseService {
 	 * @param name 人群名称
 	 * @return
 	 */
+	@Transactional
     public String createPopulation(MultipartFile file, String name) throws Exception
     {
-        String populationUUID = UUIDGenerator.getUUID();
-        String uploadFileUUID = UUIDGenerator.getUUID();
+        String id = UUIDGenerator.getUUID();
         Integer amount;
-        
         try
         {
             amount = getAmount(file);
@@ -79,18 +80,18 @@ public class PopulationService extends BaseService {
         {
             throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
         }
-        
-        String path = FileUtils.uploadFileToLocal(UPLOAD_DIR, uploadFileUUID, file);
+        String fileName = file.getOriginalFilename();
+        FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
         
         PopulationModel record = new PopulationModel();
-        record.setId(populationUUID);
+        record.setId(id);
         record.setName(name);
-        record.setPath(path);
         record.setAmount(amount);
+        record.setFileName(fileName);
         
         populationDao.insertSelective(record);
         
-        return populationUUID;
+        return id;
     }
     
     /**
@@ -99,46 +100,55 @@ public class PopulationService extends BaseService {
      * @param file  人群文件
      * @param name  人群名称
      */
+	@Transactional
     public void updatePopulation(String id, MultipartFile file, String name) throws Exception
     {
-        try
-        {
-            Integer amount = getAmount(file);
-            
-            if (amount != null && amount > 0)
+        if (file != null) {
+        	try
             {
-                // 从DB中查询出原有的人群定向文件保存路径，删除掉旧的文件。
-                PopulationModel population = populationDao.selectByPrimaryKey(id);
-                FileUtils.deleteLocalFile(new File(population.getPath()));
+                Integer amount = getAmount(file);
                 
-                // 上传新的文件到本地服务器
-                String uploadFileUUID = UUIDGenerator.getUUID();
-                String path = FileUtils.uploadFileToLocal(UPLOAD_DIR, uploadFileUUID, file);
-                
-                // 将新的名称和文件路径保存回DB
-                PopulationModel newPopulcation = new PopulationModel();
-                newPopulcation.setId(id);
-                newPopulcation.setName(name);
-                newPopulcation.setPath(path);
-                newPopulcation.setAmount(amount);
-                
-                populationDao.updateByPrimaryKey(newPopulcation);
+                if (amount != null && amount > 0)
+                {
+                    // 从DB中查询出原有的人群定向文件保存路径，删除掉旧的文件。
+                    PopulationModel population = populationDao.selectByPrimaryKey(id);
+                    FileUtils.deleteLocalFile(new File(population.getPath()));
+                    
+                    // 上传新的文件到本地服务器
+                    String fileName = file.getOriginalFilename();
+                    FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
+                    
+                    // 将新的名称和文件路径保存回DB
+                    PopulationModel newPopulcation = new PopulationModel();
+                    newPopulcation.setId(id);
+                    newPopulcation.setName(name);
+                    newPopulcation.setAmount(amount);
+                    newPopulcation.setFileName(fileName);
+                    
+                    populationDao.updateByPrimaryKey(newPopulcation);
+                }
+                else
+                {
+                    throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
+                }
             }
-            else
+            catch (IOException e)
             {
                 throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
             }
+        } else {
+        	PopulationModel population = new PopulationModel();
+        	population.setName(name);
+        	populationDao.updateByPrimaryKey(population);
         }
-        catch (IOException e)
-        {
-            throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
-        }
+		
     }
 
     /**
      * 批量删除人群定向：定向文件、DB中人群信息。
      * @param ids
      */
+	@Transactional
     public void deletePopulations(String[] ids) throws Exception
     {
         // 操作前先查询一次数据库，判断指定的资源是否存在
@@ -171,7 +181,13 @@ public class PopulationService extends BaseService {
         }
     }
 
-
+	@Transactional
+    public PopulationBean getPopulation(String id) throws Exception {
+    	PopulationModel model = populationDao.selectByPrimaryKey(id);
+    	
+    	return modelMapper.map(model, PopulationBean.class);
+    }
+    
     /**
      * 读取文件中除了中括号（[）以外的行数
      * @param file

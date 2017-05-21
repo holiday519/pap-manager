@@ -78,4 +78,15 @@ public class PopulationController {
 	    populationService.deletePopulations(ids.split(","));
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
+	
+	/*
+	 * 查询人群
+	 */
+	@RequestMapping(value = "/population/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String getPopulation(@PathVariable String id, HttpServletResponse response) throws Exception
+    {
+	    PopulationBean population = populationService.getPopulation(id);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), population, response);
+    }
 }

@@ -10,7 +10,8 @@ public class PopulationBean {
 	private String name;
 	@JsonIgnore
 	private String type;
-	private String path;
+//	private String path;
+	private String fileName;
 	private Integer amount;
 	private String remark;
 	private Date updateTime;
@@ -33,11 +34,17 @@ public class PopulationBean {
 	public void setType(String type) {
 		this.type = type;
 	}
-	public String getPath() {
-		return path;
+//	public String getPath() {
+//		return path;
+//	}
+//	public void setPath(String path) {
+//		this.path = path;
+//	}
+	public String getFileName() {
+		return fileName;
 	}
-	public void setPath(String path) {
-		this.path = path;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 	public Integer getAmount() {
 		return amount;
@@ -60,7 +67,7 @@ public class PopulationBean {
 	@Override
 	public String toString() {
 		return "PopulationBean [id=" + id + ", name=" + name + ", type=" + type
-				+ ", path=" + path + ", amount=" + amount + ", remark="
+				+ ", amount=" + amount + ", remark="
 				+ remark + ", updateTime=" + updateTime + "]";
 	}
 	

@@ -2,7 +2,7 @@ package com.pxene.pap.domain.models;
 
 import java.util.Date;
 
-public class UploadFilesModel {
+public class EffectFileModel {
     private String id;
 
     private String name;

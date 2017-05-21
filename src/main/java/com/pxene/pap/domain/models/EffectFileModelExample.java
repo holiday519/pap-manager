@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class UploadFilesModelExample {
+public class EffectFileModelExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public UploadFilesModelExample() {
+    public EffectFileModelExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

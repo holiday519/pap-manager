@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="amount" jdbcType="INTEGER" property="amount" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, type, path, amount, remark, create_time, update_time
+    id, name, type, file_name, path, amount, remark, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="com.pxene.pap.domain.models.PopulationModelExample" resultMap="BaseResultMap">
     select
@@ -105,11 +106,13 @@
   </delete>
   <insert id="insert" parameterType="com.pxene.pap.domain.models.PopulationModel">
     insert into pap_t_population (id, name, type, 
-      path, amount, remark, 
-      create_time, update_time)
+      file_name, path, amount, 
+      remark, create_time, update_time
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{path,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      #{fileName,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.PopulationModel">
     insert into pap_t_population
@@ -122,6 +125,9 @@
       </if>
       <if test="type != null">
         type,
+      </if>
+      <if test="fileName != null">
+        file_name,
       </if>
       <if test="path != null">
         path,
@@ -148,6 +154,9 @@
       </if>
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
       </if>
       <if test="path != null">
         #{path,jdbcType=VARCHAR},
@@ -184,6 +193,9 @@
       <if test="record.type != null">
         type = #{record.type,jdbcType=VARCHAR},
       </if>
+      <if test="record.fileName != null">
+        file_name = #{record.fileName,jdbcType=VARCHAR},
+      </if>
       <if test="record.path != null">
         path = #{record.path,jdbcType=VARCHAR},
       </if>
@@ -209,6 +221,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
       type = #{record.type,jdbcType=VARCHAR},
+      file_name = #{record.fileName,jdbcType=VARCHAR},
       path = #{record.path,jdbcType=VARCHAR},
       amount = #{record.amount,jdbcType=INTEGER},
       remark = #{record.remark,jdbcType=VARCHAR},
@@ -226,6 +239,9 @@
       </if>
       <if test="type != null">
         type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
       </if>
       <if test="path != null">
         path = #{path,jdbcType=VARCHAR},
@@ -249,6 +265,7 @@
     update pap_t_population
     set name = #{name,jdbcType=VARCHAR},
       type = #{type,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
       path = #{path,jdbcType=VARCHAR},
       amount = #{amount,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR},

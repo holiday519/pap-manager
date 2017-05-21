@@ -9,6 +9,8 @@ public class PopulationModel {
 
     private String type;
 
+    private String fileName;
+
     private String path;
 
     private Integer amount;
@@ -41,6 +43,14 @@ public class PopulationModel {
 
     public void setType(String type) {
         this.type = type == null ? null : type.trim();
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName == null ? null : fileName.trim();
     }
 
     public String getPath() {
@@ -92,6 +102,7 @@ public class PopulationModel {
         sb.append(", id=").append(id);
         sb.append(", name=").append(name);
         sb.append(", type=").append(type);
+        sb.append(", fileName=").append(fileName);
         sb.append(", path=").append(path);
         sb.append(", amount=").append(amount);
         sb.append(", remark=").append(remark);
