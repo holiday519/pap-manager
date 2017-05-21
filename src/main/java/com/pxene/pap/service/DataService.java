@@ -31,6 +31,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFDataFormat;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -1586,10 +1589,10 @@ public class DataService extends BaseService {
 		// 定义需要显示在Excel行中的实体Bean中的属性名称
 		String[] recoresFields;
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
-			recoresColumns = new String[] { "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "展现成本_#_3000", "点击成本_#_3000", "二跳成本_#_3000" };
+			recoresColumns = new String[] { "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000" };
 			recoresFields = new String[] { "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
 		}else{
-			recoresColumns = new String[] { "日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "展现成本_#_3000", "点击成本_#_3000", "二跳成本_#_3000" };
+			recoresColumns = new String[] { "日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000" };
 			recoresFields = new String[] { "date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
 		}
 
@@ -1597,12 +1600,93 @@ public class DataService extends BaseService {
 		ExcelUtil<BasicDataBean> excelUtil = new ExcelUtil<BasicDataBean>();
 		String sheetName ="sheet0";
 		//把数据添加到excel中
-		excelUtil.setDataToExcel(workBook, sheetName, datas, recoresColumns, recoresFields);
+		setDataToExcel(excelUtil,workBook, sheetName, datas, recoresColumns, recoresFields);
 		//把文件写入到流中
 		ByteArrayInputStream inputStream = (ByteArrayInputStream) ExcelUtil.writeExcelToStream(workBook);
 		//下载07Excelw文件
 		ExcelOperateUtil.downloadExcel07(inputStream, response, fileName);
     }
+
+	/**
+	 * 把数据添加到07版exel中
+	 * @param excelUtil
+	 * @param workBook
+	 * @param sheetName
+	 * @param dataList
+	 * @param headerColumns
+	 * @param fieldColumns
+	 * @return
+	 * @throws NoSuchMethodException
+	 * @throws IllegalAccessException
+	 * @throws java.lang.IllegalArgumentException
+     * @throws InvocationTargetException
+     */
+	public XSSFSheet setDataToExcel(ExcelUtil excelUtil,XSSFWorkbook workBook, String sheetName, List<Map<String,Object>> dataList, String[] headerColumns, String[] fieldColumns)
+			throws NoSuchMethodException, IllegalAccessException, java.lang.IllegalArgumentException, InvocationTargetException
+	{
+
+		XSSFSheet sheet = workBook.createSheet(sheetName);
+
+		excelUtil.setGenerateHeader(workBook, sheet, headerColumns);
+		//默认单元格格式
+		XSSFCellStyle style = excelUtil.getCellStyle(workBook, false);
+
+		//货币格式保留两位小数
+		XSSFCellStyle currencyStyle = excelUtil.getCellStyle(workBook, false);
+		XSSFDataFormat dataFormat = workBook.createDataFormat();
+		currencyStyle.setDataFormat(dataFormat.getFormat("￥###0.00"));
+
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+
+		//千分位格式化
+		DecimalFormat decimalFormat=new DecimalFormat(".00\u2030");
+
+		int rowNum = 0;
+		for (Map<String,Object> dataMap : dataList)
+		{
+			rowNum++;
+			Row row = sheet.createRow(rowNum);
+			row.setHeightInPoints(25);
+			for (int i = 0; i < fieldColumns.length; i++)
+			{
+				String fieldName = fieldColumns[i];
+				try
+				{
+					Object cellValue = dataMap.get(fieldName);
+					Cell cell = row.createCell(i);
+					cell.setCellStyle(style);
+					if (cellValue instanceof String) {
+						String stringValue = (String) cellValue;
+						cell.setCellValue(stringValue);
+					} else if (cellValue instanceof Double) {
+						double doubleValue = ((Double) cellValue).doubleValue();
+						cell.setCellValue(doubleValue);
+					} else if (cellValue instanceof Float) {
+						float floatValue = ((Float) cellValue).floatValue();
+						if(fieldName.equals("clickRate")){
+							cell.setCellValue(decimalFormat.format(floatValue));
+						}else {
+							cell.setCellStyle(currencyStyle);
+							cell.setCellValue(floatValue);
+						}
+					} else if (cellValue instanceof Long) {
+						long longValue = ((Long) cellValue).longValue();
+						cell.setCellValue(longValue);
+					}else  if (cellValue instanceof Integer) {
+						int intValue = ((Integer) cellValue).intValue();
+						cell.setCellValue(intValue);
+					}
+
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return sheet;
+	}
 
 	/**
 	 * 给数据excel命名
