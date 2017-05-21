@@ -2,7 +2,7 @@ package com.pxene.pap.domain.beans;
 
 import java.util.Date;
 
-public class UploadFilesBean {
+public class EffectFileBean {
 	/**
 	 * 文件ID
 	 */

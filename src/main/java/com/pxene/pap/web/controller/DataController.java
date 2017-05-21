@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.exception.IllegalArgumentException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.EffectFileBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.DataService;
 
@@ -154,15 +157,25 @@ public class DataController
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 
-
-
-
-	@RequestMapping(value = "/data/action/import", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/data/effect/import", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void importEffect(@RequestPart(name = "file", required = true) MultipartFile file, @RequestPart(name = "projectId", required = true) String projectId, HttpServletResponse response) throws Exception
 	{
 		dataService.importEffect(file, projectId);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	@RequestMapping(value = "/data/effect/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String listEffects(@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception
+	{
+		Page<Object> pager = null;
+		if (pageNo != null && pageSize != null) {
+			pager = PageHelper.startPage(pageNo, pageSize);
+		}
+		List<EffectFileBean> effectFiles = dataService.listEffectFiles();
+		PaginationBean result = new PaginationBean(effectFiles, pager);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 
 	@RequestMapping(value = "/data/export/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

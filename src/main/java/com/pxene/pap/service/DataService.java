@@ -43,12 +43,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.EffectFileBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectFileModel;
+import com.pxene.pap.domain.models.EffectFileModelExample;
 import com.pxene.pap.domain.models.EffectModel;
 import com.pxene.pap.domain.models.EffectModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
@@ -1430,12 +1432,27 @@ public class DataService extends BaseService {
         // 2. 插入属性
         EffectFileModel effectFile = new EffectFileModel();
         effectFile.setId(UUIDGenerator.getUUID());             // 文件id
-        effectFile.setName(file.getName());                    // 文件名称
+        effectFile.setName(file.getOriginalFilename());        // 文件名称
         effectFile.setProjectId(projectId);                    // 项目id
         effectFile.setProjectName(projectName);                // 项目名称
         effectFile.setAmount(modelList.size());                // 匹配数量
         // 3.插入
         effectFileDao.insert(effectFile);
+    }
+    
+    @Transactional
+    public List<EffectFileBean> listEffectFiles() throws Exception {
+    	// 查询上传文件信息
+    	EffectFileModelExample example = new EffectFileModelExample();
+    	List<EffectFileModel> models = effectFileDao.selectByExample(example);
+    	// 定义返回的list
+    	List<EffectFileBean> beans = new ArrayList<EffectFileBean>();
+    	// 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
+    	for (EffectFileModel model : models) {
+    		EffectFileBean bean = modelMapper.map(model, EffectFileBean.class);
+    		beans.add(bean);
+    	}
+		return beans;   	
     }
     
     /**
