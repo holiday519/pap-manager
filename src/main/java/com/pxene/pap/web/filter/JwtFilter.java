@@ -118,6 +118,11 @@ public class JwtFilter implements Filter
         httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
         
+        httpResponse.setHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
+        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        httpResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT,PATCH");
+        httpResponse.setHeader("Access-Control-Allow-Headers", "authorization, content-type");
+        
         ObjectMapper mapper = new ObjectMapper();
         ResponseBean result = new ResponseBean();
     	result.setCode(exception.getCode());
