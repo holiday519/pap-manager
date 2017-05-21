@@ -178,7 +178,7 @@ public class LandpageService extends BaseService {
             }
         }
         
-        // 修改监测码历史记录表的codes
+        // 更新监测码历史记录表的codes
         // 通过落地页id查询活动信息
 		CampaignModelExample campaginEx = new CampaignModelExample();
 		campaginEx.createCriteria().andLandpageIdEqualTo(id);
@@ -196,6 +196,7 @@ public class LandpageService extends BaseService {
 				codeHistoryEx.setOrderByClause("start_time DESC");
 				List<LandpageCodeHistoryModel> landpageCodeHistorys = landpageCodeHistoryDao
 						.selectByExample(codeHistoryEx);
+				// 更新监测码历史记录的结束时间
 				if (landpageCodeHistorys != null && !landpageCodeHistorys.isEmpty()) {
 					// 如果监测码历史记录不为空，更新距离现在时间最近的一条监测码历史记录的结束时间
 					LandpageCodeHistoryModel codeHistory = landpageCodeHistorys.get(0);
@@ -204,6 +205,14 @@ public class LandpageService extends BaseService {
 					codeHistory.setId(codeHistory.getId());
 					landpageCodeHistoryDao.updateByPrimaryKeySelective(codeHistory);
 				}
+				// 2.向监测码历史记录表中重新插入一条记录
+				LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
+				landpageCodeHistory.setId(UUIDGenerator.getUUID());
+				landpageCodeHistory.setCampaignId(campaignId);
+				landpageCodeHistory.setCodes(codes.toString());
+				landpageCodeHistory.setStartTime(crrunt);
+				landpageCodeHistory.setEndTime(crrunt);
+				landpageCodeHistoryDao.insert(landpageCodeHistory);
 			}
 		}
 	}
