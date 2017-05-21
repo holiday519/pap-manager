@@ -1199,14 +1199,16 @@ public class LaunchService extends BaseService {
 				// 查询创意的审核信息
 				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
 				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId);
-				List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditExample);
+				List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditExample);
 				// 获取创意的审核状态
-				String status = creativeAudit.get(0).getStatus();
-				// 创意开关是打开，并且创意审核通过
-				if (StatusConstant.CREATIVE_IS_ENABLE.equals(creative.getEnable()) 
-						&& StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status)) {
-					creativeIdJsons.add(creativeId);
-				}				
+				if (!creativeAudits.isEmpty()) {
+					String status = creativeAudits.get(0).getStatus();
+					// 创意开关是打开，并且创意审核通过
+					if (StatusConstant.CREATIVE_IS_ENABLE.equals(creative.getEnable()) 
+							&& StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status)) {
+						creativeIdJsons.add(creativeId);
+					}
+				}
 			}
 		}
 		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出
