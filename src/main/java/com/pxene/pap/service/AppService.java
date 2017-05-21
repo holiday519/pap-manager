@@ -34,9 +34,9 @@ public class AppService extends BaseService {
 		List<AppBean> result = new ArrayList<AppBean>();
 		List<AppModel> apps = appDao.selectByExample(appExample);
 		
-		if (apps == null || apps.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
+//		if (apps == null || apps.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
 		
 		for (AppModel model : apps) {
 			AppBean appBean = modelMapper.map(model, AppBean.class);

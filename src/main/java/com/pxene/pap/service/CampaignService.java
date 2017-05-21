@@ -971,9 +971,9 @@ public class CampaignService extends BaseService {
 		List<CampaignModel> models = campaignDao.selectByExample(example);
 		List<CampaignBean> beans = new ArrayList<CampaignBean>();
 		
-		if (models == null || models.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
+//		if (models == null || models.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
 		
 		for (CampaignModel model : models) {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);

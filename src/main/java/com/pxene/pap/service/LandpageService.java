@@ -284,10 +284,10 @@ public class LandpageService extends BaseService {
 	    List<LandpageBean> beans = new ArrayList<LandpageBean>();
 		List<Map<String, String>> models = customLandpageDao.selectLandPages();
 		
-		if (models == null || models.isEmpty())
-		{
-		    throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
+//		if (models == null || models.isEmpty())
+//		{
+//		    throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+//		}
 		
 		for (Map<String, String> model : models)
         {

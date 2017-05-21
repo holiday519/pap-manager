@@ -382,9 +382,9 @@ public class AdvertiserService extends BaseService
 		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
 		List<AdvertiserBean> advertiserBeans = new ArrayList<AdvertiserBean>();
 
-		if (advertisers == null || advertisers.size() <= 0) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
+//		if (advertisers == null || advertisers.size() <= 0) {
+//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+//		}
 
 		// 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
 		for (AdvertiserModel advertiser : advertisers) {

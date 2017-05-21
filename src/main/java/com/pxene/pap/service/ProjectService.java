@@ -376,9 +376,9 @@ public class ProjectService extends BaseService {
 		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 		
-		if (projects == null || projects.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
+//		if (projects == null || projects.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
 		
 		for (ProjectModel model : projects) {
 			ProjectBean bean = modelMapper.map(model, ProjectBean.class);

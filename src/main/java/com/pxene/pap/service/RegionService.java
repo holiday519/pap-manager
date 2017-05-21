@@ -35,9 +35,9 @@ public class RegionService extends BaseService {
 		List<RegionBean> result = new ArrayList<RegionBean>();
 		List<RegionModel> regions = regionDao.selectByExample(regionExample);
 		
-		if (regions == null || regions.isEmpty()) {
-			throw new ResourceNotFoundException();
-		}
+//		if (regions == null || regions.isEmpty()) {
+//			throw new ResourceNotFoundException();
+//		}
 		
 		for (RegionModel model : regions) {
 			RegionBean regionBean = modelMapper.map(model, RegionBean.class);

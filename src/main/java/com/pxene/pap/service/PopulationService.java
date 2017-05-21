@@ -50,9 +50,9 @@ public class PopulationService extends BaseService {
 		// 按更新时间进行倒序排序
         example.setOrderByClause("update_time DESC");
         List<PopulationModel> models = populationDao.selectByExample(example);
-        if (models == null || models.size() <= 0) {
-            throw new ResourceNotFoundException();
-        }
+//        if (models == null || models.size() <= 0) {
+//            throw new ResourceNotFoundException();
+//        }
         List<PopulationBean> beans = new ArrayList<PopulationBean>();
         for (PopulationModel model : models) {
         	PopulationBean bean = modelMapper.map(model, PopulationBean.class);
