@@ -779,20 +779,24 @@ public class LaunchService extends BaseService {
 				
 				if (imageIds.size() == 1) {
 					ImageModel image = imageDao.selectByPrimaryKey(imageIds.get(0));
-					creativeObj.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
-					creativeObj.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
-					creativeObj.addProperty("ftype", image.getFormat());
-					creativeObj.addProperty("sourceurl", IMAGE_URL + image.getPath());
+					if(image!=null) {
+						creativeObj.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
+						creativeObj.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
+						creativeObj.addProperty("ftype", image.getFormat());
+						creativeObj.addProperty("sourceurl", IMAGE_URL + image.getPath());
+					}
 				} else if (imageIds.size() > 1) {
 					JsonArray imageJsons = new JsonArray(); 
 					for (String imageId : imageIds) {
 						ImageModel image = imageDao.selectByPrimaryKey(imageId);
-						JsonObject imageJson = new JsonObject();
-						imageJson.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
-						imageJson.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
-						imageJson.addProperty("ftype", Integer.parseInt(image.getFormat()));
-						imageJson.addProperty("sourceurl", IMAGE_URL + image.getPath());
-						imageJsons.add(imageJson);
+						if(image!=null) {
+							JsonObject imageJson = new JsonObject();
+							imageJson.addProperty("w", GlobalUtil.parseInt(image.getWidth(), 0));
+							imageJson.addProperty("h", GlobalUtil.parseInt(image.getHeight(), 0));
+							imageJson.addProperty("ftype", Integer.parseInt(image.getFormat()));
+							imageJson.addProperty("sourceurl", IMAGE_URL + image.getPath());
+							imageJsons.add(imageJson);
+						}
 					}
 					creativeObj.add("imgs", imageJsons);
 				}
