@@ -877,13 +877,16 @@ public class CampaignService extends BaseService {
 	
 	/**
 	 * 批量删除活动
-	 * @param bean
+	 * @param campaignIds
 	 * @return
 	 * @throws Exception
 	 */
 	@Transactional
 	public void deleteCampaigns(String[] campaignIds) throws Exception {
-		
+		if(campaignIds.length ==0){
+			throw new IllegalArgumentException();
+		}
+
 		List<String> asList = Arrays.asList(campaignIds);
 		CampaignModelExample ex = new CampaignModelExample();
 		ex.createCriteria().andIdIn(asList);

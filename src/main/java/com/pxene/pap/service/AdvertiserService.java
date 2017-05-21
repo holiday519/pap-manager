@@ -214,6 +214,9 @@ public class AdvertiserService extends BaseService
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
+    	if(ids.length ==0){
+    		throw new IllegalArgumentException();
+		}
     	// 操作前先查询一次数据库，判断指定的资源是否存在
     	AdvertiserModelExample advertiserModelExample = new AdvertiserModelExample();
     	advertiserModelExample.createCriteria().andIdIn(Arrays.asList(ids));

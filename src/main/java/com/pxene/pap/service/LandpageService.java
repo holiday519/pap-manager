@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import com.pxene.pap.exception.IllegalArgumentException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -250,7 +251,9 @@ public class LandpageService extends BaseService {
 	 */
 	@Transactional
 	public void deleteLandpages(String[] ids) throws Exception {
-		
+		if(ids.length ==0){
+			throw new IllegalArgumentException();
+		}
 		LandpageModelExample landpageExample = new LandpageModelExample();
 		landpageExample.createCriteria().andIdIn(Arrays.asList(ids));
 		

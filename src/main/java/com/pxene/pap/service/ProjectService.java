@@ -286,6 +286,10 @@ public class ProjectService extends BaseService {
 	@Transactional
     public void deleteProjects(String[] ids) throws Exception
     {
+		if(ids.length ==0){
+			throw new IllegalArgumentException();
+		}
+
 	    // 判断指定的多个项目ID是否在MySQL中存在
         ProjectModelExample projectExample = new ProjectModelExample();
         projectExample.createCriteria().andIdIn(Arrays.asList(ids));
@@ -690,6 +694,9 @@ public class ProjectService extends BaseService {
      */
     private void destoryEffectField(List<String> projectIds)
     {
+    	if(projectIds == null || projectIds.size()==0){
+			throw new IllegalArgumentException();
+		}
         EffectDicModelExample example = new EffectDicModelExample();
         example.createCriteria().andProjectIdIn(projectIds);
         effectDicDao.deleteByExample(example);
