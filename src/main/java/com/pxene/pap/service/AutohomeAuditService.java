@@ -146,7 +146,7 @@ public class AutohomeAuditService extends AuditService
 	 * 提交创意到汽车之家进行审核
 	 */
 	@Override
-	@Transactional	
+	@Transactional(dontRollbackOn = IllegalStatusException.class)
     public void auditCreative(String creativeId) throws Exception
     {
         // 根据创意ID查询创意信息
@@ -359,7 +359,7 @@ public class AutohomeAuditService extends AuditService
      * 查询汽车之前针对某创意的审核结果
      */
     @Override
-    @Transactional
+    @Transactional(dontRollbackOn = IllegalStatusException.class)
     public void synchronizeCreative(String creativeId) throws Exception
     {
         // 根据创意ID查询创意信息
@@ -472,13 +472,9 @@ public class AutohomeAuditService extends AuditService
         CreativeAuditModelExample example = new CreativeAuditModelExample();
         example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
         
-        List<CreativeAuditModel> modelList = creativeAuditDao.selectByExample(example);
-        
-        for (CreativeAuditModel model : modelList)
-        {
-            model.setStatus(status);
-            creativeAuditDao.updateByPrimaryKeySelective(model);
-        }
+        CreativeAuditModel model = new CreativeAuditModel();
+        model.setStatus(status);
+        creativeAuditDao.updateByExampleSelective(model, example);
     }
 
 
