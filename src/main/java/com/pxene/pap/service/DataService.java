@@ -1216,8 +1216,9 @@ public class DataService extends BaseService {
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-		String name = model.getName();
-
+//		String name = model.getName();
+		//创意没有name,改为去id
+		String name = model.getId();
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
 			results = getFlowData_total(startDate,endDate,creativeIds,name);
 
