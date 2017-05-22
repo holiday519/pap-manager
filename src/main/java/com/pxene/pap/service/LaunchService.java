@@ -1486,9 +1486,9 @@ public class LaunchService extends BaseService {
     * @param campaignId
     * @return
     */
-	public Boolean notOverProjectBudget(String campaignId) {
+	public Boolean notOverProjectBudget(String projectId) {
 		// 获取redis中项目预算
-		String strProjectBudget = redisHelper.getStr(RedisKeyConstant.PROJECT_BUDGET + campaignId);
+		String strProjectBudget = redisHelper.getStr(RedisKeyConstant.PROJECT_BUDGET + projectId);
 		if (strProjectBudget == null || strProjectBudget.equals("")) {
 			throw new ServerFailureException(PhrasesConstant.REDIS_PROJECTBUDGET_NULL);
 		}

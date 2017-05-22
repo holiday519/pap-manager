@@ -563,7 +563,7 @@ public class CampaignService extends BaseService {
 				// 3.不在groupids中，满足项目开启、活动开启、定向时间、日预算、最大展现向groupids添加活动id
 				if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())
-						&& isOnTargetTime(id) && launchService.notOverProjectBudget(id)
+						&& isOnTargetTime(id) && launchService.notOverProjectBudget(projectId)
 						&& launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
 					// 在项目开启、活动开启并且在投放的时间里，修改定向时间在定向时间里
 					// 并且活动没有超出每天的日预算并且日均最大展现未达到上限，将活动ID写入redis
@@ -930,8 +930,8 @@ public class CampaignService extends BaseService {
 		addParamToCampaign(map, model.getId(), model.getFrequencyId());
 		// 活动未正常投放原因
 		if (launchService.isHaveLaunched(model.getId())) {
-			// 是否已经投放过，投放过可能出现预算和展现数上限
-			if (!launchService.notOverProjectBudget(model.getId())) {
+			// 是否已经投放过，投放过可能出现预算和展现数上限			
+			if (!launchService.notOverProjectBudget(model.getProjectId())) {
 				// 项目总预算达到上限
 				map.setReason(StatusConstant.CAMPAIGN_PROJECTBUDGET_OVER);
 			} else if (!launchService.notOverDailyBudget(model.getId())) {
@@ -988,7 +988,7 @@ public class CampaignService extends BaseService {
 			// 活动未正常投放原因
 			if (launchService.isHaveLaunched(model.getId())) {
 				// 是否已经投放过，投放过可能出现预算和展现数上限  
-				if (!launchService.notOverProjectBudget(model.getId())) {
+				if (!launchService.notOverProjectBudget(model.getProjectId())) {
 					// 项目总预算达到上限
 					map.setReason(StatusConstant.CAMPAIGN_PROJECTBUDGET_OVER);
 				} else if (!launchService.notOverDailyBudget(model.getId())){
@@ -1478,7 +1478,7 @@ public class CampaignService extends BaseService {
 			// 没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
 			launchService.write4FirstTime(campaignModel);
 			// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
-			if (isOnTargetTime(id) && launchService.notOverProjectBudget(id) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+			if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
 				boolean writeResult = launchService.launchCampaignRepeatable(id);
 				if (!writeResult) {
 					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
