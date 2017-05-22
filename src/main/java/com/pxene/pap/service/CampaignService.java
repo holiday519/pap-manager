@@ -1545,7 +1545,7 @@ public class CampaignService extends BaseService {
 		campaignModelEx.createCriteria().andIdIn(asList);
 		// 判断活动信息是否为空
 		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelEx);
-		if (campaignModels == null && campaignModels.isEmpty()) {
+		if (campaignModels == null || campaignModels.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
 		for (CampaignModel campaign : campaignModels) {
@@ -1556,7 +1556,7 @@ public class CampaignService extends BaseService {
 			creativeEx.createCriteria().andCampaignIdEqualTo(campaignId);
 			// 判断活动下的创意信息是否为空
 			List<CreativeModel> creativeList = creativeDao.selectByExample(creativeEx);
-			if (creativeList == null && creativeList.isEmpty()) {
+			if (creativeList == null || creativeList.isEmpty()) {
 				throw new ResourceNotFoundException();
 			}
 			// 修改创意价格
