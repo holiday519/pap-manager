@@ -1510,22 +1510,24 @@ public class CampaignService extends BaseService {
 		landpageCodeEx.createCriteria().andLandpageIdEqualTo(landpageId);
 		List<LandpageCodeModel> landpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
 		if (landpageCodes != null && !landpageCodes.isEmpty()) {
+			List<String> listCodes = new ArrayList<String>();
 			for (LandpageCodeModel landpageCode : landpageCodes) {
 				// 获取检测码
-				String codes = landpageCode.getCode();
-				// 写入数据的信息
-				LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
-				landpageCodeHistory.setId(UUIDGenerator.getUUID()); // id
-				landpageCodeHistory.setCampaignId(campaignId); // 活动id
-				landpageCodeHistory.setCodes(codes); // 监测码
-				landpageCodeHistory.setStartTime(current); // 监测码使用的开始时间为创建活动的时间
-				landpageCodeHistory.setEndTime(current);   // 监测码使用的结束时间设置为当前时间，防止0000-00-00 00:00:00格式转换错误
-				// 插入数据
-				landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
+				String code = landpageCode.getCode();
+				listCodes.add(code);
 			}
-
+			String[] codes = listCodes.toArray(new String[0]);
+			String strCodes = org.apache.commons.lang3.StringUtils.join(codes, ",");
+			// 写入数据的信息
+			LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
+			landpageCodeHistory.setId(UUIDGenerator.getUUID()); // id
+			landpageCodeHistory.setCampaignId(campaignId); // 活动id
+			landpageCodeHistory.setCodes(strCodes); // 监测码
+			landpageCodeHistory.setStartTime(current); // 监测码使用的开始时间为创建活动的时间
+			landpageCodeHistory.setEndTime(current); // 监测码使用的结束时间设置为当前时间，防止0000-00-00														// 00:00:00格式转换错误
+			// 插入数据
+			landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
 		}
-
 	}
 	
 	/**

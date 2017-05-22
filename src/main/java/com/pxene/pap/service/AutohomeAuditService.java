@@ -13,7 +13,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
-//import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -113,8 +113,7 @@ public class AutohomeAuditService extends AuditService
             advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
             
             // DSP 侧内部的广告主ID，需要保证DSP内部不重复，由于ADX要求是int值，因此不能用UUID。
-//            int auditValue = RandomUtils.nextInt();
-            int auditValue = 0;
+            int auditValue = RandomUtils.nextInt();
             advertiserAudit.setAuditValue(String.valueOf(auditValue));
             
             // 更新数据库信息
@@ -397,7 +396,7 @@ public class AutohomeAuditService extends AuditService
         // 构建基础的请求URL参数
         Map<String, String> requestParams = new HashMap<String, String>();
         requestParams.put("dspId", String.valueOf(dspId));
-//        requestParams.put("creativeId", org.apache.commons.lang3.StringUtils.join(creativeIds, ","));
+        requestParams.put("creativeId", org.apache.commons.lang3.StringUtils.join(creativeIds, ","));
         requestParams.put("timestamp", String.valueOf(System.currentTimeMillis()));
         
         // 构建请求验证签名
@@ -634,8 +633,7 @@ public class AutohomeAuditService extends AuditService
         //paramList.add("timestamp=" + System.currentTimeMillis());
         
         // 将参数名和参数值用=和&连接
-//        String str = org.apache.commons.lang3.StringUtils.join(paramList, "&");
-        String str = "";
+        String str = org.apache.commons.lang3.StringUtils.join(paramList, "&");
         return str;
     }
 
