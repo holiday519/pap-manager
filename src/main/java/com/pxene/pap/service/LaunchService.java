@@ -1430,13 +1430,12 @@ public class LaunchService extends BaseService {
     */
    public Boolean notOverDailyBudget(String campaignId){
 		// 获取redis中日预算
-		Map<String, String> dailyBudgetMap = redisHelper.hget(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
-		String budget = dailyBudgetMap.get("daily");
-		if (budget == null || "".equals(budget)) {
+		String dailyBudget = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
+		if (dailyBudget == null || "".equals(dailyBudget)) {
 			throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_BUDGET);
 		}
 		// 转换类型
-		int dayJudge = Integer.parseInt(budget);
+		int dayJudge = Integer.parseInt(dailyBudget);
 		// 判断是否超出日预算
 		if (dayJudge > 0) {
 			return true;

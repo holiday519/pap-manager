@@ -428,10 +428,9 @@ public class CampaignService extends BaseService {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (redisHelper.exists(budgetKey)) {
-			Map<String, String> map = redisHelper.hget(budgetKey);			
+			String daily = redisHelper.getStr(budgetKey); //redis里值
 			// 修改redis中的日预算值
-			if (!StringUtils.isEmpty(map.get("daily")) && quantities != null) {
-				String daily = map.get("daily");//redis里值
+			if (!StringUtils.isEmpty(daily) && quantities != null) {
 				Float dailyFloat = Float.parseFloat(daily) / 100;// Redis中保存的费用单位是分，MySQL中保存的费用是元
 				Integer budget = 0;//数据库里值
 				Integer impression = 0;//数据库里值
@@ -470,7 +469,7 @@ public class CampaignService extends BaseService {
 					throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					redisHelper.hincrbyFloat(budgetKey, "daily", difVaue * 100);
+					redisHelper.setNX(budgetKey,  difVaue * 100);
 				}
 				//如果有日展现key
 				if (redisHelper.exists(countKey)) {

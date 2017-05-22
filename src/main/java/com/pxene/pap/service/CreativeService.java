@@ -220,7 +220,8 @@ public class CreativeService extends BaseService {
 			infoflowModel.setId(materialId);
 			infoMaterialDao.insert(infoflowModel);
 		}
-		
+		// 创意默认是关闭
+		creativeModel.setEnable(StatusConstant.CREATIVE_ISNOT_ENABLE); 
 		creativeDao.insertSelective(creativeModel);
 	}
 	
