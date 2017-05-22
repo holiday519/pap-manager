@@ -759,7 +759,7 @@ public class ProjectService extends BaseService {
 		fisrtHeaders[1]="_#_3000";
 		String[] secondHeaders =new String[arraySize];
 		secondHeaders[0]= "日期";
-		secondHeaders[1]= "检测码";
+		secondHeaders[1]= "监测码";
 
 		if(effectDics!=null) {
 			int i =0;
