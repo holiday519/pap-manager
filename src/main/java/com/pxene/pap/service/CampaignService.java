@@ -428,10 +428,10 @@ public class CampaignService extends BaseService {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (redisHelper.exists(budgetKey)) {
-			String daily = redisHelper.getStr(budgetKey); //redis里值
+			String dailyBudget = redisHelper.getStr(budgetKey); //redis里值	
 			// 修改redis中的日预算值
-			if (!StringUtils.isEmpty(daily) && quantities != null) {
-				Float dailyFloat = Float.parseFloat(daily) / 100;// Redis中保存的费用单位是分，MySQL中保存的费用是元
+			if (!StringUtils.isEmpty(dailyBudget) && quantities != null) {
+				float dayJudge = Integer.parseInt(dailyBudget) / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
 				Integer budget = 0;//数据库里值
 				Integer impression = 0;//数据库里值
 				QuantityModelExample example = new QuantityModelExample();
@@ -465,7 +465,7 @@ public class CampaignService extends BaseService {
 				}
 				Integer difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
 				Integer difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
-				if (difVaue < 0 && Math.abs(difVaue) > dailyFloat) {//小于0时，并且redis中值不够扣除，抛出异常
+				if (difVaue < 0 && Math.abs(difVaue) > dayJudge) {//小于0时，并且redis中值不够扣除，抛出异常
 					throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
