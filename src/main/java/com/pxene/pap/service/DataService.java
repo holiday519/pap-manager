@@ -1413,6 +1413,11 @@ public class DataService extends BaseService {
         InputStream inputStream = file.getInputStream();
         List<EffectModel> modelList = readTemplateFile(inputStream);
         
+        if (modelList == null || modelList.isEmpty())
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+        }
+        
         // 遍历Excel文件中的每个数据行
         for (EffectModel model : modelList)
         {
