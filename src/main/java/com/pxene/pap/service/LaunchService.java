@@ -1271,7 +1271,7 @@ public class LaunchService extends BaseService {
 			.andStartDateLessThanOrEqualTo(current)
 			.andEndDateGreaterThanOrEqualTo(current);
 		List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
-		if (quantities !=null && !quantities.isEmpty() && quantities.size()>0) {
+		if (quantities !=null && !quantities.isEmpty()) {
 			int budget = quantities.get(0).getDailyBudget();
 			int value = budget * 100;
 			redisHelper.setNX(key, value);

@@ -736,9 +736,11 @@ public class DataService extends BaseService {
 		}
 
 		String name = model.getName();
+		Map<String,Object> otherValue = new HashMap<>();
+		otherValue.put("name",name);
 
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
-			List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,name);
+			List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 			results.addAll(result);
 		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
 //			for (String day : days) {
@@ -767,7 +769,7 @@ public class DataService extends BaseService {
 //					results.add(result);
 //				}
 //			}
-			List<Map<String,Object>>result = getFlowData_Day(days, creativeIds, name);
+			List<Map<String,Object>>result = getFlowData_Day(days, creativeIds, otherValue);
 			results.addAll(result);
 		}
 
@@ -779,14 +781,14 @@ public class DataService extends BaseService {
 
 	/**
 	 * 获取流量数据--汇总方式：合计
-	 * @param startDate
-	 * @param endDate
-	 * @param creativeIds
-	 * @param advertiserName
+	 * @param startDate 开始日期
+	 * @param endDate	结束日期
+	 * @param creativeIds 创意ID集合
+	 * @param otherValue  其他值
 	 * @return
      * @throws Exception
      */
-	public List<Map<String, Object>> getFlowData_total(Long startDate,Long endDate,List<String> creativeIds,String advertiserName) throws Exception{
+	public List<Map<String, Object>> getFlowData_total(Long startDate,Long endDate,List<String> creativeIds,Map<String,Object> otherValue) throws Exception{
 
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 
@@ -810,7 +812,7 @@ public class DataService extends BaseService {
 				result.put("impressionCost", bean.getImpressionCost());
 				result.put("clickCost", bean.getClickCost());
 				result.put("jumpCost", bean.getJumpCost());
-				result.put("name", advertiserName);
+				result.putAll(otherValue);
 
 				results.add(result);
 			}
@@ -821,13 +823,13 @@ public class DataService extends BaseService {
 
 	/**
 	 * 按天获取客户数据（点击展现等）
-	 * @param days
-	 * @param creativeIds
-	 * @param advertiserName
+	 * @param days 日期
+	 * @param creativeIds 创意id集合
+	 * @param otherValue 其他值
 	 * @return
      * @throws Exception
      */
-	public List<Map<String, Object>> getFlowData_Day(String[] days,List<String> creativeIds,String advertiserName) throws Exception{
+	public List<Map<String, Object>> getFlowData_Day(String[] days,List<String> creativeIds,Map<String,Object> otherValue) throws Exception{
 		List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 
 		for (String day : days) {
@@ -851,7 +853,7 @@ public class DataService extends BaseService {
 				result.put("jumpCost", bean.getJumpCost());
 
 				result.put("date", day);
-				result.put("name", advertiserName);
+				result.putAll(otherValue);
 
 				results.add(result);
 			}
@@ -886,8 +888,11 @@ public class DataService extends BaseService {
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总方式
 			//按代理人汇总
 			for(AdvertiserModel ad: advertiser_creative.keySet()) {
+				Map<String,Object> otherValue = new HashMap<>();
+				otherValue.put("name",ad.getName());
+
 				List<String> creativeIds = advertiser_creative.get(ad);
-				List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,ad.getName());
+				List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 				if(result != null) {
 					results.addAll(result);
 				}
@@ -897,8 +902,11 @@ public class DataService extends BaseService {
 			String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 			//按代理人,按天
 			for(AdvertiserModel ad: advertiser_creative.keySet()) {
+				Map<String,Object> otherValue = new HashMap<>();
+				otherValue.put("name",ad.getName());
+
 				List<String> creativeIds = advertiser_creative.get(ad);
-				List<Map<String,Object>>result = getFlowData_Day(days, creativeIds, ad.getName());
+				List<Map<String,Object>>result = getFlowData_Day(days, creativeIds, otherValue);
 				if(result != null) {
 					results.addAll(result);
 				}
@@ -955,12 +963,14 @@ public class DataService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		String name = model.getName();
+		Map<String,Object> otherValue = new HashMap<>();
+		otherValue.put("name",name);
 
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
-			results = getFlowData_total(startDate,endDate,creativeIds,name);
+			results = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 
 		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
-			results = getFlowData_Day(days,creativeIds,name);
+			results = getFlowData_Day(days,creativeIds,otherValue);
 		}
 
 		return results;
@@ -1076,12 +1086,13 @@ public class DataService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		String name = model.getName();
-
+		Map<String,Object> otherValue = new HashMap<>();
+		otherValue.put("name",name);
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
-			results = getFlowData_total(startDate,endDate,creativeIds,name);
+			results = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 
 		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
-			results = getFlowData_Day(days,creativeIds,name);
+			results = getFlowData_Day(days,creativeIds,otherValue);
 		}
 
 		return results;
@@ -1218,14 +1229,15 @@ public class DataService extends BaseService {
 		if (model == null) {
 			throw new ResourceNotFoundException();
 		}
-//		String name = model.getName();
-		//创意没有name,改为去id
-		String name = model.getId();
+		//创意没有name,改为取id
+		String id = model.getId();
+		Map<String,Object> otherValue = new HashMap<>();
+		otherValue.put("id",id);
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
-			results = getFlowData_total(startDate,endDate,creativeIds,name);
+			results = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 
 		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
-			results = getFlowData_Day(days,creativeIds,name);
+			results = getFlowData_Day(days,creativeIds,otherValue);
 		}
 
 		return results;
@@ -1607,11 +1619,21 @@ public class DataService extends BaseService {
 		// 定义需要显示在Excel行中的实体Bean中的属性名称
 		String[] recoresFields;
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
-			recoresColumns = new String[] { "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000" };
-			recoresFields = new String[] { "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
+			if(fileName.startsWith("创意")) {
+				recoresColumns = new String[]{"ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+			}else{
+				recoresColumns = new String[]{"名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+			}
 		}else{
-			recoresColumns = new String[] { "日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000" };
-			recoresFields = new String[] { "date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost" };
+			if(fileName.startsWith("创意")) {
+				recoresColumns = new String[]{"日期_#_3000", "ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"date", "id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+			}else{
+				recoresColumns = new String[]{"日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+			}
 		}
 
 		XSSFWorkbook workBook = new XSSFWorkbook();
