@@ -11,12 +11,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 
 import com.pxene.pap.exception.IllegalArgumentException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
@@ -208,9 +209,10 @@ public class LandpageService extends BaseService {
 				}
 				// 2.向监测码历史记录表中重新插入一条记录
 				LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
+				String strCodes = StringUtil.join(codes, ","); // 一个活动对应多个监测码用逗号隔开存一条数据
 				landpageCodeHistory.setId(UUIDGenerator.getUUID());
 				landpageCodeHistory.setCampaignId(campaignId);
-				landpageCodeHistory.setCodes(codes.toString());
+				landpageCodeHistory.setCodes(strCodes);
 				landpageCodeHistory.setStartTime(crrunt);
 				landpageCodeHistory.setEndTime(crrunt);
 				landpageCodeHistoryDao.insert(landpageCodeHistory);
