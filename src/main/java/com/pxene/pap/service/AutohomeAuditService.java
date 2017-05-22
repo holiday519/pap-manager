@@ -296,9 +296,10 @@ public class AutohomeAuditService extends AuditService
         }
         
         // 拼接成点击地址（302跳转）
+        cURL = cURL.replace("#BID#", "1").replace("#DEVICEID#", "1").replace("#DEVICEIDTYPE#", "1").replace("#MAPID#", creativeId);
         String link = clkURLPrefix + cURL;
         String landpageURL = URLEncoder.encode(landpageInfo.getUrl(), StandardCharsets.UTF_8.displayName());
-        link = link + "&curl=" + landpageURL;
+        link = link + "&url=" + landpageURL;
         
         // 拼接成监测地址
         JsonArray pv = new JsonArray();
