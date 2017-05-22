@@ -13,8 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,23 +20,15 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pxene.pap.common.TokenUtils;
 import com.pxene.pap.domain.beans.AccessTokenBean;
 import com.pxene.pap.domain.beans.ResponseBean;
 import com.pxene.pap.exception.BaseException;
 import com.pxene.pap.exception.TokenInvalidException;
 import com.pxene.pap.exception.TokenOverdueException;
-import com.pxene.pap.service.TokenService;
 
 public class JwtFilter implements Filter
 {
     private static final String BEARER = "Bearer";
-
-    @Autowired
-    private Environment env;
-    
-    @Autowired
-    private TokenService tokenService;
     
     
     @Override
@@ -86,28 +76,6 @@ public class JwtFilter implements Filter
                     exception = new TokenOverdueException();
                 }
             }
-            
-            /*
-            String userId = TokenUtils.parseUserIdInToken(env, token.trim());
-            
-            AccessTokenBean accessToken = tokenService.getToken(userId);
-            if (accessToken != null)  
-            {
-                if (new Date(accessToken.getExpiresAt()).after(new Date()))
-                {
-                    chain.doFilter(request, response);
-                    return;
-                }
-                else
-                {
-                    exception = new TokenOverdueException();
-                }
-            }
-            else
-            {
-                exception = new TokenInvalidException();
-            }
-            */        
         }
         else 
         {
@@ -120,7 +88,7 @@ public class JwtFilter implements Filter
         
         httpResponse.setHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
         httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
-        httpResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT,PATCH");
+        httpResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT,PATCH,HEAD");
         httpResponse.setHeader("Access-Control-Allow-Headers", "authorization, content-type");
         
         ObjectMapper mapper = new ObjectMapper();
@@ -135,5 +103,4 @@ public class JwtFilter implements Filter
     {
         
     }
-    
 }

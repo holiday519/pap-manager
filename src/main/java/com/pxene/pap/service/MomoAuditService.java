@@ -22,7 +22,6 @@ import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
-import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -169,8 +168,11 @@ public class MomoAuditService extends AuditService {
 		AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId); //查询广告主信息
 		cats.add(getIndustry(advertiser.getIndustryId())); //在广告主信息中获取广告主所在的行业信息
 		data.add("cat", cats); // 行业类目
+		
+		// 根据ADX ID获得ADX的基本信息
+		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
 
-		String dspid = AdxKeyConstant.AUDIT_NAME_MOMO; //获取dspid
+		String dspid = adxModel.getDspId(); //获取dspid
 		data.addProperty("dspid", dspid); //DSP ID
 		data.addProperty("cid", projectId); //项目 ID
 		data.addProperty("adid", campaignId); //广告id
@@ -236,7 +238,7 @@ public class MomoAuditService extends AuditService {
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
 		String syncUrl = adxModel.getCreativeSyncUrl();
 		//私密key将dspid为一个值"pxene"
-		String dspid = AdxKeyConstant.AUDIT_NAME_MOMO;	
+		String dspid = adxModel.getDspId();	
 		//设置同步方法参数
 		JsonObject jsonCreativeInfo = new JsonObject();
 		JsonArray arrCreativeInfo = new JsonArray();
