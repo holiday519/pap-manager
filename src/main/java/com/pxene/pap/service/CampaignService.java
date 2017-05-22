@@ -432,8 +432,8 @@ public class CampaignService extends BaseService {
 			// 修改redis中的日预算值
 			if (!StringUtils.isEmpty(dailyBudget) && quantities != null) {
 				float dayJudge = Integer.parseInt(dailyBudget) / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
-				Integer budget = 0;//数据库里值
-				Integer impression = 0;//数据库里值
+				int budget = 0;//数据库里值
+				int impression = 0;//数据库里值
 				QuantityModelExample example = new QuantityModelExample();
 				example.createCriteria().andCampaignIdEqualTo(campaignId);
 				List<QuantityModel> list = quantityDao.selectByExample(example);
@@ -451,8 +451,8 @@ public class CampaignService extends BaseService {
 						}
 					}
 				}
-				Integer newDayBudget = 0;//修改后的值
-				Integer newImpression = 0;//修改后的值
+				int newDayBudget = 0;//修改后的值
+				int newImpression = 0;//修改后的值
 				for (Quantity qt : quantities) {
 					String[] days = DateUtils.getDaysBetween(qt.getStartDate(), qt.getEndDate());
 					List<String> dayList = Arrays.asList(days);
@@ -463,8 +463,8 @@ public class CampaignService extends BaseService {
 						break;
 					}
 				}
-				Integer difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
-				Integer difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
+				int difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
+				int difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
 				if (difVaue < 0 && Math.abs(difVaue) > dayJudge) {//小于0时，并且redis中值不够扣除，抛出异常
 					throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
@@ -473,7 +473,7 @@ public class CampaignService extends BaseService {
 				}
 				//如果有日展现key
 				if (redisHelper.exists(countKey)) {
-					Integer dayImpression  = redisHelper.getInt(countKey);
+					int dayImpression  = redisHelper.getInt(countKey);
 					if (difImpVaue < 0 && Math.abs(difImpVaue) > dayImpression) {//小于0时，并且redis中值不够扣除，抛出异常
 						throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
 					}
