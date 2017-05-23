@@ -37,24 +37,18 @@ public class FileUtils
      * @param fileName
      * @param file
      * @return path
+     * @throws IOException 
      */
-    public static String uploadFileToLocal(String uploadDir, String fileName, MultipartFile file)
+    public static String uploadFileToLocal(String uploadDir, String fileName, MultipartFile file) throws IOException
     {
         String path = null;
-        try
-        {
-            String name = file.getOriginalFilename();
-            String fileExtension = getFileExtensionByDot(name);
-            path = uploadDir + fileName + "." + fileExtension;
-            
-            // 上传至本地
-            org.apache.commons.io.FileUtils.writeByteArrayToFile(new File(path), file.getBytes(), false);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            return null;
-        }
+        String name = file.getOriginalFilename();
+        String fileExtension = getFileExtensionByDot(name);
+        path = uploadDir + fileName + "." + fileExtension;
+        
+        // 上传至本地
+        org.apache.commons.io.FileUtils.writeByteArrayToFile(new File(path), file.getBytes(), false);
+        
         return path;
     }
     

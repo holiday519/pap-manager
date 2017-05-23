@@ -1,5 +1,6 @@
 package com.pxene.pap.service;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1488,8 +1489,10 @@ public class CreativeService extends BaseService {
      * @param env   SpringBoot Environment配置
      * @param file  multipart/form-data对象
      * @return
+	 * @throws IOException 
      */
-    private String doUpload(String uploadDir, String fileName, MultipartFile file)
+	@Transactional
+    private String doUpload(String uploadDir, String fileName, MultipartFile file) throws IOException
     {
         if ("local".equalsIgnoreCase(uploadMode))
         {

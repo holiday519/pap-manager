@@ -1,6 +1,7 @@
 package com.pxene.pap.service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -693,8 +694,10 @@ public class AdvertiserService extends BaseService
      * @param env   SpringBoot Environment配置
      * @param file  multipart/form-data对象
      * @return
+     * @throws IOException 
      */
-    private String upload(MultipartFile file)
+    @Transactional
+    private String upload(MultipartFile file) throws IOException
     {
         if ("local".equalsIgnoreCase(UPLOAD_MODE))
         {

@@ -73,6 +73,7 @@ public class PopulationService extends BaseService {
     {
         String id = UUIDGenerator.getUUID();
         Integer amount;
+        
         try
         {
             amount = getAmount(file);
@@ -81,14 +82,16 @@ public class PopulationService extends BaseService {
         {
             throw new IllegalArgumentException(PhrasesConstant.POPULATION_FILE_ERROR);
         }
+        
         String fileName = file.getOriginalFilename();
-        FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
+        String uploadFilePath = FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
         
         PopulationModel record = new PopulationModel();
         record.setId(id);
         record.setName(name);
         record.setAmount(amount);
         record.setFileName(fileName);
+        record.setPath(uploadFilePath);
         
         populationDao.insertSelective(record);
         
@@ -185,12 +188,14 @@ public class PopulationService extends BaseService {
      * 批量删除人群定向：定向文件、DB中人群信息。
      * @param ids
      */
-	@Transactional
+	@Transactional(dontRollbackOn = IOException.class)
     public void deletePopulations(String[] ids) throws Exception
     {
-        if(ids.length ==0){
+        if(ids.length ==0)
+        {
             throw new IllegalArgumentException();
         }
+        
         // 操作前先查询一次数据库，判断指定的资源是否存在
         PopulationModelExample populationExample = new PopulationModelExample();
         populationExample.createCriteria().andIdIn(Arrays.asList(ids));
@@ -209,13 +214,10 @@ public class PopulationService extends BaseService {
             if (affectedRows > 0)
             {
                 // 删除本地服务器上的文件
-                try
+                String filePath = population.getPath();
+                if (!StringUtils.isEmpty(filePath))
                 {
-                    org.apache.commons.io.FileUtils.forceDelete(new File(population.getPath()));
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
+                    org.apache.commons.io.FileUtils.forceDelete(new File(filePath));
                 }
             }
         }
