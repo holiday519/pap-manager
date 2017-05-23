@@ -1,7 +1,5 @@
 package com.pxene.pap.common;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,11 +22,33 @@ public class RedisHelper
     // 缓存生存时间 
     private static final int expire = 60000;
     
-   
+    private static Properties props = new Properties();;
+    
+    
+    static
+    {
+        try
+        {
+            props.load(RedisHelper.class.getResourceAsStream("/application.properties"));
+            
+            String active = props.getProperty("spring.profiles.active");
+           
+            String configFile = "/application-" + active + ".properties";
+            
+            props.clear();
+            
+            props.load(RedisHelper.class.getResourceAsStream(configFile));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    
     private RedisHelper()
     {
     }
-    
     
     public static RedisHelper open(String prefix)
     {
@@ -45,20 +65,6 @@ public class RedisHelper
      */
     private void getJedisPool(String prefix)
     {
-        Properties props = new Properties();
-        try
-        {
-            props.load(RedisHelper.class.getResourceAsStream("/redis.properties"));
-        }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        
         String ip = props.getProperty(prefix + "ip");
         int port = Integer.parseInt(props.getProperty(prefix + "port"));
         String password = props.getProperty(prefix + "password");
