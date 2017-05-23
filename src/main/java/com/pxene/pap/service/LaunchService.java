@@ -1023,6 +1023,7 @@ public class LaunchService extends BaseService {
 			List<AppModel> apps = appDao.selectByExample(appExample);
 			JsonArray appJsons = new JsonArray();
 			Map<String, JsonObject> adxMap = new HashMap<String, JsonObject>();
+			JsonObject appObjects = new JsonObject();
 			for (AppModel app : apps) {
 				String adxId = app.getAdxId();
 				if (adxMap.containsKey(adxId)) {
@@ -1044,7 +1045,8 @@ public class LaunchService extends BaseService {
 			for (Entry<String, JsonObject> entry : adxMap.entrySet()) {
 				appJsons.add(entry.getValue());
 			}
-			targetJson.add("id", appJsons);
+			appObjects.add("id", appJsons);
+			targetJson.add("app", appObjects);
 			
 			redisHelper.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
