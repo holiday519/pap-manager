@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,15 +27,15 @@ public class AppController {
 	@Autowired
 	private AppService appService;
 	
-	@RequestMapping(value = "/apps", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/apps/{campaignId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-	public String listApps(@RequestParam(required = false) String name, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listApps(@RequestParam(required = false) String name, @PathVariable(required = false) String campaignId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<AppBean> selectApps = appService.ListApps(name);
+		List<AppBean> selectApps = appService.ListApps(name, campaignId);
 		
 		PaginationBean result = new PaginationBean(selectApps, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
