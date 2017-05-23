@@ -470,7 +470,7 @@ public class CampaignService extends BaseService {
 					throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 				}
 				if (difVaue != 0) {
-					redisHelper.setNX(budgetKey,  difVaue * 100);
+					redisHelper.incrybyInt(budgetKey, difVaue * 100);
 				}
 				//如果有日展现key
 				if (redisHelper.exists(countKey)) {
