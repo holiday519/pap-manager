@@ -20,7 +20,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_STATUS_TOP = "活动开启不能添加创意，请关闭活动"; 
 	public static final String REDIS_GROUPIDS_NULL = "redis中没有Groupids信息";
 	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
-	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";
+	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";	
 	// 广告主
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目
@@ -66,6 +66,7 @@ public class PhrasesConstant
 //	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";
 //	public static final String PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN = "项目预算不能小于项目下活动预算总和！";
 //	public static final String CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL = "活动日预算不能大于活动总预算！";
+	public static final String CREATIVE_AUDIT_NULL = "创意审核出现异常";
 	
 	
 	

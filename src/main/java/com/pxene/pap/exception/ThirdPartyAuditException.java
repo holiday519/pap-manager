@@ -6,7 +6,7 @@ public class ThirdPartyAuditException extends BaseException {
 
 	private static final long serialVersionUID = 1315817257677433229L;
 	public static final int ERROR_CODE = 0x02;
-	public static final String ERROR_MSG = "third-party audit failure";
+	public static final String ERROR_MSG = "第三方审核失败";
 	
 	public ThirdPartyAuditException()
     {

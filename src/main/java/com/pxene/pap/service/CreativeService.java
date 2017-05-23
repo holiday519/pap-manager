@@ -527,7 +527,7 @@ public class CreativeService extends BaseService {
 			creativeAuditExample.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adx.get("adxId"));
 			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(creativeAuditExample);
 			if (audits == null || audits.isEmpty()) {
-				throw new ThirdPartyAuditException();
+				throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
 			} else {
 				String adxId = adx.get("adxId");
 				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
@@ -1664,7 +1664,7 @@ public class CreativeService extends BaseService {
 				// 2.判断广告主信息是否为空
 				if (creativeAudit == null || creativeAudit.isEmpty()) {
 					// 如果创意审核信息为空  
-					throw new ThirdPartyAuditException();
+					throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
 				} else {
 					// 则创意审核信息不为空，判断哪个ADX审核
 					if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
