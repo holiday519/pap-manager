@@ -237,7 +237,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/image/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateImageCreative(@PathVariable String id,@Valid @RequestBody ImageCreativeBean imageBean,HttpServletResponse response) throws Exception {
+	public void updateImageCreative(@PathVariable String id, @Valid @RequestBody ImageCreativeBean imageBean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, imageBean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -251,7 +251,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/video/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateVideoCreative(@PathVariable String id,@Valid @RequestBody VideoCreativeBean videoBean,HttpServletResponse response) throws Exception {
+	public void updateVideoCreative(@PathVariable String id, @Valid @RequestBody VideoCreativeBean videoBean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, videoBean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -265,7 +265,7 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creative/infoflow/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateInfoflowCreative(@PathVariable String id,@Valid @RequestBody InfoflowCreativeBean infoBean,HttpServletResponse response) throws Exception {
+	public void updateInfoflowCreative(@PathVariable String id, @Valid @RequestBody InfoflowCreativeBean infoBean, HttpServletResponse response) throws Exception {
 		creativeService.updateCreative(id, infoBean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -276,10 +276,10 @@ public class CreativeController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creatives/synchronize",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creatives/synchronize", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
-	public void synchronizeCreatives(@RequestBody(required = true)String[] ids,HttpServletResponse response) throws Exception {
-		creativeService.synchronizeCreatives(ids);
+	public void synchronizeCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+		creativeService.synchronizeCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -289,10 +289,10 @@ public class CreativeController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/creatives/audit",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/creatives/audit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
-	public void auditCreatives(@RequestBody(required = true)String[] ids,HttpServletResponse response) throws Exception {
-		creativeService.auditCreative(ids);
+	public void auditCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+		creativeService.auditCreative(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	

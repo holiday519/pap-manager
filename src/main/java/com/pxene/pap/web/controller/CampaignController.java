@@ -1,6 +1,5 @@
 package com.pxene.pap.web.controller;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.Page;
@@ -161,10 +159,10 @@ public class CampaignController {
 	 * @param response  
 	 * @throws Exception   
 	 */
-	@RequestMapping(value = "/campaigns/synchronize",method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaigns/synchronize", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void synchronizeCreatives(@RequestBody(required = true)String[] ids, HttpServletResponse response) throws Exception {
-		campaignService.synchronizeCreatives(ids);
+	public void synchronizeCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+		campaignService.synchronizeCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -175,9 +173,9 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaigns/date/{id}" ,method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaigns/date/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody		
-	public void updateCampaignStartAndEndDate(@PathVariable String id,@RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {	
+	public void updateCampaignStartAndEndDate(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception {	
 		campaignService.updateCampaignStartAndEndDate(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -188,10 +186,10 @@ public class CampaignController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaigns/prices/{ids}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/campaigns/price", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateCampaignsPrices(@RequestParam(value="ids",required = true)String ids,@RequestBody Map<String,String> map,HttpServletResponse response) throws Exception {
-		campaignService.updateCampaignsPrices(ids.split(","), map);
+	public void updateCampaignsPrices(@RequestParam(required = true) String ids, @RequestBody(required = true) float price, HttpServletResponse response) throws Exception {
+		campaignService.updateCampaignsPrices(ids.split(","), price);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }

@@ -1,6 +1,5 @@
 package com.pxene.pap.service;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -241,14 +240,14 @@ public class CampaignService extends BaseService {
 	    }		  
 		
 		// 活动的日预算不能大于项目预算
-		int projectBudget = projectModel.getTotalBudget();
-		int dailyBudget = 0;
+		Integer projectBudget = projectModel.getTotalBudget();
+		Integer dailyBudget;
 		Quantity[] quantities = bean.getQuantities();
 		if (quantities != null && quantities.length > 0) {
 			for (Quantity quantitie : quantities) {
 				// 日预算
 				dailyBudget = quantitie.getBudget();
-				if (dailyBudget - projectBudget > 0) {
+				if (dailyBudget != null && dailyBudget.compareTo(projectBudget) > 0) {
 					// 如果日预算大于项目总预算
 					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_PROJECT);
 				}
@@ -1525,7 +1524,7 @@ public class CampaignService extends BaseService {
 			landpageCodeHistory.setCampaignId(campaignId); // 活动id
 			landpageCodeHistory.setCodes(strCodes); // 监测码
 			landpageCodeHistory.setStartTime(current); // 监测码使用的开始时间为创建活动的时间
-			landpageCodeHistory.setEndTime(current); // 监测码使用的结束时间设置为当前时间，防止0000-00-00														// 00:00:00格式转换错误
+			landpageCodeHistory.setEndTime(current); // 监测码使用的结束时间设置为当前时间，防止0000-00-00
 			// 插入数据
 			landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
 		}
@@ -1537,14 +1536,9 @@ public class CampaignService extends BaseService {
 	 * @param map
 	 * @throws Exception
 	 */
-    @Transactional
-	public void updateCampaignsPrices(String[]ids,Map<String,String>map) throws Exception {
-		// 获取价格
-		String strPrice = map.get("price");
-		// 转换格式
-		float price = Float.parseFloat(strPrice);
+	public void updateCampaignsPrices(String ids[], float price) throws Exception {
 		// 查询活动信息
-		List<String> asList = Arrays.asList(ids);      // 转换类型
+		List<String> asList = Arrays.asList(ids); // 转换类型
 		CampaignModelExample campaignModelEx = new CampaignModelExample();
 		campaignModelEx.createCriteria().andIdIn(asList);
 		// 判断活动信息是否为空
@@ -1569,7 +1563,6 @@ public class CampaignService extends BaseService {
 				creativeDao.updateByPrimaryKeySelective(creative);
 			}			
 		}
-		
 	}
     
 //    /**
