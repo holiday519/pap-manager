@@ -7,9 +7,9 @@ public class PhrasesConstant
 	public static final String NAME_NOT_NULL = "名称不能为空";
 	public static final String NAME_NOT_REPEAT = "名称不能重复";
 	public static final String OBJECT_NOT_FOUND = "该对象不存在";
-	//public static final String LENGTH_ERROR_ID = "id长度不能超过37";
-	public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
+	public static final String LENGTH_ERROR_NAME = "名称长度超过限定";
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
+	public static final String ARGUMENT_FORMAT_INCORRECT = "参数格式不正确";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
 	public static final String ADX_NOT_FOUND = "ADX不存在";
 	public static final String REDIS_KEY_LOCK = "redis的key被死锁";
@@ -41,7 +41,6 @@ public class PhrasesConstant
 	public static final String PROJECT_INFO_NULL = "项目信息为空，不能创建活动";
 	public static final String APP_NOT_FOUND = "活动定向中未选定APP";
 	// 创意
-	
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
@@ -101,9 +100,6 @@ public class PhrasesConstant
 	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
 	public static final String PROJECT_NOTNULL_KPI = "必须选择KPI指标";
 	public static final String PROJECT_NOTNULL_KPI_VALUE = "必须填写KPI指标值";
-	
-	public static final String PROJECT_LENGTH_ERROR_ADVERTISERID = "广告主ID长度不能超过36";
-	public static final String PROJECT_LENGTH_ERROR_KPIID = "KPI指标ID长度不能超过36";
 	
 	public static final String CAMPAIGN_NOTNULL_PROJECTID = "项目ID不能为空";
 	public static final String CAMPAIGN_NOTNULL_TYPE = "活动类型不能为空";

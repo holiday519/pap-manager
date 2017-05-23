@@ -428,38 +428,38 @@ public class CampaignService extends BaseService {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
 		if (redisHelper.exists(budgetKey)) {
-			String dailyBudget = redisHelper.getStr(budgetKey); //redis里值	
+			Integer dailyBudget = redisHelper.getInt(budgetKey); //redis里值	
 			// 修改redis中的日预算值
-			if (!StringUtils.isEmpty(dailyBudget) && quantities != null) {
-				float dayJudge = Integer.parseInt(dailyBudget) / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
+			if (dailyBudget != null && quantities != null) {
+				float dayJudge = dailyBudget / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
 				int budget = 0;//数据库里值
 				int impression = 0;//数据库里值
 				QuantityModelExample example = new QuantityModelExample();
 				example.createCriteria().andCampaignIdEqualTo(campaignId);
-				List<QuantityModel> list = quantityDao.selectByExample(example);
-				if (list !=null && !list.isEmpty()) {
-					for (QuantityModel quan : list) {
-						Date startDate = quan.getStartDate();
-						Date endDate = quan.getEndDate();
+				List<QuantityModel> models = quantityDao.selectByExample(example);
+				if (models != null && !models.isEmpty()) {
+					for (QuantityModel model : models) {
+						Date startDate = model.getStartDate();
+						Date endDate = model.getEndDate();
 						String[] days = DateUtils.getDaysBetween(startDate, endDate);
 						List<String> dayList = Arrays.asList(days);
 						String time = new DateTime(new Date()).toString("yyyyMMdd");
 						if (dayList.contains(time)) {
-							budget = quan.getDailyBudget();
-							impression = quan.getDailyImpression();
+							budget = model.getDailyBudget();
+							impression = model.getDailyImpression();
 							break;
 						}
 					}
 				}
 				int newDayBudget = 0;//修改后的值
 				int newImpression = 0;//修改后的值
-				for (Quantity qt : quantities) {
-					String[] days = DateUtils.getDaysBetween(qt.getStartDate(), qt.getEndDate());
+				for (Quantity bean : quantities) {
+					String[] days = DateUtils.getDaysBetween(bean.getStartDate(), bean.getEndDate());
 					List<String> dayList = Arrays.asList(days);
 					String time = new DateTime(new Date()).toString("yyyyMMdd");
 					if (dayList.contains(time)) {
-						newDayBudget = qt.getBudget();
-						newImpression = qt.getImpression();
+						newDayBudget = bean.getBudget();
+						newImpression = bean.getImpression();
 						break;
 					}
 				}

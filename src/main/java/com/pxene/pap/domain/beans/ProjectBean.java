@@ -23,7 +23,6 @@ public class ProjectBean extends BasicDataBean {
 	 * 广告主id
 	 */
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_ADVERTISERID)
-	@Length(max = 36, message = PhrasesConstant.PROJECT_LENGTH_ERROR_ADVERTISERID)
 	private String advertiserId;
 	/**
 	 * 名称

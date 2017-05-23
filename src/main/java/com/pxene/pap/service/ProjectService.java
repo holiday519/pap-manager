@@ -55,8 +55,6 @@ import redis.clients.jedis.Jedis;
 @Service
 public class ProjectService extends BaseService {
 	
-//	private static final String PROJECT_BUDGET_PREFIX = "pap_project_budget_";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
 	
 	@Autowired
@@ -93,7 +91,7 @@ public class ProjectService extends BaseService {
 
     private String excelSavePath= ConmonConfigHelp.EXCEL_SAVEPATH;
 
-    public ProjectService(){
+    public ProjectService() {
         redisHelper = RedisHelper.open("redis.primary.");
     }
 	
@@ -142,7 +140,7 @@ public class ProjectService extends BaseService {
 
 		//初始化模板文件
 		boolean res = createTransformExcel(bean.getId(),null);
-		if(!res){
+		if (!res) {
 			throw new IllegalStatusException("生成excel文件失败:projectId="+bean.getId());
 		}
     }
@@ -160,7 +158,7 @@ public class ProjectService extends BaseService {
         ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
         if (projectInDB == null)
         {
-            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         else
         {
@@ -189,10 +187,13 @@ public class ProjectService extends BaseService {
         }
         
         // 修改Reids中保存的项目总预算
-        if (projectInDB.getTotalBudget() != bean.getTotalBudget())
-        {
-            changeBudgetInRedis(id, bean.getTotalBudget());
-        }
+//        if (projectInDB.getTotalBudget().compareTo(bean.getTotalBudget()) != 0)
+//        {
+//            changeBudgetInRedis(id, bean.getTotalBudget());
+//        }
+        int oldBudget = projectInDB.getTotalBudget();
+        int newBudget = bean.getTotalBudget();
+        changeBudgetInRedis(id, oldBudget, newBudget);
         
         // 将请求参数转换成MyBatis Model
         ProjectModel model = modelMapper.map(bean, ProjectModel.class);
@@ -596,12 +597,13 @@ public class ProjectService extends BaseService {
 
 		//生成excel模板文件
 		boolean res = getEffectDataToCreateExcel(fieldId);
-		if(!res){
+		if (!res) {
 			throw new IllegalStatusException("生成excel文件失败");
 		}
     }
 
-    public void changeProjectBudget(String projectId, Map<String, String> map)
+	@Transactional
+    public void changeProjectBudget(String id, Map<String, String> map)
     {
         String budgetStr = map.get("budget");
         
@@ -609,16 +611,27 @@ public class ProjectService extends BaseService {
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
+        if (!com.pxene.pap.common.StringUtils.isInteger(budgetStr)) {
+        	throw new IllegalArgumentException(PhrasesConstant.ARGUMENT_FORMAT_INCORRECT);
+        }
         
-        int formVal = Integer.parseInt(budgetStr);
+        // 判断项目是否存在
+        ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
+        if (projectInDB != null) {
+        	throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        @SuppressWarnings("null")
+		int oldBudget = projectInDB.getTotalBudget();
+        int newBudget = Integer.parseInt(budgetStr);
         
         // 修改Reids中保存的项目总预算
-        changeBudgetInRedis(projectId, formVal);
+        changeBudgetInRedis(id, oldBudget, newBudget);
         
         // 将表单值更新回MySQL中
         ProjectModel projectModel = new ProjectModel();
-        projectModel.setId(projectId);
-        projectModel.setTotalBudget(formVal);
+        projectModel.setId(id);
+        projectModel.setTotalBudget(newBudget);
         
         int effectedRows = projectDao.updateByPrimaryKeySelective(projectModel);
         if (effectedRows <= 0)
@@ -632,36 +645,26 @@ public class ProjectService extends BaseService {
      * @param projectId 项目ID
      * @param formVal   欲修改成的项目总预算值（表单值）
      */
-    private void changeBudgetInRedis(String projectId, int formVal)
+    private void changeBudgetInRedis(String projectId, int oldBudget, int newBudget)
     {
         String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
-        
-        // 如果项目不存在，则无必要再继续操作
-        ProjectModel projectInDB = projectDao.selectByPrimaryKey(projectId);
-        if (projectInDB == null)
-        {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-        }
-        
-        // MySQL中保存的项目总预算(元)
-        int mysqlVal = projectInDB.getTotalBudget();
         
         // Redis中保存的项目剩余预算(分)
         Jedis jedis = redisHelper.getJedis();
         jedis.watch(projectBudgetKey);
-        int redisVal = Integer.parseInt(jedis.get(projectBudgetKey));
+        int redisBudget = Integer.parseInt(jedis.get(projectBudgetKey));
         
         // 已消耗掉的项目预算(分)
-        int used = mysqlVal * 100 - redisVal;
+        int usedBudget = oldBudget * 100 - redisBudget;
         
         // 如果欲修改的预算值不足以支付已消耗掉的项目预算，则抛出异常
-        if (formVal * 100 < used)
+        if (newBudget * 100 < usedBudget)
         {
             throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
         }
         
         // 将表单值减去已消耗掉的值更新回Redis中
-        boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(formVal * 100 - used));
+        boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(newBudget * 100 - usedBudget));
         if (!casFlag)
         {
             throw new ServerFailureException();
@@ -780,6 +783,5 @@ public class ProjectService extends BaseService {
 
 		return res;
 	}
-
 
 }
