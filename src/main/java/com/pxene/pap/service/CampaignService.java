@@ -998,7 +998,7 @@ public class CampaignService extends BaseService {
 				} else if (!launchService.notOverDailyCounter(model.getId())) {
 					// 展现数达到上限
 					map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
-				}else if (!isOnTargetTime(model.getId())) {
+				} else if (!isOnTargetTime(model.getId())) {
 					// 不在定向时间段内
 					map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
 				}

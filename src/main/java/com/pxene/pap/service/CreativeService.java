@@ -1658,14 +1658,13 @@ public class CreativeService extends BaseService {
 				// 判断创意审核表中该创意的审核信息是否为空，不为空判断是由哪个adx广告平台审核--对应同步其审核结果
 				// 1.查询广告主审核信息：根据创意id + adxId + 审核状态为审核中
 				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
-				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId)
-				                    .andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_WATING);
+				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId);
 				List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditExample);
 				// 2.判断广告主信息是否为空
 				if (creativeAudit == null || creativeAudit.isEmpty()) {
 					// 如果创意审核信息为空  
 					throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
-				} else {
+				} else if (StatusConstant.CREATIVE_AUDIT_WATING.equals(creativeAudit.get(0).getStatus())) {
 					// 则创意审核信息不为空，判断哪个ADX审核
 					if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 						// 如果ADX为陌陌，则同步陌陌审核结果
