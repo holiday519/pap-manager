@@ -1321,7 +1321,7 @@ public class CampaignService extends BaseService {
 		Date current = new Date();
 		// 查询活动信息
 		CampaignModelExample campaignExample = new CampaignModelExample();
-		campaignExample.createCriteria().andStartDateLessThanOrEqualTo(current);
+		campaignExample.createCriteria().andIdEqualTo(campaignId).andStartDateLessThanOrEqualTo(current);
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
 		return campaigns.size() > 0;
 	}
