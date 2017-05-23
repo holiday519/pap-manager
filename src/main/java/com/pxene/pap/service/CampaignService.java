@@ -1436,8 +1436,7 @@ public class CampaignService extends BaseService {
     /**
      * 修改活动开始结束日期
      * @param id 活动id
-     * @param startDate 开始时间
-     * @param endDate 结束时间
+     * @param map 参数集合
      * @throws Exception
      */
     @Transactional
@@ -1445,10 +1444,11 @@ public class CampaignService extends BaseService {
     	// 获取开始时间和结束时间
     	String sDate = map.get("startDate");
     	String eDate = map.get("endDate");
+
     	// 转换类型
-    	SimpleDateFormat formater = new SimpleDateFormat();  
-    	Date startDate = formater.parse(sDate);  
-    	Date endDate = formater.parse(eDate);  
+		Date startDate = new Date(Long.parseLong(sDate));
+		Date endDate = new Date(Long.parseLong(eDate));
+
 		// 编辑的活动在数据库中不存在
 		CampaignModel campaignInDB = campaignDao.selectByPrimaryKey(id);
 		if (campaignInDB == null) {
