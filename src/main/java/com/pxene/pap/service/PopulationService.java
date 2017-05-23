@@ -135,7 +135,7 @@ public class PopulationService extends BaseService {
                 
                 // 上传新的文件到本地服务器
                 String fileName = file.getOriginalFilename();
-                FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
+                String uploadFilePath = FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
                 
                 // 将新的名称和文件路径保存回DB
                 PopulationModel newPopulcation = new PopulationModel();
@@ -143,7 +143,8 @@ public class PopulationService extends BaseService {
                 newPopulcation.setName(name);
                 newPopulcation.setAmount(amount);
                 newPopulcation.setFileName(fileName);
-                
+                newPopulcation.setPath(uploadFilePath);
+
                 populationDao.updateByPrimaryKey(newPopulcation);
             }
             else
