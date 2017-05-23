@@ -684,7 +684,7 @@ public class CampaignService extends BaseService {
 			PopulationTargetModel population = new PopulationTargetModel();
 			population.setId(UUIDGenerator.getUUID());
 			population.setCampaignId(id);
-			population.setPopulationId(populationTarget.getPopulationId());
+			population.setPopulationId(populationTarget.getId());
 			population.setType(populationTarget.getType());
 			populationTargetDao.insertSelective(population);
 		}
