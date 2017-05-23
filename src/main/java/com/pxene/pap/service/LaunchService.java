@@ -1514,14 +1514,13 @@ public class LaunchService extends BaseService {
 			// 将data节点下的内容转为JsonArray
 			JsonArray jsonArray = returnData.getAsJsonArray("mapids");
 			// 删除单个创意id
-			for (int i = 0; i < jsonArray.size(); i++) {
-				// 转换格式
-				JsonElement elementCreativeId = parser.parse(creativeId);
-				if (jsonArray.contains(elementCreativeId)) {
-					// 如果包含这个元素则将这个元素删除
-					jsonArray.remove(elementCreativeId);
-				}
+			// 转换格式
+			JsonElement elementCreativeId = parser.parse(creativeId);
+			if (jsonArray.contains(elementCreativeId)) {
+				// 如果包含这个元素则将这个元素删除
+				jsonArray.remove(elementCreativeId);
 			}
+
 			// 将删除后剩下的元素再放回redis中
 			JsonObject resultJson = new JsonObject();
 			resultJson.add("mapids", jsonArray);
@@ -1541,6 +1540,9 @@ public class LaunchService extends BaseService {
 		CreativeAuditModelExample auditExample = new CreativeAuditModelExample();
 		auditExample.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(auditExample);
+		if (creativeAudit == null || creativeAudit.isEmpty()) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
 		// 2.获取审核的状态
 		String auditStatus = creativeAudit.get(0).getStatus();
 		// 3.判断是否通过，通过则写入
@@ -1553,14 +1555,12 @@ public class LaunchService extends BaseService {
 				// 2.将mapidsObject节点下的内容转为JsonArray
 				JsonArray mapidsArray = mapidsObject.getAsJsonArray("mapids");
 				// 3.添加单个创意id
-				for (int i = 0; i < mapidsArray.size(); i++) {
-					// 转换格式
-					JsonElement elementCreativeId = parser.parse(creativeId);
-					if (!mapidsArray.contains(elementCreativeId)) {
-						// 如果不包含这个创意id，则将其添加
-						mapidsArray.add(creativeId);
-					}
-				}
+				// 转换格式
+				JsonElement elementCreativeId = parser.parse(creativeId);
+				if (!mapidsArray.contains(elementCreativeId)) {
+					// 如果不包含这个创意id，则将其添加
+					mapidsArray.add(creativeId);
+				}									
 				// 将添加新创意id后的所有元素放回redis中
 				JsonObject resultJson = new JsonObject();
 				resultJson.add("mapids", mapidsArray);

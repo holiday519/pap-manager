@@ -1631,6 +1631,7 @@ public class CreativeService extends BaseService {
 	 * @param creativeIds 创意ids
 	 * @throws Exception
 	 */
+	@Transactional
 	public void synchronizeCreatives(String[] creativeIds) throws Exception {
 		if (creativeIds.length == 0) {
 			throw new IllegalArgumentException();
@@ -1686,6 +1687,7 @@ public class CreativeService extends BaseService {
 	 * @param creativeIds 创意ids
 	 * @throws Exception
 	 */
+	@Transactional
 	public void auditCreative(String[] creativeIds) throws Exception {
 		// 根据创意id列表查询创意信息
 		List<String> creativeIdsList = Arrays.asList(creativeIds);
@@ -1770,9 +1772,22 @@ public class CreativeService extends BaseService {
 			creativeModel.setEnable(StatusConstant.CREATIVE_IS_ENABLE);
 			// 更新数据库中状态
 			creativeDao.updateByPrimaryKeySelective(creativeModel);
-			// 如果创意已经审核通过，则将创意id写入门redis的dsp_groupid_mapids_中
-			// FIXME : 单独写入创意ID --- OK
-			launchService.writeOneCreativeId(campaignId, creativeId);
+			// 如果在投放时间并且创意已经审核通过，则将创意id写入门redis的dsp_groupid_mapids_中
+			// 1.查询创意审核信息
+			CreativeAuditModelExample creativeAuditEx = new CreativeAuditModelExample();
+			creativeAuditEx.createCriteria().andCreativeIdEqualTo(creativeId);
+			List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditEx);
+			if (creativeAudits != null && !creativeAudits.isEmpty()) {
+				// 如果创意审核信息存在
+				// 2.判断该创意是否审核通过
+				for (CreativeAuditModel creativeAudit : creativeAudits) {
+					if (campaignService.isOnLaunchDate(campaignId) && StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeAudit.getStatus())) {
+						// FIXME : 单独写入创意ID --- OK
+						launchService.writeOneCreativeId(campaignId, creativeId);
+					}
+				}
+				
+			}			
 		}
 	}		
 		

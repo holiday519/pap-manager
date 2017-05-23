@@ -250,7 +250,7 @@ public class CampaignService extends BaseService {
 				dailyBudget = quantitie.getBudget();
 				if (dailyBudget - projectBudget > 0) {
 					// 如果日预算大于项目总预算
-					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_PROJECT);
 				}
 			}
 
@@ -333,7 +333,7 @@ public class CampaignService extends BaseService {
 				dailyBudget = quantitie.getBudget();
 				if (dailyBudget - projectBudget > 0) {
 					// 如果日预算大于项目总预算
-					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_ALL_BUDGET_OVER_PROJECT);
+					throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DAILY_BUDGET_OVER_PROJECT);
 				}
 			}
 		}
@@ -424,6 +424,7 @@ public class CampaignService extends BaseService {
 	 * @param quantities
 	 * @throws Exception
 	 */
+	@Transactional
 	private void changeBudgetAndCounter(String campaignId, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
@@ -1496,6 +1497,7 @@ public class CampaignService extends BaseService {
      * @param campaignId 活动Id
      * @param bean 活动的信息
      */
+    @Transactional
 	public void creativeCodeHistoryInfo(String campaignId, CampaignBean bean) throws Exception {
 		// 查询落地页信息，获取落地页Id
 		LandpageModel landpageModel = landpageDao.selectByPrimaryKey(bean.getLandpageId());
@@ -1535,6 +1537,7 @@ public class CampaignService extends BaseService {
 	 * @param map
 	 * @throws Exception
 	 */
+    @Transactional
 	public void updateCampaignsPrices(String[]ids,Map<String,String>map) throws Exception {
 		// 获取价格
 		String strPrice = map.get("price");

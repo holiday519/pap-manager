@@ -30,7 +30,7 @@ public class PhrasesConstant
 	public static final String AVAILABLE_ADX_NOT_FOUND = "该客户下没有可用的adx";
 	// 活动
 	public static final String CAMPAIGN_DATE_ERROR = "活动周期设置有误";
-	public static final String CAMPAIGN_ALL_BUDGET_OVER_PROJECT = "项目下活动预算总和不能大于项目预算";
+	public static final String CAMPAIGN_DAILY_BUDGET_OVER_PROJECT = "项目下活动日预算不能大于项目预算";
 	public static final String FREQUENCY_NOT_COMPLETE = "频次信息不全";
 	public static final String CAMPAIGN_DAILY_BUDGET_OVER_TOTAL = "活动日预算不能大于项目总预算";
 	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放";
