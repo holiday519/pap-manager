@@ -71,9 +71,15 @@ public class PopulationService extends BaseService {
 	@Transactional
     public String createPopulation(MultipartFile file, String name) throws Exception
     {
+		PopulationModelExample example = new PopulationModelExample();
+		example.createCriteria().andNameEqualTo(name);
+		List<PopulationModel> populationInDBs = populationDao.selectByExample(example);
+		if (!populationInDBs.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
+		
         String id = UUIDGenerator.getUUID();
         Integer amount;
-        
         try
         {
             amount = getAmount(file);
