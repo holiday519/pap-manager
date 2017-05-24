@@ -711,7 +711,7 @@ public class AutohomeAuditService extends AuditService
         {
             CreativeAuditModel model = new CreativeAuditModel();
             model.setId(UUIDGenerator.getUUID());
-            model.setStatus(StatusConstant.CREATIVE_AUDIT_NOCHECK);
+            model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
             model.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
             model.setAdxId(AdxKeyConstant.ADX_AUTOHOME_VALUE);
             model.setCreativeId(creativeId);
