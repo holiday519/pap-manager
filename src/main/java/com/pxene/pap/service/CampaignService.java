@@ -1529,15 +1529,15 @@ public class CampaignService extends BaseService {
 	 * @param map
 	 * @throws Exception
 	 */
-	public void updateCampaignsPrices(String ids[], float price) throws Exception {
+	public void updateCampaignsPrices(String[] ids, Map<String, String> map) throws Exception {
 		// 查询活动信息
 		List<String> asList = Arrays.asList(ids); // 转换类型
 		CampaignModelExample campaignModelEx = new CampaignModelExample();
 		campaignModelEx.createCriteria().andIdIn(asList);
 		// 判断活动信息是否为空
 		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelEx);
-		if (campaignModels == null || campaignModels.isEmpty()) {
-			throw new ResourceNotFoundException();
+		if (campaignModels == null || campaignModels.size() < ids.length) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		for (CampaignModel campaign : campaignModels) {
 			// 创意id
@@ -1547,12 +1547,12 @@ public class CampaignService extends BaseService {
 			creativeEx.createCriteria().andCampaignIdEqualTo(campaignId);
 			// 判断活动下的创意信息是否为空
 			List<CreativeModel> creativeList = creativeDao.selectByExample(creativeEx);
-			if (creativeList == null || creativeList.isEmpty()) {
-				throw new ResourceNotFoundException();
-			}
+//			if (creativeList == null || creativeList.isEmpty()) {
+//				throw new ResourceNotFoundException();
+//			}
 			// 修改创意价格
 			for (CreativeModel creative : creativeList) {
-				creative.setPrice(price);
+				creative.setPrice(Float.parseFloat(map.get("price")));
 				creativeDao.updateByPrimaryKeySelective(creative);
 			}			
 		}

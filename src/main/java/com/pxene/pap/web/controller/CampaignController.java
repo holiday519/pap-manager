@@ -188,8 +188,8 @@ public class CampaignController {
 	 */
 	@RequestMapping(value = "/campaigns/price", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateCampaignsPrices(@RequestParam(required = true) String ids, @RequestBody(required = true) float price, HttpServletResponse response) throws Exception {
-		campaignService.updateCampaignsPrices(ids.split(","), price);
+	public void updateCampaignsPrices(@RequestParam(required = true) String ids, @RequestBody(required = true) Map<String, String> map, HttpServletResponse response) throws Exception {
+		campaignService.updateCampaignsPrices(ids.split(","), map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 }
