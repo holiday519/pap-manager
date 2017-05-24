@@ -102,6 +102,7 @@ public class LaunchService extends BaseService {
 	
 	private static String UPLOAD_MODE;
 	private static String IMAGE_URL;
+	private static String POPULATION_ROOT_PATH;
 	
 	private RedisHelper redisHelper;
 	private RedisHelper redisHelper2;
@@ -121,7 +122,7 @@ public class LaunchService extends BaseService {
         {
         	IMAGE_URL = env.getProperty("pap.fileserver.remote.url.prefix");
         }
-		
+		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
 		// 指定使用配置文件中的哪个具体的Redis配置
         redisHelper = RedisHelper.open("redis.primary.");
         redisHelper2 = RedisHelper.open("redis.secondary.");
@@ -189,8 +190,6 @@ public class LaunchService extends BaseService {
 	
 	@Autowired
 	private PopulationTargetDao populationTargetDao;
-	
-	private static final String POPULATION_ROOT_PATH = "/data/population/";
 	
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
@@ -1251,7 +1250,7 @@ public class LaunchService extends BaseService {
 			.andStartDateLessThanOrEqualTo(current)
 			.andEndDateGreaterThanOrEqualTo(current);
 		List<QuantityModel> quantities = quantityDao.selectByExample(example);
-		if (quantities !=null && !quantities.isEmpty()) {
+		if (quantities != null && !quantities.isEmpty()) {
 			int dailyImpression = quantities.get(0).getDailyImpression();
 			redisHelper.set(key, dailyImpression);
 		}
@@ -1279,7 +1278,7 @@ public class LaunchService extends BaseService {
 			.andStartDateLessThanOrEqualTo(current)
 			.andEndDateGreaterThanOrEqualTo(current);
 		List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
-		if (quantities !=null && !quantities.isEmpty()) {
+		if (quantities != null && !quantities.isEmpty()) {
 			int budget = quantities.get(0).getDailyBudget();
 			int value = budget * 100;
 			redisHelper.setNX(key, value);
@@ -1307,9 +1306,9 @@ public class LaunchService extends BaseService {
 			String populationId = populationTargetModels.get(0).getPopulationId();
 			PopulationModel populationModel = populationDao.selectByPrimaryKey(populationId);
 			if (populationModel != null) {
-				String path = populationModel.getPath();
+//				String path = populationModel.getPath();
 				String type = populationModel.getType();
-				File file = new File(POPULATION_ROOT_PATH + path);
+				File file = new File(POPULATION_ROOT_PATH + populationId + ".txt");
 				if (!file.exists()) {					
 					throw new ResourceNotFoundException(PhrasesConstant.WBLIST_FILE_NOT_FOUND);
 				}
@@ -1395,11 +1394,10 @@ public class LaunchService extends BaseService {
 		// 判断活动频次信息是否在redis中  
 		Boolean isHaveFrequency = redisHelper.exists(RedisKeyConstant.CAMPAIGN_FREQUENCY + campaignId);		
 		// 判断活动预算是否在redis中
-		Boolean isHaveBudget = redisHelper.exists(RedisKeyConstant.CAMPAIGN_BUDGET  + campaignId);
+//		Boolean isHaveBudget = redisHelper.exists(RedisKeyConstant.CAMPAIGN_BUDGET  + campaignId);
 		// 判断日均展现是否在redis中
-		Boolean isHaveCounter = redisHelper.exists(RedisKeyConstant.CAMPAIGN_COUNTER   + campaignId);
-		if (isHaveMapids && isHaveInfo && isHaveTarget && isHaveFrequency 
-				&& isHaveBudget && isHaveCounter) {
+//		Boolean isHaveCounter = redisHelper.exists(RedisKeyConstant.CAMPAIGN_COUNTER   + campaignId);
+		if (isHaveMapids && isHaveInfo && isHaveTarget && isHaveFrequency) {
 			return true;	
 		} else {
 			return false;	
@@ -1439,16 +1437,19 @@ public class LaunchService extends BaseService {
    public Boolean notOverDailyBudget(String campaignId){
 		// 获取redis中日预算
 		String dailyBudget = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
-		if (dailyBudget == null || "".equals(dailyBudget)) {
-			throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_BUDGET);
-		}
-		// 转换类型
-		int dayJudge = Integer.parseInt(dailyBudget);
-		// 判断是否超出日预算
-		if (dayJudge > 0) {
+		if (!StringUtils.isEmpty(dailyBudget)) {
+			// 转换类型
+			int dayJudge = Integer.parseInt(dailyBudget);
+			// 判断是否超出日预算
+			if (dayJudge > 0) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
 			return true;
-		} 
-		return false;
+		}
+		
    }
    
    /**
@@ -1458,16 +1459,18 @@ public class LaunchService extends BaseService {
    public Boolean notOverDailyCounter(String campaignId){	   	  	   
 		// 获取redis中日均最大展现数
 		String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
-		if (dailyCounter == null || "".equals(dailyCounter)) {
-			throw new ServerFailureException(PhrasesConstant.REDIS_DAILY_COUNTER);
-		}
-		// 转换类型
-		int dayCounter = Integer.parseInt(dailyCounter);
-		// 判断是否超出日均最大展现数
-		if (dayCounter > 0) {
+		if (!StringUtils.isEmpty(dailyCounter)) {
+			// 转换类型
+			int dayCounter = Integer.parseInt(dailyCounter);
+			// 判断是否超出日均最大展现数
+			if (dayCounter > 0) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
 			return true;
-		} 
-		return false;
+		}
    }
       
    /**
@@ -1497,14 +1500,12 @@ public class LaunchService extends BaseService {
 	public Boolean notOverProjectBudget(String projectId) {
 		// 获取redis中项目预算
 		String strProjectBudget = redisHelper.getStr(RedisKeyConstant.PROJECT_BUDGET + projectId);
-		if (strProjectBudget == null || strProjectBudget.equals("")) {
-			throw new ServerFailureException(PhrasesConstant.REDIS_PROJECTBUDGET_NULL);
-		}
-		// 转换类型
-		int projectBudget = Integer.parseInt(strProjectBudget);
-		// 判断是否超出日均最大展现数
-		if (projectBudget > 0) {
-			return true;
+		if (!StringUtils.isEmpty(strProjectBudget)) {
+			// 转换类型
+			int projectBudget = Integer.parseInt(strProjectBudget);
+			if (projectBudget > 0) {
+				return true;
+			}
 		}
 		return false;
 	}
