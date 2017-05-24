@@ -237,4 +237,8 @@ public class DateUtils {
     	return cal.getTime();
     }
     
+    public static boolean isBetweenDates(Date obj, Date start, Date end) {
+    	return obj.getTime() > start.getTime() && obj.getTime() < end.getTime();
+    }
+    
 }

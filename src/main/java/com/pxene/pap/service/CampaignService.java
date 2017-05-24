@@ -434,60 +434,83 @@ public class CampaignService extends BaseService {
 	 * @throws Exception
 	 */
 	private void changeBudgetAndCounter(String campaignId, Quantity[] quantities) throws Exception {
-		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
-		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
-		if (redisHelper.exists(budgetKey)) {
-			Integer dailyBudget = redisHelper.getInt(budgetKey); //redis里值	
-			// 修改redis中的日预算值
-			if (dailyBudget != null && quantities != null) {
-				float dayJudge = dailyBudget / 100; // Redis中保存的费用单位是分，MySQL中保存的费用是元
-				int budget = 0;//数据库里值
-				int impression = 0;//数据库里值
-				QuantityModelExample example = new QuantityModelExample();
-				example.createCriteria().andCampaignIdEqualTo(campaignId);
-				List<QuantityModel> models = quantityDao.selectByExample(example);
-				if (models != null && !models.isEmpty()) {
-					for (QuantityModel model : models) {
-						Date startDate = model.getStartDate();
-						Date endDate = model.getEndDate();
-						String[] days = DateUtils.getDaysBetween(startDate, endDate);
-						List<String> dayList = Arrays.asList(days);
-						String time = new DateTime(new Date()).toString("yyyyMMdd");
-						if (dayList.contains(time)) {
-							budget = model.getDailyBudget();
-							impression = model.getDailyImpression();
-							break;
-						}
-					}
+		if (quantities != null && quantities.length > 0) {
+			Date current = new Date();
+			String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+			String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
+			// 获取今天的数据
+			Integer newBudget = null;
+			Integer newImpression = null;
+			for (Quantity quan : quantities) {
+				Date startDate = quan.getStartDate();
+				Date endDate = quan.getEndDate();
+				if (DateUtils.isBetweenDates(current, startDate, endDate)) {
+					// 今天的配置
+					newBudget = quan.getBudget();
+					newImpression = quan.getImpression();
+					break;
 				}
-				int newDayBudget = 0;//修改后的值
-				int newImpression = 0;//修改后的值
-				for (Quantity bean : quantities) {
-					String[] days = DateUtils.getDaysBetween(bean.getStartDate(), bean.getEndDate());
-					List<String> dayList = Arrays.asList(days);
-					String time = new DateTime(new Date()).toString("yyyyMMdd");
-					if (dayList.contains(time)) {
-						newDayBudget = bean.getBudget();
-						newImpression = bean.getImpression();
+			}
+			Integer oldBudget = null;
+			Integer oldImpression = null;
+			QuantityModelExample example = new QuantityModelExample();
+			example.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<QuantityModel> models = quantityDao.selectByExample(example);
+			if (models != null && !models.isEmpty()) {
+				for (QuantityModel model : models) {
+					Date startDate = model.getStartDate();
+					Date endDate = model.getEndDate();
+					if (DateUtils.isBetweenDates(current, startDate, endDate)) {
+						// 今天的配置
+						oldBudget = model.getDailyBudget();
+						oldImpression = model.getDailyImpression();
 						break;
 					}
 				}
-				int difVaue = (newDayBudget - budget);//修改前后差值（新的减去旧的）
-				int difImpVaue = (newImpression - impression);//修改前后差值（新的减去旧的）
-				if (difVaue < 0 && Math.abs(difVaue) > dayJudge) {//小于0时，并且redis中值不够扣除，抛出异常
-					throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
-				}
-				if (difVaue != 0) {
-					redisHelper.incrybyInt(budgetKey, difVaue * 100);
-				}
-				//如果有日展现key
-				if (redisHelper.exists(countKey)) {
-					int dayImpression  = redisHelper.getInt(countKey);
-					if (difImpVaue < 0 && Math.abs(difImpVaue) > dayImpression) {//小于0时，并且redis中值不够扣除，抛出异常
-						throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
+			}
+			
+			if (newBudget == null) {
+				if (oldBudget != null) {
+					if (redisHelper.exists(budgetKey)) {
+						redisHelper.delete(budgetKey);
 					}
-					if (difImpVaue != 0) {
-					    redisHelper.incrybyInt(countKey, difImpVaue);
+				}
+			} else {
+				if (oldBudget == null) {
+					redisHelper.set(budgetKey, newBudget);
+				} else {
+					if (redisHelper.exists(budgetKey)) {
+						int redisBudget = redisHelper.getInt(budgetKey) / 100;
+						int difBudget = newBudget - oldBudget;
+						if (difBudget < 0 && Math.abs(difBudget) > redisBudget) {
+							throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
+						}
+						if (difBudget != 0) {
+							redisHelper.incrybyInt(budgetKey, difBudget * 100);
+						}
+					}
+				}
+			}
+			
+			if (newImpression == null) {
+				if (oldImpression != null) {
+					if (redisHelper.exists(countKey)) {
+						redisHelper.delete(countKey);
+					}
+				}
+			} else {
+				if (oldImpression == null) {
+					redisHelper.set(countKey, newImpression);
+				} else {
+					if (redisHelper.exists(countKey)) {
+						int redisImpression = redisHelper.getInt(countKey);
+						int difImpression = newImpression - oldImpression;
+						if (difImpression < 0 && Math.abs(difImpression) > redisImpression) {
+							throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
+						}
+						if (difImpression != 0) {
+							redisHelper.incrybyInt(countKey, difImpression);
+						}
 					}
 				}
 			}

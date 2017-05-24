@@ -1251,8 +1251,17 @@ public class LaunchService extends BaseService {
 			.andEndDateGreaterThanOrEqualTo(current);
 		List<QuantityModel> quantities = quantityDao.selectByExample(example);
 		if (quantities != null && !quantities.isEmpty()) {
-			int dailyImpression = quantities.get(0).getDailyImpression();
-			redisHelper.set(key, dailyImpression);
+			for (QuantityModel quan : quantities) {
+				Date startDate = quan.getStartDate();
+				Date endDate = quan.getEndDate();
+				if (DateUtils.isBetweenDates(current, startDate, endDate)) {
+					Integer impression = quan.getDailyImpression();
+					if (impression != null) {
+						redisHelper.set(key, impression);
+					}
+					break;
+				}
+			}
 		}
 	}
 	
@@ -1279,9 +1288,17 @@ public class LaunchService extends BaseService {
 			.andEndDateGreaterThanOrEqualTo(current);
 		List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
 		if (quantities != null && !quantities.isEmpty()) {
-			int budget = quantities.get(0).getDailyBudget();
-			int value = budget * 100;
-			redisHelper.setNX(key, value);
+			for (QuantityModel quan : quantities) {
+				Date startDate = quan.getStartDate();
+				Date endDate = quan.getEndDate();
+				if (DateUtils.isBetweenDates(current, startDate, endDate)) {
+					Integer budget = quan.getDailyBudget();
+					if (budget != null) {
+						redisHelper.setNX(key, budget * 100);
+					}
+					break;
+				}
+			}
 		}
 	}
 	
