@@ -6,6 +6,8 @@ import static com.pxene.pap.constant.StatusConstant.ADVERTISER_AUDIT_SUCCESS;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -43,6 +45,7 @@ public class AppService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<AppBean> ListApps(String name, String campaignId) throws Exception {
 		AppModelExample appExample = new AppModelExample();
 		if (!StringUtils.isEmpty(name)) {

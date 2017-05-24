@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -44,6 +45,7 @@ public class TokenService
         redisHelper3 = RedisHelper.open("redis.tertiary.");
     }
 
+    @Transactional
     public UserModel loadUserByUsername(String username)
     {
         UserModelExample example = new UserModelExample();
@@ -61,6 +63,7 @@ public class TokenService
         }
     }
     
+    @Transactional
     public AccessTokenBean generateToken(UserModel user)
     {
         // 根据用户ID、用户名、签发时间、到期时间等信息来生成Token
@@ -103,6 +106,7 @@ public class TokenService
         return accessToken;
     }
 
+    @Transactional
     public void deleteToken(String userid, HttpServletRequest request)
     {
         request.getSession().removeAttribute(ACCESS_TOKEN);

@@ -345,6 +345,7 @@ public class ProjectService extends BaseService {
 	 * @param id
 	 * @return
 	 */
+	@Transactional
     public ProjectBean getProject(String id) throws Exception {
     	//从视图中查询项目所相关信息
         ProjectModelExample example = new ProjectModelExample();
@@ -364,6 +365,7 @@ public class ProjectService extends BaseService {
      * @return
      * @throws Exception
      */
+	@Transactional
     public List<ProjectBean> listProjects(String name, Long beginTime, Long endTime, String advertiserId) throws Exception {
         // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
     	if (!StringUtils.isEmpty(name) && name.contains("_"))

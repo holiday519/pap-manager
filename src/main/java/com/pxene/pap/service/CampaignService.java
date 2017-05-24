@@ -423,7 +423,6 @@ public class CampaignService extends BaseService {
 	 * @param quantities
 	 * @throws Exception
 	 */
-	@Transactional
 	private void changeBudgetAndCounter(String campaignId, Quantity[] quantities) throws Exception {
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + campaignId;
@@ -586,7 +585,6 @@ public class CampaignService extends BaseService {
 	 * 添加活动定向
 	 * @param bean
 	 */
-	@Transactional
 	private void addCampaignTarget(CampaignTargetBean bean) throws Exception {
 		String id = bean.getId();
 		String[] regionTarget = bean.getRegion();//地域
@@ -694,7 +692,6 @@ public class CampaignService extends BaseService {
 	 * 删除活动定向
 	 * @param campaignId
 	 */
-	@Transactional
 	private void deleteCampaignTarget(String campaignId) throws Exception {
 		//删除地域定向
 		RegionTargetModelExample region = new RegionTargetModelExample();
@@ -761,7 +758,6 @@ public class CampaignService extends BaseService {
 	 * 删除活动监测地址
 	 * @param campaignId
 	 */
-	@Transactional
 	private void deleteCampaignMonitor(String campaignId) throws Exception {
 		MonitorModelExample example = new MonitorModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -773,7 +769,6 @@ public class CampaignService extends BaseService {
 	 * @param bean
 	 * @throws Exception
 	 */
-	@Transactional
 	private void addCampaignQuantity(CampaignBean campaignBean) throws Exception {
 		// 监测日期范围是否正确
 		Date startDate = campaignBean.getStartDate();
@@ -808,7 +803,6 @@ public class CampaignService extends BaseService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	@Transactional
 	private void deleteCampaignQuantity(String campaignId) throws Exception {
 		QuantityModelExample example = new QuantityModelExample();
 		example.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -836,7 +830,6 @@ public class CampaignService extends BaseService {
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	@Transactional
 	private void deleteFrequency(String campaignId) throws Exception {
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
 		frequencyDao.deleteByPrimaryKey(campaignModel.getFrequencyId());
@@ -921,6 +914,7 @@ public class CampaignService extends BaseService {
 	 * @param campaignId
 	 * @return
 	 */
+	@Transactional
 	public CampaignBean getCampaign(String campaignId) throws Exception {
 		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
 		if (model == null || StringUtils.isEmpty(model.getId())) {
@@ -956,6 +950,7 @@ public class CampaignService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
@@ -1202,7 +1197,6 @@ public class CampaignService extends BaseService {
 	 * @param campaignIds
 	 * @throws Exception
 	 */
-	@Transactional
 	private void proceedCampaign(CampaignModel campaign) throws Exception {
 		String campaignId = campaign.getId();
 		// 检查该活动是否可以投放
@@ -1262,7 +1256,6 @@ public class CampaignService extends BaseService {
 	 * @param campaignIds
 	 * @throws Exception
 	 */
-	@Transactional
 	private void pauseCampaign(CampaignModel campaign) throws Exception {
 		campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 		String projectId = campaign.getProjectId();

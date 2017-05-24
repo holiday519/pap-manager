@@ -286,6 +286,7 @@ public class LandpageService extends BaseService {
 	 * @param id
 	 * @return
 	 */
+	@Transactional
 	public LandpageBean getLandpage(String id) throws Exception {
 		/*
 	    LandpageModel landpageModel = landpageDao.selectByPrimaryKey(id);
@@ -311,6 +312,7 @@ public class LandpageService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<LandpageBean> listLandpages(String name) throws Exception {
 		/*LandpageModelExample example = new LandpageModelExample();
 		if (!StringUtils.isEmpty(name)) {
@@ -368,6 +370,7 @@ public class LandpageService extends BaseService {
 	 * @param landpageId
 	 * @throws Exception
 	 */
+    @Transactional
 	public String checkCode(String landpageId) throws Exception {
 		LandpageModel model = landpageDao.selectByPrimaryKey(landpageId);
 		if (model == null) {

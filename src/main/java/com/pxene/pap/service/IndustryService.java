@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ public class IndustryService extends BaseService {
 	@Autowired
 	private IndustryDao industryDao;
 	
+	@Transactional
 	public List<Map<String, String>> listIndustries() throws Exception {
 		IndustryModelExample example = new IndustryModelExample();
 		List<IndustryModel> models = industryDao.selectByExample(example);

@@ -330,6 +330,7 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
+    @Transactional
     public AdvertiserBean getAdvertiser(String id) throws Exception
     {
         AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(id);
@@ -374,6 +375,7 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
+    @Transactional
     public List<AdvertiserBean> listAdvertisers(String name, Long startDate, Long endDate) throws Exception
     {
 		AdvertiserModelExample example = new AdvertiserModelExample();
@@ -520,6 +522,7 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
+    @Transactional
     public String uploadQualification(MultipartFile file) throws Exception 
     {
     	// 图片绝对路径
@@ -538,6 +541,7 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
+    @Transactional
     public String uploadQualification4Logo(MultipartFile file) throws Exception {
     	ImageBean bean = (ImageBean) FileUtils.checkFile(file);
     	Integer width = bean.getWidth();

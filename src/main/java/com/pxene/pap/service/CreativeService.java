@@ -365,6 +365,7 @@ public class CreativeService extends BaseService {
 	 * @param file
 	 * @throws Exception
 	 */
+	@Transactional
 	public Map<String, String> uploadMaterial(String tmplId, MultipartFile file) throws Exception {
 		MediaBean mediaBean = FileUtils.checkFile(file);  // 解析传来图片的宽高
 		Map<String, String> result = null;
@@ -420,7 +421,6 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	@Transactional
 	private Map<String, String> uploadImage(ImageBean imageBean, MultipartFile file) throws Exception {
 		String id = UUIDGenerator.getUUID();
 		String dir = uploadDir + "creative/image/";
@@ -487,6 +487,7 @@ public class CreativeService extends BaseService {
 	 * @param id
 	 * @throws Exception
 	 */
+	@Transactional
 	public void auditCreative(String id) throws Exception {
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		if (creative == null) {
@@ -514,6 +515,7 @@ public class CreativeService extends BaseService {
 	 * @param id
 	 * @throws Exception
 	 */
+	@Transactional
 	public void synchronizeCreative(String id) throws Exception {
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		if (creative == null) {
@@ -550,6 +552,7 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<BasicDataBean> listCreatives(String campaignId, String name, String type, Long startDate, Long endDate) throws Exception {
 		List<BasicDataBean> result = new ArrayList<BasicDataBean>();
 		CreativeModelExample example = new CreativeModelExample();
@@ -848,6 +851,7 @@ public class CreativeService extends BaseService {
 	 * @param id
 	 * @return
 	 */
+	@Transactional
 	public BasicDataBean getCreative(String id, Long startDate, Long endDate) throws Exception {
 		// FIXME : 优化代码，如可以在每个类型中直接返回image/video/info/base等
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
@@ -1491,7 +1495,6 @@ public class CreativeService extends BaseService {
      * @return
 	 * @throws IOException 
      */
-	@Transactional
     private String doUpload(String uploadDir, String fileName, MultipartFile file) throws IOException
     {
         if ("local".equalsIgnoreCase(uploadMode))

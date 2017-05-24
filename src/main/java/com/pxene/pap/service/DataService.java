@@ -136,6 +136,7 @@ public class DataService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<Map<String, Object>> getDataForTime(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
@@ -156,6 +157,7 @@ public class DataService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<Map<String, Object>> getDataForRegion(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
@@ -176,6 +178,7 @@ public class DataService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<Map<String, Object>> getDataForOperator(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
@@ -196,6 +199,7 @@ public class DataService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<Map<String, Object>> getDataForNetwork(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
@@ -216,6 +220,7 @@ public class DataService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
+	@Transactional
 	public List<Map<String, Object>> getDataForSystem(Long startDate, Long endDate, String advertiserId, 
 			String projectId, String campaignId, String creativeId) throws Exception {
 		
@@ -700,6 +705,7 @@ public class DataService extends BaseService {
 	 * @return
      * @throws Exception
      */
+	@Transactional
 	public List<Map<String, Object>> listAdvertisers(String advertiserId, String type, Long startDate, Long endDate) throws Exception {
 		List<Map<String, Object>> datas;
 		if(advertiserId!=null) {
@@ -926,6 +932,7 @@ public class DataService extends BaseService {
 	 * @return
      * @throws Exception
      */
+	@Transactional
 	public List<Map<String, Object>> listProjects(String advertiserId, String projectId, String type,Long startDate, Long endDate) throws Exception{
 		List<Map<String, Object>> datas;
 		if(projectId!=null){
@@ -1044,6 +1051,7 @@ public class DataService extends BaseService {
      * @return
      * @throws Exception
      */
+	@Transactional
 	public List<Map<String, Object>> listCampaigns(String advertiserId, String projectId, String campaignId,String type,Long startDate, Long endDate) throws Exception{
 		List<Map<String, Object>> datas;
 		if(campaignId!=null) {
@@ -1191,6 +1199,7 @@ public class DataService extends BaseService {
      * @return
      * @throws Exception
      */
+	@Transactional
 	public List<Map<String, Object>> listCreatives(String advertiserId, String projectId, String campaignId, String type,Long startDate, Long endDate) throws Exception{
 		List<Map<String, Object>> datas;
 		if(campaignId != null){
@@ -1740,6 +1749,7 @@ public class DataService extends BaseService {
 	 * @param endDate
      * @return
      */
+	@Transactional
 	public String renameDatasExcel(String type, Long startDate, Long endDate){
 
 		String typeName ="";
