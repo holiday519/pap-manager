@@ -40,6 +40,7 @@ public class PhrasesConstant
 	public static final String LANDPAGE_INFO_NULL = "活动页信息为空，不能创建活动";
 	public static final String PROJECT_INFO_NULL = "项目信息为空，不能创建活动";
 	public static final String APP_NOT_FOUND = "活动定向中未选定APP";
+	public static final String LANDPAGE_CODE_USED = "监测码正在被使用，不能重复使用";
 	// 创意
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";

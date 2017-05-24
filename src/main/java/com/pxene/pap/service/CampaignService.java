@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
@@ -255,6 +256,9 @@ public class CampaignService extends BaseService {
 
 		}
 		
+		// 判断落地页监测码是否被其他开启并且未结束的活动使用
+		isUseOfLandpageCodes(bean.getLandpageId());
+		
 	    // 添加活动信息	    
 		String id = UUIDGenerator.getUUID();
 		bean.setId(id);
@@ -340,6 +344,9 @@ public class CampaignService extends BaseService {
 			}
 		}
 		
+		// 判断落地页监测码是否被其他开启并且未结束的活动使用
+		isUseOfLandpageCodes(bean.getLandpageId());
+				
 		// 编辑活动时判断是否已经投放过，即不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {			
 			// 改变预算(日均预算、总预算)、展现时修改redis中的值
@@ -508,6 +515,10 @@ public class CampaignService extends BaseService {
 		if (StatusConstant.CAMPAIGN_PAUSE.equals(status)) {
 			pauseCampaign(campaignModel);
 		} else if (StatusConstant.CAMPAIGN_PROCEED.equals(status)) {
+			// 判断落地页监测码是否被其他开启并且未结束的活动使用
+			CampaignModel campaign = campaignDao.selectByPrimaryKey(id);			
+			isUseOfLandpageCodes(campaign.getLandpageId());
+			// 按照活动投放
 			proceedCampaign(campaignModel);
 		} else {
 			throw new IllegalArgumentException();
@@ -1459,6 +1470,11 @@ public class CampaignService extends BaseService {
 		if (startDate != null && endDate != null && startDate.after(endDate)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
 		}
+		
+		// 判断落地页监测码是否被其他开启并且未结束的活动使用
+		CampaignModel campaign = campaignDao.selectByPrimaryKey(id);
+		isUseOfLandpageCodes(campaign.getLandpageId());
+
 		CampaignModel model = new CampaignModel();
 		model.setStartDate(startDate);
 		model.setEndDate(endDate);
@@ -1563,6 +1579,60 @@ public class CampaignService extends BaseService {
 				creative.setPrice(Float.parseFloat(map.get("price")));
 				creativeDao.updateByPrimaryKeySelective(creative);
 			}			
+		}
+	}
+	
+    /**
+     * 判断落地页监测码是否被使用
+     * @param landpageId 落地页id
+     * @throws Exception
+     */
+    @Transactional
+	public void isUseOfLandpageCodes(String landpageId) throws Exception {
+		// 查询状态开着并且活动结束时间在当前时间及之后的活动信息
+		CampaignModelExample campaignEx = new CampaignModelExample();
+		Date current = new Date();
+		campaignEx.createCriteria().andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
+				.andEndDateGreaterThanOrEqualTo(current);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+		LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
+		List<String> codesList = new ArrayList<String>(); // 存放正在被使用的codes
+		if (campaigns != null && !campaigns.isEmpty()) {
+			// 如果活动信息不为空，取出每个活动使用的监测码
+			for (CampaignModel campaign : campaigns) {
+				// 活动使用的落地页id（一个活动只能对应一个落地页）
+				String usedLandpageId = campaign.getLandpageId();
+				// 查询活动使用的监测码
+				landpageCodeEx.createCriteria().andLandpageIdEqualTo(usedLandpageId);
+				List<LandpageCodeModel> usedLandpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
+				// 判断正在使用的落地页监测码信息是否为空
+				if (usedLandpageCodes == null || usedLandpageCodes.isEmpty()) {
+					throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+				}
+				for (LandpageCodeModel usedLandpageCode : usedLandpageCodes) {
+					// 正在被活动使用的监测码
+					String usedCode = usedLandpageCode.getCode();
+					codesList.add(usedCode);
+				}
+			}
+		}
+		// 查询要使用的落地页的code
+		landpageCodeEx.clear();
+		landpageCodeEx.createCriteria().andLandpageIdEqualTo(landpageId);
+		List<LandpageCodeModel> landpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
+		// 判断落地页code信息是否为空
+		if (landpageCodes == null || landpageCodes.isEmpty()) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 如果落地页code信息不为空，判断该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码是否相同
+		for (LandpageCodeModel landpageCode : landpageCodes) {
+			// 落地页对应的监测码
+			String code = landpageCode.getCode();
+			if (codesList.contains(code)) {
+				// 该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码相同，抛出非法状态异常
+				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+			}
+
 		}
 	}
     
