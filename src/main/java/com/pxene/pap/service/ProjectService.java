@@ -619,11 +619,10 @@ public class ProjectService extends BaseService {
         
         // 判断项目是否存在
         ProjectModel projectInDB = projectDao.selectByPrimaryKey(id);
-        if (projectInDB != null) {
+        if (projectInDB == null) {
         	throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
-        @SuppressWarnings("null")
 		int oldBudget = projectInDB.getTotalBudget();
         int newBudget = Integer.parseInt(budgetStr);
         
