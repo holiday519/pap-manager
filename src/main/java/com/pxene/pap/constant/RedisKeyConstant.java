@@ -12,7 +12,7 @@ public class RedisKeyConstant {
 	/**
 	 * 活动下创意
 	 */
-	public static final	String CAMPAIGN_MAPIDS = "dsp_groupid_mapids_";
+	public static final	String CAMPAIGN_CREATIVEIDS = "dsp_groupid_mapids_";
 	/**
 	 * 活动定向
 	 */
@@ -62,5 +62,7 @@ public class RedisKeyConstant {
         TARGET_CODES.put("device", new Integer[]{0x0, 0x100, 0x200, 0x300});
         TARGET_CODES.put("brand", new Integer[]{0x0, 0x400, 0x800, 0xc00});
     }
+    
+    public static final String PROJECT_CAMPAIGNIDS = "pap_projectid_campaignids_";
 
 }

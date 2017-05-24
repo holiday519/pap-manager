@@ -274,6 +274,9 @@ public class CampaignService extends BaseService {
 		
 		// 向监测码历史表插入数据
 		creativeCodeHistoryInfo(id,bean);
+		
+		// 活动写入redis
+		launchService.writeCampaignId4Project(bean.getId(), bean.getProjectId());
 	}
 
 	/**
@@ -865,6 +868,8 @@ public class CampaignService extends BaseService {
 		deleteCampaignMonitor(campaignId);
 		//删除活动
 		campaignDao.deleteByPrimaryKey(campaignId);
+		// 移除redis
+		launchService.removeCampaignId4Project(campaignId, campaignInDB.getProjectId());
 	}
 	
 	/**
@@ -883,27 +888,30 @@ public class CampaignService extends BaseService {
 		CampaignModelExample ex = new CampaignModelExample();
 		ex.createCriteria().andIdIn(asList);
 		
-		List<CampaignModel> campaignInDB = campaignDao.selectByExample(ex);
-		if (campaignInDB == null || campaignInDB.isEmpty()) {
+		List<CampaignModel> campaignInDBs = campaignDao.selectByExample(ex);
+		if (campaignInDBs == null || campaignInDBs.size() < campaignIds.length) {
 			throw new ResourceNotFoundException();
 		}
 		
-		for (String campaignId : campaignIds) {
+		for (CampaignModel campaign : campaignInDBs) {
+			String id = campaign.getId();
 			//先查询出活动下创意
 			CreativeModelExample creativeExample = new CreativeModelExample();
-			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-			List<CreativeModel> list = creativeDao.selectByExample(creativeExample);
-			if (list != null && !list.isEmpty()) {
+			creativeExample.createCriteria().andCampaignIdEqualTo(id);
+			List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+			if (creatives != null && !creatives.isEmpty()) {
 				throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_HAVE_CREATIVE);
 			}
 			//删除监测地址
 			// deleteCampaignMonitor(campaignId);
 			//删除定向
-			deleteCampaignTarget(campaignId);
+			deleteCampaignTarget(id);
 			//删除频次信息
-			deleteFrequency(campaignId);
+			deleteFrequency(id);
 			//删除控制策略
-			deleteCampaignMonitor(campaignId);
+			deleteCampaignMonitor(id);
+			
+			launchService.removeCampaignId4Project(id, campaign.getProjectId());
 		}
 		//删除活动
 		campaignDao.deleteByExample(ex);
@@ -1228,7 +1236,7 @@ public class CampaignService extends BaseService {
 				// 2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
 				for (CreativeModel creative : creatives) {
 					// 3.从redis中获取创意信息
-					String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + creative.getId());
+					String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creative.getId());
 					if (strCreativeId == null || strCreativeId.isEmpty()) {
 						// 4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
 						// 写入活动下的创意基本信息 dsp_mapid_*

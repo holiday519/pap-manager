@@ -1217,7 +1217,7 @@ public class LaunchService extends BaseService {
 		}
 		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出
 		resultJson.add("mapids", creativeIdJsons);
-		redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+		redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
 	}
 	
 	/**
@@ -1226,7 +1226,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeCreativeId(String campaignId) throws Exception {
-	    redisHelper.delete(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+	    redisHelper.delete(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 	}
 	
 	
@@ -1379,7 +1379,7 @@ public class LaunchService extends BaseService {
 		// return JedisUtils.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
 		// return redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);		
 		// 判断活动下创意是否在redis中
-		Boolean isHaveMapids = redisHelper.exists(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		Boolean isHaveMapids = redisHelper.exists(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 		// 判断活动基本信息是否在redis中
 		Boolean isHaveInfo = redisHelper.exists(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
 		// 判断活动定向是否在redis中
@@ -1507,7 +1507,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void removeOneCreativeId(String campaignId, String creativeId) throws Exception {
-		String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+		String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 		if (mapids != null && !mapids.isEmpty()) {
 			// 将gson字符串转成JsonObject对象
 			JsonObject returnData = parser.parse(mapids).getAsJsonObject();
@@ -1525,7 +1525,7 @@ public class LaunchService extends BaseService {
 			JsonObject resultJson = new JsonObject();
 			resultJson.add("mapids", jsonArray);
 			// FIXME : 去掉上两行代码是否写回redis？write
-			redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+			redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
 		}
 	}
 	
@@ -1547,7 +1547,7 @@ public class LaunchService extends BaseService {
 		String auditStatus = creativeAudit.get(0).getStatus();
 		// 3.判断是否通过，通过则写入
 		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS)) {
-			String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId);
+			String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 			if (mapids != null && !mapids.isEmpty()) {
 				// 判断redis的mapids中是否存在创意id，不存在则将其写入
 				// 1.将gson字符串转换成JsonObject对象
@@ -1564,7 +1564,7 @@ public class LaunchService extends BaseService {
 				// 将添加新创意id后的所有元素放回redis中
 				JsonObject resultJson = new JsonObject();
 				resultJson.add("mapids", mapidsArray);
-				redisHelper.set(RedisKeyConstant.CAMPAIGN_MAPIDS + campaignId, resultJson.toString());
+				redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
 			}
 		}
 	}
@@ -1584,4 +1584,17 @@ public class LaunchService extends BaseService {
 			return false;	
 		}	
 	}
+	
+	public void writeCampaignId4Project(String campaignId, String projectId) {
+		redisHelper.sset(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId, campaignId);
+	}
+	
+	public void removeCampaignId4Project(String campaignId, String projectId) {
+		redisHelper.sdelete(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId, campaignId);
+	}
+	
+	public void removeProjectKey(String projectId) {
+		redisHelper.delete(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId);
+	}
+	
 }

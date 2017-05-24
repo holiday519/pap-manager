@@ -276,6 +276,8 @@ public class ProjectService extends BaseService {
 				throw new IllegalStatusException("删除excel文件失败：projectid="+id);
 			}
 		}
+		
+		launchService.removeProjectKey(id);
     }
 	
 	/**
@@ -329,7 +331,7 @@ public class ProjectService extends BaseService {
 
 		//删除对应的excel模板
 		File excelFile;
-		for(String id : ids) {
+		for (String id : ids) {
 			excelFile = new File(ConmonConfigHelp.EXCEL_SAVEPATH + "/" + id + ".xlsx");
 			if (excelFile.exists()) {
 				boolean res =excelFile.delete();
@@ -337,6 +339,10 @@ public class ProjectService extends BaseService {
 					throw new IllegalStatusException("生成excel文件失败:projectId="+id);
 				}
 			}
+		}
+		
+		for (String id : ids) {
+			launchService.removeProjectKey(id);
 		}
     }
 
