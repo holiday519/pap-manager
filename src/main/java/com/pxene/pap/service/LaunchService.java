@@ -589,6 +589,8 @@ public class LaunchService extends BaseService {
 		if (models != null && !models.isEmpty()) {
 			for (CreativeImageModelWithBLOBs model : models) {
 				JsonObject creativeObj = new JsonObject();
+				// 添加项目id字段
+				creativeObj.addProperty("projectid", model.getProjectId());
 				creativeObj.addProperty("mapid", model.getCreativeId());
 				creativeObj.addProperty("groupid", model.getCampaignId());
 				creativeObj.addProperty("type", 2);
@@ -654,6 +656,8 @@ public class LaunchService extends BaseService {
 		if (models != null && !models.isEmpty()) {
 			for (CreativeVideoModelWithBLOBs model : models) {
 				JsonObject creativeObj = new JsonObject();
+				// 添加项目id字段
+				creativeObj.addProperty("projectid", model.getProjectId());
 				creativeObj.addProperty("mapid", model.getCreativeId());
 				creativeObj.addProperty("groupid", model.getCampaignId());
 				creativeObj.addProperty("type", 6);
@@ -719,6 +723,8 @@ public class LaunchService extends BaseService {
 		if (models != null && !models.isEmpty()) {
 			for (CreativeInfoflowModelWithBLOBs model : models) {
 				JsonObject creativeObj = new JsonObject();
+				// 添加项目id字段
+				creativeObj.addProperty("projectid", model.getProjectId());
 				creativeObj.addProperty("mapid", model.getCreativeId());
 				creativeObj.addProperty("groupid", model.getCampaignId());
 				creativeObj.addProperty("type", 9);
