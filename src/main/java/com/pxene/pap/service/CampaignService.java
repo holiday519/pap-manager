@@ -46,6 +46,8 @@ import com.pxene.pap.domain.models.BrandTargetModel;
 import com.pxene.pap.domain.models.BrandTargetModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeAuditModel;
+import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.DeviceTargetModel;
@@ -973,12 +975,15 @@ public class CampaignService extends BaseService {
 			} else if (!launchService.notOverDailyBudget(model.getId())) {
 				// 日预算达到上限
 				map.setReason(StatusConstant.CAMPAIGN_DAILYBUDGET_OVER);
-			}else if (!launchService.notOverDailyCounter(model.getId())) {
+			} else if (!launchService.notOverDailyCounter(model.getId())) {
 				// 展现数达到上限
 				map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
-			}else if (!isOnTargetTime(model.getId())) {
+			} else if (!isOnTargetTime(model.getId())) {
 				// 不在定向时间段内（投放过的活动判断不正常投放的原因）
 				map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
+			} else if (!isHaveLaunchCreative(model.getId())) {
+				// 如果活动下没有可投放的创意（创意关闭/创意审核未通过）
+				map.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 			}
 		} 
 		return map;
@@ -1037,6 +1042,9 @@ public class CampaignService extends BaseService {
 				} else if (!isOnTargetTime(model.getId())) {
 					// 不在定向时间段内
 					map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
+				} else if (!isHaveLaunchCreative(model.getId())) {
+					// 如果活动下没有可投放的创意（创意关闭/创意审核未通过）
+					map.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 				}
 			} 
 			beans.add(map);
@@ -1657,6 +1665,34 @@ public class CampaignService extends BaseService {
 			}
 
 		}
+	}
+    
+    /**
+     * 判断活动下是否有可投放创意
+     * @param campaignId 活动id
+     * @return
+     * @throws Exception
+     */
+	public Boolean isHaveLaunchCreative(String campaignId) throws Exception {
+		// 查询创意信息
+		CreativeModelExample creativeEx = new CreativeModelExample();
+		creativeEx.createCriteria().andCampaignIdEqualTo(campaignId)
+				.andEnableEqualTo(StatusConstant.CREATIVE_IS_ENABLE);
+		List<CreativeModel> creatives = creativeDao.selectByExample(creativeEx);
+		if (creatives != null && !creatives.isEmpty()) {
+			// 如果创意信息不为空
+			for (CreativeModel creative : creatives) {
+				// 创意id
+				String creativeId = creative.getId();
+				// 查询创意审核信息
+				CreativeAuditModelExample creativeAuditEx = new CreativeAuditModelExample();
+				creativeAuditEx.createCriteria().andCreativeIdEqualTo(creativeId)
+						.andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+				List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditEx);
+				return creativeAudit.size() > 0;
+			}
+		}
+		return false;
 	}
     
 //    /**

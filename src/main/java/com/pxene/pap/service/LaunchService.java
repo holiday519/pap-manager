@@ -1569,10 +1569,13 @@ public class LaunchService extends BaseService {
 		if (creativeAudit == null || creativeAudit.isEmpty()) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+		// 查询创意信息
+		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+		String enable = creative.getEnable();
 		// 2.获取审核的状态
 		String auditStatus = creativeAudit.get(0).getStatus();
-		// 3.判断是否通过，通过则写入
-		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS)) {
+		// 3.判断是否通过并且创意开关打开，通过则写入
+		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS) && enable.equals(StatusConstant.CREATIVE_IS_ENABLE)) {
 			String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 			if (mapids != null && !mapids.isEmpty()) {
 				// 判断redis的mapids中是否存在创意id，不存在则将其写入

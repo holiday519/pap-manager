@@ -149,6 +149,10 @@ public class StatusConstant {
 	 * 活动未正常投放原因：不在定向时间段内
 	 */
 	public static final String CAMPAIGN_ISNOT_TARGETTIME = "04"; 
+	/**
+	 * 活动未正常投放原因：活动下无可投放创意
+	 */
+	public static final String CAMPAIGN_NOTHAVE_CREATIVE = "05";
 	
 	/**
 	 * 创意状态：启动
