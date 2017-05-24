@@ -4,17 +4,17 @@ public class PopulationTargetBean {
 	/**
 	 * 人群id
 	 */
-	private String populationId;
+	private String id;
 	/**
 	 * 人群类型
 	 */
 	private String type;
 	
-	public String getPopulationId() {
-		return populationId;
+	public String getId() {
+		return id;
 	}
-	public void setPopulationId(String populationId) {
-		this.populationId = populationId;
+	public void setId(String id) {
+		this.id = id;
 	}
 	public String getType() {
 		return type;

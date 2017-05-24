@@ -1120,7 +1120,7 @@ public class CampaignService extends BaseService {
 				String populationId = campaignTargetModel.getPopulationId();
 				String populationType = campaignTargetModel.getPopulationType();
 				PopulationTargetBean population = new PopulationTargetBean();
-				population.setPopulationId(populationId);
+				population.setId(populationId);
 				population.setType(populationType);
 				if (!StringUtils.isEmpty(populationId)) {
 					target.setPopulation(population);
