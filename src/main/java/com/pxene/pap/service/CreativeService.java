@@ -1677,6 +1677,10 @@ public class CreativeService extends BaseService {
 						// 如果ADX为inmobi，则同步inmobi的审核结果
 						inmobiAuditService.synchronizeCreative(creativeId);
 					}
+					if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+						// 如果ADX属于汽车之家，则同步汽车之家审核结果
+						autohomeAuditService.synchronizeCreative(creativeId);
+					}
 				}
 			}
 			// 如果审核通过，则将创意id写入门到redis的mapids中
@@ -1729,8 +1733,12 @@ public class CreativeService extends BaseService {
 						momoAuditService.auditCreative(creativeId);
 					}
 					if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-						// 如果ADX属于inmobi，则提交inmobi审核 @Transactional
+						// 如果ADX属于inmobi，则提交inmobi审核 
 						inmobiAuditService.auditCreative(creativeId);
+					}
+					if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+						// 如果ADX属于汽车之家，则提交汽车之家审核
+						autohomeAuditService.auditCreative(creativeId);
 					}
 				}				
 			}
