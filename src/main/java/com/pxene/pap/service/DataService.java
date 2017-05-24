@@ -1544,10 +1544,11 @@ public class DataService extends BaseService {
             throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
         }
         
-        // 遍历全部数据行
         Row tmpRow = null;
         Cell tmpCell = null;
         List<EffectModel> list = new ArrayList<EffectModel>();
+        
+        // 遍历全部数据行
         for (int i = beginDataLine; i < physicalNumberOfRows; i++)
         {
             tmpRow = sheet.getRow(i);
@@ -1555,16 +1556,24 @@ public class DataService extends BaseService {
             Class<EffectModel> effectClass = EffectModel.class;
             EffectModel td = effectClass.newInstance();
             
-            td.setDate(tmpRow.getCell(0).getDateCellValue());
+            Cell dateCell = tmpRow.getCell(0);
+            Cell codeCell = tmpRow.getCell(1);
             
-            CellType cellTypeEnum = tmpRow.getCell(1).getCellTypeEnum();
+            if (dateCell == null || codeCell == null)
+            {
+                throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            }
+            
+            td.setDate(dateCell.getDateCellValue());
+            
+            CellType cellTypeEnum = codeCell.getCellTypeEnum();
             if (cellTypeEnum == CellType.NUMERIC)
             {
-                td.setCode(String.valueOf(tmpRow.getCell(1).getNumericCellValue()));
+                td.setCode(String.valueOf(codeCell.getNumericCellValue()));
             }
             else if (cellTypeEnum == CellType.STRING)
             {
-                td.setCode(tmpRow.getCell(1).getStringCellValue());
+                td.setCode(codeCell.getStringCellValue());
             }
             else 
             {
