@@ -90,14 +90,14 @@ public class PopulationService extends BaseService {
         }
         
         String fileName = file.getOriginalFilename();
-        String uploadFilePath = FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
+        FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
         
         PopulationModel record = new PopulationModel();
         record.setId(id);
         record.setName(name);
         record.setAmount(amount);
         record.setFileName(fileName);
-        record.setPath(uploadFilePath);
+//        record.setPath(uploadFilePath);
         
         populationDao.insertSelective(record);
         
@@ -137,11 +137,11 @@ public class PopulationService extends BaseService {
             {
                 // 从DB中查询出原有的人群定向文件保存路径，删除掉旧的文件。
                 PopulationModel population = populationDao.selectByPrimaryKey(id);
-                FileUtils.deleteLocalFile(new File(population.getPath()));
+                FileUtils.deleteLocalFile(new File(UPLOAD_DIR + population.getId() + ".txt"));
                 
                 // 上传新的文件到本地服务器
                 String fileName = file.getOriginalFilename();
-                String uploadFilePath = FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
+                FileUtils.uploadFileToLocal(UPLOAD_DIR, id, file);
                 
                 // 将新的名称和文件路径保存回DB
                 PopulationModel newPopulcation = new PopulationModel();
@@ -149,7 +149,7 @@ public class PopulationService extends BaseService {
                 newPopulcation.setName(name);
                 newPopulcation.setAmount(amount);
                 newPopulcation.setFileName(fileName);
-                newPopulcation.setPath(uploadFilePath);
+//                newPopulcation.setPath(uploadFilePath);
 
                 populationDao.updateByPrimaryKey(newPopulcation);
             }
@@ -221,7 +221,8 @@ public class PopulationService extends BaseService {
             if (affectedRows > 0)
             {
                 // 删除本地服务器上的文件
-                String filePath = population.getPath();
+//                String filePath = population.getPath();
+            	String filePath = UPLOAD_DIR + population.getId() + ".txt";
                 if (!StringUtils.isEmpty(filePath))
                 {
                     org.apache.commons.io.FileUtils.forceDelete(new File(filePath));
