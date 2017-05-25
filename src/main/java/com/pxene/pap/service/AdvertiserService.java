@@ -406,7 +406,7 @@ public class AdvertiserService extends BaseService
 	            bean.setIndustryName(industryName);
 	        }  
 
-			// 找出adxes
+			// 找出adxes(1.广告主id找到该广告主审核信息；2.该广告主审核信息中的adxId找到ADX的信息；3.找到ADX的name)
 			String advertiserId = advertiser.getId();
 			AdvertiserAuditModelExample auditExample = new AdvertiserAuditModelExample();
 			auditExample.createCriteria().andAdvertiserIdEqualTo(advertiserId);
@@ -419,7 +419,9 @@ public class AdvertiserService extends BaseService
 				// 获取adx的名称（从adx表中获得其名称）
 				String adxId = advertiserAudits.get(i).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-				audits[i].setName(adxModel.getName());
+				if (adxModel != null) {
+					audits[i].setName(adxModel.getName());
+				}
 			}
 			bean.setAudits(audits);
 
