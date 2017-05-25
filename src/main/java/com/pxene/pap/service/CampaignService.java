@@ -208,7 +208,7 @@ public class CampaignService extends BaseService {
 	
 	public CampaignService()
     {
-	    redisHelper = new RedisHelper("redis.primary.");
+	    redisHelper = RedisHelper.open("redis.primary.");
     }
 	
 	/**

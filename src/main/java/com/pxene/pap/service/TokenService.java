@@ -42,7 +42,7 @@ public class TokenService
         tokenExpiresSecond = (tokenExpiresSecondStr == null) ? 0L : Long.parseLong(tokenExpiresSecondStr);
         
         // 指定使用配置文件中的哪个具体的Redis配置
-        redisHelper3 = new RedisHelper("redis.tertiary.");
+        redisHelper3 = RedisHelper.open("redis.tertiary.");
     }
 
     @Transactional

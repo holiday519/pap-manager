@@ -98,7 +98,7 @@ public class ProjectService extends BaseService {
     private String excelSavePath= ConmonConfigHelp.EXCEL_SAVEPATH;
 
     public ProjectService() {
-        redisHelper = new RedisHelper("redis.primary.");
+        redisHelper = RedisHelper.open("redis.primary.");
     }
 	
 	/**
