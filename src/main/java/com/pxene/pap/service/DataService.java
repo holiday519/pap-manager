@@ -1420,7 +1420,16 @@ public class DataService extends BaseService {
     public void importEffect(MultipartFile file, String projectId) throws IOException, EncryptedDocumentException, IllegalArgumentException, InvalidFormatException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, InvocationTargetException
     {
         InputStream inputStream = file.getInputStream();
-        List<EffectModel> modelList = readTemplateFile(inputStream);
+       
+        List<EffectModel> modelList = null;
+        try
+        {
+            modelList = readTemplateFile(inputStream);
+        }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+        }
         
         if (modelList == null || modelList.isEmpty())
         {
