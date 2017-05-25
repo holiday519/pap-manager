@@ -1202,37 +1202,34 @@ public class CreativeService extends BaseService {
 	public String getCreativeAuditStatus(String creativeId) {
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		example.createCriteria().andCreativeIdEqualTo(creativeId);
-		List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);
+		List<CreativeAuditModel> models = creativeAuditDao.selectByExample(example);
 		String status = StatusConstant.CREATIVE_AUDIT_NOCHECK;
-		if (audits != null && !audits.isEmpty()) {
-			status = audits.get(0).getStatus();
+		boolean successFlag = false;
+		for (CreativeAuditModel model : models) {
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(model.getStatus())) {
+				status = StatusConstant.CREATIVE_AUDIT_SUCCESS;
+				successFlag  = true;
+				break;
+			}
 		}
-//		boolean successFlag = false;
-//		for (CreativeAuditModel model : list) {
-//			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(model.getStatus())) {
-//				status = StatusConstant.CREATIVE_AUDIT_SUCCESS;
-//				successFlag  = true;
-//				break;
-//			}
-//		}
-//		if (!successFlag) {
-//			boolean watingFlag = false;
-//			for (CreativeAuditModel model : list) {
-//				if (StatusConstant.CREATIVE_AUDIT_WATING.equals(model.getStatus())) {
-//					status = StatusConstant.CREATIVE_AUDIT_WATING;
-//					watingFlag = true;
-//					break;
-//				}
-//			}
-//			if (!watingFlag) {
-//				for (CreativeAuditModel model : list) {
-//					if (StatusConstant.CREATIVE_AUDIT_FAILURE.equals(model.getStatus())) {
-//						status = StatusConstant.CREATIVE_AUDIT_FAILURE;
-//						break;
-//					}
-//				}
-//			}
-//		}
+		if (!successFlag) {
+			boolean watingFlag = false;
+			for (CreativeAuditModel model : models) {
+				if (StatusConstant.CREATIVE_AUDIT_WATING.equals(model.getStatus())) {
+					status = StatusConstant.CREATIVE_AUDIT_WATING;
+					watingFlag = true;
+					break;
+				}
+			}
+			if (!watingFlag) {
+				for (CreativeAuditModel model : models) {
+					if (StatusConstant.CREATIVE_AUDIT_FAILURE.equals(model.getStatus())) {
+						status = StatusConstant.CREATIVE_AUDIT_FAILURE;
+						break;
+					}
+				}
+			}
+		}
 		
 		return status;
 	}
@@ -1684,7 +1681,7 @@ public class CreativeService extends BaseService {
 				}
 			}
 			// 如果审核通过，则将创意id写入门到redis的mapids中
-			launchService.writeOneCreativeId(creative.getCampaignId(),creativeId);
+			launchService.writeOneCreativeId(creative.getCampaignId(), creativeId);
 		}
 	}
 	
