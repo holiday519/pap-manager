@@ -40,6 +40,8 @@ import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
+import com.pxene.pap.domain.models.AppTmplModel;
+import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeAuditModel;
@@ -72,6 +74,7 @@ import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
+import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
@@ -190,6 +193,9 @@ public class LaunchService extends BaseService {
 	
 	@Autowired
 	private PopulationTargetDao populationTargetDao;
+	
+	@Autowired
+	private AppTmplDao appTmplDao;
 	
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
@@ -837,25 +843,46 @@ public class LaunchService extends BaseService {
 	
 	
 	public List<Map<String, String>> getAdxByCreative(CreativeModel creative) throws Exception {
+		// 根据创意的模板查模板id
+		String tmplId = creative.getTmplId();
+		// 通过模板id查询app模板信息
+		AppTmplModelExample appTmplEx = new AppTmplModelExample();
+		appTmplEx.createCriteria().andTmplIdEqualTo(tmplId);
+		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplEx);
+		Set<String> adxIds = new HashSet<String>();
+		for (AppTmplModel appTmpl : appTmpls) {
+			// 查询app信息（app表的查appId -->找 adxId）
+			String appId = appTmpl.getAppId();
+			if (appId != null) {
+				AppModel app = appDao.selectByPrimaryKey(appId);
+				if (app != null) {
+					// 将获取到的adxId放set中
+					adxIds.add(app.getAdxId());
+				}
+			}			
+		}
 		List<Map<String, String>> results = new ArrayList<Map<String, String>>();
 		String campaignId = creative.getCampaignId();
 		String creativeId = creative.getId();
 		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
-		
+
 		List<Map<String, String>> adxes = getAdxByCampaign(campaign);
 		for (Map<String, String> adx : adxes) {
 			String adxId = adx.get("adxId");
-			Map<String, String> result = new HashMap<String, String>();
-			result.put("adxId", adxId);
-			CreativeAuditModelExample example = new CreativeAuditModelExample();
-			example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(creativeId);
-			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);			
-			if (audits != null && !audits.isEmpty()) {			
-				CreativeAuditModel audit = audits.get(0);
-				String auditValue = audit.getAuditValue();
-				result.put("creativeAudit", auditValue);				
+			if (adxIds.contains(adxId)) {
+				// 如果adxIds中包含adxId
+				Map<String, String> result = new HashMap<String, String>();
+				result.put("adxId", adxId);
+				CreativeAuditModelExample example = new CreativeAuditModelExample();
+				example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(creativeId);
+				List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);
+				if (audits != null && !audits.isEmpty()) {
+					CreativeAuditModel audit = audits.get(0);
+					String auditValue = audit.getAuditValue();
+					result.put("creativeAudit", auditValue);
+				}
+				results.add(result);
 			}
-			results.add(result);
 		}
 		return results;
 	}
