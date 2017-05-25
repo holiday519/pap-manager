@@ -38,6 +38,8 @@ import com.pxene.pap.domain.models.EffectDicModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
+import com.pxene.pap.domain.models.QuantityModel;
+import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
@@ -49,6 +51,7 @@ import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDicDao;
 import com.pxene.pap.repository.basic.IndustryDao;
 import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.QuantityDao;
 
 import redis.clients.jedis.Jedis; 
 
@@ -83,6 +86,9 @@ public class ProjectService extends BaseService {
 	
 	@Autowired
 	private EffectDicDao effectDicDao;
+	
+	@Autowired
+	private QuantityDao quantityDao;
 	
 	@Autowired
 	private LaunchService launchService;
@@ -193,6 +199,22 @@ public class ProjectService extends BaseService {
 //        }
         int oldBudget = projectInDB.getTotalBudget();
         int newBudget = bean.getTotalBudget();
+        // 判断该预算是否大于活动日预算
+        CampaignModelExample campaignExample = new CampaignModelExample();
+        campaignExample.createCriteria().andProjectIdEqualTo(id);
+        List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+        for (CampaignModel campaign : campaigns) {
+        	QuantityModelExample quantityExample = new QuantityModelExample();
+        	quantityExample.createCriteria().andCampaignIdEqualTo(campaign.getId());
+        	List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
+        	for (QuantityModel quantity : quantities) {
+        		Integer dailyBudget = quantity.getDailyBudget();
+        		if (dailyBudget != null && dailyBudget > newBudget) {
+        			throw new IllegalArgumentException(PhrasesConstant.PROJECT_BUDGET_UNDER_CAMPAIGN);
+        		}
+        	}
+        }
+        
         changeBudgetInRedis(id, oldBudget, newBudget);
         
         // 将请求参数转换成MyBatis Model
@@ -631,6 +653,23 @@ public class ProjectService extends BaseService {
         
 		int oldBudget = projectInDB.getTotalBudget();
         int newBudget = Integer.parseInt(budgetStr);
+        
+        // 判断该预算是否大于活动日预算
+        CampaignModelExample campaignExample = new CampaignModelExample();
+        campaignExample.createCriteria().andProjectIdEqualTo(id);
+        List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+        for (CampaignModel campaign : campaigns) {
+        	QuantityModelExample quantityExample = new QuantityModelExample();
+        	quantityExample.createCriteria().andCampaignIdEqualTo(campaign.getId());
+        	List<QuantityModel> quantities = quantityDao.selectByExample(quantityExample);
+        	for (QuantityModel quantity : quantities) {
+        		Integer dailyBudget = quantity.getDailyBudget();
+        		if (dailyBudget != null && dailyBudget > newBudget) {
+        			throw new IllegalArgumentException(PhrasesConstant.PROJECT_BUDGET_UNDER_CAMPAIGN);
+        		}
+        	}
+        }
+        
         
         // 修改Reids中保存的项目总预算
         changeBudgetInRedis(id, oldBudget, newBudget);
