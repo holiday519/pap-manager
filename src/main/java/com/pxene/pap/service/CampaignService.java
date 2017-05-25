@@ -3,6 +3,7 @@ package com.pxene.pap.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -258,8 +259,14 @@ public class CampaignService extends BaseService {
 
 		}
 		
-		// 判断落地页监测码是否被其他开启并且未结束的活动使用
-		isUseOfLandpageCodes(bean.getLandpageId());
+		LandpageCodeModelExample example = new LandpageCodeModelExample();
+		example.createCriteria().andLandpageIdEqualTo(landpageModel.getId());
+		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
+		for (LandpageCodeModel code : codes) {
+			if (isUseOfLandpageCode(code.getCode(), startDate, endDate)) {
+				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+			}
+		}
 		
 	    // 添加活动信息	    
 		String id = UUIDGenerator.getUUID();
@@ -347,7 +354,14 @@ public class CampaignService extends BaseService {
 		}
 		
 		// 判断落地页监测码是否被其他开启并且未结束的活动使用
-		isUseOfLandpageCodes(bean.getLandpageId());
+		LandpageCodeModelExample example = new LandpageCodeModelExample();
+		example.createCriteria().andLandpageIdEqualTo(landpageModel.getId());
+		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
+		for (LandpageCodeModel code : codes) {
+			if (isUseOfLandpageCode(code.getCode(), startDate, endDate)) {
+				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+			}
+		}
 				
 		// 编辑活动时判断是否已经投放过，即不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {			
@@ -541,8 +555,16 @@ public class CampaignService extends BaseService {
 			pauseCampaign(campaignModel);
 		} else if (StatusConstant.CAMPAIGN_PROCEED.equals(status)) {
 			// 判断落地页监测码是否被其他开启并且未结束的活动使用
-			CampaignModel campaign = campaignDao.selectByPrimaryKey(id);			
-			isUseOfLandpageCodes(campaign.getLandpageId());
+			CampaignModel campaign = campaignDao.selectByPrimaryKey(id);
+			
+			LandpageCodeModelExample example = new LandpageCodeModelExample();
+			example.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
+			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
+			for (LandpageCodeModel code : codes) {
+				if (isUseOfLandpageCode(code.getCode(), campaign.getStartDate(), campaign.getEndDate())) {
+					throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+				}
+			}
 			// 按照活动投放
 			proceedCampaign(campaignModel);
 		} else {
@@ -1504,7 +1526,14 @@ public class CampaignService extends BaseService {
 		
 		// 判断落地页监测码是否被其他开启并且未结束的活动使用
 		CampaignModel campaign = campaignDao.selectByPrimaryKey(id);
-		isUseOfLandpageCodes(campaign.getLandpageId());
+		LandpageCodeModelExample example = new LandpageCodeModelExample();
+		example.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
+		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
+		for (LandpageCodeModel code : codes) {
+			if (isUseOfLandpageCode(code.getCode(), startDate, endDate)) {
+				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+			}
+		}
 
 		CampaignModel model = new CampaignModel();
 		model.setStartDate(startDate);
@@ -1619,48 +1648,62 @@ public class CampaignService extends BaseService {
      * @param landpageId 落地页id
      * @throws Exception
      */
-    @Transactional
-	public void isUseOfLandpageCodes(String landpageId) throws Exception {
+	private boolean isUseOfLandpageCode(String code, Date startDate, Date endDate) throws Exception {
 		// 查询状态开着并且活动结束时间在当前时间及之后的活动信息
 		CampaignModelExample campaignEx = new CampaignModelExample();
 		Date current = new Date();
-		campaignEx.createCriteria().andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
+		campaignEx.createCriteria()
+				.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
 				.andEndDateGreaterThanOrEqualTo(current);
-		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
 
-		Set<String> codesList = new HashSet<String>(); // 存放正在被使用的codes
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+		Map<String, List<Map<String, Date>>> cache = new HashMap<String, List<Map<String, Date>>>();
 		// 如果活动信息不为空，取出每个活动使用的监测码
 		for (CampaignModel campaign : campaigns) {
+			Date start = campaign.getStartDate();
+			Date end = campaign.getEndDate();
 			// 活动使用的落地页id（一个活动只能对应一个落地页）
 			String usedLandpageId = campaign.getLandpageId();
 			// 查询活动使用的监测码
 			LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
-			landpageCodeEx.createCriteria().andLandpageIdEqualTo(usedLandpageId);
-			List<LandpageCodeModel> usedLandpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
+			landpageCodeEx.createCriteria()
+					.andLandpageIdEqualTo(usedLandpageId);
+			List<LandpageCodeModel> usedLandpageCodes = landpageCodeDao
+					.selectByExample(landpageCodeEx);
 			// 判断正在使用的落地页监测码信息是否为空
 			if (usedLandpageCodes != null && !usedLandpageCodes.isEmpty()) {
 				for (LandpageCodeModel usedLandpageCode : usedLandpageCodes) {
 					// 正在被活动使用的监测码
 					String usedCode = usedLandpageCode.getCode();
-					codesList.add(usedCode);
+					if (cache.containsKey(usedCode)) {
+						List<Map<String, Date>> dateGroups = cache
+								.get(usedCode);
+						Map<String, Date> group = new HashMap<String, Date>();
+						group.put("startDate", start);
+						group.put("endDate", end);
+						dateGroups.add(group);
+					} else {
+						List<Map<String, Date>> dateGroups = new ArrayList<Map<String, Date>>();
+						Map<String, Date> group = new HashMap<String, Date>();
+						group.put("startDate", start);
+						group.put("endDate", end);
+						dateGroups.add(group);
+						cache.put(usedCode, dateGroups);
+					}
 				}
 			}
 		}
-		// 查询要使用的落地页的code
-		LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
-		landpageCodeEx.createCriteria().andLandpageIdEqualTo(landpageId);
-		List<LandpageCodeModel> landpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
-		// 判断落地页code信息是否为空
-		// 如果落地页code信息不为空，判断该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码是否相同
-		for (LandpageCodeModel landpageCode : landpageCodes) {
-			// 落地页对应的监测码
-			String code = landpageCode.getCode();
-			if (codesList.contains(code)) {
-				// 该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码相同，抛出非法状态异常
-				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+		if (cache.containsKey(code)) {
+			List<Map<String, Date>> dateGroups = cache.get(code);
+			for (Map<String, Date> group : dateGroups) {
+				Date start = group.get("startDate");
+				Date end = group.get("endDate");
+				if (!(start.after(endDate) || end.before(startDate))) {
+					return true;
+				}
 			}
-
 		}
+		return false;
 	}
     
     /**
