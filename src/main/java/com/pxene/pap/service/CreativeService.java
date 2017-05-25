@@ -639,8 +639,8 @@ public class CreativeService extends BaseService {
 						video.setVideoId(creative.getMaterialId());
 						video.setVideoPath(videoModel.getPath());
 						
-						image.setAppId(appInfo.get("appIds"));  
-						image.setAppName(appInfo.get("appNames")); 
+						video.setAppId(appInfo.get("appIds"));  
+						video.setAppName(appInfo.get("appNames")); 
 						video.setEnable(creative.getEnable());
 						//查询投放数据
 						if (startDate != null && endDate != null) {
@@ -673,8 +673,8 @@ public class CreativeService extends BaseService {
 						info.setStatus(getCreativeAuditStatus(creative.getId()));
 						info.setPrice(creative.getPrice().floatValue());
 						
-						image.setAppId(appInfo.get("appIds"));  
-						image.setAppName(appInfo.get("appNames")); 
+						info.setAppId(appInfo.get("appIds"));  
+						info.setAppName(appInfo.get("appNames")); 
 						info.setEnable(creative.getEnable());
 						
 						info.setTitle(infoflowModel.getTitle());                   //标题
@@ -731,8 +731,8 @@ public class CreativeService extends BaseService {
 					}
 				} else {
 					base = modelMapper.map(creative, CreativeBean.class);
-					image.setAppId(appInfo.get("appIds"));  
-					image.setAppName(appInfo.get("appNames")); 
+					base.setAppId(appInfo.get("appIds"));  
+					base.setAppName(appInfo.get("appNames")); 
 					String creativeType = creative.getType();
 					String[] materialPaths = null;
 					// 创意显示活动周期
@@ -1570,9 +1570,9 @@ public class CreativeService extends BaseService {
 		String appIds = "";
 		String appNames = "";
 		
-		AppTmplModelExample apptmplExample = new AppTmplModelExample();
-		apptmplExample.createCriteria().andTmplIdEqualTo(tmplId);
-		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(apptmplExample);
+		AppTmplModelExample appTmplExample = new AppTmplModelExample();
+		appTmplExample.createCriteria().andTmplIdEqualTo(tmplId);
+		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplExample);
 		for (AppTmplModel tmpl : appTmpls) {
 			String appId = tmpl.getAppId();
 			AppModel app = appDao.selectByPrimaryKey(appId);
@@ -1581,7 +1581,7 @@ public class CreativeService extends BaseService {
 		}
 		if (appIds.length() > 1 && appNames.length() > 1) {
 			result.put("appIds", appIds.substring(0, appIds.length()-1));
-			result.put("appNames", appIds.substring(0, appNames.length()-1));
+			result.put("appNames", appNames.substring(0, appNames.length()-1));
 		}
 		return result;
 	}
