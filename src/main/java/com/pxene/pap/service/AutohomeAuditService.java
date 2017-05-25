@@ -215,7 +215,7 @@ public class AutohomeAuditService extends AuditService
             ImageMaterialModel imageMaterial = imageMaterialDao.selectByPrimaryKey(materialId);
             String imageId = imageMaterial.getImageId();
 
-            contentObj = buildSnippetContentObj(imageId, "img");
+            contentObj = buildSnippetContentImg(imageId, "img");
             contentArray.add(contentObj);
         }
         else if ("03".equals(creativeType))//如果创意是信息流，则读取信息流素材表，取得第一张图片ID
@@ -235,56 +235,56 @@ public class AutohomeAuditService extends AuditService
             // 小图类型
             if (!StringUtils.isEmpty(iconId))
             {
-                contentObj = buildSnippetContentObj(iconId, "simg");
+                contentObj = buildSnippetContentImg(iconId, "simg");
                 contentArray.add(contentObj);
             }
             
             // 图片地址1
             if (!StringUtils.isEmpty(image1Id))
             {
-                contentObj = buildSnippetContentObj(iconId, "img");
+                contentObj = buildSnippetContentImg(image1Id, "img");
                 contentArray.add(contentObj);
             }
             
             // 图片地址2
             if (!StringUtils.isEmpty(image2Id))
             {
-                contentObj = buildSnippetContentObj(iconId, "img2");
+                contentObj = buildSnippetContentImg(image2Id, "img2");
                 contentArray.add(contentObj);
             }
             
             // 图片地址3
             if (!StringUtils.isEmpty(image3Id))
             {
-                contentObj = buildSnippetContentObj(iconId, "img3");
+                contentObj = buildSnippetContentImg(image3Id, "img3");
                 contentArray.add(contentObj);
             }
             
             // 图片地址4
             if (!StringUtils.isEmpty(image4Id))
             {
-                contentObj = buildSnippetContentObj(iconId, "img4");
+                contentObj = buildSnippetContentImg(image4Id, "img4");
                 contentArray.add(contentObj);
             }
             
             // 图片地址5
             if (!StringUtils.isEmpty(image5Id))
             {
-                contentObj = buildSnippetContentObj(iconId, "img5");
+                contentObj = buildSnippetContentImg(image5Id, "img5");
                 contentArray.add(contentObj);
             }
             
             // 标题类型
             if (!StringUtils.isEmpty(title))
             {
-                contentObj = buildSnippetContentObj(iconId, "text");
+                contentObj = buildSnippetContentText(title, "text");
                 contentArray.add(contentObj);
             }
             
             // 副标题类型
             if (!StringUtils.isEmpty(descp))
             {
-                contentObj = buildSnippetContentObj(iconId, "stext");
+                contentObj = buildSnippetContentText(descp, "stext");
                 contentArray.add(contentObj);
             }
         }
@@ -550,9 +550,12 @@ public class AutohomeAuditService extends AuditService
                 for (JsonElement jsonElement : array)
                 {
                     JsonObject o = jsonElement.getAsJsonObject();
-                    int id = o.get("id").getAsInt();
-                    String auditComment = o.get("auditComment").getAsString();
-                    
+                    int id = o.get("id").getAsInt();                  
+                    JsonElement element = o.get("auditComment");
+                    String auditComment = "";
+                    if (!element.isJsonNull()) {
+                    	auditComment = element.getAsString();
+                    }
                     String msg = "ID: " + id + ", " + auditComment;
                     errorList.add(msg);
                     
@@ -583,7 +586,7 @@ public class AutohomeAuditService extends AuditService
     }
 
 
-    private JsonObject buildSnippetContentObj(String imageId, String type)
+    private JsonObject buildSnippetContentImg(String imageId, String type)
     {
         JsonObject content = null;
         if (!StringUtils.isEmpty(imageId))
@@ -599,6 +602,16 @@ public class AutohomeAuditService extends AuditService
                 content.addProperty("src", src);
                 content.addProperty("type", type);
             }
+        }
+        return content;
+    }
+    
+    private JsonObject buildSnippetContentText(String text, String type) {
+    	JsonObject content = null;
+        if (!StringUtils.isEmpty(text)) {
+        	content = new JsonObject();
+            content.addProperty("src", text);
+            content.addProperty("type", type);
         }
         return content;
     }
