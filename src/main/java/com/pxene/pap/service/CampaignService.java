@@ -1609,7 +1609,8 @@ public class CampaignService extends BaseService {
 			for (CreativeModel creative : creativeList) {
 				creative.setPrice(Float.parseFloat(map.get("price")));
 				creativeDao.updateByPrimaryKeySelective(creative);
-			}			
+			}
+			launchService.writeCreativeInfo(campaignId);
 		}
 	}
 	
