@@ -1568,21 +1568,37 @@ public class DataService extends BaseService {
             Cell dateCell = tmpRow.getCell(0);
             Cell codeCell = tmpRow.getCell(1);
             
+            // 如果第一列日期设置不正确
             if (dateCell == null || codeCell == null)
             {
                 throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
             }
             
-            td.setDate(dateCell.getDateCellValue());
+            Date firstColumnValue = dateCell.getDateCellValue();
+            if (firstColumnValue == null)
+            {
+                throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            }
+            else
+            {
+                td.setDate(firstColumnValue);
+            }
             
+            // 如果第二列监测码设置不正确
+            String secondColumnValue = null;
             CellType cellTypeEnum = codeCell.getCellTypeEnum();
             if (cellTypeEnum == CellType.NUMERIC)
             {
-                td.setCode(String.valueOf(codeCell.getNumericCellValue()));
+                secondColumnValue = String.valueOf(codeCell.getNumericCellValue());
             }
             else if (cellTypeEnum == CellType.STRING)
             {
-                td.setCode(codeCell.getStringCellValue());
+                secondColumnValue = codeCell.getStringCellValue();
+            }
+            
+            if (!StringUtils.isEmpty(secondColumnValue))
+            {
+                td.setCode(secondColumnValue);
             }
             else 
             {
