@@ -1320,11 +1320,14 @@ public class LaunchService extends BaseService {
 		List<PopulationTargetModel> populationTargetModels = populationTargetDao.selectByExample(populationTargetExample);
 		
 		if (populationTargetModels != null && !populationTargetModels.isEmpty()) {
-			String populationId = populationTargetModels.get(0).getPopulationId();
+			PopulationTargetModel populationTargetModel = populationTargetModels.get(0);
+            String populationId = populationTargetModel.getPopulationId();
+			String type = populationTargetModel.getType();
+			
 			PopulationModel populationModel = populationDao.selectByPrimaryKey(populationId);
 			if (populationModel != null) {
 //				String path = populationModel.getPath();
-				String type = populationModel.getType();
+//				String type = populationModel.getType();
 				File file = new File(POPULATION_ROOT_PATH + populationId + ".txt");
 				if (!file.exists()) {					
 					throw new ResourceNotFoundException(PhrasesConstant.WBLIST_FILE_NOT_FOUND);
