@@ -1257,7 +1257,7 @@ public class LaunchService extends BaseService {
 				if (DateUtils.isBetweenDates(current, startDate, endDate)) {
 					Integer impression = quan.getDailyImpression();
 					if (impression != null) {
-						redisHelper.set(key, impression);
+						redisHelper.set(key, (int)impression);
 					}
 					break;
 				}
@@ -1294,7 +1294,7 @@ public class LaunchService extends BaseService {
 				if (DateUtils.isBetweenDates(current, startDate, endDate)) {
 					Integer budget = quan.getDailyBudget();
 					if (budget != null) {
-						redisHelper.setNX(key, budget * 100);
+						redisHelper.setNX(key, (int)budget * 100);
 					}
 					break;
 				}

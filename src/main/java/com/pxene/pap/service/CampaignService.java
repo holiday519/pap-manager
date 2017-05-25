@@ -488,7 +488,7 @@ public class CampaignService extends BaseService {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 						}
 						if (difBudget != 0) {
-							redisHelper.incrybyInt(budgetKey, difBudget * 100);
+							redisHelper.incrybyInt(budgetKey, (int)difBudget * 100);
 						}
 					}
 				}
@@ -511,7 +511,7 @@ public class CampaignService extends BaseService {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
 						}
 						if (difImpression != 0) {
-							redisHelper.incrybyInt(countKey, difImpression);
+							redisHelper.incrybyInt(countKey, (int)difImpression);
 						}
 					}
 				}
@@ -1637,13 +1637,12 @@ public class CampaignService extends BaseService {
 				landpageCodeEx.createCriteria().andLandpageIdEqualTo(usedLandpageId);
 				List<LandpageCodeModel> usedLandpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
 				// 判断正在使用的落地页监测码信息是否为空
-				if (usedLandpageCodes == null || usedLandpageCodes.isEmpty()) {
-					throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-				}
-				for (LandpageCodeModel usedLandpageCode : usedLandpageCodes) {
-					// 正在被活动使用的监测码
-					String usedCode = usedLandpageCode.getCode();
-					codesList.add(usedCode);
+				if (usedLandpageCodes != null && usedLandpageCodes.isEmpty()) {
+					for (LandpageCodeModel usedLandpageCode : usedLandpageCodes) {
+						// 正在被活动使用的监测码
+						String usedCode = usedLandpageCode.getCode();
+						codesList.add(usedCode);
+					}
 				}
 			}
 		}
@@ -1653,17 +1652,16 @@ public class CampaignService extends BaseService {
 		List<LandpageCodeModel> landpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
 		// 判断落地页code信息是否为空
 		if (landpageCodes == null || landpageCodes.isEmpty()) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
-		// 如果落地页code信息不为空，判断该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码是否相同
-		for (LandpageCodeModel landpageCode : landpageCodes) {
-			// 落地页对应的监测码
-			String code = landpageCode.getCode();
-			if (codesList.contains(code)) {
-				// 该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码相同，抛出非法状态异常
-				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
-			}
+			// 如果落地页code信息不为空，判断该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码是否相同
+			for (LandpageCodeModel landpageCode : landpageCodes) {
+				// 落地页对应的监测码
+				String code = landpageCode.getCode();
+				if (codesList.contains(code)) {
+					// 该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码相同，抛出非法状态异常
+					throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
+				}
 
+			}
 		}
 	}
     
