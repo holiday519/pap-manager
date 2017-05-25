@@ -263,7 +263,7 @@ public class CampaignService extends BaseService {
 		example.createCriteria().andLandpageIdEqualTo(landpageModel.getId());
 		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
 		for (LandpageCodeModel code : codes) {
-			if (isUseOfLandpageCode(code.getCode(), startDate, endDate)) {
+			if (isUseOfLandpageCode(code.getCode(), startDate, endDate,null)) {
 				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
 			}
 		}
@@ -358,7 +358,7 @@ public class CampaignService extends BaseService {
 		example.createCriteria().andLandpageIdEqualTo(landpageModel.getId());
 		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
 		for (LandpageCodeModel code : codes) {
-			if (isUseOfLandpageCode(code.getCode(), startDate, endDate)) {
+			if (isUseOfLandpageCode(code.getCode(), startDate, endDate,id)) {
 				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
 			}
 		}
@@ -493,7 +493,7 @@ public class CampaignService extends BaseService {
 				}
 			} else {
 				if (oldBudget == null) {
-					redisHelper.set(budgetKey, newBudget);
+					redisHelper.set(budgetKey, (int)newBudget);
 				} else {
 					if (redisHelper.exists(budgetKey)) {
 						int redisBudget = redisHelper.getInt(budgetKey) / 100;
@@ -516,7 +516,7 @@ public class CampaignService extends BaseService {
 				}
 			} else {
 				if (oldImpression == null) {
-					redisHelper.set(countKey, newImpression);
+					redisHelper.set(countKey, (int)newImpression);
 				} else {
 					if (redisHelper.exists(countKey)) {
 						int redisImpression = redisHelper.getInt(countKey);
@@ -561,7 +561,7 @@ public class CampaignService extends BaseService {
 			example.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
 			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
 			for (LandpageCodeModel code : codes) {
-				if (isUseOfLandpageCode(code.getCode(), campaign.getStartDate(), campaign.getEndDate())) {
+				if (isUseOfLandpageCode(code.getCode(), campaign.getStartDate(), campaign.getEndDate(),id)) {
 					throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
 				}
 			}
@@ -1530,7 +1530,7 @@ public class CampaignService extends BaseService {
 		example.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
 		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
 		for (LandpageCodeModel code : codes) {
-			if (isUseOfLandpageCode(code.getCode(), startDate, endDate)) {
+			if (isUseOfLandpageCode(code.getCode(), startDate, endDate,id)) {
 				throw new IllegalStatusException(PhrasesConstant.LANDPAGE_CODE_USED);
 			}
 		}
@@ -1648,13 +1648,17 @@ public class CampaignService extends BaseService {
      * @param landpageId 落地页id
      * @throws Exception
      */
-	private boolean isUseOfLandpageCode(String code, Date startDate, Date endDate) throws Exception {
+	private boolean isUseOfLandpageCode(String code, Date startDate, Date endDate,String campaignId) throws Exception {
 		// 查询状态开着并且活动结束时间在当前时间及之后的活动信息
 		CampaignModelExample campaignEx = new CampaignModelExample();
 		Date current = new Date();
-		campaignEx.createCriteria()
-				.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
-				.andEndDateGreaterThanOrEqualTo(current);
+		if (campaignId == null) {
+			campaignEx.createCriteria().andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
+					.andEndDateGreaterThanOrEqualTo(current);
+		} else {
+			campaignEx.createCriteria().andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
+					.andEndDateGreaterThanOrEqualTo(current).andIdNotEqualTo(campaignId);
+		}	
 
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
 		Map<String, List<Map<String, Date>>> cache = new HashMap<String, List<Map<String, Date>>>();

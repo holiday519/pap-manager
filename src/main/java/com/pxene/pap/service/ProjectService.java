@@ -138,8 +138,8 @@ public class ProjectService extends BaseService {
         // 将项目总预算插入Redis
         String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + project.getId();
         Integer totalBudget = project.getTotalBudget();
-        totalBudget = totalBudget * 100; // 将元转换成分
-        redisHelper.setNX(projectBudgetKey, totalBudget);
+//        totalBudget = totalBudget * 100; // 将元转换成分
+        redisHelper.setNX(projectBudgetKey, (int)totalBudget* 100); // 将元转换成分
         
         // 初始化转化字段
         initEffectField(bean.getId());
