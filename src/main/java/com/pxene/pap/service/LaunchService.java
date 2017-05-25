@@ -593,7 +593,9 @@ public class LaunchService extends BaseService {
 				creativeObj.addProperty("mapid", model.getCreativeId());
 				creativeObj.addProperty("groupid", model.getCampaignId());
 				creativeObj.addProperty("type", 2);
-				creativeObj.addProperty("ftype", Integer.parseInt(model.getFormat()));
+				if (model.getFormat() != null) {
+					creativeObj.addProperty("ftype", Integer.parseInt(model.getFormat()));
+				}
 				List<Map<String, String>> adxes = getAdxByCreative(creative);
 				JsonArray prices = new JsonArray();
 				JsonArray exts = new JsonArray();
@@ -1344,7 +1346,10 @@ public class LaunchService extends BaseService {
 					// 当前行内容为ID标识
 					if (left > -1 && right > -1) {
 						key = line.substring(left + 1, right);
-						deviceIdJsons.add(deviceIdType.get(key.toLowerCase()));
+						Integer dType = deviceIdType.get(key.toLowerCase());
+						if (dType != null) {
+							deviceIdJsons.add(dType);
+						}
 						values.clear();
 					} else {
 						if (!StringUtils.isEmpty(line) && key != null) {
