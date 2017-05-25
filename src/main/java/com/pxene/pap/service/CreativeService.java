@@ -172,6 +172,9 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private AutohomeAuditService autohomeAuditService;
 	
+	@Autowired
+	private TmplService tmplService;
+	
 	/**
 	 * 创建创意
 	 * @param bean
@@ -568,7 +571,7 @@ public class CreativeService extends BaseService {
 		} else if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameLike("%" + name + "%");
 		}
-		
+        
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
 			CreativeBean base = null;
@@ -578,7 +581,7 @@ public class CreativeService extends BaseService {
 			for (CreativeModel creative : creatives) {
 //				String appId = getAppId(creative.getTmplId());
 //				String appName = getAppName(appId);
-				Map<String, String> appInfo = getAppInfo(creative.getTmplId());
+				Map<String, String> appInfo = getAppInfo(creative);
 				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 					if (imageMaterialModel != null) {
@@ -866,7 +869,7 @@ public class CreativeService extends BaseService {
 		ImageCreativeBean image = null;
 		VideoCreativeBean video = null;
 		InfoflowCreativeBean info = null;
-		Map<String, String> appInfo = getAppInfo(creative.getTmplId());
+		Map<String, String> appInfo = getAppInfo(creative);
 		String appId = appInfo.get("appIds");
 		String appName = appInfo.get("appNames");
 		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
@@ -1565,7 +1568,13 @@ public class CreativeService extends BaseService {
 //		return appName;
 //	}
 	
-	private Map<String, String> getAppInfo(String tmplId) {
+	private Map<String, String> getAppInfo(CreativeModel creative) throws Exception {
+		String campaignId = creative.getCampaignId();
+		String tmplId = creative.getTmplId();
+		
+		//获取活动下的APPId
+        List<String> appIdList = tmplService.getAppidByCampaignId(campaignId);
+		
 		Map<String, String> result = new HashMap<String, String>();
 		String appIds = "";
 		String appNames = "";
@@ -1575,9 +1584,11 @@ public class CreativeService extends BaseService {
 		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplExample);
 		for (AppTmplModel tmpl : appTmpls) {
 			String appId = tmpl.getAppId();
-			AppModel app = appDao.selectByPrimaryKey(appId);
-			appIds = appIds + app.getId() + ",";
-			appNames = appNames + app.getAppName() + ",";
+			if (appIdList.contains(appId)) {
+				AppModel app = appDao.selectByPrimaryKey(appId);
+				appIds = appIds + appId + ",";
+				appNames = appNames + app.getAppName() + ",";
+			}
 		}
 		if (appIds.length() > 1 && appNames.length() > 1) {
 			result.put("appIds", appIds.substring(0, appIds.length()-1));
