@@ -1626,32 +1626,33 @@ public class CampaignService extends BaseService {
 		campaignEx.createCriteria().andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED)
 				.andEndDateGreaterThanOrEqualTo(current);
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
-		LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
-		List<String> codesList = new ArrayList<String>(); // 存放正在被使用的codes
-		if (campaigns != null && !campaigns.isEmpty()) {
+		
+		Set<String> codesList = new HashSet<String>(); // 存放正在被使用的codes
+//		if (campaigns != null && !campaigns.isEmpty()) {
 			// 如果活动信息不为空，取出每个活动使用的监测码
 			for (CampaignModel campaign : campaigns) {
 				// 活动使用的落地页id（一个活动只能对应一个落地页）
 				String usedLandpageId = campaign.getLandpageId();
 				// 查询活动使用的监测码
+				LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
 				landpageCodeEx.createCriteria().andLandpageIdEqualTo(usedLandpageId);
 				List<LandpageCodeModel> usedLandpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
 				// 判断正在使用的落地页监测码信息是否为空
-				if (usedLandpageCodes != null && usedLandpageCodes.isEmpty()) {
+				if (usedLandpageCodes != null && !usedLandpageCodes.isEmpty()) {
 					for (LandpageCodeModel usedLandpageCode : usedLandpageCodes) {
 						// 正在被活动使用的监测码
 						String usedCode = usedLandpageCode.getCode();
-						codesList.add(usedCode);
+						codesList.add(usedCode);						
 					}
 				}
 			}
-		}
+//		}
 		// 查询要使用的落地页的code
-		landpageCodeEx.clear();
+		LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
 		landpageCodeEx.createCriteria().andLandpageIdEqualTo(landpageId);
 		List<LandpageCodeModel> landpageCodes = landpageCodeDao.selectByExample(landpageCodeEx);
 		// 判断落地页code信息是否为空
-		if (landpageCodes == null || landpageCodes.isEmpty()) {
+//		if (landpageCodes == null || landpageCodes.isEmpty()) {
 			// 如果落地页code信息不为空，判断该落地页使用的监测码与正在开启并在活动时间的活动使用的监测码是否相同
 			for (LandpageCodeModel landpageCode : landpageCodes) {
 				// 落地页对应的监测码
@@ -1662,7 +1663,7 @@ public class CampaignService extends BaseService {
 				}
 
 			}
-		}
+//		}
 	}
     
     /**
@@ -1687,7 +1688,9 @@ public class CampaignService extends BaseService {
 				creativeAuditEx.createCriteria().andCreativeIdEqualTo(creativeId)
 						.andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 				List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditEx);
-				return creativeAudit.size() > 0;
+				if (creativeAudit.size() > 0) {
+					return true;
+				} 
 			}
 		}
 		return false;
