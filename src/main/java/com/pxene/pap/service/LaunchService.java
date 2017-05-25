@@ -127,8 +127,8 @@ public class LaunchService extends BaseService {
         }
 		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
 		// 指定使用配置文件中的哪个具体的Redis配置
-        redisHelper = RedisHelper.open("redis.primary.");
-        redisHelper2 = RedisHelper.open("redis.secondary.");
+        redisHelper = new RedisHelper("redis.primary.");
+        redisHelper2 = new RedisHelper("redis.secondary.");
 	}
 	
 	@Autowired

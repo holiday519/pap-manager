@@ -121,7 +121,7 @@ public class DataService extends BaseService {
 	public DataService()
     {
 	    // 指定使用配置文件中的哪个具体的Redis配置
-        redisHelper3 = RedisHelper.open("redis.tertiary.");
+        redisHelper3 = new RedisHelper("redis.tertiary.");
     }
 	
 
