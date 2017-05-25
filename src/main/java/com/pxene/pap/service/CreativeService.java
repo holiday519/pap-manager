@@ -1624,6 +1624,7 @@ public class CreativeService extends BaseService {
 			ImageMaterialModel imageMaterialModel = modelMapper.map(imageBean, ImageMaterialModel.class);
 			imageMaterialModel.setId(materialId);
 			imageMaterialDao.updateByPrimaryKeySelective(imageMaterialModel);
+			launchService.writeImgCreativeInfo(creativeModel);
 		}
 		// 视频 
 		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
@@ -1636,6 +1637,7 @@ public class CreativeService extends BaseService {
 			VideoMaterialModel videoMaterialModel = modelMapper.map(videoBean, VideoMaterialModel.class);
 			videoMaterialModel.setId(materialId);
 			videoeMaterialDao.updateByPrimaryKeySelective(videoMaterialModel);
+			launchService.writeVideoCreativeInfo(creativeModel);
 		}
 		// 信息流
 		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) { 
@@ -1652,6 +1654,7 @@ public class CreativeService extends BaseService {
 			infoflowMaterialModel.setId(materialId);
 			// 更新信息流
 			infoMaterialDao.updateByPrimaryKeySelective(infoflowMaterialModel);
+			launchService.writeInfoflowCreativeInfo(creativeModel);
 		}
 		// 放入ID，用于更新关联关系表中数据
 		creativeModel.setId(id);
