@@ -29,6 +29,7 @@ import com.pxene.pap.common.HttpClientUtil;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
@@ -44,13 +45,14 @@ import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.IndustryDao;
 
 /**
- * 汽车之家的审核同步 
- * @author lizhuoling
+ * 汽车之家的相关审核、同步服务
+ * @author ningyu
  */
 @Service
 public class AutohomeAuditService extends AuditService
@@ -191,9 +193,6 @@ public class AutohomeAuditService extends AuditService
         String industryId = advertiserModel.getIndustryId();                // 行业ID
         String industryName = getIndustryName(industryId);                  // 行业名称
         
-        getAdvertiserIDInDSP(advertiserModel.getId());
-        
-
         // 创意类型
         String creativeType = creativeModel.getType();
         
@@ -443,7 +442,7 @@ public class AutohomeAuditService extends AuditService
     /**
      * 根据广告主的UUID获得DSP端的广告主ID（广告主审核表中保存的由ADX返回的审核后的广告主ID）
      * @param id 广告主ID
-     * @return
+     * @return  DSP颁发的广告主ID
      */
     private Integer getAdvertiserIDInDSP(String id)
     {
@@ -456,7 +455,14 @@ public class AutohomeAuditService extends AuditService
         if (advertiserAudits != null && !advertiserAudits.isEmpty())
         {
             AdvertiserAuditModel advertiserAuditModel = advertiserAudits.get(0);
-            advertiserID = Integer.valueOf(advertiserAuditModel.getAuditValue());
+            String auditValue = advertiserAuditModel.getAuditValue();
+            
+            if (StringUtils.isEmpty(auditValue))
+            {
+                throw new IllegalArgumentException(PhrasesConstant.ADVERTISER_AUDIT_ERROR);
+            }
+            
+            advertiserID = Integer.valueOf(auditValue);
         }
         return advertiserID;
     }
