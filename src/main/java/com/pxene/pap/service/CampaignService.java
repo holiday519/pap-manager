@@ -1474,28 +1474,20 @@ public class CampaignService extends BaseService {
 		if (campaignInDB == null || campaignInDB.isEmpty()) {
 			throw new ResourceNotFoundException();
 		}
-		String[] creativeIds = null;
+		Set<String> setIds = new HashSet<String>();
 		for (String campaignId : campaignIds) {
 			//查询出活动下创意
 			CreativeModelExample creativeExample = new CreativeModelExample();
 			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
 			List<CreativeModel> creativeList = creativeDao.selectByExample(creativeExample);
-			ArrayList<String> listIds = new ArrayList<String>();
 			// 获取creativeIds
 			for (CreativeModel creativeModel : creativeList) {				
-				listIds.add(creativeModel.getId());
+				setIds.add(creativeModel.getId());
 			}
-			// 将获取到的creativeIds去重
-			Set<String> setIds = new HashSet<String>();
-			for (String strId : listIds) {
-				setIds.add(strId);
-			}
-			// 将去重后的set即setIds生成一个数组
-			creativeIds = setIds.toArray(new String[0]);
-			// FIXME : 1.凑齐creativeIds再调用同步创意方法，2.set去重creativeId，3.new String[0]是否可行---OK		
 		}
+		String[] creativeIds = new String[setIds.size()];
 		// 同步创意
-		creativeService.synchronizeCreatives(creativeIds);	
+		creativeService.synchronizeCreatives(setIds.toArray(creativeIds));	
     }
     
     /**
