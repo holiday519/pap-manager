@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>pap-manager</artifactId>
     <groupId>com.pxene.pap</groupId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 
     <name>Pxene PAP Manager</name>
     <description>PowerXene PAP Project</description>
@@ -261,6 +261,15 @@
                 <version>2.7</version>
                 <configuration>
                     <encoding>${project-build-encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>
+                        -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005
+                    </jvmArguments>
                 </configuration>
             </plugin>
         </plugins>
