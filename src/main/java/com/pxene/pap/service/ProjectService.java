@@ -93,14 +93,11 @@ public class ProjectService extends BaseService {
 	@Autowired
 	private LaunchService launchService;
 
-    private RedisHelper redisHelper;
+    private RedisHelper redisHelper = new RedisHelper("redis.primary.");
 
     private String excelSavePath= ConmonConfigHelp.EXCEL_SAVEPATH;
 
-    public ProjectService() {
-        redisHelper = RedisHelper.open("redis.primary.");
-    }
-	
+    
 	/**
 	 * 创建项目
 	 * @param bean

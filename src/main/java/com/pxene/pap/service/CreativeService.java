@@ -86,7 +86,7 @@ public class CreativeService extends BaseService {
 	
 	private String password;
 	
-	private RedisHelper redisHelper3;
+	private RedisHelper redisHelper3 = new RedisHelper("redis.tertiary.");
 	
 	
 	@Autowired
@@ -107,9 +107,6 @@ public class CreativeService extends BaseService {
             username = env.getProperty("pap.fileserver.remote.username");
             password = env.getProperty("pap.fileserver.remote.password");
         }
-        
-        // 指定使用配置文件中的哪个具体的Redis配置
-        redisHelper3 = RedisHelper.open("redis.tertiary.");
 	}
 	
 	@Autowired

@@ -196,7 +196,7 @@ public class CampaignService extends BaseService {
 	@Autowired
 	private LandpageCodeDao landpageCodeDao;
 	
-	private RedisHelper redisHelper;
+	private RedisHelper redisHelper = new RedisHelper("redis.primary.");
 	
 	private static JsonParser parser = new JsonParser();
 	
@@ -206,10 +206,6 @@ public class CampaignService extends BaseService {
 //	
 //	private static final String JSON_KEY_GROUPIDS = "groupids";
 	
-	public CampaignService()
-    {
-	    redisHelper = RedisHelper.open("redis.primary.");
-    }
 	
 	/**
 	 * 创建活动

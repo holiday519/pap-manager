@@ -550,10 +550,11 @@ public class AutohomeAuditService extends AuditService
                 for (JsonElement jsonElement : array)
                 {
                     JsonObject o = jsonElement.getAsJsonObject();
-                    int id = o.get("id").getAsInt();                  
+                    int id = o.get("id").getAsInt();
                     JsonElement element = o.get("auditComment");
                     String auditComment = "";
-                    if (!element.isJsonNull()) {
+                    if (!element.isJsonNull())
+                    {
                     	auditComment = element.getAsString();
                     }
                     String msg = "ID: " + id + ", " + auditComment;
@@ -606,10 +607,12 @@ public class AutohomeAuditService extends AuditService
         return content;
     }
     
-    private JsonObject buildSnippetContentText(String text, String type) {
-    	JsonObject content = null;
-        if (!StringUtils.isEmpty(text)) {
-        	content = new JsonObject();
+    private JsonObject buildSnippetContentText(String text, String type)
+    {
+        JsonObject content = null;
+        if (!StringUtils.isEmpty(text))
+        {
+            content = new JsonObject();
             content.addProperty("src", text);
             content.addProperty("type", type);
         }
@@ -628,7 +631,7 @@ public class AutohomeAuditService extends AuditService
         
         String sign = GlobalUtil.MD5(str + signKey);
         return sign;
-       }
+    }
 
 
     private String buildRequestParams(Map<String, String> params)
