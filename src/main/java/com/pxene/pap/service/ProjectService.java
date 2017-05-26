@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -93,14 +94,18 @@ public class ProjectService extends BaseService {
 	@Autowired
 	private LaunchService launchService;
 
-    private RedisHelper redisHelper;
+    private RedisHelper redisHelper = new RedisHelper("redis.primary.");
 
-    private String excelSavePath= ConmonConfigHelp.EXCEL_SAVEPATH;
+    private String excelSavePath;
 
-    public ProjectService() {
-        redisHelper = RedisHelper.open("redis.primary.");
+    
+    @Autowired
+    public ProjectService(Environment env)
+    {
+        excelSavePath = env.getProperty("pap.excel.savePath");
     }
 	
+    
 	/**
 	 * 创建项目
 	 * @param bean
@@ -291,7 +296,7 @@ public class ProjectService extends BaseService {
 
 
 		//删除对应的excel模板
-		File excelFile= new File(ConmonConfigHelp.EXCEL_SAVEPATH+"/"+id+".xlsx");
+		File excelFile= new File(excelSavePath + "/" + id + ".xlsx");
 		if(excelFile.exists()){
 			boolean res =excelFile.delete();
 			if(!res){
@@ -354,7 +359,7 @@ public class ProjectService extends BaseService {
 		//删除对应的excel模板
 		File excelFile;
 		for (String id : ids) {
-			excelFile = new File(ConmonConfigHelp.EXCEL_SAVEPATH + "/" + id + ".xlsx");
+			excelFile = new File(excelSavePath + "/" + id + ".xlsx");
 			if (excelFile.exists()) {
 				boolean res =excelFile.delete();
 				if(!res){
