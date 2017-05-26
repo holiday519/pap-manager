@@ -413,16 +413,21 @@ public class AutohomeAuditService extends AuditService
             boolean respFlag = checkResponseStatus(respStr);
             if (respFlag)
             {
-                String errorMsg = checkAuditStatus(respStr);
-                if (StringUtils.isEmpty(errorMsg))
+                Map<String, String> auditResultMap = checkAuditStatus(respStr);
+                String code = auditResultMap.get("code");
+                String msg = auditResultMap.get("msg");
+                
+                if ("1".equals(code))
                 {
                     changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
                 }
-                else
+                else if ("2".equals(code))
                 {
-                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, errorMsg);
-                    
-                    //throw new IllegalStatusException(errorMsg);
+                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, msg);
+                }
+                else if ("0".equals(code))
+                {
+                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_WATING, msg);
                 }
             }
             else
@@ -532,44 +537,38 @@ public class AutohomeAuditService extends AuditService
 	 * @param respStr
 	 * @return
 	 */
-	private String checkAuditStatus(String respStr)
+    private Map<String, String> checkAuditStatus(String respStr)
     {
-	    String result = null;
-	    List<String> errorList = new ArrayList<String>();
+        Map<String, String> result = new HashMap<String, String>();
+        
         JsonObject respObj = parser.parse(respStr).getAsJsonObject();
         
-        if (respObj != null && respObj.has("status") && respObj.get("status").getAsInt() == 1)
+        JsonObject dataObj = respObj.get("data").getAsJsonObject();
+        if (dataObj.has("creative") && dataObj.get("creative").isJsonArray())
         {
-            JsonObject dataObj = respObj.get("data").getAsJsonObject();
-            if (dataObj.has("creative") && dataObj.get("creative").isJsonArray())
+            JsonArray array = dataObj.get("creative").getAsJsonArray();
+            
+            for (JsonElement jsonElement : array)
             {
-                JsonArray array = dataObj.get("creative").getAsJsonArray();
+                JsonObject o = jsonElement.getAsJsonObject();
+                int id = o.get("id").getAsInt();
                 
-                for (JsonElement jsonElement : array)
+                JsonElement tmpElement = o.get("auditStatus");
+                int auditStatus = 2; //拒绝
+                if (!tmpElement.isJsonNull())
                 {
-                    JsonObject o = jsonElement.getAsJsonObject();
-                    int id = o.get("id").getAsInt();
-                    
-                    JsonElement tmpElement = o.get("auditStatus");
-                    if (!tmpElement.isJsonNull())
-                    {
-                        if (tmpElement.getAsInt() == 1) // 1-审核通过，2-拒绝，0-未审核
-                        {
-                            return null;
-                        }
-                    }
-                    
-                    JsonElement element = o.get("auditComment");
-                    String auditComment = "";
-                    if (!element.isJsonNull())
-                    {
-                    	auditComment = element.getAsString();
-                    }
-                    String msg = "ID: " + id + ", " + auditComment;
-                    errorList.add(msg);
-                    
-                    result = errorList.toString();
+                    auditStatus= tmpElement.getAsInt();
                 }
+                result.put("code", String.valueOf(auditStatus));
+                
+                JsonElement element = o.get("auditComment");
+                String msg = "";
+                if (!element.isJsonNull())
+                {
+                    String auditComment = element.getAsString();
+                    msg = "ID: " + id + ", " + auditComment;
+                }
+                result.put("msg", msg);
             }
         }
         
