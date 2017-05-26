@@ -204,7 +204,6 @@ public class AutohomeAuditService extends AuditService
         
         // 落地页信息
         LandpageModel landpageInfo = richCreative.getLandpageInfo();
-        //String landpageURL = landpageInfo.getUrl().replaceAll("&", "%26"); // 落地页地址，即，创意的点击后跳转地址
         
         JsonObject contentObj = null;
         JsonArray contentArray = new JsonArray();
@@ -417,19 +416,17 @@ public class AutohomeAuditService extends AuditService
                 String errorMsg = checkAuditStatus(respStr);
                 if (StringUtils.isEmpty(errorMsg))
                 {
-                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS);
+                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
                 }
                 else
                 {
-                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE);
+                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, errorMsg);
                     
-                    throw new IllegalStatusException(errorMsg);
+                    //throw new IllegalStatusException(errorMsg);
                 }
             }
             else
             {
-                changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE);
-                
                 throw new IllegalStatusException(parseResponseErrorInfo(respStr));
             }
         }
@@ -473,13 +470,14 @@ public class AutohomeAuditService extends AuditService
      * @param creativeId    创意ID
      * @param status        欲修改为的创意审核状态
      */
-    private void changeCreativeAuditStatus(String creativeId, String status)
+    private void changeCreativeAuditStatus(String creativeId, String status, String message)
     {
         CreativeAuditModelExample example = new CreativeAuditModelExample();
         example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
         
         CreativeAuditModel model = new CreativeAuditModel();
         model.setStatus(status);
+        model.setMessage(message);
         creativeAuditDao.updateByExampleSelective(model, example);
     }
 
@@ -550,10 +548,21 @@ public class AutohomeAuditService extends AuditService
                 for (JsonElement jsonElement : array)
                 {
                     JsonObject o = jsonElement.getAsJsonObject();
-                    int id = o.get("id").getAsInt();                  
+                    int id = o.get("id").getAsInt();
+                    
+                    JsonElement tmpElement = o.get("auditStatus");
+                    if (!tmpElement.isJsonNull())
+                    {
+                        if (tmpElement.getAsInt() == 1) // 1-审核通过，2-拒绝，0-未审核
+                        {
+                            return null;
+                        }
+                    }
+                    
                     JsonElement element = o.get("auditComment");
                     String auditComment = "";
-                    if (!element.isJsonNull()) {
+                    if (!element.isJsonNull())
+                    {
                     	auditComment = element.getAsString();
                     }
                     String msg = "ID: " + id + ", " + auditComment;
