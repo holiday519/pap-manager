@@ -1362,7 +1362,7 @@ public class LaunchService extends BaseService {
 					throw new ResourceNotFoundException(PhrasesConstant.WBLIST_FILE_NOT_FOUND);
 				}
 				List<String> lines = FileUtils.readLines(file);
-				List<String> values = new ArrayList<String>();
+				List<String> values = null;
 				Map<String, List<String>> keyValues = new HashMap<String, List<String>>();
 				JsonArray deviceIdJsons = new JsonArray();
 				String key = null;
@@ -1377,9 +1377,9 @@ public class LaunchService extends BaseService {
 						if (dType != null) {
 							deviceIdJsons.add(dType);
 						}
-						values.clear();
+						values = new ArrayList<String>();
 					} else {
-						if (!StringUtils.isEmpty(line) && key != null) {
+						if (!StringUtils.isEmpty(line) && key != null && values != null) {
 							values.add(line);
 							keyValues.put(key, values);
 						}
