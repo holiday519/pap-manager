@@ -496,6 +496,11 @@ public class CreativeService extends BaseService {
 		if (creative == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+		String status = getCreativeAuditStatus(id);
+		if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status)) {
+			return;
+		}
+		
 		// 查询adx列表，判断是哪个adx
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		// 审核创意
@@ -524,6 +529,12 @@ public class CreativeService extends BaseService {
 		if (creative == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+		String status = getCreativeAuditStatus(id);
+		if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status) 
+				|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
+			return;
+		}
+		
 		// 查询adx列表
 		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
 		//同步结果
@@ -1684,9 +1695,15 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException();
 		}
 		for (CreativeModel creative : creativeModels) {
+			String creativeId = creative.getId();
+			String status = getCreativeAuditStatus(creativeId);
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status) 
+					|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
+				continue;
+			}
 			// 查询adx列表，一个创意可以由多个ADX审核  
 			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
-			String creativeId = creative.getId();
+			
 			// 同步审核结果
 			for (Map<String,String> adx : adxes) {
 				// 获取adxId
@@ -1727,7 +1744,7 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void auditCreative(String[] creativeIds) throws Exception {
+	public void auditCreatives(String[] creativeIds) throws Exception {
 		// 根据创意id列表查询创意信息
 		List<String> creativeIdsList = Arrays.asList(creativeIds);
 		CreativeModelExample creativeExample = new CreativeModelExample();
@@ -1745,6 +1762,10 @@ public class CreativeService extends BaseService {
 			// FIXME : 不需要再查询创意实体CreativeModel --- OK
 			// 创意id
 			String creativeId = creative.getId();
+			String status = getCreativeAuditStatus(creativeId);
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status)) {
+				continue;
+			}
 			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
 			//根据不同的ADX到不同的广告审核平台审核
 			for (Map<String,String> adx : adxes) {

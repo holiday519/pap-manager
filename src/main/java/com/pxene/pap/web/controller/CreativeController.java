@@ -292,7 +292,7 @@ public class CreativeController {
 	@RequestMapping(value = "/creatives/audit", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody	
 	public void auditCreatives(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
-		creativeService.auditCreative(ids.split(","));
+		creativeService.auditCreatives(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
