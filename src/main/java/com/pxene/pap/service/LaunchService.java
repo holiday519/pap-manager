@@ -107,8 +107,8 @@ public class LaunchService extends BaseService {
 	private static String IMAGE_URL;
 	private static String POPULATION_ROOT_PATH;
 	
-	private RedisHelper redisHelper = new RedisHelper("redis.primary.");
-	private RedisHelper redisHelper2 = new RedisHelper("redis.secondary.");
+	private RedisHelper redisHelper;
+	private RedisHelper redisHelper2;
 	
 	@Autowired
 	public LaunchService(Environment env)
@@ -126,6 +126,9 @@ public class LaunchService extends BaseService {
         	IMAGE_URL = env.getProperty("pap.fileserver.remote.url.prefix");
         }
 		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
+		// 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper = RedisHelper.open("redis.primary.");
+        redisHelper2 = RedisHelper.open("redis.secondary.");
 	}
 	
 	@Autowired

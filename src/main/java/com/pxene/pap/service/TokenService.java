@@ -30,7 +30,7 @@ public class TokenService
     private String tokenSecret;
     private String tokenExpiresSecondStr;
     private long tokenExpiresSecond;
-    private RedisHelper redisHelper3 = new RedisHelper("redis.tertiary.");
+    private RedisHelper redisHelper3;
     
     
     @Autowired
@@ -40,6 +40,9 @@ public class TokenService
         tokenSecret = env.getProperty("dmp.token.secret");
         tokenExpiresSecondStr = env.getProperty("dmp.token.expiresSecond");
         tokenExpiresSecond = (tokenExpiresSecondStr == null) ? 0L : Long.parseLong(tokenExpiresSecondStr);
+        
+        // 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper3 = RedisHelper.open("redis.tertiary.");
     }
 
     @Transactional

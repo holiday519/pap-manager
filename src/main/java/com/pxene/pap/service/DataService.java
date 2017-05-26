@@ -96,7 +96,7 @@ public class DataService extends BaseService {
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
-	private RedisHelper redisHelper3 = new RedisHelper("redis.tertiary.");
+	private RedisHelper redisHelper3;
 	
 	static {
 		Set<String> network = new HashSet<String>();
@@ -117,6 +117,12 @@ public class DataService extends BaseService {
 		table.put("os", os);
 	}
 	
+	
+	public DataService()
+    {
+	    // 指定使用配置文件中的哪个具体的Redis配置
+        redisHelper3 = RedisHelper.open("redis.tertiary.");
+    }
 	
 
 	/**

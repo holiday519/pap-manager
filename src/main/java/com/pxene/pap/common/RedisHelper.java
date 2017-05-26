@@ -2,23 +2,94 @@ package com.pxene.pap.common;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
+
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.Transaction;
 
 
+@Component
 public class RedisHelper
 {
-    private static final int expire = 60000;
-    
     private JedisPool jedisPool;
  
+    // 缓存生存时间 
+    private static final int expire = 60000;
     
-    public RedisHelper(String prefix)
+    private static Properties props = new Properties();;
+    
+    
+    static
     {
-        this.jedisPool = RedisHelperConfig.pools.get(prefix);
+        try
+        {
+            props.load(RedisHelper.class.getResourceAsStream("/application.properties"));
+            
+            String active = props.getProperty("spring.profiles.active");
+           
+            String configFile = "/application-" + active + ".properties";
+            
+            props.clear();
+            
+            props.load(RedisHelper.class.getResourceAsStream(configFile));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    
+    private RedisHelper()
+    {
+    }
+    
+    public static RedisHelper open(String prefix)
+    {
+        RedisHelper redisHelper = new RedisHelper();
+        
+        redisHelper.getJedisPool(prefix);
+        
+        return redisHelper;
+    }
+    
+    /**
+     * 读取配置文件，建立连接池。
+     * @param prefix    redis.properties配置文件前缀
+     */
+    private void getJedisPool(String prefix)
+    {
+        String ip = props.getProperty(prefix + "ip");
+        int port = Integer.parseInt(props.getProperty(prefix + "port"));
+        String password = props.getProperty(prefix + "password");
+        int maxActive = Integer.parseInt(props.getProperty(prefix + "pool.maxActive"));
+        int maxIdle = Integer.parseInt(props.getProperty(prefix + "pool.maxIdle"));
+        long maxWait = Integer.parseInt(props.getProperty(prefix + "pool.maxWait"));
+        boolean testOnBorrow = Boolean.parseBoolean(props.getProperty(prefix + "pool.testOnBorrow"));
+        boolean testOnReturn = Boolean.parseBoolean(props.getProperty(prefix + "pool.testOnReturn"));
+        
+        JedisPoolConfig config = new JedisPoolConfig();
+        config.setMaxTotal(maxActive);
+        config.setMaxIdle(maxIdle);
+        config.setMaxWaitMillis(maxWait);
+        config.setTestOnBorrow(testOnBorrow);
+        config.setTestOnReturn(testOnReturn);
+        
+        // redis如果设置了密码：
+        if (!StringUtils.isEmpty(password))
+        {
+            jedisPool = new JedisPool(config, ip, port, 10000, password);
+        }
+        else
+        {
+            jedisPool = new JedisPool(config, ip, port, 10000);
+        }
     }
     
     /**
