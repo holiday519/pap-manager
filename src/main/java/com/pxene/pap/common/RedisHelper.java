@@ -8,7 +8,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Transaction;
 
-
 public class RedisHelper
 {
     private static final int expire = 60000;
@@ -20,6 +19,7 @@ public class RedisHelper
     {
         this.jedisPool = RedisHelperConfig.pools.get(prefix);
     }
+    
     
     /**
      * 从jedis连接池中获取获取jedis对象

@@ -11,7 +11,6 @@ import org.springframework.util.StringUtils;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-
 @Component
 public class RedisHelperConfig
 {
