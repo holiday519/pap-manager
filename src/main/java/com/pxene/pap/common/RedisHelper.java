@@ -4,22 +4,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Transaction;
 
+@Component
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RedisHelper
 {
-    private static final int expire = 60000;
-    
     private JedisPool jedisPool;
+    
+    
+    @Autowired
+    private RedisHelper(Environment env)
+    {
+        RedisHelperConfig.init(env);
+    }
  
     
-    public RedisHelper(String prefix)
+    public void select(String prefix)
     {
         this.jedisPool = RedisHelperConfig.pools.get(prefix);
     }
-    
     
     /**
      * 从jedis连接池中获取获取jedis对象
@@ -56,7 +68,7 @@ public class RedisHelper
      */
     public void expire(String key)
     {
-        expire(key, expire);
+        expire(key, RedisHelperConfig.DEFAULT_EXPIRE);
     }
     
     public void set(String key, String value)

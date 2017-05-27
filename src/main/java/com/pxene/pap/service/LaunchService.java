@@ -110,9 +110,11 @@ public class LaunchService extends BaseService {
 	private static String IMAGE_URL;
 	private static String POPULATION_ROOT_PATH;
 	
+	@Autowired
 	private RedisHelper redisHelper;
-	private RedisHelper redisHelper2;
 	
+	@Autowired
+	private RedisHelper redisHelper2;
 	
 	@Autowired
 	public LaunchService(Environment env)
@@ -132,12 +134,14 @@ public class LaunchService extends BaseService {
 		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
 	}
 	
+
 	@PostConstruct
-    public void initRedisInstance()
-    {
-        redisHelper = new RedisHelper("redis.primary.");
-        redisHelper2 = new RedisHelper("redis.secondary.");
-    }
+	public void selectRedis()
+	{
+	    redisHelper.select("redis.primary.");
+	    redisHelper2.select("redis.secondary.");
+	}
+    
 	
 	@Autowired
 	private CampaignService campaignService;

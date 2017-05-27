@@ -31,6 +31,8 @@ public class TokenService
     private String tokenSecret;
     private String tokenExpiresSecondStr;
     private long tokenExpiresSecond;
+    
+    @Autowired
     private RedisHelper redisHelper3;
     
     
@@ -45,12 +47,12 @@ public class TokenService
     
     
     @PostConstruct
-    public void initRedisInstance()
+    public void selectRedis()
     {
-        redisHelper3 = new RedisHelper("redis.tertiary.");
+        redisHelper3.select("redis.tertiary.");
     }
-    
 
+    
     @Transactional
     public UserModel loadUserByUsername(String username)
     {

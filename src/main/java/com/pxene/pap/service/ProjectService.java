@@ -95,6 +95,7 @@ public class ProjectService extends BaseService {
 	@Autowired
 	private LaunchService launchService;
 
+	@Autowired
     private RedisHelper redisHelper;
 
     private String excelSavePath;
@@ -108,11 +109,10 @@ public class ProjectService extends BaseService {
     
     
     @PostConstruct
-    public void initRedisInstance()
+    public void selectRedis()
     {
-        redisHelper = new RedisHelper("redis.primary.");
+        redisHelper.select("redis.primary.");
     }
-	
     
 	/**
 	 * 创建项目

@@ -3,54 +3,48 @@ package com.pxene.pap.common;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-@Component
 public class RedisHelperConfig
 {
-    private static final String REDIS_TERTIARY = "redis.tertiary.";
-
-    private static final String REDIS_SECONDARY = "redis.secondary.";
-
-    private static final String REDIS_PRIMARY = "redis.primary.";
-
-    private static final int DEFAULT_TIMEOUT = 10000;
- 
-    private Environment env;
+    public static final String REDIS_PRIMARY = "redis.primary.";
     
+    public static final String REDIS_SECONDARY = "redis.secondary.";
+    
+    public static final String REDIS_TERTIARY = "redis.tertiary.";
+    
+    public static final int DEFAULT_TIMEOUT = 10000;
+ 
+    public static final int DEFAULT_EXPIRE = 60000;
+
     public static Map<String, JedisPool> pools = new HashMap<String, JedisPool>();
     
     
-    @Autowired
-    public RedisHelperConfig(Environment env)
+    public static void init(Environment env)
     {
-        this.env = env;
-        
         if (!pools.containsKey(REDIS_PRIMARY))
         {
-            JedisPool primaryPool = getJedisPool(REDIS_PRIMARY);
+            JedisPool primaryPool = getJedisPool(env, REDIS_PRIMARY);
             pools.put(REDIS_PRIMARY, primaryPool);
         }
         if (!pools.containsKey(REDIS_SECONDARY))
         {
-            JedisPool secondaryPool = getJedisPool(REDIS_SECONDARY);
+            JedisPool secondaryPool = getJedisPool(env, REDIS_SECONDARY);
             pools.put(REDIS_SECONDARY, secondaryPool);
         }
         if (!pools.containsKey(REDIS_TERTIARY))
         {
-            JedisPool tertiaryPool = getJedisPool(REDIS_TERTIARY);
+            JedisPool tertiaryPool = getJedisPool(env, REDIS_TERTIARY);
             pools.put(REDIS_TERTIARY, tertiaryPool);
         }
     }
-
-
-    private JedisPool getJedisPool(String prefix)
+    
+    
+    private static JedisPool getJedisPool(Environment env, String prefix)
     {
         String ip = env.getProperty(prefix + "ip");
         int port = Integer.parseInt(env.getProperty(prefix + "port"));

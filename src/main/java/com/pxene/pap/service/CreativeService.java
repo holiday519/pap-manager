@@ -87,7 +87,37 @@ public class CreativeService extends BaseService {
 	
 	private String password;
 	
+	@Autowired
 	private RedisHelper redisHelper3;
+	
+	
+	@Autowired
+	public CreativeService(Environment env)
+	{
+        uploadMode = env.getProperty("pap.fileserver.mode", "local");
+        
+        if ("local".equals(uploadMode))
+        {
+            uploadDir = env.getProperty("pap.fileserver.local.upload.dir");
+        }
+        else
+        {
+            uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
+            
+            host = env.getProperty("pap.fileserver.remote.host");
+            port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
+            username = env.getProperty("pap.fileserver.remote.username");
+            password = env.getProperty("pap.fileserver.remote.password");
+        }
+	}
+	
+	
+    @PostConstruct
+    public void selectRedis()
+    {
+        redisHelper3.select("redis.tertiary.");
+    }
+    
 	
 	@Autowired
 	private CreativeDao creativeDao;
@@ -151,35 +181,6 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private TmplService tmplService;
-	
-	
-	@Autowired
-    public CreativeService(Environment env)
-    {
-        uploadMode = env.getProperty("pap.fileserver.mode", "local");
-        
-        if ("local".equals(uploadMode))
-        {
-            uploadDir = env.getProperty("pap.fileserver.local.upload.dir");
-        }
-        else
-        {
-            uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
-            
-            host = env.getProperty("pap.fileserver.remote.host");
-            port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
-            username = env.getProperty("pap.fileserver.remote.username");
-            password = env.getProperty("pap.fileserver.remote.password");
-        }
-    }
-
-    
-    @PostConstruct
-    public void initRedisInstance()
-    {
-        redisHelper3 = new RedisHelper("redis.tertiary.");
-    }
-    
 	
 	/**
 	 * 创建创意

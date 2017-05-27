@@ -97,15 +97,8 @@ public class DataService extends BaseService {
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
+	@Autowired
 	private RedisHelper redisHelper3;
-	
-	
-	@PostConstruct
-    public void initRedisInstance()
-    {
-        redisHelper3 = new RedisHelper("redis.tertiary.");
-    }
-    
 	
 	static {
 		Set<String> network = new HashSet<String>();
@@ -126,7 +119,14 @@ public class DataService extends BaseService {
 		table.put("os", os);
 	}
 	
-
+	
+	@PostConstruct
+    public void selectRedis()
+    {
+        redisHelper3.select("redis.tertiary.");
+    }
+	
+	
 	/**
 	 * 查询小时数据
 	 * @param startDate
