@@ -66,6 +66,7 @@ import com.pxene.pap.repository.basic.EffectFileDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
 @Service
@@ -96,7 +97,15 @@ public class DataService extends BaseService {
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
-	private RedisHelper redisHelper3 = new RedisHelper("redis.tertiary.");
+	private RedisHelper redisHelper3;
+	
+	
+	@PostConstruct
+    public void initRedisInstance()
+    {
+        redisHelper3 = new RedisHelper("redis.tertiary.");
+    }
+    
 	
 	static {
 		Set<String> network = new HashSet<String>();

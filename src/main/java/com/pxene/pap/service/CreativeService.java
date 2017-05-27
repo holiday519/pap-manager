@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
 import org.joda.time.DateTime;
@@ -86,28 +87,7 @@ public class CreativeService extends BaseService {
 	
 	private String password;
 	
-	private RedisHelper redisHelper3 = new RedisHelper("redis.tertiary.");
-	
-	
-	@Autowired
-	public CreativeService(Environment env)
-	{
-        uploadMode = env.getProperty("pap.fileserver.mode", "local");
-        
-        if ("local".equals(uploadMode))
-        {
-            uploadDir = env.getProperty("pap.fileserver.local.upload.dir");
-        }
-        else
-        {
-            uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
-            
-            host = env.getProperty("pap.fileserver.remote.host");
-            port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
-            username = env.getProperty("pap.fileserver.remote.username");
-            password = env.getProperty("pap.fileserver.remote.password");
-        }
-	}
+	private RedisHelper redisHelper3;
 	
 	@Autowired
 	private CreativeDao creativeDao;
@@ -171,6 +151,35 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private TmplService tmplService;
+	
+	
+	@Autowired
+    public CreativeService(Environment env)
+    {
+        uploadMode = env.getProperty("pap.fileserver.mode", "local");
+        
+        if ("local".equals(uploadMode))
+        {
+            uploadDir = env.getProperty("pap.fileserver.local.upload.dir");
+        }
+        else
+        {
+            uploadDir = env.getProperty("pap.fileserver.remote.upload.dir");
+            
+            host = env.getProperty("pap.fileserver.remote.host");
+            port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
+            username = env.getProperty("pap.fileserver.remote.username");
+            password = env.getProperty("pap.fileserver.remote.password");
+        }
+    }
+
+    
+    @PostConstruct
+    public void initRedisInstance()
+    {
+        redisHelper3 = new RedisHelper("redis.tertiary.");
+    }
+    
 	
 	/**
 	 * 创建创意

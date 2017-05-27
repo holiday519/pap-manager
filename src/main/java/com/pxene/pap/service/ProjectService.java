@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -94,7 +95,7 @@ public class ProjectService extends BaseService {
 	@Autowired
 	private LaunchService launchService;
 
-    private RedisHelper redisHelper = new RedisHelper("redis.primary.");
+    private RedisHelper redisHelper;
 
     private String excelSavePath;
 
@@ -103,6 +104,13 @@ public class ProjectService extends BaseService {
     public ProjectService(Environment env)
     {
         excelSavePath = env.getProperty("pap.excel.savePath");
+    }
+    
+    
+    @PostConstruct
+    public void initRedisInstance()
+    {
+        redisHelper = new RedisHelper("redis.primary.");
     }
 	
     

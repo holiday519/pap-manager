@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.annotation.PostConstruct;
+
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -107,8 +110,9 @@ public class LaunchService extends BaseService {
 	private static String IMAGE_URL;
 	private static String POPULATION_ROOT_PATH;
 	
-	private RedisHelper redisHelper = new RedisHelper("redis.primary.");
-	private RedisHelper redisHelper2 = new RedisHelper("redis.secondary.");
+	private RedisHelper redisHelper;
+	private RedisHelper redisHelper2;
+	
 	
 	@Autowired
 	public LaunchService(Environment env)
@@ -127,6 +131,13 @@ public class LaunchService extends BaseService {
         }
 		POPULATION_ROOT_PATH = env.getProperty("pap.population.path");
 	}
+	
+	@PostConstruct
+    public void initRedisInstance()
+    {
+        redisHelper = new RedisHelper("redis.primary.");
+        redisHelper2 = new RedisHelper("redis.secondary.");
+    }
 	
 	@Autowired
 	private CampaignService campaignService;

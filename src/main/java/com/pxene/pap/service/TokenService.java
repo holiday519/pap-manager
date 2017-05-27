@@ -3,6 +3,7 @@ package com.pxene.pap.service;
 import java.io.IOException;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
@@ -30,7 +31,7 @@ public class TokenService
     private String tokenSecret;
     private String tokenExpiresSecondStr;
     private long tokenExpiresSecond;
-    private RedisHelper redisHelper3 = new RedisHelper("redis.tertiary.");
+    private RedisHelper redisHelper3;
     
     
     @Autowired
@@ -41,6 +42,14 @@ public class TokenService
         tokenExpiresSecondStr = env.getProperty("dmp.token.expiresSecond");
         tokenExpiresSecond = (tokenExpiresSecondStr == null) ? 0L : Long.parseLong(tokenExpiresSecondStr);
     }
+    
+    
+    @PostConstruct
+    public void initRedisInstance()
+    {
+        redisHelper3 = new RedisHelper("redis.tertiary.");
+    }
+    
 
     @Transactional
     public UserModel loadUserByUsername(String username)
