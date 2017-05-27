@@ -1491,7 +1491,8 @@ public class LaunchService extends BaseService {
 		String dailyBudget = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
 		if (!StringUtils.isEmpty(dailyBudget)) {
 			// 转换类型
-			int dayJudge = Integer.parseInt(dailyBudget);
+			// TODO : zytosee
+			double dayJudge = Double.parseDouble(dailyBudget);
 			// 判断是否超出日预算
 			if (dayJudge > 0) {
 				return true;
@@ -1554,7 +1555,8 @@ public class LaunchService extends BaseService {
 		String strProjectBudget = redisHelper.getStr(RedisKeyConstant.PROJECT_BUDGET + projectId);
 		if (!StringUtils.isEmpty(strProjectBudget)) {
 			// 转换类型
-			int projectBudget = Integer.parseInt(strProjectBudget);
+			// TODO : zytosee
+			double projectBudget = Double.parseDouble(strProjectBudget);
 			if (projectBudget > 0) {
 				return true;
 			}
