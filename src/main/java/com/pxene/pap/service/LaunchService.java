@@ -1074,7 +1074,7 @@ public class LaunchService extends BaseService {
 				appJsons.add(entry.getValue());
 			}
 			appObjects.add("id", appJsons);
-			targetJson.add("app", appObjects);
+//			targetJson.add("app", appObjects);
 			
 			redisHelper.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
