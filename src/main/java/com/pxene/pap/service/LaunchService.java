@@ -1350,6 +1350,7 @@ public class LaunchService extends BaseService {
 		
 		if (populationTargetModels != null && !populationTargetModels.isEmpty()) {
 			PopulationTargetModel populationTargetModel = populationTargetModels.get(0);
+			String targetId = populationTargetModel.getId();
             String populationId = populationTargetModel.getPopulationId();
 			String type = populationTargetModel.getType();
 			
@@ -1388,17 +1389,17 @@ public class LaunchService extends BaseService {
 				
 				JsonObject wblistJson = new JsonObject();
 				wblistJson.addProperty("groupid", campaignId);
-				wblistJson.addProperty("relationid", populationId);
+				wblistJson.addProperty("relationid", targetId);
 				wblistJson.addProperty("ratio", 1);
 				wblistJson.addProperty("mprice", 999);
 				String keySuffix = null;
 				if (CodeTableConstant.POPULATION_WHITE_LIST.equals(type)) {
 					wblistJson.add("whitelist", deviceIdJsons);
-					keySuffix = "_wl_" + populationId;
+					keySuffix = "_wl_" + targetId;
 				}
 				if (CodeTableConstant.POPULATION_BLACK_LIST.equals(type)) {
 					wblistJson.add("blacklist", deviceIdJsons);
-					keySuffix = "_bl_" + populationId;
+					keySuffix = "_bl_" + targetId;
 				}
 				
 				if (keySuffix != null) {
@@ -1422,8 +1423,8 @@ public class LaunchService extends BaseService {
 		if (redisHelper.exists(wbKey)) {
 			String wbStr = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_WBLIST + campaignId);
 			JsonObject wbObj = parser.parse(wbStr).getAsJsonObject();
-			String populationId = wbObj.get("relationid").getAsString();
-			redisHelper2.deleteByPattern("*" + populationId);
+			String relationId = wbObj.get("relationid").getAsString();
+			redisHelper2.deleteByPattern("*" + relationId);
 			redisHelper.delete(wbKey);
 		}
 	}
