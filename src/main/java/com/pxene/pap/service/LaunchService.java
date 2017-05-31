@@ -1481,19 +1481,21 @@ public class LaunchService extends BaseService {
 		}
 		return null;
 	}
-   
-   /**
-    * 判断活动是否超出每天的日预算 
-    * @param campaignId 活动id
-    * @throws Exception 
-    */
-   public Boolean notOverDailyBudget(String campaignId){
+
+	/**
+	 * 判断活动是否超出每天的日预算
+	 * 
+	 * @param campaignId
+	 *            活动id
+	 * @throws Exception
+	 */
+	public Boolean notOverDailyBudget(String campaignId) {
 		// 获取redis中日预算
-		String dailyBudget = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_BUDGET + campaignId);
-		if (!StringUtils.isEmpty(dailyBudget)) {
+		String redisKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
+		if (redisHelper.exists(redisKey)) {
 			// 转换类型
 			// TODO : zytosee
-			double dayJudge = Double.parseDouble(dailyBudget);
+			double dayJudge = redisHelper.getDouble(redisKey);
 			// 判断是否超出日预算
 			if (dayJudge > 0) {
 				return true;
@@ -1503,16 +1505,19 @@ public class LaunchService extends BaseService {
 		} else {
 			return true;
 		}
-		
-   }
-   
-   /**
-    * 日均最大展现是否达到上限 
-    * @param campaignId
-    */
-   public Boolean notOverDailyCounter(String campaignId){	   	  	   
+
+	}
+
+	/**
+	 * 日均最大展现是否达到上限
+	 * 
+	 * @param campaignId
+	 */
+	public Boolean notOverDailyCounter(String campaignId) {
+
 		// 获取redis中日均最大展现数
-		String dailyCounter = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
+		String dailyCounter = redisHelper
+				.getStr(RedisKeyConstant.CAMPAIGN_COUNTER + campaignId);
 		if (!StringUtils.isEmpty(dailyCounter)) {
 			// 转换类型
 			int dayCounter = Integer.parseInt(dailyCounter);
@@ -1525,53 +1530,60 @@ public class LaunchService extends BaseService {
 		} else {
 			return true;
 		}
-   }
-      
-   /**
-    * 更新创意价格
-    * @param creative
-    * @throws Exception
-    */
+	}
+
+	/**
+	 * 更新创意价格
+	 * 
+	 * @param creative
+	 * @throws Exception
+	 */
 	public void updateCreativePrice(String id) throws Exception {
 		// 查询创意
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		String creativeId = creative.getId();
-		String creativeMapid = redisHelper.getStr(RedisKeyConstant.CREATIVE_INFO + creativeId);
+		String creativeMapid = redisHelper
+				.getStr(RedisKeyConstant.CREATIVE_INFO + creativeId);
 		JsonObject returnData = parser.parse(creativeMapid).getAsJsonObject();
 		JsonArray jsonArray = returnData.get("price_adx").getAsJsonArray();
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JsonObject price = jsonArray.get(i).getAsJsonObject();
 			price.addProperty("price", creative.getPrice());
 		}
-		redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId, returnData.toString());
+		redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId,
+				returnData.toString());
 	}
-   
-   /**
-    * 判断是否超出项目总预算
-    * @param campaignId
-    * @return
-    */
+
+	/**
+	 * 判断是否超出项目总预算
+	 * 
+	 * @param campaignId
+	 * @return
+	 */
 	public Boolean notOverProjectBudget(String projectId) {
 		// 获取redis中项目预算
-		String strProjectBudget = redisHelper.getStr(RedisKeyConstant.PROJECT_BUDGET + projectId);
-		if (!StringUtils.isEmpty(strProjectBudget)) {
+		String redisKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
+		if (redisHelper.exists(redisKey)) {
 			// 转换类型
 			// TODO : zytosee
-			double projectBudget = Double.parseDouble(strProjectBudget);
+			double projectBudget = redisHelper.getDouble(redisKey);
 			if (projectBudget > 0) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 从redis中删除活动下一个创意id
+	 * 
 	 * @param campaignId
 	 * @throws Exception
 	 */
-	public void removeOneCreativeId(String campaignId, String creativeId) throws Exception {
-		String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
+	public void removeOneCreativeId(String campaignId, String creativeId)
+			throws Exception {
+		String mapids = redisHelper
+				.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 		if (mapids != null && !mapids.isEmpty()) {
 			// 将gson字符串转成JsonObject对象
 			JsonObject returnData = parser.parse(mapids).getAsJsonObject();
@@ -1589,23 +1601,30 @@ public class LaunchService extends BaseService {
 			JsonObject resultJson = new JsonObject();
 			resultJson.add("mapids", jsonArray);
 			// FIXME : 去掉上两行代码是否写回redis？write
-			redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
+			redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId,
+					resultJson.toString());
 		}
 	}
-	
+
 	/**
 	 * 向redis写入单个创意id（审核通过，则将创意id写入门到redis的mapids中）
-	 * @param campaignId 活动id
-	 * @param creativeId 创意id
+	 * 
+	 * @param campaignId
+	 *            活动id
+	 * @param creativeId
+	 *            创意id
 	 * @throws Exception
 	 */
-	public void writeOneCreativeId(String campaignId, String creativeId) throws Exception {
+	public void writeOneCreativeId(String campaignId, String creativeId)
+			throws Exception {
 		// 1.查询改创意的审核信息
 		CreativeAuditModelExample auditExample = new CreativeAuditModelExample();
 		auditExample.createCriteria().andCreativeIdEqualTo(creativeId);
-		List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(auditExample);
+		List<CreativeAuditModel> creativeAudit = creativeAuditDao
+				.selectByExample(auditExample);
 		if (creativeAudit == null || creativeAudit.isEmpty()) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+			throw new ResourceNotFoundException(
+					PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		// 查询创意信息
 		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
@@ -1613,12 +1632,15 @@ public class LaunchService extends BaseService {
 		// 2.获取审核的状态
 		String auditStatus = creativeAudit.get(0).getStatus();
 		// 3.判断是否通过并且创意开关打开，通过则写入
-		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS) && enable.equals(StatusConstant.CREATIVE_IS_ENABLE)) {
-			String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
+		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS)
+				&& enable.equals(StatusConstant.CREATIVE_IS_ENABLE)) {
+			String mapids = redisHelper
+					.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 			if (mapids != null && !mapids.isEmpty()) {
 				// 判断redis的mapids中是否存在创意id，不存在则将其写入
 				// 1.将gson字符串转换成JsonObject对象
-				JsonObject mapidsObject = parser.parse(mapids).getAsJsonObject();
+				JsonObject mapidsObject = parser.parse(mapids)
+						.getAsJsonObject();
 				// 2.将mapidsObject节点下的内容转为JsonArray
 				JsonArray mapidsArray = mapidsObject.getAsJsonArray("mapids");
 				// 3.添加单个创意id
@@ -1627,41 +1649,47 @@ public class LaunchService extends BaseService {
 				if (!mapidsArray.contains(elementCreativeId)) {
 					// 如果不包含这个创意id，则将其添加
 					mapidsArray.add(creativeId);
-				}									
+				}
 				// 将添加新创意id后的所有元素放回redis中
 				JsonObject resultJson = new JsonObject();
 				resultJson.add("mapids", mapidsArray);
-				redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
+				redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS
+						+ campaignId, resultJson.toString());
 			}
 		}
 	}
-	
+
 	/**
 	 * 判断该创意ID是否存在回收数据
+	 * 
 	 * @param creativeId
 	 * @return
 	 * @throws Exception
 	 */
 	public Boolean isHaveCreativeInfo(String creativeId) throws Exception {
-		Boolean isHaveDataHour = redisHelper.exists("creativeDataHour_" + creativeId);
-		Boolean isHaveDataDay = redisHelper.exists("creativeDataDay" + creativeId);
-		if (isHaveDataHour && isHaveDataDay ) {
-			return true;	
+		Boolean isHaveDataHour = redisHelper.exists("creativeDataHour_"
+				+ creativeId);
+		Boolean isHaveDataDay = redisHelper.exists("creativeDataDay"
+				+ creativeId);
+		if (isHaveDataHour && isHaveDataDay) {
+			return true;
 		} else {
-			return false;	
-		}	
+			return false;
+		}
 	}
-	
+
 	public void writeCampaignId4Project(String campaignId, String projectId) {
-		redisHelper.sset(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId, campaignId);
+		redisHelper.sset(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId,
+				campaignId);
 	}
-	
+
 	public void removeCampaignId4Project(String campaignId, String projectId) {
-		redisHelper.sdelete(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId, campaignId);
+		redisHelper.sdelete(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId,
+				campaignId);
 	}
-	
+
 	public void removeProjectKey(String projectId) {
 		redisHelper.delete(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId);
 	}
-	
+
 }

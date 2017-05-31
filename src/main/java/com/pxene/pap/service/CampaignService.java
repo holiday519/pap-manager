@@ -497,7 +497,7 @@ public class CampaignService extends BaseService {
 				} else {
 					if (redisHelper.exists(budgetKey)) {
 						// TODO : zytosee
-						double redisBudget = redisHelper.getInt(budgetKey) / 100;
+						double redisBudget = redisHelper.getDouble(budgetKey) / 100;
 						int difBudget = newBudget - oldBudget;
 						if (difBudget < 0 && Math.abs(difBudget) > redisBudget) {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
