@@ -507,7 +507,7 @@ public class RedisHelper
      * @param increment    增量值，可正可负
      * @return 更新后的新值
      */
-    public Double hincrbyFloat(String key, String field, float increment) 
+    public void hincrbyFloat(String key, String field, float increment) 
     {
         if (isBlank(key))
         {
@@ -515,13 +515,11 @@ public class RedisHelper
         }
         
         Jedis jedis = getJedis();
-        Double result = jedis.hincrByFloat(key, field, increment);
+        jedis.hincrByFloat(key, field, increment);
         close(jedis);
-        
-        return result;
     }
     
-    public Long incrybyInt(String key, long increment)
+    public void incrybyInt(String key, int increment)
     {
         if (isBlank(key))
         {
@@ -529,9 +527,19 @@ public class RedisHelper
         }
         
         Jedis jedis = getJedis();
-        Long result = jedis.incrBy(key, increment);
+        jedis.incrBy(key, increment);
         close(jedis);
+    }
+    
+    public void incrybyDouble(String key, double increment)
+    {
+        if (isBlank(key))
+        {
+            throw new IllegalArgumentException();
+        }
         
-        return result;
+        Jedis jedis = getJedis();
+        jedis.incrByFloat(key, increment);
+        close(jedis);
     }
 }

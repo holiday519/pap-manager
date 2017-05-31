@@ -503,7 +503,7 @@ public class CampaignService extends BaseService {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 						}
 						if (difBudget != 0) {
-							redisHelper.incrybyInt(budgetKey, (int)difBudget * 100);
+							redisHelper.incrybyDouble(budgetKey, difBudget * 100);
 						}
 					}
 				}
@@ -526,7 +526,7 @@ public class CampaignService extends BaseService {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
 						}
 						if (difImpression != 0) {
-							redisHelper.incrybyInt(countKey, (int)difImpression);
+							redisHelper.incrybyInt(countKey, difImpression);
 						}
 					}
 				}
