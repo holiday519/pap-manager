@@ -21,16 +21,23 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.PopulationBean;
 import com.pxene.pap.domain.models.PopulationModel;
 import com.pxene.pap.domain.models.PopulationModelExample;
+import com.pxene.pap.domain.models.PopulationTargetModel;
+import com.pxene.pap.domain.models.PopulationTargetModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
+import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.PopulationDao;
+import com.pxene.pap.repository.basic.PopulationTargetDao;
 
 @Service
 public class PopulationService extends BaseService {
  
 	@Autowired
 	private PopulationDao populationDao;
+	
+	@Autowired
+	private PopulationTargetDao populationTargetDao;
 	
 	private static String UPLOAD_DIR;
 	
@@ -213,22 +220,28 @@ public class PopulationService extends BaseService {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
-        for (PopulationModel population : populationsInDB)
-        {
-            // 删除DB中的人群定向
-            int affectedRows = populationDao.deleteByPrimaryKey(population.getId());
-            
-            if (affectedRows > 0)
-            {
-                // 删除本地服务器上的文件
-//                String filePath = population.getPath();
-            	String filePath = UPLOAD_DIR + population.getId() + ".txt";
-                if (!StringUtils.isEmpty(filePath))
-                {
-                    org.apache.commons.io.FileUtils.forceDelete(new File(filePath));
-                }
-            }
-        }
+		for (PopulationModel population : populationsInDB) {
+			String populationId = population.getId();
+			// 判断该名单是否已经被使用，被使用则不能删除
+			PopulationTargetModelExample populationTargetEx = new PopulationTargetModelExample();
+			populationTargetEx.createCriteria().andPopulationIdEqualTo(populationId);
+			List<PopulationTargetModel> populationTargets = populationTargetDao.selectByExample(populationTargetEx);
+			if (populationTargets == null || populationTargets.isEmpty()) {
+				// 删除DB中的人群定向
+				int affectedRows = populationDao.deleteByPrimaryKey(populationId);
+
+				if (affectedRows > 0) {
+					// 删除本地服务器上的文件
+					// String filePath = population.getPath();
+					String filePath = UPLOAD_DIR + population.getId() + ".txt";
+					if (!StringUtils.isEmpty(filePath)) {
+						org.apache.commons.io.FileUtils.forceDelete(new File(filePath));
+					}
+				}
+			} else {
+				throw new IllegalStatusException(PhrasesConstant.POPULATIONS_FILE_USED);
+			}
+		}
     }
 
 	@Transactional

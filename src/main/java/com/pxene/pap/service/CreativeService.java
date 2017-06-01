@@ -1785,7 +1785,7 @@ public class CreativeService extends BaseService {
 				statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
 				// 2.查询审核信息
 				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
-				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andStatusIn(statusList);
+				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
 				List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditExample);
 				if (creativeAudits == null || creativeAudits.isEmpty()) {
 					// 如果数据库中没有该创意为未审核的创意审核信息，则提交对应的平台进行审核
@@ -1801,24 +1801,21 @@ public class CreativeService extends BaseService {
 						// 如果ADX属于汽车之家，则提交汽车之家审核
 						autohomeAuditService.auditCreative(creativeId);
 					}
-				} else if (creativeAudits != null && !creativeAudits.isEmpty()) {
+				} else {
 					// 如果创意审核信息不为空
-					for (CreativeAuditModel creativeAudit : creativeAudits) {
-						if (StatusConstant.CREATIVE_AUDIT_FAILURE.equals(creativeAudit.getStatus())) {
-							// 如果审核未通过的创意审核信息，则提交对应的平台进行审核
-							if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-								// 如果ADX属于陌陌，则提交陌陌审核
-								momoAuditService.auditCreative(creativeId);
-							}
-							if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-								// 如果ADX属于inmobi，则提交inmobi审核
-								inmobiAuditService.auditCreative(creativeId);
-							}
-							if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-								// 如果ADX属于汽车之家，则提交汽车之家审核
-								autohomeAuditService.auditCreative(creativeId);
-							}
-						}
+
+					// 如果审核未通过的创意审核信息，则提交对应的平台进行审核
+					if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+						// 如果ADX属于陌陌，则提交陌陌审核
+						momoAuditService.auditCreative(creativeId);
+					}
+					if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+						// 如果ADX属于inmobi，则提交inmobi审核
+						inmobiAuditService.auditCreative(creativeId);
+					}
+					if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+						// 如果ADX属于汽车之家，则提交汽车之家审核
+						autohomeAuditService.auditCreative(creativeId);
 					}
 				}
 			}
