@@ -238,12 +238,18 @@ public class AutohomeAuditService extends AuditService
                 contentArray.add(contentObj);
             }
             
-            // 图片地址1
-            if (!StringUtils.isEmpty(image1Id))
-            {
-                contentObj = buildSnippetContentImg(image1Id, "img");
-                contentArray.add(contentObj);
-            }
+			if (!StringUtils.isEmpty(iconId) && !StringUtils.isEmpty(image1Id) && StringUtils.isEmpty(image2Id) && StringUtils.isEmpty(image3Id)
+					&& StringUtils.isEmpty(image4Id) && StringUtils.isEmpty(image5Id)) {
+				// 图片地址1
+				contentObj = buildSnippetContentImg(image1Id, "bimg");
+				contentArray.add(contentObj);
+			} else {
+				// 图片地址1
+				if (!StringUtils.isEmpty(image1Id)) {
+					contentObj = buildSnippetContentImg(image1Id, "img");
+					contentArray.add(contentObj);
+				}
+			}            
             
             // 图片地址2
             if (!StringUtils.isEmpty(image2Id))
