@@ -470,7 +470,7 @@ public class TmplService extends BaseService {
 			ImageTmpl image3Tmpl = getImageTmplDetail(image3TmplId);
 			infoflowTmpl.setImage3(image3Tmpl);
 		}
-		String image4TmplId = infoflowTmplModel.getImage1Id();
+		String image4TmplId = infoflowTmplModel.getImage4Id();
 		if (!StringUtils.isEmpty(image4TmplId)) {
 			ImageTmpl image4Tmpl = getImageTmplDetail(image4TmplId);
 			infoflowTmpl.setImage4(image4Tmpl);

@@ -15,6 +15,8 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,8 @@ import com.pxene.pap.repository.basic.IndustryDao;
 @Service
 public class AutohomeAuditService extends AuditService
 {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AutohomeAuditService.class);
     /**
      * 创意审核信息的过期天数
      */
@@ -334,6 +338,8 @@ public class AutohomeAuditService extends AuditService
         String sign = getSign4Json(sortedAuditObj, signKey);
         
         sortedAuditObj.addProperty("sign", sign);
+        
+        LOGGER.info("<=PAP-Manager=> autohome audit info = " + sortedAuditObj.toString());
         
         // 发送HTTP POST请求
         String respStr = HttpClientUtil.getInstance().sendHttpPostJson(uploadURL, sortedAuditObj.toString());
