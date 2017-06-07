@@ -1893,9 +1893,9 @@ public class CreativeService extends BaseService {
 		VideoModelExample videoEx = new VideoModelExample();
 		List<MediaBean> result = new ArrayList<MediaBean>();
 		// 转换类型
-		List<String> formatList = Arrays.asList(formats); 
-		// 如果项目id不为空
-		if(!StringUtils.isEmpty(projectId) && StringUtils.isEmpty(campaignId)) {
+		List<String> formatList = Arrays.asList(formats);
+		// 如果项目id不为空，根据项目id条件查询对应的素材
+		if (!StringUtils.isEmpty(projectId) && StringUtils.isEmpty(campaignId)) {
 			// 查询活动下的项目信息
 			CampaignModelExample campaginEx = new CampaignModelExample();
 			campaginEx.createCriteria().andProjectIdEqualTo(projectId);
@@ -1910,116 +1910,69 @@ public class CreativeService extends BaseService {
 					criteriaIds.add(criteriaId);
 				}
 			}
-			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr)
-					|| StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
+			// 判断是图片还是视频，根据不同的类型到不同的表中查询对应的数据
+			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr) || StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
 				// 如果是图片或信息流
 				if (criteriaIds != null && !criteriaIds.isEmpty()) {
-					imageEx.createCriteria().andIdIn(criteriaIds).andWidthEqualTo(width).andHeightEqualTo(height)
-							.andFormatIn(formatList);
-					List<ImageModel> images = imageDao.selectByExample(imageEx);
-					MediaBean mediaBean = null;
-					if (images != null && !images.isEmpty()) {
-						// 如果图片素材不为空
-						for (ImageModel image : images) {
-							mediaBean = new MediaBean();
-							mediaBean.setId(image.getId());
-							mediaBean.setPath(image.getPath());
-							result.add(mediaBean);
-						}
-					}
+					imageEx.createCriteria().andIdIn(criteriaIds);
 				}
 			} else {
-				if (criteriaIds != null && !criteriaIds.isEmpty()) {
-					// 如果是视频
-					videoEx.createCriteria().andIdIn(criteriaIds).andWidthEqualTo(width).andHeightEqualTo(height)
-							.andFormatIn(formatList);
-					List<VideoModel> videos = videoDao.selectByExample(videoEx);
-					MediaBean mediaBean = null;
-					if (videos != null && !videos.isEmpty()) {
-						// 如果视频素材不为空
-						for (VideoModel video : videos) {
-							mediaBean = new MediaBean();
-							mediaBean.setId(video.getId());
-							mediaBean.setId(video.getPath());
-							result.add(mediaBean);
-						}
-					}
+				// 如果是视频
+				if (criteriaIds != null && !criteriaIds.isEmpty()) {					
+					videoEx.createCriteria().andIdIn(criteriaIds);
 				}
 			}
-		}else if (StringUtils.isEmpty(projectId) && !StringUtils.isEmpty(campaignId)){ 
+		} else if (StringUtils.isEmpty(projectId) && !StringUtils.isEmpty(campaignId)) {
+			// 如果项目id为空，活动id不为空抛异常
 			throw new IllegalArgumentException();
-		}else if (!StringUtils.isEmpty(projectId) && !StringUtils.isEmpty(campaignId)) {
+		} else if (!StringUtils.isEmpty(projectId) && !StringUtils.isEmpty(campaignId)) {
+			// 如果项目id和活动id都不为空，根据活动id条件查询对应的素材
 			List<String> criteriaIds = getMaterialByCampaign(campaignId);
-			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr)
-					|| StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
+			// 判断是图片还是视频，根据不同的类型到不同的表中查询对应的数据
+			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr) || StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
 				if (criteriaIds != null && !criteriaIds.isEmpty()) {
 					// 如果是图片或信息流
-					imageEx.createCriteria().andIdIn(criteriaIds).andWidthEqualTo(width).andHeightEqualTo(height)
-							.andFormatIn(formatList);
-					List<ImageModel> images = imageDao.selectByExample(imageEx);
-					MediaBean mediaBean = null;
-					if (images != null && !images.isEmpty()) {
-						// 如果图片素材不为空
-						for (ImageModel image : images) {
-							mediaBean = new MediaBean();
-							mediaBean.setId(image.getId());
-							mediaBean.setPath(image.getPath());
-							result.add(mediaBean);
-						}
-					}
-				}				
+					imageEx.createCriteria().andIdIn(criteriaIds);
+				}
 			} else {
-				if (criteriaIds != null && !criteriaIds.isEmpty()) {
-					// 如果是视频
-					videoEx.createCriteria().andIdIn(criteriaIds).andWidthEqualTo(width).andHeightEqualTo(height)
-							.andFormatIn(formatList);
-					List<VideoModel> videos = videoDao.selectByExample(videoEx);
-					MediaBean mediaBean = null;
-					if (videos != null && !videos.isEmpty()) {
-						// 如果视频素材不为空
-						for (VideoModel video : videos) {
-							mediaBean = new MediaBean();
-							mediaBean.setId(video.getId());
-							mediaBean.setId(video.getPath());
-							result.add(mediaBean);
-						}
-					}
-				}				
+				// 如果是视频
+				if (criteriaIds != null && !criteriaIds.isEmpty()) {					
+					videoEx.createCriteria().andIdIn(criteriaIds);
+				}
+			}
+		}
+
+		// 查询导入的素材
+		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr) || StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
+			// 如果是图片或信息流，查询图片素材
+			imageEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
+			List<ImageModel> images = imageDao.selectByExample(imageEx);
+			MediaBean mediaBean = null;
+			if (images != null && !images.isEmpty()) {
+				// 如果图片素材不为空
+				for (ImageModel image : images) {
+					mediaBean = new MediaBean();
+					mediaBean.setId(image.getId());
+					mediaBean.setPath(image.getPath());
+					result.add(mediaBean);
+				}
 			}
 		} else {
-			// 查询导入的素材typeStr
-			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr)
-					|| StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
-				// 如果是图片或信息流，查询图片素材
-				imageEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
-				List<ImageModel> images = imageDao.selectByExample(imageEx);
-				MediaBean mediaBean = null;
-				if (images != null && !images.isEmpty()) {
-					// 如果图片素材不为空
-					for (ImageModel image : images) {
-						mediaBean = new MediaBean();
-						mediaBean.setId(image.getId());
-						mediaBean.setPath(image.getPath());
-						result.add(mediaBean);
-					}
-				}
-			} else {
-				// 如果是视频，查询视频素材
-				videoEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
-				List<VideoModel> videos = videoDao.selectByExample(videoEx);
-				MediaBean mediaBean = null;
-				if (videos != null && !videos.isEmpty()) {
-					// 如果视频素材不为空
-					for (VideoModel video : videos) {
-						mediaBean = new MediaBean();
-						mediaBean.setId(video.getId());
-						mediaBean.setId(video.getPath());
-						result.add(mediaBean);
-					}
+			// 如果是视频，查询视频素材
+			videoEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
+			List<VideoModel> videos = videoDao.selectByExample(videoEx);
+			MediaBean mediaBean = null;
+			if (videos != null && !videos.isEmpty()) {
+				// 如果视频素材不为空
+				for (VideoModel video : videos) {
+					mediaBean = new MediaBean();
+					mediaBean.setId(video.getId());
+					mediaBean.setId(video.getPath());
+					result.add(mediaBean);
 				}
 			}
-		} 		
-		return result;		
+		}
+		return result;
 	}
 	
 	/**
