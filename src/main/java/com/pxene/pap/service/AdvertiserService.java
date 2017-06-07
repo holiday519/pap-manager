@@ -158,7 +158,6 @@ public class AdvertiserService extends BaseService
 			AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
 			advertiserAudit.setId(UUIDGenerator.getUUID());
 			advertiserAudit.setAdvertiserId(bean.getId());
-//			advertiserAudit.setAuditValue("1");
 			advertiserAudit.setAdxId(adx.getId());
 			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_NOCHECK);
 			advertiserAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
@@ -179,7 +178,7 @@ public class AdvertiserService extends BaseService
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null)
         {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
         }
         
         ProjectModelExample example = new ProjectModelExample();
@@ -215,8 +214,8 @@ public class AdvertiserService extends BaseService
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
-    	if(ids.length ==0){
-    		throw new IllegalArgumentException();
+    	if (ids.length ==0) {
+    		throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
     	// 操作前先查询一次数据库，判断指定的资源是否存在
     	AdvertiserModelExample advertiserModelExample = new AdvertiserModelExample();
@@ -224,7 +223,7 @@ public class AdvertiserService extends BaseService
     	List<AdvertiserModel> advertiserInDB = advertiserDao.selectByExample(advertiserModelExample);
     	if (advertiserInDB == null || advertiserInDB.size() < ids.length)
     	{
-    		throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+    		throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
     	}
     	
 		for (String id : ids) {
@@ -301,14 +300,14 @@ public class AdvertiserService extends BaseService
         // 操作前先查询一次数据库，判断指定的资源是否存在
         AdvertiserModel advertiserInDB = advertiserDao.selectByPrimaryKey(id);
         if (advertiserInDB == null) {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
         } else {
         	String nameInDB = advertiserInDB.getName();
         	String name = bean.getName();
         	if (!nameInDB.equals(name)) {
         		// 验证名称重复
             	AdvertiserModelExample example = new AdvertiserModelExample();
-            	example.createCriteria().andNameEqualTo(bean.getName());
+            	example.createCriteria().andNameEqualTo(name);
         		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
         		if (advertisers != null && !advertisers.isEmpty()) {
         			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
@@ -337,7 +336,7 @@ public class AdvertiserService extends BaseService
         
         if (advertiser == null)
         {
-            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_NOT_FOUND);
         }
         AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
         // 找出所属行业
@@ -737,7 +736,7 @@ public class AdvertiserService extends BaseService
      * @throws Exception
      */
     @Transactional
-    public void updateAdvertiserAdxEnabled(String auditId, Map<String,String> map) throws Exception {
+    public void updateAdvertiserAdxEnabled(String auditId, Map<String, String> map) throws Exception {
 		String enable = map.get("enable");
 		// 判断传来的状态是否为空 enabled
 		if (StringUtil.isEmpty(enable)) {
