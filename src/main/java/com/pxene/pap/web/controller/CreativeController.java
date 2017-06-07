@@ -24,8 +24,10 @@ import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.ImageCreativeBean;
 import com.pxene.pap.domain.beans.InfoflowCreativeBean;
+import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
 import com.pxene.pap.service.CreativeService;
@@ -310,6 +312,31 @@ public class CreativeController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
+	/**
+	 * 查询导入的素材
+	 */
+	@RequestMapping(value = "/creatives/material",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String getCreativeMaterial(@RequestParam(required = true) Integer width, 
+			@RequestParam(required = true) Integer height, @RequestParam(required = true) String type,
+			@RequestParam(required = true) String formats,@RequestParam(required = false) String projectId,
+			@RequestParam(required = false) String campaignId,HttpServletResponse response) throws Exception {
+		List<MediaBean> material = creativeService.getCreativeMaterial(width,height,type,formats.split(","),projectId,campaignId);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), material, response);
+	}
+	
+	/**
+	 * 导入素材
+	 * @param id 素材id
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/creative/material/import/{id}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void importCreativeMaterial(@PathVariable String id,@RequestParam(required = true) String type,HttpServletResponse response) throws Exception {
+		creativeService.importCreativeMaterial(id,type);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 	/**
 	 * 列出所有素材
 	 * @param name
