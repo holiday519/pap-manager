@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.basic.view.CreativeBasicDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CreativeBasicModel">
+    <result column="adx_id" jdbcType="VARCHAR" property="adxId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="campaign_id" jdbcType="VARCHAR" property="campaignId" />
+    <result column="template_id" jdbcType="VARCHAR" property="templateId" />
+    <result column="app_id" jdbcType="VARCHAR" property="appId" />
+    <result column="app_name" jdbcType="VARCHAR" property="appName" />
+    <result column="adx_name" jdbcType="VARCHAR" property="adxName" />
+    <result column="campaign_name" jdbcType="VARCHAR" property="campaignName" />
+    <result column="landpage_id" jdbcType="VARCHAR" property="landpageId" />
+    <result column="campaign_start_date" jdbcType="TIMESTAMP" property="campaignStartDate" />
+    <result column="campaign_end_date" jdbcType="TIMESTAMP" property="campaignEndDate" />
+    <result column="campaign_status" jdbcType="VARCHAR" property="campaignStatus" />
+    <result column="project_name" jdbcType="VARCHAR" property="projectName" />
+    <result column="project_total_budget" jdbcType="INTEGER" property="projectTotalBudget" />
+    <result column="project_status" jdbcType="VARCHAR" property="projectStatus" />
+    <result column="advertiser_id" jdbcType="VARCHAR" property="advertiserId" />
+    <result column="advertiser_name" jdbcType="VARCHAR" property="advertiserName" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.models.CreativeBasicModel">
+    <result column="creative_ids" jdbcType="LONGVARCHAR" property="creativeIds" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    adx_id, project_id, campaign_id, template_id, app_id, app_name, adx_name, campaign_name, 
+    landpage_id, campaign_start_date, campaign_end_date, campaign_status, project_name, 
+    project_total_budget, project_status, advertiser_id, advertiser_name
+  </sql>
+  <sql id="Blob_Column_List">
+    creative_ids
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.models.CreativeBasicModelExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from pap_v_creative_basic
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CreativeBasicModelExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_v_creative_basic
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CreativeBasicModelExample">
+    delete from pap_v_creative_basic
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.CreativeBasicModel">
+    insert into pap_v_creative_basic (adx_id, project_id, campaign_id, 
+      template_id, app_id, app_name, 
+      adx_name, campaign_name, landpage_id, 
+      campaign_start_date, campaign_end_date, 
+      campaign_status, project_name, project_total_budget, 
+      project_status, advertiser_id, advertiser_name, 
+      creative_ids)
+    values (#{adxId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{campaignId,jdbcType=VARCHAR}, 
+      #{templateId,jdbcType=VARCHAR}, #{appId,jdbcType=VARCHAR}, #{appName,jdbcType=VARCHAR}, 
+      #{adxName,jdbcType=VARCHAR}, #{campaignName,jdbcType=VARCHAR}, #{landpageId,jdbcType=VARCHAR}, 
+      #{campaignStartDate,jdbcType=TIMESTAMP}, #{campaignEndDate,jdbcType=TIMESTAMP}, 
+      #{campaignStatus,jdbcType=VARCHAR}, #{projectName,jdbcType=VARCHAR}, #{projectTotalBudget,jdbcType=INTEGER}, 
+      #{projectStatus,jdbcType=VARCHAR}, #{advertiserId,jdbcType=VARCHAR}, #{advertiserName,jdbcType=VARCHAR}, 
+      #{creativeIds,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CreativeBasicModel">
+    insert into pap_v_creative_basic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="adxId != null">
+        adx_id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="campaignId != null">
+        campaign_id,
+      </if>
+      <if test="templateId != null">
+        template_id,
+      </if>
+      <if test="appId != null">
+        app_id,
+      </if>
+      <if test="appName != null">
+        app_name,
+      </if>
+      <if test="adxName != null">
+        adx_name,
+      </if>
+      <if test="campaignName != null">
+        campaign_name,
+      </if>
+      <if test="landpageId != null">
+        landpage_id,
+      </if>
+      <if test="campaignStartDate != null">
+        campaign_start_date,
+      </if>
+      <if test="campaignEndDate != null">
+        campaign_end_date,
+      </if>
+      <if test="campaignStatus != null">
+        campaign_status,
+      </if>
+      <if test="projectName != null">
+        project_name,
+      </if>
+      <if test="projectTotalBudget != null">
+        project_total_budget,
+      </if>
+      <if test="projectStatus != null">
+        project_status,
+      </if>
+      <if test="advertiserId != null">
+        advertiser_id,
+      </if>
+      <if test="advertiserName != null">
+        advertiser_name,
+      </if>
+      <if test="creativeIds != null">
+        creative_ids,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="adxId != null">
+        #{adxId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="campaignId != null">
+        #{campaignId,jdbcType=VARCHAR},
+      </if>
+      <if test="templateId != null">
+        #{templateId,jdbcType=VARCHAR},
+      </if>
+      <if test="appId != null">
+        #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="appName != null">
+        #{appName,jdbcType=VARCHAR},
+      </if>
+      <if test="adxName != null">
+        #{adxName,jdbcType=VARCHAR},
+      </if>
+      <if test="campaignName != null">
+        #{campaignName,jdbcType=VARCHAR},
+      </if>
+      <if test="landpageId != null">
+        #{landpageId,jdbcType=VARCHAR},
+      </if>
+      <if test="campaignStartDate != null">
+        #{campaignStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="campaignEndDate != null">
+        #{campaignEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="campaignStatus != null">
+        #{campaignStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null">
+        #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="projectTotalBudget != null">
+        #{projectTotalBudget,jdbcType=INTEGER},
+      </if>
+      <if test="projectStatus != null">
+        #{projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserId != null">
+        #{advertiserId,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserName != null">
+        #{advertiserName,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeIds != null">
+        #{creativeIds,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CreativeBasicModelExample" resultType="java.lang.Long">
+    select count(*) from pap_v_creative_basic
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update pap_v_creative_basic
+    <set>
+      <if test="record.adxId != null">
+        adx_id = #{record.adxId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.campaignId != null">
+        campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.templateId != null">
+        template_id = #{record.templateId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appId != null">
+        app_id = #{record.appId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.appName != null">
+        app_name = #{record.appName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.adxName != null">
+        adx_name = #{record.adxName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.campaignName != null">
+        campaign_name = #{record.campaignName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.landpageId != null">
+        landpage_id = #{record.landpageId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.campaignStartDate != null">
+        campaign_start_date = #{record.campaignStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.campaignEndDate != null">
+        campaign_end_date = #{record.campaignEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.campaignStatus != null">
+        campaign_status = #{record.campaignStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectName != null">
+        project_name = #{record.projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectTotalBudget != null">
+        project_total_budget = #{record.projectTotalBudget,jdbcType=INTEGER},
+      </if>
+      <if test="record.projectStatus != null">
+        project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advertiserId != null">
+        advertiser_id = #{record.advertiserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advertiserName != null">
+        advertiser_name = #{record.advertiserName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creativeIds != null">
+        creative_ids = #{record.creativeIds,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update pap_v_creative_basic
+    set adx_id = #{record.adxId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      template_id = #{record.templateId,jdbcType=VARCHAR},
+      app_id = #{record.appId,jdbcType=VARCHAR},
+      app_name = #{record.appName,jdbcType=VARCHAR},
+      adx_name = #{record.adxName,jdbcType=VARCHAR},
+      campaign_name = #{record.campaignName,jdbcType=VARCHAR},
+      landpage_id = #{record.landpageId,jdbcType=VARCHAR},
+      campaign_start_date = #{record.campaignStartDate,jdbcType=TIMESTAMP},
+      campaign_end_date = #{record.campaignEndDate,jdbcType=TIMESTAMP},
+      campaign_status = #{record.campaignStatus,jdbcType=VARCHAR},
+      project_name = #{record.projectName,jdbcType=VARCHAR},
+      project_total_budget = #{record.projectTotalBudget,jdbcType=INTEGER},
+      project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      advertiser_id = #{record.advertiserId,jdbcType=VARCHAR},
+      advertiser_name = #{record.advertiserName,jdbcType=VARCHAR},
+      creative_ids = #{record.creativeIds,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update pap_v_creative_basic
+    set adx_id = #{record.adxId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      campaign_id = #{record.campaignId,jdbcType=VARCHAR},
+      template_id = #{record.templateId,jdbcType=VARCHAR},
+      app_id = #{record.appId,jdbcType=VARCHAR},
+      app_name = #{record.appName,jdbcType=VARCHAR},
+      adx_name = #{record.adxName,jdbcType=VARCHAR},
+      campaign_name = #{record.campaignName,jdbcType=VARCHAR},
+      landpage_id = #{record.landpageId,jdbcType=VARCHAR},
+      campaign_start_date = #{record.campaignStartDate,jdbcType=TIMESTAMP},
+      campaign_end_date = #{record.campaignEndDate,jdbcType=TIMESTAMP},
+      campaign_status = #{record.campaignStatus,jdbcType=VARCHAR},
+      project_name = #{record.projectName,jdbcType=VARCHAR},
+      project_total_budget = #{record.projectTotalBudget,jdbcType=INTEGER},
+      project_status = #{record.projectStatus,jdbcType=VARCHAR},
+      advertiser_id = #{record.advertiserId,jdbcType=VARCHAR},
+      advertiser_name = #{record.advertiserName,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>

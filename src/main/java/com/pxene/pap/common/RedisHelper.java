@@ -316,6 +316,18 @@ public class RedisHelper
         return hgetAll;
     }
     
+    public String hget(String key, String field)
+    {
+        if (isBlank(key))
+        {
+            return null;
+        }
+        Jedis jedis = getJedis();
+        String result = jedis.hget(key, field);
+        close(jedis);
+        return result;
+    }
+    
     public Set<String> hkeys(String key)
     {
         if (isBlank(key))
