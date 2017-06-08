@@ -1901,27 +1901,29 @@ public class CreativeService extends BaseService {
 			campaginEx.createCriteria().andProjectIdEqualTo(projectId);
 			List<CampaignModel> campaigns = campaignDao.selectByExample(campaginEx);
 			List<String> criteriaIds = new ArrayList<String>();
-			// 查询活动下的创意
-			for (CampaignModel campaign : campaigns) {
-				// 取到一个活动的素材id
-				List<String> criteriaIdList = getMaterialByCampaign(campaign.getId());
-				// 将项目下所有活动的素材id放到一个list中
-				for (String criteriaId : criteriaIdList) {
-					criteriaIds.add(criteriaId);
+			if (campaigns != null && !campaigns.isEmpty()) {
+				// 查询活动下的创意
+				for (CampaignModel campaign : campaigns) {
+					// 取到一个活动的素材id
+					List<String> criteriaIdList = getMaterialByCampaign(campaign.getId());
+					// 将项目下所有活动的素材id放到一个list中
+					for (String criteriaId : criteriaIdList) {
+						criteriaIds.add(criteriaId);
+					}
 				}
-			}
-			// 判断是图片还是视频，根据不同的类型到不同的表中查询对应的数据
-			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr) || StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
-				// 如果是图片或信息流
-				if (criteriaIds != null && !criteriaIds.isEmpty()) {
-					imageEx.createCriteria().andIdIn(criteriaIds);
+				// 判断是图片还是视频，根据不同的类型到不同的表中查询对应的数据
+				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(typeStr) || StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(typeStr)) {
+					// 如果是图片或信息流
+					if (criteriaIds != null && !criteriaIds.isEmpty()) {
+						imageEx.createCriteria().andIdIn(criteriaIds);
+					}
+				} else {
+					// 如果是视频
+					if (criteriaIds != null && !criteriaIds.isEmpty()) {					
+						videoEx.createCriteria().andIdIn(criteriaIds);
+					}
 				}
-			} else {
-				// 如果是视频
-				if (criteriaIds != null && !criteriaIds.isEmpty()) {					
-					videoEx.createCriteria().andIdIn(criteriaIds);
-				}
-			}
+			}			
 		} else if (StringUtils.isEmpty(projectId) && !StringUtils.isEmpty(campaignId)) {
 			// 如果项目id为空，活动id不为空抛异常
 			throw new IllegalArgumentException();
@@ -2022,35 +2024,37 @@ public class CreativeService extends BaseService {
 		CreativeModelExample creativeEx = new CreativeModelExample();
 		creativeEx.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creatives = creativeDao.selectByExample(creativeEx);
-		for (CreativeModel creative : creatives) {
-			// 查询创意使用的素材
-			String materialId = creative.getMaterialId();
-			String type = creative.getType();
-			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-				// 图片
-				ImageMaterialModel imageMaterial = imageMaterialDao.selectByPrimaryKey(materialId);
-				// 图片素材的id
-				String imageId = imageMaterial.getImageId();
-				// 将图片的id作为查询素材的条件之一
-				materialIds.add(imageId);
-			} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
-				// 视频
-				VideoMaterialModel videoMaterial = videoeMaterialDao.selectByPrimaryKey(materialId);
-				// 视频素材的id
-				String videoId = videoMaterial.getVideoId();
-				materialIds.add(videoId);
-			} else {
-				// 信息流
-				InfoflowMaterialModel infoflowMaterial = infoMaterialDao.selectByPrimaryKey(materialId);
-				// 图片素材的id
-				materialIds.add(infoflowMaterial.getIconId());
-				materialIds.add(infoflowMaterial.getImage1Id());
-				materialIds.add(infoflowMaterial.getImage2Id());
-				materialIds.add(infoflowMaterial.getImage3Id());
-				materialIds.add(infoflowMaterial.getImage4Id());
-				materialIds.add(infoflowMaterial.getImage5Id());
+		if (creatives != null && !creatives.isEmpty()) {
+			for (CreativeModel creative : creatives) {
+				// 查询创意使用的素材
+				String materialId = creative.getMaterialId();
+				String type = creative.getType();
+				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+					// 图片
+					ImageMaterialModel imageMaterial = imageMaterialDao.selectByPrimaryKey(materialId);
+					// 图片素材的id
+					String imageId = imageMaterial.getImageId();
+					// 将图片的id作为查询素材的条件之一
+					materialIds.add(imageId);
+				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+					// 视频
+					VideoMaterialModel videoMaterial = videoeMaterialDao.selectByPrimaryKey(materialId);
+					// 视频素材的id
+					String videoId = videoMaterial.getVideoId();
+					materialIds.add(videoId);
+				} else {
+					// 信息流
+					InfoflowMaterialModel infoflowMaterial = infoMaterialDao.selectByPrimaryKey(materialId);
+					// 图片素材的id
+					materialIds.add(infoflowMaterial.getIconId());
+					materialIds.add(infoflowMaterial.getImage1Id());
+					materialIds.add(infoflowMaterial.getImage2Id());
+					materialIds.add(infoflowMaterial.getImage3Id());
+					materialIds.add(infoflowMaterial.getImage4Id());
+					materialIds.add(infoflowMaterial.getImage5Id());
+				}
 			}
-		}
+		}		
 		return materialIds;
 	}
 }
