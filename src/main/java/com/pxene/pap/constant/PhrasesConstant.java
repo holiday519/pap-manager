@@ -24,6 +24,7 @@ public class PhrasesConstant
 	public static final String POPULATIONS_FILE_USED = "名单被使用，不能删除";
 	// 广告主
 	public static final String ADVERTISER_NOT_FOUND = "该客户不存在";
+	public static final String ADVERTISER_AUDIT_NOT_FOUND = "该客户审核信息不存在";
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	// 项目
 	public static final String PROJECT_BUDGET_UNDER_CAMPAIGN = "项目预算不能小于项目下活动日预算";
@@ -44,6 +45,7 @@ public class PhrasesConstant
 	public static final String LANDPAGE_CODE_USED = "监测码正在被使用，不能重复使用";
 	// 创意
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
+    public static final String CREATIVE_NOT_FOUND = "该创意不存在";
     // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
     public static final String INVALID_CREATIVE_NAME = "创意名称不能为空";

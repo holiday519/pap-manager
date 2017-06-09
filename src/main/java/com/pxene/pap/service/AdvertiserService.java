@@ -21,6 +21,7 @@ import com.github.pagehelper.util.StringUtil;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.ConfKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
@@ -86,10 +87,6 @@ public class AdvertiserService extends BaseService
 	@Autowired
 	private AutohomeAuditService autohomeAuditService;
     
-    private static String UPLOAD_MODE;
-    
-    private static String UPLOAD_DIR;
-    
     private static final String TEMP_DIR = "temp/";
     
     private static final String FORMAL_DIR = "formal/";
@@ -102,24 +99,26 @@ public class AdvertiserService extends BaseService
     
     private String password;
     
+    private String uploadMode;
+    
+    private String uploadDir;
     
     @Autowired
     public AdvertiserService(Environment env)
     {
-        UPLOAD_MODE = env.getProperty("pap.fileserver.mode", "local");
+    	uploadMode = env.getProperty(ConfKeyConstant.FILESERVER_MODE, "local");
         
-        host = env.getProperty("pap.fileserver.remote.host");
-        port = Integer.parseInt(env.getProperty("pap.fileserver.remote.port", "22"));
-        username = env.getProperty("pap.fileserver.remote.username");
-        password = env.getProperty("pap.fileserver.remote.password");
-        
-        if ("local".equals(UPLOAD_MODE))
+        if ("local".equals(uploadMode))
         {
-            UPLOAD_DIR = env.getProperty("pap.fileserver.local.upload.dir");
-        }
+        	uploadDir = env.getProperty(ConfKeyConstant.FILESERVER_LOCAL_UPLOAD_DIR);
+        } 
         else
         {
-            UPLOAD_DIR = env.getProperty("pap.fileserver.remote.upload.dir");
+        	host = env.getProperty(ConfKeyConstant.FILESERVER_REMOTE_HOST);
+            port = Integer.parseInt(env.getProperty(ConfKeyConstant.FILESERVER_REMOTE_PORT, "22"));
+            username = env.getProperty(ConfKeyConstant.FILESERVER_REMOTE_USERNAME);
+            password = env.getProperty(ConfKeyConstant.FILESERVER_REMOTE_PASSWORD);
+            uploadDir = env.getProperty(ConfKeyConstant.FILESERVER_REMOTE_UPLOAD_DIR);
         }
     }
     
@@ -390,10 +389,6 @@ public class AdvertiserService extends BaseService
 		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
 		List<AdvertiserBean> advertiserBeans = new ArrayList<AdvertiserBean>();
 
-//		if (advertisers == null || advertisers.size() <= 0) {
-//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-//		}
-
 		// 遍历数据库中查询到的全部结果，逐个将DAO创建的新对象复制回传输对象中
 		for (AdvertiserModel advertiser : advertisers) {
 			AdvertiserBean bean = modelMapper.map(advertiser, AdvertiserBean.class);
@@ -533,7 +528,7 @@ public class AdvertiserService extends BaseService
         String path = upload(file);
         
     	// 返回相对路径
-    	return path.replace(UPLOAD_DIR, "");
+    	return path.replace(uploadDir, "");
     }
 
     /**
@@ -555,9 +550,9 @@ public class AdvertiserService extends BaseService
     		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
     	}
     	// 图片绝对路径
-    	String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
+    	String path = FileUtils.uploadFileToLocal(uploadDir + TEMP_DIR, UUIDGenerator.getUUID(), file);
     	// 返回相对路径
-    	return path.replace(UPLOAD_DIR, "");
+    	return path.replace(uploadDir, "");
     }
     
     private void copyTempToFormal(AdvertiserBean advertiserBean) throws Exception
@@ -568,7 +563,7 @@ public class AdvertiserService extends BaseService
         String organizationPath = advertiserBean.getOrganizationPath();
         String icpPath = advertiserBean.getIcpPath();
         
-        File destDir = new File(UPLOAD_DIR + FORMAL_DIR);
+        File destDir = new File(uploadDir + FORMAL_DIR);
         
         if (logoPath != null && logoPath.contains(TEMP_DIR))
         {
@@ -645,8 +640,7 @@ public class AdvertiserService extends BaseService
 		// 查询广告主审核信息判断是否存在
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit == null) {
-			// 如果广告主审核信息不存在，则提示：该对象不存在
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+			throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
 		}
 		// 获取adxId
 		String adxId = advertiserAudit.getAdxId();
@@ -675,8 +669,7 @@ public class AdvertiserService extends BaseService
 		// 查询广告主审核信息判断是否存在
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit == null) {
-			// 如果广告主审核信息不存在，则提示：该对象不存在
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+			throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
 		}
 		// 获取adxId
 		String adxId = advertiserAudit.getAdxId();
@@ -704,27 +697,27 @@ public class AdvertiserService extends BaseService
     @Transactional
     private String upload(MultipartFile file) throws IOException
     {
-        if ("local".equalsIgnoreCase(UPLOAD_MODE))
+        if ("local".equalsIgnoreCase(uploadMode))
         {
             /*return FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
-        	return FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
+        	return FileUtils.uploadFileToLocal(uploadDir + TEMP_DIR, UUIDGenerator.getUUID(), file);
         }
         else
         {
             /*return FileUtils.uploadFileToRemote(scpUtils, UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);*/
-        	return FileUtils.uploadFileToRemote(host, port, username, password, UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
+        	return FileUtils.uploadFileToRemote(host, port, username, password, uploadDir + TEMP_DIR, UUIDGenerator.getUUID(), file);
         }
     }
     
     private void doCopy(String path, File destDir) throws Exception
     {
-        if ("local".equalsIgnoreCase(UPLOAD_MODE))
+        if ("local".equalsIgnoreCase(uploadMode))
         {
-            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + path), destDir);
+            org.apache.commons.io.FileUtils.copyFileToDirectory(new File(uploadDir + path), destDir);
         }
         else
         {
-            FileUtils.copyRemoteFile(host, port, username, password, UPLOAD_DIR + path, FilenameUtils.separatorsToUnix(destDir.getPath()));
+            FileUtils.copyRemoteFile(host, port, username, password, uploadDir + path, FilenameUtils.separatorsToUnix(destDir.getPath()));
         }
     }
     
@@ -747,8 +740,7 @@ public class AdvertiserService extends BaseService
 		AdvertiserAuditModel advertiseAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		// 判断广告主信息是否存在
 		if (advertiseAudit == null) {
-			// 如果信息不存在，则抛异常
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+			throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
 		}
 		// 如果广告主信息存在，则改变广告主adx的状态
 		if (StatusConstant.ADVERTISER_ADX_DISABLE.equals(enable)) { 
