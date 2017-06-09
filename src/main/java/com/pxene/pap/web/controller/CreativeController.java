@@ -317,26 +317,14 @@ public class CreativeController {
 	 */
 	@RequestMapping(value = "/creatives/material",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String getCreativeMaterial(@RequestParam(required = true) Integer width, 
+	public String listCreativeMaterials(@RequestParam(required = true) Integer width, 
 			@RequestParam(required = true) Integer height, @RequestParam(required = true) String type,
 			@RequestParam(required = true) String formats,@RequestParam(required = false) String projectId,
 			@RequestParam(required = false) String campaignId,HttpServletResponse response) throws Exception {
-		List<MediaBean> material = creativeService.getCreativeMaterial(width,height,type,formats.split(","),projectId,campaignId);
+		List<MediaBean> material = creativeService.listCreativeMaterials(width,height,type,formats.split(","),projectId,campaignId);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), material, response);
 	}
 	
-	/**
-	 * 导入素材
-	 * @param id 素材id
-	 * @param response
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/creative/material/import/{id}",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public void importCreativeMaterial(@PathVariable String id,@RequestParam(required = true) String type,HttpServletResponse response) throws Exception {
-		creativeService.importCreativeMaterial(id,type);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}
 	/**
 	 * 列出所有素材
 	 * @param name
