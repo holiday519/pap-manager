@@ -710,10 +710,11 @@ public class ProjectService extends BaseService {
         // Redis中保存的项目剩余预算(分)
         Jedis jedis = redisHelper.getJedis();
         jedis.watch(projectBudgetKey);
-        int redisBudget = Integer.parseInt(jedis.get(projectBudgetKey));
+        // TODO : zytosee
+        double redisBudget = Double.parseDouble(jedis.get(projectBudgetKey));
         
         // 已消耗掉的项目预算(分)
-        int usedBudget = oldBudget * 100 - redisBudget;
+        double usedBudget = oldBudget * 100 - redisBudget;
         
         // 如果欲修改的预算值不足以支付已消耗掉的项目预算，则抛出异常
         if (newBudget * 100 < usedBudget)

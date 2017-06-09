@@ -15,6 +15,8 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,8 @@ import com.pxene.pap.repository.basic.IndustryDao;
 @Service
 public class AutohomeAuditService extends AuditService
 {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AutohomeAuditService.class);
     /**
      * 创意审核信息的过期天数
      */
@@ -239,11 +243,16 @@ public class AutohomeAuditService extends AuditService
             }
             
             // 图片地址1
-            if (!StringUtils.isEmpty(image1Id))
-            {
-                contentObj = buildSnippetContentImg(image1Id, "img");
-                contentArray.add(contentObj);
-            }
+			if (!StringUtils.isEmpty(image1Id)) {
+				if (!StringUtils.isEmpty(iconId) && StringUtils.isEmpty(image2Id) && StringUtils.isEmpty(image3Id)
+						&& StringUtils.isEmpty(image4Id) && StringUtils.isEmpty(image5Id)) {
+					contentObj = buildSnippetContentImg(image1Id, "bimg");
+					contentArray.add(contentObj);
+				} else {
+					contentObj = buildSnippetContentImg(image1Id, "img");
+					contentArray.add(contentObj);
+				}
+			}          
             
             // 图片地址2
             if (!StringUtils.isEmpty(image2Id))
@@ -296,7 +305,7 @@ public class AutohomeAuditService extends AuditService
         cURL = cURL.replace("#BID#", "1").replace("#DEVICEID#", "1").replace("#DEVICEIDTYPE#", "1").replace("#MAPID#", creativeId);
         String link = clkURLPrefix + cURL;
         String landpageURL = URLEncoder.encode(landpageInfo.getUrl(), StandardCharsets.UTF_8.displayName());
-        link = link + "&url=" + landpageURL;
+        link = link + "&curl=" + landpageURL;
         
         // 拼接成监测地址
         JsonArray pv = new JsonArray();
@@ -328,6 +337,8 @@ public class AutohomeAuditService extends AuditService
         String sign = getSign4Json(sortedAuditObj, signKey);
         
         sortedAuditObj.addProperty("sign", sign);
+        
+        LOGGER.info("<=PAP-Manager=> autohome audit info = " + sortedAuditObj.toString());
         
         // 发送HTTP POST请求
         String respStr = HttpClientUtil.getInstance().sendHttpPostJson(uploadURL, sortedAuditObj.toString());

@@ -501,13 +501,14 @@ public class CampaignService extends BaseService {
 					redisHelper.set(budgetKey, (int)newBudget);
 				} else {
 					if (redisHelper.exists(budgetKey)) {
-						int redisBudget = redisHelper.getInt(budgetKey) / 100;
+						// TODO : zytosee
+						double redisBudget = redisHelper.getDouble(budgetKey) / 100;
 						int difBudget = newBudget - oldBudget;
 						if (difBudget < 0 && Math.abs(difBudget) > redisBudget) {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
 						}
 						if (difBudget != 0) {
-							redisHelper.incrybyInt(budgetKey, (int)difBudget * 100);
+							redisHelper.incrybyDouble(budgetKey, difBudget * 100);
 						}
 					}
 				}
@@ -530,7 +531,7 @@ public class CampaignService extends BaseService {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
 						}
 						if (difImpression != 0) {
-							redisHelper.incrybyInt(countKey, (int)difImpression);
+							redisHelper.incrybyInt(countKey, difImpression);
 						}
 					}
 				}
