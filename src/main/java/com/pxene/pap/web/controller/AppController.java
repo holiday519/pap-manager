@@ -35,7 +35,7 @@ public class AppController {
             pager = PageHelper.startPage(pageNo, pageSize);
         }
         
-		List<AppBean> selectApps = appService.ListApps(name, campaignId);
+		List<AppBean> selectApps = appService.listApps(name, campaignId);
 		
 		PaginationBean result = new PaginationBean(selectApps, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
