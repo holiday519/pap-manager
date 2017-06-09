@@ -35,9 +35,14 @@ public class StaticBean {
     private String projectId;
 
     /**
-     * 创建时间
+     * 创建日期
      */
-    private Date createTime;
+    private Date createDate;
+
+    /**
+     * 更新日期
+     */
+    private Date updateDate;
 
     public String getId() {
         return id;
@@ -71,16 +76,24 @@ public class StaticBean {
         this.projectId = projectId;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Date getCreateDate() {
+        return createDate;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(Date updateDate) {
+        this.updateDate = updateDate;
     }
 
     @Override
     public String toString() {
-        return "ProjectBean [id=" + id + ", name=" + name + ",value="+ value+",projectId="+projectId+",creativeTime="+createTime+"]";
+        return "ProjectBean [id=" + id + ", name=" + name + ",value="+ value+",projectId="+projectId+",creativeTime="+createDate+"]";
     }
 }

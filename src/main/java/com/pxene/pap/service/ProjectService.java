@@ -518,6 +518,27 @@ public class ProjectService extends BaseService {
         	}
         	bean.setEffectFields(effectFields);
     	}
+
+    	//查询静态值
+		List<StaticModel> staticModels = listStaticsByProjectId(projectId);
+		if(staticModels!=null && staticModels.size()>0){
+			int len = staticModels.size();
+			StaticBean[] staticBeans = new StaticBean[len];
+			for(int i=0; i<len; i++){
+				StaticModel staticModel = staticModels.get(i);
+				StaticBean staticBean  = new StaticBean();
+				staticBean.setId(staticModel.getId());
+				staticBean.setName(staticModel.getName());
+				staticBean.setProjectId(staticModel.getProjectId());
+				staticBean.setCreateDate(staticModel.getCreateTime());
+				staticBean.setUpdateDate(staticModel.getUpdateTime());
+				staticBeans[i]=staticBean;
+			}
+			bean.setStaticBeens(staticBeans);
+		}
+
+
+
     }
 
 	/**
@@ -930,7 +951,7 @@ public class ProjectService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 
-		// 遍历每一个静态值，如果任何一个静态值下被公式或规则引用，则放弃整个删除
+		// 如果有一个静态值下被公式或规则引用，则放弃整个删除
 		RuleModelExample ruleModelExample = new RuleModelExample();
 		ruleModelExample.createCriteria().andStaticIdIn(Arrays.asList(ids));
 		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
