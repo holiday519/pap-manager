@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.pxene.pap.domain.beans.StaticBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,10 +27,10 @@ import com.pxene.pap.service.ProjectService;
 
 @Controller
 public class ProjectController {
-	
+
 	@Autowired
 	private ProjectService projectService;
-	
+
 	/**
 	 * 添加项目
 	 * @param bean
@@ -43,7 +44,7 @@ public class ProjectController {
 		projectService.createProject(bean);
         return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
-	
+
 	/**
 	 * 编辑项目信息
 	 * @param bean
@@ -57,7 +58,7 @@ public class ProjectController {
 		projectService.updateProject(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	
+
 	/**
 	 * 编辑项目状态
 	 * @param bean
@@ -71,7 +72,7 @@ public class ProjectController {
 		projectService.updateProjectStatus(id, map);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	
+
 	/**
 	 * 删除项目信息
 	 * @param id
@@ -82,11 +83,11 @@ public class ProjectController {
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteProject(@PathVariable String id, HttpServletResponse response) throws Exception {
-		
+
 		projectService.deleteProject(id);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	
+
 	/**
 	 * 删除项目信息
 	 * @param id
@@ -97,11 +98,11 @@ public class ProjectController {
 	@RequestMapping(value = "/projects", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteProjects(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
-		
+
 		projectService.deleteProjects(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	
+
 	/**
 	 * 根据id查询项目
 	 * @param id
@@ -112,11 +113,11 @@ public class ProjectController {
 	@RequestMapping(value = "/project/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String getProject(@PathVariable String id, HttpServletResponse response) throws Exception {
-		
+
 		ProjectBean projectDetailBean = projectService.getProject(id);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), projectDetailBean, response);
 	}
-	
+
 	/**
 	 * 查询项目列表
 	 * @param name
@@ -130,17 +131,17 @@ public class ProjectController {
 	@RequestMapping(value = "/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String listProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String advertiserId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
-		
+
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
 		List<ProjectBean> beans = projectService.listProjects(name, startDate, endDate, advertiserId);
-		
+
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
-	
+
 	/**
 	 * 转化字段命名
 	 * @param fieldId   项目ID
@@ -154,7 +155,7 @@ public class ProjectController {
 	    projectService.changeEffectName(fieldId, map);
         response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	
+
 	/**
 	 * 启用/禁用转化字段
 	 * @param fieldId   项目ID
@@ -169,7 +170,7 @@ public class ProjectController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 
 	}
-	
+
 	/**
 	 * 修改项目预算
 	 * @param id   项目ID
@@ -183,5 +184,54 @@ public class ProjectController {
 	    projectService.changeProjectBudget(id, map);
 	    response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
-	
+
+	/**
+	 * 创建静态值
+	 * @param bean
+	 * @param response
+	 * @return
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/project/static", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String createStatic(@Valid @RequestBody StaticBean bean, HttpServletResponse response) throws Exception {
+		projectService.createStatic(bean);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
+	}
+
+	/**
+	 * 修改静态值
+	 * @param id
+	 * @param bean
+	 * @param response
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/project/static/value/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateStaticValue(@PathVariable String id, @RequestBody StaticBean bean, HttpServletResponse response) throws Exception {
+		projectService.updateStaticValue(id, bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+
+	/**
+	 * 修改静态值名称
+	 * @param id
+	 * @param bean
+	 * @param response
+	 * @throws Exception
+     */
+	@RequestMapping(value = "/project/static/name/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public void updateStaticName(@PathVariable String id, @Valid@RequestBody StaticBean bean, HttpServletResponse response) throws Exception {
+		projectService.updateStaticName(id, bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+
+	@RequestMapping(value = "/projects/statics", method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteStatics(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
+
+		projectService.deleteStatics(ids.split(","));
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
 }

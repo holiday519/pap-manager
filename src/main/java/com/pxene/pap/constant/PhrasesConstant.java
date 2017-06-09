@@ -176,4 +176,7 @@ public class PhrasesConstant
 	public static final String POPULATION_FILE_ERROR = "人群定向文件格式不正确";
 	
 	public static final String EFFECT_TEMPLATE_FORMAT_ERROR = "转化数据模板文件格式错误！";
+
+	public static final String STATIC_RULER_DELETE_ERROR = "静态值正在被规则引用，删除失败！";
+	public static final String STATIC_FORMULATE_DELETE_ERROR = "静态值正在被公式引用，删除失败！";
 }
