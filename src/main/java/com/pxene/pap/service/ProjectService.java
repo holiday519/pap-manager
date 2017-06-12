@@ -559,8 +559,7 @@ public class ProjectService extends BaseService {
 				StaticBean staticBean  = new StaticBean();
 				staticBean.setId(staticModel.getId());
 				staticBean.setName(staticModel.getName());
-				staticBean.setProjectId(staticModel.getProjectId());
-				staticBean.setCreateDate(staticModel.getCreateTime());
+				staticBean.setValue(staticModel.getValue());;
 				staticBean.setUpdateDate(staticModel.getUpdateTime());
 				staticBeans[i]=staticBean;
 			}
@@ -934,7 +933,6 @@ public class ProjectService extends BaseService {
 		RuleModel rule = modelMapper.map(bean, RuleModel.class);
 		String ruleId = UUIDGenerator.getUUID();
 		rule.setId(ruleId);
-		rule.setStaticId(staticId);
 		ruleDao.insertSelective(rule);
 		// 添加公式
 		addFormula(bean,ruleId);
@@ -968,7 +966,6 @@ public class ProjectService extends BaseService {
 				FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
 				formulaModel.setId(UUIDGenerator.getUUID());
 				formulaModel.setRuleId(ruleId);
-				formulaModel.setStaticId(staticId);
 				formulaDao.insertSelective(formulaModel);
 			}
 		}		
@@ -1178,6 +1175,7 @@ public class ProjectService extends BaseService {
 	 * 创建静态值
 	 * @param bean
      */
+	@Transactional
 	public void createStatic(StaticBean bean){
 		// 插入MySQL
 		StaticModel staticModel = modelMapper.map(bean, StaticModel.class);
@@ -1204,6 +1202,7 @@ public class ProjectService extends BaseService {
 	 * @param id
 	 * @param bean
      */
+	@Transactional
 	public void updateStaticValue(String id, StaticBean bean){
 		// 判断指定ID的项目在MySQL中是否存在
 		StaticModel staticInDB = staticDao.selectByPrimaryKey(id);
@@ -1229,6 +1228,7 @@ public class ProjectService extends BaseService {
 	 * @param id
 	 * @param bean
      */
+	@Transactional
 	public void updateStaticName(String id,StaticBean bean){
 		// 判断指定ID的项目在MySQL中是否存在
 		StaticModel staticInDB = staticDao.selectByPrimaryKey(id);
