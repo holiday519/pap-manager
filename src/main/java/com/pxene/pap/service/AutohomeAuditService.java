@@ -30,6 +30,7 @@ import com.pxene.pap.common.HttpClientUtil;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.ConfKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -89,7 +90,7 @@ public class AutohomeAuditService extends AuditService
     @Autowired
 	private IndustryDao industryDao;
     
-
+    @Autowired
 	public AutohomeAuditService(Environment env) 
 	{
 		super(env);
@@ -214,7 +215,7 @@ public class AutohomeAuditService extends AuditService
         JsonArray contentArray = new JsonArray();
         
         // 如果创意是图片，则读取图片素材表，取得图片ID，再根据图片ID，取得详细的图片信息
-        if ("01".equals(creativeType))
+        if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType))
         {
             ImageMaterialModel imageMaterial = imageMaterialDao.selectByPrimaryKey(materialId);
             String imageId = imageMaterial.getImageId();
@@ -222,7 +223,7 @@ public class AutohomeAuditService extends AuditService
             contentObj = buildSnippetContentImg(imageId, "img");
             contentArray.add(contentObj);
         }
-        else if ("03".equals(creativeType))//如果创意是信息流，则读取信息流素材表，取得第一张图片ID
+        else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType))//如果创意是信息流，则读取信息流素材表，取得第一张图片ID
         {
             InfoflowMaterialModel infoflowMaterial = infoflowMaterialDao.selectByPrimaryKey(materialId);
             

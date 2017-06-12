@@ -187,11 +187,6 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void createCreative(CreativeBean bean) throws Exception {
-		// 判断活动是否开启，活动开启不能添加创意
-		CampaignModel model = campaignDao.selectByPrimaryKey(bean.getCampaignId());
-		if (StatusConstant.CAMPAIGN_PROCEED.equals(model.getStatus())) {
-			throw new ServerFailureException(PhrasesConstant.CAMPAIGN_STATUS_TOP);
-		}
 		// 新建创意
 		String type = bean.getType();
 		CreativeModel creativeModel = null;
@@ -323,7 +318,7 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-	   //  FIXME :  开始投放不能删、redis中是否有数据--有数据不能删除；在开始时间内，或者该创意在redis中有数据不能删
+	    // FIXME : 开始投放不能删、redis中是否有数据--有数据不能删除；在开始时间内，或者该创意在redis中有数据不能删
 		// 判断哪些创意不可以删除 ：已经开始投放；或是当某个创意ID，存在回收数据时，不能删除创意
 		for (CreativeModel creative : creativeModels) {
 			// 获取活动id

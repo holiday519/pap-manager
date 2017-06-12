@@ -12,15 +12,6 @@ public class PhrasesConstant
 	public static final String ARGUMENT_FORMAT_INCORRECT = "参数格式不正确";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
 	public static final String ADX_NOT_FOUND = "ADX不存在";
-	public static final String REDIS_KEY_LOCK = "redis的key被死锁";
-	public static final String REDIS_DAY_BUDGET = "超出了最大日预算";
-	public static final String REDIS_DAY_COUNTER = "超出日均最大展现的上限";
-	public static final String REDIS_DAILY_BUDGET = "日预算为空";
-	public static final String REDIS_DAILY_COUNTER = "日均最大展现为空";
-	public static final String CAMPAIGN_STATUS_TOP = "活动开启不能添加创意，请关闭活动"; 
-	public static final String REDIS_GROUPIDS_NULL = "redis中没有Groupids信息";
-	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
-	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";	
 	public static final String POPULATIONS_FILE_USED = "名单被使用，不能删除";
 	// 广告主
 	public static final String ADVERTISER_NOT_FOUND = "该客户不存在";
@@ -50,7 +41,16 @@ public class PhrasesConstant
 	// 创意
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     public static final String CREATIVE_NOT_FOUND = "该创意不存在";
-    // public static final String ADVERVISER_HAVE_PROJECT = "广告主还有创建成功的项目，不能删除。";
+    // redis
+    public static final String REDIS_KEY_LOCK = "redis的key被死锁";
+	public static final String REDIS_DAY_BUDGET = "超出了最大日预算";
+	public static final String REDIS_DAY_COUNTER = "超出日均最大展现的上限";
+	public static final String REDIS_DAILY_BUDGET = "日预算为空";
+	public static final String REDIS_DAILY_COUNTER = "日均最大展现为空";
+	public static final String REDIS_GROUPIDS_NULL = "redis中没有Groupids信息";
+	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
+	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";
+    
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
     public static final String INVALID_CREATIVE_NAME = "创意名称不能为空";
     public static final String INVALID_TOTAL_BUDGET = "必须填写预算值";
@@ -63,24 +63,14 @@ public class PhrasesConstant
     public static final String IMAGE_NOT_MAP_SIZE = "图片尺寸不符";
     public static final String IMAGE_NOT_MAP_VOLUME = "图片大小超过最大限制";
     public static final String LANDPAGE_HAVE_CAMPAIGN = "落地页已绑定活动，不能删除。";
-//	public static final String CAMPAIGN_NO_CREATIE = "活动下无创意，不能投放。";
 	public static final String CAMPAIGN_NO_PASS_CREATIE = "活动下有创意未通过审核，不能投放。";
-//	public static final String CAMPAIGN_NO_LANDPAGE = "活动未绑定落地页，不能投放。";
 	public static final String CAMPAIGN_NO_TMPL_PRICE = "活动下无模版价格，不能投放。";
 	public static final String RULE_HAVE_CAMPAIGN = "规则已绑定活动，不能删除。";
-//	public static final String CAMPAIGN_START = "活动已投放，创意不能删除。";
-//	public static final String NAME_NOT_REPEAT = "名称重复，操作失败！";
-//	public static final String CAMPAIGN_DATE_ERROR = "活动周期错误，操作失败！";
-//	public static final String CAMPAIGN_TOTAL_BUDGET_BIGGER_PROJECT = "项目下活动预算总和不能大于项目预算！";
-//	public static final String PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN = "项目预算不能小于项目下活动预算总和！";
-//	public static final String CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL = "活动日预算不能大于活动总预算！";
 	public static final String CREATIVE_AUDIT_NULL = "创意审核出现异常";
 	
 	
 	
-	//public static final String NAME_NOT_NULL = "名称不能为空";
 	public static final String LENGTH_ERROR_ID = "id长度不能超过36";
-	//public static final String LENGTH_ERROR_NAME = "名称长度不能超过100";
 	public static final String LENGTH_ERROR_REMARK = "备注长度不能超过400";
 	public static final String LENGTH_ERROR_BUDGET = "总预算不能超过99999999";
 	
@@ -158,9 +148,7 @@ public class PhrasesConstant
 	
 	
 	
-//	public static final String LANDPAGE_NOTNULL_CAMPAIGNID = "活动ID不能为空";
 	public static final String LANDPAGE_NOTNULL_URL = "落地页地址不能为空";
-	
 	public static final String LANDPAGE_LENGTH_ERROR_URL = "落地页地址长度不能 超过400";
 	public static final String LANDPAGE_LENGTH_ERROR_MONITORURL = "第三方监测地址长度不能 超过400";
 	public static final String LANDPAGE_LENGTH_ERROR_ANIDDEEP = "安卓 DeepLink长度不能 超过400";
