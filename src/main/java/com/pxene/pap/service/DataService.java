@@ -820,6 +820,8 @@ public class DataService extends BaseService {
 				result.put("impressionCost", bean.getImpressionCost());
 				result.put("clickCost", bean.getClickCost());
 				result.put("jumpCost", bean.getJumpCost());
+				//修正成本
+				result.put("adxCost",bean.getAdxCost());
 				result.putAll(otherValue);
 
 				results.add(result);
@@ -859,6 +861,8 @@ public class DataService extends BaseService {
 				result.put("impressionCost", bean.getImpressionCost());
 				result.put("clickCost", bean.getClickCost());
 				result.put("jumpCost", bean.getJumpCost());
+				//修正成本
+				result.put("adxCost",bean.getAdxCost());
 
 				result.put("date", day);
 				result.putAll(otherValue);
@@ -1670,19 +1674,19 @@ public class DataService extends BaseService {
 		String[] recoresFields;
 		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
 			if(fileName.startsWith("创意")) {
-				recoresColumns = new String[]{"ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
-				recoresFields = new String[]{"id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+				recoresColumns = new String[]{"ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}else{
-				recoresColumns = new String[]{"名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
-				recoresFields = new String[]{"name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+				recoresColumns = new String[]{"名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "修正成本_#_3000","千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}
 		}else{
 			if(fileName.startsWith("创意")) {
-				recoresColumns = new String[]{"日期_#_3000", "ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
-				recoresFields = new String[]{"date", "id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+				recoresColumns = new String[]{"日期_#_3000", "ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"date", "id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}else{
-				recoresColumns = new String[]{"日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
-				recoresFields = new String[]{"date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost", "impressionCost", "clickCost", "jumpCost"};
+				recoresColumns = new String[]{"日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "修正成本_#_3000","千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}
 		}
 

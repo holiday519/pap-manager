@@ -20,6 +20,8 @@ public class BasicDataBean {
 	private Float clickCost = 0f;
 	// 二跳成本
 	private Float jumpCost = 0f;
+	//修正成本
+	private Float adxCost = 0f;
 
 	public Long getImpressionAmount() {
 		return impressionAmount;
@@ -85,13 +87,21 @@ public class BasicDataBean {
 		this.jumpCost = jumpCost;
 	}
 
+	public Float getAdxCost() {
+		return adxCost;
+	}
+
+	public void setAdxCost(Float adxCost) {
+		this.adxCost = adxCost;
+	}
+
 	@Override
 	public String toString() {
 		return "CreativeBasicBean [impressionAmount=" + impressionAmount
 				+ ", clickAmount=" + clickAmount + ", jumpAmount=" + jumpAmount
 				+ ", clickRate=" + clickRate + ", totalCost=" + totalCost
 				+ ", impressionCost=" + impressionCost + ", clickCost="
-				+ clickCost + ", jumpCost=" + jumpCost + "]";
+				+ clickCost + ", jumpCost=" + jumpCost + ",adxCost="+adxCost+ "]";
 	}
 
 }

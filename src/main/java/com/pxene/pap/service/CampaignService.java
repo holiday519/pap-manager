@@ -1132,6 +1132,8 @@ public class CampaignService extends BaseService {
 			bean.setClickCost(dataBean.getClickCost());
 			bean.setClickRate(dataBean.getClickRate());
 			bean.setJumpCost(dataBean.getJumpCost());
+			//修正成本
+			bean.setAdxCost(dataBean.getAdxCost());
 		}
 	}
 	

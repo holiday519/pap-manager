@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -14,6 +15,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
+import com.pxene.pap.domain.models.*;
+import com.pxene.pap.repository.basic.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -39,45 +42,11 @@ import com.pxene.pap.domain.beans.InfoflowCreativeBean;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
-import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.AppTmplModel;
-import com.pxene.pap.domain.models.AppTmplModelExample;
-import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.CampaignModelExample;
-import com.pxene.pap.domain.models.CreativeAuditModel;
-import com.pxene.pap.domain.models.CreativeAuditModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
-import com.pxene.pap.domain.models.ImageMaterialModel;
-import com.pxene.pap.domain.models.ImageMaterialModelExample;
-import com.pxene.pap.domain.models.ImageModel;
-import com.pxene.pap.domain.models.ImageModelExample;
-import com.pxene.pap.domain.models.ImageTmplModel;
-import com.pxene.pap.domain.models.InfoflowMaterialModel;
-import com.pxene.pap.domain.models.InfoflowTmplModel;
-import com.pxene.pap.domain.models.VideoMaterialModel;
-import com.pxene.pap.domain.models.VideoModel;
-import com.pxene.pap.domain.models.VideoModelExample;
-import com.pxene.pap.domain.models.VideoTmplModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.exception.ThirdPartyAuditException;
-import com.pxene.pap.repository.basic.AdxDao;
-import com.pxene.pap.repository.basic.AppDao;
-import com.pxene.pap.repository.basic.AppTmplDao;
-import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.CreativeAuditDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.ImageDao;
-import com.pxene.pap.repository.basic.ImageMaterialDao;
-import com.pxene.pap.repository.basic.ImageTmplDao;
-import com.pxene.pap.repository.basic.InfoflowMaterialDao;
-import com.pxene.pap.repository.basic.InfoflowTmplDao;
-import com.pxene.pap.repository.basic.VideoDao;
-import com.pxene.pap.repository.basic.VideoMaterialDao;
-import com.pxene.pap.repository.basic.VideoTmplDao;
 
 @Service
 public class CreativeService extends BaseService {
@@ -188,7 +157,11 @@ public class CreativeService extends BaseService {
 	
 	@Autowired
 	private TmplService tmplService;
-	
+
+	@Autowired
+	private AdxCostDao adxCostDao;
+
+
 	/**
 	 * 创建创意
 	 * @param bean
@@ -642,6 +615,7 @@ public class CreativeService extends BaseService {
 									image.setClickCost(dataBean.getClickCost());
 									image.setClickRate(dataBean.getClickRate());
 									image.setJumpCost(dataBean.getJumpCost());
+									image.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 								}
 							}
 							result.add(image);
@@ -685,6 +659,7 @@ public class CreativeService extends BaseService {
 								video.setClickCost(dataBean.getClickCost());
 								video.setClickRate(dataBean.getClickRate());
 								video.setJumpCost(dataBean.getJumpCost());
+								video.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 							}
 						}
 						result.add(video);
@@ -753,6 +728,7 @@ public class CreativeService extends BaseService {
 								info.setClickCost(dataBean.getClickCost());
 								info.setClickRate(dataBean.getClickRate());
 								info.setJumpCost(dataBean.getJumpCost());
+								info.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 							}
 						}
 						result.add(info);
@@ -863,6 +839,8 @@ public class CreativeService extends BaseService {
 							base.setClickCost(dataBean.getClickCost());
 							base.setClickRate(dataBean.getClickRate());
 							base.setJumpCost(dataBean.getJumpCost());
+							//修正成本
+							base.setAdxCost(dataBean.getAdxCost());
 						}
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
@@ -937,6 +915,7 @@ public class CreativeService extends BaseService {
 						image.setClickCost(dataBean.getClickCost());               //点击成本
 						image.setClickRate(dataBean.getClickRate());               //点击率
 						image.setJumpCost(dataBean.getJumpCost());                 //二跳成本
+						image.setAdxCost(dataBean.getAdxCost());		//修正成本
 					}
 				}
 				bean = image;
@@ -980,6 +959,7 @@ public class CreativeService extends BaseService {
 						video.setClickCost(dataBean.getClickCost());                  //点击成本
 						video.setClickRate(dataBean.getClickRate());                  //点击率
 						video.setJumpCost(dataBean.getJumpCost());                    //二跳成本
+						video.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 					}
 				}
 				bean = video;
@@ -1048,6 +1028,7 @@ public class CreativeService extends BaseService {
 						info.setClickCost(dataBean.getClickCost());                   //点击成本
 						info.setClickRate(dataBean.getClickRate());                   //点击率
 						info.setJumpCost(dataBean.getJumpCost());                     //二跳成本
+						info.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 					}
 				}
 				bean = info;
@@ -1072,6 +1053,7 @@ public class CreativeService extends BaseService {
 					base.setClickCost(dataBean.getClickCost());                      //点击成本
 					base.setClickRate(dataBean.getClickRate());                      //点击率
 					base.setJumpCost(dataBean.getJumpCost());                        //二跳成本
+					base.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 				}
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId()));                //创意的审核状态
@@ -1401,6 +1383,7 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	private void getDatafromDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		for (String creativeId : creativeIds) {
 			Map<String, String> map = redisHelper3.hget("creativeDataDay_" + creativeId);//获取map集合
 			Set<String> hkeys = redisHelper3.hkeys("creativeDataDay_" + creativeId);//获取所有key
@@ -1422,6 +1405,27 @@ public class CreativeService extends BaseService {
 								    float totalCost = bean.getTotalCost() + (Float.parseFloat(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
 									bean.setTotalCost(totalCost);
 								}
+							}
+						}else if(hkey.indexOf(day + "_adx_") > -1){
+							String value = map.get(hkey);
+							//判断值是否存在
+							if (!StringUtils.isEmpty(value)) {
+								String[] temp = hkey.split(day+"_adx_");
+								if(temp.length==2){
+									String[] arry2 = temp[1].split("@");
+									if(arry2.length ==2 && arry2[1].equals("e")){
+										Date date =sdf.parse(day);
+										AdxCostModelExample adxCostModelExample = new AdxCostModelExample();
+										adxCostModelExample.createCriteria().andAdxIdEqualTo(arry2[0]).andStartDateLessThan(date).andEndDateGreaterThan(date);
+										List<AdxCostModel> adxCostModels = adxCostDao.selectByExample(adxCostModelExample);
+										if(adxCostModels!=null && adxCostModels.size()>0){
+											float ratio = adxCostModels.get(0).getRatio();
+											float adxCost = bean.getAdxCost()+(Float.parseFloat(value)* ratio / 100);
+											bean.setAdxCost(adxCost);
+										}
+									}
+								}
+
 							}
 						}
 					}
@@ -2109,4 +2113,5 @@ public class CreativeService extends BaseService {
 		}
 		return videoIds;
 	}
+
 }
