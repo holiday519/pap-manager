@@ -12,6 +12,7 @@ public class RuleFormulasBean {
 	/**
 	 * 规则id
 	 */
+	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
 	/**
 	 * 规则名称
@@ -80,6 +81,7 @@ public class RuleFormulasBean {
 		/**
 		 * 公式id
 		 */
+		@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 		private String id;
 		/**
 		 * 公式名称
