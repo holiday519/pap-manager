@@ -29,11 +29,38 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectBean.EffectField;
+import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas;
+import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas.Statics;
+import com.pxene.pap.domain.beans.RuleFormulasBean.Static;
+import com.pxene.pap.domain.beans.RuleFormulasBean;
+import com.pxene.pap.domain.models.AdvertiserModel;
+import com.pxene.pap.domain.models.CampaignModel;
+import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.EffectDicModel;
+import com.pxene.pap.domain.models.EffectDicModelExample;
+import com.pxene.pap.domain.models.FormulaModel;
+import com.pxene.pap.domain.models.FormulaModelExample;
+import com.pxene.pap.domain.models.IndustryModel;
+import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.ProjectModelExample;
+import com.pxene.pap.domain.models.QuantityModel;
+import com.pxene.pap.domain.models.QuantityModelExample;
+import com.pxene.pap.domain.models.RuleModel;
+import com.pxene.pap.domain.models.RuleModelExample;
+import com.pxene.pap.domain.models.StaticModel;
+import com.pxene.pap.domain.models.StaticModelExample;
+import com.pxene.pap.domain.models.FormulaModel;
+import com.pxene.pap.domain.models.FormulaModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
+import com.pxene.pap.repository.basic.RuleDao;
+import com.pxene.pap.repository.basic.StaticDao;
+import com.pxene.pap.repository.basic.FormulaDao;
 
 import redis.clients.jedis.Jedis;
 
@@ -76,7 +103,7 @@ public class ProjectService extends BaseService {
 	private LaunchService launchService;
 
 	@Autowired
-    private RedisHelper redisHelper;
+    private RedisHelper redisHelper;	
 
     private String excelSavePath;
 
@@ -853,7 +880,256 @@ public class ProjectService extends BaseService {
 
 		return res;
 	}
+	
+	/**
+	 * 创建规则
+	 * @param bean 规则+公式
+	 * @throws Exception
+	 */
+	@Transactional
+	public void createRule(RuleFormulasBean bean) throws Exception {
+		// 验证规则名称是否存在
+		RuleModelExample ruleEx = new RuleModelExample();
+		ruleEx.createCriteria().andNameEqualTo(bean.getName());
+		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
+		if (rules != null && !rules.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
+		// 判断静态值是否为空
+		String staticId = bean.getStaticId();
+		isHaveStatics(staticId);
+		// 判断项目是否存在
+		isHaveProject(bean.getProjectId());
 
+		// 插入规则
+		RuleModel rule = modelMapper.map(bean, RuleModel.class);
+		String ruleId = UUIDGenerator.getUUID();
+		rule.setId(ruleId);
+		rule.setStaticId(staticId);
+		ruleDao.insertSelective(rule);
+		// 添加公式
+		addFormula(bean,ruleId);
+		
+		// 复制置设好的属性回请求对象中
+        BeanUtils.copyProperties(rule, bean);
+	}
+	
+	/**
+	 * 添加公式
+	 * @param ruleID 规则id
+	 * @throws Exception
+	 */
+	private void addFormula(RuleFormulasBean bean,String ruleId) throws Exception {
+		// 公式
+		Formulas[] formulas = bean.getFormulas();
+		// 添加公式
+		if (formulas != null && formulas.length > 0) {
+			for (Formulas formulaBean : formulas) {
+				// 验证规则名称是否存在
+				FormulaModelExample FormulaEx = new FormulaModelExample();
+				FormulaEx.createCriteria().andNameEqualTo(formulaBean.getName());
+				List<FormulaModel> formulaList = formulaDao.selectByExample(FormulaEx);
+				if (formulaList != null && !formulaList.isEmpty()) {
+					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+				}
+				// 判断静态值是否为空
+				String staticId = formulaBean.getStaticId();
+				isHaveStatics(staticId);
+				
+				FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
+				formulaModel.setId(UUIDGenerator.getUUID());
+				formulaModel.setRuleId(ruleId);
+				formulaModel.setStaticId(staticId);
+				formulaDao.insertSelective(formulaModel);
+			}
+		}		
+	}
+	
+	/**
+	 * 根据ID查询规则
+	 * @param id 规则ID
+	 * @return 
+	 * @throws Exception
+	 */
+	@Transactional
+	public RuleFormulasBean getRule(String id) throws Exception {
+		// 查询规则表中查询规则相关信息
+		RuleModel rule = ruleDao.selectByPrimaryKey(id);
+		if (rule == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		RuleFormulasBean ruleFormulasBean = modelMapper.map(rule, RuleFormulasBean.class);
+		// 查询静态值信息
+		StaticModel staticModel = staticDao.selectByPrimaryKey(rule.getStaticId());
+		Static statics = null;
+		if (staticModel != null) {
+			statics = new Static();
+			statics.setId(staticModel.getId());
+			statics.setName(staticModel.getName());
+			statics.setValue(staticModel.getValue());
+		}
+		ruleFormulasBean.setStatics(statics);
+		// 从公式表中查询规则对应的公式信息，并放到结果中
+		listFormulas(ruleFormulasBean);
+		return ruleFormulasBean ;		
+	}
+	
+	/**
+	 * 查询规则对应的公式
+	 * @param ruleFormulasBean
+	 * @throws Exception
+	 */
+	private void listFormulas(RuleFormulasBean ruleFormulasBean) throws Exception {
+		// 根据规则id查询公式
+		String ruleId = ruleFormulasBean.getId();
+		FormulaModelExample formulasEx = new FormulaModelExample();
+		formulasEx.createCriteria().andRuleIdEqualTo(ruleId);
+		List<FormulaModel> formulasModel = formulaDao.selectByExample(formulasEx);
+		// 返回公式数组
+		if (formulasModel != null && !formulasModel.isEmpty()) {
+			int size = formulasModel.size();
+			Formulas[] formulas = new Formulas[size];
+			for (int i=0; i<size; i++) {
+				// 每条公式信息
+				FormulaModel formulaModel = formulasModel.get(i);
+				// 根据静态值id获取静态值相关信息
+				String staticId = formulaModel.getStaticId();
+				StaticModel staticModel = staticDao.selectByPrimaryKey(staticId);
+				Statics statics = null;
+				if (staticModel != null) {
+					statics = new Statics();
+					statics.setId(staticModel.getId());
+					statics.setName(staticModel.getName());
+					statics.setValue(staticModel.getValue());
+				}				
+				// 将每条公式信息放到数组中
+				Formulas formula = new Formulas();
+				formula.setId(formulaModel.getId());
+				formula.setName(formulaModel.getName());
+				formula.setFormula(formulaModel.getFormula());
+				formula.setForwardVernier(formulaModel.getForwardVernier());
+				formula.setNegativeVernier(formulaModel.getNegativeVernier());
+				formula.setRuleId(formulaModel.getRuleId());
+				formula.setWeight(formulaModel.getWeight());
+				formula.setStatics(statics);
+				formulas[i] = formula;
+			}
+			// 将结果放到bean中
+			ruleFormulasBean.setFormulas(formulas);			
+		}
+	}
+	
+	/**
+	 * 批量删除规则
+	 * @param ids 要删除的规则id
+	 * @throws Exception
+	 */
+	@Transactional
+	public void deleteRules(String[] ids) throws Exception {
+		if (ids.length == 0) {
+			throw new IllegalArgumentException();
+		}
+		
+		// 判断规则是否存在
+		RuleModelExample rulesEx = new RuleModelExample();
+		rulesEx.createCriteria().andIdIn(Arrays.asList(ids));
+		List<RuleModel> rules = ruleDao.selectByExample(rulesEx);
+		if (rules == null || rules.isEmpty() || rules.size() < ids.length) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		
+		//删除规则下的公式，一条规则可对应多个公式
+		for (RuleModel rule : rules) {
+			// 删除每个规则下的公式
+			deleteFormula(rule.getId());
+		}
+		
+		// 删除规则
+		ruleDao.deleteByExample(rulesEx);
+	}
+	
+	/**
+	 * 编辑规则
+	 * @param id 规则id
+	 * @param bean 规则及其对应的公式信息
+	 * @throws Exception
+	 */
+	@Transactional
+	public void updateRule(String id, RuleFormulasBean bean) throws Exception {
+		// 判断规则是否存在
+		RuleModel rule = ruleDao.selectByPrimaryKey(id);
+		if (rule == null) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		} else {
+			// 判断规则名称是否重复
+			String nameInDB = rule.getName();  // 数据库中的规则名称
+			String name = bean.getName();      // 欲修改规则名称
+			if (!nameInDB.equals(name)) {
+				RuleModelExample ruleEx = new RuleModelExample();
+				ruleEx.createCriteria().andNameEqualTo(name);
+				// 如果数据库中其它规则的名称与欲修改成的规则名称重复，则禁止修改
+				List<RuleModel> ruleList = ruleDao.selectByExample(ruleEx);
+				if (ruleList != null && !ruleList.isEmpty()) {
+					 throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+				}
+			}			
+		}		
+		// 判断项目是否存在
+		isHaveProject(bean.getProjectId());
+		// 判断静态值是否存在
+		isHaveStatics(bean.getStaticId());
+		
+		bean.setId(id);
+		RuleModel ruleModel = modelMapper.map(bean, RuleModel.class);
+		
+		// 删除公式
+		deleteFormula(id);
+		// 添加公式
+		addFormula(bean,id);
+		
+		// 更新规则
+		ruleDao.updateByPrimaryKeySelective(ruleModel);
+	}
+	
+	/**
+	 * 判断项目是否存在
+	 * @param projectId 项目id
+	 * @throws Exception
+	 */
+	public void isHaveProject(String projectId) throws Exception {
+		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		if (project == null) {
+			throw new IllegalArgumentException(PhrasesConstant.PROJECT_INFO_IS_NULL);
+		}
+	}
+	
+	/**
+	 * 判断静态值是否存在
+	 * @param staticId 静态值id
+	 * @throws Exception
+	 */
+	public void isHaveStatics(String staticId) throws Exception {
+		StaticModel statics = staticDao.selectByPrimaryKey(staticId);
+		if (statics == null) {
+			throw new IllegalArgumentException(PhrasesConstant.STATICS_INFO_IS_NULL);				
+		}
+	}
+	
+	/**
+	 * 根据规则id删除公式
+	 * @param ruleId 规则id
+	 * @throws Exception
+	 */
+	public void deleteFormula(String ruleId) throws Exception {
+		// 查询规则下的公式
+		FormulaModelExample formulaEx = new FormulaModelExample();
+		formulaEx.createCriteria().andRuleIdEqualTo(ruleId);
+		List<FormulaModel> formulas = formulaDao.selectByExample(formulaEx);
+		// 删除公式
+		if (formulas != null && !formulas.isEmpty()) {
+			formulaDao.deleteByExample(formulaEx);
+		}
+	}
 	/**
 	 * 创建静态值
 	 * @param bean

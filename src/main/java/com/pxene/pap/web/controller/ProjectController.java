@@ -23,6 +23,7 @@ import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
+import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.service.ProjectService;
 
 @Controller
@@ -234,4 +235,58 @@ public class ProjectController {
 		projectService.deleteStatics(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
+	/**
+	 * 创建规则
+	 * @param bean 规则和公式  
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/project/rule",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String createRule (@Valid @RequestBody RuleFormulasBean bean, HttpServletResponse response) throws Exception {
+		projectService.createRule(bean);
+		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
+	}
+	
+	/**
+	 * 批量删除规则  
+	 * @param ids 要删除的规则id
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/project/rules",method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteRules(@RequestParam(required = true)String ids, HttpServletResponse response) throws Exception {
+		projectService.deleteRules(ids.split(","));
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}
+	
+	/**
+	 * 根据ID查询规则
+	 * @param id 规则ID
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/project/rule/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String getRule(@PathVariable String id, HttpServletResponse response) throws Exception {
+		RuleFormulasBean ruleFormulasBean = projectService.getRule(id);
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), ruleFormulasBean, response);
+	}
+	
+	/**
+	 * 编辑规则
+	 * @param id 规则id
+	 * @param bean 规则及其对应的公式
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/project/rule/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody  
+	public void updateRule(@PathVariable String id, @Valid @RequestBody RuleFormulasBean bean, HttpServletResponse response) throws Exception {
+		projectService.updateRule(id,bean);
+		response.setStatus(HttpStatus.NO_CONTENT.value());
+	}	
 }
