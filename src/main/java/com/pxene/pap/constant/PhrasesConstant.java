@@ -30,6 +30,8 @@ public class PhrasesConstant
 	public static final String PROJECT_BUDGET_UNDER_CAMPAIGN = "项目预算不能小于项目下活动日预算";
 	public static final String EFFECT_CODE_NOT_FOUND = "转化字段编号不存在";
 	public static final String AVAILABLE_ADX_NOT_FOUND = "该客户下没有可用的adx";
+	public static final String PROJECT_INFO_IS_NULL = "项目信息为空";
+	public static final String STATICS_INFO_IS_NULL = "静态值信息为空";
 	// 活动
 	public static final String CAMPAIGN_DATE_ERROR = "活动周期设置有误";
 	public static final String CAMPAIGN_DAILY_BUDGET_OVER_PROJECT = "项目下活动日预算不能大于项目预算";
@@ -71,7 +73,6 @@ public class PhrasesConstant
 //	public static final String PROJECT_TOTAL_BUDGET_SMALL_CAMPAIGN = "项目预算不能小于项目下活动预算总和！";
 //	public static final String CAMPAIGN_DAILY_BUDGET_BIGGER_TOTAL = "活动日预算不能大于活动总预算！";
 	public static final String CREATIVE_AUDIT_NULL = "创意审核出现异常";
-	public static final String PROJECT_ID_NULL = "项目不能为空！";
 	
 	
 	
