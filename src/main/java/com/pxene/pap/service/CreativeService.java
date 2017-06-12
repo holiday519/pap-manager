@@ -25,13 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
@@ -42,11 +41,29 @@ import com.pxene.pap.domain.beans.InfoflowCreativeBean;
 import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
+import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.AppTmplModel;
+import com.pxene.pap.domain.models.AppTmplModelExample;
+import com.pxene.pap.domain.models.CampaignModel;
+import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeAuditModel;
+import com.pxene.pap.domain.models.CreativeAuditModelExample;
+import com.pxene.pap.domain.models.CreativeModel;
+import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.ImageMaterialModel;
+import com.pxene.pap.domain.models.ImageModel;
+import com.pxene.pap.domain.models.ImageModelExample;
+import com.pxene.pap.domain.models.ImageTmplModel;
+import com.pxene.pap.domain.models.InfoflowMaterialModel;
+import com.pxene.pap.domain.models.InfoflowTmplModel;
+import com.pxene.pap.domain.models.VideoMaterialModel;
+import com.pxene.pap.domain.models.VideoModel;
+import com.pxene.pap.domain.models.VideoModelExample;
+import com.pxene.pap.domain.models.VideoTmplModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
-import com.pxene.pap.exception.ThirdPartyAuditException;
 
 @Service
 public class CreativeService extends BaseService {
@@ -179,7 +196,7 @@ public class CreativeService extends BaseService {
 		String type = bean.getType();
 		CreativeModel creativeModel = null;
 		// 图片
-		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageCreativeBean iBean = (ImageCreativeBean)bean;
 			iBean.setId(UUIDGenerator.getUUID());
 			String materialId = UUIDGenerator.getUUID();
@@ -190,7 +207,7 @@ public class CreativeService extends BaseService {
 			imageMaterialDao.insert(imageMaterialModel);
 		}
 		// 视频
-		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoCreativeBean vBean = (VideoCreativeBean)bean;
 			vBean.setId(UUIDGenerator.getUUID());
 			String materialId = UUIDGenerator.getUUID();
@@ -201,7 +218,7 @@ public class CreativeService extends BaseService {
 			videoMaterialDao.insert(videoMaterialModel);
 		}
 		// 信息流
-		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			InfoflowCreativeBean ifBean = (InfoflowCreativeBean)bean;
 			ifBean.setId(UUIDGenerator.getUUID());
 			String materialId = UUIDGenerator.getUUID();
@@ -580,7 +597,7 @@ public class CreativeService extends BaseService {
 //				String appId = getAppId(creative.getTmplId());
 //				String appName = getAppName(appId);
 				Map<String, String> appInfo = getAppInfo(creative);
-				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 					if (imageMaterialModel != null) {
 						ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
@@ -621,7 +638,7 @@ public class CreativeService extends BaseService {
 							result.add(image);
 						}
 					}
-				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+				} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 					if (videoMaterialModel == null ) {
 						throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
@@ -664,7 +681,7 @@ public class CreativeService extends BaseService {
 						}
 						result.add(video);
 					}
-				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
+				} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 					InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
 					// 查询信息流模板信息
 					InfoflowTmplModel InfoflowTmpl = infoflowTmplDao.selectByPrimaryKey(creative.getTmplId());
@@ -746,7 +763,7 @@ public class CreativeService extends BaseService {
 					base.setStartDate(campaignStartDate);
 					base.setEndDate(campaignEndDate);
 					
-					if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
+					if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 						ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 						if (imageMaterialModel != null) {
 							ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
@@ -756,7 +773,7 @@ public class CreativeService extends BaseService {
 								materialPaths[0] = path;
 							}
 						}
-					} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
+					} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
 						VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 						if (videoMaterialModel != null) {
 							materialPaths = new String[2];
@@ -774,7 +791,7 @@ public class CreativeService extends BaseService {
 								}
 							}
 						}
-					} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
+					} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
 						InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
 						List<String> imgList = new ArrayList<String>();
 						String iconId = infoflowModel.getIconId();
@@ -875,7 +892,7 @@ public class CreativeService extends BaseService {
 		Map<String, String> appInfo = getAppInfo(creative);
 		String appId = appInfo.get("appIds");
 		String appName = appInfo.get("appNames");
-		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			//如果创意类型是图片
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 			// FIXME : imageMaterialModel是否为空  --- OK 
@@ -920,7 +937,7 @@ public class CreativeService extends BaseService {
 				}
 				bean = image;
 			}
-		} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+		} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果创意类型是视频
 			VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 			if (videoMaterialModel == null ) {
@@ -964,7 +981,7 @@ public class CreativeService extends BaseService {
 				}
 				bean = video;
 			}
-		} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
+		} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			// 如果创意类型是信息流
 			// 查询信息流素材信息
 			InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creative.getMaterialId());
@@ -1643,7 +1660,7 @@ public class CreativeService extends BaseService {
 		String type = creativeModel.getType(); //创意类型
 		String materialId = creativeModel.getMaterialId(); //素材ID
 		// 图片   
-		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageMaterialModel imageMeterial = imageMaterialDao.selectByPrimaryKey(materialId);
 			if (imageMeterial == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);			
@@ -1656,7 +1673,7 @@ public class CreativeService extends BaseService {
 			launchService.writeImgCreativeInfo(creativeModel);
 		}
 		// 视频 
-		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			VideoMaterialModel videoMaterial = videoMaterialDao.selectByPrimaryKey(materialId);
 			if (videoMaterial == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
@@ -1669,7 +1686,7 @@ public class CreativeService extends BaseService {
 			launchService.writeVideoCreativeInfo(creativeModel);
 		}
 		// 信息流
-		if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) { 
+		if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) { 
 			// 查询信息流信息
 			InfoflowMaterialModel infoflowMaterial = infoMaterialDao.selectByPrimaryKey(materialId);
 			if (infoflowMaterial == null) {
@@ -1905,7 +1922,7 @@ public class CreativeService extends BaseService {
 		List<String> formatList = Arrays.asList(formats);			
 		
 		// 1.满足宽、高、规格要求的图片/视频集合
-		if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果是视频，查询视频素材
 			videoEx = new VideoModelExample();
 			videoEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
@@ -1922,7 +1939,7 @@ public class CreativeService extends BaseService {
 		// 2.判读项目id/活动id是否为空
 		Set<String> materialIds = new HashSet<String>();
 		if (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(campaignId)) {
-			if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+			if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 				MediaBean mediaBean = null;
 				if (videos != null && !videos.isEmpty()) {
 					// 如果视频素材不为空
@@ -1954,7 +1971,7 @@ public class CreativeService extends BaseService {
 				List<CampaignModel> campaigns = campaignDao.selectByExample(campaginEx);
 				if (campaigns != null && !campaigns.isEmpty()) {
 					for (CampaignModel campaign : campaigns) {
-						if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+						if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 							Set<String> setMaterialIds = listVideoIdByCampaign(campaign.getId());
 							if (setMaterialIds != null && !setMaterialIds.isEmpty()) {
 								for (String materialId : setMaterialIds) {
@@ -1973,7 +1990,7 @@ public class CreativeService extends BaseService {
 				}
 				
 			} else if (!StringUtils.isEmpty(campaignId)) {
-				if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+				if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					// 如果项目id不为空，活动id不为，根据活动id查询使用过的素材
 					 materialIds = listVideoIdByCampaign(campaignId);
 				} else {
@@ -1982,7 +1999,7 @@ public class CreativeService extends BaseService {
 				}
 			} 
 			// 4.当项目id/活动id不为空时根据类型取交集返回结果
-			if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+			if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 				// 如果是视频
 				MediaBean mediaBean = null;
 				if (videos != null && !videos.isEmpty()) {
@@ -2032,7 +2049,7 @@ public class CreativeService extends BaseService {
 				// 查询创意使用的素材
 				String materialId = creative.getMaterialId();
 				String type = creative.getType();
-				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
+				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					// 图片
 					ImageMaterialModel imageMaterial = imageMaterialDao.selectByPrimaryKey(materialId);
 					// 图片素材的id
@@ -2041,7 +2058,7 @@ public class CreativeService extends BaseService {
 					if (imageId != null && !imageId.isEmpty()) {
 						imageIds.add(imageId);
 					}					
-				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+				} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					// 视频
 					VideoMaterialModel videoMaterial = videoMaterialDao.selectByPrimaryKey(materialId);
 					// 视频素材的id				
@@ -2099,7 +2116,7 @@ public class CreativeService extends BaseService {
 				// 查询创意使用的素材
 				String materialId = creative.getMaterialId();
 				String type = creative.getType();
-				if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+				if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					// 视频
 					VideoMaterialModel videoMaterial = videoMaterialDao.selectByPrimaryKey(materialId);
 					// 视频素材的id				
