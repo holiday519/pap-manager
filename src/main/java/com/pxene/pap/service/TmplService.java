@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
@@ -90,7 +91,7 @@ public class TmplService extends BaseService {
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
 		
-		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_IMAGE);
+		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_IMAGE);
 		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
 		
 		if (appTmpls != null && !appTmpls.isEmpty()) {
@@ -162,7 +163,7 @@ public class TmplService extends BaseService {
 		List<VideoTmpl> videpTmplListAll = new ArrayList<VideoTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
-		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_VIDEO);
+		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_VIDEO);
 		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
 		
 		if (appTmpls != null && !appTmpls.isEmpty()) {
@@ -250,7 +251,7 @@ public class TmplService extends BaseService {
 		List<InfoflowTmpl> infoTmplListAll = new ArrayList<InfoflowTmpl>();
 		// 查询app的模版
 		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
-		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(StatusConstant.CREATIVE_TYPE_INFOFLOW);
+		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_INFOFLOW);
 		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
 		if (appTmpls != null && !appTmpls.isEmpty()) {
 			Map<String, InfoflowTmpl> tmplMap = new HashMap<String, InfoflowTmpl>();

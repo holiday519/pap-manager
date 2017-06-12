@@ -2,7 +2,6 @@ package com.pxene.pap.service;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,6 +30,7 @@ import com.pxene.pap.common.HttpClientUtil;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
+import com.pxene.pap.constant.ConfKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
@@ -93,13 +93,15 @@ public class AutohomeAuditService extends AuditService
 	public AutohomeAuditService(Environment env) 
 	{
 		super(env);
-		
-        String uploadMode = env.getProperty("pap.fileserver.mode");
-        String urlPrefixTemplate = "pap.fileserver.{0}.url.prefix";
-        urlPrefix = env.getProperty(MessageFormat.format(urlPrefixTemplate, uploadMode));
+        String uploadMode = env.getProperty(ConfKeyConstant.FILESERVER_MODE);
+        if ("local".equals(uploadMode)) {
+        	urlPrefix = env.getProperty(ConfKeyConstant.FILESERVER_LOCAL_URL_PREFIX);
+        } else {
+        	urlPrefix = env.getProperty(ConfKeyConstant.FILESERVER_REMOTE_URL_PREFIX);
+        }
         
-        clkURLPrefix = env.getProperty("pap.click.url.prefix");
-        impURLPrefix = env.getProperty("pap.impression.url.prefix");
+        clkURLPrefix = env.getProperty(ConfKeyConstant.CLICK_URL_PREFIX);
+        impURLPrefix = env.getProperty(ConfKeyConstant.IMPRESSION_URL_PREFIX);
 	}
 	
 
@@ -112,7 +114,6 @@ public class AutohomeAuditService extends AuditService
     {
         // 查询广告主审核信息
         AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
-        
         if (advertiserAudit != null)
         {
             // 如果广告主审核信息不为空，则修改广告审核的状态：审核中
@@ -160,15 +161,15 @@ public class AutohomeAuditService extends AuditService
         // 判断创意是否存在
         if (creativeModel == null)
         {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException(PhrasesConstant.CREATIVE_NOT_FOUND);
         }
         
         // 获得创意所属的活动ID，检查活动是否存在
-        String campaignId = creativeModel.getCampaignId();
-        if (StringUtils.isEmpty(campaignId))
-        {
-            throw new ResourceNotFoundException();
-        }
+//        String campaignId = creativeModel.getCampaignId();
+//        if (StringUtils.isEmpty(campaignId))
+//        {
+//            throw new ResourceNotFoundException();
+//        }
         
         // 汽车之家的ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
@@ -189,7 +190,7 @@ public class AutohomeAuditService extends AuditService
         Integer advertiserIdObj = getAdvertiserIDInDSP(advertiserModel.getId());   
         if (advertiserIdObj == null)
         {
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
         }
         
         int advertiserId = advertiserIdObj;                                 // DSP端的广告主ID
@@ -298,7 +299,7 @@ public class AutohomeAuditService extends AuditService
         }
         else
         {
-            throw new UnsupportedOperationException();
+            throw new IllegalArgumentException();
         }
         
         // 拼接成点击地址（302跳转）

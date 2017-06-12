@@ -25,4 +25,8 @@ public class ConfKeyConstant {
 	public static final String EXCEL_DOWNLOAD_MAPURL = "pap.excel.download.mapUrl";
 	
 	public static final String EXCEL_SAVEPATH = "pap.excel.savePath";
+	
+	public static final String CLICK_URL_PREFIX = "pap.click.url.prefix";
+	
+	public static final String IMPRESSION_URL_PREFIX = "pap.impression.url.prefix";
 }

@@ -22,9 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
-import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
-import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.beans.ImageCreativeBean;
 import com.pxene.pap.domain.beans.InfoflowCreativeBean;
 import com.pxene.pap.domain.beans.MediaBean;
@@ -48,7 +47,7 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/image", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createImageCreative(@Valid @RequestBody ImageCreativeBean bean, HttpServletResponse response) throws Exception {
-		bean.setType(StatusConstant.CREATIVE_TYPE_IMAGE);
+		bean.setType(CodeTableConstant.CREATIVE_TYPE_IMAGE);
 		creativeService.createCreative(bean);
 		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
@@ -63,7 +62,7 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/video", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createVideoCreative(@Valid @RequestBody VideoCreativeBean bean, HttpServletResponse response) throws Exception {
-		bean.setType(StatusConstant.CREATIVE_TYPE_VIDEO);
+		bean.setType(CodeTableConstant.CREATIVE_TYPE_VIDEO);
 		creativeService.createCreative(bean);
 		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
@@ -78,7 +77,7 @@ public class CreativeController {
 	@RequestMapping(value = "/creative/infoflow", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String createInfoflowCreative(@Valid @RequestBody InfoflowCreativeBean bean, HttpServletResponse response) throws Exception {
-		bean.setType(StatusConstant.CREATIVE_TYPE_INFOFLOW);
+		bean.setType(CodeTableConstant.CREATIVE_TYPE_INFOFLOW);
 		creativeService.createCreative(bean);
 		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}

@@ -55,46 +55,6 @@ public class StatusConstant {
 	 */
 	public static final String CREATIVE_AUDIT_EXPITY = "05";
 	/**
-	 * 创意类型 ： 图片
-	 */
-	public static final String CREATIVE_TYPE_IMAGE = "01";
-	/**
-	 * 创意类型 ： 视频
-	 */
-	public static final String CREATIVE_TYPE_VIDEO = "02";
-	/**
-	 * 创意类型 ： 信息流
-	 */
-	public static final String CREATIVE_TYPE_INFOFLOW = "03";
-	/**
-	 * 规则状态：使用中
-	 */
-	public static final String CAMPAIGN_RULE_STATUS_USED = "01";
-	/**
-	 * 规则状态：停用
-	 */
-	public static final String CAMPAIGN_RULE_STATUS_UNUSED = "02";
-	/**
-	 * 活动规则类型：创意规则
-	 */
-	public static final String CAMPAIGN_RULE_TYPE_CREATIVE = "01";
-	/**
-	 * 活动规则类型：落地页规则
-	 */
-	public static final String CAMPAIGN_RULE_TYPE_LANDPAGE = "02";
-	/**
-	 * 活动规则类型：APP规则
-	 */
-	public static final String CAMPAIGN_RULE_TYPE_APP = "03";
-	/**
-	 * 活动规则类型：地域规则
-	 */
-	public static final String CAMPAIGN_RULE_TYPE_REGION = "04";
-	/**
-	 * 活动规则类型：时间规则
-	 */
-	public static final String CAMPAIGN_RULE_TYPE_TIME = "05";
-	/**
 	 * 落地页代码检查状态：未检查
 	 */
 	public static final String LANDPAGE_CHECK_NOTCHECK = "01";
@@ -123,16 +83,6 @@ public class StatusConstant {
 	 * 转义字段状态：禁用
 	 */
 	public static final String EFFECT_STATUS_DISABLE = "02";  
-
-	/**
-	 * 汇总方式：合计
-     */
-	public static final String SUMMARYWAY_TOTAL = "01";
-	/**
-	 * 汇总方式：分日
-     */
-	public static final String SUMMARYWAY_DAY = "02";
-
 	/**
 	 * 活动未正常投放原因：项目预算达到上限
 	 */
@@ -153,7 +103,6 @@ public class StatusConstant {
 	 * 活动未正常投放原因：活动下无可投放创意
 	 */
 	public static final String CAMPAIGN_NOTHAVE_CREATIVE = "05";
-	
 	/**
 	 * 创意状态：启动
 	 */

@@ -33,6 +33,7 @@ public class PhrasesConstant
 	public static final String PROJECT_INFO_IS_NULL = "项目信息为空";
 	public static final String STATICS_INFO_IS_NULL = "静态值信息为空";
 	// 活动
+	public static final String CAMPAIGN_NOT_FOUND = "该活动不存在";
 	public static final String CAMPAIGN_DATE_ERROR = "活动周期设置有误";
 	public static final String CAMPAIGN_DAILY_BUDGET_OVER_PROJECT = "项目下活动日预算不能大于项目预算";
 	public static final String FREQUENCY_NOT_COMPLETE = "频次信息不全";

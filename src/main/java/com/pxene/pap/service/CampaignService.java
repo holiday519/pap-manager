@@ -202,13 +202,6 @@ public class CampaignService extends BaseService {
 	
 	private static JsonParser parser = new JsonParser();
 	
-//	private static final String REDIS_KEY_GROUPIDS = "dsp_groupids";
-//	
-//	private static final String REDIS_KEY_GROUPINFO = "dsp_groupid_info_";
-//	
-//	private static final String JSON_KEY_GROUPIDS = "groupids";
-	
-	
 	@PostConstruct
     public void selectRedis()
     {
@@ -225,9 +218,9 @@ public class CampaignService extends BaseService {
 	@Transactional
 	public void createCampaign(CampaignBean bean) throws Exception {
 		// 验证名称重复
-		CampaignModelExample campaignModelExample = new CampaignModelExample();
-		campaignModelExample.createCriteria().andNameEqualTo(bean.getName());
-		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
+		CampaignModelExample campaignExample = new CampaignModelExample();
+		campaignExample.createCriteria().andNameEqualTo(bean.getName());
+		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignExample);
 		if (campaignModels != null && !campaignModels.isEmpty()) {
 			throw new IllegalArgumentException(PhrasesConstant.NAME_NOT_REPEAT);
 		}

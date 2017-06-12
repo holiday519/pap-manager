@@ -20,6 +20,7 @@ import com.pxene.pap.common.HttpClientUtil;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserModel;
@@ -102,7 +103,7 @@ public class MomoAuditService extends AuditService {
 		JsonObject data = new JsonObject();
 		//判断创意类型是否符合
 		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId); //根据传来的创意id查询创意信息
-		if (!StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creative.getType())) {
+		if (!CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(creative.getType())) {
 			// 如果创意类型不符合则提示
 			throw new ThirdPartyAuditException(AuditErrorConstant.MOMO_CREATIVE_TYPE_NOT_SUPPORT);
 		}

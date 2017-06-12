@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.exception.IllegalArgumentException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +25,8 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.EffectFileBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.service.DataService;
+
+// REVIEW ME: 1.controller中不出现业务逻辑   2.中文常量化
 
 @Controller
 public class DataController
@@ -92,7 +94,7 @@ public class DataController
 	public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -109,7 +111,7 @@ public class DataController
 							   @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -129,7 +131,7 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -146,7 +148,7 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -183,7 +185,7 @@ public class DataController
 	public void exportAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -200,7 +202,7 @@ public class DataController
 							   @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -217,7 +219,7 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 
@@ -234,7 +236,7 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(StatusConstant.SUMMARYWAY_TOTAL) && !type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			throw new IllegalArgumentException("参数不正确");
 		}
 

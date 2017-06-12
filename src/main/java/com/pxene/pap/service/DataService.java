@@ -747,10 +747,10 @@ public class DataService extends BaseService {
 		Map<String,Object> otherValue = new HashMap<>();
 		otherValue.put("name",name);
 
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
 			List<Map<String,Object>> result = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 			results.addAll(result);
-		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 //			for (String day : days) {
 //				Date time = DateUtils.strToDate(day, "yyyyMMdd");
 //				Date smallHourOfDay = DateUtils.getSmallHourOfDay(time);
@@ -897,7 +897,7 @@ public class DataService extends BaseService {
 			}
 		}
 
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总方式
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总方式
 			//按代理人汇总
 			for(AdvertiserModel ad: advertiser_creative.keySet()) {
 				Map<String,Object> otherValue = new HashMap<>();
@@ -909,7 +909,7 @@ public class DataService extends BaseService {
 					results.addAll(result);
 				}
 			}
-		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			// 获取所有天
 			String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 			//按代理人,按天
@@ -979,10 +979,10 @@ public class DataService extends BaseService {
 		Map<String,Object> otherValue = new HashMap<>();
 		otherValue.put("name",name);
 
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
 			results = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 
-		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			results = getFlowData_Day(days,creativeIds,otherValue);
 		}
 
@@ -1102,10 +1102,10 @@ public class DataService extends BaseService {
 		String name = model.getName();
 		Map<String,Object> otherValue = new HashMap<>();
 		otherValue.put("name",name);
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
 			results = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 
-		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			results = getFlowData_Day(days,creativeIds,otherValue);
 		}
 
@@ -1248,10 +1248,10 @@ public class DataService extends BaseService {
 		String id = model.getId();
 		Map<String,Object> otherValue = new HashMap<>();
 		otherValue.put("id",id);
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
 			results = getFlowData_total(startDate,endDate,creativeIds,otherValue);
 
-		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			results = getFlowData_Day(days,creativeIds,otherValue);
 		}
 
@@ -1664,7 +1664,7 @@ public class DataService extends BaseService {
 	 * @throws UnsupportedEncodingException
      */
     public void exportDataToExcel(String type,List<Map<String, Object>> datas, String fileName, HttpServletResponse response) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, UnsupportedEncodingException {
-    	if(datas ==null){
+    	if(datas == null){
     		return ;
 		}
 
@@ -1672,7 +1672,8 @@ public class DataService extends BaseService {
 		String[] recoresColumns;
 		// 定义需要显示在Excel行中的实体Bean中的属性名称
 		String[] recoresFields;
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)) {//汇总
+		// REVIEW ME: 字符串操作尽量避免中文
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
 			if(fileName.startsWith("创意")) {
 				recoresColumns = new String[]{"ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
 				recoresFields = new String[]{"id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
@@ -1791,11 +1792,11 @@ public class DataService extends BaseService {
      */
 	@Transactional
 	public String renameDatasExcel(String type, Long startDate, Long endDate){
-
+		// REVIEW　ME: 导出文件名中尽量避免出现中文
 		String typeName ="";
-		if(type.equals(StatusConstant.SUMMARYWAY_TOTAL)){
+		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)){
 			typeName="汇总";
-		}else if(type.equals(StatusConstant.SUMMARYWAY_DAY)){
+		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
 			typeName="分日";
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

@@ -562,13 +562,13 @@ public class LaunchService extends BaseService {
 			for (CreativeModel creative : creatives) {
 				String creativeType = creative.getType();
 				// 图片创意
-				if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
+				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 					writeImgCreativeInfo(creative);
 				// 视频创意
-				} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
+				} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
 					writeVideoCreativeInfo(creative);
 				// 信息流创意
-				} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
+				} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
 					writeInfoflowCreativeInfo(creative);
 				}
 			}

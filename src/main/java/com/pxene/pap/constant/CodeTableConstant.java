@@ -64,4 +64,24 @@ public class CodeTableConstant {
 	public static final String POPULATION_WHITE_LIST = "01";
 	
 	public static final String POPULATION_BLACK_LIST = "02";
+	/**
+	 * 创意类型 ： 图片
+	 */
+	public static final String CREATIVE_TYPE_IMAGE = "01";
+	/**
+	 * 创意类型 ： 视频
+	 */
+	public static final String CREATIVE_TYPE_VIDEO = "02";
+	/**
+	 * 创意类型 ： 信息流
+	 */
+	public static final String CREATIVE_TYPE_INFOFLOW = "03";
+	/**
+	 * 汇总方式：合计
+     */
+	public static final String SUMMARYWAY_TOTAL = "01";
+	/**
+	 * 汇总方式：分日
+     */
+	public static final String SUMMARYWAY_DAY = "02";
 }
