@@ -56,7 +56,12 @@ public class ProjectBean extends BasicDataBean {
 	/**
 	 * 静态值
      */
-	private StaticBean[] staticBeens;
+	private StaticBean[] statics;
+	
+	/**
+	 * 规则
+	 */
+	private RuleFormulasBean[] rules;
 	
 	public String getId() {
 		return id;
@@ -117,16 +122,20 @@ public class ProjectBean extends BasicDataBean {
 	}
 	public void setEffectFields(EffectField[] effectFields) {
 		this.effectFields = effectFields;
-	}
+	}	
 
-	public StaticBean[] getStaticBeens() {
-		return staticBeens;
+	public StaticBean[] getStatics() {
+		return statics;
 	}
-
-	public void setStaticBeens(StaticBean[] staticBeens) {
-		this.staticBeens = staticBeens;
+	public void setStatics(StaticBean[] statics) {
+		this.statics = statics;
+	}			
+	public RuleFormulasBean[] getRules() {
+		return rules;
 	}
-
+	public void setRules(RuleFormulasBean[] rules) {
+		this.rules = rules;
+	}
 	@Override
     public String toString()
     {

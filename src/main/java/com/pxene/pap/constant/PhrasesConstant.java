@@ -180,4 +180,7 @@ public class PhrasesConstant
 
 	public static final String STATIC_RULER_DELETE_ERROR = "静态值正在被规则引用，删除失败！";
 	public static final String STATIC_FORMULATE_DELETE_ERROR = "静态值正在被公式引用，删除失败！";
+	public static final String STATIC_NOTNULL_STATICID = "静态值ID不能为空！";
+	
+	public static final String RULE_NOTNULL_RULEID = "规则ID不能为空！";
 }

@@ -548,7 +548,8 @@ public class ProjectService extends BaseService {
 
     	//查询静态值
 		List<StaticModel> staticModels = listStaticsByProjectId(projectId);
-		if(staticModels!=null && staticModels.size()>0){
+//		if(staticModels!=null && staticModels.size()>0){
+		if (staticModels != null) {
 			int len = staticModels.size();
 			StaticBean[] staticBeans = new StaticBean[len];
 			for(int i=0; i<len; i++){
@@ -561,10 +562,36 @@ public class ProjectService extends BaseService {
 				staticBean.setUpdateDate(staticModel.getUpdateTime());
 				staticBeans[i]=staticBean;
 			}
-			bean.setStaticBeens(staticBeans);
+			bean.setStatics(staticBeans);
 		}
 
-
+		// 查询规则
+		List<RuleModel> rulesModel = listRulesByProjectId(projectId);
+		if (rulesModel != null) {
+			int len = rulesModel.size();
+			RuleFormulasBean[] rules = new RuleFormulasBean[len];
+			for (int i=0; i<len; i++) {
+				RuleModel rule = rulesModel.get(i);
+				// 根据静态id查询静态值信息
+				StaticModel staticModel = staticDao.selectByPrimaryKey(rule.getStaticId());
+				Static statics = null;
+				if (staticModel != null) {					
+					statics = new Static();
+					statics.setId(staticModel.getId());
+					statics.setName(staticModel.getName());
+					statics.setValue(staticModel.getValue());
+				}
+				// 将查询到的信息放到bean中
+				RuleFormulasBean ruleBean = new RuleFormulasBean();
+				ruleBean.setId(rule.getId());
+				ruleBean.setName(rule.getName());
+				ruleBean.setConditions(rule.getConditions());
+				ruleBean.setRelation(rule.getRelation());
+				ruleBean.setStatics(statics);
+				rules[i] = ruleBean;
+			}
+			bean.setRules(rules);
+		}
 
     }
 
@@ -1130,6 +1157,21 @@ public class ProjectService extends BaseService {
 			formulaDao.deleteByExample(formulaEx);
 		}
 	}
+	
+	/**
+	 * 根据项目id查询规则
+	 * @param projectId 项目id
+	 * @return
+	 * @throws Exception
+	 */
+	public List<RuleModel> listRulesByProjectId(String projectId) throws Exception {
+		RuleModelExample ruleEx = new RuleModelExample();
+		ruleEx.createCriteria().andProjectIdEqualTo(projectId);
+		
+		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
+		return rules;
+	}
+	
 	/**
 	 * 创建静态值
 	 * @param bean
