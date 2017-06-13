@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AppBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
@@ -71,6 +72,9 @@ public class AppService extends BaseService {
 	        AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
 	        example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andStatusEqualTo(ADVERTISER_AUDIT_SUCCESS).andEnableEqualTo(ADVERTISER_ADX_ENABLE);
 	        List<AdvertiserAuditModel> advertiserAuditModels = advertiserAuditDao.selectByExample(example);
+	        if (advertiserAuditModels.isEmpty()) {
+	        	throw new IllegalStateException(PhrasesConstant.ADVERVISER_NOT_HAVE_ADX);
+	        }
 	        List<String> adxIds = new ArrayList<String>();
 			if (advertiserAuditModels != null && !advertiserAuditModels.isEmpty()) {
 				for (AdvertiserAuditModel advertiserAuditModel : advertiserAuditModels) {

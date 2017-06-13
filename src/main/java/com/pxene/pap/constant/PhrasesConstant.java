@@ -15,6 +15,7 @@ public class PhrasesConstant
 	public static final String ADVERTISER_NOT_FOUND = "该客户不存在";
 	public static final String ADVERTISER_AUDIT_NOT_FOUND = "该客户审核信息不存在";
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
+	public static final String ADVERVISER_NOT_HAVE_ADX = "客户下没有可用的ADX";
 	// 项目
 	public static final String PROJECT_BUDGET_UNDER_CAMPAIGN = "项目预算不能小于项目下活动日预算";
 	public static final String EFFECT_CODE_NOT_FOUND = "转化字段编号不存在";
