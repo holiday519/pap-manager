@@ -228,7 +228,7 @@ public class ProjectController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 
-	@RequestMapping(value = "/projects/statics", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/project/statics", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteStatics(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
 
