@@ -43,6 +43,10 @@ public class CampaignBean extends BasicDataBean {
 	@Length(max = 200, message = PhrasesConstant.LANDPAGE_LENGTH_ERROR_REMARK)
 	private String remark;
 	/**
+	 * 创意数（审核通过数/审核未通过数/总数）
+     */
+	private String creativeAmount;
+	/**
 	 * 状态
 	 */
 	private String status;
@@ -537,11 +541,19 @@ public class CampaignBean extends BasicDataBean {
 		this.projectName = projectName;
 	}
 
+	public String getCreativeAmount() {
+		return creativeAmount;
+	}
+
+	public void setCreativeAmount(String creativeAmount) {
+		this.creativeAmount = creativeAmount;
+	}
+
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
 				+ ", projectName=" + projectName + ", name=" + name
-				+ ", remark=" + remark
+				+ ", remark=" + remark + ", creativeAmount="+creativeAmount
 				+ ", status=" + status + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", uniform=" + uniform
 				+ ", creativeNum=" + creativeNum + ", target=" + target

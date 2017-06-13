@@ -1031,11 +1031,21 @@ public class CampaignService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime) throws Exception {
+	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime, String sortKey, String sortType) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
-		// 按更新时间进行倒序排序
-        example.setOrderByClause("create_time DESC");
+
+		//设置排序
+		if(sortKey.isEmpty()) {
+			// 按更新时间进行倒序排序
+			example.setOrderByClause("create_time DESC");
+		}else{
+			if(!sortType.isEmpty() && sortType.equals(StatusConstant.SORT_TYPE_DESC)) {
+				example.setOrderByClause(sortKey + " DESC");
+			}else{
+				example.setOrderByClause(sortKey+" ASC");
+			}
+		}
 		
 		if(!StringUtils.isEmpty(name) && StringUtils.isEmpty(projectId)){
 			example.createCriteria().andNameLike("%" + name + "%");
@@ -1099,22 +1109,36 @@ public class CampaignService extends BaseService {
 	
 	/**
 	 * 查询投放数据放入结果中
-	 * @param campaignId
 	 * @param beginTime
 	 * @param endTime
 	 * @param bean
 	 * @throws Exception 
 	 */
 	private void getData(Long beginTime, Long endTime, CampaignBean bean) throws Exception {
+		//创意审核通过数
+		int passNum=0;
+		//审核不通过数
+		int noPassNum=0;
+		//总数
+		int totalNum=0;
 		CreativeModelExample cExample = new CreativeModelExample();
 		cExample.createCriteria().andCampaignIdEqualTo(bean.getId());
 		List<CreativeModel> list = creativeDao.selectByExample(cExample);
 		List<String> creativeIds = new ArrayList<String>();
 		if (list != null && !list.isEmpty()) {
+			totalNum = list.size();
 			for (CreativeModel model : list) {
+				if(model.getEnable().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){
+					passNum++;
+				}else if(model.getEnable().equals(StatusConstant.ADVERTISER_AUDIT_FAILURE)){
+					noPassNum++;
+				}
 				creativeIds.add(model.getId());
 			}
 		}
+		//设置创意数
+		bean.setCreativeAmount(passNum+"/"+noPassNum+"/"+totalNum);
+
 		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
 		if (dataBean != null) {
 			bean.setImpressionAmount(dataBean.getImpressionAmount());

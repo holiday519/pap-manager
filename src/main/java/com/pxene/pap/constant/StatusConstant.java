@@ -111,4 +111,14 @@ public class StatusConstant {
 	 * 创意状态：暂停
 	 */
 	public static final String CREATIVE_ISNOT_ENABLE = "02";
+
+	/**
+	 * 排序类型：正序
+     */
+	public static final String SORT_TYPE_ASC = "01";
+	/**
+	 * 排序类型：逆序
+     */
+	public static final String SORT_TYPE_DESC = "02";
+
 }

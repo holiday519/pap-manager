@@ -124,20 +124,22 @@ public class ProjectController {
 	 * @param name
 	 * @param pageNo
 	 * @param pageSize
-	 * @param request
+	 * @param startDate
+	 * @param endDate
 	 * @param response
 	 * @return
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String listProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String advertiserId, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
+	public String listProjects(@RequestParam(required = false) String name, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, @RequestParam(required = false) String advertiserId,
+							   @RequestParam(required = false) String sortKey, @RequestParam(required = false) String sortType,@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception {
 
 		Page<Object> pager = null;
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
-		List<ProjectBean> beans = projectService.listProjects(name, startDate, endDate, advertiserId);
+		List<ProjectBean> beans = projectService.listProjects(name, startDate, endDate, advertiserId,sortKey, sortType);
 
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

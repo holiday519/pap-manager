@@ -425,7 +425,7 @@ public class ProjectService extends BaseService {
      * @throws Exception
      */
 	@Transactional
-    public List<ProjectBean> listProjects(String name, Long beginTime, Long endTime, String advertiserId) throws Exception {
+    public List<ProjectBean> listProjects(String name, Long beginTime, Long endTime, String advertiserId, String sortKey, String sortType) throws Exception {
         // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
     	if (!StringUtils.isEmpty(name) && name.contains("_"))
     	{
@@ -441,9 +441,17 @@ public class ProjectService extends BaseService {
 			example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andNameLike("%" + name + "%");
 		}
 
-		// 设置按更新时间降序排序
-		example.setOrderByClause("create_time DESC");
-
+		//设置排序
+		if(sortKey.isEmpty()) {
+			// 设置按更新时间降序排序
+			example.setOrderByClause("create_time DESC");
+		}else{
+			if(!sortType.isEmpty() && sortType.equals(StatusConstant.SORT_TYPE_DESC)) {
+				example.setOrderByClause(sortKey + " DESC");
+			}else{
+				example.setOrderByClause(sortKey+" ASC");
+			}
+		}
 		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 
