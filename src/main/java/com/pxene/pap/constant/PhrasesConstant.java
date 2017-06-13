@@ -11,8 +11,6 @@ public class PhrasesConstant
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String ARGUMENT_FORMAT_INCORRECT = "参数格式不正确";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
-	public static final String ADX_NOT_FOUND = "ADX不存在";
-	public static final String POPULATIONS_FILE_USED = "名单被使用，不能删除";
 	// 广告主
 	public static final String ADVERTISER_NOT_FOUND = "该客户不存在";
 	public static final String ADVERTISER_AUDIT_NOT_FOUND = "该客户审核信息不存在";
@@ -50,7 +48,11 @@ public class PhrasesConstant
 	public static final String REDIS_GROUPIDS_NULL = "redis中没有Groupids信息";
 	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
 	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";
-    
+	
+	
+	
+	public static final String ADX_NOT_FOUND = "ADX不存在";
+	public static final String POPULATION_FILE_USED = "名单被使用，不能删除";
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
     public static final String INVALID_CREATIVE_NAME = "创意名称不能为空";
     public static final String INVALID_TOTAL_BUDGET = "必须填写预算值";
@@ -98,9 +100,6 @@ public class PhrasesConstant
 	public static final String ADVERTISER_AUDIT_ERROR = "广告主未通过ADX审核";
 	
 	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
-	public static final String PROJECT_NOTNULL_KPI = "必须选择KPI指标";
-	public static final String PROJECT_NOTNULL_KPI_VALUE = "必须填写KPI指标值";
-	
 	public static final String CAMPAIGN_NOTNULL_PROJECTID = "项目ID不能为空";
 	public static final String CAMPAIGN_NOTNULL_TYPE = "活动类型不能为空";
 	public static final String CAMPAIGN_NOTNULL_STARTDATE = "开始时间不能为空";

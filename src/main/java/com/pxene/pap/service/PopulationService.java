@@ -239,7 +239,7 @@ public class PopulationService extends BaseService {
 					}
 				}
 			} else {
-				throw new IllegalStatusException(PhrasesConstant.POPULATIONS_FILE_USED);
+				throw new IllegalStatusException(PhrasesConstant.POPULATION_FILE_USED);
 			}
 		}
     }

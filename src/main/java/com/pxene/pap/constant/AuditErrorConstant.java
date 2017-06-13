@@ -13,6 +13,5 @@ public class AuditErrorConstant {
 	
 	public static final String COMMON_REQUEST_SENT_FAIL = "请求发送失败";
 	public static final String COMMON_RESPONSE_PARSE_FAIL = "响应解析失败";
-	
 
 }
