@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
@@ -916,29 +917,40 @@ public class ProjectService extends BaseService {
 	 */
 	@Transactional
 	public void createRule(RuleFormulasBean bean) throws Exception {
-		// 验证规则名称是否存在
-		RuleModelExample ruleEx = new RuleModelExample();
-		ruleEx.createCriteria().andNameEqualTo(bean.getName());
-		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
-		if (rules != null && !rules.isEmpty()) {
-			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-		}
-		// 判断静态值是否为空
-		String staticId = bean.getStaticId();
-		isHaveStatics(staticId);
-		// 判断项目是否存在
-		isHaveProject(bean.getProjectId());
+		String ruleName = bean.getName();
+		String conditions = bean.getConditions();
+		String relation = bean.getRelation();
+		String ruleId = null;
+		if (ruleName != null && !ruleName.isEmpty() && conditions != null && !conditions.isEmpty() 
+				&& relation != null && !relation.isEmpty()) {
+			// 验证规则名称是否存在
+			RuleModelExample ruleEx = new RuleModelExample();
+			ruleEx.createCriteria().andNameEqualTo(ruleName);
+			List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
+			if (rules != null && !rules.isEmpty()) {
+				throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+			}
+			// 判断公式是否合法
+//			if (false == isFormula(conditions)) {
+//				throw new IllegalArgumentException(PhrasesConstant.FORMULA_ISNOT_LEGAL);
+//			}
+			// 判断静态值是否为空
+			String staticId = bean.getStaticId();
+			isHaveStatics(staticId);
+			// 判断项目是否存在
+			isHaveProject(bean.getProjectId());
 
-		// 插入规则
-		RuleModel rule = modelMapper.map(bean, RuleModel.class);
-		String ruleId = UUIDGenerator.getUUID();
-		rule.setId(ruleId);
-		ruleDao.insertSelective(rule);
-		// 添加公式
-		addFormula(bean,ruleId);
+			// 插入规则
+			RuleModel rule = modelMapper.map(bean, RuleModel.class);
+			ruleId = UUIDGenerator.getUUID();
+			rule.setId(ruleId);
+			ruleDao.insertSelective(rule);
+			// 复制置设好的属性回请求对象中
+	        BeanUtils.copyProperties(rule, bean);
+		}
 		
-		// 复制置设好的属性回请求对象中
-        BeanUtils.copyProperties(rule, bean);
+		// 添加公式
+		addFormula(bean,ruleId);				
 	}
 	
 	/**
@@ -959,6 +971,10 @@ public class ProjectService extends BaseService {
 				if (formulaList != null && !formulaList.isEmpty()) {
 					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 				}
+				// 判断公式是否合法
+//				if (false == isFormula(formulaBean.getFormula())) {
+//					throw new IllegalArgumentException(PhrasesConstant.FORMULA_ISNOT_LEGAL);
+//				}
 				// 判断静态值是否为空
 				String staticId = formulaBean.getStaticId();
 				isHaveStatics(staticId);
@@ -1030,12 +1046,15 @@ public class ProjectService extends BaseService {
 				}				
 				// 将每条公式信息放到数组中
 				Formulas formula = new Formulas();
+				String strRuleId = formulaModel.getRuleId();
 				formula.setId(formulaModel.getId());
 				formula.setName(formulaModel.getName());
 				formula.setFormula(formulaModel.getFormula());
 				formula.setForwardVernier(formulaModel.getForwardVernier());
-				formula.setNegativeVernier(formulaModel.getNegativeVernier());
-				formula.setRuleId(formulaModel.getRuleId());
+				formula.setNegativeVernier(formulaModel.getNegativeVernier());				
+				if (strRuleId != null && !strRuleId.isEmpty()) {
+					formula.setRuleId(strRuleId);
+				}				
 				formula.setWeight(formulaModel.getWeight());
 				formula.setStatics(statics);
 				formulas[i] = formula;
@@ -1099,7 +1118,11 @@ public class ProjectService extends BaseService {
 					 throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 				}
 			}			
-		}		
+		}	
+		// 判断公式是否合法
+//		if (false == isFormula(bean.getConditions())) {
+//			throw new IllegalArgumentException(PhrasesConstant.FORMULA_ISNOT_LEGAL);
+//		}
 		// 判断项目是否存在
 		isHaveProject(bean.getProjectId());
 		// 判断静态值是否存在
@@ -1170,6 +1193,16 @@ public class ProjectService extends BaseService {
 		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
 		return rules;
 	}
+	
+	/**
+	 * 验证公式是否合法
+	 * @param formula 公式/规则
+	 * @return
+	 * @throws Exception
+	 */
+//	public boolean isFormula(String formula) throws Exception {
+//		
+//	}
 	
 	/**
 	 * 创建静态值
@@ -1275,14 +1308,14 @@ public class ProjectService extends BaseService {
 		RuleModelExample ruleModelExample = new RuleModelExample();
 		ruleModelExample.createCriteria().andStaticIdIn(Arrays.asList(ids));
 		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
-		if(ruleModels!=null && ruleModels.size()>0){
+		if(ruleModels != null && ruleModels.size()>0){
 			throw new ResourceNotFoundException(PhrasesConstant.STATIC_RULER_DELETE_ERROR);
 		}
 
 		FormulaModelExample formulaModelExample = new FormulaModelExample();
 		formulaModelExample.createCriteria().andStaticIdIn(Arrays.asList(ids));
 		List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
-		if(formulaModels!=null && formulaModels.size()>0){
+		if(formulaModels != null && formulaModels.size()>0){
 			throw new ResourceNotFoundException(PhrasesConstant.STATIC_FORMULATE_DELETE_ERROR);
 		}
 

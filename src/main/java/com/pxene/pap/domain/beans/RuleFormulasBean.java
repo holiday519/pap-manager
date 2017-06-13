@@ -17,13 +17,11 @@ public class RuleFormulasBean {
 	/**
 	 * 规则名称
 	 */
-	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	/**
 	 * 项目ID
 	 */
-	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID)
 	private String projectId;
 	/**
 	 * 触发条件
@@ -36,7 +34,6 @@ public class RuleFormulasBean {
 	/**
 	 * 静态值id
 	 */
-	@NotNull(message = PhrasesConstant.STATIC_NOTNULL_STATICID)
 	private String staticId;
 	/**
 	 * 参考值对象（规则对应的静态值）
@@ -95,8 +92,7 @@ public class RuleFormulasBean {
 		private String formula;
 		/**
 		 * 规则id
-		 */
-		@NotNull(message = PhrasesConstant.RULE_NOTNULL_RULEID)
+		 */		
 		private String ruleId;
 		/**
 		 * 静态值id
