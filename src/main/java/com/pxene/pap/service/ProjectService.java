@@ -918,40 +918,35 @@ public class ProjectService extends BaseService {
 	 */
 	@Transactional
 	public void createRule(RuleFormulasBean bean) throws Exception {
-		String ruleName = bean.getName();
-		String conditions = bean.getConditions();
-		String relation = bean.getRelation();
-		String ruleId = null;
-		if (ruleName != null && !ruleName.isEmpty() && conditions != null && !conditions.isEmpty() 
-				&& relation != null && !relation.isEmpty()) {
-			// 验证规则名称是否存在
-			RuleModelExample ruleEx = new RuleModelExample();
-			ruleEx.createCriteria().andNameEqualTo(ruleName);
-			List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
-			if (rules != null && !rules.isEmpty()) {
-				throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-			}
-			// 判断公式是否合法
-			if (false == isFormula(conditions)) {
-				throw new IllegalArgumentException(formulaErrorInfo(ruleName));
-			}
-			// 判断静态值是否为空
-			String staticId = bean.getStaticId();
-			isHaveStatics(staticId);
-			// 判断项目是否存在
-			isHaveProject(bean.getProjectId());
+		String ruleName = bean.getName();		
 
-			// 插入规则
-			RuleModel rule = modelMapper.map(bean, RuleModel.class);
-			ruleId = UUIDGenerator.getUUID();
-			rule.setId(ruleId);
-			ruleDao.insertSelective(rule);
-			// 复制置设好的属性回请求对象中
-	        BeanUtils.copyProperties(rule, bean);
+		// 验证规则名称是否存在
+		RuleModelExample ruleEx = new RuleModelExample();
+		ruleEx.createCriteria().andNameEqualTo(ruleName);
+		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
+		if (rules != null && !rules.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
+		// 判断公式是否合法
+		if (false == isFormula(bean.getConditions())) {
+			throw new IllegalArgumentException(formulaErrorInfo(ruleName));
+		}
+
+		// 判断项目是否存在
+		isHaveProject(bean.getProjectId());
+
+		// 插入规则
+		RuleModel rule = modelMapper.map(bean, RuleModel.class);
+		String ruleId = null;
+		ruleId = UUIDGenerator.getUUID();
+		rule.setId(ruleId);
+		ruleDao.insertSelective(rule);				
 		
 		// 添加公式
-		addFormula(bean,ruleId);				
+		addFormula(bean,ruleId);	
+		
+		// 复制置设好的属性回请求对象中
+		BeanUtils.copyProperties(rule, bean);
 	}
 	
 	/**
@@ -1203,19 +1198,22 @@ public class ProjectService extends BaseService {
 	 */
 	public boolean isFormula(String formula) throws Exception {
 		// 替换公式中的变量
-		Pattern pattern = Pattern.compile("[{]+[a-zA-Z0-9-]+[}]");
-		Matcher matcher = pattern.matcher(formula);
-		while (matcher.find()) {
-			formula = formula.replace(matcher.group(), "1");
+		if (formula != null && !formula.isEmpty()) {
+			Pattern pattern = Pattern.compile("[{]+[a-zA-Z0-9-]+[}]");
+			Matcher matcher = pattern.matcher(formula);
+			while (matcher.find()) {
+				formula = formula.replace(matcher.group(), "1");
+			}
+			for (int i = 1; i <= 10; i++) {
+				formula = formula.replace("A" + i, "1");
+			}
+			for (int i = 1; i <= 5; i++) {
+				formula = formula.replace("B" + i, "1");
+			}
 		}
-	     for (int i = 1; i <= 10; i++) {
-	    	 formula = formula.replace("A" + i, "1");
-	     }
-	     for (int i = 1; i <= 5; i++) {
-	    	 formula = formula.replace("B" + i, "1");
-	     }
-	     // TODO:调用公式验证方法
-		return false;
+		// TODO:调用公式验证方法
+		// return false;
+		return true;
 	}
 	
 	/**

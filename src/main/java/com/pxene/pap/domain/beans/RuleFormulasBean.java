@@ -17,11 +17,13 @@ public class RuleFormulasBean {
 	/**
 	 * 规则名称
 	 */
+	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
 	/**
 	 * 项目ID
 	 */
+	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID)
 	private String projectId;
 	/**
 	 * 触发条件
