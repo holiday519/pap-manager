@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
@@ -931,9 +932,9 @@ public class ProjectService extends BaseService {
 				throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 			}
 			// 判断公式是否合法
-//			if (false == isFormula(conditions)) {
-//				throw new IllegalArgumentException(PhrasesConstant.FORMULA_ISNOT_LEGAL);
-//			}
+			if (false == isFormula(conditions)) {
+				throw new IllegalArgumentException(formulaErrorInfo(ruleName));
+			}
 			// 判断静态值是否为空
 			String staticId = bean.getStaticId();
 			isHaveStatics(staticId);
@@ -972,9 +973,9 @@ public class ProjectService extends BaseService {
 					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 				}
 				// 判断公式是否合法
-//				if (false == isFormula(formulaBean.getFormula())) {
-//					throw new IllegalArgumentException(PhrasesConstant.FORMULA_ISNOT_LEGAL);
-//				}
+				if (false == isFormula(formulaBean.getFormula())) {
+					throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
+				}
 				// 判断静态值是否为空
 				String staticId = formulaBean.getStaticId();
 				isHaveStatics(staticId);
@@ -1120,9 +1121,9 @@ public class ProjectService extends BaseService {
 			}			
 		}	
 		// 判断公式是否合法
-//		if (false == isFormula(bean.getConditions())) {
-//			throw new IllegalArgumentException(PhrasesConstant.FORMULA_ISNOT_LEGAL);
-//		}
+		if (false == isFormula(bean.getConditions())) {
+			throw new IllegalArgumentException(formulaErrorInfo(bean.getName()));
+		}
 		// 判断项目是否存在
 		isHaveProject(bean.getProjectId());
 		// 判断静态值是否存在
@@ -1200,9 +1201,36 @@ public class ProjectService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-//	public boolean isFormula(String formula) throws Exception {
-//		
-//	}
+	public boolean isFormula(String formula) throws Exception {
+		// 替换公式中的变量
+		Pattern pattern = Pattern.compile("[{]+[a-zA-Z0-9-]+[}]");
+		Matcher matcher = pattern.matcher(formula);
+		while (matcher.find()) {
+			formula = formula.replace(matcher.group(), "1");
+		}
+	     for (int i = 1; i <= 10; i++) {
+	    	 formula = formula.replace("A" + i, "1");
+	     }
+	     for (int i = 1; i <= 5; i++) {
+	    	 formula = formula.replace("B" + i, "1");
+	     }
+	     // TODO:调用公式验证方法
+		return false;
+	}
+	
+	/**
+	 * 解析规则/公式的错误信息
+	 * @param name 名称
+	 * @return
+	 * @throws Exception
+	 */
+	private String formulaErrorInfo(String name) throws Exception {
+		if (name != null && !name.isEmpty()) {
+			return name + ":" + PhrasesConstant.FORMULA_ISNOT_LEGAL;
+		} else {
+			return PhrasesConstant.FORMULA_ISNOT_LEGAL;
+		}
+	}
 	
 	/**
 	 * 创建静态值
