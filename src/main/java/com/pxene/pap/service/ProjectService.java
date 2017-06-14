@@ -935,26 +935,29 @@ public class ProjectService extends BaseService {
 		if (rules != null && !rules.isEmpty()) {
 			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
+		
 		// 判断公式是否合法
-		if (false == isFormula(bean.getConditions())) {
-			throw new IllegalArgumentException(formulaErrorInfo(ruleName));
-		}
+		String conditions = bean.getConditions();
+		if (conditions != null && !conditions.isEmpty()) {
+			if (false == isFormula(bean.getConditions())) {
+				throw new IllegalArgumentException(formulaErrorInfo(ruleName));
+			}
+		}		
 
 		// 判断项目是否存在
 		isHaveProject(bean.getProjectId());
 
 		// 插入规则
+		String ruleId = UUIDGenerator.getUUID();
+		bean.setId(ruleId);
 		RuleModel rule = modelMapper.map(bean, RuleModel.class);
-		String ruleId = null;
-		ruleId = UUIDGenerator.getUUID();
-		rule.setId(ruleId);
 		ruleDao.insertSelective(rule);				
 		
 		// 添加公式
 		addFormula(bean,ruleId);	
 		
 		// 复制置设好的属性回请求对象中
-		BeanUtils.copyProperties(rule, bean);
+//		BeanUtils.copyProperties(rule, bean);
 	}
 	
 	/**
@@ -965,30 +968,34 @@ public class ProjectService extends BaseService {
 	private void addFormula(RuleFormulasBean bean,String ruleId) throws Exception {
 		// 公式
 		Formulas[] formulas = bean.getFormulas();
+		
+		// FIXME : 没有公式抛异常，判断为空即可
+		if (formulas == null || formulas.length == 0) {
+			throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
+		}
+		
 		// 添加公式
-		if (formulas != null && formulas.length > 0) {
-			for (Formulas formulaBean : formulas) {
-				// 验证规则名称是否存在
-				FormulaModelExample FormulaEx = new FormulaModelExample();
-				FormulaEx.createCriteria().andNameEqualTo(formulaBean.getName());
-				List<FormulaModel> formulaList = formulaDao.selectByExample(FormulaEx);
-				if (formulaList != null && !formulaList.isEmpty()) {
-					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
-				}
-				// 判断公式是否合法
-				if (false == isFormula(formulaBean.getFormula())) {
-					throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
-				}
-				// 判断静态值是否为空
-				String staticId = formulaBean.getStaticId();
-				isHaveStatics(staticId);
-				
-				FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
-				formulaModel.setId(UUIDGenerator.getUUID());
-				formulaModel.setRuleId(ruleId);
-				formulaDao.insertSelective(formulaModel);
+		for (Formulas formulaBean : formulas) {
+			// 验证规则名称是否存在
+			FormulaModelExample FormulaEx = new FormulaModelExample();
+			FormulaEx.createCriteria().andNameEqualTo(formulaBean.getName());
+			List<FormulaModel> formulaList = formulaDao.selectByExample(FormulaEx);
+			if (formulaList != null && !formulaList.isEmpty()) {
+				throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 			}
-		}		
+			// 判断公式是否合法
+			if (false == isFormula(formulaBean.getFormula())) {
+				throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
+			}
+			// 判断静态值是否为空
+			String staticId = formulaBean.getStaticId();
+			isHaveStatics(staticId);
+
+			FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
+			formulaModel.setId(UUIDGenerator.getUUID());
+			formulaModel.setRuleId(ruleId);
+			formulaDao.insertSelective(formulaModel);
+		}				
 	}
 	
 	/**
@@ -1036,6 +1043,7 @@ public class ProjectService extends BaseService {
 			int size = formulasModel.size();
 			Formulas[] formulas = new Formulas[size];
 			for (int i=0; i<size; i++) {
+				Formulas formula = new Formulas();
 				// 每条公式信息
 				FormulaModel formulaModel = formulasModel.get(i);
 				// 根据静态值id获取静态值相关信息
@@ -1047,20 +1055,16 @@ public class ProjectService extends BaseService {
 					statics.setId(staticModel.getId());
 					statics.setName(staticModel.getName());
 					statics.setValue(staticModel.getValue());
+					formula.setStatics(statics);
 				}				
-				// 将每条公式信息放到数组中
-				Formulas formula = new Formulas();
-				String strRuleId = formulaModel.getRuleId();
+				// 将每条公式信息放到数组中				
 				formula.setId(formulaModel.getId());
 				formula.setName(formulaModel.getName());
 				formula.setFormula(formulaModel.getFormula());
 				formula.setForwardVernier(formulaModel.getForwardVernier());
 				formula.setNegativeVernier(formulaModel.getNegativeVernier());				
-				if (strRuleId != null && !strRuleId.isEmpty()) {
-					formula.setRuleId(strRuleId);
-				}				
-				formula.setWeight(formulaModel.getWeight());
-				formula.setStatics(statics);
+				formula.setRuleId(ruleId);			
+				formula.setWeight(formulaModel.getWeight());				
 				formulas[i] = formula;
 			}
 			// 将结果放到bean中
@@ -1123,14 +1127,18 @@ public class ProjectService extends BaseService {
 				}
 			}			
 		}	
+		
+		// FIXME ： 判断条件是否为空
 		// 判断公式是否合法
-		if (false == isFormula(bean.getConditions())) {
-			throw new IllegalArgumentException(formulaErrorInfo(bean.getName()));
+		String conditions = bean.getConditions();
+		if (conditions != null && !conditions.isEmpty()) {
+			if (false == isFormula(conditions)) {
+				throw new IllegalArgumentException(formulaErrorInfo(bean.getName()));
+			}
 		}
+		
 		// 判断项目是否存在
 		isHaveProject(bean.getProjectId());
-		// 判断静态值是否存在
-		isHaveStatics(bean.getStaticId());
 		
 		bean.setId(id);
 		RuleModel ruleModel = modelMapper.map(bean, RuleModel.class);
@@ -1177,11 +1185,14 @@ public class ProjectService extends BaseService {
 		// 查询规则下的公式
 		FormulaModelExample formulaEx = new FormulaModelExample();
 		formulaEx.createCriteria().andRuleIdEqualTo(ruleId);
-		List<FormulaModel> formulas = formulaDao.selectByExample(formulaEx);
+//		List<FormulaModel> formulas = formulaDao.selectByExample(formulaEx);
+//		// 删除公式
+//		if (formulas != null && !formulas.isEmpty()) {
+//			formulaDao.deleteByExample(formulaEx);
+//		}
+		
 		// 删除公式
-		if (formulas != null && !formulas.isEmpty()) {
-			formulaDao.deleteByExample(formulaEx);
-		}
+		formulaDao.deleteByExample(formulaEx);
 	}
 	
 	/**
@@ -1206,18 +1217,20 @@ public class ProjectService extends BaseService {
 	 */
 	public boolean isFormula(String formula) throws Exception {
 		// 替换公式中的变量
-		if (formula != null && !formula.isEmpty()) {
-			Pattern pattern = Pattern.compile("[{]+[a-zA-Z0-9-]+[}]");
-			Matcher matcher = pattern.matcher(formula);
-			while (matcher.find()) {
-				formula = formula.replace(matcher.group(), "1");
-			}
-			for (int i = 1; i <= 10; i++) {
-				formula = formula.replace("A" + i, "1");
-			}
-			for (int i = 1; i <= 5; i++) {
-				formula = formula.replace("B" + i, "1");
-			}
+		Pattern pattern = Pattern.compile("[{]+[a-zA-Z0-9-]+[}]");
+		Matcher matcher = pattern.matcher(formula);
+		while (matcher.find()) {
+			formula = formula.replace(matcher.group(), "1");
+		}
+		for (int i = 1; i <= 10; i++) {
+			formula = formula.replace("A" + i, "1");
+		}
+		for (int i = 1; i <= 5; i++) {
+			formula = formula.replace("B" + i, "1");
+		}
+		
+		if (formula.indexOf("11") > 0) {
+			return false;
 		}
 		// TODO:调用公式验证方法
 		// return false;
