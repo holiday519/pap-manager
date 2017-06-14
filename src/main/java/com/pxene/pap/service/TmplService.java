@@ -157,6 +157,9 @@ public class TmplService extends BaseService {
 		}
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
+		if (appIdList.size() == 0) {
+			throw new IllegalStatusException(PhrasesConstant.APP_NOT_FOUND);
+		}
 				
 		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
 		List<VideoTmpl> videpTmplListNotUse = new ArrayList<VideoTmpl>();
@@ -240,11 +243,14 @@ public class TmplService extends BaseService {
     @Transactional
 	public List<InfoflowTmpl> listInfoflowTmpls(String campaignId, String status) throws Exception {
 		if (StringUtils.isEmpty(campaignId)) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		
 		//获取活动下的APPId
 		List<String> appIdList = getAppidByCampaignId(campaignId);
+		if (appIdList.size() == 0) {
+			throw new IllegalStatusException(PhrasesConstant.APP_NOT_FOUND);
+		}
 				
 		List<InfoflowTmpl> infoTmplList = new ArrayList<InfoflowTmpl>();
 		List<InfoflowTmpl> infoTmplListNotUse = new ArrayList<InfoflowTmpl>();

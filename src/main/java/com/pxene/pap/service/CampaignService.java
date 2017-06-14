@@ -937,7 +937,7 @@ public class CampaignService extends BaseService {
 	@Transactional
 	public void deleteCampaigns(String[] campaignIds) throws Exception {
 		if(campaignIds.length ==0){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 
 		List<String> asList = Arrays.asList(campaignIds);
@@ -1518,6 +1518,9 @@ public class CampaignService extends BaseService {
      */
     @Transactional
     public void synchronizeCreatives(String[] campaignIds) throws Exception { 
+    	if (campaignIds.length == 0) {
+    		throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+    	}
     	// 根据活动ID列表查询活动信息
 		List<String> asList = Arrays.asList(campaignIds);
 		CampaignModelExample ex = new CampaignModelExample();
@@ -1659,6 +1662,9 @@ public class CampaignService extends BaseService {
 	 * @throws Exception
 	 */
 	public void updateCampaignsPrices(String[] ids, Map<String, String> map) throws Exception {
+		if (ids.length == 0) {
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+		}
 		// 查询活动信息
 		List<String> asList = Arrays.asList(ids); // 转换类型
 		CampaignModelExample campaignModelEx = new CampaignModelExample();

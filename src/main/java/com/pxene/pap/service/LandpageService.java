@@ -253,7 +253,7 @@ public class LandpageService extends BaseService {
 	@Transactional
 	public void deleteLandpages(String[] ids) throws Exception {
 		if(ids.length ==0){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		LandpageModelExample landpageExample = new LandpageModelExample();
 		landpageExample.createCriteria().andIdIn(Arrays.asList(ids));
