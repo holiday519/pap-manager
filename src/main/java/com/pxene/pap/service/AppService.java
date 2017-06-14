@@ -49,7 +49,6 @@ public class AppService extends BaseService {
 	 */
 	@Transactional
 	public List<AppBean> listApps(String name, String campaignId) throws Exception {
-		// REVIEW ME
 		List<AppBean> result = new ArrayList<AppBean>();
 		if (StringUtils.isEmpty(campaignId)) {
 			AppModelExample appExample = new AppModelExample();

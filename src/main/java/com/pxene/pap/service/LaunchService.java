@@ -1688,15 +1688,8 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public Boolean isHaveCreativeInfo(String creativeId) throws Exception {
-		Boolean isHaveDataHour = redisHelper.exists("creativeDataHour_"
-				+ creativeId);
-		Boolean isHaveDataDay = redisHelper.exists("creativeDataDay"
-				+ creativeId);
-		if (isHaveDataHour && isHaveDataDay) {
-			return true;
-		} else {
-			return false;
-		}
+		return redisHelper.exists("creativeDataHour_" + creativeId) 
+				|| redisHelper.exists("creativeDataDay_" + creativeId);
 	}
 
 	public void writeCampaignId4Project(String campaignId, String projectId) {
