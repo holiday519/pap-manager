@@ -442,14 +442,14 @@ public class ProjectService extends BaseService {
 		}
 
 		//设置排序
-		if(sortKey.isEmpty()) {
+		if (sortKey == null || sortKey.isEmpty()) {
 			// 设置按更新时间降序排序
 			example.setOrderByClause("create_time DESC");
-		}else{
-			if(!sortType.isEmpty() && sortType.equals(StatusConstant.SORT_TYPE_DESC)) {
+		} else {
+			if (!sortType.isEmpty() && sortType.equals(StatusConstant.SORT_TYPE_DESC)) {
 				example.setOrderByClause(sortKey + " DESC");
-			}else{
-				example.setOrderByClause(sortKey+" ASC");
+			} else {
+				example.setOrderByClause(sortKey + " ASC");
 			}
 		}
 		List<ProjectModel> projects = projectDao.selectByExample(example);
