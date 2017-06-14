@@ -230,6 +230,12 @@ public class ProjectController {
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 
+	/**
+	 * 删除静态值
+	 * @param ids 要删除的静态值id
+	 * @param response
+	 * @throws Exception
+	 */
 	@RequestMapping(value = "/project/statics", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteStatics(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {

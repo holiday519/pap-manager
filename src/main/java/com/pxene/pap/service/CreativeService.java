@@ -307,7 +307,7 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public void deleteCreatives(String[] creativeIds) throws Exception {
 		if (creativeIds.length == 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		
 		// FIXME : 改成in查 --- OK 
@@ -1711,7 +1711,7 @@ public class CreativeService extends BaseService {
 	@Transactional
 	public void synchronizeCreatives(String[] creativeIds) throws Exception {
 		if (creativeIds.length == 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		// 根据创意id列表查询创意信息
 		List<String> creativeIdsList = Arrays.asList(creativeIds);
@@ -1775,6 +1775,9 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public void auditCreatives(String[] creativeIds) throws Exception {
+		if (creativeIds.length == 0) {
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+		}
 		// 根据创意id列表查询创意信息
 		List<String> creativeIdsList = Arrays.asList(creativeIds);
 		CreativeModelExample creativeExample = new CreativeModelExample();
@@ -1806,6 +1809,9 @@ public class CreativeService extends BaseService {
 				List<String> statusList = new ArrayList<String>();
 				statusList.add(StatusConstant.CREATIVE_AUDIT_NOCHECK);
 				statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
+				if (statusList == null || statusList.size() == 0) {
+					throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+				}
 				// 2.查询审核信息
 				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
 				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
@@ -1908,24 +1914,25 @@ public class CreativeService extends BaseService {
 	 * @throws Exception
 	 */
 	public List<MediaBean> listCreativeMaterials(Integer width,Integer height,String type,String[] formats,String projectId,String campaignId) throws Exception {
-		ImageModelExample imageEx = null;
 		List<ImageModel> images = null;
-		VideoModelExample videoEx = null;
 		List<VideoModel> videos = null;
 		List<MediaBean> result = new ArrayList<MediaBean>();
+		if (formats.length == 0) {
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+		}
 		// 转换类型
 		List<String> formatList = Arrays.asList(formats);			
 		
 		// 1.满足宽、高、规格要求的图片/视频集合
 		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果是视频，查询视频素材
-			videoEx = new VideoModelExample();
+			VideoModelExample videoEx = new VideoModelExample();
 			videoEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
 			videos = new ArrayList<VideoModel>();
 			videos = videoDao.selectByExample(videoEx);
 		} else {
 			// 如果是图片或信息流，查询图片素材
-			imageEx = new ImageModelExample();
+			ImageModelExample imageEx = new ImageModelExample();
 			imageEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
 			images = new ArrayList<ImageModel>();
 			images = imageDao.selectByExample(imageEx);

@@ -343,7 +343,7 @@ public class ProjectService extends BaseService {
     public void deleteProjects(String[] ids) throws Exception
     {
 		if(ids.length ==0){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 
 	    // 判断指定的多个项目ID是否在MySQL中存在
@@ -833,7 +833,7 @@ public class ProjectService extends BaseService {
     private void destoryEffectField(List<String> projectIds)
     {
     	if(projectIds == null || projectIds.size()==0){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
         EffectDicModelExample example = new EffectDicModelExample();
         example.createCriteria().andProjectIdIn(projectIds);
@@ -1076,7 +1076,7 @@ public class ProjectService extends BaseService {
 	@Transactional
 	public void deleteRules(String[] ids) throws Exception {
 		if (ids.length == 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		
 		// 判断规则是否存在
@@ -1325,7 +1325,7 @@ public class ProjectService extends BaseService {
 	@Transactional
 	public void  deleteStatics(String[] ids) throws Exception{
 		if(ids.length ==0){
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 
 		// 判断指定的多个ID是否在MySQL中存在

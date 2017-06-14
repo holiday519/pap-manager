@@ -321,6 +321,9 @@ public class LaunchService extends BaseService {
 				projectIds.add(project.getId());
 			}
 
+			if (projectIds == null || projectIds.size() == 0) {
+				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+			}
 			// 找出今天开始投放的活动，将投放的基本信息写入redis中
 			campaignExample.clear();
 			campaignExample.createCriteria().andProjectIdIn(projectIds)
@@ -917,6 +920,9 @@ public class LaunchService extends BaseService {
 				String appId = target.getAppId();
 				appIds.add(appId);
 			}
+			if (appIds == null || appIds.size() == 0) {
+				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+			}
 			AppModelExample appExample = new AppModelExample();
 			appExample.createCriteria().andIdIn(appIds);
 			List<AppModel> apps = appDao.selectByExample(appExample);
@@ -1058,6 +1064,9 @@ public class LaunchService extends BaseService {
 			targetJson.add("device", deviceJson);
 			// app定向
 			String[] appIds = model.getAppId().split(",");
+			if (appIds.length == 0) {
+				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+			}
 			AppModelExample appExample = new AppModelExample();
 			appExample.createCriteria().andIdIn(Arrays.asList(appIds));
 			List<AppModel> apps = appDao.selectByExample(appExample);
