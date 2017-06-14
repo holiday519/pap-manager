@@ -174,4 +174,11 @@ public class PhrasesConstant
 		
 	public static final String FORMULA_IS_NULL = "公式不能为空";
 	public static final String WEIGHTS_ISNOT_CORRECT = "权重之和不为1";
+	
+	public static final String DISPLAY_AMOUNT = "展示数";
+	public static final String CLICK_AMOUNT = "点击数";
+	public static final String JUMP_AMOUNT = "二跳数";
+	public static final String COST = "成本";
+	public static final String ADX_COST = "修正成本";
+	public static final String USED_FIXED_NAME = "名称不能使用：展示数、点击数、二跳数、成本、修正成本！";
 }

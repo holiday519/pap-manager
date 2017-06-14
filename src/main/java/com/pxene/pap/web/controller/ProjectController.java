@@ -150,10 +150,11 @@ public class ProjectController {
 	 * @param fieldId   项目ID
 	 * @param name  位于Http Body中的请求参数，包含转化字段编号code和转化字段名称name
 	 * @param response
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/project/effect/name/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void changeEffectName(@PathVariable String fieldId, @RequestBody Map<String,String> map, HttpServletResponse response)
+	public void changeEffectName(@PathVariable String fieldId, @RequestBody Map<String,String> map, HttpServletResponse response) throws Exception
 	{
 	    projectService.changeEffectName(fieldId, map);
         response.setStatus(HttpStatus.NO_CONTENT.value());
