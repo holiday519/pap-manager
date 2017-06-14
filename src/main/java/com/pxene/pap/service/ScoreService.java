@@ -183,7 +183,7 @@ public class ScoreService
         
         for (RuleModel rule : rules)
         {
-            String condition = rule.getCondition();
+            String condition = rule.getConditions();
             String relation = rule.getRelation();
             String staticId = rule.getStaticId();
             
