@@ -10,7 +10,9 @@ import java.util.Locale;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.DurationFieldType;
 import org.joda.time.Hours;
+import org.joda.time.LocalDate;
 
 public class DateUtils {
 
@@ -241,4 +243,37 @@ public class DateUtils {
     	return obj.getTime() > start.getTime() && obj.getTime() < end.getTime();
     }
     
+    /**
+     * 获得两个日期之间的全部日期。第三个参数指定要不要包含结束日期。
+     * <pre>
+     * 示例：
+     * <ol>
+     * <li>listDatesBetweenTwoDates(LocalDate.parse("2017-05-07"), LocalDate.parse("2017-05-08"), true); 返回 2017-05-07, 2017-05-08</li>
+     * <li>listDatesBetweenTwoDates(LocalDate.parse("2017-05-07"), LocalDate.parse("2017-05-08"), false); 返回 2017-05-07</li>
+     * </pre>
+     * @param startDate     开始日期
+     * @param endDate       结束日期
+     * @param includeEndDate  是否包含结束日期当天，true：包含， false：不包含
+     * @return
+     */
+    public static List<LocalDate> listDatesBetweenTwoDates(LocalDate startDate, LocalDate endDate, boolean includeEndDate)
+    {
+        List<LocalDate> dates = new ArrayList<LocalDate>();
+        
+        int offset = 0;
+        
+        if (includeEndDate)
+        {
+            offset = 1;
+        }
+        
+        int days = Days.daysBetween(startDate, endDate).getDays() + offset;
+        for (int i = 0; i < days; i++)
+        {
+            LocalDate d = startDate.withFieldAdded(DurationFieldType.days(), i);
+            dates.add(d);
+        }
+        
+        return dates;
+    }
 }
