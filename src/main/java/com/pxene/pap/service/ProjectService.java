@@ -974,7 +974,16 @@ public class ProjectService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
 		}
 		
-		// 添加公式
+		// 判断权重之和是否为1
+		float weight = 0;
+		for (Formulas formulaBean : formulas) {
+			weight += formulaBean.getWeight();
+		}
+		if (weight != 1) {
+			throw new IllegalArgumentException(PhrasesConstant.WEIGHTS_ISNOT_CORRECT);
+		}
+		
+		// 添加公式		
 		for (Formulas formulaBean : formulas) {
 			// 验证规则名称是否存在
 			FormulaModelExample FormulaEx = new FormulaModelExample();
@@ -983,10 +992,12 @@ public class ProjectService extends BaseService {
 			if (formulaList != null && !formulaList.isEmpty()) {
 				throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 			}
+			
 			// 判断公式是否合法
 			if (false == isFormula(formulaBean.getFormula())) {
 				throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
-			}
+			}						
+			
 			// 判断静态值是否为空
 			String staticId = formulaBean.getStaticId();
 			isHaveStatics(staticId);

@@ -173,4 +173,5 @@ public class PhrasesConstant
 	public static final String STATIC_NULL_STATICID = "静态值ID不能为空！";
 		
 	public static final String FORMULA_IS_NULL = "公式不能为空";
+	public static final String WEIGHTS_ISNOT_CORRECT = "权重之和不为1";
 }
