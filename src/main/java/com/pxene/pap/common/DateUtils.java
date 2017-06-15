@@ -256,9 +256,9 @@ public class DateUtils {
      * @param includeEndDate  是否包含结束日期当天，true：包含， false：不包含
      * @return
      */
-    public static List<LocalDate> listDatesBetweenTwoDates(LocalDate startDate, LocalDate endDate, boolean includeEndDate)
+    public static List<Date> listDatesBetweenTwoDates(LocalDate startDate, LocalDate endDate, boolean includeEndDate)
     {
-        List<LocalDate> dates = new ArrayList<LocalDate>();
+        List<Date> dates = new ArrayList<Date>();
         
         int offset = 0;
         
@@ -271,7 +271,7 @@ public class DateUtils {
         for (int i = 0; i < days; i++)
         {
             LocalDate d = startDate.withFieldAdded(DurationFieldType.days(), i);
-            dates.add(d);
+            dates.add(d.toDate());
         }
         
         return dates;

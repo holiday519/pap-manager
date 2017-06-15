@@ -2,6 +2,7 @@ package com.pxene.pap.service;
 
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -14,8 +15,6 @@ import javax.annotation.PostConstruct;
 import javax.script.ScriptException;
 
 import org.joda.time.LocalDate;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.ScriptUtils;
+import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectModel;
@@ -53,7 +53,7 @@ public class ScoreService
 {
     private static final String REDIS_KEY_CREATIVE_DATA_DAY = "creativeDataDay_";
     
-    private static final DateTimeFormatter DATATIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
+    private static final SimpleDateFormat DATATIME_FORMATTER = new SimpleDateFormat("yyyyMMdd");
 
     private static final String REGEX_UUID36_TEMPLATE = "'{'{0}'}'";
 
@@ -80,13 +80,13 @@ public class ScoreService
     private LandpageCodeHistoryDao landpageCodeHistoryDao;
     
     @Autowired
-    private RedisHelper primaryRedis;
+    private RedisHelper tertiaryRedis;
     
     
     @PostConstruct
     public void selectRedis()
     {
-        primaryRedis.select("redis.primary.");
+        tertiaryRedis.select("redis.tertiary.");
     }
     
     
@@ -112,8 +112,7 @@ public class ScoreService
             Map<String, Number> realTimeSum = getRealTimeSum(campaignId, beginTime, endTime);
             
             // 选出满足触发条件的规则
-            RuleModel rule = pickUpRule(campaignId, campaignId, endTime, endTime, effectSum, realTimeSum);
-            
+            RuleModel rule = pickUpRule(projectId, campaignId, endTime, endTime, effectSum, realTimeSum);
             
             if (rule == null)
             {
@@ -155,13 +154,154 @@ public class ScoreService
         }
         catch (ScriptException e)
         {
-            throw new ServerFailureException("判断触发条件发生异常");
+            throw new ServerFailureException(PhrasesConstant.RULE_TRIGGER_ERROR);
         }
         
         return result;
     }
 
 
+    /**
+     * 查询在指定的日期段内，某活动的全部效果数据（从客户回收的数据）的总和（A1~A10）。
+     * @param campaignId    活动ID
+     * @param startDate     起始日期
+     * @param endDate       结束日期
+     * @return  保存着效果数据变量值的Map，其中Map的Key表示变量名，即“A1”~“A10”，Value表示变量值
+     */
+    private Map<String, Number> getEffectSum(String projectId, String campaignId, Date startDate, Date endDate)
+    {
+        Map<String, Number> result = new HashMap<String, Number>();
+        for (int i = 1; i <= 10; i++)
+        {
+            result.put("A" + i, 0);
+        }
+        
+        EffectModelExample effectExample = new EffectModelExample();;
+        
+        // 根据活动ID和日期段从“pap_t_landpage_code_history”表中查询监测码的使用历史
+        LandpageCodeHistoryModelExample historyCodeExample = new LandpageCodeHistoryModelExample();
+        historyCodeExample.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeGreaterThanOrEqualTo(startDate).andEndTimeLessThanOrEqualTo(endDate);
+        List<LandpageCodeHistoryModel> items = landpageCodeHistoryDao.selectByExample(historyCodeExample);
+        
+        for (LandpageCodeHistoryModel item : items)
+        {
+            String codesStr = item.getCodes();
+            Date startTime = item.getStartTime();
+            Date endTime = item.getEndTime();
+            List<Date> days = DateUtils.listDatesBetweenTwoDates(new LocalDate(startTime), new LocalDate(endTime), true);
+            
+            if (!StringUtils.isEmpty(codesStr))
+            {
+                String[] codeArray = codesStr.split(",");
+                
+                // 找到“pap_t_effect”表中，字段date在给定时间段内且字段code在给定的监码表列中的全部记录
+                effectExample.clear();
+                effectExample.createCriteria().andProjectIdEqualTo(projectId).andDateIn(days).andCodeIn(Arrays.asList(codeArray));
+                List<EffectModel> effects = effectDao.selectByExample(effectExample);
+                
+                // 累加求和
+                for (EffectModel effect : effects)
+                {
+                    Double[] valArray = buildEffectValArray(effect);
+                    
+                    doAccumulate(result, valArray);
+                }
+            }
+        }
+        
+        return result;
+    }
+
+
+    /**
+     * 查询在指定的日期段内，某活动的全部实时统时数据的总和（B1~B5）
+     * @param campaignId    活动ID
+     * @param startDate     起始日期
+     * @param endDate       结束日期
+     * @return 保存着实时统计数据变量值的Map，其中Map的Key表示变量名，即“B1”~“B5”，Value表示变量值
+     */
+    private Map<String, Number> getRealTimeSum(String campaignId, Long startDateTimestamp, Long endDateTimestamp)
+    {
+        Map<String, Number> result = new HashMap<String, Number>();
+        for (int i = 1; i <= 5; i++)
+        {
+            result.put("B" + i, 0);
+        }
+        
+        LocalDate startDate = new LocalDate(startDateTimestamp);
+        LocalDate endDate = new LocalDate(endDateTimestamp);
+        
+        // 获得开始日期和结束日期之间的全部日期
+        List<Date> days = DateUtils.listDatesBetweenTwoDates(startDate, endDate, true);
+        
+        if (days == null || days.isEmpty())
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        int pvAmount = 0;
+        int clickAmount = 0;
+        int secondJumpAmount = 0;
+        double expenseAmount = 0;
+        
+        
+        // 根据活动ID查出数据库中该活动的全部创意
+        CreativeModelExample example = new CreativeModelExample();
+        example.createCriteria().andCampaignIdEqualTo(campaignId);
+        List<CreativeModel> creatives = creativeDao.selectByExample(example);
+
+        if (creatives != null && creatives.size() > 0)
+        {
+            for (CreativeModel creative : creatives)
+            {
+                // 拼接“creativeDataDay_创意ID”作为Redis的Key
+                String key = REDIS_KEY_CREATIVE_DATA_DAY + creative.getId();
+                
+                // 遍历活动开始日期和结束日期之间的每一天，作为Hash的Field
+                for (Date day : days)
+                {
+                    String datePrefix = DATATIME_FORMATTER.format(day);
+                    
+                    String pvField = datePrefix + "@m";
+                    String cField = datePrefix + "@c";
+                    String secondJumpField = datePrefix + "@j";
+                    String expenseField = datePrefix + "@e";
+                    
+                    String pvStr = tertiaryRedis.hget(key, pvField);
+                    String clickStr = tertiaryRedis.hget(key, cField);
+                    String secondJumpStr = tertiaryRedis.hget(key, secondJumpField);
+                    String expenseStr = tertiaryRedis.hget(key, expenseField);
+                    
+                    if (!StringUtils.isEmpty(pvStr))
+                    {
+                        pvAmount = pvAmount + Integer.valueOf(pvStr);
+                    }
+                    if (!StringUtils.isEmpty(clickStr))
+                    {
+                        clickAmount = clickAmount + Integer.valueOf(clickStr);
+                    }
+                    if (!StringUtils.isEmpty(secondJumpStr))
+                    {
+                        secondJumpAmount = secondJumpAmount + Integer.valueOf(secondJumpStr);
+                    }
+                    if (!StringUtils.isEmpty(expenseStr))
+                    {
+                        expenseAmount = expenseAmount + Float.valueOf(expenseStr);
+                    }
+                }
+            }
+            
+            result.put("B1", pvAmount);
+            result.put("B2", clickAmount);
+            result.put("B3", secondJumpAmount);
+            result.put("B4", expenseAmount);
+            result.put("B5", 0);//TODO 修正成本
+        }
+        
+        return result;
+    }
+    
+    
     /**
      * 遍历项目的全部评分规则，逐个判断规则的触条发件，选出第一个触发条件满足的评分规则。
      * @param projectId     项目ID
@@ -197,7 +337,7 @@ public class ScoreService
             
             // 替换触发条件中的静态值
             trigger = replaceFormulaStaticValue(trigger);
-            
+    
             // 替换触发条件中的变量值
             trigger = replaceFormulaVariableValue(trigger, effectSum);
             trigger = replaceFormulaVariableValue(trigger, realTimeSum);
@@ -216,139 +356,6 @@ public class ScoreService
 
 
     /**
-     * 查询在指定的日期段内，某活动的全部实时统时数据的总和（B1~B5）
-     * @param campaignId    活动ID
-     * @param startDate     起始日期
-     * @param endDate       结束日期
-     * @return 保存着实时统计数据变量值的Map，其中Map的Key表示变量名，即“B1”~“B5”，Value表示变量值
-     */
-    private Map<String, Number> getRealTimeSum(String campaignId, Long startDateTimestamp, Long endDateTimestamp)
-    {
-        LocalDate today = new LocalDate();
-        LocalDate startDate = new LocalDate(startDateTimestamp);
-        LocalDate endDate = new LocalDate(endDateTimestamp);
-        
-        //  结束日期不能在今天之后
-        if (endDate.isAfter(today))
-        {
-            throw new IllegalArgumentException("结束日期不能在今天之后");
-        }
-        
-        // 获得开始日期和结束日期之间的全部日期
-        List<LocalDate> days = DateUtils.listDatesBetweenTwoDates(startDate, endDate, true);
-        
-        int pvAmount = 0;
-        int clickAmount = 0;
-        int secondJumpAmount = 0;
-        float expenseAmount = 0;
-        
-        
-        // 根据活动ID查出数据库中该活动的全部创意
-        CreativeModelExample example = new CreativeModelExample();
-        example.createCriteria().andCampaignIdEqualTo(campaignId);
-        List<CreativeModel> creatives = creativeDao.selectByExample(example);
-
-        if (creatives != null && creatives.size() > 0)
-        {
-            for (CreativeModel creative : creatives)
-            {
-                // 拼接“creativeDataDay_创意ID”作为Redis的Key
-                String key = REDIS_KEY_CREATIVE_DATA_DAY + creative.getId();
-                
-                // 遍历活动开始日期和结束日期之间的每一天，作为Hash的Field
-                for (LocalDate day : days)
-                {
-                    String datePrefix = DATATIME_FORMATTER.print(day);
-                    
-                    String pvField = datePrefix + "_m";
-                    String cField = datePrefix + "_c";
-                    String secondJumpField = datePrefix + "_j";
-                    String expenseField = datePrefix + "_e";
-                    
-                    String pvStr = primaryRedis.hget(key, pvField);
-                    String clickStr = primaryRedis.hget(key, cField);
-                    String secondJumpStr = primaryRedis.hget(key, secondJumpField);
-                    String expenseStr = primaryRedis.hget(key, expenseField);
-                    
-                    if (!StringUtils.isEmpty(pvStr))
-                    {
-                        pvAmount = pvAmount + Integer.valueOf(pvStr);
-                    }
-                    if (!StringUtils.isEmpty(clickStr))
-                    {
-                        clickAmount = clickAmount + Integer.valueOf(clickStr);
-                    }
-                    if (!StringUtils.isEmpty(secondJumpStr))
-                    {
-                        secondJumpAmount = secondJumpAmount + Integer.valueOf(secondJumpStr);
-                    }
-                    if (!StringUtils.isEmpty(expenseStr))
-                    {
-                        expenseAmount = expenseAmount + Float.valueOf(expenseStr);
-                    }
-                }
-            }
-        }
-        
-        Map<String, Number> result = new HashMap<String, Number>();
-        result.put("B1", pvAmount);
-        result.put("B2", clickAmount);
-        result.put("B3", secondJumpAmount);
-        result.put("B4", expenseAmount);
-        result.put("B5", 0);//TODO 修正成本
-        
-        return result;
-    }
-    
-    
-    /**
-     * 查询在指定的日期段内，某活动的全部效果数据（从客户回收的数据）的总和（A1~A10）。
-     * @param campaignId    活动ID
-     * @param startDate     起始日期
-     * @param endDate       结束日期
-     * @return  保存着效果数据变量值的Map，其中Map的Key表示变量名，即“A1”~“A10”，Value表示变量值
-     */
-    private Map<String, Number> getEffectSum(String projectId, String campaignId, Date startDate, Date endDate)
-    {
-        Map<String, Number> result = new HashMap<String, Number>();
-        
-        EffectModelExample effectExample = new EffectModelExample();;
-        
-        // 根据活动ID和日期段从“pap_t_landpage_code_history”表中查询监测码的使用历史
-        LandpageCodeHistoryModelExample historyCodeExample = new LandpageCodeHistoryModelExample();
-        historyCodeExample.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeGreaterThanOrEqualTo(startDate).andEndTimeLessThanOrEqualTo(endDate);
-        List<LandpageCodeHistoryModel> items = landpageCodeHistoryDao.selectByExample(historyCodeExample);
-        
-        for (LandpageCodeHistoryModel item : items)
-        {
-            String codesStr = item.getCodes();
-            Date startTime = item.getStartTime();
-            Date endTime = item.getEndTime();
-            
-            if (!StringUtils.isEmpty(codesStr) && codesStr.contains(","))
-            {
-                String[] codeArray = codesStr.split(",");
-                
-                // 找到“pap_t_effect”表中，字段date在给定时间段内且字段code在给定的监码表列中的全部记录
-                effectExample.clear();
-                effectExample.createCriteria().andProjectIdEqualTo(projectId).andDateBetween(startTime, endTime).andCodeIn(Arrays.asList(codeArray));
-                List<EffectModel> effects = effectDao.selectByExample(effectExample);
-                
-                
-                // 累加求和
-                for (EffectModel effect : effects)
-                {
-                    Double[] valArray = buildEffectValArray(effect);
-                    
-                    doAccumulate(result, valArray);
-                }
-            }
-        }
-        
-        return result;
-    }
-    
-    /**
      * 累加求和：将传入的包含A1~A10的数组，分别累加到Map中对应的A1~A10中。即，valArray[0]累加到Map Key[A1]，valArray[9]累加到Map Key[A10]。
      * @param sumMap    保存累加和的Map
      * @param valArray  从效果数据提取出来的A1~A10的数组
@@ -358,16 +365,10 @@ public class ScoreService
         for (int i = 1; i <= 10; i++)
         {
             String key = "A" + i;
-            if (!sumMap.containsKey(key))
-            {
-                sumMap.put(key, 0.0);
-            }
-            else
-            {
-                Number oldVal = sumMap.get(key);
-                Number newVal = oldVal.doubleValue() + valArray[i-1];
-                sumMap.put(key, newVal);
-            }
+            
+            Number oldVal = sumMap.get(key);
+            Number newVal = oldVal.doubleValue() + valArray[i-1];
+            sumMap.put(key, newVal);
         }
     }
 
