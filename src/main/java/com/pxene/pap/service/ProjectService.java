@@ -1021,7 +1021,11 @@ public class ProjectService extends BaseService {
 			}
 			
 			// 判断公式是否合法
-			if (false == isFormula(formulaBean.getFormula())) {
+			String formula = formulaBean.getFormula();
+			if (formula == null || formula.isEmpty()) {
+				throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
+			}
+			if (false == isFormula(formula)) {
 				throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
 			}						
 			
