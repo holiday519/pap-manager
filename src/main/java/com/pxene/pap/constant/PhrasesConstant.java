@@ -11,6 +11,7 @@ public class PhrasesConstant
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String ARGUMENT_FORMAT_INCORRECT = "参数格式不正确";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";
+	public static final String PARAM_ERROR = "参数错误";
 	// 广告主
 	public static final String ADVERTISER_NOT_FOUND = "该客户不存在";
 	public static final String ADVERTISER_AUDIT_NOT_FOUND = "该客户审核信息不存在";

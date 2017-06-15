@@ -94,9 +94,6 @@ public class DataController
 	public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		Page<Object> pager = null;
 		List<Map<String, Object>> datas = dataService.listAdvertisers(advertiserId,type,startDate,endDate);
@@ -111,9 +108,6 @@ public class DataController
 							   @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		Page<Object> pager = null;
 //    	if (pageNo != null && pageSize != null) {
@@ -131,9 +125,6 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		Page<Object> pager = null;
 		List<Map<String, Object>> datas = dataService.listCampaigns(advertiserId, projectId, campaignId, type, startDate, endDate);
@@ -148,9 +139,6 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		Page<Object> pager = null;
 		List<Map<String, Object>> datas = dataService.listCreatives(advertiserId,projectId, campaignId, type, startDate, endDate);
@@ -185,13 +173,10 @@ public class DataController
 	public void exportAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		List<Map<String, Object>> datas = dataService.listAdvertisers(advertiserId,type,startDate,endDate);
 		//生成文件名
-		String fileName = "客户-"+ dataService.renameDatasExcel(type, startDate, endDate);
+		String fileName = "advertisers-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
 		dataService.exportDataToExcel(type,datas,fileName,response);
 	}
@@ -202,13 +187,10 @@ public class DataController
 							   @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
 							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		List<Map<String, Object>> datas = dataService.listProjects(advertiserId, projectId, type,startDate,endDate);
 		//生成文件名
-		String fileName = "项目-"+ dataService.renameDatasExcel(type, startDate, endDate);
+		String fileName = "projects-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
 		dataService.exportDataToExcel(type,datas,fileName,response);
 	}
@@ -219,13 +201,10 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		List<Map<String, Object>> datas = dataService.listCampaigns(advertiserId, projectId, campaignId, type, startDate, endDate);
 		//生成文件名
-		String fileName = "活动-"+ dataService.renameDatasExcel(type, startDate, endDate);
+		String fileName = "campaigns-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
 		dataService.exportDataToExcel(type,datas,fileName,response);
 	}
@@ -236,13 +215,10 @@ public class DataController
 								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
-		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			throw new IllegalArgumentException("参数不正确");
-		}
 
 		List<Map<String, Object>> datas = dataService.listCreatives(advertiserId,projectId, campaignId, type, startDate, endDate);
 		//生成文件名
-		String fileName = "创意-"+ dataService.renameDatasExcel(type, startDate, endDate);
+		String fileName = "creatives-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
 		dataService.exportDataToExcel(type,datas,fileName,response);
 	}

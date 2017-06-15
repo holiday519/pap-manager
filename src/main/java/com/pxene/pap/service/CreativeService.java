@@ -1422,13 +1422,13 @@ public class CreativeService extends BaseService {
 							String value = map.get(hkey);
 							//判断值是否存在
 							if (!StringUtils.isEmpty(value)) {
-								String[] temp = hkey.split(day+"_adx_");
+								String[] temp = hkey.split("_adx_");
 								if(temp.length==2){
 									String[] arry2 = temp[1].split("@");
 									if(arry2.length ==2 && arry2[1].equals("e")){
 										Date date =sdf.parse(day);
 										AdxCostModelExample adxCostModelExample = new AdxCostModelExample();
-										adxCostModelExample.createCriteria().andAdxIdEqualTo(arry2[0]).andStartDateLessThan(date).andEndDateGreaterThan(date);
+										adxCostModelExample.createCriteria().andAdxIdEqualTo(arry2[0]).andStartDateLessThanOrEqualTo(date).andEndDateGreaterThanOrEqualTo(date);
 										List<AdxCostModel> adxCostModels = adxCostDao.selectByExample(adxCostModelExample);
 										if(adxCostModels!=null && adxCostModels.size()>0){
 											float ratio = adxCostModels.get(0).getRatio();

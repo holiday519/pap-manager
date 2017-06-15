@@ -709,6 +709,10 @@ public class DataService extends BaseService {
      */
 	@Transactional
 	public List<Map<String, Object>> listAdvertisers(String advertiserId, String type, Long startDate, Long endDate) throws Exception {
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException(PhrasesConstant.PARAM_ERROR);
+		}
+
 		List<Map<String, Object>> datas;
 		if(advertiserId!=null) {
 			datas = getAdvertiserDataByAdvertiserId(startDate, endDate, advertiserId, type);
@@ -940,6 +944,10 @@ public class DataService extends BaseService {
      */
 	@Transactional
 	public List<Map<String, Object>> listProjects(String advertiserId, String projectId, String type,Long startDate, Long endDate) throws Exception{
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException(PhrasesConstant.PARAM_ERROR);
+		}
+
 		List<Map<String, Object>> datas;
 		if(projectId!=null){
 			//如果projectId不为null，根据projectId查询
@@ -1059,6 +1067,10 @@ public class DataService extends BaseService {
      */
 	@Transactional
 	public List<Map<String, Object>> listCampaigns(String advertiserId, String projectId, String campaignId,String type,Long startDate, Long endDate) throws Exception{
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException(PhrasesConstant.PARAM_ERROR);
+		}
+
 		List<Map<String, Object>> datas;
 		if(campaignId!=null) {
 			//查询指定活动的数据
@@ -1207,6 +1219,10 @@ public class DataService extends BaseService {
      */
 	@Transactional
 	public List<Map<String, Object>> listCreatives(String advertiserId, String projectId, String campaignId, String type,Long startDate, Long endDate) throws Exception{
+		if(!type.equals(CodeTableConstant.SUMMARYWAY_TOTAL) && !type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
+			throw new IllegalArgumentException(PhrasesConstant.PARAM_ERROR);
+		}
+
 		List<Map<String, Object>> datas;
 		if(campaignId != null){
 			//查询指定活动的数据
@@ -1674,7 +1690,7 @@ public class DataService extends BaseService {
 		String[] recoresFields;
 		// REVIEW ME: 字符串操作尽量避免中文
 		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
-			if(fileName.startsWith("创意")) {
+			if(fileName.startsWith("creatives")) {
 				recoresColumns = new String[]{"ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
 				recoresFields = new String[]{"id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}else{
@@ -1682,7 +1698,7 @@ public class DataService extends BaseService {
 				recoresFields = new String[]{"name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}
 		}else{
-			if(fileName.startsWith("创意")) {
+			if(fileName.startsWith("creatives")) {
 				recoresColumns = new String[]{"日期_#_3000", "ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
 				recoresFields = new String[]{"date", "id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}else{
@@ -1795,9 +1811,9 @@ public class DataService extends BaseService {
 		// REVIEW　ME: 导出文件名中尽量避免出现中文
 		String typeName ="";
 		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)){
-			typeName="汇总";
+			typeName="total";
 		}else if(type.equals(CodeTableConstant.SUMMARYWAY_DAY)){
-			typeName="分日";
+			typeName="day";
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = typeName+"-"+sdf.format(new Date(startDate))+"to"+sdf.format(new Date(endDate));
