@@ -696,7 +696,8 @@ public class ProjectService extends BaseService {
         }
         
         // 判断同一项目下转换值名称是否相同
-        String projectId = map.get("projectId");
+        EffectDicModel effectDic = effectDicDao.selectByPrimaryKey(fieldId);
+        String projectId = effectDic.getProjectId();
         isSameOfEffectDicName(name,projectId);
         
         // 判断同一项目下转换值与静态值是否相同
@@ -1384,7 +1385,8 @@ public class ProjectService extends BaseService {
 			
 			if (!nameInDB.equals(name))
 			{
-				String projectId = bean.getProjectId();
+				// 项目id			
+				String projectId = staticInDB.getProjectId();
 				
 				// 判断同一项目下的静态值名称是否相同
 				isSameOfStaticName(name,projectId);

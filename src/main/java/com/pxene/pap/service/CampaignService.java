@@ -1035,7 +1035,7 @@ public class CampaignService extends BaseService {
 		
 
 		//设置排序
-		if(sortKey.isEmpty()) {
+		if(sortKey == null ||sortKey.isEmpty()) {
 			// 按更新时间进行倒序排序
 			example.setOrderByClause("create_time DESC");
 		}else{
