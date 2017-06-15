@@ -1340,7 +1340,7 @@ public class CreativeService extends BaseService {
 	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long startDate, Long endDate) throws Exception {
 		BasicDataBean basicData = new BasicDataBean();
 		//将属性值变成0
-		FormatBeanParams(basicData);
+//		formatBeanParams(basicData);
 		DateTime begin = new DateTime(startDate);
     	DateTime end = new DateTime(endDate);
     	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
@@ -1383,7 +1383,7 @@ public class CreativeService extends BaseService {
 			getDatafromDayTable(creativeIds, daysList, basicData);
     	}
     	
-    	FormatBeanRate(basicData);
+    	formatBeanRate(basicData);
 		return basicData;
 	}
 	
@@ -1414,7 +1414,7 @@ public class CreativeService extends BaseService {
 								} else if (hkey.indexOf("@j") > 0) {// 二跳
 									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
 								} else if (hkey.indexOf("@e") > 0) {// 花费
-								    float totalCost = bean.getTotalCost() + (Float.parseFloat(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
+								    double totalCost = bean.getTotalCost() + (Double.parseDouble(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
 									bean.setTotalCost(totalCost);
 								}
 							}
@@ -1432,7 +1432,7 @@ public class CreativeService extends BaseService {
 										List<AdxCostModel> adxCostModels = adxCostDao.selectByExample(adxCostModelExample);
 										if(adxCostModels!=null && adxCostModels.size()>0){
 											float ratio = adxCostModels.get(0).getRatio();
-											float adxCost = bean.getAdxCost()+(Float.parseFloat(value)* ratio / 100);
+											double adxCost = bean.getAdxCost() + (Double.parseDouble(value)* ratio / 100);
 											bean.setAdxCost(adxCost);
 										}
 									}
@@ -1475,7 +1475,7 @@ public class CreativeService extends BaseService {
 								} else if (hkey.indexOf("@j") > 0) {// 二跳
 									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
 								} else if (hkey.indexOf("@e") > 0) {// 花费
-									float totalCost = bean.getTotalCost() + (Float.parseFloat(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
+									double totalCost = bean.getTotalCost() + (Double.parseDouble(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
                                     bean.setTotalCost(totalCost);
 								}
 							}
@@ -1491,24 +1491,24 @@ public class CreativeService extends BaseService {
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void FormatBeanParams(BasicDataBean bean) throws Exception {
-		bean.setImpressionAmount(0L);
-		bean.setClickAmount(0L);
-		bean.setJumpAmount(0L);
-		bean.setTotalCost(0F);
-		
-		bean.setImpressionCost(0F);
-		bean.setClickRate(0F);
-		bean.setClickCost(0F);
-		bean.setJumpCost(0F);
-	}
+//	private void formatBeanParams(BasicDataBean bean) throws Exception {
+//		bean.setImpressionAmount(0L);
+//		bean.setClickAmount(0L);
+//		bean.setJumpAmount(0L);
+//		bean.setTotalCost(0F);
+//		
+//		bean.setImpressionCost(0F);
+//		bean.setClickRate(0F);
+//		bean.setClickCost(0F);
+//		bean.setJumpCost(0F);
+//	}
 	
 	/**
 	 * 格式话“率”
 	 * @param bean
 	 * @throws Exception
 	 */
-	private void FormatBeanRate(BasicDataBean bean) throws Exception {
+	private void formatBeanRate(BasicDataBean bean) throws Exception {
 		DecimalFormat format = new DecimalFormat("0.0000");
 		if (bean.getClickAmount() > 0) {
 	        double percent = (double)bean.getTotalCost() / bean.getClickAmount();

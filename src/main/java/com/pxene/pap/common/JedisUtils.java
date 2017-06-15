@@ -158,7 +158,7 @@ public class JedisUtils {
 
 	public static void delete(String key) {
 		Jedis jedis = getJedis();
-		if (jedis.get(key) != null) {
+		if (jedis.exists(key)) {
 			jedis.del(key);
 		}
 		close(jedis);
@@ -308,4 +308,5 @@ public class JedisUtils {
         
         return result;
 	}
+	
 }

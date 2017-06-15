@@ -139,7 +139,7 @@ public class ProjectController {
         if (pageNo != null && pageSize != null){
             pager = PageHelper.startPage(pageNo, pageSize);
         }
-		List<ProjectBean> beans = projectService.listProjects(name, startDate, endDate, advertiserId,sortKey, sortType);
+		List<ProjectBean> beans = projectService.listProjects(name, startDate, endDate, advertiserId, sortKey, sortType);
 
 		PaginationBean result = new PaginationBean(beans, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);

@@ -64,5 +64,9 @@ public class RedisKeyConstant {
     }
     
     public static final String PROJECT_CAMPAIGNIDS = "pap_projectid_campaignids_";
+    
+    public static final String CREATIVE_DATA_HOUR = "creativeDataHour_";
+    
+    public static final String CREATIVE_DATA_DAY = "creativeDataDay_";
 
 }

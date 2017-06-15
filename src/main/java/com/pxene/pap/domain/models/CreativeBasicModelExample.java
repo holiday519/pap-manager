@@ -1264,6 +1264,13 @@ public class CreativeBasicModelExample {
             addCriterion("advertiser_name not between", value1, value2, "advertiserName");
             return (Criteria) this;
         }
+        
+        /***********************************Johnny add begin*****************************************/
+        public Criteria andCreativeIdsLike(String value) {
+        	addCriterion("creative_ids like", value, "creativeIds");
+        	return (Criteria) this;
+        }
+        /***********************************Johnny add end*****************************************/
     }
 
     public static class Criteria extends GeneratedCriteria {

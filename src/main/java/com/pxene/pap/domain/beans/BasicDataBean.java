@@ -13,15 +13,15 @@ public class BasicDataBean {
 	// 点击率
 	private Float clickRate = 0f;
 	// 总花费
-	private Float totalCost = 0f;
+	private Double totalCost = 0d;
 	// 展现成本
 	private Float impressionCost = 0f;
 	// 点击成本
 	private Float clickCost = 0f;
 	// 二跳成本
 	private Float jumpCost = 0f;
-	//修正成本
-	private Float adxCost = 0f;
+	// 修正成本
+	private Double adxCost = 0d;
 
 	public Long getImpressionAmount() {
 		return impressionAmount;
@@ -55,11 +55,11 @@ public class BasicDataBean {
 		this.clickRate = clickRate;
 	}
 
-	public Float getTotalCost() {
+	public Double getTotalCost() {
 		return totalCost;
 	}
 
-	public void setTotalCost(Float totalCost) {
+	public void setTotalCost(Double totalCost) {
 		this.totalCost = totalCost;
 	}
 
@@ -87,11 +87,11 @@ public class BasicDataBean {
 		this.jumpCost = jumpCost;
 	}
 
-	public Float getAdxCost() {
+	public Double getAdxCost() {
 		return adxCost;
 	}
 
-	public void setAdxCost(Float adxCost) {
+	public void setAdxCost(Double adxCost) {
 		this.adxCost = adxCost;
 	}
 

@@ -21,7 +21,6 @@ import com.pxene.pap.common.ExcelOperateUtil;
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
-import com.pxene.pap.constant.StatusConstant;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -42,11 +41,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.CampaignBean;
+import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.EffectFileBean;
+import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
+import com.pxene.pap.domain.models.AdxCostModel;
+import com.pxene.pap.domain.models.AdxCostModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CreativeBasicModel;
+import com.pxene.pap.domain.models.CreativeBasicModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectFileModel;
@@ -59,12 +66,14 @@ import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
+import com.pxene.pap.repository.basic.AdxCostDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDao;
 import com.pxene.pap.repository.basic.EffectFileDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
+import com.pxene.pap.repository.basic.view.CreativeBasicDao;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
@@ -95,10 +104,31 @@ public class DataService extends BaseService {
 	@Autowired
 	private EffectFileDao effectFileDao;
 	
+	@Autowired
+	private CreativeBasicDao creativeBasicDao;
+	
+	@Autowired
+	private AdxCostDao adxCostDao;
+	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
 	@Autowired
 	private RedisHelper redisHelper3;
+	
+	private static class CREATIVE_DATA_SUFFIX {
+		public static String WIN = "@w";
+		public static String IMPRESSION = "@m";
+		public static String CLICK = "@c";
+		public static String EXPENSE = "@e";
+		public static String JUMP = "@j";
+	}
+	private static class CREATIVE_DATA_TYPE {
+		public static String ADX = "_adx_";
+		public static String REGION = "_region_";
+		public static String OS = "_os_";
+		public static String NETWORK = "_network_";
+		public static String OPERATOR = "_operator_";
+	}
 	
 	static {
 		Set<String> network = new HashSet<String>();
@@ -249,7 +279,7 @@ public class DataService extends BaseService {
 		Map<String, Long> mMap = new HashMap<String, Long>();//装展现
 		Map<String, Long> cMap = new HashMap<String, Long>();//装点击
 		Map<String, Long> jMap = new HashMap<String, Long>();//装二跳
-		Map<String, Float> eMap = new HashMap<String, Float>();//装花费
+		Map<String, Double> eMap = new HashMap<String, Double>();//装花费
 		
 		Set<String> set = table.get(type);
 		
@@ -340,19 +370,19 @@ public class DataService extends BaseService {
 								Long value = mMap.get(substring);
 								if (value != null) {
 									if (set == null || set.isEmpty()) {
-										eMap.put(substring, value + Float.parseFloat(newValue));
+										eMap.put(substring, value + Double.parseDouble(newValue));
 									} else if (set.contains(substring)) {
-										eMap.put(substring, value + Float.parseFloat(newValue));
+										eMap.put(substring, value + Double.parseDouble(newValue));
 									} else {
-										eMap.put("0", value + Float.parseFloat(newValue));
+										eMap.put("0", value + Double.parseDouble(newValue));
 									}
 								} else {
 									if (set == null || set.isEmpty()) {
-										eMap.put(substring, Float.parseFloat(newValue));
+										eMap.put(substring, Double.parseDouble(newValue));
 									} else if (set.contains(substring)) {
-										eMap.put(substring, Float.parseFloat(newValue));
+										eMap.put(substring, Double.parseDouble(newValue));
 									} else {
-										eMap.put("0", Float.parseFloat(newValue));
+										eMap.put("0", Double.parseDouble(newValue));
 									}
 								}
 							}
@@ -506,7 +536,7 @@ public class DataService extends BaseService {
 						bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(jump));
 					}
 					if (!StringUtils.isEmpty(exp)) {// 花费--expense
-					    float totalCost = bean.getTotalCost() + (Float.parseFloat(exp) / 100); //将Redis中取出的价格（分）转换成价格（元）
+						double totalCost = bean.getTotalCost() + (Double.parseDouble(exp) / 100); //将Redis中取出的价格（分）转换成价格（元）
 						bean.setTotalCost(totalCost);
 						//bean.setTotalCost(bean.getTotalCost() + Float.parseFloat(exp));
 					}
@@ -538,7 +568,7 @@ public class DataService extends BaseService {
 		bean.setImpressionAmount(0L);
 		bean.setClickAmount(0L);
 		bean.setJumpAmount(0L);
-		bean.setTotalCost(0F);
+		bean.setTotalCost(0D);
 		
 		bean.setImpressionCost(0F);
 		bean.setClickRate(0F);
@@ -1807,7 +1837,7 @@ public class DataService extends BaseService {
      * @return
      */
 	@Transactional
-	public String renameDatasExcel(String type, Long startDate, Long endDate){
+	public String renameDatasExcel(String type, Long startDate, Long endDate) {
 		// REVIEW　ME: 导出文件名中尽量避免出现中文
 		String typeName ="";
 		if(type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)){
@@ -1818,6 +1848,150 @@ public class DataService extends BaseService {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String fileName = typeName+"-"+sdf.format(new Date(startDate))+"to"+sdf.format(new Date(endDate));
 		return fileName;
+	}
+	
+	/**
+	 * 获取单个创意一个时间段内的数据
+	 * @param creativeId
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public BasicDataBean getCreativeData(String creativeId, long startDate, long endDate) {
+		// 先从redis中查询是否有该创意的数据
+		CreativeBean creativeData = new CreativeBean();
+		if (redisHelper3.exists(RedisKeyConstant.CREATIVE_DATA_DAY + creativeId)) {
+			String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
+			// 修正花费要查出的相关信息
+			// 1.创意投放的adxID
+			CreativeBasicModelExample creativeBasicExample = new CreativeBasicModelExample();
+			creativeBasicExample.createCriteria().andCreativeIdsLike("%" + creativeId + "%");
+			List<CreativeBasicModel> creativeBasics = creativeBasicDao.selectByExampleWithBLOBs(creativeBasicExample);
+			if (creativeBasics.isEmpty()) {
+				return creativeData;
+			}
+			// 获取日数据对象
+			Map<String, String> dayData = redisHelper3.hget(RedisKeyConstant.CREATIVE_DATA_DAY + creativeId);
+			long impression = 0L, click = 0L, jump = 0L;
+			double expense = 0D, adxExpense = 0D;
+			for (String day : days) {
+				// 基础数据累加
+				String impressionKey = day + CREATIVE_DATA_SUFFIX.IMPRESSION;
+				if (dayData.containsKey(impressionKey)) {
+					impression += Long.parseLong(dayData.get(impressionKey));
+				}
+				String clickKey = day + CREATIVE_DATA_SUFFIX.CLICK;
+				if (dayData.containsKey(clickKey)) {
+					click += Long.parseLong(dayData.get(clickKey));
+				}
+				String jumpKey = day + CREATIVE_DATA_SUFFIX.JUMP;
+				if (dayData.containsKey(jumpKey)) {
+					jump += Long.parseLong(dayData.get(jumpKey));
+				}
+				String expenseKey = day + CREATIVE_DATA_SUFFIX.EXPENSE;
+				if (dayData.containsKey(expenseKey)) {
+					expense += Double.parseDouble(dayData.get(expenseKey)) / 100;
+				}
+				
+				// 修正花费累加
+				for (CreativeBasicModel basic : creativeBasics) {
+					String adxId = basic.getAdxId();
+					String adxExpenseKey = day + CREATIVE_DATA_TYPE.ADX + adxId + CREATIVE_DATA_SUFFIX.EXPENSE;
+					// 判断该adx是否有数据
+					if (dayData.containsKey(adxExpenseKey)) {
+						// 获取当天的花费
+						double adxExpenseVal = Double.parseDouble(dayData.get(adxExpenseKey)) / 100;
+						// 获取当天的修正比
+						AdxCostModelExample adxCostExample = new AdxCostModelExample();
+						Date dayDate = DateUtils.strToDate(day, "yyyyMMdd");
+						adxCostExample.createCriteria().andAdxIdEqualTo(adxId).andStartDateLessThanOrEqualTo(dayDate).andEndDateGreaterThanOrEqualTo(dayDate);
+						List<AdxCostModel> adxCosts = adxCostDao.selectByExample(adxCostExample);
+						if (adxCosts.isEmpty()) {
+							continue;
+						}
+						float ratio = adxCosts.get(0).getRatio();
+						adxExpense += adxExpenseVal * ratio;
+					}
+				}
+			}
+			creativeData.setId(creativeId);
+			creativeData.setImpressionAmount(impression);
+			creativeData.setClickAmount(click);
+			creativeData.setClickRate(impression == 0 ? 0f : (float)click/impression);
+			creativeData.setJumpAmount(jump);
+			creativeData.setTotalCost(expense);
+			creativeData.setAdxCost(adxExpense);
+			creativeData.setImpressionCost(impression == 0 ? 0f : (float)expense/impression);
+			creativeData.setClickCost(click == 0 ? 0f : (float)expense/click);
+			creativeData.setJumpCost(jump == 0 ? 0f : (float)expense/jump);
+		}
+		
+		return creativeData;
+	}
+	
+	/**
+	 * 
+	 * @param campaignId
+	 * @param startDate
+	 * @param endDate
+	 * @return
+	 */
+	public BasicDataBean getCampaignData(String campaignId, long startDate, long endDate) {
+		CampaignBean campaignData = new CampaignBean();
+		CreativeModelExample example = new CreativeModelExample();
+		example.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> models = creativeDao.selectByExample(example);
+		long impression = 0L, click = 0L, jump = 0L;
+		double expense = 0D, adxExpense = 0D;
+		for (CreativeModel model : models) {
+			CreativeBean bean = (CreativeBean)getCreativeData(model.getId(), startDate, endDate);
+			impression += bean.getImpressionAmount();
+			click += bean.getClickAmount();
+			jump += bean.getJumpAmount();
+			expense += bean.getTotalCost();
+			adxExpense += bean.getAdxCost();
+		}
+		campaignData.setId(campaignId);
+		campaignData.setImpressionAmount(impression);
+		campaignData.setClickAmount(click);
+		campaignData.setClickRate(impression == 0 ? 0f : (float)click/impression);
+		campaignData.setJumpAmount(jump);
+		campaignData.setTotalCost(expense);
+		campaignData.setAdxCost(adxExpense);
+		campaignData.setImpressionCost(impression == 0 ? 0f : (float)expense/impression);
+		campaignData.setClickCost(click == 0 ? 0f : (float)expense/click);
+		campaignData.setJumpCost(jump == 0 ? 0f : (float)expense/jump);
+		
+		return campaignData;
+	}
+	
+	public BasicDataBean getProjectData(String projectId, long startDate, long endDate) {
+		ProjectBean projectData = new ProjectBean();
+		CampaignModelExample example = new CampaignModelExample();
+		example.createCriteria().andProjectIdEqualTo(projectId);
+		List<CampaignModel> models = campaignDao.selectByExample(example);
+		long impression = 0L, click = 0L, jump = 0L;
+		double expense = 0D, adxExpense = 0D;
+		for (CampaignModel model : models) {
+			CampaignBean bean = (CampaignBean)getCampaignData(model.getId(), startDate, endDate);
+			impression += bean.getImpressionAmount();
+			click += bean.getClickAmount();
+			jump += bean.getJumpAmount();
+			expense += bean.getTotalCost();
+			adxExpense += bean.getAdxCost();
+		}
+		projectData.setId(projectId);
+		projectData.setImpressionAmount(impression);
+		projectData.setClickAmount(click);
+		projectData.setClickRate(impression == 0 ? 0f : (float)click/impression);
+		projectData.setJumpAmount(jump);
+		projectData.setTotalCost(expense);
+		projectData.setAdxCost(adxExpense);
+		projectData.setImpressionCost(impression == 0 ? 0f : (float)expense/impression);
+		projectData.setClickCost(click == 0 ? 0f : (float)expense/click);
+		projectData.setJumpCost(jump == 0 ? 0f : (float)expense/jump);
+		
+		return projectData;
 	}
 	
 }

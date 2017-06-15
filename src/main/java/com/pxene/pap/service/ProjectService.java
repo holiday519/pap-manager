@@ -425,7 +425,7 @@ public class ProjectService extends BaseService {
      * @throws Exception
      */
 	@Transactional
-    public List<ProjectBean> listProjects(String name, Long beginTime, Long endTime, String advertiserId, String sortKey, String sortType) throws Exception {
+    public List<ProjectBean> listProjects(String name, Long startDate, Long endDate, String advertiserId, String sortKey, String sortType) throws Exception {
         // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
     	if (!StringUtils.isEmpty(name) && name.contains("_"))
     	{
@@ -446,26 +446,28 @@ public class ProjectService extends BaseService {
 			// 设置按更新时间降序排序
 			example.setOrderByClause("create_time DESC");
 		} else {
-			if (!sortType.isEmpty() && sortType.equals(StatusConstant.SORT_TYPE_DESC)) {
+			if (sortType != null && sortType.equals(StatusConstant.SORT_TYPE_DESC)) {
 				example.setOrderByClause(sortKey + " DESC");
-			} else {
+			} else if (sortType != null && sortType.equals(StatusConstant.SORT_TYPE_ASC)) {
 				example.setOrderByClause(sortKey + " ASC");
+			} else {
+				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 			}
 		}
 		List<ProjectModel> projects = projectDao.selectByExample(example);
 		List<ProjectBean> beans = new ArrayList<ProjectBean>();
 
-//		if (projects == null || projects.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-
 		for (ProjectModel model : projects) {
 			ProjectBean bean = modelMapper.map(model, ProjectBean.class);
-			getParam4Bean(bean);//查询属性，并放如结果中
+			//查询属性，并放如结果中
+			getParam4Bean(bean);
 
-			if (beginTime != null && endTime != null) {
+			if (startDate != null && endDate != null) {
 				//查询每个项目的投放信息
-				getData(beginTime, endTime, bean);
+//				getData(beginTime, endTime, bean);
+				ProjectBean data = (ProjectBean)dataService.getProjectData(model.getId(), startDate, endDate);
+				BeanUtils.copyProperties(data, bean, "id", "name", "advertiserId", "advertiserName", "industryId", 
+						"industryName", "totalBudget", "remark", "status", "effectFields", "statics", "rules");
 			}
 
 			beans.add(bean);
@@ -480,42 +482,42 @@ public class ProjectService extends BaseService {
      * @param bean
      * @throws Exception
      */
-    private void getData(Long beginTime, Long endTime,ProjectBean bean) throws Exception {
-    	//查询活动
-    	CampaignModelExample campaignExample = new CampaignModelExample();
-    	campaignExample.createCriteria().andProjectIdEqualTo(bean.getId());
-    	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-    	BasicDataBean dataBean = new BasicDataBean();//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
-    	dataService.formatBeanParams(dataBean);
-    	dataService.formatBeanRate(dataBean);
-    	if (campaigns != null && !campaigns.isEmpty()) {
-    		List<String> campaignIds = new ArrayList<String>();
-    		for (CampaignModel campaign : campaigns) {
-    			campaignIds.add(campaign.getId());
-    		}
-    		CreativeModelExample cExample = new CreativeModelExample();
-    		cExample.createCriteria().andCampaignIdIn(campaignIds);
-    		List<CreativeModel> list = creativeDao.selectByExample(cExample);
-    		List<String> creativeIds = new ArrayList<String>();
-    		if (list != null && !list.isEmpty()) {
-    			for (CreativeModel model : list) {
-    				creativeIds.add(model.getId());
-    			}
-    		}
-    		dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
-    	}
-    	bean.setImpressionAmount(dataBean.getImpressionAmount());
-    	bean.setClickAmount(dataBean.getClickAmount());
-    	bean.setTotalCost(dataBean.getTotalCost());
-    	bean.setJumpAmount(dataBean.getJumpAmount());
-    	bean.setImpressionCost(dataBean.getImpressionCost());
-    	bean.setClickCost(dataBean.getClickCost());
-    	bean.setClickRate(dataBean.getClickRate());
-    	bean.setJumpCost(dataBean.getJumpCost());
-		//修正成本
-		bean.setAdxCost(dataBean.getAdxCost());
-
-	}
+//    private void getData(Long beginTime, Long endTime,ProjectBean bean) throws Exception {
+//    	//查询活动
+//    	CampaignModelExample campaignExample = new CampaignModelExample();
+//    	campaignExample.createCriteria().andProjectIdEqualTo(bean.getId());
+//    	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+//    	BasicDataBean dataBean = new BasicDataBean();//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
+//    	dataService.formatBeanParams(dataBean);
+//    	dataService.formatBeanRate(dataBean);
+//    	if (campaigns != null && !campaigns.isEmpty()) {
+//    		List<String> campaignIds = new ArrayList<String>();
+//    		for (CampaignModel campaign : campaigns) {
+//    			campaignIds.add(campaign.getId());
+//    		}
+//    		CreativeModelExample cExample = new CreativeModelExample();
+//    		cExample.createCriteria().andCampaignIdIn(campaignIds);
+//    		List<CreativeModel> list = creativeDao.selectByExample(cExample);
+//    		List<String> creativeIds = new ArrayList<String>();
+//    		if (list != null && !list.isEmpty()) {
+//    			for (CreativeModel model : list) {
+//    				creativeIds.add(model.getId());
+//    			}
+//    		}
+//    		dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
+//    	}
+//    	bean.setImpressionAmount(dataBean.getImpressionAmount());
+//    	bean.setClickAmount(dataBean.getClickAmount());
+//    	bean.setTotalCost(dataBean.getTotalCost());
+//    	bean.setJumpAmount(dataBean.getJumpAmount());
+//    	bean.setImpressionCost(dataBean.getImpressionCost());
+//    	bean.setClickCost(dataBean.getClickCost());
+//    	bean.setClickRate(dataBean.getClickRate());
+//    	bean.setJumpCost(dataBean.getJumpCost());
+//		//修正成本
+//		bean.setAdxCost(dataBean.getAdxCost());
+//
+//	}
 
     /**
      * 查询项目属性
