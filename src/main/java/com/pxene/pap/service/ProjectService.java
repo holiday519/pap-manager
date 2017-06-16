@@ -1262,7 +1262,12 @@ public class ProjectService extends BaseService {
 			return false;
 		}
 		// 调用公式验证方法
-		return ScriptUtils.judge(formula);
+		try {
+			ScriptUtils.compute(formula);
+			return true;
+		} catch(Exception e) {
+			return false;
+		}				
 	}
 	
 	/**
