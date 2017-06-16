@@ -1801,6 +1801,7 @@ public class DataService extends BaseService {
 						cell.setCellValue(stringValue);
 					} else if (cellValue instanceof Double) {
 						double doubleValue = ((Double) cellValue).doubleValue();
+						cell.setCellStyle(currencyStyle);
 						cell.setCellValue(doubleValue);
 					} else if (cellValue instanceof Float) {
 						float floatValue = ((Float) cellValue).floatValue();
