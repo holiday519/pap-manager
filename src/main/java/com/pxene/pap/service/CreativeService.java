@@ -1641,7 +1641,7 @@ public class CreativeService extends BaseService {
 	/**
 	 * 修改创意
 	 * @param id
-	 * @param imageBean
+	 * @param creativeBean
 	 * @throws Exception   
 	 */
 	@Transactional
@@ -1651,6 +1651,10 @@ public class CreativeService extends BaseService {
 			// 如果没有该对象不能修改创意
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+
+		//停止创意投放
+		launchService.removeOneCreativeId(creativeModel.getCampaignId(),id);
+
 		// 修改创意
 		String type = creativeModel.getType(); //创意类型
 		String materialId = creativeModel.getMaterialId(); //素材ID
@@ -1699,6 +1703,10 @@ public class CreativeService extends BaseService {
 		}
 		// 放入ID，用于更新关联关系表中数据
 		creativeModel.setId(id);
+
+		//把状态改为未审核
+		creativeModel.setEnable(StatusConstant.CREATIVE_AUDIT_NOCHECK);
+
 		// 更新创意表信息
 		creativeDao.updateByPrimaryKeySelective(creativeModel);
 	}
