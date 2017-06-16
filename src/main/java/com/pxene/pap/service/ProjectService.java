@@ -24,7 +24,9 @@ import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.RedisHelper;
+import com.pxene.pap.common.ScriptUtils;
 import com.pxene.pap.common.UUIDGenerator;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -700,13 +702,13 @@ public class ProjectService extends BaseService {
         // 判断同一项目下转换值名称是否相同
         EffectDicModel effectDic = effectDicDao.selectByPrimaryKey(fieldId);
         String projectId = effectDic.getProjectId();
-        isSameOfEffectDicName(name,projectId);
+        checkSameOfEffectDicName(name,projectId);
         
         // 判断同一项目下转换值与静态值是否相同
-        isSameOfStaticName(name,projectId);
+        checkSameOfStaticName(name,projectId);
         
         // 判断转化值名称是否使用：展示数、点击数、二跳数、成本、修正成本
-        isUseFixedName(name);
+        checkUseFixedName(name);
         
         // 更新数据库
         EffectDicModel record = new EffectDicModel();
@@ -951,18 +953,18 @@ public class ProjectService extends BaseService {
 		String ruleName = bean.getName();		
 
 		// 验证同一项目下规则名称是否存在
-		isSameOfRuleName(ruleName,bean.getProjectId());
+		checkSameOfRuleName(ruleName,bean.getProjectId());
 		
 		// 判断公式是否合法
 		String conditions = bean.getConditions();
 		if (conditions != null && !conditions.isEmpty()) {
-			if (false == isFormula(bean.getConditions())) {
+			if (!isFormula(bean.getConditions())) {
 				throw new IllegalArgumentException(formulaErrorInfo(ruleName));
 			}
 		}		
 
 		// 判断项目是否存在
-		isHaveProject(bean.getProjectId());
+		checkHaveProject(bean.getProjectId());
 
 		// 插入规则
 		String ruleId = UUIDGenerator.getUUID();
@@ -1021,17 +1023,13 @@ public class ProjectService extends BaseService {
 			}
 			
 			// 判断公式是否合法
-			String formula = formulaBean.getFormula();
-			if (formula == null || formula.isEmpty()) {
-				throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
-			}
-			if (false == isFormula(formula)) {
+			if (!isFormula(formulaBean.getFormula())) {
 				throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
 			}						
 			
 			// 判断静态值是否为空
 			String staticId = formulaBean.getStaticId();
-			isHaveStatics(staticId);
+			checkHaveStatics(staticId);
 
 			FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
 			formulaModel.setId(UUIDGenerator.getUUID());
@@ -1091,9 +1089,8 @@ public class ProjectService extends BaseService {
 				// 根据静态值id获取静态值相关信息
 				String staticId = formulaModel.getStaticId();
 				StaticModel staticModel = staticDao.selectByPrimaryKey(staticId);
-				Statics statics = null;
 				if (staticModel != null) {
-					statics = new Statics();
+					Statics statics = new Statics();
 					statics.setId(staticModel.getId());
 					statics.setName(staticModel.getName());
 					statics.setValue(staticModel.getValue());
@@ -1161,7 +1158,7 @@ public class ProjectService extends BaseService {
 			String name = bean.getName();      // 欲修改规则名称
 			if (!nameInDB.equals(name)) {			
 				// 如果数据库中其它规则的名称与欲修改成的规则名称重复，则禁止修改
-				isSameOfRuleName(name,bean.getProjectId());
+				checkSameOfRuleName(name,bean.getProjectId());
 			}			
 		}	
 		
@@ -1169,13 +1166,13 @@ public class ProjectService extends BaseService {
 		// 判断公式是否合法
 		String conditions = bean.getConditions();
 		if (conditions != null && !conditions.isEmpty()) {
-			if (false == isFormula(conditions)) {
+			if (!isFormula(conditions)) {
 				throw new IllegalArgumentException(formulaErrorInfo(bean.getName()));
 			}
 		}
 		
 		// 判断项目是否存在
-		isHaveProject(bean.getProjectId());
+		checkHaveProject(bean.getProjectId());
 		
 		bean.setId(id);
 		RuleModel ruleModel = modelMapper.map(bean, RuleModel.class);
@@ -1194,7 +1191,7 @@ public class ProjectService extends BaseService {
 	 * @param projectId 项目id
 	 * @throws Exception
 	 */
-	private void isHaveProject(String projectId) throws Exception {
+	private void checkHaveProject(String projectId) throws Exception {
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
 		if (project == null) {
 			throw new IllegalArgumentException(PhrasesConstant.PROJECT_INFO_IS_NULL);
@@ -1206,7 +1203,7 @@ public class ProjectService extends BaseService {
 	 * @param staticId 静态值id
 	 * @throws Exception
 	 */
-	private void isHaveStatics(String staticId) throws Exception {
+	private void checkHaveStatics(String staticId) throws Exception {
 		StaticModel statics = staticDao.selectByPrimaryKey(staticId);
 		if (statics == null) {
 			throw new IllegalArgumentException(PhrasesConstant.STATICS_INFO_IS_NULL);				
@@ -1222,11 +1219,6 @@ public class ProjectService extends BaseService {
 		// 查询规则下的公式
 		FormulaModelExample formulaEx = new FormulaModelExample();
 		formulaEx.createCriteria().andRuleIdEqualTo(ruleId);
-//		List<FormulaModel> formulas = formulaDao.selectByExample(formulaEx);
-//		// 删除公式
-//		if (formulas != null && !formulas.isEmpty()) {
-//			formulaDao.deleteByExample(formulaEx);
-//		}
 		
 		// 删除公式
 		formulaDao.deleteByExample(formulaEx);
@@ -1269,9 +1261,8 @@ public class ProjectService extends BaseService {
 		if (formula.indexOf("11") > 0) {
 			return false;
 		}
-		// TODO:调用公式验证方法
-		// return false;
-		return true;
+		// 调用公式验证方法
+		return ScriptUtils.judge(formula);
 	}
 	
 	/**
@@ -1294,7 +1285,7 @@ public class ProjectService extends BaseService {
 	 * @param projectId 项目id
 	 * @throws Exception
 	 */
-	private void isSameOfRuleName(String name,String projectId) throws Exception {	
+	private void checkSameOfRuleName(String name,String projectId) throws Exception {	
 		// 根据规则名称和项目id查询规则信息
 		RuleModelExample ruleEx = new RuleModelExample();
 		ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
@@ -1316,13 +1307,13 @@ public class ProjectService extends BaseService {
 		String projectId = bean.getProjectId();
 		
 		// 验证同一项目下静态值名称是否相同
-		isSameOfStaticName(name,projectId);
+		checkSameOfStaticName(name,projectId);
 		
 		// 判断同一项目下静态值与转换值名称是否相同
-		isSameOfEffectDicName(name,projectId);
+		checkSameOfEffectDicName(name,projectId);
 		
 		// 判断静态值名称是否使用：展示数、点击数、二跳数、成本、修正成本
-		isUseFixedName(name);
+		checkUseFixedName(name);
 				
 		// 插入MySQL
 		StaticModel staticModel = modelMapper.map(bean, StaticModel.class);
@@ -1395,13 +1386,13 @@ public class ProjectService extends BaseService {
 				String projectId = staticInDB.getProjectId();
 				
 				// 判断同一项目下的静态值名称是否相同
-				isSameOfStaticName(name,projectId);
+				checkSameOfStaticName(name,projectId);
 				
 				// 判断同一项目下静态值与转换值名称是否相同
-				isSameOfEffectDicName(name,projectId);
+				checkSameOfEffectDicName(name,projectId);
 				
 				// 判断静态值名称是否使用：展示数、点击数、二跳数、成本、修正成本
-				isUseFixedName(name);
+				checkUseFixedName(name);
 				
 				// 更新数据库
 				staticInDB.setName(name);
@@ -1457,14 +1448,14 @@ public class ProjectService extends BaseService {
 	 * @param projectId 项目id
 	 * @throws Exception
 	 */
-	private void isSameOfStaticName(String name,String projectId) throws Exception {
+	private void checkSameOfStaticName(String name,String projectId) throws Exception {
 		// 根据静态值名称和项目id查询转换值信息
 		StaticModelExample staticEx = new StaticModelExample();
 		staticEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
 		List<StaticModel> statics = staticDao.selectByExample(staticEx);
 		if (statics != null && !statics.isEmpty()) {
 			// 如果项目id下存在静态值名称，则抛出异常
-			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+			throw new DuplicateEntityException(PhrasesConstant.STATICS_NAME_IS_SAME);
 		}
 		
 	}
@@ -1475,14 +1466,14 @@ public class ProjectService extends BaseService {
 	 * @param projectId
 	 * @throws Exception
 	 */
-	private void isSameOfEffectDicName(String name, String projectId) throws Exception {
+	private void checkSameOfEffectDicName(String name, String projectId) throws Exception {
 		// 根据转化值名称和项目id查询转换值信息
 		EffectDicModelExample effectDicEx = new EffectDicModelExample();
 		effectDicEx.createCriteria().andColumnNameEqualTo(name).andProjectIdEqualTo(projectId);
 		List<EffectDicModel> effectDic = effectDicDao.selectByExample(effectDicEx);
 		if (effectDic != null && !effectDic.isEmpty()) {
 			// 如果项目id下存在转化值名称，则抛出异常
-			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+			throw new DuplicateEntityException(PhrasesConstant.EFFECTDIC_NAME_IS_SAME);
 		}
 	}
 	
@@ -1491,10 +1482,10 @@ public class ProjectService extends BaseService {
 	 * @param name 静态值/转化值名称	
 	 * @throws Exception
 	 */
-	private void isUseFixedName(String name) throws Exception {
-		if(PhrasesConstant.DISPLAY_AMOUNT.equals(name) || PhrasesConstant.CLICK_AMOUNT.equals(name) 
-				|| PhrasesConstant.JUMP_AMOUNT.equals(name) || PhrasesConstant.COST.equals(name)
-				|| PhrasesConstant.ADX_COST.equals(name)) {
+	private void checkUseFixedName(String name) throws Exception {
+		if(CodeTableConstant.DISPLAY_AMOUNT.equals(name) || CodeTableConstant.CLICK_AMOUNT.equals(name) 
+				|| CodeTableConstant.JUMP_AMOUNT.equals(name) || CodeTableConstant.COST.equals(name)
+				|| CodeTableConstant.ADX_COST.equals(name)) {
 			throw new DuplicateEntityException(PhrasesConstant.USED_FIXED_NAME);
 		}
 	}

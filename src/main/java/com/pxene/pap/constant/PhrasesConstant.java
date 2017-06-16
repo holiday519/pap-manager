@@ -172,15 +172,15 @@ public class PhrasesConstant
 	public static final String STATIC_RULER_DELETE_ERROR = "静态值正在被规则引用，删除失败！";
 	public static final String STATIC_FORMULATE_DELETE_ERROR = "静态值正在被公式引用，删除失败！";
 	public static final String STATIC_NULL_STATICID = "静态值ID不能为空！";
+	public static final String RULEID_IS_NULL = "规则ID不能为空！";
+	public static final String VERNIER_IS_NULL = "游标不能为空！";
+	public static final String WEIGHT_IS_NULL = "权重不能为空！";
 		
 	public static final String FORMULA_IS_NULL = "公式不能为空";
 	public static final String WEIGHTS_ISNOT_CORRECT = "权重之和不为1";
-	
-	public static final String DISPLAY_AMOUNT = "展示数";
-	public static final String CLICK_AMOUNT = "点击数";
-	public static final String JUMP_AMOUNT = "二跳数";
-	public static final String COST = "成本";
-	public static final String ADX_COST = "修正成本";
+	public static final String STATICS_NAME_IS_SAME = "静态值名称不能重复";
+	public static final String EFFECTDIC_NAME_IS_SAME = "转化值名称不能重复";
+		
 	public static final String USED_FIXED_NAME = "名称不能使用：展示数、点击数、二跳数、成本、修正成本！";
     public static final String RULE_TRIGGER_ERROR = "判断触发条件发生异常";
 }

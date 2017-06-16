@@ -91,10 +91,12 @@ public class RuleFormulasBean {
 		/**
 		 * 公式
 		 */
+		@NotNull(message = PhrasesConstant.FORMULA_IS_NULL)
 		private String formula;
 		/**
 		 * 规则id
-		 */		
+		 */
+		@NotNull(message = PhrasesConstant.RULEID_IS_NULL)
 		private String ruleId;
 		/**
 		 * 静态值id
@@ -136,14 +138,17 @@ public class RuleFormulasBean {
 		/**
 		 * 正向游标
 		 */
+		@NotNull(message = PhrasesConstant.VERNIER_IS_NULL)
 		private Double forwardVernier;
 		/**
 		 * 负向游标
 		 */
+		@NotNull(message = PhrasesConstant.VERNIER_IS_NULL)
 		private Double negativeVernier;
 		/**
 		 * 权重
 		 */
+		@NotNull(message = PhrasesConstant.WEIGHT_IS_NULL)
 		private Float weight;
 		public String getId() {
 			return id;

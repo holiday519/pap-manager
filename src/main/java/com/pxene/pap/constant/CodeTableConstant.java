@@ -84,4 +84,18 @@ public class CodeTableConstant {
 	 * 汇总方式：分日
      */
 	public static final String SUMMARYWAY_DAY = "02";
+	
+	
+	/**
+	 * 固定名称：展示数、点击数、二跳数、成本、修正成本
+	 */
+	public static final String DISPLAY_AMOUNT = "展示数";
+	
+	public static final String CLICK_AMOUNT = "点击数";
+	
+	public static final String JUMP_AMOUNT = "二跳数";
+	
+	public static final String COST = "成本";
+	
+	public static final String ADX_COST = "修正成本";
 }
