@@ -42,10 +42,7 @@ public class CampaignBean extends BasicDataBean {
 	 */
 	@Length(max = 200, message = PhrasesConstant.LANDPAGE_LENGTH_ERROR_REMARK)
 	private String remark;
-	/**
-	 * 创意数（审核通过数/审核未通过数/总数）
-     */
-	private String creativeAmount;
+
 	/**
 	 * 状态
 	 */
@@ -66,7 +63,10 @@ public class CampaignBean extends BasicDataBean {
 
 	private String uniform;
 
-	private Integer creativeNum;
+	/**
+	 * 创意数（审核通过数/审核未通过数/总数）
+	 */
+	private String creativeNum;
 	/**
 	 * 定向
 	 */
@@ -525,11 +525,11 @@ public class CampaignBean extends BasicDataBean {
 		this.uniform = uniform;
 	}
 
-	public Integer getCreativeNum() {
+	public String getCreativeNum() {
 		return creativeNum;
 	}
 
-	public void setCreativeNum(Integer creativeNum) {
+	public void setCreativeNum(String creativeNum) {
 		this.creativeNum = creativeNum;
 	}
 
@@ -541,19 +541,11 @@ public class CampaignBean extends BasicDataBean {
 		this.projectName = projectName;
 	}
 
-	public String getCreativeAmount() {
-		return creativeAmount;
-	}
-
-	public void setCreativeAmount(String creativeAmount) {
-		this.creativeAmount = creativeAmount;
-	}
-
 	@Override
 	public String toString() {
 		return "CampaignBean [id=" + id + ", projectId=" + projectId
 				+ ", projectName=" + projectName + ", name=" + name
-				+ ", remark=" + remark + ", creativeAmount="+creativeAmount
+				+ ", remark=" + remark
 				+ ", status=" + status + ", startDate=" + startDate
 				+ ", endDate=" + endDate + ", uniform=" + uniform
 				+ ", creativeNum=" + creativeNum + ", target=" + target

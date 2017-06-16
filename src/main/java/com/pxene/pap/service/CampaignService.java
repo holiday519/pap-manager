@@ -1136,7 +1136,7 @@ public class CampaignService extends BaseService {
 			}
 		}
 		//设置创意数
-		bean.setCreativeAmount(passNum+"/"+noPassNum+"/"+totalNum);
+		bean.setCreativeNum(passNum+"/"+noPassNum+"/"+totalNum);
 
 		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
 		if (dataBean != null) {
@@ -1286,16 +1286,6 @@ public class CampaignService extends BaseService {
 			}
 			bean.setQuantities(quanArray);
 		}
-		//查询创意数
-		CreativeModelExample creativeModelExample = new CreativeModelExample();
-		creativeModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeModelExample);
-		if (creatives == null) {
-			bean.setCreativeNum(0);
-		} else {
-			bean.setCreativeNum(creatives.size());
-		}
-		//查询项目名称
 		
 	}
 	
