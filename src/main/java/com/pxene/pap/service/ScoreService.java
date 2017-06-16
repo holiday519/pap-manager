@@ -1,5 +1,7 @@
 package com.pxene.pap.service;
 
+import static com.pxene.pap.constant.RedisKeyConstant.CREATIVE_DATA_DAY;
+
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -25,6 +27,7 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.ScriptUtils;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectModel;
@@ -51,8 +54,6 @@ import com.pxene.pap.repository.basic.StaticDao;
 @Service
 public class ScoreService
 {
-    private static final String REDIS_KEY_CREATIVE_DATA_DAY = "creativeDataDay_";
-    
     private static final SimpleDateFormat DATATIME_FORMATTER = new SimpleDateFormat("yyyyMMdd");
 
     private static final String REGEX_UUID36_TEMPLATE = "'{'{0}'}'";
@@ -81,6 +82,9 @@ public class ScoreService
     
     @Autowired
     private RedisHelper tertiaryRedis;
+    
+    @Autowired
+    private DataService dataService;
     
     
     @PostConstruct
@@ -146,6 +150,7 @@ public class ScoreService
                     // 根据游标系计算得分
                     double score = score(formulaResult, baseVal, forwardVernier, negativeVernier);
                     
+                    // 一个评分规则有多条公式，每个公式计算出的得分需要乘权重，才是这个公式的最终得分
                     double weightedScore = score * weight;
                     
                     result = result + weightedScore;
@@ -173,10 +178,10 @@ public class ScoreService
         Map<String, Number> result = new HashMap<String, Number>();
         for (int i = 1; i <= 10; i++)
         {
-            result.put("A" + i, 0);
+            result.put("A" + i, 0.0D);
         }
         
-        EffectModelExample effectExample = new EffectModelExample();;
+        EffectModelExample effectExample = new EffectModelExample();
         
         // 根据活动ID和日期段从“pap_t_landpage_code_history”表中查询监测码的使用历史
         LandpageCodeHistoryModelExample historyCodeExample = new LandpageCodeHistoryModelExample();
@@ -244,7 +249,6 @@ public class ScoreService
         int secondJumpAmount = 0;
         double expenseAmount = 0;
         
-        
         // 根据活动ID查出数据库中该活动的全部创意
         CreativeModelExample example = new CreativeModelExample();
         example.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -255,7 +259,7 @@ public class ScoreService
             for (CreativeModel creative : creatives)
             {
                 // 拼接“creativeDataDay_创意ID”作为Redis的Key
-                String key = REDIS_KEY_CREATIVE_DATA_DAY + creative.getId();
+                String key = CREATIVE_DATA_DAY + creative.getId();
                 
                 // 遍历活动开始日期和结束日期之间的每一天，作为Hash的Field
                 for (Date day : days)
@@ -291,11 +295,15 @@ public class ScoreService
                 }
             }
             
+            // 获得修正成本
+            CampaignBean campaignData = (CampaignBean) dataService.getCampaignData(campaignId, startDateTimestamp, endDateTimestamp);
+            Double adxCost = campaignData.getAdxCost();
+            
             result.put("B1", pvAmount);
             result.put("B2", clickAmount);
             result.put("B3", secondJumpAmount);
             result.put("B4", expenseAmount);
-            result.put("B5", 0);//TODO 修正成本
+            result.put("B5", adxCost);
         }
         
         return result;
@@ -477,7 +485,7 @@ public class ScoreService
      * @param backwardStep  负向游标
      * @return 公式的得分
      */
-    private static double score(double target, double baseVal, double forwardStep, double backwardStep)
+    private double score(double target, double baseVal, double forwardStep, double backwardStep)
     {
         double scores = 0.0d;
         
@@ -529,7 +537,6 @@ public class ScoreService
         }
         else if ((baseVal < backwardBoundary) && (baseVal > forwardBoundary))   // 适用于降序情况，如：130 --> 60 --> 10
         {
-            
             if (target > baseVal)
             {
                 scores = backwardScoreUnit * units;
