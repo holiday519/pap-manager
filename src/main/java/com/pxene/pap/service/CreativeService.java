@@ -1705,10 +1705,31 @@ public class CreativeService extends BaseService {
 		creativeModel.setId(id);
 
 		//把状态改为未审核
-		creativeModel.setEnable(StatusConstant.CREATIVE_AUDIT_NOCHECK);
+		updateCreativeAuditStatus(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);
 
 		// 更新创意表信息
 		creativeDao.updateByPrimaryKeySelective(creativeModel);
+	}
+
+	/**
+	 * 更新创意审核状态
+	 * @param creativeId 创意id
+	 * @param status 状态值
+     */
+	public void updateCreativeAuditStatus(String creativeId,String status){
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		example.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
+
+		// 如果创意审核表信息已存在，更新数据库中原记录的状态为审核中
+		if (auditsInDB != null && !auditsInDB.isEmpty())
+		{
+			for (CreativeAuditModel auditInDB : auditsInDB)
+			{
+				auditInDB.setStatus(status);
+				creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
+			}
+		}
 	}
 	
 	/**
