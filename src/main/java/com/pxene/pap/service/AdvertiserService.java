@@ -631,8 +631,7 @@ public class AdvertiserService extends BaseService
 
     /**
      * 广告主提交第三方审核
-     * @param id 广告主id
-     * @param adxId ADX的id
+     * @param auditId 审核id
      * @throws Exception
      */
     @Transactional
@@ -641,6 +640,10 @@ public class AdvertiserService extends BaseService
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
+		}
+		//判断广告主的审核状态,如果状态是审核中，审核通过，则直接返回
+		if(advertiserAudit.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_WATING) || advertiserAudit.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){
+			return ;
 		}
 		// 获取adxId
 		String adxId = advertiserAudit.getAdxId();
