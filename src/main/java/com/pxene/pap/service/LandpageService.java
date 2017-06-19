@@ -139,6 +139,15 @@ public class LandpageService extends BaseService {
 	 */
 	@Transactional
 	public void updateLandpage(String id, LandpageBean bean) throws Exception {
+
+		//先判断有没有活动在使用，有则不让修改
+		CampaignModelExample campaginEx = new CampaignModelExample();
+		campaginEx.createCriteria().andLandpageIdEqualTo(id);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaginEx);
+		if (campaigns != null && !campaigns.isEmpty()) {
+			throw new DuplicateEntityException(PhrasesConstant.LANDPAGE_USED_ERROR_CAMPAIGNID_USE);
+		}
+
 		LandpageModel landpageInDB = landpageDao.selectByPrimaryKey(id);
 		if (landpageInDB == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);

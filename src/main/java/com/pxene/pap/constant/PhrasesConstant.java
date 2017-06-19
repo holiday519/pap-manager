@@ -158,7 +158,8 @@ public class PhrasesConstant
 	public static final String LANDPAGE_LENGTH_ERROR_ANIDDEEP = "安卓 DeepLink长度不能 超过400";
 	public static final String LANDPAGE_LENGTH_ERROR_IOSDEEP = "ios Deepl长度不能 超过400";
 	public static final String LANDPAGE_LENGTH_ERROR_REMARK = "备注长度不能 超过200";
-	
+	public static final String LANDPAGE_USED_ERROR_CAMPAIGNID_USE = "落地页正在被使用，不能修改";
+
 	
 	public static final String CREATIVE_HAVE_CHECKED = "审核过的创意不能再次提交审核";
 	public static final String CREATIVE_HAVE_SYCHRONIZED = "审核过的创意不能再次同步";

@@ -1263,7 +1263,7 @@ public class CreativeService extends BaseService {
 		CreativeModelExample creativeModelExample = new CreativeModelExample();
 		creativeModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeModelExample);
-		List<String> creativeIds = new ArrayList<>();
+		List<String> creativeIds = new ArrayList<String>();
 		if(creativeModels != null && !creativeModels.isEmpty()){
 			for(CreativeModel creativeModel: creativeModels){
 				creativeIds.add(creativeModel.getId());
@@ -1272,7 +1272,7 @@ public class CreativeService extends BaseService {
 		if(creativeIds.isEmpty()){
 			return;
 		}
-
+		//根据创意id查询创意审核
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		example.createCriteria().andCreativeIdIn(creativeIds);
 		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);

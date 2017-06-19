@@ -437,6 +437,11 @@ public class CampaignService extends BaseService {
 			launchService.removeCreativeId(id);
 			// 4.把活动下面的所有创意状态改为未审核
 			creativeService.updateCreativeAuditStatusByCampaignId(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);
+
+			// 3.停止活动下面的所有创意投放
+			launchService.removeCreativeId(id);
+			// 4.把活动下面的所有创意状态改为未审核
+			creativeService.updateCreativeAuditStatusByCampaignId(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);
 		}
 		
 		// 修改基本信息
