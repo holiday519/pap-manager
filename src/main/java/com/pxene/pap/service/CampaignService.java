@@ -192,6 +192,9 @@ public class CampaignService extends BaseService {
 	private CreativeAuditDao creativeAuditDao;
 	
 	@Autowired
+	private ScoreService scoreService;
+	
+	@Autowired
 	private LandpageCodeHistoryDao landpageCodeHistoryDao;
 	
 	@Autowired
@@ -1063,6 +1066,10 @@ public class CampaignService extends BaseService {
 		
 		for (CampaignModel model : models) {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);
+			
+			double campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
+			map.setScore(campaignScore);
+			
 			addParamToCampaign(map, model.getId(), model.getFrequencyId());
 
 			if (beginTime != null && endTime != null) {

@@ -44,6 +44,11 @@ public class CampaignBean extends BasicDataBean {
 	private String remark;
 
 	/**
+     * 创意数（审核通过数/审核未通过数/总数）
+     */
+    private String creativeAmount;
+	
+	/**
 	 * 状态
 	 */
 	private String status;
@@ -71,6 +76,8 @@ public class CampaignBean extends BasicDataBean {
 	 * 定向
 	 */
 	private Target target;
+	
+	private double score;
 
 	public static class Target {
 
@@ -541,18 +548,31 @@ public class CampaignBean extends BasicDataBean {
 		this.projectName = projectName;
 	}
 
-	@Override
-	public String toString() {
-		return "CampaignBean [id=" + id + ", projectId=" + projectId
-				+ ", projectName=" + projectName + ", name=" + name
-				+ ", remark=" + remark
-				+ ", status=" + status + ", startDate=" + startDate
-				+ ", endDate=" + endDate + ", uniform=" + uniform
-				+ ", creativeNum=" + creativeNum + ", target=" + target
-				+ ", frequency=" + frequency +  ", quantities="
-				+ Arrays.toString(quantities) + ", landpageId=" + landpageId
-				+ ", landpageName=" + landpageName + ", landpageUrl="
-				+ landpageUrl + "]";
+	public String getCreativeAmount() {
+		return creativeAmount;
 	}
+
+	public void setCreativeAmount(String creativeAmount) {
+		this.creativeAmount = creativeAmount;
+	}
+	
+	public double getScore()
+    {
+        return score;
+    }
+
+    public void setScore(double campaignScore)
+    {
+        this.score = campaignScore;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "CampaignBean [id=" + id + ", projectId=" + projectId + ", projectName=" + projectName + ", name=" + name + ", remark=" + remark + ", creativeAmount=" + creativeAmount + ", status="
+                + status + ", reason=" + reason + ", startDate=" + startDate + ", endDate=" + endDate + ", uniform=" + uniform + ", creativeNum=" + creativeNum + ", target=" + target
+                + ", campaignScore=" + score + ", frequency=" + frequency + ", quantities=" + Arrays.toString(quantities) + ", landpageId=" + landpageId + ", landpageName=" + landpageName
+                + ", landpageUrl=" + landpageUrl + "]";
+    }
 
 }
