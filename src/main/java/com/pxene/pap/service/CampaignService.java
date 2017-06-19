@@ -1,5 +1,7 @@
 package com.pxene.pap.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -109,7 +111,7 @@ import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 @Service
 public class CampaignService extends BaseService {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(CampaignService.class);
 	
 	@Autowired
 	private CampaignDao campaignDao; 
@@ -1067,7 +1069,8 @@ public class CampaignService extends BaseService {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);
 			
 			double campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
-			map.setScore(campaignScore);
+			BigDecimal bigDecimal = new BigDecimal(campaignScore).setScale(2, RoundingMode.UP);
+			map.setScore(bigDecimal.doubleValue());
 			
 			addParamToCampaign(map, model.getId(), model.getFrequencyId());
 
