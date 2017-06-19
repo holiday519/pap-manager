@@ -1651,10 +1651,8 @@ public class CreativeService extends BaseService {
 			// 如果没有该对象不能修改创意
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-
-		//停止创意投放
-		launchService.removeOneCreativeId(creativeModel.getCampaignId(),id);
-
+		//获取活动id
+		String campaignId = creativeModel.getCampaignId();
 		// 修改创意
 		String type = creativeModel.getType(); //创意类型
 		String materialId = creativeModel.getMaterialId(); //素材ID
@@ -1704,19 +1702,21 @@ public class CreativeService extends BaseService {
 		// 放入ID，用于更新关联关系表中数据
 		creativeModel.setId(id);
 
+		//停止创意投放
+		launchService.removeOneCreativeId(campaignId,id);
 		//把状态改为未审核
-		updateCreativeAuditStatus(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);
+		updateCreativeAuditStatusByCreativeId(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);
 
 		// 更新创意表信息
 		creativeDao.updateByPrimaryKeySelective(creativeModel);
 	}
 
 	/**
-	 * 更新创意审核状态
+	 * 更改创意的审核状态为指定状态
 	 * @param creativeId 创意id
 	 * @param status 状态值
-     */
-	public void updateCreativeAuditStatus(String creativeId,String status){
+	 */
+	public void updateCreativeAuditStatusByCreativeId(String creativeId,String status){
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		example.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
@@ -1724,12 +1724,52 @@ public class CreativeService extends BaseService {
 		// 如果创意审核表信息已存在，更新数据库中原记录的状态
 		if (auditsInDB != null && !auditsInDB.isEmpty())
 		{
-			for (CreativeAuditModel auditInDB : auditsInDB)
-			{
-				if(!auditInDB.getStatus().equals(status)) {
-					auditInDB.setStatus(status);
-					creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
-				}
+			updateCreativeAuditStatus(auditsInDB,status);
+		}
+	}
+
+	/**
+	 * 更改活动下面的所有创意审核状态为指定状态
+	 * @param campaignId
+	 * @param status
+	 */
+	public void updateCreativeAuditStatusByCampaignId(String campaignId,String status){
+		//查询活动下面的所有创意
+		CreativeModelExample creativeModelExample = new CreativeModelExample();
+		creativeModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeModelExample);
+		List<String> creativeIds = new ArrayList<>();
+		if(creativeModels != null && !creativeModels.isEmpty()){
+			for(CreativeModel creativeModel: creativeModels){
+				creativeIds.add(creativeModel.getId());
+			}
+		}
+		if(creativeIds.isEmpty()){
+			return;
+		}
+
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		example.createCriteria().andCreativeIdIn(creativeIds);
+		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
+
+		// 如果创意审核表信息已存在，更新数据库中原记录的状态
+		if (auditsInDB != null && !auditsInDB.isEmpty())
+		{
+			updateCreativeAuditStatus(auditsInDB,status);
+		}
+	}
+
+	/**
+	 * 更改创意审核状态为指定状态
+	 * @param auditsInDB
+	 * @param status
+	 */
+	public void updateCreativeAuditStatus(List<CreativeAuditModel> auditsInDB,String status){
+		for (CreativeAuditModel auditInDB : auditsInDB)
+		{
+			if(!auditInDB.getStatus().equals(status)) {
+				auditInDB.setStatus(status);
+				creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
 			}
 		}
 	}

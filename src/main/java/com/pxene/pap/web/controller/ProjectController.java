@@ -163,7 +163,7 @@ public class ProjectController {
 	/**
 	 * 启用/禁用转化字段
 	 * @param fieldId   项目ID
-	 * @param enable  位于Http Body中的请求参数，包含转化字段编号code和操作标识enable
+	 * @param map  位于Http Body中的请求参数，包含转化字段编号code和操作标识enable
 	 * @param response
 	 */
 	@RequestMapping(value = "/project/effect/enable/{fieldId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

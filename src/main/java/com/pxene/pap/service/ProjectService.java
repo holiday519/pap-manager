@@ -731,7 +731,11 @@ public class ProjectService extends BaseService {
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
-
+		//判断转换值对应的名称是否为空
+		EffectDicModel effectDicModel = effectDicDao.selectByPrimaryKey(fieldId);
+		if(effectDicModel == null || effectDicModel.getColumnName()==null  || effectDicModel.getColumnName().isEmpty()){
+			throw new IllegalArgumentException(PhrasesConstant.EFFECTDIC_NAME_IS_NULL);
+		}
         EffectDicModel record = new EffectDicModel();
         record.setId(fieldId);
         record.setEnable(enable);
