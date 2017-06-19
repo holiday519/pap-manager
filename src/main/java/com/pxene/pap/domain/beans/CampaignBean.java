@@ -77,7 +77,7 @@ public class CampaignBean extends BasicDataBean {
 	 */
 	private Target target;
 	
-	private double score;
+	private CampaignScoreBean campaignScore;
 
 	public static class Target {
 
@@ -556,14 +556,14 @@ public class CampaignBean extends BasicDataBean {
 		this.creativeAmount = creativeAmount;
 	}
 	
-	public double getScore()
+	public CampaignScoreBean getCampaignScore()
     {
-        return score;
+        return campaignScore;
     }
 
-    public void setScore(double campaignScore)
+    public void setCampaignScore(CampaignScoreBean campaignScore)
     {
-        this.score = campaignScore;
+        this.campaignScore = campaignScore;
     }
 
     @Override
@@ -571,7 +571,7 @@ public class CampaignBean extends BasicDataBean {
     {
         return "CampaignBean [id=" + id + ", projectId=" + projectId + ", projectName=" + projectName + ", name=" + name + ", remark=" + remark + ", creativeAmount=" + creativeAmount + ", status="
                 + status + ", reason=" + reason + ", startDate=" + startDate + ", endDate=" + endDate + ", uniform=" + uniform + ", creativeNum=" + creativeNum + ", target=" + target
-                + ", campaignScore=" + score + ", frequency=" + frequency + ", quantities=" + Arrays.toString(quantities) + ", landpageId=" + landpageId + ", landpageName=" + landpageName
+                + ", campaignScore=" + campaignScore + ", frequency=" + frequency + ", quantities=" + Arrays.toString(quantities) + ", landpageId=" + landpageId + ", landpageName=" + landpageName
                 + ", landpageUrl=" + landpageUrl + "]";
     }
 

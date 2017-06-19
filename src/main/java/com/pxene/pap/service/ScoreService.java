@@ -3,8 +3,10 @@ package com.pxene.pap.service;
 import static com.pxene.pap.constant.RedisKeyConstant.CREATIVE_DATA_DAY;
 
 import java.lang.reflect.Method;
+import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +30,7 @@ import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.ScriptUtils;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.CampaignBean;
+import com.pxene.pap.domain.beans.CampaignScoreBean;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectModel;
@@ -59,6 +62,8 @@ public class ScoreService
     private static final String REGEX_UUID36_TEMPLATE = "'{'{0}'}'";
 
     private static final String REGEX_UUID36_VALUE = "\\{(.{36})\\}";
+    
+    private static final DecimalFormat SCORE_DECIMAL_FORMAT = new DecimalFormat("#.00");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreService.class);
     
@@ -102,10 +107,12 @@ public class ScoreService
      * @param endTime       活动结束日期
      * @return  活动得分
      */
-    public double getCampaignScore(String projectId, String campaignId, Long beginTime, Long endTime)
+    public CampaignScoreBean getCampaignScore(String projectId, String campaignId, Long beginTime, Long endTime)
     {
+        CampaignScoreBean result = new CampaignScoreBean();
+        
         // 声明活动总得分
-        double result = 0.0;
+        double campaignScore = 0.0;
         
         try
         {
@@ -120,10 +127,21 @@ public class ScoreService
             
             if (rule == null)
             {
-                return 0.0;
+                return null;
             }
             else
             {
+                // 拼接触发条件
+                String trigger = rule.getConditions() + rule.getRelation() + "{" + rule.getStaticId() + "}";
+                
+                // 替换触发条件中的静态值
+                trigger = replaceFormulaStaticValue(trigger);
+                
+                result.setRuleName(rule.getName());
+                result.setRuleTrigger(trigger);
+                
+                List<Map<String, String>> formulaList = new ArrayList<Map<String, String>>();
+                
                 // 查询出属于这个触发条件的全部公式
                 FormulaModelExample example = new FormulaModelExample();
                 example.createCriteria().andRuleIdEqualTo(rule.getId());
@@ -153,8 +171,19 @@ public class ScoreService
                     // 一个评分规则有多条公式，每个公式计算出的得分需要乘权重，才是这个公式的最终得分
                     double weightedScore = score * weight;
                     
-                    result = result + weightedScore;
+                    campaignScore = campaignScore + weightedScore;
+                    
+                    Map<String, String> formulaMap = new HashMap<String, String>();
+                    formulaMap.put("name", formulaModel.getName());
+                    formulaMap.put("value", String.valueOf(score));
+                    formulaMap.put("weight", String.valueOf(weight));
+                    formulaList.add(formulaMap);
                 }
+                
+                // 将活动得分四舍五入，并保留2位小数
+                String formatedScore = SCORE_DECIMAL_FORMAT.format(campaignScore);
+                result.setScore(Double.valueOf(formatedScore));
+                result.setFormulaList(formulaList);
             }
         }
         catch (ScriptException e)
@@ -335,9 +364,11 @@ public class ScoreService
             String relation = rule.getRelation();
             String staticId = rule.getStaticId();
             
-            if (org.apache.commons.lang3.StringUtils.isAnyEmpty(condition, relation, staticId))
+            // 评分规则的触发条件可以为空（conditions, relation, static_id同时为空），如果触发条件为空，则认为成功触发。
+            if (!org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
             {
-                throw new IllegalArgumentException();
+                // isNoneEmpty表示三个字段同时不为空、没有任何一个字段为空。取反，表示三个字段中有可能有空值
+                return rule;
             }
             
             // 拼接触发条件

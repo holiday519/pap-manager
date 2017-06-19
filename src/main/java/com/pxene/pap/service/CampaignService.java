@@ -1,6 +1,5 @@
 package com.pxene.pap.service;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +34,7 @@ import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.beans.CampaignBean.Target.App;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
+import com.pxene.pap.domain.beans.CampaignScoreBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean.Population;
 import com.pxene.pap.domain.beans.PopulationTargetBean;
@@ -111,8 +111,6 @@ import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 public class CampaignService extends BaseService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(CampaignService.class);
-	
-	private static final DecimalFormat SCORE_DECIMAL_FORMAT = new DecimalFormat("#.00");
 	
 	@Autowired
 	private CampaignDao campaignDao; 
@@ -1073,8 +1071,8 @@ public class CampaignService extends BaseService {
 		for (CampaignModel model : models) {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);
 			
-			double campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
-			map.setScore(Double.valueOf(SCORE_DECIMAL_FORMAT.format(campaignScore)));
+			CampaignScoreBean campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
+			map.setCampaignScore(campaignScore);
 			
 			addParamToCampaign(map, model.getId(), model.getFrequencyId());
 
