@@ -111,6 +111,11 @@ public class ScoreService
     {
         CampaignScoreBean result = new CampaignScoreBean();
         
+        if (beginTime == null || endTime == null)
+        {
+            return result;
+        }
+        
         // 声明活动总得分
         double campaignScore = 0.0;
         
