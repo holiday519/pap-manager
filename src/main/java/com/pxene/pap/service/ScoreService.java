@@ -127,7 +127,7 @@ public class ScoreService
             
             if (rule == null)
             {
-                return null;
+                return result;
             }
             else
             {
