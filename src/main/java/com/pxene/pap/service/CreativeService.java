@@ -1381,8 +1381,8 @@ public class CreativeService extends BaseService {
 		if (creativeModels == null || creativeIds.length > creativeModels.size()) {
 			// 如果创意信息为空
 			throw new ResourceNotFoundException(PhrasesConstant.CREATIVE_NOT_FOUND);
-		}							
-		
+		}
+
 		// 审核创意
 		for (CreativeModel creative : creativeModels) {
 			// 创意id
