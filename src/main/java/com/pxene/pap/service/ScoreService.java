@@ -427,7 +427,16 @@ public class ScoreService
             try
             {
                 method = effectModelClass.getDeclaredMethod("getA" + i);
-                valArray[i-1] = (Double) method.invoke(effect);
+                Object val = method.invoke(effect);
+                
+                if (val == null)
+                {
+                    valArray[i-1] = 0.0;
+                }
+                else
+                {
+                    valArray[i-1] = (Double) val;
+                }
             }
             catch (Exception e)
             {
