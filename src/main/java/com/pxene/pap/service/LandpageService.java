@@ -145,7 +145,7 @@ public class LandpageService extends BaseService {
 		campaginEx.createCriteria().andLandpageIdEqualTo(id);
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaginEx);
 		if (campaigns != null && !campaigns.isEmpty()) {
-			throw new DuplicateEntityException(PhrasesConstant.LANDPAGE_USED_ERROR_CAMPAIGNID_USE);
+			throw new IllegalArgumentException(PhrasesConstant.LANDPAGE_USED_ERROR_CAMPAIGNID_USE);
 		}
 
 		LandpageModel landpageInDB = landpageDao.selectByPrimaryKey(id);
