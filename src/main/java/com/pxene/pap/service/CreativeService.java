@@ -1721,13 +1721,15 @@ public class CreativeService extends BaseService {
 		example.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
 
-		// 如果创意审核表信息已存在，更新数据库中原记录的状态为审核中
+		// 如果创意审核表信息已存在，更新数据库中原记录的状态
 		if (auditsInDB != null && !auditsInDB.isEmpty())
 		{
 			for (CreativeAuditModel auditInDB : auditsInDB)
 			{
-				auditInDB.setStatus(status);
-				creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
+				if(!auditInDB.getStatus().equals(status)) {
+					auditInDB.setStatus(status);
+					creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
+				}
 			}
 		}
 	}

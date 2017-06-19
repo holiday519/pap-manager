@@ -12,7 +12,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
@@ -202,6 +200,7 @@ public class CampaignService extends BaseService {
 	
 	@Autowired
 	private RedisHelper redisHelper;
+
 	
 	private static JsonParser parser = new JsonParser();
 	
@@ -1134,15 +1133,26 @@ public class CampaignService extends BaseService {
 		if (list != null && !list.isEmpty()) {
 			totalNum = list.size();
 			for (CreativeModel model : list) {
-				if(model.getEnable().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){
-					passNum++;
-				}else if(model.getEnable().equals(StatusConstant.ADVERTISER_AUDIT_FAILURE)){
-					noPassNum++;
-				}
 				creativeIds.add(model.getId());
 			}
 		}
+
 		//设置创意数
+		if(creativeIds.size()>0){
+			//根据创意id，批量查询创意审核信息
+			CreativeAuditModelExample example = new CreativeAuditModelExample();
+			example.createCriteria().andCreativeIdIn(creativeIds);
+			List<CreativeAuditModel> creativeAuditModels = creativeAuditDao.selectByExample(example);
+			if(creativeAuditModels != null && !creativeAuditModels.isEmpty()){
+				for(CreativeAuditModel model : creativeAuditModels){
+					if(model.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){	//审查成功
+						passNum++;
+					}else if(model.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_FAILURE)){ //失败
+						noPassNum++;
+					}
+				}
+			}
+		}
 		bean.setCreativeNum(passNum+"/"+noPassNum+"/"+totalNum);
 
 		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
