@@ -1407,7 +1407,7 @@ public class CreativeService extends BaseService {
 			// 创意id
 			String creativeId = creative.getId();
 			String status = getCreativeAuditStatus(creativeId);
-			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status)) {
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status)) {
 				continue;
 			}
 			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
