@@ -863,7 +863,7 @@ public class CreativeService extends BaseService {
 				image.setAppName(appName);                       //app名称
 				image.setEnable(creative.getEnable());           //创意的状态
 				
-				image.setImageId(creative.getMaterialId());   //图片id
+				image.setImageId(imageModel.getId());   //图片id
 				image.setImagePath(imageModel.getPath());     //图片路径
 
 				

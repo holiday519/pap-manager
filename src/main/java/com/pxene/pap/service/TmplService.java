@@ -112,7 +112,7 @@ public class TmplService extends BaseService {
 					} else {
 						imageTmpl = getImageTmplDetail(tmplId);
 						AppModel app = getAppById(appTmpl.getAppId());
-						 if (app != null) {
+						 if (app != null && imageTmpl !=null) {
 		                	 imageTmpl.setAppId(app.getId());
 		                	 imageTmpl.setAppName(app.getAppName());
 		                }
