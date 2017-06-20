@@ -103,8 +103,8 @@ public class ScoreService
      * 计算活动得分。
      * @param projectId     项目ID
      * @param campaignId    活动ID
-     * @param beginTime     活动起始日期
-     * @param endTime       活动结束日期
+     * @param beginTime     查询时间段：起始日期
+     * @param endTime       查询时间段：查询结束日期
      * @return  活动得分
      */
     public CampaignScoreBean getCampaignScore(String projectId, String campaignId, Long beginTime, Long endTime)
@@ -170,6 +170,7 @@ public class ScoreService
                     Double negativeVernier = formulaModel.getNegativeVernier();
                     Float weight = formulaModel.getWeight();
                     
+                    
                     // 替换公式中的静态值
                     formula = replaceFormulaStaticValue(formula);
                     
@@ -180,12 +181,18 @@ public class ScoreService
                     // 计算公式的结果
                     double formulaResult = computeFormula(formula);
                     
+                    if (Double.isNaN(formulaResult) || Double.isInfinite(formulaResult))
+                    {
+                        continue;
+                    }
+                    
                     // 根据游标系计算得分
                     double score = score(formulaResult, baseVal, forwardVernier, negativeVernier);
                     
                     // 一个评分规则有多条公式，每个公式计算出的得分需要乘权重，才是这个公式的最终得分
                     double weightedScore = score * weight;
                     
+                    // 累加得分总和
                     campaignScore = campaignScore + weightedScore;
                     
                     Map<String, String> formulaMap = new HashMap<String, String>();
