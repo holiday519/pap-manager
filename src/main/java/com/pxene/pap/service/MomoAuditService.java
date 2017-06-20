@@ -196,9 +196,13 @@ public class MomoAuditService extends AuditService {
 		String auditUrl = momoAdx.getCreativeAuditUrl();
 		//提交陌陌审核并
         String creativeAuditResult = HttpClientUtil.getInstance().sendHttpPostForm(auditUrl, "data=" + data.toString());
+		if(creativeAuditResult == null){
+			throw new IllegalStatusException(AuditErrorConstant.MOMO_CREATIVE_AUDIT_ERROR_REASON+"连接失败");
+		}
         //转换陌陌审核数据格式
         Gson gson = new Gson();
-        JsonObject creativeAuditJson = gson.fromJson(creativeAuditResult, new JsonObject().getClass()); 
+        JsonObject creativeAuditJson = gson.fromJson(creativeAuditResult, new JsonObject().getClass());
+
 		if (creativeAuditJson.get("ec") != null && creativeAuditJson.get("ec").getAsInt() == 200) {
 			// 如果creativeAuditJson的get("ec")不为空并且==200，说明审核成功，查询审核信息-->更新或插入创意审核表
 			CreativeAuditModelExample creativeExample = new CreativeAuditModelExample();
