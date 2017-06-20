@@ -1178,6 +1178,8 @@ public class CreativeService extends BaseService {
 		}
 		//获取活动id
 		String campaignId = creativeModel.getCampaignId();
+		//是否暂停活动，更改创意状态为未审核的标识
+		boolean flag = false;
 		// 修改创意
 		String type = creativeModel.getType(); //创意类型
 		String materialId = creativeModel.getMaterialId(); //素材ID
@@ -1223,15 +1225,20 @@ public class CreativeService extends BaseService {
 			// 更新信息流
 			infoMaterialDao.updateByPrimaryKeySelective(infoflowMaterialModel);
 			launchService.writeInfoflowCreativeInfo(creativeModel);
+			if(!infoflowMaterial.getTitle().equals(infoflowMaterialModel.getTitle()) ||
+					(infoflowMaterial.getDescription()!=null && !infoflowMaterial.getDescription().equals(infoflowMaterialModel.getDescription()))){
+				flag = true;
+			}
 		}
 		// 放入ID，用于更新关联关系表中数据
 		creativeModel.setId(id);
 
-		//停止创意投放
-		launchService.removeOneCreativeId(campaignId,id);
-		//把状态改为未审核
-		updateCreativeAuditStatusByCreativeId(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);
-
+		if(flag) {
+			//停止创意投放
+			launchService.removeOneCreativeId(campaignId, id);
+			//把状态改为未审核
+			updateCreativeAuditStatusByCreativeId(id, StatusConstant.CREATIVE_AUDIT_NOCHECK);
+		}
 		// 更新创意表信息
 		creativeDao.updateByPrimaryKeySelective(creativeModel);
 	}
