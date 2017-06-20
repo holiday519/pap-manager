@@ -1842,11 +1842,15 @@ public class CampaignService extends BaseService {
 	private String getCampaignNameByLandpageIdAndTime(String landpageId,String campaignId,Date startTime,Date endTime) throws Exception {
 		// 查询活动信息
 		CampaignModelExample campaignEx = new CampaignModelExample();
+		Date current = new Date();
+		// 查询使用该落地页并且开关打开、未结束的活动信息
 		if (campaignId != null && !campaignId.isEmpty()) {
 			// 排除自己
-			campaignEx.createCriteria().andLandpageIdEqualTo(landpageId).andIdNotEqualTo(campaignId);
+			campaignEx.createCriteria().andLandpageIdEqualTo(landpageId).andIdNotEqualTo(campaignId)
+				.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED).andEndDateGreaterThanOrEqualTo(current);
 		} else {
-			campaignEx.createCriteria().andLandpageIdEqualTo(landpageId);
+			campaignEx.createCriteria().andLandpageIdEqualTo(landpageId)
+				.andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED).andEndDateGreaterThanOrEqualTo(current);
 		}		
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
 		// 返回活动名称
@@ -1856,6 +1860,7 @@ public class CampaignService extends BaseService {
 				Date start = campaign.getStartDate();
 				Date end = campaign.getEndDate();
 				if (!(start.after(endTime) || end.before(startTime))) {
+					// 如果查出来的活动的时间段包含于修改/创建的活动的时间段，则返回冲突的活动名称
 					campaignName = campaign.getName();
 				}
 			}
