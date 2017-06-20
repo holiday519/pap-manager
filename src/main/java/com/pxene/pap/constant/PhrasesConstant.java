@@ -24,6 +24,8 @@ public class PhrasesConstant
 	public static final String PROJECT_INFO_IS_NULL = "项目信息为空";
 	public static final String STATICS_INFO_IS_NULL = "静态值信息为空";
 	public static final String FORMULA_ISNOT_LEGAL = "公式不符合规则";
+	public static final String RULE_NAME_NOT_REPEAT = "规则名称不能重复";
+	public static final String FORMULA_NAME_NOT_REPEAT = "公式名称不能重复";
 	// 活动
 	public static final String CAMPAIGN_NOT_FOUND = "该活动不存在";
 	public static final String CAMPAIGN_DATE_ERROR = "活动周期设置有误";

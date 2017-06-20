@@ -1055,7 +1055,7 @@ public class ProjectService extends BaseService {
 					String projectId = ruleModel.getProjectId();
 					// 公式名称相同的条件下查到的项目id如果与新建公式对应的项目id相同，则说明在同一项目下重名
 					if (projectId.equals(bean.getProjectId())) {
-						throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+						throw new DuplicateEntityException(PhrasesConstant.FORMULA_NAME_NOT_REPEAT);
 					}				
 				}				
 			}
@@ -1338,7 +1338,7 @@ public class ProjectService extends BaseService {
 		List<RuleModel> ruleList = ruleDao.selectByExample(ruleEx);
 		if (ruleList != null && !ruleList.isEmpty()) {
 			// 如果项目下有相同的名称，则抛异常
-			 throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+			 throw new DuplicateEntityException(PhrasesConstant.RULE_NAME_NOT_REPEAT);
 		}
 	}
 	
