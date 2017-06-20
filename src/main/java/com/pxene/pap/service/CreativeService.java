@@ -177,6 +177,9 @@ public class CreativeService extends BaseService {
 
 	@Autowired
 	private AdxCostDao adxCostDao;
+	
+	@Autowired
+	private ProjectDao projectDao;
 
 
 	/**
@@ -1984,7 +1987,7 @@ public class CreativeService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<MediaBean> listCreativeMaterials(Integer width,Integer height,String type,String[] formats,String projectId,String campaignId) throws Exception {
+	public List<MediaBean> listCreativeMaterials(Integer width,Integer height,String type,String advertiserId,String[] formats,String projectId,String campaignId) throws Exception {
 		List<ImageModel> images = null;
 		List<VideoModel> videos = null;
 		List<MediaBean> result = new ArrayList<MediaBean>();
@@ -1992,24 +1995,83 @@ public class CreativeService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		// 转换类型
-		List<String> formatList = Arrays.asList(formats);			
+		List<String> formatList = Arrays.asList(formats);	
 		
-		// 1.满足宽、高、规格要求的图片/视频集合
+		// 1.查询广告主下的素材：根据广告id查询项目，项目id查询活动，活动可获得用过的素材id
+		Set<String> advertiserMaterialIds = new HashSet<String>();
+		// 根据广告主id查询广告主下的项目
+		ProjectModelExample projectEx = new ProjectModelExample();
+		projectEx.createCriteria().andAdvertiserIdEqualTo(advertiserId);
+		List<ProjectModel> projects = projectDao.selectByExample(projectEx);
+		if (projects != null && !projects.isEmpty()) {
+			for (ProjectModel project : projects) {
+				// 根据项目id查询项目下的活动
+				CampaignModelExample campaignEx = new CampaignModelExample();
+				campaignEx.createCriteria().andProjectIdEqualTo(project.getId());
+				List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+				if (campaigns != null && !campaigns.isEmpty()) {
+					for (CampaignModel campaign : campaigns) {
+						if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
+							// 如果是视频，查询广告主下的视频
+							Set<String> videoMaterialIds = listVideoIdByCampaign(campaign.getId());
+							if (videoMaterialIds != null && !videoMaterialIds.isEmpty()) {
+								for (String materialId : videoMaterialIds) {
+									advertiserMaterialIds.add(materialId);
+								}
+							}	
+						} else {
+							// 如果是图片，查询广告主下的图片
+							Set<String> imageMaterialIds = listImageIdByCampaign(campaign.getId());
+							if (imageMaterialIds != null && !imageMaterialIds.isEmpty()) {
+								for (String materialId : imageMaterialIds) {
+									advertiserMaterialIds.add(materialId);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		// 2.满足宽、高、规格要求的并且属于某一个广告主的图片/视频集合：取出满足要求的素材与属于广告主的素材取交集
 		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果是视频，查询视频素材
 			VideoModelExample videoEx = new VideoModelExample();
 			videoEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
-			videos = new ArrayList<VideoModel>();
-			videos = videoDao.selectByExample(videoEx);
+			// 判断视频是否属于广告主
+			List<VideoModel> videoModels = videoDao.selectByExample(videoEx);
+			if (videoModels != null && !videoModels.isEmpty()) {
+				for (VideoModel videoModel : videoModels) {
+					String videoId = videoModel.getId();
+					if (advertiserMaterialIds.contains(videoId)) {
+						// 如果广告主下的视频id包含满足宽、高、规格要求的视频id，则将这个视频信息放到list中
+						videos = new ArrayList<VideoModel>();
+						VideoModel video = videoDao.selectByPrimaryKey(videoId);
+						videos.add(video);
+					}
+					
+				}
+			}						
 		} else {
 			// 如果是图片或信息流，查询图片素材
 			ImageModelExample imageEx = new ImageModelExample();
 			imageEx.createCriteria().andWidthEqualTo(width).andHeightEqualTo(height).andFormatIn(formatList);
-			images = new ArrayList<ImageModel>();
-			images = imageDao.selectByExample(imageEx);
+			// 判断图片是否属于广告主
+			List<ImageModel> imageModels = imageDao.selectByExample(imageEx);
+			if (imageModels != null && !imageModels.isEmpty()) {
+				for (ImageModel imageModel : imageModels) {
+					String imageId = imageModel.getId();
+					if (advertiserMaterialIds.contains(imageId)) {
+						// 如果广告主下的图片id包含满足宽、高、规格要求的图片id，则将这个图片信息放到list中
+						images = new ArrayList<ImageModel>();
+						ImageModel image = imageDao.selectByPrimaryKey(imageId);
+						images.add(image);
+					}
+				}
+			}
 		}
 		
-		// 2.判读项目id/活动id是否为空
+		// 3.判读项目id/活动id是否为空
 		Set<String> materialIds = new HashSet<String>();
 		if (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(campaignId)) {
 			if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
@@ -2036,7 +2098,7 @@ public class CreativeService extends BaseService {
 				}
 			}
 		} else {
-			// 3.如果项目id或活动id不为空，通过项目id/活动id查询图片、视频的ids集合
+			// 4.如果项目id或活动id不为空，通过项目id/活动id查询图片、视频的ids集合
 			if (!StringUtils.isEmpty(projectId) && StringUtils.isEmpty(campaignId)) {
 				// 如果项目id不为空，活动id为空，根据项目id查询使用过的素材
 				CampaignModelExample campaginEx = new CampaignModelExample();
@@ -2071,7 +2133,7 @@ public class CreativeService extends BaseService {
 					 materialIds = listImageIdByCampaign(campaignId);
 				}
 			} 
-			// 4.当项目id/活动id不为空时根据类型取交集返回结果
+			// 5.当项目id/活动id不为空时根据类型取交集返回结果
 			if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 				// 如果是视频
 				MediaBean mediaBean = null;

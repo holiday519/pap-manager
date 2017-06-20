@@ -317,10 +317,10 @@ public class CreativeController {
 	@RequestMapping(value = "/creatives/material",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String listCreativeMaterials(@RequestParam(required = true) Integer width, 
-			@RequestParam(required = true) Integer height, @RequestParam(required = true) String type,
+			@RequestParam(required = true) Integer height, @RequestParam(required = true) String type,@RequestParam(required = true) String advertiserId,
 			@RequestParam(required = true) String formats,@RequestParam(required = false) String projectId,
 			@RequestParam(required = false) String campaignId,HttpServletResponse response) throws Exception {
-		List<MediaBean> material = creativeService.listCreativeMaterials(width,height,type,formats.split(","),projectId,campaignId);
+		List<MediaBean> material = creativeService.listCreativeMaterials(width,height,type,advertiserId,formats.split(","),projectId,campaignId);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), material, response);
 	}
 	

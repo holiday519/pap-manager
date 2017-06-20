@@ -37,7 +37,7 @@ public class PhrasesConstant
 	public static final String LANDPAGE_INFO_NULL = "活动页信息为空，不能创建活动";
 	public static final String PROJECT_INFO_NULL = "项目信息为空，不能创建活动";
 	public static final String APP_NOT_FOUND = "活动定向中未选定APP";
-	public static final String LANDPAGE_CODE_USED = "监测码正在被使用，不能重复使用";
+	public static final String LANDPAGE_CODE_USED = "正在使用监测码，不能重复使用。";
 	// 创意
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     public static final String CREATIVE_NOT_FOUND = "该创意不存在";
@@ -175,6 +175,8 @@ public class PhrasesConstant
 	public static final String RULEID_IS_NULL = "规则ID不能为空！";
 	public static final String VERNIER_IS_NULL = "游标不能为空！";
 	public static final String WEIGHT_IS_NULL = "权重不能为空！";
+	public static final String CONDITION_IS_NULL = "触发条件不能为空";
+	public static final String RELATION_IS_NULL = "关系不能为空";
 		
 	public static final String FORMULA_IS_NULL = "公式不能为空";
 	public static final String WEIGHTS_ISNOT_CORRECT = "权重之和不为1";

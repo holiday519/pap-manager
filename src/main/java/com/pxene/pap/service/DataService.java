@@ -3,7 +3,9 @@ package com.pxene.pap.service;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +62,8 @@ import com.pxene.pap.domain.models.EffectFileModel;
 import com.pxene.pap.domain.models.EffectFileModelExample;
 import com.pxene.pap.domain.models.EffectModel;
 import com.pxene.pap.domain.models.EffectModelExample;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.RegionModel;
@@ -71,6 +75,7 @@ import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDao;
 import com.pxene.pap.repository.basic.EffectFileDao;
+import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.view.CreativeBasicDao;
@@ -109,6 +114,9 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private AdxCostDao adxCostDao;
+	
+	@Autowired
+	private LandpageCodeHistoryDao landpageCodeHistoryDao;
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
@@ -1488,6 +1496,9 @@ public class DataService extends BaseService {
             throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
         }
         
+        // 匹配的监测码
+        List<String>  marryCodes = new ArrayList<String>();
+        
         // 遍历Excel文件中的每个数据行
         for (EffectModel model : modelList)
         {
@@ -1510,6 +1521,49 @@ public class DataService extends BaseService {
             {
                 effectDao.insert(model);
             }
+            
+            // 查询匹配数量
+            String code = model.getCode();
+            Date date = model.getDate();
+            // 查询项目下活动使用的监测码：根据项目id查询活动信息
+            CampaignModelExample campaignEx = new CampaignModelExample();
+            campaignEx.createCriteria().andProjectIdEqualTo(projectId);
+            List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+            // Excel文件中的每个数据行对应的监测码日期date有没有用到这个code监测码
+            if (campaigns != null && !campaigns.isEmpty()) {
+            	Set<String> usedCodes = new HashSet<String>();
+            	for (CampaignModel campaign : campaigns) {
+            		// 查询活动在execl文件时间里使用的监测码的情况
+            		LandpageCodeHistoryModelExample exampleHistory = new LandpageCodeHistoryModelExample();
+            		exampleHistory.createCriteria().andCampaignIdEqualTo(campaign.getId());
+            		List<LandpageCodeHistoryModel> historys = landpageCodeHistoryDao.selectByExample(exampleHistory);
+            		if (historys != null && !historys.isEmpty()) {
+            			// 如果不为空，将监测码放到一个集合中            			
+            			for (LandpageCodeHistoryModel history : historys) {
+            				Date start = history.getStartTime();
+            				Date end = history.getEndTime();
+            				// 转换格式：如果date与startDate同一天，date可能小于startDate
+            				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+            				String strDate = dateFormat.format(start); 
+            				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            				Date startDate = null;
+							try {
+								startDate = format.parse(strDate);
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+            				// 判断是否在时间范围内：date在开始时间和结束时间之间，即date大于等于startDate并且小于等于end
+            				if ((date.after(startDate) || date.equals(startDate)) && date.before(end)) {
+            					usedCodes.add(history.getCodes());
+            				}            				
+            			}
+            		}
+            	}
+            	if (usedCodes.contains(code)) {
+            		// 如果监测码历史记录表在Excel文件该行的日期使用的监测码历史记录中包含上传的监测码，则将其放到list集合中
+            		marryCodes.add(code);
+            	}            	
+            }
         }
         
         // 向上传文件插入数据
@@ -1522,7 +1576,7 @@ public class DataService extends BaseService {
         effectFile.setName(file.getOriginalFilename());        // 文件名称
         effectFile.setProjectId(projectId);                    // 项目id
         effectFile.setProjectName(projectName);                // 项目名称
-        effectFile.setAmount(modelList.size());                // 匹配数量
+        effectFile.setAmount(marryCodes.size());               // 匹配数量
         // 3.插入
         effectFileDao.insert(effectFile);
     }

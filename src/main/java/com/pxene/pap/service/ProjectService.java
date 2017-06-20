@@ -120,6 +120,8 @@ public class ProjectService extends BaseService {
 	@Autowired
 	private FormulaDao formulaDao;
 
+	@Autowired
+	private LandpageService landpageService;
 
     @Autowired
     public ProjectService(Environment env)
@@ -265,19 +267,50 @@ public class ProjectService extends BaseService {
 	 */
 	@Transactional
 	public void updateProjectStatus(String id, Map<String, String> map) throws Exception {
+		// 判断状态是否为空
 		if (StringUtils.isEmpty(map.get("status"))) {
 			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
+		// 根据项目id查询项目信息，判断项目是否存在
 		ProjectModel project = projectDao.selectByPrimaryKey(id);
 		if (project == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
-
+		
+		// 根据项目id查询活动开关打开的活动信息
+		CampaignModelExample campaignEx = new CampaignModelExample();
+		campaignEx.createCriteria().andProjectIdEqualTo(id).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
+		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+		
 		String status = map.get("status").toString();
 		if (StatusConstant.PROJECT_PAUSE.equals(status)) {
+			
+			// 根据监测码的使用情况变更监测码历史记录表信息
+			if (campaigns != null && !campaigns.isEmpty()) {
+				for (CampaignModel campaign : campaigns) {
+					// 项目下可对应多个活动，变更每个活动开关打开的监测码记录记录信息
+					if (campaign.getStartDate().after(new Date())) {
+						// 如果是未投活动即活动的开始时间在今天之后，则删除监测码历史记录表中该活动监测码未开始使用的信息
+						landpageService.deleteCodeHistoryInfo(campaign.getId());
+					} else {
+						// 如果是在投活动活动的开始时间在今天之前，更新监测码使用结束时间
+						landpageService.updateCodeHistoryInfo(campaign.getId());
+					}
+				}
+			}
+			
 			//暂停
 			pauseProject(project);
 		} else if (StatusConstant.PROJECT_PROCEED.equals(status)) {
+			
+			// 根据监测码的使用情况变更监测码历史记录表信息
+			if (campaigns != null && !campaigns.isEmpty()) {
+				for (CampaignModel campaign : campaigns) {
+					// 项目下可对应多个活动，变更每个活动开关打开的监测码记录记录信息
+					landpageService.creativeCodeHistoryInfo(campaign.getId(), campaign.getLandpageId());
+				}
+			}
+			
 			//投放
 			proceedProject(project);
 		} else {
@@ -959,6 +992,9 @@ public class ProjectService extends BaseService {
 		// 验证同一项目下规则名称是否存在
 		checkSameOfRuleName(ruleName,bean.getProjectId());
 		
+		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
+		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticId());
+		
 		// 判断公式是否合法
 		String conditions = bean.getConditions();
 		if (conditions != null && !conditions.isEmpty()) {
@@ -979,8 +1015,6 @@ public class ProjectService extends BaseService {
 		// 添加公式
 		addFormula(bean,ruleId);	
 		
-		// 复制置设好的属性回请求对象中
-//		BeanUtils.copyProperties(rule, bean);
 	}
 	
 	/**
@@ -1166,6 +1200,9 @@ public class ProjectService extends BaseService {
 			}			
 		}	
 		
+		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
+		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticId());
+		
 		// FIXME ： 判断条件是否为空
 		// 判断公式是否合法
 		String conditions = bean.getConditions();
@@ -1302,6 +1339,28 @@ public class ProjectService extends BaseService {
 		if (ruleList != null && !ruleList.isEmpty()) {
 			// 如果项目下有相同的名称，则抛异常
 			 throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+		}
+	}
+	
+	/**
+	 * 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
+	 * @param condition 触发条件
+	 * @param relation 关系
+	 * @param staticId 静态值id
+	 * @throws Exception
+	 */
+	private void checkRuleInfo(String condition,String relation,String staticId) throws Exception {
+		if ((condition != null && !condition.isEmpty()) || (relation != null && !relation.isEmpty())
+				|| (staticId != null && !staticId.isEmpty())) {
+			if (condition == null || condition.isEmpty()) {
+				throw new IllegalArgumentException(PhrasesConstant.CONDITION_IS_NULL);
+			}
+			if (relation == null || relation.isEmpty()) {
+				throw new IllegalArgumentException(PhrasesConstant.RELATION_IS_NULL);
+			}
+			if (staticId == null || staticId.isEmpty()) {
+				throw new IllegalArgumentException(PhrasesConstant.STATIC_NULL_STATICID);
+			}
 		}
 	}
 	
