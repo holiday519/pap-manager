@@ -1056,8 +1056,15 @@ public class ProjectService extends BaseService {
 					// 公式名称相同的条件下查到的项目id如果与新建公式对应的项目id相同，则说明在同一项目下重名
 					if (projectId.equals(bean.getProjectId())) {
 						throw new DuplicateEntityException(PhrasesConstant.FORMULA_NAME_NOT_REPEAT);
-					}				
+					}					
 				}				
+			}
+			
+			// 判断正向游标和负向游标的正负号是否相同
+			Double forwardVernier = formulaBean.getForwardVernier();
+			Double negativeVernier = formulaBean.getNegativeVernier();
+			if (!(forwardVernier > 0 && negativeVernier < 0 || forwardVernier < 0 && negativeVernier > 0)) {
+				throw new IllegalArgumentException(PhrasesConstant.VERNIER_SIGN_SYMBOL_SAME);
 			}
 			
 			// 判断公式是否合法
