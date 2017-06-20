@@ -1,6 +1,8 @@
 package com.pxene.pap.web.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,6 +53,9 @@ public class AdxCostController
     public String listProjects(@PathVariable String date, HttpServletResponse response) throws Exception
     {
         List<AdxCostData> beans = adxCostService.listProjectsData(date);
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), beans, response);
+        Map<String, List<AdxCostData>> o = new HashMap<>();
+        o.put("items", beans);
+        
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), o, response);
     }
 }
