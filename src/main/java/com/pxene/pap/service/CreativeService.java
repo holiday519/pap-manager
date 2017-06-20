@@ -595,6 +595,7 @@ public class CreativeService extends BaseService {
 //				String appId = getAppId(creative.getTmplId());
 //				String appName = getAppName(appId);
 				Map<String, String> appInfo = getAppInfo(creative);
+				CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 					if (imageMaterialModel != null) {
@@ -615,6 +616,10 @@ public class CreativeService extends BaseService {
 							image.setAppId(appInfo.get("appIds"));  
 							image.setAppName(appInfo.get("appNames")); 
 							image.setEnable(creative.getEnable());
+							//设置message
+							if(creativeAuditModel!=null){
+								image.setMessage(creativeAuditModel.getMessage());
+							}
 							//查询投放数据
 							if (startDate != null && endDate != null) {
 								String creativeId = creative.getId();
@@ -659,6 +664,10 @@ public class CreativeService extends BaseService {
 						video.setAppId(appInfo.get("appIds"));  
 						video.setAppName(appInfo.get("appNames")); 
 						video.setEnable(creative.getEnable());
+						//设置message
+						if(creativeAuditModel!=null){
+							video.setMessage(creativeAuditModel.getMessage());
+						}
 						//查询投放数据
 						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
@@ -694,7 +703,10 @@ public class CreativeService extends BaseService {
 						info.setAppId(appInfo.get("appIds"));  
 						info.setAppName(appInfo.get("appNames")); 
 						info.setEnable(creative.getEnable());
-						
+						//设置message
+						if(creativeAuditModel!=null){
+							info.setMessage(creativeAuditModel.getMessage());
+						}
 						info.setTitle(infoflowModel.getTitle());                   //标题
 						info.setDescription(infoflowModel.getDescription());       //描述
 						info.setCtaDescription(infoflowModel.getCtaDescription()); //CTA描述
@@ -860,6 +872,10 @@ public class CreativeService extends BaseService {
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
 					base.setMaterialPaths(materialPaths);
+					//设置message
+					if(creativeAuditModel!=null){
+						base.setMessage(creativeAuditModel.getMessage());
+					}
 					result.add(base);
 				}
 			}
@@ -2264,6 +2280,21 @@ public class CreativeService extends BaseService {
 			}
 		}
 		return videoIds;
+	}
+
+	/**
+	 * 根据创意查询创意审核
+	 * @param creativeId
+	 * @return
+     */
+	public CreativeAuditModel getCreativeAuditModelByCreativeId(String creativeId){
+		CreativeAuditModelExample example = new CreativeAuditModelExample();
+		example.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeAuditModel> models = creativeAuditDao.selectByExample(example);
+		if(models !=null && !models.isEmpty()){
+			return models.get(0);
+		}
+		return null;
 	}
 
 }

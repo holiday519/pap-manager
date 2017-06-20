@@ -25,6 +25,11 @@ public class CreativeBean extends BasicDataBean {
 	private String type;
 	
 	private String status;
+
+	/**
+	 * 审核失败信息
+     */
+	private String message;
 	/**
 	 * 活动id
 	 */
@@ -191,13 +196,21 @@ public class CreativeBean extends BasicDataBean {
 		this.endDate = endDate;
 	}
 
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
 	@Override
 	public String toString() {
 		return "CreativeBean [id=" + id + ", type=" + type
 				+ ", status=" + status + ", campaignId=" + campaignId
 				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
 				+ ", remark=" + remark + ", materialId=" + materialId  
-				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +"]";
+				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +", message=" + message+"]";
 	}
 	
 }
