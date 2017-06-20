@@ -173,7 +173,8 @@ public class PhrasesConstant
 
 	public static final String STATIC_RULER_DELETE_ERROR = "静态值正在被规则引用，删除失败！";
 	public static final String STATIC_FORMULATE_DELETE_ERROR = "静态值正在被公式引用，删除失败！";
-	public static final String STATIC_NULL_STATICID = "静态值ID不能为空！";
+	public static final String FORMULA_REFERENCE_VALUE_NULL = "公式参考值不能为空！";
+	public static final String RULE_REFERENCE_VALUE_NULL = "规则参考值不能为空！";
 	public static final String RULEID_IS_NULL = "规则ID不能为空！";
 	public static final String VERNIER_IS_NULL = "游标不能为空！";
 	public static final String WEIGHT_IS_NULL = "权重不能为空！";

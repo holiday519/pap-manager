@@ -1359,7 +1359,7 @@ public class ProjectService extends BaseService {
 				throw new IllegalArgumentException(PhrasesConstant.RELATION_IS_NULL);
 			}
 			if (staticId == null || staticId.isEmpty()) {
-				throw new IllegalArgumentException(PhrasesConstant.STATIC_NULL_STATICID);
+				throw new IllegalArgumentException(PhrasesConstant.RULE_REFERENCE_VALUE_NULL);
 			}
 		}
 	}

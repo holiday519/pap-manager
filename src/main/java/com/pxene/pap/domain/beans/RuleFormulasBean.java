@@ -101,7 +101,7 @@ public class RuleFormulasBean {
 		/**
 		 * 静态值id
 		 */
-		@NotNull(message = PhrasesConstant.STATIC_NULL_STATICID)
+		@NotNull(message = PhrasesConstant.FORMULA_REFERENCE_VALUE_NULL)
 		private String staticId;
 		/**
 		 * 参考值对象（规则对应的静态值）
