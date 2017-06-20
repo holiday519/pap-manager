@@ -1062,7 +1062,7 @@ public class CampaignService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime, String sortKey, String sortType) throws Exception {
+	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime, String sortKey, String sortType, boolean calScore) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
 
@@ -1096,8 +1096,11 @@ public class CampaignService extends BaseService {
 		for (CampaignModel model : models) {
 			CampaignBean map = modelMapper.map(model, CampaignBean.class);
 			
-			CampaignScoreBean campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
-			map.setCampaignScore(campaignScore);
+			if (!StringUtils.isEmpty(calScore) && calScore)
+			{
+			    CampaignScoreBean campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
+			    map.setCampaignScore(campaignScore);
+			}
 			
 			addParamToCampaign(map, model.getId(), model.getFrequencyId());
 
