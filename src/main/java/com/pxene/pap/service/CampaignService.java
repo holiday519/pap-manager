@@ -1023,7 +1023,7 @@ public class CampaignService extends BaseService {
 				// 如果活动下没有可投放的创意（创意关闭/创意审核未通过）
 				bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 			}
-		} else if (creatives == null || creatives.isEmpty()) {
+		} else if (!isHaveLaunchCreative(model.getId())) {
 			// 如果活动下没有可投放的创意（活动下没有创意）
 			bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 		}
@@ -1113,7 +1113,7 @@ public class CampaignService extends BaseService {
 					// 如果活动下没有可投放的创意（创意关闭/创意审核未通过）
 					bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 				}
-			} else if (creatives == null || creatives.isEmpty()) {
+			}else if (!isHaveLaunchCreative(model.getId())) {
 				// 如果活动下没有可投放的创意（活动下没有创意）
 				bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 			}

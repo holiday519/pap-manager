@@ -1195,6 +1195,10 @@ public class CreativeService extends BaseService {
 			imageMaterialModel.setId(materialId);
 			imageMaterialDao.updateByPrimaryKeySelective(imageMaterialModel);
 			launchService.writeImgCreativeInfo(creativeModel);
+			//判断除了了价格外，是否还更改了其他，如果更改了，则要在下面停止项目的投放
+			if((imageMeterial.getImageId()==null && imageMaterialModel.getImageId()!=null)||(imageMeterial.getImageId()!=null && !imageMeterial.getImageId().equals(imageMaterialModel.getImageId()))){
+				flag = true;
+			}
 		}
 		// 视频 
 		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
@@ -1225,8 +1229,16 @@ public class CreativeService extends BaseService {
 			// 更新信息流
 			infoMaterialDao.updateByPrimaryKeySelective(infoflowMaterialModel);
 			launchService.writeInfoflowCreativeInfo(creativeModel);
+			//判断除了了价格外，是否还更改了其他，如果更改了，则要在下面停止项目的投放
 			if(!infoflowMaterial.getTitle().equals(infoflowMaterialModel.getTitle()) ||
-					(infoflowMaterial.getDescription()!=null && !infoflowMaterial.getDescription().equals(infoflowMaterialModel.getDescription()))){
+					(infoflowMaterial.getDescription() == null && infoflowMaterialModel.getDescription()!=null) ||(infoflowMaterial.getDescription()!=null && !infoflowMaterial.getDescription().equals(infoflowMaterialModel.getDescription()))
+					|| (infoflowMaterial.getIconId() ==null && infoflowMaterialModel.getIconId()!=null) || (infoflowMaterial.getIconId() !=null && !infoflowMaterial.getIconId().equals(infoflowMaterialModel.getIconId()))
+					|| (infoflowMaterial.getImage1Id() ==null && infoflowMaterialModel.getImage1Id()!=null) || (infoflowMaterial.getImage1Id() !=null && !infoflowMaterial.getImage1Id().equals(infoflowMaterialModel.getImage1Id()))
+					|| (infoflowMaterial.getImage2Id() ==null && infoflowMaterialModel.getImage2Id()!=null) || (infoflowMaterial.getImage2Id() !=null && !infoflowMaterial.getImage2Id().equals(infoflowMaterialModel.getImage2Id()))
+					|| (infoflowMaterial.getImage3Id() ==null && infoflowMaterialModel.getImage3Id()!=null) || (infoflowMaterial.getImage3Id() !=null && !infoflowMaterial.getImage3Id().equals(infoflowMaterialModel.getImage3Id()))
+					|| (infoflowMaterial.getImage4Id() ==null && infoflowMaterialModel.getImage4Id()!=null) || (infoflowMaterial.getImage4Id() !=null && !infoflowMaterial.getImage4Id().equals(infoflowMaterialModel.getImage4Id()))
+					|| (infoflowMaterial.getImage5Id() ==null && infoflowMaterialModel.getImage5Id()!=null) || (infoflowMaterial.getImage5Id() !=null && !infoflowMaterial.getImage5Id().equals(infoflowMaterialModel.getImage5Id()))
+					){
 				flag = true;
 			}
 		}
