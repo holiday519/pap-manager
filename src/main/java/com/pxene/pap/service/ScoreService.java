@@ -111,6 +111,7 @@ public class ScoreService
     {
         CampaignScoreBean result = new CampaignScoreBean();
         
+        // 活动评分必需传入开始日期、结束日期
         if (beginTime == null || endTime == null)
         {
             return result;
@@ -136,11 +137,20 @@ public class ScoreService
             }
             else
             {
-                // 拼接触发条件
-                String trigger = rule.getConditions() + rule.getRelation() + "{" + rule.getStaticId() + "}";
+                String condition = rule.getConditions();
+                String relation = rule.getRelation();
+                String staticId = rule.getStaticId();
                 
-                // 替换触发条件中的静态值
-                trigger = replaceFormulaStaticValue(trigger);
+                String trigger = "";
+               
+                if (org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
+                {
+                    // 拼接触发条件
+                    trigger = condition + relation + "{" + staticId + "}";
+                    
+                    // 替换触发条件中的静态值
+                    trigger = replaceFormulaStaticValue(trigger);
+                }
                 
                 result.setRuleName(rule.getName());
                 result.setRuleTrigger(trigger);
@@ -369,30 +379,34 @@ public class ScoreService
             String relation = rule.getRelation();
             String staticId = rule.getStaticId();
             
-            // 评分规则的触发条件可以为空（conditions, relation, static_id同时为空），如果触发条件为空，则认为成功触发。
-            if (!org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
+            /* 
+             * 评分规则的触发条件可以为空（conditions, relation, static_id同时为空），如果触发条件为空，则认为成功触发。
+             * isNoneEmpty表示三个字段同时不为空、没有任何一个字段为空。取反，表示三个字段中有可能有空值
+             */
+            if (org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
             {
-                // isNoneEmpty表示三个字段同时不为空、没有任何一个字段为空。取反，表示三个字段中有可能有空值
+                // 拼接触发条件
+                String trigger = condition + relation + "{" + staticId + "}";
+                
+                // 替换触发条件中的静态值
+                trigger = replaceFormulaStaticValue(trigger);
+                
+                // 替换触发条件中的变量值
+                trigger = replaceFormulaVariableValue(trigger, effectSum);
+                trigger = replaceFormulaVariableValue(trigger, realTimeSum);
+                
+                // 判断触发条件是否成立
+                boolean isSuccessTrigger = judgeTrigger(trigger);
+                
+                if (isSuccessTrigger)
+                {
+                    return rule;
+                }
+            }
+            else if (StringUtils.isEmpty(condition) && StringUtils.isEmpty(relation) && StringUtils.isEmpty(staticId))
+            {
                 return rule;
             }
-            
-            // 拼接触发条件
-            String trigger = condition + relation + "{" + staticId + "}";
-            
-            // 替换触发条件中的静态值
-            trigger = replaceFormulaStaticValue(trigger);
-    
-            // 替换触发条件中的变量值
-            trigger = replaceFormulaVariableValue(trigger, effectSum);
-            trigger = replaceFormulaVariableValue(trigger, realTimeSum);
-            
-            // 判断触发条件是否成立
-            boolean isSuccessTrigger = judgeTrigger(trigger);
-            
-            if (isSuccessTrigger)
-            {
-                return rule;
-            } 
         }
         
         return null;
