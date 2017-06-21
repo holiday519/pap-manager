@@ -5,13 +5,15 @@ import static com.pxene.pap.constant.RedisKeyConstant.CREATIVE_DATA_DAY;
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,10 +31,13 @@ import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.ScriptUtils;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RealTimeDataEnum;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignScoreBean;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
+import com.pxene.pap.domain.models.EffectDicModel;
+import com.pxene.pap.domain.models.EffectDicModelExample;
 import com.pxene.pap.domain.models.EffectModel;
 import com.pxene.pap.domain.models.EffectModelExample;
 import com.pxene.pap.domain.models.FormulaModel;
@@ -45,6 +50,7 @@ import com.pxene.pap.domain.models.StaticModel;
 import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDao;
+import com.pxene.pap.repository.basic.EffectDicDao;
 import com.pxene.pap.repository.basic.FormulaDao;
 import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.RuleDao;
@@ -83,6 +89,9 @@ public class ScoreService
     private CreativeDao creativeDao;
     
     @Autowired
+    private EffectDicDao effectDicDao;
+    
+    @Autowired
     private LandpageCodeHistoryDao landpageCodeHistoryDao;
     
     @Autowired
@@ -106,8 +115,9 @@ public class ScoreService
      * @param beginTime     查询时间段：起始日期
      * @param endTime       查询时间段：查询结束日期
      * @return  活动得分
+     * @throws ParseException 
      */
-    public CampaignScoreBean getCampaignScore(String projectId, String campaignId, Long beginTime, Long endTime)
+    public CampaignScoreBean getCampaignScore(String projectId, String campaignId, Long beginTime, Long endTime) throws ParseException
     {
         CampaignScoreBean result = new CampaignScoreBean();
         
@@ -153,7 +163,7 @@ public class ScoreService
                 }
                 
                 result.setRuleName(rule.getName());
-                result.setRuleTrigger(trigger);
+                result.setRuleTrigger(replaceFormulaDictValue(projectId, trigger));
                 
                 List<Map<String, String>> formulaList = new ArrayList<Map<String, String>>();
                 
@@ -223,8 +233,9 @@ public class ScoreService
      * @param startDate     起始日期
      * @param endDate       结束日期
      * @return  保存着效果数据变量值的Map，其中Map的Key表示变量名，即“A1”~“A10”，Value表示变量值
+     * @throws ParseException 
      */
-    private Map<String, Number> getEffectSum(String projectId, String campaignId, Date startDate, Date endDate)
+    private Map<String, Number> getEffectSum(String projectId, String campaignId, Date startDate, Date endDate) throws ParseException
     {
         Map<String, Number> result = new HashMap<String, Number>();
         for (int i = 1; i <= 10; i++)
@@ -239,6 +250,11 @@ public class ScoreService
         historyCodeExample.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeGreaterThanOrEqualTo(startDate).andEndTimeLessThanOrEqualTo(endDate);
         List<LandpageCodeHistoryModel> items = landpageCodeHistoryDao.selectByExample(historyCodeExample);
         
+        Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+        
+        String key = null;
+        Set<String> codeSet = null;
+        
         for (LandpageCodeHistoryModel item : items)
         {
             String codesStr = item.getCodes();
@@ -246,22 +262,49 @@ public class ScoreService
             Date endTime = item.getEndTime();
             List<Date> days = DateUtils.listDatesBetweenTwoDates(new LocalDate(startTime), new LocalDate(endTime), true);
             
-            if (!StringUtils.isEmpty(codesStr))
+            for (Date day : days)
             {
-                String[] codeArray = codesStr.split(",");
+                key = DATATIME_FORMATTER.format(day);
                 
-                // 找到“pap_t_effect”表中，字段date在给定时间段内且字段code在给定的监码表列中的全部记录
-                effectExample.clear();
-                effectExample.createCriteria().andProjectIdEqualTo(projectId).andDateIn(days).andCodeIn(Arrays.asList(codeArray));
-                List<EffectModel> effects = effectDao.selectByExample(effectExample);
-                
-                // 累加求和
-                for (EffectModel effect : effects)
+                if (map.containsKey(key))
                 {
-                    Double[] valArray = buildEffectValArray(effect);
-                    
-                    doAccumulate(result, valArray);
+                    codeSet = map.get(key);
                 }
+                else
+                {
+                    codeSet = new HashSet<String>();
+                }
+                
+                if (!StringUtils.isEmpty(codesStr))
+                {
+                    String[] codeArray = codesStr.split(",");
+                    for (String code : codeArray)
+                    {
+                        codeSet.add(code);
+                    }
+                    map.put(key, codeSet);
+                }
+            }
+        }
+        
+        for (Map.Entry<String, Set<String>> entry : map.entrySet())
+        {
+            String dateStr = entry.getKey();
+            Set<String> codes = entry.getValue();
+            Date date = DATATIME_FORMATTER.parse(dateStr);;
+            List<String> codeList = new ArrayList<String>(codes);
+            
+            // 找到“pap_t_effect”表中，字段date在给定时间段内且字段code在给定的监码表列中的全部记录
+            effectExample.clear();
+            effectExample.createCriteria().andProjectIdEqualTo(projectId).andDateEqualTo(date).andCodeIn(codeList);
+            List<EffectModel> effects = effectDao.selectByExample(effectExample);
+            
+            // 累加求和
+            for (EffectModel effect : effects)
+            {
+                Double[] valArray = buildEffectValArray(effect);
+                
+                doAccumulate(result, valArray);
             }
         }
         
@@ -659,6 +702,46 @@ public class ScoreService
         
         return formula;
     }
+    
+    /**
+     * 提取公式中的变量值（如A1,B1），从效果数据-字典表（pap_t_effect_dic）中查询出对应的列名称，最后将列名称替换回原公式中。
+     * @param projectId 项目ID
+     * @param formula   待操作的公式
+     * @return  替换全部变量名之后的公式
+     */
+    private String replaceFormulaDictValue(String projectId, String formula)
+    {
+        EffectDicModelExample example = new EffectDicModelExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andEnableEqualTo("01"); // 01表示转化字段状态是启用
+        
+        List<EffectDicModel> effectDicModels = effectDicDao.selectByExample(example);
+        
+        for (EffectDicModel effectDicModel : effectDicModels)
+        {
+            String columnCode = effectDicModel.getColumnCode();
+            String columnName = effectDicModel.getColumnName();
+            
+            if (!StringUtils.isEmpty(columnCode) && !StringUtils.isEmpty(columnName))
+            {
+                formula = formula.replace(columnCode, columnName);
+            }
+        }
+        
+        RealTimeDataEnum[] values = RealTimeDataEnum.values();
+        for (RealTimeDataEnum value : values)
+        {
+            String columnCode = value.getCode();
+            String columnName = value.getName();
+            
+            if (!StringUtils.isEmpty(columnCode) && !StringUtils.isEmpty(columnName))
+            {
+                formula = formula.replace(columnCode, columnName);
+            }
+        }
+        
+        return formula;
+    }
+    
     
     /**
      * 根据静态值ID从静态值表（pap_t_static）中读取静态值。
