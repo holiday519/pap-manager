@@ -175,12 +175,12 @@ public class PhrasesConstant
 	public static final String STATIC_FORMULATE_DELETE_ERROR = "静态值正在被公式引用，删除失败！";
 	public static final String FORMULA_REFERENCE_VALUE_NULL = "公式参考值不能为空！";
 	public static final String RULE_REFERENCE_VALUE_NULL = "规则参考值不能为空！";
-	public static final String RULEID_IS_NULL = "规则ID不能为空！";
-	public static final String VERNIER_IS_NULL = "游标不能为空！";
-	public static final String WEIGHT_IS_NULL = "权重不能为空！";
+	public static final String RULEID_IS_NULL = "规则ID不能为空";
+	public static final String VERNIER_IS_NULL = "游标不能为空";
+	public static final String WEIGHT_IS_NULL = "权重不能为空";
 	public static final String CONDITION_IS_NULL = "触发条件不能为空";
 	public static final String RELATION_IS_NULL = "关系不能为空";
-	public static final String VERNIER_SIGN_SYMBOL_SAME = "正向游标和负向游标不能同为正数或同为负数！";
+	public static final String VERNIER_SIGN_SYMBOL_SAME = "正向游标和负向游标，不能同为正数或同为负数";
 		
 	public static final String FORMULA_IS_NULL = "公式不能为空";
 	public static final String WEIGHTS_ISNOT_CORRECT = "权重之和不为1";
@@ -189,6 +189,6 @@ public class PhrasesConstant
 	public static final String EFFECTDIC_NAME_IS_NULL = "转化值名称不能为空";
 	public static final String STATICS_NAME_IS_NULL = "静态值不能为空";
 
-	public static final String USED_FIXED_NAME = "名称不能使用：展示数、点击数、二跳数、成本、修正成本！";
+	public static final String USED_FIXED_NAME = "名称不能使用：展现数、点击数、二跳数、成本、修正成本";
     public static final String RULE_TRIGGER_ERROR = "判断触发条件发生异常";
 }

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.common.ExcelUtil;
+import com.pxene.pap.common.FormulaUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.ScriptUtils;
 import com.pxene.pap.common.UUIDGenerator;
@@ -740,7 +741,7 @@ public class ProjectService extends BaseService {
         // 判断同一项目下转换值与静态值是否相同
         checkSameOfStaticName(name,projectId);
         
-        // 判断转化值名称是否使用：展示数、点击数、二跳数、成本、修正成本
+        // 判断转化值名称是否使用：展现数、点击数、二跳数、成本、修正成本
         checkUseFixedName(name);
         
         // 更新数据库
@@ -1231,7 +1232,7 @@ public class ProjectService extends BaseService {
 		addFormula(bean,id);
 		
 		// 更新规则
-		ruleDao.updateByPrimaryKeySelective(ruleModel);
+		ruleDao.updateByPrimaryKey(ruleModel);
 	}
 	
 	/**
@@ -1306,16 +1307,15 @@ public class ProjectService extends BaseService {
 			formula = formula.replace("B" + i, "1");
 		}
 		
-		if (formula.indexOf("11") > 0) {
+		if (!(formula.indexOf("11") < 0)) {
 			return false;
 		}
+	
 		// 调用公式验证方法
-		try {
-			ScriptUtils.compute(formula);
+		if (FormulaUtils.checkExpression(formula)) {
 			return true;
-		} catch(Exception e) {
-			return false;
-		}				
+		} 
+		return false;
 	}
 	
 	/**
@@ -1387,7 +1387,7 @@ public class ProjectService extends BaseService {
 		// 判断同一项目下静态值与转换值名称是否相同
 		checkSameOfEffectDicName(name,projectId);
 		
-		// 判断静态值名称是否使用：展示数、点击数、二跳数、成本、修正成本
+		// 判断静态值名称是否使用：展现数、点击数、二跳数、成本、修正成本
 		checkUseFixedName(name);
 				
 		// 插入MySQL
@@ -1466,7 +1466,7 @@ public class ProjectService extends BaseService {
 				// 判断同一项目下静态值与转换值名称是否相同
 				checkSameOfEffectDicName(name,projectId);
 				
-				// 判断静态值名称是否使用：展示数、点击数、二跳数、成本、修正成本
+				// 判断静态值名称是否使用：展现数、点击数、二跳数、成本、修正成本
 				checkUseFixedName(name);
 				
 				// 更新数据库
@@ -1553,7 +1553,7 @@ public class ProjectService extends BaseService {
 	}
 	
 	/**
-	 * 判断静态值/转化值名称是否使用：展示数、点击数、二跳数、成本、修正成本
+	 * 判断静态值/转化值名称是否使用：展现数、点击数、二跳数、成本、修正成本
 	 * @param name 静态值/转化值名称	
 	 * @throws Exception
 	 */
