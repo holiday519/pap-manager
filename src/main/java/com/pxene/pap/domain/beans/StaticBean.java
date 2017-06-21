@@ -3,6 +3,7 @@ package com.pxene.pap.domain.beans;
 import com.pxene.pap.constant.PhrasesConstant;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -27,6 +28,7 @@ public class StaticBean {
     /**
      * 静态值
      */
+    @NotNull(message = PhrasesConstant.STATICS_NAME_IS_NULL)
     private double value;
 
     /**

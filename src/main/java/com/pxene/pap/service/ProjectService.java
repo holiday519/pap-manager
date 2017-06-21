@@ -1405,7 +1405,7 @@ public class ProjectService extends BaseService {
 	private List<StaticModel> listStaticsByProjectId(String projectId){
 		StaticModelExample staticExample = new StaticModelExample();
 		staticExample.createCriteria().andProjectIdEqualTo(projectId);
-
+		staticExample.setOrderByClause(" update_time desc ");//按更新时间逆序排序
 		List<StaticModel> staticInDB = staticDao.selectByExample(staticExample);
 		return staticInDB;
 	}
