@@ -608,6 +608,10 @@ public class CreativeService extends BaseService {
 							image.setCampaignId(campaignId);
 							
 							image.setStatus(getCreativeAuditStatus(creative.getId()));
+							//设置message
+							if(creativeAuditModel!=null){
+								image.setMessage(creativeAuditModel.getMessage());
+							}
 							image.setPrice(creative.getPrice().floatValue());
 							
 							image.setImageId(creative.getMaterialId());
@@ -616,10 +620,7 @@ public class CreativeService extends BaseService {
 							image.setAppId(appInfo.get("appIds"));  
 							image.setAppName(appInfo.get("appNames")); 
 							image.setEnable(creative.getEnable());
-							//设置message
-							if(creativeAuditModel!=null){
-								image.setMessage(creativeAuditModel.getMessage());
-							}
+
 							//查询投放数据
 							if (startDate != null && endDate != null) {
 								String creativeId = creative.getId();
@@ -654,6 +655,10 @@ public class CreativeService extends BaseService {
 						video.setType(type);
 						video.setCampaignId(campaignId);
 						video.setStatus(getCreativeAuditStatus(creative.getId()));
+						//设置message
+						if(creativeAuditModel!=null){
+							video.setMessage(creativeAuditModel.getMessage());
+						}
 						video.setPrice(creative.getPrice().floatValue());
 						
 						video.setImageId(imageId);
@@ -664,10 +669,7 @@ public class CreativeService extends BaseService {
 						video.setAppId(appInfo.get("appIds"));  
 						video.setAppName(appInfo.get("appNames")); 
 						video.setEnable(creative.getEnable());
-						//设置message
-						if(creativeAuditModel!=null){
-							video.setMessage(creativeAuditModel.getMessage());
-						}
+
 						//查询投放数据
 						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
@@ -698,15 +700,16 @@ public class CreativeService extends BaseService {
 						info.setType(type);
 						info.setCampaignId(campaignId);
 						info.setStatus(getCreativeAuditStatus(creative.getId()));
+						//设置message
+						if(creativeAuditModel!=null){
+							info.setMessage(creativeAuditModel.getMessage());
+						}
 						info.setPrice(creative.getPrice().floatValue());
 						
 						info.setAppId(appInfo.get("appIds"));  
 						info.setAppName(appInfo.get("appNames")); 
 						info.setEnable(creative.getEnable());
-						//设置message
-						if(creativeAuditModel!=null){
-							info.setMessage(creativeAuditModel.getMessage());
-						}
+
 						info.setTitle(infoflowModel.getTitle());                   //标题
 						info.setDescription(infoflowModel.getDescription());       //描述
 						info.setCtaDescription(infoflowModel.getCtaDescription()); //CTA描述
@@ -871,11 +874,12 @@ public class CreativeService extends BaseService {
 						}
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
-					base.setMaterialPaths(materialPaths);
 					//设置message
 					if(creativeAuditModel!=null){
 						base.setMessage(creativeAuditModel.getMessage());
 					}
+					base.setMaterialPaths(materialPaths);
+
 					result.add(base);
 				}
 			}
@@ -906,6 +910,9 @@ public class CreativeService extends BaseService {
 		Map<String, String> appInfo = getAppInfo(creative);
 		String appId = appInfo.get("appIds");
 		String appName = appInfo.get("appNames");
+		//查询审核信息
+		CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
+
 		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			//如果创意类型是图片
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
@@ -921,6 +928,10 @@ public class CreativeService extends BaseService {
 				image.setCampaignId(campaignId);     //活动id
 				
 				image.setStatus(getCreativeAuditStatus(creative.getId())); //创意审核状态
+				//设置message
+				if(creativeAuditModel!=null){
+					image.setMessage(creativeAuditModel.getMessage());
+				}
 				image.setPrice(creative.getPrice().floatValue());          //创意价格
 				image.setTmplId(creative.getTmplId());                     //模板ID
 				image.setAppId(appId);                           //appId
@@ -929,7 +940,7 @@ public class CreativeService extends BaseService {
 				
 				image.setImageId(creative.getMaterialId());   //图片id
 				image.setImagePath(imageModel.getPath());     //图片路径
-				
+
 				
 				//查询投放数据
 				if (startDate != null && endDate != null) {
@@ -965,6 +976,10 @@ public class CreativeService extends BaseService {
 				video.setType(type);                                       //创意类型
 				video.setCampaignId(campaignId);                           //活动id
 				video.setStatus(getCreativeAuditStatus(creative.getId())); //创意审核状态
+				//设置message
+				if(creativeAuditModel!=null){
+					video.setMessage(creativeAuditModel.getMessage());
+				}
 				video.setPrice(creative.getPrice().floatValue());          //创意价格
 				video.setTmplId(creative.getTmplId());                     //模板Id
 				video.setAppId(appId);                                     //AppID
@@ -975,6 +990,7 @@ public class CreativeService extends BaseService {
 				video.setImagePath(getImagePath(imageId));                 //图片路径
 				video.setVideoId(creative.getMaterialId());                //视频id
 				video.setVideoPath(videoModel.getPath());                  //视频路径
+
 				//查询投放数据
 				if (startDate != null && endDate != null) {
 					String creativeId = creative.getId();
@@ -1007,6 +1023,10 @@ public class CreativeService extends BaseService {
 				info.setType(type);                                        //创意类型
 				info.setCampaignId(campaignId);                            //活动id
 				info.setStatus(getCreativeAuditStatus(creative.getId()));  //创意的审核状态
+				//设置message
+				if(creativeAuditModel!=null){
+					info.setMessage(creativeAuditModel.getMessage());
+				}
 				info.setPrice(creative.getPrice().floatValue());           //创意价格
 				info.setTmplId(creative.getTmplId());                      //模板Id
 				info.setAppId(appId);                                      //AppID
@@ -1019,7 +1039,7 @@ public class CreativeService extends BaseService {
 				info.setMustCtaDescription(InfoflowTmpl.getMustCtaDescription()); //CTA描述是否必填
 				info.setHaveDescription(InfoflowTmpl.getHaveDescription());  // 是否有描述
 				info.setHaveCtaDescription(InfoflowTmpl.getHaveCtaDescription()); // 是否有CTA描述
-				
+
 				if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
 					info.setIconId(infoflowModel.getIconId());                  //图标id
 					info.setIconPath(getImagePath(infoflowModel.getIconId()));  //图标路径
@@ -1088,6 +1108,10 @@ public class CreativeService extends BaseService {
 				}
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId()));                //创意的审核状态
+			//设置message
+			if(creativeAuditModel!=null){
+				base.setMessage(creativeAuditModel.getMessage());
+			}
 			bean = base;
 		}
 		return bean;

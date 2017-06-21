@@ -274,6 +274,11 @@ public class MomoAuditService extends AuditService {
 					// 如果创意审核信息不为空，则记录审核信息
 					creativeAuditModel.setMessage(creativeObject.get("reason").toString());
 				}
+				//如果审核状态为成功，把message信息设为空字符串
+				if(creativeAuditModel.getStatus()!=null && creativeAuditModel.getStatus().equals(StatusConstant.CREATIVE_AUDIT_SUCCESS)){
+					creativeAuditModel.setMessage("");
+				}
+
 				//更新创意审核表
 				creativeAuditDao.updateByExampleSelective(creativeAuditModel, creativeAuditExample);
 			}
