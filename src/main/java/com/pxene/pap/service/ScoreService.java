@@ -635,6 +635,17 @@ public class ScoreService
         
         if ((baseVal > backwardBoundary) && (baseVal < forwardBoundary))        // 适用于升序情况，如：30 --> 60 --> 110
         {
+            if (target < backwardBoundary)
+            {
+                LOGGER.debug("在升序情况下，公式结果比反向边界值还要小，得分为零分");
+                return 0;
+            }
+            if (target > forwardBoundary)
+            {
+                LOGGER.debug("在升序情况下，公式结果比正向边界值还要大，得分为满分");
+                return 100;
+            }
+            
             if (target > baseVal)
             {
                 scores = forwardScoreUnit * units;
@@ -646,6 +657,17 @@ public class ScoreService
         }
         else if ((baseVal < backwardBoundary) && (baseVal > forwardBoundary))   // 适用于降序情况，如：130 --> 60 --> 10
         {
+            if (target > backwardBoundary)
+            {
+                LOGGER.debug("在降序情况下，公式结果比反向边界值还要大，得分为零分");
+                return 0;
+            }
+            if (target < forwardBoundary)
+            {
+                LOGGER.debug("在降序情况下，公式结果比正向边界值还要小，得分为满分");
+                return 100;
+            }
+            
             if (target > baseVal)
             {
                 scores = backwardScoreUnit * units;
