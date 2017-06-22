@@ -1502,68 +1502,71 @@ public class DataService extends BaseService {
         // 遍历Excel文件中的每个数据行
         for (EffectModel model : modelList)
         {
-            model.setId(UUIDGenerator.getUUID());
-            model.setProjectId(projectId);
-            
-            EffectModelExample example = new EffectModelExample();
-            
-            // 使用日期、监测码作为联合主键，查询该条记录是否已存在
-            example.createCriteria().andCodeEqualTo(model.getCode()).andDateEqualTo(model.getDate());
+        	Date date = model.getDate();
+			if (date.before(new Date())) {
+				// 导入今天及之前的数据
+				model.setId(UUIDGenerator.getUUID());
+	            model.setProjectId(projectId);
+	            
+	            EffectModelExample example = new EffectModelExample();
+	            
+	            // 使用日期、监测码作为联合主键，查询该条记录是否已存在
+	            example.createCriteria().andCodeEqualTo(model.getCode()).andDateEqualTo(model.getDate());
 
-            List<EffectModel> effectsInDB = effectDao.selectByExample(example);
-            
-            // 如果记录已存在，则更新，否则直接插入
-            if (effectsInDB != null && !effectsInDB.isEmpty())
-            {
-                effectDao.updateByExampleSelective(model, example);
-            }
-            else
-            {
-                effectDao.insert(model);
-            }
-            
-            // 查询匹配数量
-            String code = model.getCode();
-            Date date = model.getDate();
-            // 查询项目下活动使用的监测码：根据项目id查询活动信息
-            CampaignModelExample campaignEx = new CampaignModelExample();
-            campaignEx.createCriteria().andProjectIdEqualTo(projectId);
-            List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
-            // Excel文件中的每个数据行对应的监测码日期date有没有用到这个code监测码
-            if (campaigns != null && !campaigns.isEmpty()) {
-            	Set<String> usedCodes = new HashSet<String>();
-            	for (CampaignModel campaign : campaigns) {
-            		// 查询活动在execl文件时间里使用的监测码的情况
-            		LandpageCodeHistoryModelExample exampleHistory = new LandpageCodeHistoryModelExample();
-            		exampleHistory.createCriteria().andCampaignIdEqualTo(campaign.getId());
-            		List<LandpageCodeHistoryModel> historys = landpageCodeHistoryDao.selectByExample(exampleHistory);
-            		if (historys != null && !historys.isEmpty()) {
-            			// 如果不为空，将监测码放到一个集合中            			
-            			for (LandpageCodeHistoryModel history : historys) {
-            				Date start = history.getStartTime();
-            				Date end = history.getEndTime();
-            				// 转换格式：如果date与startDate同一天，date可能小于startDate
-            				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
-            				String strDate = dateFormat.format(start); 
-            				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            				Date startDate = null;
-							try {
-								startDate = format.parse(strDate);
-							} catch (ParseException e) {
-								e.printStackTrace();
-							}
-            				// 判断是否在时间范围内：date在开始时间和结束时间之间，即date大于等于startDate并且小于等于end
-            				if ((date.after(startDate) || date.equals(startDate)) && date.before(end)) {
-            					usedCodes.add(history.getCodes());
-            				}            				
-            			}
-            		}
-            	}
-            	if (usedCodes.contains(code)) {
-            		// 如果监测码历史记录表在Excel文件该行的日期使用的监测码历史记录中包含上传的监测码，则将其放到list集合中
-            		marryCodes.add(code);
-            	}            	
-            }
+	            List<EffectModel> effectsInDB = effectDao.selectByExample(example);
+	            
+	            // 如果记录已存在，则更新，否则直接插入
+	            if (effectsInDB != null && !effectsInDB.isEmpty())
+	            {
+	                effectDao.updateByExampleSelective(model, example);
+	            }
+	            else
+	            {
+	                effectDao.insert(model);
+	            }
+	            
+	            // 查询匹配数量
+	            String code = model.getCode();           
+	            // 查询项目下活动使用的监测码：根据项目id查询活动信息
+	            CampaignModelExample campaignEx = new CampaignModelExample();
+	            campaignEx.createCriteria().andProjectIdEqualTo(projectId);
+	            List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+	            // Excel文件中的每个数据行对应的监测码日期date有没有用到这个code监测码
+	            if (campaigns != null && !campaigns.isEmpty()) {
+	            	Set<String> usedCodes = new HashSet<String>();
+	            	for (CampaignModel campaign : campaigns) {
+	            		// 查询活动在execl文件时间里使用的监测码的情况
+	            		LandpageCodeHistoryModelExample exampleHistory = new LandpageCodeHistoryModelExample();
+	            		exampleHistory.createCriteria().andCampaignIdEqualTo(campaign.getId());
+	            		List<LandpageCodeHistoryModel> historys = landpageCodeHistoryDao.selectByExample(exampleHistory);
+	            		if (historys != null && !historys.isEmpty()) {
+	            			// 如果不为空，将监测码放到一个集合中            			
+	            			for (LandpageCodeHistoryModel history : historys) {
+	            				Date start = history.getStartTime();
+	            				Date end = history.getEndTime();
+	            				// 转换格式：如果date与startDate同一天，date可能小于startDate
+	            				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+	            				String strDate = dateFormat.format(start); 
+	            				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+	            				Date startDate = null;
+								try {
+									startDate = format.parse(strDate);
+								} catch (ParseException e) {
+									e.printStackTrace();
+								}
+	            				// 判断是否在时间范围内：date在开始时间和结束时间之间，即date大于等于startDate并且小于等于end
+	            				if ((date.after(startDate) || date.equals(startDate)) && date.before(end)) {
+	            					usedCodes.add(history.getCodes());
+	            				}            				
+	            			}
+	            		}
+	            	}
+	            	if (usedCodes.contains(code)) {
+	            		// 如果监测码历史记录表在Excel文件该行的日期使用的监测码历史记录中包含上传的监测码，则将其放到list集合中
+	            		marryCodes.add(code);
+	            	}            	
+	            }
+			}           
         }
         
         // 向上传文件插入数据

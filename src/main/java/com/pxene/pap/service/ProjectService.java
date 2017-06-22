@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import com.pxene.pap.domain.beans.StaticBean;
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.repository.basic.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -35,8 +34,9 @@ import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectBean.EffectField;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas;
-import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas.Statics;
-import com.pxene.pap.domain.beans.RuleFormulasBean.Static;
+import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas.Staticvals;
+import com.pxene.pap.domain.beans.RuleFormulasBean.Staticval;
+import com.pxene.pap.domain.beans.StaticvalBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -54,8 +54,6 @@ import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.RuleModel;
 import com.pxene.pap.domain.models.RuleModelExample;
-import com.pxene.pap.domain.models.StaticModel;
-import com.pxene.pap.domain.models.StaticModelExample;
 import com.pxene.pap.domain.models.FormulaModel;
 import com.pxene.pap.domain.models.FormulaModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
@@ -64,7 +62,6 @@ import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.RuleDao;
-import com.pxene.pap.repository.basic.StaticDao;
 import com.pxene.pap.repository.basic.FormulaDao;
 
 import redis.clients.jedis.Jedis;
@@ -113,7 +110,7 @@ public class ProjectService extends BaseService {
     private String excelSavePath;
 
 	@Autowired
-	private StaticDao staticDao;
+	private StaticvalDao staticvalDao;
 
 	@Autowired
 	private RuleDao ruleDao;
@@ -597,21 +594,20 @@ public class ProjectService extends BaseService {
     	}
 
     	//查询静态值
-		List<StaticModel> staticModels = listStaticsByProjectId(projectId);
-//		if(staticModels!=null && staticModels.size()>0){
+		List<StaticvalModel> staticModels = listStaticsByProjectId(projectId);
 		if (staticModels != null) {
 			int len = staticModels.size();
-			StaticBean[] staticBeans = new StaticBean[len];
+			StaticvalBean[] staticvalBeans = new StaticvalBean[len];
 			for(int i=0; i<len; i++){
-				StaticModel staticModel = staticModels.get(i);
-				StaticBean staticBean  = new StaticBean();
-				staticBean.setId(staticModel.getId());
-				staticBean.setName(staticModel.getName());
-				staticBean.setValue(staticModel.getValue());;
-				staticBean.setUpdateDate(staticModel.getUpdateTime());
-				staticBeans[i]=staticBean;
+				StaticvalModel staticvalModel = staticModels.get(i);
+				StaticvalBean staticvalBean  = new StaticvalBean();
+				staticvalBean.setId(staticvalModel.getId());
+				staticvalBean.setName(staticvalModel.getName());
+				staticvalBean.setValue(staticvalModel.getValue());;
+				staticvalBean.setUpdateDate(staticvalModel.getUpdateTime());
+				staticvalBeans[i] = staticvalBean;
 			}
-			bean.setStatics(staticBeans);
+			bean.setStaticvals(staticvalBeans);;
 		}
 
 		// 查询规则
@@ -622,21 +618,21 @@ public class ProjectService extends BaseService {
 			for (int i=0; i<len; i++) {
 				RuleModel rule = rulesModel.get(i);
 				// 根据静态id查询静态值信息
-				StaticModel staticModel = staticDao.selectByPrimaryKey(rule.getStaticId());
-				Static statics = null;
-				if (staticModel != null) {					
-					statics = new Static();
-					statics.setId(staticModel.getId());
-					statics.setName(staticModel.getName());
-					statics.setValue(staticModel.getValue());
+				StaticvalModel staticvalModel = staticvalDao.selectByPrimaryKey(rule.getStaticvalId());
+				Staticval staticval = null;
+				if (staticvalModel != null) {					
+					staticval = new Staticval();
+					staticval.setId(staticvalModel.getId());
+					staticval.setName(staticvalModel.getName());
+					staticval.setValue(staticvalModel.getValue());
 				}
 				// 将查询到的信息放到bean中
 				RuleFormulasBean ruleBean = new RuleFormulasBean();
 				ruleBean.setId(rule.getId());
 				ruleBean.setName(rule.getName());
-				ruleBean.setConditions(rule.getConditions());
+				ruleBean.setTriggerCondition(rule.getTriggerCondition());
 				ruleBean.setRelation(rule.getRelation());
-				ruleBean.setStatics(statics);
+				ruleBean.setStaticval(staticval);
 				rules[i] = ruleBean;
 			}
 			bean.setRules(rules);
@@ -994,12 +990,12 @@ public class ProjectService extends BaseService {
 		checkSameOfRuleName(ruleName,bean.getProjectId());
 		
 		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
-		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticId());
+		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticvalId());
 		
 		// 判断公式是否合法
-		String conditions = bean.getConditions();
-		if (conditions != null && !conditions.isEmpty()) {
-			if (!isFormula(bean.getConditions())) {
+		String triggerCondition = bean.getTriggerCondition();
+		if (triggerCondition != null && !triggerCondition.isEmpty()) {
+			if (!isFormula(triggerCondition)) {
 				throw new IllegalArgumentException(formulaErrorInfo(ruleName));
 			}
 		}		
@@ -1074,8 +1070,8 @@ public class ProjectService extends BaseService {
 			}						
 			
 			// 判断静态值是否为空
-			String staticId = formulaBean.getStaticId();
-			checkHaveStatics(staticId);
+			String staticvalId = formulaBean.getStaticvalId();
+			checkHaveStatics(staticvalId);
 
 			FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
 			formulaModel.setId(UUIDGenerator.getUUID());
@@ -1099,15 +1095,15 @@ public class ProjectService extends BaseService {
 		}
 		RuleFormulasBean ruleFormulasBean = modelMapper.map(rule, RuleFormulasBean.class);
 		// 查询静态值信息
-		StaticModel staticModel = staticDao.selectByPrimaryKey(rule.getStaticId());
-		Static statics = null;
+		StaticvalModel staticModel = staticvalDao.selectByPrimaryKey(rule.getStaticvalId());
+		Staticval staticval = null;
 		if (staticModel != null) {
-			statics = new Static();
-			statics.setId(staticModel.getId());
-			statics.setName(staticModel.getName());
-			statics.setValue(staticModel.getValue());
+			staticval = new Staticval();
+			staticval.setId(staticModel.getId());
+			staticval.setName(staticModel.getName());
+			staticval.setValue(staticModel.getValue());
 		}
-		ruleFormulasBean.setStatics(statics);
+		ruleFormulasBean.setStaticval(staticval);
 		// 从公式表中查询规则对应的公式信息，并放到结果中
 		listFormulas(ruleFormulasBean);
 		return ruleFormulasBean ;		
@@ -1133,14 +1129,14 @@ public class ProjectService extends BaseService {
 				// 每条公式信息
 				FormulaModel formulaModel = formulasModel.get(i);
 				// 根据静态值id获取静态值相关信息
-				String staticId = formulaModel.getStaticId();
-				StaticModel staticModel = staticDao.selectByPrimaryKey(staticId);
+				String staticId = formulaModel.getStaticvalId();
+				StaticvalModel staticModel = staticvalDao.selectByPrimaryKey(staticId);
 				if (staticModel != null) {
-					Statics statics = new Statics();
-					statics.setId(staticModel.getId());
-					statics.setName(staticModel.getName());
-					statics.setValue(staticModel.getValue());
-					formula.setStatics(statics);
+					Staticvals staticval = new Staticvals();
+					staticval.setId(staticModel.getId());
+					staticval.setName(staticModel.getName());
+					staticval.setValue(staticModel.getValue());
+					formula.setStaticval(staticval);
 				}				
 				// 将每条公式信息放到数组中				
 				formula.setId(formulaModel.getId());
@@ -1209,13 +1205,13 @@ public class ProjectService extends BaseService {
 		}	
 		
 		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
-		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticId());
+		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticvalId());
 		
 		// FIXME ： 判断条件是否为空
 		// 判断公式是否合法
-		String conditions = bean.getConditions();
-		if (conditions != null && !conditions.isEmpty()) {
-			if (!isFormula(conditions)) {
+		String triggerCondition = bean.getTriggerCondition();
+		if (triggerCondition != null && !triggerCondition.isEmpty()) {
+			if (!isFormula(triggerCondition)) {
 				throw new IllegalArgumentException(formulaErrorInfo(bean.getName()));
 			}
 		}
@@ -1253,7 +1249,7 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	private void checkHaveStatics(String staticId) throws Exception {
-		StaticModel statics = staticDao.selectByPrimaryKey(staticId);
+		StaticvalModel statics = staticvalDao.selectByPrimaryKey(staticId);
 		if (statics == null) {
 			throw new IllegalArgumentException(PhrasesConstant.STATICS_INFO_IS_NULL);				
 		}
@@ -1377,7 +1373,7 @@ public class ProjectService extends BaseService {
 	 * @throws Exception 
      */
 	@Transactional
-	public void createStatic(StaticBean bean) throws Exception{
+	public void createStatic(StaticvalBean bean) throws Exception{
 		String name = bean.getName();
 		String projectId = bean.getProjectId();
 		
@@ -1391,22 +1387,22 @@ public class ProjectService extends BaseService {
 		checkUseFixedName(name);
 				
 		// 插入MySQL
-		StaticModel staticModel = modelMapper.map(bean, StaticModel.class);
+		StaticvalModel staticModel = modelMapper.map(bean, StaticvalModel.class);
 		String staticId=UUIDGenerator.getUUID();
 		staticModel.setId(staticId);
 		bean.setId(staticId);
-		staticDao.insertSelective(staticModel);
+		staticvalDao.insertSelective(staticModel);
 	}
 
 	/**
 	 *根据项目id查找静态值
 	 * @return
      */
-	private List<StaticModel> listStaticsByProjectId(String projectId){
-		StaticModelExample staticExample = new StaticModelExample();
+	private List<StaticvalModel> listStaticsByProjectId(String projectId){
+		StaticvalModelExample staticExample = new StaticvalModelExample();
 		staticExample.createCriteria().andProjectIdEqualTo(projectId);
 		staticExample.setOrderByClause(" update_time desc ");//按更新时间逆序排序
-		List<StaticModel> staticInDB = staticDao.selectByExample(staticExample);
+		List<StaticvalModel> staticInDB = staticvalDao.selectByExample(staticExample);
 		return staticInDB;
 	}
 
@@ -1416,9 +1412,9 @@ public class ProjectService extends BaseService {
 	 * @param bean
      */
 	@Transactional
-	public void updateStaticValue(String id, StaticBean bean){
+	public void updateStaticValue(String id, StaticvalBean bean){
 		// 判断指定ID的项目在MySQL中是否存在
-		StaticModel staticInDB = staticDao.selectByPrimaryKey(id);
+		StaticvalModel staticInDB = staticvalDao.selectByPrimaryKey(id);
 		if (staticInDB == null)
 		{
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
@@ -1431,7 +1427,7 @@ public class ProjectService extends BaseService {
 			{
 				staticInDB.setValue(value);
 				staticInDB.setUpdateTime(new Date());
-				staticDao.updateByPrimaryKeySelective(staticInDB);
+				staticvalDao.updateByPrimaryKeySelective(staticInDB);
 			}
 		}
 	}
@@ -1443,9 +1439,9 @@ public class ProjectService extends BaseService {
 	 * @throws Exception 
      */
 	@Transactional
-	public void updateStaticName(String id,StaticBean bean) throws Exception{
+	public void updateStaticName(String id,StaticvalBean bean) throws Exception{
 		// 判断指定ID的项目在MySQL中是否存在
-		StaticModel staticInDB = staticDao.selectByPrimaryKey(id);
+		StaticvalModel staticInDB = staticvalDao.selectByPrimaryKey(id);
 		if (staticInDB == null)
 		{
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
@@ -1472,7 +1468,7 @@ public class ProjectService extends BaseService {
 				// 更新数据库
 				staticInDB.setName(name);
 				staticInDB.setUpdateTime(new Date());
-				staticDao.updateByPrimaryKeySelective(staticInDB);
+				staticvalDao.updateByPrimaryKeySelective(staticInDB);
 			}
 		}
 	}
@@ -1489,10 +1485,10 @@ public class ProjectService extends BaseService {
 		}
 
 		// 判断指定的多个ID是否在MySQL中存在
-		StaticModelExample staticExample = new StaticModelExample();
+		StaticvalModelExample staticExample = new StaticvalModelExample();
 		staticExample.createCriteria().andIdIn(Arrays.asList(ids));
 
-		List<StaticModel> staticInDB = staticDao.selectByExample(staticExample);
+		List<StaticvalModel> staticInDB = staticvalDao.selectByExample(staticExample);
 		if (staticInDB == null || staticInDB.size() < ids.length)
 		{
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
@@ -1500,21 +1496,21 @@ public class ProjectService extends BaseService {
 
 		// 如果有一个静态值下被公式或规则引用，则放弃整个删除
 		RuleModelExample ruleModelExample = new RuleModelExample();
-		ruleModelExample.createCriteria().andStaticIdIn(Arrays.asList(ids));
+		ruleModelExample.createCriteria().andStaticvalIdIn(Arrays.asList(ids));
 		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
 		if(ruleModels != null && ruleModels.size()>0){
 			throw new ResourceNotFoundException(PhrasesConstant.STATIC_RULER_DELETE_ERROR);
 		}
 
 		FormulaModelExample formulaModelExample = new FormulaModelExample();
-		formulaModelExample.createCriteria().andStaticIdIn(Arrays.asList(ids));
+		formulaModelExample.createCriteria().andStaticvalIdIn(Arrays.asList(ids));
 		List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
 		if(formulaModels != null && formulaModels.size()>0){
 			throw new ResourceNotFoundException(PhrasesConstant.STATIC_FORMULATE_DELETE_ERROR);
 		}
 
 		// 从MySQL中批量删除指定ID的静态值
-		staticDao.deleteByExample(staticExample);
+		staticvalDao.deleteByExample(staticExample);
 	}
 	
 	/**
@@ -1525,9 +1521,9 @@ public class ProjectService extends BaseService {
 	 */
 	private void checkSameOfStaticName(String name,String projectId) throws Exception {
 		// 根据静态值名称和项目id查询转换值信息
-		StaticModelExample staticEx = new StaticModelExample();
+		StaticvalModelExample staticEx = new StaticvalModelExample();
 		staticEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
-		List<StaticModel> statics = staticDao.selectByExample(staticEx);
+		List<StaticvalModel> statics = staticvalDao.selectByExample(staticEx);
 		if (statics != null && !statics.isEmpty()) {
 			// 如果项目id下存在静态值名称，则抛出异常
 			throw new DuplicateEntityException(PhrasesConstant.STATICS_NAME_IS_SAME);

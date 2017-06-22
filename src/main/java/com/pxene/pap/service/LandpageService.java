@@ -454,14 +454,15 @@ public class LandpageService extends BaseService {
     	// 按开始时间进行倒序排序
     	codeHistoryEx.setOrderByClause("start_time DESC");
     	List<LandpageCodeHistoryModel> codeHistorys = landpageCodeHistoryDao.selectByExample(codeHistoryEx);
-    	// 结束时间：获取一天中最大时间
-    	Date endTime = DateUtils.getBigHourOfDay(new Date());
+    	// 结束时间：当前时间 
+//    	Date endTime = DateUtils.getBigHourOfDay(new Date());
+    	Date endTime = new Date();
     	// 更新监测码历史记录的结束时间
     	if (codeHistorys != null && !codeHistorys.isEmpty()) {
     		// 如果监测码历史记录不为空，更新距离现在时间最近的一条监测码历史记录的结束时间（一个活动可以对应多个监测码历史记录）
     		// 取出距离现在时间最近的一条监测码历史记录信息
     		LandpageCodeHistoryModel codeHistory = codeHistorys.get(0);
-    		// 将监测码使用的结束时间设置为当天的23:59:59
+    		// 将监测码使用的结束时间设置为当前时间
     		codeHistory.setEndTime(endTime);
     		codeHistory.setId(codeHistory.getId());
     		landpageCodeHistoryDao.updateByPrimaryKeySelective(codeHistory);

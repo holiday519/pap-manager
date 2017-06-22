@@ -6,7 +6,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import com.pxene.pap.domain.beans.StaticBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,6 +23,7 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean;
+import com.pxene.pap.domain.beans.StaticvalBean;
 import com.pxene.pap.service.ProjectService;
 
 @Controller
@@ -196,9 +196,9 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
      */
-	@RequestMapping(value = "/project/static", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/staticval", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createStatic(@Valid @RequestBody StaticBean bean, HttpServletResponse response) throws Exception {
+	public String createStatic(@Valid @RequestBody StaticvalBean bean, HttpServletResponse response) throws Exception {
 		projectService.createStatic(bean);
 		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
 	}
@@ -210,9 +210,9 @@ public class ProjectController {
 	 * @param response
 	 * @throws Exception
      */
-	@RequestMapping(value = "/project/static/value/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/staticval/value/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateStaticValue(@PathVariable String id, @RequestBody StaticBean bean, HttpServletResponse response) throws Exception {
+	public void updateStaticValue(@PathVariable String id, @RequestBody StaticvalBean bean, HttpServletResponse response) throws Exception {
 		projectService.updateStaticValue(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -224,9 +224,9 @@ public class ProjectController {
 	 * @param response
 	 * @throws Exception
      */
-	@RequestMapping(value = "/project/static/name/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/staticval/name/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void updateStaticName(@PathVariable String id, @Valid@RequestBody StaticBean bean, HttpServletResponse response) throws Exception {
+	public void updateStaticName(@PathVariable String id, @Valid@RequestBody StaticvalBean bean, HttpServletResponse response) throws Exception {
 		projectService.updateStaticName(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
@@ -237,7 +237,7 @@ public class ProjectController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/project/statics", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/project/staticvals", method = RequestMethod.DELETE)
 	@ResponseBody
 	public void deleteStatics(@RequestParam(required = true) String ids, HttpServletResponse response) throws Exception {
 

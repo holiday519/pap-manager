@@ -28,7 +28,7 @@ public class RuleFormulasBean {
 	/**
 	 * 触发条件
 	 */
-	private String conditions;
+	private String triggerCondition;
 	/**
 	 * 关系
 	 */
@@ -36,12 +36,12 @@ public class RuleFormulasBean {
 	/**
 	 * 静态值id
 	 */
-	private String staticId;
+	private String staticvalId;
 	/**
 	 * 参考值对象（规则对应的静态值）
 	 */	
-	private Static statics;
-	public static class Static {
+	private Staticval staticval;
+	public static class Staticval {
 		private String id;
 		private String name;
 		private Double value;		
@@ -66,7 +66,7 @@ public class RuleFormulasBean {
 		
 		@Override
 		public String toString() {
-			return "Statics [id=" + id + ", name=" + name
+			return "Staticval [id=" + id + ", name=" + name
 					+ ", value=" + value + "]";
 		}
 	}
@@ -102,12 +102,12 @@ public class RuleFormulasBean {
 		 * 静态值id
 		 */
 		@NotNull(message = PhrasesConstant.FORMULA_REFERENCE_VALUE_NULL)
-		private String staticId;
+		private String staticvalId;
 		/**
 		 * 参考值对象（规则对应的静态值）
 		 */
-		private Statics statics;
-		public static class Statics {
+		private Staticvals staticval;
+		public static class Staticvals {
 			private String id;
 			private String name;
 			private Double value;
@@ -131,7 +131,7 @@ public class RuleFormulasBean {
 			}
 			@Override
 			public String toString() {
-				return "Statics [id=" + id + ", name=" + name
+				return "Staticvals [id=" + id + ", name=" + name
 						+ ", value=" + value + "]";
 			}
 		}
@@ -173,18 +173,18 @@ public class RuleFormulasBean {
 		}
 		public void setRuleId(String ruleId) {
 			this.ruleId = ruleId;
+		}				
+		public String getStaticvalId() {
+			return staticvalId;
+		}
+		public void setStaticvalId(String staticvalId) {
+			this.staticvalId = staticvalId;
 		}		
-		public String getStaticId() {
-			return staticId;
+		public Staticvals getStaticval() {
+			return staticval;
 		}
-		public void setStaticId(String staticId) {
-			this.staticId = staticId;
-		}
-		public Statics getStatics() {
-			return statics;
-		}
-		public void setStatics(Statics statics) {
-			this.statics = statics;
+		public void setStaticval(Staticvals staticval) {
+			this.staticval = staticval;
 		}
 		public Double getForwardVernier() {
 			return forwardVernier;
@@ -228,14 +228,14 @@ public class RuleFormulasBean {
 
 	public void setProjectId(String projectId) {
 		this.projectId = projectId;
-	}	
+	}		
 
-	public String getConditions() {
-		return conditions;
+	public String getTriggerCondition() {
+		return triggerCondition;
 	}
 
-	public void setConditions(String conditions) {
-		this.conditions = conditions;
+	public void setTriggerCondition(String triggerCondition) {
+		this.triggerCondition = triggerCondition;
 	}
 
 	public String getRelation() {
@@ -244,22 +244,22 @@ public class RuleFormulasBean {
 
 	public void setRelation(String relation) {
 		this.relation = relation;
-	}	
+	}			
 
-	public String getStaticId() {
-		return staticId;
+	public String getStaticvalId() {
+		return staticvalId;
 	}
 
-	public void setStaticId(String staticId) {
-		this.staticId = staticId;
+	public void setStaticvalId(String staticvalId) {
+		this.staticvalId = staticvalId;
 	}
 
-	public Static getStatics() {
-		return statics;
+	public Staticval getStaticval() {
+		return staticval;
 	}
 
-	public void setStatics(Static statics) {
-		this.statics = statics;
+	public void setStaticval(Staticval staticval) {
+		this.staticval = staticval;
 	}
 
 	public Formulas[] getFormulas() {
@@ -272,7 +272,7 @@ public class RuleFormulasBean {
 	
 	@Override
 	public String toString() {
-		return "RuleFormulasBean[id=" + id + ",name=" + name + ",projectId=" + projectId + ",conditions=" + conditions 
-				+ ",relation=" + relation + ",staticId=" + staticId + ",statics=" + statics + ",formulas=" + Arrays.toString(formulas) + "]";
+		return "RuleFormulasBean[id=" + id + ",name=" + name + ",projectId=" + projectId + ",triggerCondition=" + triggerCondition 
+				+ ",relation=" + relation + ",staticvalId=" + staticvalId + ",staticval=" + staticval + ",formulas=" + Arrays.toString(formulas) + "]";
 	}
 }
