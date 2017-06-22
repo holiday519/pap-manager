@@ -23,6 +23,7 @@ import javax.script.ScriptException;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -34,6 +35,7 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RealTimeDataEnum;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignScoreBean;
+import com.pxene.pap.domain.beans.RuleBean;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectDicModel;
@@ -61,7 +63,7 @@ import com.pxene.pap.repository.basic.StaticDao;
  * @author ningyu
  */
 @Service
-public class ScoreService
+public class ScoreService extends BaseService
 {
     private static final SimpleDateFormat DATATIME_FORMATTER = new SimpleDateFormat("yyyyMMdd");
 
@@ -69,7 +71,7 @@ public class ScoreService
 
     private static final String REGEX_UUID36_VALUE = "\\{(.{36})\\}";
     
-    private static final DecimalFormat SCORE_DECIMAL_FORMAT = new DecimalFormat("#.00");
+    private static final DecimalFormat SCORE_DECIMAL_FORMAT = new DecimalFormat("0.00");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreService.class);
     
@@ -121,7 +123,7 @@ public class ScoreService
     {
         CampaignScoreBean result = new CampaignScoreBean();
         
-        // 活动评分必需传入开始日期、结束日期
+        // 活动评分必需传入查询区间的开始日期和结束日期
         if (beginTime == null || endTime == null)
         {
             return result;
@@ -139,31 +141,16 @@ public class ScoreService
             Map<String, Number> realTimeSum = getRealTimeSum(campaignId, beginTime, endTime);
             
             // 选出满足触发条件的规则
-            RuleModel rule = pickUpRule(projectId, campaignId, endTime, endTime, effectSum, realTimeSum);
+            RuleBean rule = pickUpRule(projectId, campaignId, endTime, endTime, effectSum, realTimeSum);
             
-            if (rule == null)
+            if (rule == null)// 遍历了全部规则，验证它们的触发条件之后，没一个规则可以被触发
             {
                 return result;
             }
-            else
+            else // 成功选出一条规则，或者，规则的触发条件为空（表示不需要触发条件，直接认定这个规则被触发，在DB中conditions、relation、static_id都为空）
             {
-                String condition = rule.getConditions();
-                String relation = rule.getRelation();
-                String staticId = rule.getStaticId();
-                
-                String trigger = "";
-               
-                if (org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
-                {
-                    // 拼接触发条件
-                    trigger = condition + relation + "{" + staticId + "}";
-                    
-                    // 替换触发条件中的静态值
-                    trigger = replaceFormulaStaticValue(trigger);
-                }
-                
                 result.setRuleName(rule.getName());
-                result.setRuleTrigger(replaceFormulaDictValue(projectId, trigger));
+                result.setRuleTrigger(rule.getReplacedVariableVal());
                 
                 List<Map<String, String>> formulaList = new ArrayList<Map<String, String>>();
                 
@@ -180,7 +167,6 @@ public class ScoreService
                     Double negativeVernier = formulaModel.getNegativeVernier();
                     Float weight = formulaModel.getWeight();
                     
-                    
                     // 替换公式中的静态值
                     formula = replaceFormulaStaticValue(formula);
                     
@@ -191,24 +177,31 @@ public class ScoreService
                     // 计算公式的结果
                     double formulaResult = computeFormula(formula);
                     
+                    String tmpVal = null;
+                    
+                    // 0.0除以0的结果是NaN，正数除以0的结果是Infinite，负数除以0的结果是-Infinite
                     if (Double.isNaN(formulaResult) || Double.isInfinite(formulaResult))
                     {
-                        continue;
+                        tmpVal = "公式结果异常";
                     }
-                    
-                    // 根据游标系计算得分
-                    double score = score(formulaResult, baseVal, forwardVernier, negativeVernier);
-                    
-                    // 一个评分规则有多条公式，每个公式计算出的得分需要乘权重，才是这个公式的最终得分
-                    double weightedScore = score * weight;
-                    
-                    // 累加得分总和
-                    campaignScore = campaignScore + weightedScore;
+                    else
+                    {
+                        tmpVal = SCORE_DECIMAL_FORMAT.format(formulaResult);
+                        
+                        // 根据游标系计算得分
+                        double score = score(formulaResult, baseVal, forwardVernier, negativeVernier);
+                        
+                        // 一个评分规则有多条公式，每个公式计算出的得分需要乘权重，才是这个公式的最终得分
+                        double weightedScore = score * weight;
+                        
+                        // 累加得分总和
+                        campaignScore = campaignScore + weightedScore;
+                    }
                     
                     Map<String, String> formulaMap = new HashMap<String, String>();
                     formulaMap.put("name", formulaModel.getName());
-                    formulaMap.put("value", String.valueOf(score));
                     formulaMap.put("weight", String.valueOf(weight));
+                    formulaMap.put("value", tmpVal);
                     formulaList.add(formulaMap);
                 }
                 
@@ -408,15 +401,17 @@ public class ScoreService
      * 遍历项目的全部评分规则，逐个判断规则的触条发件，选出第一个触发条件满足的评分规则。
      * @param projectId     项目ID
      * @param campaignId    活动ID
-     * @param beginTime     活动起始日期
-     * @param endTime       活动截止日期
+     * @param beginTime     查询时间段的开始日期
+     * @param endTime       查询时间段的结束日期
      * @param effectSum     保存着效果回收数据变量值的Map
      * @param realTimeSum   保存着实时统计数据变量值的Map
      * @return  第一条触发条件被满足的评分规则（按更新时间降序）
      * @throws ScriptException
      */
-    private RuleModel pickUpRule(String projectId, String campaignId, Long beginTime, Long endTime, Map<String, Number> effectSum, Map<String, Number> realTimeSum) throws ScriptException
+    private RuleBean pickUpRule(String projectId, String campaignId, Long beginTime, Long endTime, Map<String, Number> effectSum, Map<String, Number> realTimeSum) throws ScriptException
     {
+        RuleBean result = new RuleBean();
+        
         // 根据项目ID查询这个项目的全部评分规则，排序顺序为按更新时间降序
         RuleModelExample example = new RuleModelExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
@@ -429,33 +424,53 @@ public class ScoreService
             String relation = rule.getRelation();
             String staticId = rule.getStaticId();
             
+            BeanUtils.copyProperties(rule, result);
+            
             /* 
-             * 评分规则的触发条件可以为空（conditions, relation, static_id同时为空），如果触发条件为空，则认为成功触发。
-             * isNoneEmpty表示三个字段同时不为空、没有任何一个字段为空。取反，表示三个字段中有可能有空值
+             * 评分规则的触发条件可以为空（conditions, relation, static_id同时为空），如果触发条件为空，则认为该规则被成功触发。
+             * isNoneEmpty表示三个字段同时不为空、没有任何一个字段为空。取反，表示三个字段中有可能有空值。
              */
             if (org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
             {
+                // 为避免脚本引擎将一个等号认定为赋值操作，这里需要显式的将其转换成判断运算符
+                if ("=".equals(relation))
+                {
+                    relation = "==";
+                }
+                
                 // 拼接触发条件
                 String trigger = condition + relation + "{" + staticId + "}";
                 
                 // 替换触发条件中的静态值
                 trigger = replaceFormulaStaticValue(trigger);
                 
+                // 将公式中的变量名替换成映射值
+                String replacedTrigger = replaceFormulaDictValue(projectId, trigger);
+                result.setReplacedVariableVal(replacedTrigger);
+                
                 // 替换触发条件中的变量值
                 trigger = replaceFormulaVariableValue(trigger, effectSum);
                 trigger = replaceFormulaVariableValue(trigger, realTimeSum);
                 
                 // 判断触发条件是否成立
-                boolean isSuccessTrigger = judgeTrigger(trigger);
+                boolean isSuccessTrigger = false;
+                try
+                {
+                    isSuccessTrigger = judgeTrigger(trigger);
+                }
+                catch (ScriptException e)
+                {
+                    e.printStackTrace();
+                }
                 
                 if (isSuccessTrigger)
                 {
-                    return rule;
+                    return result;
                 }
             }
             else if (StringUtils.isEmpty(condition) && StringUtils.isEmpty(relation) && StringUtils.isEmpty(staticId))
             {
-                return rule;
+                return result;
             }
         }
         
@@ -728,8 +743,8 @@ public class ScoreService
     /**
      * 提取公式中的变量值（如A1,B1），从效果数据-字典表（pap_t_effect_dic）中查询出对应的列名称，最后将列名称替换回原公式中。
      * @param projectId 项目ID
-     * @param formula   待操作的公式
-     * @return  替换全部变量名之后的公式
+     * @param formula   待操作的公式，如：B1+B2+{0b9af047-fc51-4e58-bdb0-7f46e2a915ad}
+     * @return  替换全部变量名之后的公式，如：点击+展现+110
      */
     private String replaceFormulaDictValue(String projectId, String formula)
     {
