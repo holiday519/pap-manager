@@ -48,7 +48,7 @@ import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
 import com.pxene.pap.domain.models.RuleModel;
 import com.pxene.pap.domain.models.RuleModelExample;
-import com.pxene.pap.domain.models.StaticModel;
+import com.pxene.pap.domain.models.StaticvalModel;
 import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.EffectDao;
@@ -56,7 +56,7 @@ import com.pxene.pap.repository.basic.EffectDicDao;
 import com.pxene.pap.repository.basic.FormulaDao;
 import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.RuleDao;
-import com.pxene.pap.repository.basic.StaticDao;
+import com.pxene.pap.repository.basic.StaticvalDao;
 
 /**
  * 评分服务
@@ -76,7 +76,7 @@ public class ScoreService extends BaseService
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreService.class);
     
     @Autowired
-    private StaticDao staticDao;
+    private StaticvalDao staticvalDao;
     
     @Autowired
     private RuleDao ruleDao;
@@ -162,7 +162,7 @@ public class ScoreService extends BaseService
                 for (FormulaModel formulaModel : formulaModels)
                 {
                     String formula = formulaModel.getFormula();
-                    Double baseVal = getStaticValueById(formulaModel.getStaticId());
+                    Double baseVal = getStaticValueById(formulaModel.getStaticvalId());
                     Double forwardVernier = formulaModel.getForwardVernier();
                     Double negativeVernier = formulaModel.getNegativeVernier();
                     Float weight = formulaModel.getWeight();
@@ -420,9 +420,9 @@ public class ScoreService extends BaseService
         
         for (RuleModel rule : rules)
         {
-            String condition = rule.getConditions();
+            String condition = rule.getTriggerCondition();
             String relation = rule.getRelation();
-            String staticId = rule.getStaticId();
+            String staticId = rule.getStaticvalId();
             
             BeanUtils.copyProperties(rule, result);
             
@@ -787,7 +787,7 @@ public class ScoreService extends BaseService
      */
     private Double getStaticValueById(String id)
     {
-        StaticModel model = staticDao.selectByPrimaryKey(id);
+        StaticvalModel model = staticvalDao.selectByPrimaryKey(id);
         return model.getValue();
     }
 }
