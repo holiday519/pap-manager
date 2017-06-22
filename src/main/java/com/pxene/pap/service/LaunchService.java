@@ -1335,7 +1335,7 @@ public class LaunchService extends BaseService {
 	
 	/**
 	 * 活动预算写入redis
-	 * @param campaignId
+	 * @param campaign
 	 * @throws Exception
 	 */
 	public void writeCampaignBudget(CampaignModel campaign) throws Exception {
@@ -1355,7 +1355,7 @@ public class LaunchService extends BaseService {
 				if (DateUtils.isBetweenDates(current, startDate, endDate)) {
 					Integer budget = quan.getDailyBudget();
 					if (budget != null) {
-						redisHelper.setNX(key, (int)budget * 100);
+						redisHelper.set(key, (int)budget * 100);
 					}
 					break;
 				}
