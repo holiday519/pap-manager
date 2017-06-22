@@ -365,12 +365,14 @@ public class LaunchService extends BaseService {
 				String strGroupid = elemGroupid.getAsString();
 				// 查询相关的活动信息
 				CampaignModel oldCampaigns = campaignDao.selectByPrimaryKey(strGroupid);
-				Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
-				if (end_date.before(current)) {
-					// 如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
-					boolean removeResult = pauseCampaignRepeatable(strGroupid);
-					if (!removeResult) {
-						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				if(oldCampaigns !=null) {
+					Date end_date = oldCampaigns.getEndDate(); // 活动的结束时间
+					if (end_date.before(current)) {
+						// 如果活动的结束时间在今天之前则将其活动id从redis的groupids中删除--停止投放
+						boolean removeResult = pauseCampaignRepeatable(strGroupid);
+						if (!removeResult) {
+							throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+						}
 					}
 				}
 			}
@@ -381,6 +383,9 @@ public class LaunchService extends BaseService {
 			// 投放需满足项目开启、活动开启、在活动时间范围里、当前时间在定向时间内，活动没有超出每天的日预算并且日均最大展现未达到上限
 			String projectId = campaign.getProjectId();
 			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+			if(project == null){
+				continue;
+			}
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
 					&& campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
@@ -894,7 +899,10 @@ public class LaunchService extends BaseService {
 				if (audits != null && !audits.isEmpty()) {
 					CreativeAuditModel audit = audits.get(0);
 					String auditValue = audit.getAuditValue();
-					result.put("creativeAudit", auditValue);
+					//判断审核值是否为空
+					if(auditValue !=null && !auditValue.isEmpty()) {
+						result.put("creativeAudit", auditValue);
+					}
 				}
 				results.add(result);
 			}
@@ -954,7 +962,7 @@ public class LaunchService extends BaseService {
 	
 	/**
 	 * 将活动基本信息写入redis
-	 * @param campaignId
+	 * @param campaign
 	 * @throws Exception
 	 */
 	public void writeCampaignInfo(CampaignModel campaign) throws Exception {
@@ -990,7 +998,10 @@ public class LaunchService extends BaseService {
 			if (adx.containsKey("advertiserAudit")) {
 				JsonObject extJson = new JsonObject();
 				extJson.addProperty("adx", Integer.parseInt(adxId));
-				extJson.addProperty("advid", adx.get("advertiserAudit"));
+				String auditValue = adx.get("advertiserAudit");
+				if(auditValue!=null && !auditValue.isEmpty()) {
+					extJson.addProperty("advid", auditValue);
+				}
 				extJsons.add(extJson);
 			}
 		}
