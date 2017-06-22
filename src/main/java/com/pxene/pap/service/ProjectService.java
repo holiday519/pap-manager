@@ -737,7 +737,7 @@ public class ProjectService extends BaseService {
         // 判断同一项目下转换值与静态值是否相同
         checkSameOfStaticName(name,projectId);
         
-        // 判断转化值名称是否使用：展现数、点击数、二跳数、成本、修正成本
+        // 判断转化值名称是否使用：展现数、点击数、二跳、成本、修正成本
         checkUseFixedName(name);
         
         // 更新数据库
@@ -1383,7 +1383,7 @@ public class ProjectService extends BaseService {
 		// 判断同一项目下静态值与转换值名称是否相同
 		checkSameOfEffectDicName(name,projectId);
 		
-		// 判断静态值名称是否使用：展现数、点击数、二跳数、成本、修正成本
+		// 判断静态值名称是否使用：展现数、点击数、二跳、成本、修正成本
 		checkUseFixedName(name);
 				
 		// 插入MySQL
@@ -1462,7 +1462,7 @@ public class ProjectService extends BaseService {
 				// 判断同一项目下静态值与转换值名称是否相同
 				checkSameOfEffectDicName(name,projectId);
 				
-				// 判断静态值名称是否使用：展现数、点击数、二跳数、成本、修正成本
+				// 判断静态值名称是否使用：展现数、点击数、二跳、成本、修正成本
 				checkUseFixedName(name);
 				
 				// 更新数据库
@@ -1549,7 +1549,7 @@ public class ProjectService extends BaseService {
 	}
 	
 	/**
-	 * 判断静态值/转化值名称是否使用：展现数、点击数、二跳数、成本、修正成本
+	 * 判断静态值/转化值名称是否使用：展现数、点击数、二跳、成本、修正成本
 	 * @param name 静态值/转化值名称	
 	 * @throws Exception
 	 */

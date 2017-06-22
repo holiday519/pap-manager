@@ -87,13 +87,13 @@ public class CodeTableConstant {
 	
 	
 	/**
-	 * 固定名称：展现数、点击数、二跳数、成本、修正成本
+	 * 固定名称：展现数、点击数、二跳、成本、修正成本
 	 */
 	public static final String DISPLAY_AMOUNT = "展现数";
 	
 	public static final String CLICK_AMOUNT = "点击数";
 	
-	public static final String JUMP_AMOUNT = "二跳数";
+	public static final String JUMP_AMOUNT = "二跳";
 	
 	public static final String COST = "成本";
 	
