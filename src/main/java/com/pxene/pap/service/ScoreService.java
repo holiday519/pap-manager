@@ -162,7 +162,7 @@ public class ScoreService extends BaseService
                 for (FormulaModel formulaModel : formulaModels)
                 {
                     String formula = formulaModel.getFormula();
-                    Double baseVal = getStaticValueById(formulaModel.getStaticvalId());
+                    Double baseVal = getStaticValueById(formulaModel.getStaticId()).getValue();
                     Double forwardVernier = formulaModel.getForwardVernier();
                     Double negativeVernier = formulaModel.getNegativeVernier();
                     Float weight = formulaModel.getWeight();
@@ -441,12 +441,13 @@ public class ScoreService extends BaseService
                 // 拼接触发条件
                 String trigger = condition + relation + "{" + staticId + "}";
                 
+                // 将公式中的变量名替换成映射值
+                String replacedTrigger = replaceFormulaStaticName(trigger); 
+                replacedTrigger = replaceFormulaVariableName(projectId, replacedTrigger);
+                result.setReplacedVariableVal(replacedTrigger);
+                
                 // 替换触发条件中的静态值
                 trigger = replaceFormulaStaticValue(trigger);
-                
-                // 将公式中的变量名替换成映射值
-                String replacedTrigger = replaceFormulaDictValue(projectId, trigger);
-                result.setReplacedVariableVal(replacedTrigger);
                 
                 // 替换触发条件中的变量值
                 trigger = replaceFormulaVariableValue(trigger, effectSum);
@@ -701,53 +702,18 @@ public class ScoreService extends BaseService
     }
     
     /**
-     * 提取公式中的变量值（如A1,B1），根据变量值代表的UUID，从效果数据表（pap_t_effect）中查询出对应的真实值，最后将变量值替换回原公式中。
-     * @param formula   待操作的公式
-     * @param sumMap 保存着变量值的Map，其中Map的Key表示变量名，如“A1”，Value表示变量值
-     * @return  替换了变量值之后的公式
-     */
-    private String replaceFormulaVariableValue(String formula, Map<String, Number> sumMap)
-    {
-        for (Map.Entry<String, Number> entry : sumMap.entrySet())
-        {
-            String key = entry.getKey();
-            Number val = entry.getValue();
-            
-            formula = StringUtils.replace(formula, key, val.toString());
-        }
-        
-        return formula;
-    }
-    
-    /**
-     * 提取公式中的以“{”开头、“}”结尾的静态值ID，根据这个UUID，从静态值表（pap_t_static）中查询出对应的真实值，最后将静态值替换回原公式中。
-     * @param formula   待操作的公式
-     * @return  替换全部静态值之后的公式
-     */
-    private String replaceFormulaStaticValue(String formula)
-    {
-        Pattern pattern = Pattern.compile(REGEX_UUID36_VALUE);
-        Matcher matcher = pattern.matcher(formula);
-        
-        while (matcher.find())
-        {
-            String uuid = matcher.group(1);
-            String searchString = MessageFormat.format(REGEX_UUID36_TEMPLATE, uuid);
-            Double staticVal = getStaticValueById(uuid);
-            formula = StringUtils.replace(formula, searchString, String.valueOf(staticVal));
-        }
-        
-        return formula;
-    }
-    
-    /**
      * 提取公式中的变量值（如A1,B1），从效果数据-字典表（pap_t_effect_dic）中查询出对应的列名称，最后将列名称替换回原公式中。
      * @param projectId 项目ID
      * @param formula   待操作的公式，如：B1+B2+{0b9af047-fc51-4e58-bdb0-7f46e2a915ad}
      * @return  替换全部变量名之后的公式，如：点击+展现+110
      */
-    private String replaceFormulaDictValue(String projectId, String formula)
+    private String replaceFormulaVariableName(String projectId, String formula)
     {
+        if (StringUtils.isEmpty(formula))
+        {
+            return "";
+        }
+        
         EffectDicModelExample example = new EffectDicModelExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andEnableEqualTo("01"); // 01表示转化字段状态是启用
         
@@ -778,16 +744,89 @@ public class ScoreService extends BaseService
         
         return formula;
     }
+
+
+    /**
+     * 提取公式中的变量值（如A1,B1），根据变量值代表的UUID，从效果数据表（pap_t_effect）中查询出对应的真实值，最后将变量值替换回原公式中。
+     * @param formula   待操作的公式
+     * @param sumMap 保存着变量值的Map，其中Map的Key表示变量名，如“A1”，Value表示变量值
+     * @return  替换了变量值之后的公式
+     */
+    private String replaceFormulaVariableValue(String formula, Map<String, Number> sumMap)
+    {
+        for (Map.Entry<String, Number> entry : sumMap.entrySet())
+        {
+            String key = entry.getKey();
+            Number val = entry.getValue();
+            
+            formula = StringUtils.replace(formula, key, val.toString());
+        }
+        
+        return formula;
+    }
     
+    /**
+     * 提取公式中的以“{”开头、“}”结尾的静态值ID，根据这个UUID，从静态值表（pap_t_static）中查询出对应的真实值，最后将“静态值”的名称替换回原公式中。
+     * @param formula   待操作的公式
+     * @return  替换全部静态值的值之后的公式
+     */
+    private String replaceFormulaStaticName(String formula)
+    {
+        return replaceFormulaStatics(formula, "name");
+    }
+
+
+    /**
+     * 提取公式中的以“{”开头、“}”结尾的静态值ID，根据这个UUID，从静态值表（pap_t_static）中查询出对应的真实值，最后将“静态值”的值替换回原公式中。
+     * @param formula   待操作的公式
+     * @return  替换全部静态值的名称之后的公式
+     */
+    private String replaceFormulaStaticValue(String formula)
+    {
+        return replaceFormulaStatics(formula, "value");
+    }
     
+    /**
+     * 提取公式中的以“{”开头、“}”结尾的静态值ID，根据这个UUID，根据type，替换这个UUID为值或者名称。
+     * @param formula   待操作的公式
+     * @param type  操作类型：value替换成静态值的值，name替换成静态值的名称
+     * @return 替换之后的公式
+     */
+    private String replaceFormulaStatics(String formula, String type)
+    {
+        Pattern pattern = Pattern.compile(REGEX_UUID36_VALUE);
+        Matcher matcher = pattern.matcher(formula);
+        
+        while (matcher.find())
+        {
+            String uuid = matcher.group(1);
+            String searchString = MessageFormat.format(REGEX_UUID36_TEMPLATE, uuid);
+            
+            String newPattern = "";
+            if (type.equalsIgnoreCase("value"))
+            {
+                newPattern = String.valueOf(getStaticValueById(uuid).getValue());
+            }
+            if (type.equalsIgnoreCase("name"))
+            {
+                newPattern = getStaticValueById(uuid).getName();
+            }
+            
+            formula = StringUtils.replace(formula, searchString, String.valueOf(newPattern));
+        }
+        
+        return formula;
+    }
+
+
     /**
      * 根据静态值ID从静态值表（pap_t_static）中读取静态值。
      * @param id    静态值ID
-     * @return  静态值
+     * @return  静态值对象
      */
-    private Double getStaticValueById(String id)
+    private StaticModel getStaticValueById(String id)
     {
         StaticvalModel model = staticvalDao.selectByPrimaryKey(id);
-        return model.getValue();
+        return model;
     }
 }
