@@ -54,6 +54,8 @@ import com.pxene.pap.domain.models.ImageModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
 import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.InfoflowTmplModel;
+import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.VideoMaterialModel;
 import com.pxene.pap.domain.models.VideoModel;
 import com.pxene.pap.domain.models.VideoModelExample;
@@ -860,7 +862,7 @@ public class CreativeService extends BaseService {
 					String creativeId = creative.getId();
 					List<String> idList = new ArrayList<String>();
 					idList.add(creativeId);
-					BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+					CreativeBean dataBean = dataService.getCreativeData(creativeId, startDate, endDate);
 					if (dataBean != null) {
 						image.setImpressionAmount(dataBean.getImpressionAmount()); //展现数
 						image.setClickAmount(dataBean.getClickAmount());           //点击数
@@ -909,7 +911,7 @@ public class CreativeService extends BaseService {
 					String creativeId = creative.getId();
 					List<String> idList = new ArrayList<String>();
 					idList.add(creativeId);
-					BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+					CreativeBean dataBean = dataService.getCreativeData(creativeId, startDate, endDate);
 					if (dataBean != null) {
 						video.setImpressionAmount(dataBean.getImpressionAmount());    //展现数
 						video.setClickAmount(dataBean.getClickAmount());              //点击数
@@ -991,7 +993,7 @@ public class CreativeService extends BaseService {
 				String creativeId = creative.getId();
 				List<String> idList = new ArrayList<String>();
 				idList.add(creativeId);
-				BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
+				CreativeBean dataBean = dataService.getCreativeData(creativeId, startDate, endDate);
 				if (dataBean != null) {
 					base.setImpressionAmount(dataBean.getImpressionAmount());        //展现数
 					base.setClickAmount(dataBean.getClickAmount());                  //点击数

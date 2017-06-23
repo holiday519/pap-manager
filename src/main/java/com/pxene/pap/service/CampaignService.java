@@ -28,7 +28,6 @@ import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
@@ -1046,7 +1045,7 @@ public class CampaignService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public List<CampaignBean> listCampaigns(String name, String projectId, Long startDate, Long endDate, String sortKey, String sortType) throws Exception {
+	public List<CampaignBean> listCampaigns(String name, String projectId, Long startDate, Long endDate, String sortKey, String sortType, boolean calScore) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
 
@@ -1078,16 +1077,16 @@ public class CampaignService extends BaseService {
 			
 			if (!StringUtils.isEmpty(calScore) && calScore)
 			{
-			    CampaignScoreBean campaignScore = scoreService.getCampaignScore(projectId, model.getId(), beginTime, endTime);
-			    map.setCampaignScore(campaignScore);
+			    CampaignScoreBean campaignScore = scoreService.getCampaignScore(projectId, model.getId(), startDate, endDate);
+			    bean.setCampaignScore(campaignScore);
 			}
 			
-			addParamToCampaign(map, model.getId(), model.getFrequencyId());
+			addParamToCampaign(bean, model.getId(), model.getFrequencyId());
 
 			if (startDate != null && endDate != null) {
 				// 查询每个活动的投放信息
 //				getData(beginTime, endTime, map);
-				CampaignBean data = (CampaignBean)dataService.getCampaignData(model.getId(), startDate, endDate);
+				CampaignBean data = dataService.getCampaignData(model.getId(), startDate, endDate);
 				BeanUtils.copyProperties(data, bean, "id", "projectId", "projectName", "name", "remark", 
 						"creativeAmount", "status", "reason", "startDate", "endDate", "uniform", "creativeNum", 
 						"target", "frequency", "quantities", "landpageId", "landpageName", "landpageUrl");
@@ -1128,65 +1127,6 @@ public class CampaignService extends BaseService {
 		}		
 		return beans;
 	}
-	
-	/**
-	 * 查询投放数据放入结果中
-	 * @param beginTime
-	 * @param endTime
-	 * @param bean
-	 * @throws Exception 
-	 */
-	private void getData(Long beginTime, Long endTime, CampaignBean bean) throws Exception {
-		//创意审核通过数
-		int passNum=0;
-		//审核不通过数
-		int noPassNum=0;
-		//总数
-		int totalNum=0;
-		CreativeModelExample cExample = new CreativeModelExample();
-		cExample.createCriteria().andCampaignIdEqualTo(bean.getId());
-		List<CreativeModel> list = creativeDao.selectByExample(cExample);
-		List<String> creativeIds = new ArrayList<String>();
-		if (list != null && !list.isEmpty()) {
-			totalNum = list.size();
-			for (CreativeModel model : list) {
-				creativeIds.add(model.getId());
-			}
-		}
-
-		//设置创意数
-		if(creativeIds.size()>0){
-			//根据创意id，批量查询创意审核信息
-			CreativeAuditModelExample example = new CreativeAuditModelExample();
-			example.createCriteria().andCreativeIdIn(creativeIds);
-			List<CreativeAuditModel> creativeAuditModels = creativeAuditDao.selectByExample(example);
-			if(creativeAuditModels != null && !creativeAuditModels.isEmpty()){
-				for(CreativeAuditModel model : creativeAuditModels){
-					if(model.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){	//审查成功
-						passNum++;
-					}else if(model.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_FAILURE)){ //失败
-						noPassNum++;
-					}
-				}
-			}
-		}
-		bean.setCreativeNum(passNum+"/"+noPassNum+"/"+totalNum);
-
-		BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
-		if (dataBean != null) {
-			bean.setImpressionAmount(dataBean.getImpressionAmount());
-			bean.setClickAmount(dataBean.getClickAmount());
-			bean.setTotalCost(dataBean.getTotalCost());
-			bean.setJumpAmount(dataBean.getJumpAmount());
-			bean.setImpressionCost(dataBean.getImpressionCost());
-			bean.setClickCost(dataBean.getClickCost());
-			bean.setClickRate(dataBean.getClickRate());
-			bean.setJumpCost(dataBean.getJumpCost());
-			//修正成本
-			bean.setAdxCost(dataBean.getAdxCost());
-		}
-	}
-	
 	
 	/**
 	 * 查询活动相关属性
