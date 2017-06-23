@@ -1089,7 +1089,7 @@ public class CampaignService extends BaseService {
 				CampaignBean data = dataService.getCampaignData(model.getId(), startDate, endDate);
 				BeanUtils.copyProperties(data, bean, "id", "projectId", "projectName", "name", "remark", 
 						"creativeAmount", "status", "reason", "startDate", "endDate", "uniform", "creativeNum", 
-						"target", "frequency", "quantities", "landpageId", "landpageName", "landpageUrl");
+						"target", "frequency", "quantities", "landpageId", "landpageName", "landpageUrl", "campaignScore");
 			}
 			// 落地页信息
 			CampaignModel campaign = campaignDao.selectByPrimaryKey(model.getId());		
