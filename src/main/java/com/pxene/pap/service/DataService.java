@@ -619,7 +619,12 @@ public class DataService extends BaseService {
 								}
 	            				// 判断是否在时间范围内：date在开始时间和结束时间之间，即date大于等于startDate并且小于等于end
 	            				if ((date.after(startDate) || date.equals(startDate)) && date.before(end)) {
-	            					usedCodes.add(history.getCodes());
+	            					String[] strCodes = history.getCodes().split(",");
+	            					if (strCodes != null && strCodes.length > 0) {
+	            						for (String strCode : strCodes) {
+	            							usedCodes.add(strCode);
+	            						}
+	            					}	            					
 	            				}            				
 	            			}
 	            		}

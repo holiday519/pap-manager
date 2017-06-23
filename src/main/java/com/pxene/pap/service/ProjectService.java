@@ -281,22 +281,7 @@ public class ProjectService extends BaseService {
 		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
 		
 		String status = map.get("status").toString();
-		if (StatusConstant.PROJECT_PAUSE.equals(status)) {
-			
-			// 根据监测码的使用情况变更监测码历史记录表信息
-			if (campaigns != null && !campaigns.isEmpty()) {
-				for (CampaignModel campaign : campaigns) {
-					// 项目下可对应多个活动，变更每个活动开关打开的监测码记录记录信息
-					if (campaign.getStartDate().after(new Date())) {
-						// 如果是未投活动即活动的开始时间在今天之后，则删除监测码历史记录表中该活动监测码未开始使用的信息
-						landpageService.deleteCodeHistoryInfo(campaign.getId());
-					} else {
-						// 如果是在投活动活动的开始时间在今天之前，更新监测码使用结束时间
-						landpageService.updateCodeHistoryInfo(campaign.getId());
-					}
-				}
-			}
-			
+		if (StatusConstant.PROJECT_PAUSE.equals(status)) {			
 			//暂停
 			pauseProject(project);
 		} else if (StatusConstant.PROJECT_PROCEED.equals(status)) {
