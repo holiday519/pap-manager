@@ -389,7 +389,7 @@ public class ScoreService extends BaseService
             result.put("B1", pvAmount);
             result.put("B2", clickAmount);
             result.put("B3", secondJumpAmount);
-            result.put("B4", expenseAmount);
+            result.put("B4", expenseAmount / 100);
             result.put("B5", adxCost);
         }
         
