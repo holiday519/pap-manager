@@ -4,7 +4,7 @@ import com.pxene.pap.domain.models.RuleModel;
 
 public class RuleBean extends RuleModel
 {
-    private String replacedVariableVal;
+    private String replacedVariableVal = "";
 
     public String getReplacedVariableVal()
     {

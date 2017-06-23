@@ -641,7 +641,7 @@ public class ScoreService extends BaseService
         double backwardSeg = Math.abs(backwardStep);
         
         // 目标值与参考值的差，代表有多少个评分单元。
-        double units = target - baseVal;
+        double units = Math.abs(baseVal - target);
         
         LOGGER.debug("反向区间：" + backwardSeg + ", 正向区间：" + forwardSeg);
         
@@ -668,7 +668,7 @@ public class ScoreService extends BaseService
             }
             else
             {
-                scores = backwardScoreUnit * units;
+                scores = -(backwardScoreUnit * units);
             }
         }
         else if ((baseVal < backwardBoundary) && (baseVal > forwardBoundary))   // 适用于降序情况，如：130 --> 60 --> 10
@@ -686,7 +686,7 @@ public class ScoreService extends BaseService
             
             if (target > baseVal)
             {
-                scores = backwardScoreUnit * units;
+                scores = -(backwardScoreUnit * units);
             }
             else
             {
