@@ -1782,4 +1782,105 @@ public class CreativeService extends BaseService {
 		return null;
 	}
 
+	/**
+	 * 获取素材信息
+	 * @param creativeModel
+	 * @return
+     */
+	public void getMaterialInfoByCreativeModel(CreativeModel creativeModel,CreativeBean creativeBean){
+		String creativeType = creativeModel.getType();
+
+		String[] materialPaths = null;
+		String title = null;
+		String description = null;
+		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
+			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creativeModel.getMaterialId());
+			if (imageMaterialModel != null) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
+				if (imageModel != null) {
+					String path = imageModel.getPath();
+					materialPaths = new String[1];
+					materialPaths[0] = path;
+				}
+			}
+		} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
+			VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(creativeModel.getMaterialId());
+			if (videoMaterialModel != null) {
+				materialPaths = new String[2];
+				VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
+				if (videoModel != null) {
+					String imageId = videoMaterialModel.getImageId();
+					if (!StringUtils.isEmpty(imageId)) {
+						ImageModel imageModel = imageDao.selectByPrimaryKey(imageId);
+						materialPaths = new String[2];
+						materialPaths[0] = videoModel.getPath();
+						materialPaths[1] = imageModel.getPath();
+					} else {
+						materialPaths = new String[1];
+						materialPaths[0] = videoModel.getPath();
+					}
+				}
+			}
+		} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
+			InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(creativeModel.getMaterialId());
+			List<String> imgList = new ArrayList<String>();
+			String iconId = infoflowModel.getIconId();
+			String image1Id = infoflowModel.getImage1Id();
+			String image2Id = infoflowModel.getImage2Id();
+			String image3Id = infoflowModel.getImage3Id();
+			String image4Id = infoflowModel.getImage4Id();
+			String image5Id = infoflowModel.getImage5Id();
+			if (!StringUtils.isEmpty(iconId)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(iconId);
+				if (imageModel != null) {
+					imgList.add(imageModel.getPath());
+				}
+			}
+			if (!StringUtils.isEmpty(image1Id)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(image1Id);
+				if (imageModel != null) {
+					imgList.add(imageModel.getPath());
+				}
+			}
+			if (!StringUtils.isEmpty(image2Id)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(image2Id);
+				if (imageModel != null) {
+					imgList.add(imageModel.getPath());
+				}
+			}
+			if (!StringUtils.isEmpty(image3Id)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(image3Id);
+				if (imageModel != null) {
+					imgList.add(imageModel.getPath());
+				}
+			}
+			if (!StringUtils.isEmpty(image4Id)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(image4Id);
+				if (imageModel != null) {
+					imgList.add(imageModel.getPath());
+				}
+			}
+			if (!StringUtils.isEmpty(image5Id)) {
+				ImageModel imageModel = imageDao.selectByPrimaryKey(image5Id);
+				if (imageModel != null) {
+					imgList.add(imageModel.getPath());
+				}
+			}
+			materialPaths = new String[imgList.size()];
+			materialPaths = imgList.toArray(materialPaths);
+
+			//
+			title = infoflowModel.getTitle();
+			description = infoflowModel.getDescription();
+		} else {
+			throw new IllegalArgumentException();
+		}
+		if(materialPaths == null){
+			materialPaths = new String[1];
+		}
+		creativeBean.setTitle(title);
+		creativeBean.setDescription(description);
+		creativeBean.setMaterialPaths(materialPaths);
+	}
+
 }

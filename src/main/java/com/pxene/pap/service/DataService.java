@@ -24,6 +24,10 @@ import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 
+import com.pxene.pap.domain.beans.*;
+import com.pxene.pap.domain.models.*;
+import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.*;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -44,43 +48,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
-import com.pxene.pap.domain.beans.AdvertiserBean;
-import com.pxene.pap.domain.beans.AnalysisBean;
-import com.pxene.pap.domain.beans.BasicDataBean;
-import com.pxene.pap.domain.beans.CampaignBean;
-import com.pxene.pap.domain.beans.CreativeBean;
-import com.pxene.pap.domain.beans.EffectFileBean;
-import com.pxene.pap.domain.beans.ProjectBean;
-import com.pxene.pap.domain.models.AdvertiserModel;
-import com.pxene.pap.domain.models.AdxCostModel;
-import com.pxene.pap.domain.models.AdxCostModelExample;
-import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.CampaignModelExample;
-import com.pxene.pap.domain.models.CreativeBasicModel;
-import com.pxene.pap.domain.models.CreativeBasicModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
-import com.pxene.pap.domain.models.EffectFileModel;
-import com.pxene.pap.domain.models.EffectFileModelExample;
-import com.pxene.pap.domain.models.EffectModel;
-import com.pxene.pap.domain.models.EffectModelExample;
-import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
-import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
-import com.pxene.pap.domain.models.ProjectModel;
-import com.pxene.pap.domain.models.ProjectModelExample;
-import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.IllegalArgumentException;
-import com.pxene.pap.repository.basic.AdvertiserDao;
-import com.pxene.pap.repository.basic.AdxCostDao;
-import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.CreativeDao;
-import com.pxene.pap.repository.basic.EffectDao;
-import com.pxene.pap.repository.basic.EffectFileDao;
-import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
-import com.pxene.pap.repository.basic.ProjectDao;
-import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeBasicDao;
 import com.pxene.pap.repository.custom.CustomRegionDao;
@@ -133,6 +103,9 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private RedisHelper redisHelper3;
+
+	@Autowired
+	private AppService appService;
 	
 	private static class CREATIVE_DATA_SUFFIX {
 		public static String WIN = "@w";
@@ -1074,10 +1047,41 @@ public class DataService extends BaseService {
 			creativeData.setImpressionCost(impression == 0 ? 0f : (float)(expense/impression*1000));
 			creativeData.setClickCost(click == 0 ? 0f : (float)(expense/click));
 			creativeData.setJumpCost(jump == 0 ? 0f : (float)(expense/jump));
+			//添加素材路径和活动名称
+			addOtherInfoToCreativeBean(creativeData);
+
 		}
 		
 		return creativeData;
 	}
+
+	/**
+	 * 把其他信息添加到CreativeBean
+	 * 素材路径，活动名称
+	 * @param creativeBean
+     */
+	public void addOtherInfoToCreativeBean(CreativeBean creativeBean){
+		String[] materialPaths = null;
+		if(creativeBean !=null){
+			String creativeId = creativeBean.getId();
+			if(creativeId !=null && !creativeId.isEmpty()){
+				CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+				if(creativeModel != null){
+					//添加素材
+					creativeService.getMaterialInfoByCreativeModel(creativeModel,creativeBean);
+					//获取活动名称
+					CampaignModel campaignModel = campaignDao.selectByPrimaryKey(creativeModel.getCampaignId());
+					if(campaignModel !=null){
+						creativeBean.setCampaignName(campaignModel.getName());
+					}else{
+						creativeBean.setCampaignName("");
+					}
+				}
+			}
+		}
+
+	}
+
 	
 	/**
 	 * 获取单个活动一个时间段内的数据
@@ -1109,13 +1113,39 @@ public class DataService extends BaseService {
 		campaignData.setImpressionCost(impression == 0 ? 0f : (float)(expense/impression*1000));
 		campaignData.setClickCost(click == 0 ? 0f : (float)(expense/click));
 		campaignData.setJumpCost(jump == 0 ? 0f : (float)(expense/jump));
-		
+		//将app信息添加到活动
+		addAppToCampaign(campaignData);
+
 		return campaignData;
+	}
+
+	/**
+	 * 将app信息添加到活动
+	 * @param campaignBean
+     */
+	public void addAppToCampaign(CampaignBean campaignBean){
+
+		if(campaignBean != null && campaignBean.getId()!=null) {
+			String campaignId = campaignBean.getId();
+			List<AppModel> appModels = appService.getAppByCampaignId(campaignId);
+			if(appModels != null && !appModels.isEmpty()){
+				CampaignBean.Target target = new CampaignBean.Target();
+				CampaignBean.Target.App[] apps = new CampaignBean.Target.App[appModels.size()];
+				int i=0;
+				for(AppModel appModel : appModels){
+					CampaignBean.Target.App app = new CampaignBean.Target.App();
+					app.setName(appModel.getAppName());
+					apps[i++]=app;
+				}
+				target.setApps(apps);
+				campaignBean.setTarget(target);
+			}
+		}
 	}
 	
 	/**
 	 * 获取单个项目一个时间段内的数据
-	 * @param creativeId
+	 * @param projectId
 	 * @param startDate
 	 * @param endDate
 	 * @return

@@ -3,28 +3,19 @@ package com.pxene.pap.service;
 import static com.pxene.pap.constant.StatusConstant.ADVERTISER_ADX_ENABLE;
 import static com.pxene.pap.constant.StatusConstant.ADVERTISER_AUDIT_SUCCESS;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import javax.transaction.Transactional;
 
+import com.pxene.pap.domain.models.*;
+import com.pxene.pap.repository.basic.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.domain.beans.AppBean;
-import com.pxene.pap.domain.models.AdvertiserAuditModel;
-import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
-import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppModelExample.Criteria;
-import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.ProjectModel;
-import com.pxene.pap.repository.basic.AdvertiserAuditDao;
-import com.pxene.pap.repository.basic.AppDao;
-import com.pxene.pap.repository.basic.CampaignDao;
-import com.pxene.pap.repository.basic.ProjectDao;
 
 @Service
 public class AppService extends BaseService {
@@ -40,6 +31,9 @@ public class AppService extends BaseService {
 	
 	@Autowired
 	private AdvertiserAuditDao advertiserAuditDao;
+
+	@Autowired
+	private AppTargetDao appTargetDao;
 	
 	/**
 	 * 查询app列表
@@ -95,5 +89,57 @@ public class AppService extends BaseService {
 		}
 		
 		return result;
+	}
+
+	/**
+	 * 根据appIds得到app
+	 * @param appIds
+	 * @return
+     */
+	public List<AppModel> getAppModelByAppIds(List<String> appIds){
+		AppModelExample appModelExample = new AppModelExample();
+		appModelExample.createCriteria().andAppIdIn(appIds);
+		List<AppModel> appModels = appDao.selectByExample(appModelExample);
+		return appModels;
+	}
+
+	/**
+	 * 根据单个活动id得到它下面的app信息
+	 * @param campaignId
+	 * @return
+     */
+	public List<AppModel> getAppByCampaignId(String campaignId){
+		//先根据活动id获取appTarget，再找到appid
+		List<AppTargetModel> appTargetModels = getAppTargetByCampaignId(campaignId);
+		if(appTargetModels != null && !appTargetModels.isEmpty()){
+			//用set对appId去重
+			Set<String> appIds_set = new HashSet<>();
+			for(AppTargetModel appTargetModel : appTargetModels){
+				appIds_set.add(appTargetModel.getAppId());
+			}
+
+			if(appIds_set.size()>0){
+				//将set转换为list
+				List<String> appIds_list = new ArrayList<>();
+				appIds_list.addAll(appIds_set);
+				//获取app信息
+				List<AppModel> appModels = getAppModelByAppIds(appIds_list);
+				return appModels;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * 根据单个活动id获取appTarget
+	 * @param campaignId
+	 * @return
+     */
+	public List<AppTargetModel> getAppTargetByCampaignId(String campaignId){
+		AppTargetModelExample appTargetModelExample = new AppTargetModelExample();
+		appTargetModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<AppTargetModel> appTargetModels = appTargetDao.selectByExample(appTargetModelExample);
+		return appTargetModels;
 	}
 }

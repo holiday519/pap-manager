@@ -75,6 +75,10 @@ public class CreativeBean extends BasicDataBean {
 	private Date endDate;
 	
 	private String[] materialPaths;
+
+	private String title;
+
+	private String description;
 	
 	public String getId() {
 		return id;
@@ -204,12 +208,28 @@ public class CreativeBean extends BasicDataBean {
 		this.message = message;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	@Override
 	public String toString() {
 		return "CreativeBean [id=" + id + ", type=" + type
 				+ ", status=" + status + ", campaignId=" + campaignId
 				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
-				+ ", remark=" + remark + ", materialId=" + materialId  
+				+ ", remark=" + remark + ", materialId=" + materialId  + ",title=" + title + ",description=" + description
 				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +", message=" + message+"]";
 	}
 	
