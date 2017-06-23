@@ -22,8 +22,14 @@ import org.springframework.web.multipart.MultipartFile;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.AdvertiserBean;
+import com.pxene.pap.domain.beans.AnalysisBean;
+import com.pxene.pap.domain.beans.BasicDataBean;
+import com.pxene.pap.domain.beans.CampaignBean;
+import com.pxene.pap.domain.beans.CreativeBean;
 import com.pxene.pap.domain.beans.EffectFileBean;
 import com.pxene.pap.domain.beans.PaginationBean;
+import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.service.DataService;
 
 // REVIEW ME: 1.controller中不出现业务逻辑   2.中文常量化
@@ -40,7 +46,7 @@ public class DataController
 							@RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
 	{
 		Page<Object> pager = null;
-		List<Map<String, Object>> Datas = dataService.getDataForTime(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		List<AnalysisBean> Datas = dataService.listTimes(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
 		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
@@ -51,7 +57,7 @@ public class DataController
 							  @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
 	{
 		Page<Object> pager = null;
-		List<Map<String, Object>> Datas = dataService.getDataForRegion(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		List<AnalysisBean> Datas = dataService.listRegions(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
 		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
@@ -62,7 +68,7 @@ public class DataController
 								@RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
 	{
 		Page<Object> pager = null;
-		List<Map<String, Object>> Datas = dataService.getDataForOperator(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		List<AnalysisBean> Datas = dataService.listOperators(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
 		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
@@ -73,7 +79,7 @@ public class DataController
 							   @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
 	{
 		Page<Object> pager = null;
-		List<Map<String, Object>> Datas = dataService.getDataForNetwork(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		List<AnalysisBean> Datas = dataService.listNetworks(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
 		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
@@ -84,20 +90,19 @@ public class DataController
 							  @RequestParam(required = false) String creativeId, @RequestParam(required = false) Long startDate, @RequestParam(required = false) Long endDate, HttpServletResponse response) throws Exception
 	{
 		Page<Object> pager = null;
-		List<Map<String, Object>> Datas = dataService.getDataForSystem(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
+		List<AnalysisBean> Datas = dataService.listSystems(startDate, endDate, advertiserId, projectId, campaignId, creativeId);
 		PaginationBean result = new PaginationBean(Datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 
 	@RequestMapping(value = "/data/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type,@RequestParam(required = true) Long startDate,
-								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
+	public String listAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+								  @RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
 
 		Page<Object> pager = null;
-		List<Map<String, Object>> datas = dataService.listAdvertisers(advertiserId,type,startDate,endDate);
-
+		List<AdvertiserBean> datas = dataService.listAdvertisers(advertiserId, type, startDate, endDate);
 		PaginationBean result = new PaginationBean(datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
@@ -113,7 +118,7 @@ public class DataController
 //    	if (pageNo != null && pageSize != null) {
 //			pager = PageHelper.startPage(pageNo, pageSize);
 //		}
-		List<Map<String, Object>> datas = dataService.listProjects(advertiserId, projectId, type,startDate,endDate);
+		List<ProjectBean> datas = dataService.listProjects(advertiserId, projectId, type,startDate,endDate);
 
 		PaginationBean result = new PaginationBean(datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -127,7 +132,7 @@ public class DataController
 	{
 
 		Page<Object> pager = null;
-		List<Map<String, Object>> datas = dataService.listCampaigns(advertiserId, projectId, campaignId, type, startDate, endDate);
+		List<CampaignBean> datas = dataService.listCampaigns(advertiserId, projectId, campaignId, type, startDate, endDate);
 
 		PaginationBean result = new PaginationBean(datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -136,12 +141,13 @@ public class DataController
 	@RequestMapping(value = "/data/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String listCreatives(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
-								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+								@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId,
+								@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
 
 		Page<Object> pager = null;
-		List<Map<String, Object>> datas = dataService.listCreatives(advertiserId,projectId, campaignId, type, startDate, endDate);
+		List<CreativeBean> datas = dataService.listCreatives(advertiserId, projectId, campaignId, creativeId, type, startDate, endDate);
 
 		PaginationBean result = new PaginationBean(datas, pager);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
@@ -174,11 +180,11 @@ public class DataController
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception
 	{
 
-		List<Map<String, Object>> datas = dataService.listAdvertisers(advertiserId,type,startDate,endDate);
+		List<AdvertiserBean> datas = dataService.listAdvertisers(advertiserId,type,startDate,endDate);
 		//生成文件名
 		String fileName = "advertisers-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
-		dataService.exportDataToExcel(type,datas,fileName,response);
+		dataService.exportDataToExcel(type, datas, fileName, response);
 	}
 
 	@RequestMapping(value = "/data/export/projects", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -188,11 +194,11 @@ public class DataController
 							   @RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
 
-		List<Map<String, Object>> datas = dataService.listProjects(advertiserId, projectId, type,startDate,endDate);
+		List<ProjectBean> datas = dataService.listProjects(advertiserId, projectId, type,startDate,endDate);
 		//生成文件名
 		String fileName = "projects-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
-		dataService.exportDataToExcel(type,datas,fileName,response);
+		dataService.exportDataToExcel(type, datas, fileName, response);
 	}
 
 	@RequestMapping(value = "/data/export/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -202,25 +208,26 @@ public class DataController
 								@RequestParam(required = true) Long endDate,  HttpServletResponse response) throws Exception
 	{
 
-		List<Map<String, Object>> datas = dataService.listCampaigns(advertiserId, projectId, campaignId, type, startDate, endDate);
+		List<CampaignBean> datas = dataService.listCampaigns(advertiserId, projectId, campaignId, type, startDate, endDate);
 		//生成文件名
 		String fileName = "campaigns-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
-		dataService.exportDataToExcel(type,datas,fileName,response);
+		dataService.exportDataToExcel(type, datas, fileName, response);
 	}
 
 	@RequestMapping(value = "/data/export/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public void exportCreatives(@RequestParam(required = false) String advertiserId, @RequestParam(required = false) String projectId,
-								@RequestParam(required = false) String campaignId,@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
+								@RequestParam(required = false) String campaignId, @RequestParam(required = false) String creativeId, 
+								@RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								@RequestParam(required = true) Long endDate, HttpServletResponse response) throws Exception
 	{
 
-		List<Map<String, Object>> datas = dataService.listCreatives(advertiserId,projectId, campaignId, type, startDate, endDate);
+		List<CreativeBean> datas = dataService.listCreatives(advertiserId, projectId, campaignId, creativeId, type, startDate, endDate);
 		//生成文件名
 		String fileName = "creatives-"+ dataService.renameDatasExcel(type, startDate, endDate);
 		//下载Excel
-		dataService.exportDataToExcel(type,datas,fileName,response);
+		dataService.exportDataToExcel(type, datas, fileName, response);
 	}
 
 

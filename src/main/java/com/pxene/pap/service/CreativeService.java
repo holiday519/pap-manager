@@ -1,8 +1,6 @@
 package com.pxene.pap.service;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,9 +13,10 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import com.pxene.pap.domain.models.*;
 import com.pxene.pap.repository.basic.*;
+
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.FileUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
@@ -181,6 +179,8 @@ public class CreativeService extends BaseService {
 	@Autowired
 	private ProjectDao projectDao;
 
+	@Autowired
+	private DataService dataService;
 
 	/**
 	 * 创建创意
@@ -231,43 +231,6 @@ public class CreativeService extends BaseService {
 		creativeDao.insertSelective(creativeModel);
 	}
 	
-//	/**
-//	 * 删除图片服务器上的图片素材
-//	 * @param id
-//	 * @throws Exception
-//	 */
-//	@Transactional
-//	public void deleteImageMaterialById(String id) throws Exception{
-//		if (!StringUtils.isEmpty(id)) {
-//			ImageModel imageModel = imageDao.selectByPrimaryKey(id);
-//			if (imageModel != null) {
-//				String path = uploadDir + imageModel.getPath();
-//				
-//				// 删除图片服务器上的素材
-//				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
-//				doDeleteFile(path);
-//			}
-//		}
-//	}
-//	/**
-//	 * 删除图片服务器上的视频素材
-//	 * @param id
-//	 * @throws Exception
-//	 */
-//	@Transactional
-//	public void deleteVideoMaterialById(String id) throws Exception{
-//		if (!StringUtils.isEmpty(id)) {
-//			VideoModel videoModel = videoDao.selectByPrimaryKey(id);
-//			if (videoModel != null) {
-//				String path = uploadDir + videoModel.getPath();
-//				
-//				// 删除图片服务器上的素材
-//				//org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
-//				doDeleteFile(path);
-//			}
-//		}
-//	}
-	
 	/**
 	 * 删除创意
 	 * @param creativeId
@@ -280,7 +243,6 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		String campaignId = creativeInDB.getCampaignId();
-		// FIXME : 开始投放不能删、redis中是否有数据--有数据不能删除；在开始时间内，或者该创意在redis中有数据不能删
 		if (campaignService.isBeginLaunchDate(campaignId) || launchService.isHaveCreativeInfo(creativeId)) {
 			throw new IllegalStatusException(PhrasesConstant.CAMPAIGN_BEGIN);
 		}
@@ -313,7 +275,6 @@ public class CreativeService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		
-		// FIXME : 改成in查 --- OK 
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andIdIn(Arrays.asList(creativeIds));
 		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeExample);
@@ -321,7 +282,6 @@ public class CreativeService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
 		
-	    // FIXME : 开始投放不能删、redis中是否有数据--有数据不能删除；在开始时间内，或者该创意在redis中有数据不能删
 		// 判断哪些创意不可以删除 ：已经开始投放；或是当某个创意ID，存在回收数据时，不能删除创意
 		for (CreativeModel creative : creativeModels) {
 			// 获取活动id
@@ -333,7 +293,6 @@ public class CreativeService extends BaseService {
 			}
 		}
 		
-		// FIXME : 删除创意审核信息 --- OK 
 		CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
 		creativeAuditExample.createCriteria().andCreativeIdIn(Arrays.asList(creativeIds));
 		creativeAuditDao.deleteByExample(creativeAuditExample);
@@ -576,14 +535,11 @@ public class CreativeService extends BaseService {
 		// 按更新时间进行倒序排序
         example.setOrderByClause("update_time DESC");
 	
-        // FIXME : 不用检验campaignId，因为campaignId必填 
         if (!StringUtils.isEmpty(name)) {
-			example.createCriteria().andNameLike("%" + name + "%");
-		} else if (StringUtils.isEmpty(name)) {
-			example.createCriteria().andCampaignIdEqualTo(campaignId);
-		} else if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameLike("%" + name + "%");
-		}
+		} else {
+			example.createCriteria().andCampaignIdEqualTo(campaignId);
+		} 
         
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
@@ -592,8 +548,6 @@ public class CreativeService extends BaseService {
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
-//				String appId = getAppId(creative.getTmplId());
-//				String appName = getAppName(appId);
 				Map<String, String> appInfo = getAppInfo(creative);
 				CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
@@ -624,20 +578,10 @@ public class CreativeService extends BaseService {
 							//查询投放数据
 							if (startDate != null && endDate != null) {
 								String creativeId = creative.getId();
-								List<String> idList = new ArrayList<String>();
-								idList.add(creativeId);
-								BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
-								if (dataBean != null) {
-									image.setImpressionAmount(dataBean.getImpressionAmount());
-									image.setClickAmount(dataBean.getClickAmount());
-									image.setTotalCost(dataBean.getTotalCost());
-									image.setJumpAmount(dataBean.getJumpAmount());
-									image.setImpressionCost(dataBean.getImpressionCost());
-									image.setClickCost(dataBean.getClickCost());
-									image.setClickRate(dataBean.getClickRate());
-									image.setJumpCost(dataBean.getJumpCost());
-									image.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
-								}
+								CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
+								BeanUtils.copyProperties(data, image, "id", "type", "status", "campaignId", "campaignName", "price", 
+										"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+										"materialPaths", "imageId", "imagePath");
 							}
 							result.add(image);
 						}
@@ -673,20 +617,10 @@ public class CreativeService extends BaseService {
 						//查询投放数据
 						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
-							List<String> idList = new ArrayList<String>();
-							idList.add(creativeId);
-							BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
-							if (dataBean != null) {
-								video.setImpressionAmount(dataBean.getImpressionAmount());
-								video.setClickAmount(dataBean.getClickAmount());
-								video.setTotalCost(dataBean.getTotalCost());
-								video.setJumpAmount(dataBean.getJumpAmount());
-								video.setImpressionCost(dataBean.getImpressionCost());
-								video.setClickCost(dataBean.getClickCost());
-								video.setClickRate(dataBean.getClickRate());
-								video.setJumpCost(dataBean.getJumpCost());
-								video.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
-							}
+							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
+							BeanUtils.copyProperties(data, video, "id", "type", "status", "campaignId", "campaignName", "price", 
+									"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+									"materialPaths", "videoId", "videoPath", "imageId", "imagePath");
 						}
 						result.add(video);
 					}
@@ -746,20 +680,13 @@ public class CreativeService extends BaseService {
 						//查询投放数据
 						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
-							List<String> idList = new ArrayList<String>();
-							idList.add(creativeId);
-							BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
-							if (dataBean != null) {
-								info.setImpressionAmount(dataBean.getImpressionAmount());
-								info.setClickAmount(dataBean.getClickAmount());
-								info.setTotalCost(dataBean.getTotalCost());
-								info.setJumpAmount(dataBean.getJumpAmount());
-								info.setImpressionCost(dataBean.getImpressionCost());
-								info.setClickCost(dataBean.getClickCost());
-								info.setClickRate(dataBean.getClickRate());
-								info.setJumpCost(dataBean.getJumpCost());
-								info.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
-							}
+							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
+							BeanUtils.copyProperties(data, info, "id", "type", "status", "campaignId", "campaignName", "price", 
+									"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+									"materialPaths", "infoflowId", "title", "description", "mustDescription", "ctaDescription", 
+									"mustCtaDescription", "iconId", "iconPath", "image1Id", "image2Id", "image3Id", "image4Id", 
+									"image5Id", "image1Path", "image2Path", "image3Path", "image4Path", "image5Path", 
+									"haveDescription", "haveCtaDescription");
 						}
 						result.add(info);
 					}
@@ -857,21 +784,10 @@ public class CreativeService extends BaseService {
 					//查询投放数据
 					if (startDate != null && endDate != null) {
 						String creativeId = creative.getId();
-						List<String> idList = new ArrayList<String>();
-						idList.add(creativeId);
-						BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
-						if (dataBean != null) {
-							base.setImpressionAmount(dataBean.getImpressionAmount());
-							base.setClickAmount(dataBean.getClickAmount());
-							base.setTotalCost(dataBean.getTotalCost());
-							base.setJumpAmount(dataBean.getJumpAmount());
-							base.setImpressionCost(dataBean.getImpressionCost());
-							base.setClickCost(dataBean.getClickCost());
-							base.setClickRate(dataBean.getClickRate());
-							base.setJumpCost(dataBean.getJumpCost());
-							//修正成本
-							base.setAdxCost(dataBean.getAdxCost());
-						}
+						CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
+						BeanUtils.copyProperties(data, base, "id", "type", "status", "campaignId", "campaignName", "price", 
+								"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+								"materialPaths");
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
 					//设置message
@@ -895,14 +811,12 @@ public class CreativeService extends BaseService {
 	 */
 	@Transactional
 	public BasicDataBean getCreative(String id, Long startDate, Long endDate) throws Exception {
-		// FIXME : 优化代码，如可以在每个类型中直接返回image/video/info/base等
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		if (creative == null) {
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.CREATIVE_NOT_FOUND);
 		}
 		String campaignId = creative.getCampaignId();
 		String type = creative.getType();
-		BasicDataBean bean = new BasicDataBean();
 		CreativeBean base = null;
 		ImageCreativeBean image = null;
 		VideoCreativeBean video = null;
@@ -916,7 +830,6 @@ public class CreativeService extends BaseService {
 		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			//如果创意类型是图片
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
-			// FIXME : imageMaterialModel是否为空  --- OK 
 			if (imageMaterialModel == null ) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
@@ -960,7 +873,7 @@ public class CreativeService extends BaseService {
 						image.setAdxCost(dataBean.getAdxCost());		//修正成本
 					}
 				}
-				bean = image;
+				return image;
 			}
 		} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果创意类型是视频
@@ -1009,7 +922,8 @@ public class CreativeService extends BaseService {
 						video.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
 					}
 				}
-				bean = video;
+				
+				return video;
 			}
 		} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			// 如果创意类型是信息流
@@ -1064,25 +978,8 @@ public class CreativeService extends BaseService {
 					info.setImage5Id(infoflowModel.getImage5Id());
 					info.setImage5Path(getImagePath(infoflowModel.getImage5Id()));
 				}
-				//查询投放数据
-				if (startDate != null && endDate != null) {
-					String creativeId = creative.getId();
-					List<String> idList = new ArrayList<String>();
-					idList.add(creativeId);
-					BasicDataBean dataBean = getCreativeDatas(idList, startDate, endDate);
-					if (dataBean != null) {
-						info.setImpressionAmount(dataBean.getImpressionAmount());     //展现数
-						info.setClickAmount(dataBean.getClickAmount());               //点击数
-						info.setTotalCost(dataBean.getTotalCost());                   //总花费
-						info.setJumpAmount(dataBean.getJumpAmount());                 //二跳数
-						info.setImpressionCost(dataBean.getImpressionCost());         //展现成本
-						info.setClickCost(dataBean.getClickCost());                   //点击成本
-						info.setClickRate(dataBean.getClickRate());                   //点击率
-						info.setJumpCost(dataBean.getJumpCost());                     //二跳成本
-						info.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
-					}
-				}
-				bean = info;
+				
+				return info;
 			}
 		} else {
 			//否则
@@ -1112,138 +1009,13 @@ public class CreativeService extends BaseService {
 			if(creativeAuditModel!=null){
 				base.setMessage(creativeAuditModel.getMessage());
 			}
-			bean = base;
+			base.setStatus(getCreativeAuditStatus(creative.getId())); //创意的审核状态
+			
+			return base;
 		}
-		return bean;
+		return new BasicDataBean();
 	}
 	
-	/**
-	 * 列出所有素材
-	 * @param name
-	 * @param creativeId
-	 * @return
-	 * @throws Exception
-	 */
-//	public List<MaterialListBean> listCreativeMaterials(String campaignId, long startDate, long endDate) throws Exception {
-//		List<MaterialListBean> result = new ArrayList<MaterialListBean>();
-//		
-//		CreativeModelExample cmExample = new CreativeModelExample();
-//		cmExample.createCriteria().andCampaignIdEqualTo(campaignId);
-//		List<CreativeModel> cmList = creativeDao.selectByExample(cmExample);
-//		if (cmList == null || cmList.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-//		MaterialListBean bean;
-//		for (CreativeModel cmModel : cmList) {
-//			bean = new MaterialListBean();
-//			String mapId = cmModel.getId();
-//			bean.setMapId(mapId);
-//			String creativeType = cmModel.getType();
-//			String tmplId = cmModel.getTmplId();
-//			String materialId = cmModel.getMaterialId();
-//			bean.setPrice(cmModel.getPrice().floatValue());
-//			bean.setId(materialId);
-//			bean.setType(creativeType);
-//			//根据素材类型不同，获取不同的素材路径
-//			if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
-//				ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(materialId);
-//				ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
-//				if (imageModel != null) {
-//					String path = imageModel.getPath();
-//					bean.setPath(path);
-//				}
-//			} else if (StatusConstant.CREATIVE_TYPE_VIDEO.equals(creativeType)) {
-//				VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(materialId);
-//				VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
-//				if (videoModel != null) {
-//					String path = videoModel.getPath();
-//					bean.setPath(path);
-//				}
-//			} else if (StatusConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) {
-//				InfoflowMaterialModel infoflowModel = infoflowDao.selectByPrimaryKey(materialId);
-//				if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getIconId());
-//					if (imageModel != null) {
-//						String iconPath = imageModel.getPath();
-//						bean.setIconPath(iconPath);
-//					}
-//				}
-//				if (!StringUtils.isEmpty(infoflowModel.getImage1Id())) {
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage1Id());
-//					if (imageModel != null) {
-//						String image1Path = imageModel.getPath();
-//						bean.setImage1Path(image1Path);
-//					}
-//				}
-//				if (!StringUtils.isEmpty(infoflowModel.getImage2Id())) {
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage2Id());
-//					if (imageModel != null) {
-//						String image2Path = imageModel.getPath();
-//						bean.setImage2Path(image2Path);
-//					}
-//				}
-//				if (!StringUtils.isEmpty(infoflowModel.getImage3Id())) {
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage3Id());
-//					if (imageModel != null) {
-//						String image3Path = imageModel.getPath();
-//						bean.setImage3Path(image3Path);
-//					}
-//				}
-//				if (!StringUtils.isEmpty(infoflowModel.getImage4Id())) {
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage4Id());
-//					if (imageModel != null) {
-//						String image4Path = imageModel.getPath();
-//						bean.setImage4Path(image4Path);
-//					}
-//				}
-//				if (!StringUtils.isEmpty(infoflowModel.getImage5Id())) {
-//					ImageModel imageModel = imageDao.selectByPrimaryKey(infoflowModel.getImage5Id());
-//					if (imageModel != null) {
-//						String image5Path = imageModel.getPath();
-//						bean.setImage5Path(image5Path);
-//					}
-//				}
-//			}
-//			
-//			
-//			//查询app
-//			List<AppModel> appModels = getAppForMaterial(tmplId);
-//			List<App> appList = new ArrayList<MaterialListBean.App>();
-//			App app = null;
-//			if (appModels!=null && !appModels.isEmpty()) {
-//				for (AppModel appModel :appModels) {
-//					app = new App();
-//					app.setAppId(appModel.getAppId());
-//					app.setAppname(appModel.getAppName());
-//					app.setPkgName(appModel.getPkgName());
-//					app.setId(appModel.getId());
-//					appList.add(app);
-//				}
-//			}
-//			if (!appList.isEmpty()) {
-//				App[] apps = new App[appList.size()];
-//				for (int i=0;i< appList.size();i++) {
-//					apps[i] = appList.get(i);
-//				}
-//				bean.setApps(apps);
-//			}
-//			
-//			//查询素材名称
-//			String materialName = getMaterialName(materialId, creativeType);
-//			bean.setName(materialName);
-//			List<String> list = new ArrayList<String>();
-//			list.add(bean.getId());
-//			//查询点击、展现等数据
-////			CreativeDataBean dataBean = creativeAllDataService.listCreativeData(list, startDate, endDate);
-////			Long impressionAmount = dataBean.getImpressionAmount();
-////			Long clickAmount = dataBean.getClickAmount();
-////			Float cost = dataBean.getCost();
-////			Long jumpAmount = dataBean.getJumpAmount();
-//			result.add(bean);
-//		}
-//		
-//		return result;
-//	}
 	
 	/**
 	 * 根据图片素材id查询图片路径
@@ -1300,279 +1072,6 @@ public class CreativeService extends BaseService {
 		
 		return status;
 	}
-	/**
-	 * 获取App信息
-	 * @param tmplId
-	 * @return 
-	 * @throws Exception
-	 */
-//	private List<AppModel> getAppForMaterial(String tmplId) throws Exception {
-//		AppTmplModelExample atExample = new AppTmplModelExample();
-//		atExample.createCriteria().andTmplIdEqualTo(tmplId);
-//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(atExample);
-//		List<String> appIdList = new ArrayList<String>();
-//		if (appTmpls != null && !appTmpls.isEmpty()) {
-//			for (AppTmplModel appTmpl : appTmpls) {
-//				String appId = appTmpl.getAppId();
-//				if (!appIdList.contains(appId)) {
-//					appIdList.add(appId);
-//				}
-//			}
-//		}
-//		List<AppModel> appModels = null;
-//		if (!appIdList.isEmpty()) {
-//			AppModelExample example = new AppModelExample();
-//			example.createCriteria().andIdIn(appIdList);
-//			appModels = appDao.selectByExample(example);
-//		}
-//		
-//		return appModels;
-//	}
-	
-	/**
-	 * 根据素材Id和素材type查询素材名称
-	 * @param materialId
-	 * @param type
-	 * @return
-	 * @throws Exception
-	 */
-//	private String getMaterialName(String materialId, String type) throws Exception {
-//		if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-//			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(materialId);
-//			ImageModel model = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
-//			if (model != null) {
-////				String sizeId = model.getSizeId();
-////				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-////				if (sizeModel != null) {
-//					Integer width = model.getWidth();
-//					Integer height = model.getHeight();
-//					return width + "x" + height;
-////				}
-//			}
-//		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-//			
-//			VideoMaterialModel videoMaterialModel = videoeMaterialDao.selectByPrimaryKey(materialId);
-//			VideoModel model = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
-//			if (model != null) {
-////				String sizeId = model.getSizeId();
-////				SizeModel sizeModel = sizeDao.selectByPrimaryKey(sizeId);
-////				if (sizeModel != null) {
-//					Integer width = model.getWidth();
-//					Integer height = model.getHeight();
-//					return width + "x" + height;
-////				}
-//			}
-//		} else if (StatusConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
-//			InfoflowMaterialModel model = infoflowDao.selectByPrimaryKey(materialId);
-//			if (model != null) {
-//				return model.getTitle();
-//			}
-//		}
-//		
-//		return null;
-//	}
-	
-	/**
-	 * 查询创意投放数据
-	 * @param creativeIds
-	 * @param startDate
-	 * @param endDate
-	 * @return
-	 * @throws Exception
-	 */
-	public BasicDataBean getCreativeDatas(List<String> creativeIds, Long startDate, Long endDate) throws Exception {
-		BasicDataBean basicData = new BasicDataBean();
-		//将属性值变成0
-//		formatBeanParams(basicData);
-		DateTime begin = new DateTime(startDate);
-    	DateTime end = new DateTime(endDate);
-    	if (end.toString("yyyy-MM-dd").equals(begin.toString("yyyy-MM-dd"))) {
-    		//开始时间结束时间相等时
-    		if (begin.toString("HH").equals("00") && end.toString("HH").equals("23")
-					&& !begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
-    			//查看是不是全天(如果是全天，查询天文件；但是时间不可以是今天，因为当天数据还未生成天文件)
-				List<String> days = new ArrayList<String>();
-				days.add(begin.toString("yyyyMMdd"));
-				getDatafromDayTable(creativeIds, days, basicData);
-			} else {
-				//如果是今天就要查询小时数据
-				getDatafromHourTable(creativeIds, begin.toDate(), end.toDate(), basicData);
-			}
-    	} else {
-			String[] days = DateUtils.getDaysBetween(begin.toDate(), end.toDate());
-			List<String> daysList = new ArrayList<String>(Arrays.asList(days));
-			if (!begin.toString("HH").equals("00") || begin.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
-				Date bigHourOfDay = DateUtils.getBigHourOfDay(begin.toDate());
-				getDatafromHourTable(creativeIds, begin.toDate(), bigHourOfDay, basicData);
-				if (daysList != null && daysList.size() > 0) {
-					for (int i = 0; i < daysList.size(); i++) {
-						if (daysList.get(i).equals(begin.toString("yyyyMMdd"))) {
-							daysList.remove(i);
-						}
-					}
-				}
-			}
-			if (!end.toString("HH").equals("23") || end.toString("yyyy-MM-dd").equals(new DateTime().toString("yyyy-MM-dd"))) {
-				Date smallHourOfDay = DateUtils.getSmallHourOfDay(end.toDate());
-				getDatafromHourTable(creativeIds, smallHourOfDay, end.toDate(), basicData);
-				if (daysList != null && daysList.size() > 0) {
-					for (int i = 0; i < daysList.size(); i++) {
-						if (daysList.get(i).equals(end.toString("yyyyMMdd"))) {
-							daysList.remove(i);
-						}
-					}
-				}
-			}
-			getDatafromDayTable(creativeIds, daysList, basicData);
-    	}
-    	
-    	formatBeanRate(basicData);
-		return basicData;
-	}
-	
-	/**
-	 * 取天数据
-	 * @param creativeIds
-	 * @param daysList
-	 * @param bean
-	 * @throws Exception
-	 */
-	private void getDatafromDayTable(List<String> creativeIds, List<String> daysList, BasicDataBean bean) throws Exception {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		for (String creativeId : creativeIds) {
-			Map<String, String> map = redisHelper3.hget("creativeDataDay_" + creativeId);//获取map集合
-			Set<String> hkeys = redisHelper3.hkeys("creativeDataDay_" + creativeId);//获取所有key
-			if (hkeys != null && !hkeys.isEmpty()) {
-				for (String hkey : hkeys) {
-					//必须要符合“日期”+“@”才是创意的数据
-					for (String day : daysList) {
-						if (hkey.indexOf(day + "@") > -1) {
-							String value = map.get(hkey);
-							//根据不同的值来整合不同属性值
-							if (!StringUtils.isEmpty(value)) {
-								if (hkey.indexOf("@m") > 0) {// 展现
-									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@c") > 0) {// 点击
-									bean.setClickAmount(bean.getClickAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@j") > 0) {// 二跳
-									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@e") > 0) {// 花费
-								    double totalCost = bean.getTotalCost() + (Double.parseDouble(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
-									bean.setTotalCost(totalCost);
-								}
-							}
-						}else if(hkey.indexOf(day + "_adx_") > -1){
-							String value = map.get(hkey);
-							//判断值是否存在
-							if (!StringUtils.isEmpty(value)) {
-								String[] temp = hkey.split("_adx_");
-								if(temp.length==2){
-									String[] arry2 = temp[1].split("@");
-									if(arry2.length ==2 && arry2[1].equals("e")){
-										Date date =sdf.parse(day);
-										AdxCostModelExample adxCostModelExample = new AdxCostModelExample();
-										adxCostModelExample.createCriteria().andAdxIdEqualTo(arry2[0]).andStartDateLessThanOrEqualTo(date).andEndDateGreaterThanOrEqualTo(date);
-										List<AdxCostModel> adxCostModels = adxCostDao.selectByExample(adxCostModelExample);
-										if(adxCostModels!=null && adxCostModels.size()>0){
-											float ratio = adxCostModels.get(0).getRatio();
-											double adxCost = bean.getAdxCost() + (Double.parseDouble(value)* ratio / 100);
-											bean.setAdxCost(adxCost);
-										}
-									}
-								}
-
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 取小时数据
-	 * @param creativeIds
-	 * @param startDate
-	 * @param endDate
-	 * @param bean
-	 * @throws Exception
-	 */
-	private void getDatafromHourTable(List<String> creativeIds, Date startDate, Date endDate, BasicDataBean bean) throws Exception {
-		String[] hours = DateUtils.getHoursBetween(startDate, endDate);
-		String day = new DateTime(startDate).toString("yyyyMMdd");
-		for (String creativeId : creativeIds) {
-			Map<String, String> map = redisHelper3.hget("creativeDataHour_" + creativeId);//获取map集合
-			Set<String> hkeys = redisHelper3.hkeys("creativeDataHour_" + creativeId);//获取所有key
-			if (hkeys != null && !hkeys.isEmpty()) {
-				for (String hkey : hkeys) {
-					//必须要符合“日期”+“小时”+“@”才是创意的数据
-					for (String hour : hours) {
-						if (hkey.indexOf(day + hour + "@") > -1) {
-							String value = map.get(hkey);
-							//根据不同的值来整合不同属性值
-							if (!StringUtils.isEmpty(value)) {
-								if (hkey.indexOf("@m") > 0) {// 展现
-									bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@c") > 0) {// 点击
-									bean.setClickAmount(bean.getClickAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@j") > 0) {// 二跳
-									bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(value));
-								} else if (hkey.indexOf("@e") > 0) {// 花费
-									double totalCost = bean.getTotalCost() + (Double.parseDouble(value) / 100);  //将Redis中取出的价格（分）转换成价格（元）
-                                    bean.setTotalCost(totalCost);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 将实例化的bean种属性值变成0
-	 * @param bean
-	 * @throws Exception
-	 */
-//	private void formatBeanParams(BasicDataBean bean) throws Exception {
-//		bean.setImpressionAmount(0L);
-//		bean.setClickAmount(0L);
-//		bean.setJumpAmount(0L);
-//		bean.setTotalCost(0F);
-//		
-//		bean.setImpressionCost(0F);
-//		bean.setClickRate(0F);
-//		bean.setClickCost(0F);
-//		bean.setJumpCost(0F);
-//	}
-	
-	/**
-	 * 格式话“率”
-	 * @param bean
-	 * @throws Exception
-	 */
-	private void formatBeanRate(BasicDataBean bean) throws Exception {
-		DecimalFormat format = new DecimalFormat("0.0000");
-		if (bean.getClickAmount() > 0) {
-	        double percent = (double)bean.getTotalCost() / bean.getClickAmount();
-			Float result = Float.parseFloat(format.format(percent));
-	        bean.setClickCost(result);
-		}
-		if (bean.getJumpAmount() > 0) {
-			double percent = (double)bean.getTotalCost() / bean.getJumpAmount();
-			Float result = Float.parseFloat(format.format(percent));
-			bean.setJumpCost(result);
-		}
-		if (bean.getImpressionAmount() > 0) {
-			double percent = (double)bean.getClickAmount() / bean.getImpressionAmount();
-	        Float result = Float.parseFloat(format.format(percent));
-	        bean.setClickRate(result);
-	        
-	        percent = (double)bean.getTotalCost() * 1000 / bean.getImpressionAmount();
-	        result = Float.parseFloat(format.format(percent));
-	        bean.setImpressionCost(result);
-		}
-	}
 	
 	/**
      * 根据配置文件中的设置，来绝定上传文件至本地文件服务器或远程文件服务器
@@ -1592,18 +1091,6 @@ public class CreativeService extends BaseService {
             return FileUtils.uploadFileToRemote(host, port, username, password, uploadDir, fileName, file);
         }
     }
-	
-//	private void doDeleteFile(String path) throws IOException
-//	{
-//	    if ("local".equalsIgnoreCase(uploadDir))
-//        {
-//            org.apache.commons.io.FileUtils.deleteQuietly(new File(path));
-//        }
-//        else
-//        {
-//            scpUtils.delete(path);
-//        }
-//	}
 	
 	/**
 	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
@@ -1628,29 +1115,6 @@ public class CreativeService extends BaseService {
 			}
 		}
 	}
-	
-//	/**
-//	 * 获取app的ID
-//	 * @param tmplId 模板id
-//	 * @return
-//	 */
-//	public String getAppId(String tmplId) {
-//		AppTmplModelExample apptmplExample = new AppTmplModelExample();
-//		apptmplExample.createCriteria().andTmplIdEqualTo(tmplId);
-//		List<AppTmplModel> appTmpl = appTmplDao.selectByExample(apptmplExample);
-//		String appId = appTmpl.get(0).getAppId();
-//		return appId;
-//	}
-//	/**
-//	 * 获取app的名称
-//	 * @param appId 
-//	 * @return
-//	 */
-//	public String getAppName(String appId) {		
-//		AppModel app = appDao.selectByPrimaryKey(appId);
-//		String appName = app.getAppName();
-//		return appName;
-//	}
 	
 	private Map<String, String> getAppInfo(CreativeModel creative) throws Exception {
 		String campaignId = creative.getCampaignId();
@@ -1833,10 +1297,8 @@ public class CreativeService extends BaseService {
 		creativeExample.createCriteria().andIdIn(creativeIdsList);
 		// 判断创意是否为空
 		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeExample);
-		// FIXME ： 同步的创意应该是审核中  --- OK 
-		// FIXME : 判断查出的个数与传来的creativeIds的个数是否相同 --- OK
-		if (creativeModels == null || creativeModels.isEmpty() || creativeIds.length > creativeModels.size()) {
-			throw new ResourceNotFoundException();
+		if (creativeModels == null || creativeIds.length > creativeModels.size()) {
+			throw new ResourceNotFoundException(PhrasesConstant.CREATIVE_NOT_FOUND);
 		}
 		for (CreativeModel creative : creativeModels) {
 			String creativeId = creative.getId();
@@ -1896,17 +1358,15 @@ public class CreativeService extends BaseService {
 		List<String> creativeIdsList = Arrays.asList(creativeIds);
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andIdIn(creativeIdsList);
-		// FIXME : 审核的创意是只有未审核和审核未通过
 		// 判断创意是否为空
 		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeExample);
-		if (creativeModels == null || creativeModels.isEmpty() || creativeIds.length > creativeModels.size()) {
+		if (creativeModels == null || creativeIds.length > creativeModels.size()) {
 			// 如果创意信息为空
-			throw new ResourceNotFoundException();
+			throw new ResourceNotFoundException(PhrasesConstant.CREATIVE_NOT_FOUND);
 		}							
 		
 		// 审核创意
 		for (CreativeModel creative : creativeModels) {
-			// FIXME : 不需要再查询创意实体CreativeModel --- OK
 			// 创意id
 			String creativeId = creative.getId();
 			String status = getCreativeAuditStatus(creativeId);
@@ -2012,7 +1472,6 @@ public class CreativeService extends BaseService {
 				// 2.判断该创意是否审核通过
 				for (CreativeAuditModel creativeAudit : creativeAudits) {
 					if (campaignService.isOnLaunchDate(campaignId) && StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeAudit.getStatus())) {
-						// FIXME : 单独写入创意ID --- OK
 						launchService.writeOneCreativeId(campaignId, creativeId);
 					}
 				}

@@ -349,7 +349,7 @@ public class ProjectService extends BaseService {
         redisHelper.delete(projectBudgetKey);
 
         // 删除项目转化字段
-        List<String> projectIds = new ArrayList<>();
+        List<String> projectIds = new ArrayList<String>();
         projectIds.add(id);
         destoryEffectField(projectIds);
 
@@ -507,50 +507,6 @@ public class ProjectService extends BaseService {
 		}
     	return beans;
     }
-
-    /**
-     * 查询项目投放数据
-     * @param beginTime
-     * @param endTime
-     * @param bean
-     * @throws Exception
-     */
-//    private void getData(Long beginTime, Long endTime,ProjectBean bean) throws Exception {
-//    	//查询活动
-//    	CampaignModelExample campaignExample = new CampaignModelExample();
-//    	campaignExample.createCriteria().andProjectIdEqualTo(bean.getId());
-//    	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-//    	BasicDataBean dataBean = new BasicDataBean();//在此处创建bean，并初始化各个参数，保证所有数据都能返回，即便都是零
-//    	dataService.formatBeanParams(dataBean);
-//    	dataService.formatBeanRate(dataBean);
-//    	if (campaigns != null && !campaigns.isEmpty()) {
-//    		List<String> campaignIds = new ArrayList<String>();
-//    		for (CampaignModel campaign : campaigns) {
-//    			campaignIds.add(campaign.getId());
-//    		}
-//    		CreativeModelExample cExample = new CreativeModelExample();
-//    		cExample.createCriteria().andCampaignIdIn(campaignIds);
-//    		List<CreativeModel> list = creativeDao.selectByExample(cExample);
-//    		List<String> creativeIds = new ArrayList<String>();
-//    		if (list != null && !list.isEmpty()) {
-//    			for (CreativeModel model : list) {
-//    				creativeIds.add(model.getId());
-//    			}
-//    		}
-//    		dataBean = creativeService.getCreativeDatas(creativeIds, beginTime, endTime);
-//    	}
-//    	bean.setImpressionAmount(dataBean.getImpressionAmount());
-//    	bean.setClickAmount(dataBean.getClickAmount());
-//    	bean.setTotalCost(dataBean.getTotalCost());
-//    	bean.setJumpAmount(dataBean.getJumpAmount());
-//    	bean.setImpressionCost(dataBean.getImpressionCost());
-//    	bean.setClickCost(dataBean.getClickCost());
-//    	bean.setClickRate(dataBean.getClickRate());
-//    	bean.setJumpCost(dataBean.getJumpCost());
-//		//修正成本
-//		bean.setAdxCost(dataBean.getAdxCost());
-//
-//	}
 
     /**
      * 查询项目属性
@@ -749,7 +705,7 @@ public class ProjectService extends BaseService {
 
 		//生成excel模板文件
 		boolean res = getEffectDataToCreateExcel(fieldId);
-		if(!res){
+		if (!res) {
 			throw new IllegalStatusException("生成excel文件失败");
 		}
     }
@@ -1352,6 +1308,7 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	private void checkSameOfRuleName(String name,String projectId) throws Exception {	
+		// FIXME : 名称规范
 		// 根据规则名称和项目id查询规则信息
 		RuleModelExample ruleEx = new RuleModelExample();
 		ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);

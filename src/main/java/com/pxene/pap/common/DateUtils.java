@@ -5,8 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -275,5 +277,12 @@ public class DateUtils {
         }
         
         return dates;
+    }
+    
+    public static Map<String, Long> getStartAndEndTime(String day) {
+    	Map<String, Long> result = new HashMap<String, Long>();
+    	result.put("startTime", strToDate(day + " 00:00:00", "yyyyMMdd HH:mm:ss").getTime());
+    	result.put("endTime", strToDate(day + " 23:59:59", "yyyyMMdd HH:mm:ss").getTime());
+    	return result;
     }
 }

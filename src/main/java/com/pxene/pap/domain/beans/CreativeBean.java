@@ -74,7 +74,7 @@ public class CreativeBean extends BasicDataBean {
 	
 	private Date endDate;
 	
-	private String materialPaths[];
+	private String[] materialPaths;
 	
 	public String getId() {
 		return id;

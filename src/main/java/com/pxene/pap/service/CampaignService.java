@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -198,6 +199,9 @@ public class CampaignService extends BaseService {
 	
 	@Autowired
 	private LandpageCodeDao landpageCodeDao;
+	
+	@Autowired
+	private DataService dataService;
 	
 	@Autowired
 	private LandpageService landpageService;
@@ -827,25 +831,6 @@ public class CampaignService extends BaseService {
 	}
 	
 	/**
-	 * 添加活动监测地址
-	 * @param bean
-	 */
-	/*@Transactional
-	private void addCampaignMonitor(CampaignBean campaignBean) throws Exception {
-		Monitor[] monitors = campaignBean.getMonitors();
-		if (monitors != null && monitors.length > 0) {
-			String id = campaignBean.getId();
-			for (Monitor bean : monitors) {
-				String monitorId = UUIDGenerator.getUUID();
-				MonitorModel model = modelMapper.map(bean, MonitorModel.class);
-				model.setId(monitorId);
-				model.setCampaignId(id);
-				monitorDao.insertSelective(model);
-			}
-		}
-	}*/
-	
-	/**
 	 * 删除活动监测地址
 	 * @param campaignId
 	 */
@@ -1016,13 +1001,12 @@ public class CampaignService extends BaseService {
 		if (model == null || StringUtils.isEmpty(model.getId())) {
 			throw new ResourceNotFoundException();
 		}
-		CampaignBean map = modelMapper.map(model, CampaignBean.class);
-		addParamToCampaign(map, model.getId(), model.getFrequencyId());
+		CampaignBean bean = modelMapper.map(model, CampaignBean.class);
+		addParamToCampaign(bean, model.getId(), model.getFrequencyId());
 		// 落地页信息
-//		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);		
 		LandpageCodeModelExample example = new LandpageCodeModelExample();
 		example.createCriteria().andLandpageIdEqualTo(model.getLandpageId());
-		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);	
+//		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);	
 		// 查询活动下的创意信息
 		CreativeModelExample creativeEx = new CreativeModelExample();
 		creativeEx.createCriteria().andCampaignIdEqualTo(model.getId());
@@ -1032,25 +1016,25 @@ public class CampaignService extends BaseService {
 			// 是否已经投放过，投放过可能出现预算和展现数上限
 			if (!launchService.notOverProjectBudget(model.getProjectId())) {
 				// 项目总预算达到上限
-				map.setReason(StatusConstant.CAMPAIGN_PROJECTBUDGET_OVER);
+				bean.setReason(StatusConstant.CAMPAIGN_PROJECTBUDGET_OVER);
 			} else if (!launchService.notOverDailyBudget(model.getId())) {
 				// 日预算达到上限
-				map.setReason(StatusConstant.CAMPAIGN_DAILYBUDGET_OVER);
+				bean.setReason(StatusConstant.CAMPAIGN_DAILYBUDGET_OVER);
 			} else if (!launchService.notOverDailyCounter(model.getId())) {
 				// 展现数达到上限
-				map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
+				bean.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
 			} else if (!isOnTargetTime(model.getId())) {
 				// 不在定向时间段内（投放过的活动判断不正常投放的原因）
-				map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
+				bean.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
 			} else if (!isHaveLaunchCreative(model.getId())) {
 				// 如果活动下没有可投放的创意（创意关闭/创意审核未通过）
-				map.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
+				bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 			}
 		} else if (creatives == null || creatives.isEmpty()) {
 			// 如果活动下没有可投放的创意（活动下没有创意）
-			map.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
+			bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 		}
-		return map;
+		return bean;
 	}
 	
 	/**
@@ -1062,7 +1046,7 @@ public class CampaignService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public List<CampaignBean> listCampaigns(String name, String projectId, Long beginTime, Long endTime, String sortKey, String sortType, boolean calScore) throws Exception {
+	public List<CampaignBean> listCampaigns(String name, String projectId, Long startDate, Long endDate, String sortKey, String sortType) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
 
@@ -1089,12 +1073,8 @@ public class CampaignService extends BaseService {
 		List<CampaignModel> models = campaignDao.selectByExample(example);
 		List<CampaignBean> beans = new ArrayList<CampaignBean>();
 		
-//		if (models == null || models.isEmpty()) {
-//			throw new ResourceNotFoundException();
-//		}
-		
 		for (CampaignModel model : models) {
-			CampaignBean map = modelMapper.map(model, CampaignBean.class);
+			CampaignBean bean = modelMapper.map(model, CampaignBean.class);
 			
 			if (!StringUtils.isEmpty(calScore) && calScore)
 			{
@@ -1104,15 +1084,19 @@ public class CampaignService extends BaseService {
 			
 			addParamToCampaign(map, model.getId(), model.getFrequencyId());
 
-			if (beginTime != null && endTime != null) {
+			if (startDate != null && endDate != null) {
 				// 查询每个活动的投放信息
-				getData(beginTime, endTime, map);
+//				getData(beginTime, endTime, map);
+				CampaignBean data = (CampaignBean)dataService.getCampaignData(model.getId(), startDate, endDate);
+				BeanUtils.copyProperties(data, bean, "id", "projectId", "projectName", "name", "remark", 
+						"creativeAmount", "status", "reason", "startDate", "endDate", "uniform", "creativeNum", 
+						"target", "frequency", "quantities", "landpageId", "landpageName", "landpageUrl");
 			}
 			// 落地页信息
 			CampaignModel campaign = campaignDao.selectByPrimaryKey(model.getId());		
 			LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
 			landpageCodeEx.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
-			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(landpageCodeEx);
+//			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(landpageCodeEx);
 			// 查询活动下的创意信息
 			CreativeModelExample creativeEx = new CreativeModelExample();
 			creativeEx.createCriteria().andCampaignIdEqualTo(model.getId());
@@ -1122,25 +1106,25 @@ public class CampaignService extends BaseService {
 				// 是否已经投放过，投放过可能出现预算和展现数上限
 				if (!launchService.notOverProjectBudget(model.getProjectId())) {
 					// 项目总预算达到上限
-					map.setReason(StatusConstant.CAMPAIGN_PROJECTBUDGET_OVER);
+					bean.setReason(StatusConstant.CAMPAIGN_PROJECTBUDGET_OVER);
 				} else if (!launchService.notOverDailyBudget(model.getId())) {
 					// 日预算达到上限
-					map.setReason(StatusConstant.CAMPAIGN_DAILYBUDGET_OVER);
+					bean.setReason(StatusConstant.CAMPAIGN_DAILYBUDGET_OVER);
 				} else if (!launchService.notOverDailyCounter(model.getId())) {
 					// 展现数达到上限
-					map.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
+					bean.setReason(StatusConstant.CAMPAIGN_COUNTER_OVER);
 				} else if (!isOnTargetTime(model.getId())) {
 					// 不在定向时间段内
-					map.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
+					bean.setReason(StatusConstant.CAMPAIGN_ISNOT_TARGETTIME);
 				} else if (!isHaveLaunchCreative(model.getId())) {
 					// 如果活动下没有可投放的创意（创意关闭/创意审核未通过）
-					map.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
+					bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 				}
 			} else if (creatives == null || creatives.isEmpty()) {
 				// 如果活动下没有可投放的创意（活动下没有创意）
-				map.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
+				bean.setReason(StatusConstant.CAMPAIGN_NOTHAVE_CREATIVE);
 			}
-			beans.add(map);
+			beans.add(bean);
 		}		
 		return beans;
 	}
@@ -1484,73 +1468,6 @@ public class CampaignService extends BaseService {
 		return campaigns.size() > 0;
 	}
 	
-//	/**
-//	 * 暂停指定的活动（重复指定的次数）
-//	 * @param campaignId   需要暂停的活动ID
-//	 * @return
-//	 */
-//	public boolean pauseCampaignRepeatable(String campaignId)
-//    {
-//        int i = 1;
-//        int total = 10;
-//        
-//        while (i <= total)
-//        {
-//            // 读取key为dsp_groupids的value，即当前全部可投放的活动ID集合
-//            String availableGroups = redisHelper.getStr(REDIS_KEY_GROUPIDS);
-//
-//            // 从JSON字符串中删除指定的活动ID
-//            String operatedVal = removeCampaignId(availableGroups, campaignId);
-//            if (operatedVal != null)
-//            {
-//                boolean casFlag = redisHelper.checkAndSet(REDIS_KEY_GROUPIDS, operatedVal);
-//                if (casFlag)
-//                {
-//                    return true;
-//                }
-//            }
-//            
-//            i++;
-//        }
-//        
-//        return false;
-//    }
-	
-//	/**
-//	 * 通过删除投放信息终止投放
-//	 * @param campaignId 活动id
-//	 * @return
-//	 */
-//	public boolean pauseLaunchByDelCampaignInfo(String campaignId)
-//	{		
-//		Jedis jedis = redisHelper.getJedis();
-//		boolean delCampaignInfo = delCampaignInfo(jedis, campaignId);			
-//		if(delCampaignInfo)
-//		{
-//			return true;
-//		}	
-//		
-//		return false;		
-//	}
-	
-//	/**
-//     * 从Redis中删除Key为dsp_mapid_活动ID的键值对
-//     * @param jedis         Redis连接实例
-//     * @param campaignId    活动ID
-//     * @return
-//     */
-//    private static boolean delCampaignInfo(Jedis jedis, String campaignId)
-//    {
-//        Long delResult= jedis.del(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
-//        
-//        if (delResult == 1)
-//        {
-//            return true;
-//        }
-//        
-//        return false;
-//    }
-
     /**
      * 批量同步活动下创意
      * @param ids
@@ -1867,36 +1784,5 @@ public class CampaignService extends BaseService {
 		}
 		return campaignName;
 	}
-    
-//    /**
-//     * 从正在投放的活动中删除指定的活动ID
-//     * @param redisValue    Redis中Key为dsp_groups的Value
-//     * @param campaignId    欲删除的活动ID
-//     * @return
-//     */
-//    private static String removeCampaignId(String redisValue, String campaignId)
-//    {
-//        JsonParser jsonParser = new JsonParser();
-//        JsonObject tmpObj = jsonParser.parse(redisValue).getAsJsonObject();
-//        
-//        if (tmpObj != null)
-//        {
-//            JsonArray groudids = tmpObj.get(JSON_KEY_GROUPIDS).getAsJsonArray();
-//            
-//            // 判断是否已经含有当前campaignID
-//            for (int i = 0; i < groudids.size(); i++)
-//            {
-//                if (campaignId.equals(groudids.get(i).getAsString()))
-//                {
-//                    groudids.remove(i);
-//                    break;
-//                }
-//            }
-//            
-//            return tmpObj.toString();
-//        }
-//        
-//        return null;
-//    }
     
 }

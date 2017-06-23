@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pxene.pap.repository.custom.CustomRegionDao">
+
+	<select id="selectRegionIds" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(id) FROM pap_t_region
+	</select>
+    
+</mapper>

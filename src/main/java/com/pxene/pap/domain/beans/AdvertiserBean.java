@@ -75,12 +75,6 @@ public class AdvertiserBean extends BasicDataBean {
 	@Length(max = 200, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
 
-	@JsonProperty(value = "create_time")
-	private Date createTime;
-
-	@JsonProperty(value = "update_time")
-	private Date updateTime;
-
 	private String status;	
 	
 	public static class Audit {
@@ -289,22 +283,6 @@ public class AdvertiserBean extends BasicDataBean {
 		this.remark = remark;
 	}
 
-	public Date getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-
-	public Date getUpdateTime() {
-		return updateTime;
-	}
-
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
-
 	public String getQq() {
 		return qq;
 	}
@@ -350,8 +328,7 @@ public class AdvertiserBean extends BasicDataBean {
 				+ ", licensePath=" + licensePath + ", accountPath="
 				+ accountPath + ", siteUrl=" + siteUrl + ", siteName="
 				+ siteName + ", email=" + email + ", zip=" + zip + ", address="
-				+ address + ", remark=" + remark + ", createTime=" + createTime
-				+ ", updateTime=" + updateTime + ", status=" + status + "]";
+				+ address + ", remark=" + remark + ", status=" + status + "]";
 	}
 
 }

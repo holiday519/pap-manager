@@ -419,12 +419,14 @@ public class AdvertiserService extends BaseService
 			}
 			bean.setAudits(audits);
 
-			// 查询审核状态
-			//bean.setStatus(getAdvertiserAuditStatus(advertiser.getId()));
-
 			if (startDate != null && endDate != null) {
 				// 查询投放数据
-				getData(startDate, endDate, bean);
+				AdvertiserBean data = (AdvertiserBean)dataService.getAdvertiserData(advertiserId, startDate, endDate);
+				BeanUtils.copyProperties(data, bean, "id", "name", "company", "contact", "phone", "qq", 
+						"industryId", "industryName", "audits", "brandName", "licenseNo", 
+						"organizationNo", "logoPath", "icpPath", "organizationPath", 
+						"licensePath", "accountPath", "siteUrl", "siteName", "email", 
+						"zip", "address", "remark", "status");
 			}
 
 			advertiserBeans.add(bean);
@@ -441,75 +443,36 @@ public class AdvertiserService extends BaseService
      * @param bean
      * @throws Exception
      */
-    private void getData(Long startDate, Long endDate, AdvertiserBean bean) throws Exception {
-    	ProjectModelExample projectModleExample = new ProjectModelExample();
-    	projectModleExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
-    	List<ProjectModel> projects = projectDao.selectByExample(projectModleExample);
-    	if (projects != null && !projects.isEmpty()) {
-    		List<String> projectIds = new ArrayList<String>();
-    		for (ProjectModel project : projects) {
-    			projectIds.add(project.getId());
-    		}
-    		CampaignModelExample campaignExample = new CampaignModelExample();
-    		campaignExample.createCriteria().andProjectIdIn(projectIds);
-    		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
-    		if (campaigns != null && !campaigns.isEmpty()) {
-    			List<String> campaignIds = new ArrayList<String>();
-    			for (CampaignModel campaign : campaigns) {
-    				campaignIds.add(campaign.getId());
-    			}
-    			CreativeModelExample creativeExample = new CreativeModelExample();
-    			creativeExample.createCriteria().andCampaignIdIn(campaignIds);
-    			List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
-    			List<String> creativeIds = new ArrayList<String>();
-    			if (creatives != null && !creatives.isEmpty()) {
-    				for (CreativeModel creative : creatives) {
-    					creativeIds.add(creative.getId());
-    				}
-    			}
-    			BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, startDate, endDate);
-    			BeanUtils.copyProperties(dataBean, bean);
-    		}
-    	}
-	}
-    
-    /**
-	 * 活动审核状态
-	 * @param creativeId
-	 * @return
-	 */
-//	private String getAdvertiserAuditStatus(String AdvertiserId) {
-//		AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
-//		example.createCriteria().andAdvertiserIdEqualTo(AdvertiserId);
-//		List<AdvertiserAuditModel> models = advertiserAuditDao.selectByExample(example);
-//		String status = StatusConstant.ADVERTISER_AUDIT_NOCHECK;
-//		boolean successFlag = false;
-//		for (AdvertiserAuditModel model : models) {
-//			if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(model.getStatus())) {
-//				status = StatusConstant.ADVERTISER_AUDIT_SUCCESS;
-//				successFlag  = true;
-//				break;
-//			}
-//		}
-//		if (!successFlag) {
-//			boolean watingFlag = false;
-//			for (AdvertiserAuditModel model : models) {
-//				if (StatusConstant.ADVERTISER_AUDIT_WATING.equals(model.getStatus())) {
-//					status = StatusConstant.ADVERTISER_AUDIT_WATING;
-//					watingFlag = true;
-//					break;
-//				}
-//			}
-//			if (!watingFlag) {
-//				for (AdvertiserAuditModel model : models) {
-//					if (StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(model.getStatus())) {
-//						status = StatusConstant.ADVERTISER_AUDIT_FAILURE;
-//						break;
-//					}
-//				}
-//			}
-//		}
-//		return status;
+//    private void getData(Long startDate, Long endDate, AdvertiserBean bean) throws Exception {
+//    	ProjectModelExample projectModleExample = new ProjectModelExample();
+//    	projectModleExample.createCriteria().andAdvertiserIdEqualTo(bean.getId());
+//    	List<ProjectModel> projects = projectDao.selectByExample(projectModleExample);
+//    	if (projects != null && !projects.isEmpty()) {
+//    		List<String> projectIds = new ArrayList<String>();
+//    		for (ProjectModel project : projects) {
+//    			projectIds.add(project.getId());
+//    		}
+//    		CampaignModelExample campaignExample = new CampaignModelExample();
+//    		campaignExample.createCriteria().andProjectIdIn(projectIds);
+//    		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignExample);
+//    		if (campaigns != null && !campaigns.isEmpty()) {
+//    			List<String> campaignIds = new ArrayList<String>();
+//    			for (CampaignModel campaign : campaigns) {
+//    				campaignIds.add(campaign.getId());
+//    			}
+//    			CreativeModelExample creativeExample = new CreativeModelExample();
+//    			creativeExample.createCriteria().andCampaignIdIn(campaignIds);
+//    			List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+//    			List<String> creativeIds = new ArrayList<String>();
+//    			if (creatives != null && !creatives.isEmpty()) {
+//    				for (CreativeModel creative : creatives) {
+//    					creativeIds.add(creative.getId());
+//    				}
+//    			}
+//    			BasicDataBean dataBean = creativeService.getCreativeDatas(creativeIds, startDate, endDate);
+//    			BeanUtils.copyProperties(dataBean, bean);
+//    		}
+//    	}
 //	}
     
     /**
@@ -521,13 +484,8 @@ public class AdvertiserService extends BaseService
     @Transactional
     public String uploadQualification(MultipartFile file) throws Exception 
     {
-    	// 图片绝对路径
-    	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUID.randomUUID().toString(), file);
-    	// String path = FileUtils.uploadFileToLocal(UPLOAD_DIR + TEMP_DIR, UUIDGenerator.getUUID(), file);
-        // 获得图片上传至本地/远程文件服务器的物理绝对路径
         String path = upload(file);
         
-    	// 返回相对路径
     	return path.replace(uploadDir, "");
     }
 

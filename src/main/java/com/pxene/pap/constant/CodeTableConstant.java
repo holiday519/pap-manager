@@ -7,17 +7,17 @@ package com.pxene.pap.constant;
 public class CodeTableConstant {
 
 	//运营商
-	public static final String OPERATOR_CODE_YIDONG = "1";
+	public static final String OPERATOR_CODE_MOBILE = "1";
 	
-	public static final String OPERATOR_CODE_LIANTONG = "2";
+	public static final String OPERATOR_CODE_UNICOM = "2";
 	
-	public static final String OPERATOR_CODE_DIANXIN = "3";
+	public static final String OPERATOR_CODE_TELECOM = "3";
 	
-	public static final String OPERATOR_NAME_YIDONG = "中国移动";
+	public static final String OPERATOR_NAME_MOBILE = "中国移动";
 	
-	public static final String OPERATOR_NAME_LIANTONG = "中国联通";
+	public static final String OPERATOR_NAME_UNICOM = "中国联通";
 	
-	public static final String OPERATOR_NAME_DIANXIN = "中国电信";
+	public static final String OPERATOR_NAME_TELECOM = "中国电信";
 	//网络
 	public static final String NETWORK_CODE_WIFI = "1";
 	

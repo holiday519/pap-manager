@@ -1,9 +1,10 @@
 package com.pxene.pap.domain.beans;
 
-/**
- * 查询广告主、项目、活动、创意时公共继承类 类中主要有展现、点击等投放数据
- */
-public class BasicDataBean {
+public class AnalysisBean {
+
+	private String id;
+	private String name;
+	private String time;
 	// 展现数
 	private Long impressionAmount = 0l;
 	// 点击数
@@ -20,99 +21,80 @@ public class BasicDataBean {
 	private Float clickCost = 0f;
 	// 二跳成本
 	private Float jumpCost = 0f;
-	// 修正成本
-	private Double adxCost = 0d;
-	// 分日时要返回的参数
-	private String date;
-
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getTime() {
+		return time;
+	}
+	public void setTime(String time) {
+		this.time = time;
+	}
 	public Long getImpressionAmount() {
 		return impressionAmount;
 	}
-
 	public void setImpressionAmount(Long impressionAmount) {
 		this.impressionAmount = impressionAmount;
 	}
-
 	public Long getClickAmount() {
 		return clickAmount;
 	}
-
 	public void setClickAmount(Long clickAmount) {
 		this.clickAmount = clickAmount;
 	}
-
 	public Long getJumpAmount() {
 		return jumpAmount;
 	}
-
 	public void setJumpAmount(Long jumpAmount) {
 		this.jumpAmount = jumpAmount;
 	}
-
-	public Double getTotalCost() {
-		return totalCost;
-	}
-
-	public void setTotalCost(Double totalCost) {
-		this.totalCost = totalCost;
-	}
-
-	public Double getAdxCost() {
-		return adxCost;
-	}
-
-	public void setAdxCost(Double adxCost) {
-		this.adxCost = adxCost;
-	}
-
 	public Float getClickRate() {
 		return clickRate;
 	}
-
 	public void setClickRate(Float clickRate) {
 		this.clickRate = clickRate;
 	}
-
+	public Double getTotalCost() {
+		return totalCost;
+	}
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
+	}
 	public Float getImpressionCost() {
 		return impressionCost;
 	}
-
 	public void setImpressionCost(Float impressionCost) {
 		this.impressionCost = impressionCost;
 	}
-
 	public Float getClickCost() {
 		return clickCost;
 	}
-
 	public void setClickCost(Float clickCost) {
 		this.clickCost = clickCost;
 	}
-
 	public Float getJumpCost() {
 		return jumpCost;
 	}
-
 	public void setJumpCost(Float jumpCost) {
 		this.jumpCost = jumpCost;
 	}
-	
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
 	@Override
 	public String toString() {
-		return "BasicDataBean [impressionAmount=" + impressionAmount
-				+ ", clickAmount=" + clickAmount + ", jumpAmount=" + jumpAmount
-				+ ", clickRate=" + clickRate + ", totalCost=" + totalCost
-				+ ", impressionCost=" + impressionCost + ", clickCost="
-				+ clickCost + ", jumpCost=" + jumpCost + ", adxCost=" + adxCost
-				+ ", date=" + date + "]";
+		return "AnalysisBean [id=" + id + ", name=" + name + ", time=" + time
+				+ ", impressionAmount=" + impressionAmount + ", clickAmount="
+				+ clickAmount + ", jumpAmount=" + jumpAmount + ", clickRate="
+				+ clickRate + ", totalCost=" + totalCost + ", impressionCost="
+				+ impressionCost + ", clickCost=" + clickCost + ", jumpCost="
+				+ jumpCost + "]";
 	}
 	
 }
