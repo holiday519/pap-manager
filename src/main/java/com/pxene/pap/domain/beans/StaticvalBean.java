@@ -96,6 +96,6 @@ public class StaticvalBean {
 
     @Override
     public String toString() {
-        return "ProjectBean [id=" + id + ", name=" + name + ",value="+ value+",projectId="+projectId+",creativeTime="+createDate+"]";
+        return "StaticvalBean [id=" + id + ", name=" + name + ",value="+ value+",projectId="+projectId+",creativeTime="+createDate+"]";
     }
 }

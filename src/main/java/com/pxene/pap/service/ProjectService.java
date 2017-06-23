@@ -1119,6 +1119,8 @@ public class ProjectService extends BaseService {
 		String ruleId = ruleFormulasBean.getId();
 		FormulaModelExample formulasEx = new FormulaModelExample();
 		formulasEx.createCriteria().andRuleIdEqualTo(ruleId);
+		// 按照权重从高到低降序
+		formulasEx.setOrderByClause("weight DESC");
 		List<FormulaModel> formulasModel = formulaDao.selectByExample(formulasEx);
 		// 返回公式数组
 		if (formulasModel != null && !formulasModel.isEmpty()) {
