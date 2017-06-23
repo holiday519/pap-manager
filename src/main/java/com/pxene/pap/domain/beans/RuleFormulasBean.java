@@ -1,6 +1,7 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -41,6 +42,10 @@ public class RuleFormulasBean {
 	 * 参考值对象（规则对应的静态值）
 	 */	
 	private Staticval staticval;
+	/**
+	 * 更新时间
+     */
+	private Date updateTime;
 	public static class Staticval {
 		private String id;
 		private String name;
@@ -269,10 +274,18 @@ public class RuleFormulasBean {
 	public void setFormulas(Formulas[] formulas) {
 		this.formulas = formulas;
 	}
-	
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
 	@Override
 	public String toString() {
 		return "RuleFormulasBean[id=" + id + ",name=" + name + ",projectId=" + projectId + ",triggerCondition=" + triggerCondition 
-				+ ",relation=" + relation + ",staticvalId=" + staticvalId + ",staticval=" + staticval + ",formulas=" + Arrays.toString(formulas) + "]";
+				+ ",relation=" + relation + ",staticvalId=" + staticvalId + ",staticval=" + staticval + ",formulas=" + Arrays.toString(formulas) +",updateTime"+updateTime+ "]";
 	}
 }

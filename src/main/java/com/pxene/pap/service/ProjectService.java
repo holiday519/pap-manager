@@ -633,6 +633,7 @@ public class ProjectService extends BaseService {
 				ruleBean.setTriggerCondition(rule.getTriggerCondition());
 				ruleBean.setRelation(rule.getRelation());
 				ruleBean.setStaticval(staticval);
+				ruleBean.setUpdateTime(rule.getUpdateTime());
 				rules[i] = ruleBean;
 			}
 			bean.setRules(rules);
@@ -761,11 +762,25 @@ public class ProjectService extends BaseService {
         {
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
+
 		//判断转换值对应的名称是否为空
 		EffectDicModel effectDicModel = effectDicDao.selectByPrimaryKey(fieldId);
 		if(effectDicModel == null || effectDicModel.getColumnName()==null  || effectDicModel.getColumnName().isEmpty()){
 			throw new IllegalArgumentException(PhrasesConstant.EFFECTDIC_NAME_IS_NULL);
 		}
+
+		//关闭转换值要判断有没有被使用
+		if(enable.equals(StatusConstant.EFFECT_STATUS_DISABLE)){
+			// 判断转换值是否被公式或规则引用
+			if(checkHaveEffectInRule(effectDicModel)){
+				throw new ResourceNotFoundException(PhrasesConstant.EFFECT_BE_USED_ERROR);
+			}
+
+			if(checkHaveEffectInFormula(effectDicModel)){
+				throw new ResourceNotFoundException(PhrasesConstant.EFFECT_BE_USED_ERROR);
+			}
+		}
+
         EffectDicModel record = new EffectDicModel();
         record.setId(fieldId);
         record.setEnable(enable);
@@ -1392,6 +1407,9 @@ public class ProjectService extends BaseService {
 		StaticvalModel staticModel = modelMapper.map(bean, StaticvalModel.class);
 		String staticId=UUIDGenerator.getUUID();
 		staticModel.setId(staticId);
+		Date currenDate = new Date();
+		staticModel.setCreateTime(currenDate);
+		staticModel.setUpdateTime(currenDate);
 		bean.setId(staticId);
 		staticvalDao.insertSelective(staticModel);
 	}
@@ -1562,4 +1580,68 @@ public class ProjectService extends BaseService {
 			throw new DuplicateEntityException(PhrasesConstant.USED_FIXED_NAME);
 		}
 	}
+
+	/**
+	 * 判断转换值是否被项目下的规则引用
+	 * @return
+     */
+	public boolean checkHaveEffectInRule(EffectDicModel effectDicModel){
+		RuleModelExample ruleModelExample = new RuleModelExample();
+		ruleModelExample.createCriteria().andProjectIdEqualTo(effectDicModel.getProjectId()).andTriggerConditionLike("%"+effectDicModel.getColumnCode()+"%");
+		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
+		if(ruleModels != null && ruleModels.size()>0){
+			//把UUID替换掉，再判断是否含有相应的转化值
+			for(RuleModel ruleModel : ruleModels) {
+				String rule_temp = ruleModel.getTriggerCondition();
+				//把UUID替换成1
+				rule_temp = rule_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
+				int res =rule_temp.indexOf(effectDicModel.getColumnCode());
+				if(res>-1){
+					return true;
+				}
+			}
+
+		}
+		return false;
+	}
+
+	/**
+	 * 判断转换值是否被项目下的公式引用
+	 * @return
+	 */
+	public boolean checkHaveEffectInFormula(EffectDicModel effectDicModel){
+		//先查询出规则id
+		RuleModelExample ruleModelExample = new RuleModelExample();
+		ruleModelExample.createCriteria().andProjectIdEqualTo(effectDicModel.getProjectId());
+		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
+		if(ruleModels == null || ruleModels.size()==0) {
+			return false;
+		}
+
+		List<String> ruleIds = new ArrayList<>();
+		for(RuleModel ruleModel : ruleModels){
+			ruleIds.add(ruleModel.getId());
+		}
+
+		//再查询公式表
+		FormulaModelExample formulaModelExample = new FormulaModelExample();
+		formulaModelExample.createCriteria().andRuleIdIn(ruleIds).andFormulaLike("%"+effectDicModel.getColumnCode()+"%");
+		List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
+		if(formulaModels != null && formulaModels.size()>0){
+
+			for(FormulaModel formulaModel : formulaModels) {
+				String formula_temp = formulaModel.getFormula();
+				//把UUID替换掉，再判断是否含有相应的转化值
+				formula_temp = formula_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
+				int res =formula_temp.indexOf(effectDicModel.getColumnCode());
+				if(res>-1){
+					return true;
+				}
+			}
+
+		}
+
+		return false;
+	}
+
 }
