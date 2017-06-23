@@ -583,7 +583,7 @@ public class CreativeService extends BaseService {
 								CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 								BeanUtils.copyProperties(data, image, "id", "type", "status", "campaignId", "campaignName", "price", 
 										"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
-										"materialPaths", "imageId", "imagePath");
+										"materialPaths", "imageId", "imagePath","message");
 							}
 							result.add(image);
 						}
@@ -622,7 +622,7 @@ public class CreativeService extends BaseService {
 							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 							BeanUtils.copyProperties(data, video, "id", "type", "status", "campaignId", "campaignName", "price", 
 									"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
-									"materialPaths", "videoId", "videoPath", "imageId", "imagePath");
+									"materialPaths", "videoId", "videoPath", "imageId", "imagePath","message");
 						}
 						result.add(video);
 					}
@@ -688,7 +688,7 @@ public class CreativeService extends BaseService {
 									"materialPaths", "infoflowId", "title", "description", "mustDescription", "ctaDescription", 
 									"mustCtaDescription", "iconId", "iconPath", "image1Id", "image2Id", "image3Id", "image4Id", 
 									"image5Id", "image1Path", "image2Path", "image3Path", "image4Path", "image5Path", 
-									"haveDescription", "haveCtaDescription");
+									"haveDescription", "haveCtaDescription","message");
 						}
 						result.add(info);
 					}
@@ -789,7 +789,7 @@ public class CreativeService extends BaseService {
 						CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 						BeanUtils.copyProperties(data, base, "id", "type", "status", "campaignId", "campaignName", "price", 
 								"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
-								"materialPaths");
+								"materialPaths","message");
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
 					//设置message
