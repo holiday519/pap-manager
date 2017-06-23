@@ -162,7 +162,7 @@ public class ScoreService extends BaseService
                 for (FormulaModel formulaModel : formulaModels)
                 {
                     String formula = formulaModel.getFormula();
-                    Double baseVal = getStaticValueById(formulaModel.getStaticId()).getValue();
+                    Double baseVal = getStaticValueById(formulaModel.getStaticvalId()).getValue();
                     Double forwardVernier = formulaModel.getForwardVernier();
                     Double negativeVernier = formulaModel.getNegativeVernier();
                     Float weight = formulaModel.getWeight();
@@ -824,7 +824,7 @@ public class ScoreService extends BaseService
      * @param id    静态值ID
      * @return  静态值对象
      */
-    private StaticModel getStaticValueById(String id)
+    private StaticvalModel getStaticValueById(String id)
     {
         StaticvalModel model = staticvalDao.selectByPrimaryKey(id);
         return model;
