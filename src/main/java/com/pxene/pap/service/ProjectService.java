@@ -1178,6 +1178,7 @@ public class ProjectService extends BaseService {
 		checkHaveProject(bean.getProjectId());
 		
 		bean.setId(id);
+		bean.setUpdateTime(new Date());
 		RuleModel ruleModel = modelMapper.map(bean, RuleModel.class);
 		
 		// 删除公式
@@ -1236,7 +1237,7 @@ public class ProjectService extends BaseService {
 	private List<RuleModel> listRulesByProjectId(String projectId) throws Exception {
 		RuleModelExample ruleEx = new RuleModelExample();
 		ruleEx.createCriteria().andProjectIdEqualTo(projectId);
-		
+		ruleEx.setOrderByClause(" update_time desc ");//按更新时间逆序排序
 		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
 		return rules;
 	}

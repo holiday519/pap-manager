@@ -352,16 +352,19 @@ public class CampaignService extends BaseService {
 		}
 		
 		// 判断落地页监测码是否被其他开启并且未结束的活动使用
-		LandpageCodeModelExample example = new LandpageCodeModelExample();
-		example.createCriteria().andLandpageIdEqualTo(landpageModel.getId());
-		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
-		for (LandpageCodeModel code : codes) {
-			if (isUseOfLandpageCode(code.getCode(), startDate, endDate,id)) {
-				String campaignName = getNameByCampaignInfo(id,code.getCode(),startDate, endDate);
-				throw new IllegalStatusException(campaignName + "，" + PhrasesConstant.LANDPAGE_CODE_USED);
+		if (StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus())) {
+			// 如果活动打开
+			LandpageCodeModelExample example = new LandpageCodeModelExample();
+			example.createCriteria().andLandpageIdEqualTo(landpageModel.getId());
+			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
+			for (LandpageCodeModel code : codes) {
+				if (isUseOfLandpageCode(code.getCode(), startDate, endDate,id)) {
+					String campaignName = getNameByCampaignInfo(id,code.getCode(),startDate, endDate);
+					throw new IllegalStatusException(campaignName + "，" + PhrasesConstant.LANDPAGE_CODE_USED);
+				}
 			}
 		}
-				
+								
 		// 编辑活动时判断是否已经投放过，即不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {			
 			// 改变预算(日均预算、总预算)、展现时修改redis中的值
@@ -1510,15 +1513,18 @@ public class CampaignService extends BaseService {
 		}
 		
 		// 判断落地页监测码是否被其他开启并且未结束的活动使用
-		LandpageCodeModelExample example = new LandpageCodeModelExample();
-		example.createCriteria().andLandpageIdEqualTo(campaignInDB.getLandpageId());
-		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
-		for (LandpageCodeModel code : codes) {
-			if (isUseOfLandpageCode(code.getCode(), startDate, endDate,id)) {
-				String campaignName = getNameByCampaignInfo(id,code.getCode(),startDate, endDate);
-				throw new IllegalStatusException(campaignName + "，" + PhrasesConstant.LANDPAGE_CODE_USED);
-			}
-		}				
+		if (StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus())) {
+			// 如果活动开关打开
+			LandpageCodeModelExample example = new LandpageCodeModelExample();
+			example.createCriteria().andLandpageIdEqualTo(campaignInDB.getLandpageId());
+			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
+			for (LandpageCodeModel code : codes) {
+				if (isUseOfLandpageCode(code.getCode(), startDate, endDate,id)) {
+					String campaignName = getNameByCampaignInfo(id,code.getCode(),startDate, endDate);
+					throw new IllegalStatusException(campaignName + "，" + PhrasesConstant.LANDPAGE_CODE_USED);
+				}
+			}	
+		}							
 
 		CampaignModel model = new CampaignModel();
 		model.setStartDate(startDate);
