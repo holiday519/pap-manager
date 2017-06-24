@@ -455,7 +455,6 @@ public class LandpageService extends BaseService {
     	codeHistoryEx.setOrderByClause("start_time DESC");
     	List<LandpageCodeHistoryModel> codeHistorys = landpageCodeHistoryDao.selectByExample(codeHistoryEx);
     	// 结束时间：当前时间 
-//    	Date endTime = DateUtils.getBigHourOfDay(new Date());
     	Date endTime = new Date();
     	// 更新监测码历史记录的结束时间
     	if (codeHistorys != null && !codeHistorys.isEmpty()) {
