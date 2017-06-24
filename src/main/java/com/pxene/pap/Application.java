@@ -109,7 +109,7 @@ public class Application
         urlPatterns.add("/campaign");
         urlPatterns.add("/campaigns");
         urlPatterns.add("/creative");
-        urlPatterns.add("/creativs");
+        urlPatterns.add("/creatives");
         urlPatterns.add("/landpage");
         urlPatterns.add("/landpages");
         urlPatterns.add("/apps");
