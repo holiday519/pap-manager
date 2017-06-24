@@ -445,6 +445,9 @@ public class ScoreService extends BaseService
              */
             if (org.apache.commons.lang3.StringUtils.isNoneEmpty(condition, relation, staticId))
             {
+                // 构建供显示用的触发条件，不对等号进行特殊处理
+                String displayTrigger = condition + relation + "{" + staticId + "}";
+                
                 // 为避免脚本引擎将一个等号认定为赋值操作，这里需要显式的将其转换成判断运算符
                 if ("=".equals(relation))
                 {
@@ -455,7 +458,7 @@ public class ScoreService extends BaseService
                 String trigger = condition + relation + "{" + staticId + "}";
                 
                 // 将公式中的变量名替换成映射值
-                String replacedTrigger = replaceFormulaStaticName(trigger); 
+                String replacedTrigger = replaceFormulaStaticName(displayTrigger); 
                 replacedTrigger = replaceFormulaVariableName(projectId, replacedTrigger);
                 result.setReplacedVariableVal(replacedTrigger);
                 
