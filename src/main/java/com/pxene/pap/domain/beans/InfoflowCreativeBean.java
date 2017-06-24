@@ -3,8 +3,8 @@ package com.pxene.pap.domain.beans;
 public class InfoflowCreativeBean extends CreativeBean {
 
 	private String infoflowId;
-	private String title;
-	private String description;
+//	private String title;
+//	private String description;
 	private String mustDescription;
 	private String ctaDescription;
 	private String mustCtaDescription;
@@ -31,21 +31,21 @@ public class InfoflowCreativeBean extends CreativeBean {
 		this.infoflowId = infoflowId;
 	}
 
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
+//	public String getTitle() {
+//		return title;
+//	}
+//
+//	public void setTitle(String title) {
+//		this.title = title;
+//	}
+//
+//	public String getDescription() {
+//		return description;
+//	}
+//
+//	public void setDescription(String description) {
+//		this.description = description;
+//	}
 
 	public String getMustDescription() {
 		return mustDescription;
@@ -185,8 +185,7 @@ public class InfoflowCreativeBean extends CreativeBean {
 
 	@Override
 	public String toString() {
-		return "InfoflowCreativeBean [infoflowId=" + infoflowId + ", title="
-				+ title + ", description=" + description + ", mustDescription="
+		return "InfoflowCreativeBean [infoflowId=" + infoflowId + ", mustDescription="
 				+ mustDescription + ", ctaDescription=" + ctaDescription
 				+ ", mustCtaDescription=" + mustCtaDescription + ", iconId="
 				+ iconId + ", iconPath=" + iconPath + ", image1Id=" + image1Id

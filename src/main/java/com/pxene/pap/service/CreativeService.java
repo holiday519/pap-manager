@@ -786,6 +786,8 @@ public class CreativeService extends BaseService {
 						}
 						materialPaths = new String[imgList.size()];
 						materialPaths = imgList.toArray(materialPaths);
+						base.setTitle(infoflowModel.getTitle());
+						base.setDescription(infoflowModel.getDescription());
 					} else {
 						throw new IllegalArgumentException();
 					}
@@ -795,13 +797,13 @@ public class CreativeService extends BaseService {
 						CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 						BeanUtils.copyProperties(data, base, "id", "type", "status", "campaignId", "campaignName", "price", 
 								"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
-								"materialPaths","message");
+								"materialPaths","message", "title", "description");
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
 					//设置message
-					if(creativeAuditModel!=null){
+					if (creativeAuditModel != null) {
 						base.setMessage(creativeAuditModel.getMessage());
-					}else{
+					} else {
 						base.setMessage("");
 					}
 					base.setMaterialPaths(materialPaths);
@@ -1022,9 +1024,9 @@ public class CreativeService extends BaseService {
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId()));                //创意的审核状态
 			//设置message
-			if(creativeAuditModel!=null){
+			if (creativeAuditModel!=null) {
 				base.setMessage(creativeAuditModel.getMessage());
-			}else{
+			} else {
 				base.setMessage("");
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId())); //创意的审核状态
@@ -1822,12 +1824,12 @@ public class CreativeService extends BaseService {
 	 * @param creativeModel
 	 * @return
      */
-	public void getMaterialInfoByCreativeModel(CreativeModel creativeModel,CreativeBean creativeBean){
+	public void getMaterialInfoByCreativeModel(CreativeModel creativeModel,CreativeBean creativeBean) {
 		String creativeType = creativeModel.getType();
 
 		String[] materialPaths = null;
-		String title = "";
-		String description = "";
+		String title = null;
+		String description = null;
 		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creativeModel.getMaterialId());
 			if (imageMaterialModel != null) {

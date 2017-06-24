@@ -1061,19 +1061,18 @@ public class DataService extends BaseService {
 	 * @param creativeBean
      */
 	public void addOtherInfoToCreativeBean(CreativeBean creativeBean){
-		String[] materialPaths = null;
-		if(creativeBean !=null){
+		if (creativeBean != null) {
 			String creativeId = creativeBean.getId();
 			if(creativeId !=null && !creativeId.isEmpty()){
 				CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
 				if(creativeModel != null){
 					//添加素材
-					creativeService.getMaterialInfoByCreativeModel(creativeModel,creativeBean);
+					creativeService.getMaterialInfoByCreativeModel(creativeModel, creativeBean);
 					//获取活动名称
 					CampaignModel campaignModel = campaignDao.selectByPrimaryKey(creativeModel.getCampaignId());
-					if(campaignModel !=null){
+					if (campaignModel !=null) {
 						creativeBean.setCampaignName(campaignModel.getName());
-					}else{
+					} else {
 						creativeBean.setCampaignName("");
 					}
 				}
