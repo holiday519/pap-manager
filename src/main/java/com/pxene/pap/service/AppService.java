@@ -98,7 +98,7 @@ public class AppService extends BaseService {
      */
 	public List<AppModel> getAppModelByAppIds(List<String> appIds){
 		AppModelExample appModelExample = new AppModelExample();
-		appModelExample.createCriteria().andAppIdIn(appIds);
+		appModelExample.createCriteria().andIdIn(appIds);
 		List<AppModel> appModels = appDao.selectByExample(appModelExample);
 		return appModels;
 	}

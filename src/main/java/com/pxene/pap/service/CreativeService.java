@@ -567,6 +567,8 @@ public class CreativeService extends BaseService {
 							//设置message
 							if(creativeAuditModel!=null){
 								image.setMessage(creativeAuditModel.getMessage());
+							}else{
+								image.setMessage("");
 							}
 							image.setPrice(creative.getPrice().floatValue());
 							
@@ -604,6 +606,8 @@ public class CreativeService extends BaseService {
 						//设置message
 						if(creativeAuditModel!=null){
 							video.setMessage(creativeAuditModel.getMessage());
+						}else{
+							video.setMessage("");
 						}
 						video.setPrice(creative.getPrice().floatValue());
 						
@@ -639,6 +643,8 @@ public class CreativeService extends BaseService {
 						//设置message
 						if(creativeAuditModel!=null){
 							info.setMessage(creativeAuditModel.getMessage());
+						}else{
+							info.setMessage("");
 						}
 						info.setPrice(creative.getPrice().floatValue());
 						
@@ -795,6 +801,8 @@ public class CreativeService extends BaseService {
 					//设置message
 					if(creativeAuditModel!=null){
 						base.setMessage(creativeAuditModel.getMessage());
+					}else{
+						base.setMessage("");
 					}
 					base.setMaterialPaths(materialPaths);
 
@@ -846,6 +854,8 @@ public class CreativeService extends BaseService {
 				//设置message
 				if(creativeAuditModel!=null){
 					image.setMessage(creativeAuditModel.getMessage());
+				}else{
+					image.setMessage("");
 				}
 				image.setPrice(creative.getPrice().floatValue());          //创意价格
 				image.setTmplId(creative.getTmplId());                     //模板ID
@@ -894,6 +904,8 @@ public class CreativeService extends BaseService {
 				//设置message
 				if(creativeAuditModel!=null){
 					video.setMessage(creativeAuditModel.getMessage());
+				}else{
+					video.setMessage("");
 				}
 				video.setPrice(creative.getPrice().floatValue());          //创意价格
 				video.setTmplId(creative.getTmplId());                     //模板Id
@@ -942,6 +954,8 @@ public class CreativeService extends BaseService {
 				//设置message
 				if(creativeAuditModel!=null){
 					info.setMessage(creativeAuditModel.getMessage());
+				}else{
+					info.setMessage("");
 				}
 				info.setPrice(creative.getPrice().floatValue());           //创意价格
 				info.setTmplId(creative.getTmplId());                      //模板Id
@@ -1010,6 +1024,8 @@ public class CreativeService extends BaseService {
 			//设置message
 			if(creativeAuditModel!=null){
 				base.setMessage(creativeAuditModel.getMessage());
+			}else{
+				base.setMessage("");
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId())); //创意的审核状态
 			
@@ -1791,8 +1807,8 @@ public class CreativeService extends BaseService {
 		String creativeType = creativeModel.getType();
 
 		String[] materialPaths = null;
-		String title = null;
-		String description = null;
+		String title = "";
+		String description = "";
 		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creativeModel.getMaterialId());
 			if (imageMaterialModel != null) {
