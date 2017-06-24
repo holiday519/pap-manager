@@ -26,7 +26,6 @@ import com.pxene.pap.common.UUIDGenerator;
 
 import com.pxene.pap.domain.beans.*;
 import com.pxene.pap.domain.models.*;
-import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.repository.basic.*;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
