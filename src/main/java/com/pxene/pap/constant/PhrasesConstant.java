@@ -193,4 +193,7 @@ public class PhrasesConstant
 
 	public static final String USED_FIXED_NAME = "名称不能使用：展现数、点击数、二跳、成本、修正成本";
     public static final String RULE_TRIGGER_ERROR = "判断触发条件发生异常";
+    public static final String FORMULA_RESULT_ERROR = "公式结果异常";
+    public static final String CAMPAIGN_SCORE_ERROR = "评分异常";
+    
 }

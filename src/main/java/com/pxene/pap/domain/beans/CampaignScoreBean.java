@@ -5,17 +5,17 @@ import java.util.Map;
 
 public class CampaignScoreBean
 {
-    private Double score;
+    private String score;
     private String ruleName;
     private String ruleTrigger;
     private List<Map<String, String>> formulaList;
     
     
-    public Double getScore()
+    public String getScore()
     {
         return score;
     }
-    public void setScore(Double score)
+    public void setScore(String score)
     {
         this.score = score;
     }

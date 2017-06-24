@@ -1,7 +1,5 @@
 package com.pxene.pap.service;
 
-import static com.pxene.pap.constant.RedisKeyConstant.CREATIVE_DATA_DAY;
-
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
@@ -57,6 +55,9 @@ import com.pxene.pap.repository.basic.FormulaDao;
 import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.RuleDao;
 import com.pxene.pap.repository.basic.StaticvalDao;
+
+import static com.pxene.pap.constant.RedisKeyConstant.*;
+import static com.pxene.pap.constant.PhrasesConstant.*;
 
 /**
  * 评分服务
@@ -159,6 +160,8 @@ public class ScoreService extends BaseService
                 example.createCriteria().andRuleIdEqualTo(rule.getId());
                 List<FormulaModel> formulaModels = formulaDao.selectByExample(example);
                 
+                boolean scoreIsCorrect = true;
+                
                 for (FormulaModel formulaModel : formulaModels)
                 {
                     String formula = formulaModel.getFormula();
@@ -182,7 +185,10 @@ public class ScoreService extends BaseService
                     // 0.0除以0的结果是NaN，正数除以0的结果是Infinite，负数除以0的结果是-Infinite
                     if (Double.isNaN(formulaResult) || Double.isInfinite(formulaResult))
                     {
-                        tmpVal = "公式结果异常";
+                        tmpVal = FORMULA_RESULT_ERROR;
+                        
+                        // 只要有一个公式的计算结果异常，就要将整个活动的评分值置为异常
+                        scoreIsCorrect = false;
                     }
                     else
                     {
@@ -205,9 +211,16 @@ public class ScoreService extends BaseService
                     formulaList.add(formulaMap);
                 }
                 
-                // 将活动得分四舍五入，并保留2位小数
-                String formatedScore = SCORE_DECIMAL_FORMAT.format(campaignScore);
-                result.setScore(Double.valueOf(formatedScore));
+                if (scoreIsCorrect)
+                {
+                    // 将活动得分四舍五入，并保留2位小数
+                    String formatedScore = SCORE_DECIMAL_FORMAT.format(campaignScore);
+                    result.setScore(formatedScore);
+                }
+                else
+                {
+                    result.setScore(CAMPAIGN_SCORE_ERROR);
+                }
                 result.setFormulaList(formulaList);
             }
         }
