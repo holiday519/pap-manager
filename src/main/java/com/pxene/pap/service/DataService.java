@@ -1937,7 +1937,7 @@ public class DataService extends BaseService {
 				// ios
 				putDataInBean(iosData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_CODE_IOS);
 				// android
-				putDataInBean(androidData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_NAME_ANDROID);
+				putDataInBean(androidData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_CODE_ANDROID);
 				// windows
 				putDataInBean(windowsData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_CODE_WINDOWS);
 			}
@@ -1970,7 +1970,7 @@ public class DataService extends BaseService {
 					putDataInBean(androidData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
-				if (CodeTableConstant.SYSTEM_NAME_WINDOWS.equals(id)) {
+				if (CodeTableConstant.SYSTEM_CODE_WINDOWS.equals(id)) {
 					putDataInBean(windowsData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
@@ -2005,7 +2005,7 @@ public class DataService extends BaseService {
 					putDataInBean(androidData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
-				if (CodeTableConstant.SYSTEM_NAME_WINDOWS.equals(id)) {
+				if (CodeTableConstant.SYSTEM_CODE_WINDOWS.equals(id)) {
 					putDataInBean(windowsData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
@@ -2040,7 +2040,7 @@ public class DataService extends BaseService {
 					putDataInBean(androidData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
-				if (CodeTableConstant.SYSTEM_NAME_WINDOWS.equals(id)) {
+				if (CodeTableConstant.SYSTEM_CODE_WINDOWS.equals(id)) {
 					putDataInBean(windowsData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
