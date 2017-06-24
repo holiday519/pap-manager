@@ -628,6 +628,7 @@ public class DataService extends BaseService {
     public List<EffectFileBean> listEffectFiles() throws Exception {
     	// 查询上传文件信息
     	EffectFileModelExample example = new EffectFileModelExample();
+		example.setOrderByClause("update_time DESC");
     	List<EffectFileModel> models = effectFileDao.selectByExample(example);
     	// 定义返回的list
     	List<EffectFileBean> beans = new ArrayList<EffectFileBean>();
