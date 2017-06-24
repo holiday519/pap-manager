@@ -1091,9 +1091,12 @@ public class CampaignService extends BaseService {
 			landpageCodeEx.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
 //			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(landpageCodeEx);
 			// 查询活动下的创意信息
-			CreativeModelExample creativeEx = new CreativeModelExample();
-			creativeEx.createCriteria().andCampaignIdEqualTo(model.getId());
-			List<CreativeModel> creatives = creativeDao.selectByExample(creativeEx);
+//			CreativeModelExample creativeEx = new CreativeModelExample();
+//			creativeEx.createCriteria().andCampaignIdEqualTo(model.getId());
+//			List<CreativeModel> creatives = creativeDao.selectByExample(creativeEx);
+			//设置创意数
+			setCreativeAmountToCampaignBean(startDate, endDate,bean);
+
 			// 活动未正常投放原因
 			if (launchService.isHaveLaunched(model.getId())) {
 				// 是否已经投放过，投放过可能出现预算和展现数上限
@@ -1120,6 +1123,49 @@ public class CampaignService extends BaseService {
 			beans.add(bean);
 		}		
 		return beans;
+	}
+
+	/**
+	 * 给活动设置创意数
+	 * @param beginTime
+	 * @param endTime
+	 * @param bean
+     */
+	public void setCreativeAmountToCampaignBean(Long beginTime, Long endTime, CampaignBean bean){
+		//创意审核通过数
+		int passNum=0;
+		//审核不通过数
+		int noPassNum=0;
+		//总数
+		int totalNum=0;
+		CreativeModelExample cExample = new CreativeModelExample();
+		cExample.createCriteria().andCampaignIdEqualTo(bean.getId());
+		List<CreativeModel> list = creativeDao.selectByExample(cExample);
+		List<String> creativeIds = new ArrayList<String>();
+		if (list != null && !list.isEmpty()) {
+			totalNum = list.size();
+			for (CreativeModel model : list) {
+				creativeIds.add(model.getId());
+			}
+		}
+
+		//设置创意数
+		if(creativeIds.size()>0){
+			//根据创意id，批量查询创意审核信息
+			CreativeAuditModelExample example = new CreativeAuditModelExample();
+			example.createCriteria().andCreativeIdIn(creativeIds);
+			List<CreativeAuditModel> creativeAuditModels = creativeAuditDao.selectByExample(example);
+			if(creativeAuditModels != null && !creativeAuditModels.isEmpty()){
+				for(CreativeAuditModel model : creativeAuditModels){
+					if(model.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){	//审查成功
+						passNum++;
+					}else if(model.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_FAILURE)){ //失败
+						noPassNum++;
+					}
+				}
+			}
+		}
+		bean.setCreativeNum(passNum+"/"+noPassNum+"/"+totalNum);
 	}
 	
 	/**
