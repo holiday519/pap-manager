@@ -1684,13 +1684,14 @@ public class DataService extends BaseService {
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
 			}
-			calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
-			calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
-			calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
-			campaignDatas.add(mobileData);
-			campaignDatas.add(unicomData);
-			campaignDatas.add(telecomData);
 		}
+		calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
+		calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
+		calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+		campaignDatas.add(mobileData);
+		campaignDatas.add(unicomData);
+		campaignDatas.add(telecomData);
+		
 		return campaignDatas;
 	}
 	
@@ -1718,13 +1719,14 @@ public class DataService extends BaseService {
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
 			}
-			calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
-			calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
-			calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
-			projectDatas.add(mobileData);
-			projectDatas.add(unicomData);
-			projectDatas.add(telecomData);
 		}
+		calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
+		calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
+		calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+		projectDatas.add(mobileData);
+		projectDatas.add(unicomData);
+		projectDatas.add(telecomData);
+		
 		return projectDatas;
 	}
 	
@@ -1751,13 +1753,14 @@ public class DataService extends BaseService {
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
 			}
-			calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
-			calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
-			calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
-			advertiserDatas.add(mobileData);
-			advertiserDatas.add(unicomData);
-			advertiserDatas.add(telecomData);
 		}
+		calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
+		calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
+		calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+		advertiserDatas.add(mobileData);
+		advertiserDatas.add(unicomData);
+		advertiserDatas.add(telecomData);
+		
 		return advertiserDatas;
 	}
 	
@@ -1823,15 +1826,16 @@ public class DataService extends BaseService {
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
 			}
-			calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
-			calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
-			calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
-			calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
-			campaignDatas.add(n2gData);
-			campaignDatas.add(n3gData);
-			campaignDatas.add(n4gData);
-			campaignDatas.add(wifiData);
 		}
+		calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
+		calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
+		calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
+		calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+		campaignDatas.add(n2gData);
+		campaignDatas.add(n3gData);
+		campaignDatas.add(n4gData);
+		campaignDatas.add(wifiData);
+		
 		return campaignDatas;
 	}
 	
@@ -1864,15 +1868,16 @@ public class DataService extends BaseService {
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
 			}
-			calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
-			calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
-			calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
-			calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
-			projectDatas.add(n2gData);
-			projectDatas.add(n3gData);
-			projectDatas.add(n4gData);
-			projectDatas.add(wifiData);
 		}
+		calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
+		calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
+		calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
+		calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+		projectDatas.add(n2gData);
+		projectDatas.add(n3gData);
+		projectDatas.add(n4gData);
+		projectDatas.add(wifiData);
+		
 		return projectDatas;
 	}
 	
@@ -1905,15 +1910,16 @@ public class DataService extends BaseService {
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
 			}
-			calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
-			calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
-			calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
-			calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
-			advertiserDatas.add(n2gData);
-			advertiserDatas.add(n3gData);
-			advertiserDatas.add(n4gData);
-			advertiserDatas.add(wifiData);
 		}
+		calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
+		calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
+		calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
+		calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+		advertiserDatas.add(n2gData);
+		advertiserDatas.add(n3gData);
+		advertiserDatas.add(n4gData);
+		advertiserDatas.add(wifiData);
+		
 		return advertiserDatas;
 	}
 	
@@ -1969,13 +1975,14 @@ public class DataService extends BaseService {
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
 			}
-			calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
-			calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
-			calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
-			campaignDatas.add(iosData);
-			campaignDatas.add(androidData);
-			campaignDatas.add(windowsData);
 		}
+		calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
+		calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
+		calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+		campaignDatas.add(iosData);
+		campaignDatas.add(androidData);
+		campaignDatas.add(windowsData);
+		
 		return campaignDatas;
 	}
 	
@@ -2003,13 +2010,14 @@ public class DataService extends BaseService {
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
 			}
-			calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
-			calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
-			calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
-			projectDatas.add(iosData);
-			projectDatas.add(androidData);
-			projectDatas.add(windowsData);
 		}
+		calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
+		calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
+		calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+		projectDatas.add(iosData);
+		projectDatas.add(androidData);
+		projectDatas.add(windowsData);
+		
 		return projectDatas;
 	}
 	
@@ -2037,13 +2045,14 @@ public class DataService extends BaseService {
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
 			}
-			calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
-			calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
-			calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
-			advertiserDatas.add(iosData);
-			advertiserDatas.add(androidData);
-			advertiserDatas.add(windowsData);
 		}
+		calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
+		calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
+		calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+		advertiserDatas.add(iosData);
+		advertiserDatas.add(androidData);
+		advertiserDatas.add(windowsData);
+		
 		return advertiserDatas;
 	}
 	
@@ -2186,4 +2195,5 @@ public class DataService extends BaseService {
 		return bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0 
 				&& bean.getJumpAmount() == 0 && bean.getTotalCost() == 0;
 	}
+	
 }
