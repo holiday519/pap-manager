@@ -1,6 +1,7 @@
 package com.pxene.pap.service;
 
 import java.lang.reflect.Method;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -192,6 +193,7 @@ public class ScoreService extends BaseService
                     }
                     else
                     {
+                        SCORE_DECIMAL_FORMAT.setRoundingMode(RoundingMode.HALF_UP);
                         tmpVal = SCORE_DECIMAL_FORMAT.format(formulaResult);
                         
                         // 根据游标系计算得分
@@ -214,6 +216,7 @@ public class ScoreService extends BaseService
                 if (scoreIsCorrect)
                 {
                     // 将活动得分四舍五入，并保留2位小数
+                    SCORE_DECIMAL_FORMAT.setRoundingMode(RoundingMode.HALF_UP);
                     String formatedScore = SCORE_DECIMAL_FORMAT.format(campaignScore);
                     result.setScore(formatedScore);
                 }
@@ -457,11 +460,6 @@ public class ScoreService extends BaseService
                 // 拼接触发条件
                 String trigger = condition + relation + "{" + staticId + "}";
                 
-                // 将公式中的变量名替换成映射值
-                String replacedTrigger = replaceFormulaStaticName(displayTrigger); 
-                replacedTrigger = replaceFormulaVariableName(projectId, replacedTrigger);
-                result.setReplacedVariableVal(replacedTrigger);
-                
                 // 替换触发条件中的静态值
                 trigger = replaceFormulaStaticValue(trigger);
                 
@@ -482,6 +480,11 @@ public class ScoreService extends BaseService
                 
                 if (isSuccessTrigger)
                 {
+                    // 将公式中的变量名替换成映射值
+                    String replacedTrigger = replaceFormulaStaticName(displayTrigger); 
+                    replacedTrigger = replaceFormulaVariableName(projectId, replacedTrigger);
+                    result.setReplacedVariableVal(replacedTrigger);
+                    
                     return result;
                 }
             }
