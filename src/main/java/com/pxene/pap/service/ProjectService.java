@@ -1336,7 +1336,14 @@ public class ProjectService extends BaseService {
 	public void createStatic(StaticvalBean bean) throws Exception{
 		String name = bean.getName();
 		String projectId = bean.getProjectId();
-		
+		//判断静态值长度
+		String value_str = Double.toString(bean.getValue());
+		if(value_str != null){
+			String[] value_arr = value_str.split("\\.");
+			if(value_arr[0].length()>8 || (value_arr.length == 2 && value_arr[1].length()>4)) {
+				throw new IllegalArgumentException(PhrasesConstant.STATIC_VALUE_LENGTH_TOO_LANG);
+			}
+		}
 		// 验证同一项目下静态值名称是否相同
 		checkSameOfStaticName(name,projectId);
 		
@@ -1376,6 +1383,15 @@ public class ProjectService extends BaseService {
      */
 	@Transactional
 	public void updateStaticValue(String id, StaticvalBean bean){
+		//判断静态值的长度
+		String value_str = Double.toString(bean.getValue());
+		if(value_str != null){
+			String[] value_arr = value_str.split("\\.");
+			if(value_arr[0].length()>8 || (value_arr.length == 2 && value_arr[1].length()>4)) {
+				throw new IllegalArgumentException(PhrasesConstant.STATIC_VALUE_LENGTH_TOO_LANG);
+			}
+		}
+
 		// 判断指定ID的项目在MySQL中是否存在
 		StaticvalModel staticInDB = staticvalDao.selectByPrimaryKey(id);
 		if (staticInDB == null)
