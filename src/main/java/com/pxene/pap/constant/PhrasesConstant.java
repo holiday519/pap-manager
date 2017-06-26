@@ -181,11 +181,11 @@ public class PhrasesConstant
 	public static final String RULEID_IS_NULL = "规则ID不能为空";
 	public static final String VERNIER_IS_NULL = "游标不能为空";
 	public static final String WEIGHT_IS_NULL = "权重不能为空";
-	public static final String CONDITION_IS_NULL = "触发条件不能为空";
+	public static final String CONDITION_IS_NULL = "触发条件的公式不能为空";
 	public static final String RELATION_IS_NULL = "关系不能为空";
 	public static final String VERNIER_SIGN_SYMBOL_SAME = "正向游标和负向游标，不能同为正数或同为负数";
 		
-	public static final String FORMULA_IS_NULL = "公式不能为空";
+	public static final String FORMULA_IS_NULL = "评估公式的公式不能为空";
 	public static final String WEIGHTS_ISNOT_CORRECT = "权重之和不为1";
 	public static final String STATICS_NAME_IS_SAME = "静态值名称不能重复";
 	public static final String EFFECTDIC_NAME_IS_SAME = "转化值名称不能重复";
