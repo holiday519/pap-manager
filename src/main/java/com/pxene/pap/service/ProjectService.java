@@ -656,16 +656,20 @@ public class ProjectService extends BaseService {
         	throw new IllegalArgumentException(PhrasesConstant.LENGTH_ERROR_NAME);
         }
         
-        // 判断同一项目下转换值名称是否相同
+        // 判断名称是否重复
         EffectDicModel effectDic = effectDicDao.selectByPrimaryKey(fieldId);
-        String projectId = effectDic.getProjectId();
-        checkSameOfEffectDicName(name,projectId);
-        
-        // 判断同一项目下转换值与静态值是否相同
-        checkSameOfStaticName(name,projectId);
-        
-        // 判断转化值名称是否使用：展现数、点击数、二跳、成本、修正成本
-        checkUseFixedName(name);
+        String nameDB = effectDic.getColumnName();
+        if (!name.equalsIgnoreCase(nameDB)) {
+        	// 判断同一项目下转换值名称是否相同
+        	String projectId = effectDic.getProjectId();
+            checkSameOfEffectDicName(name,projectId);
+            
+            // 判断同一项目下转换值与静态值是否相同
+            checkSameOfStaticName(name,projectId);
+            
+            // 判断转化值名称是否使用：展现数、点击数、二跳、成本、修正成本
+            checkUseFixedName(name);
+        }       
         
         // 更新数据库
         EffectDicModel record = new EffectDicModel();
