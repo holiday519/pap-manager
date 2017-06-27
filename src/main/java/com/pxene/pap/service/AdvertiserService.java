@@ -303,7 +303,7 @@ public class AdvertiserService extends BaseService
         } else {
         	String nameInDB = advertiserInDB.getName();
         	String name = bean.getName();
-        	if (!nameInDB.equals(name)) {
+        	if (!nameInDB.equalsIgnoreCase(name)) {
         		// 验证名称重复
             	AdvertiserModelExample example = new AdvertiserModelExample();
             	example.createCriteria().andNameEqualTo(name);

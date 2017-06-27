@@ -126,7 +126,7 @@ public class PopulationService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		} else {
 			String nameInDB = model.getName();
-			if (!nameInDB.equals(name)) {
+			if (!nameInDB.equalsIgnoreCase(name)) {
 				PopulationModelExample example = new PopulationModelExample();
 				example.createCriteria().andNameEqualTo(name);
 				List<PopulationModel> models = populationDao.selectByExample(example);

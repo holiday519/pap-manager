@@ -1579,11 +1579,11 @@ public class CreativeService extends BaseService {
 			// 判断视频是否属于广告主
 			List<VideoModel> videoModels = videoDao.selectByExample(videoEx);
 			if (videoModels != null && !videoModels.isEmpty()) {
+				videos = new ArrayList<VideoModel>();
 				for (VideoModel videoModel : videoModels) {
 					String videoId = videoModel.getId();
 					if (advertiserMaterialIds.contains(videoId)) {
-						// 如果广告主下的视频id包含满足宽、高、规格要求的视频id，则将这个视频信息放到list中
-						videos = new ArrayList<VideoModel>();
+						// 如果广告主下的视频id包含满足宽、高、规格要求的视频id，则将这个视频信息放到list中						
 						VideoModel video = videoDao.selectByPrimaryKey(videoId);
 						videos.add(video);
 					}
@@ -1597,11 +1597,11 @@ public class CreativeService extends BaseService {
 			// 判断图片是否属于广告主
 			List<ImageModel> imageModels = imageDao.selectByExample(imageEx);
 			if (imageModels != null && !imageModels.isEmpty()) {
+				images = new ArrayList<ImageModel>();
 				for (ImageModel imageModel : imageModels) {
 					String imageId = imageModel.getId();
 					if (advertiserMaterialIds.contains(imageId)) {
-						// 如果广告主下的图片id包含满足宽、高、规格要求的图片id，则将这个图片信息放到list中
-						images = new ArrayList<ImageModel>();
+						// 如果广告主下的图片id包含满足宽、高、规格要求的图片id，则将这个图片信息放到list中						
 						ImageModel image = imageDao.selectByPrimaryKey(imageId);
 						images.add(image);
 					}

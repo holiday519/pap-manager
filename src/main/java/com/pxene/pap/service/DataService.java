@@ -559,52 +559,32 @@ public class DataService extends BaseService {
 	            {
 	                effectDao.insert(model);
 	            }
-	            
+	            	            
 	            // 查询匹配数量
-	            String code = model.getCode();           
+	            String code = model.getCode(); 
+	            // 一天的最大值（如果直接只用date的话，在date这一天00:00:00后的信息可能查不出）
+	            Date endDate = null;
+	            try {
+					 endDate = DateUtils.getBigHourOfDay(date);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 	            // 查询项目下活动使用的监测码：根据项目id查询活动信息
 	            CampaignModelExample campaignEx = new CampaignModelExample();
 	            campaignEx.createCriteria().andProjectIdEqualTo(projectId);
 	            List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
 	            // Excel文件中的每个数据行对应的监测码日期date有没有用到这个code监测码
 	            if (campaigns != null && !campaigns.isEmpty()) {
-	            	Set<String> usedCodes = new HashSet<String>();
 	            	for (CampaignModel campaign : campaigns) {
 	            		// 查询活动在execl文件时间里使用的监测码的情况
 	            		LandpageCodeHistoryModelExample exampleHistory = new LandpageCodeHistoryModelExample();
-	            		exampleHistory.createCriteria().andCampaignIdEqualTo(campaign.getId());
+	            		exampleHistory.createCriteria().andCodesLike("%" + code + "%").andCampaignIdEqualTo(campaign.getId())
+	            			.andStartTimeLessThanOrEqualTo(endDate).andEndTimeGreaterThanOrEqualTo(endDate);
 	            		List<LandpageCodeHistoryModel> historys = landpageCodeHistoryDao.selectByExample(exampleHistory);
-	            		if (historys != null && !historys.isEmpty()) {
-	            			// 如果不为空，将监测码放到一个集合中            			
-	            			for (LandpageCodeHistoryModel history : historys) {
-	            				Date start = history.getStartTime();
-	            				Date end = history.getEndTime();
-	            				// 转换格式：如果date与startDate同一天，date可能小于startDate
-	            				DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
-	            				String strDate = dateFormat.format(start); 
-	            				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-	            				Date startDate = null;
-								try {
-									startDate = format.parse(strDate);
-								} catch (ParseException e) {
-									e.printStackTrace();
-								}
-	            				// 判断是否在时间范围内：date在开始时间和结束时间之间，即date大于等于startDate并且小于等于end
-	            				if ((date.after(startDate) || date.equals(startDate)) && date.before(end)) {
-	            					String[] strCodes = history.getCodes().split(",");
-	            					if (strCodes != null && strCodes.length > 0) {
-	            						for (String strCode : strCodes) {
-	            							usedCodes.add(strCode);
-	            						}
-	            					}	            					
-	            				}            				
-	            			}
+	            		if (historys != null && historys.size() > 0) {
+	            			marryCodes.add(code);
 	            		}
 	            	}
-	            	if (usedCodes.contains(code)) {
-	            		// 如果监测码历史记录表在Excel文件该行的日期使用的监测码历史记录中包含上传的监测码，则将其放到list集合中
-	            		marryCodes.add(code);
-	            	}            	
 	            }
 			}           
         }

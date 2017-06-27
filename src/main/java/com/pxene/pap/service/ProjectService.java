@@ -204,7 +204,7 @@ public class ProjectService extends BaseService {
             String nameInDB = projectInDB.getName(); // 数据库中的项目名
             String name = bean.getName();            // 欲修改成的项目名
 
-            if (!nameInDB.equals(name))
+            if (!nameInDB.equalsIgnoreCase(name))
             {
                 ProjectModelExample projectExample = new ProjectModelExample();
                 projectExample.createCriteria().andNameEqualTo(name);
@@ -273,27 +273,13 @@ public class ProjectService extends BaseService {
 		ProjectModel project = projectDao.selectByPrimaryKey(id);
 		if (project == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
-		
-		// 根据项目id查询活动开关打开的活动信息
-		CampaignModelExample campaignEx = new CampaignModelExample();
-		campaignEx.createCriteria().andProjectIdEqualTo(id).andStatusEqualTo(StatusConstant.CAMPAIGN_PROCEED);
-		List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+		}		
 		
 		String status = map.get("status").toString();
 		if (StatusConstant.PROJECT_PAUSE.equals(status)) {			
 			//暂停
 			pauseProject(project);
-		} else if (StatusConstant.PROJECT_PROCEED.equals(status)) {
-			
-			// 根据监测码的使用情况变更监测码历史记录表信息
-			if (campaigns != null && !campaigns.isEmpty()) {
-				for (CampaignModel campaign : campaigns) {
-					// 项目下可对应多个活动，变更每个活动开关打开的监测码记录记录信息
-					landpageService.creativeCodeHistoryInfo(campaign.getId(), campaign.getLandpageId());
-				}
-			}
-			
+		} else if (StatusConstant.PROJECT_PROCEED.equals(status)) {			
 			//投放
 			proceedProject(project);
 		} else {
@@ -604,7 +590,6 @@ public class ProjectService extends BaseService {
 						// 如果campaignId还没有投放，则写入信息
 						launchService.write4FirstTime(campaign);
 					}
-					/* if (campaignService.isOnTargetTime(campaignId)) { */
 					if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
 							&& launchService.notOverDailyCounter(campaignId)) {
 						// 如果在定向的时间里，将campaignId写入到redis的投放groups中
@@ -1155,8 +1140,8 @@ public class ProjectService extends BaseService {
 		} else {
 			// 判断同一项目下规则名称是否重复
 			String nameInDB = rule.getName();  // 数据库中的规则名称
-			String name = bean.getName();      // 欲修改规则名称
-			if (!nameInDB.equals(name)) {			
+			String name = bean.getName();      // 欲修改规则名称	
+			if (!nameInDB.equalsIgnoreCase(name)) {
 				// 如果数据库中其它规则的名称与欲修改成的规则名称重复，则禁止修改
 				checkSameOfRuleName(name,bean.getProjectId());
 			}			
@@ -1430,7 +1415,7 @@ public class ProjectService extends BaseService {
 			String nameInDB = staticInDB.getName(); // 数据库中的静态值名称
 			String name = bean.getName();           // 欲修改的静态值名称
 			
-			if (!nameInDB.equals(name))
+			if (!nameInDB.equalsIgnoreCase(name))
 			{
 				// 项目id			
 				String projectId = staticInDB.getProjectId();
