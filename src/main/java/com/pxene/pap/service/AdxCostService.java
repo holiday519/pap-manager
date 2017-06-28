@@ -153,10 +153,13 @@ public class AdxCostService extends BaseService
                 data.setImpressionAmount(impressionAmount);
                 data.setClickAmount(clickAmount);
                 data.setClickRate(clickRate);
-                data.setCost(cost);
+                data.setCost(cost / 100);
                 data.setStatus(status);
                 
-                result.add(data);
+                if (cost > 0)
+                {
+                    result.add(data);
+                }
             }
         }
         
