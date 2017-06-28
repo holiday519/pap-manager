@@ -457,21 +457,29 @@ public class ScoreService extends BaseService
                     relation = "==";
                 }
                 
-                // 拼接触发条件
-                String trigger = condition + relation + "{" + staticId + "}";
+                // 替换触发条件（trigger_condition）中的静态值
+                condition = replaceFormulaStaticValue(condition);
                 
-                // 替换触发条件中的静态值
-                trigger = replaceFormulaStaticValue(trigger);
+                // 替换触发条件（trigger_condition）中的变量值
+                condition = replaceFormulaVariableValue(condition, effectSum);
+                condition = replaceFormulaVariableValue(condition, realTimeSum);
                 
-                // 替换触发条件中的变量值
-                trigger = replaceFormulaVariableValue(trigger, effectSum);
-                trigger = replaceFormulaVariableValue(trigger, realTimeSum);
+                // 替换参考值（staticval_id）中的静态值
+                Double staticValue = getStaticValueById(staticId).getValue();
                 
-                // 判断触发条件是否成立
                 boolean isSuccessTrigger = false;
                 try
                 {
-                    isSuccessTrigger = judgeTrigger(trigger);
+                    // 判断触发条件是否成立
+                    double conditionResult = computeFormula(condition);
+
+                    if (!Double.isNaN(conditionResult) && !Double.isInfinite(conditionResult))
+                    {
+                        // 拼接触发条件、关系运算符、参考值
+                        String trigger = condition + relation + staticValue;
+                        
+                        isSuccessTrigger = judgeTrigger(trigger);
+                    }
                 }
                 catch (ScriptException e)
                 {
