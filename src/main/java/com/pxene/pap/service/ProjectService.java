@@ -1326,7 +1326,7 @@ public class ProjectService extends BaseService {
 		String name = bean.getName();
 		String projectId = bean.getProjectId();
 		//判断静态值长度
-		String value_str = Double.toString(bean.getValue());
+		String value_str = bean.getValue()+"";
 		if(value_str != null){
 			String[] value_arr = value_str.split("\\.");
 			if(value_arr[0].length()>8 || (value_arr.length == 2 && value_arr[1].length()>4)) {
