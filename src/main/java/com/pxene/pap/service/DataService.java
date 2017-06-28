@@ -1621,20 +1621,26 @@ public class DataService extends BaseService {
 			AnalysisBean mobileData = new AnalysisBean();
 			AnalysisBean unicomData = new AnalysisBean();
 			AnalysisBean telecomData = new AnalysisBean();
+			AnalysisBean otherData = new AnalysisBean();
 			for (String day : days) {
 				// 移动
-				putDataInBean(mobileData, dayData, day + CREATIVE_DATA_TYPE.OPERATOR + CodeTableConstant.OPERATOR_CODE_MOBILE);
+				putMapDataInBean(mobileData, dayData, day, CREATIVE_DATA_TYPE.OPERATOR, CodeTableConstant.OPERATOR_CODE_MOBILE);
 				// 联通
-				putDataInBean(unicomData, dayData, day + CREATIVE_DATA_TYPE.OPERATOR + CodeTableConstant.OPERATOR_CODE_UNICOM);
+				putMapDataInBean(unicomData, dayData, day, CREATIVE_DATA_TYPE.OPERATOR, CodeTableConstant.OPERATOR_CODE_UNICOM);
 				// 电信
-				putDataInBean(telecomData, dayData, day + CREATIVE_DATA_TYPE.OPERATOR + CodeTableConstant.OPERATOR_CODE_TELECOM);
+				putMapDataInBean(telecomData, dayData, day, CREATIVE_DATA_TYPE.OPERATOR, CodeTableConstant.OPERATOR_CODE_TELECOM);
+				// 未知
+				putOtherDataInBean(otherData, dayData, day, CREATIVE_DATA_TYPE.OPERATOR, CodeTableConstant.OPERATOR_CODE_MOBILE, 
+						CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_CODE_TELECOM);
 			}
 			calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
 			calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
 			calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+			calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 			creativeDatas.add(mobileData);
 			creativeDatas.add(unicomData);
 			creativeDatas.add(telecomData);
+			creativeDatas.add(otherData);
 		}
 		return creativeDatas;
 	}
@@ -1645,6 +1651,7 @@ public class DataService extends BaseService {
 		AnalysisBean mobileData = new AnalysisBean();
 		AnalysisBean unicomData = new AnalysisBean();
 		AnalysisBean telecomData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String creativeId : creativeIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> creativeDatas = getOperatorData4Creative(creativeId, startDate, endDate);
@@ -1662,14 +1669,20 @@ public class DataService extends BaseService {
 					putDataInBean(telecomData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
+							creativeData.getJumpAmount(), creativeData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
 		calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
 		calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		campaignDatas.add(mobileData);
 		campaignDatas.add(unicomData);
 		campaignDatas.add(telecomData);
+		campaignDatas.add(otherData);
 		
 		return campaignDatas;
 	}
@@ -1680,6 +1693,7 @@ public class DataService extends BaseService {
 		AnalysisBean mobileData = new AnalysisBean();
 		AnalysisBean unicomData = new AnalysisBean();
 		AnalysisBean telecomData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String campaignId : campaignIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> campaignDatas = getOperatorData4Campaign(campaignId, startDate, endDate);
@@ -1697,14 +1711,20 @@ public class DataService extends BaseService {
 					putDataInBean(telecomData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
+							campaignData.getJumpAmount(), campaignData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
 		calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
 		calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		projectDatas.add(mobileData);
 		projectDatas.add(unicomData);
 		projectDatas.add(telecomData);
+		projectDatas.add(otherData);
 		
 		return projectDatas;
 	}
@@ -1715,6 +1735,7 @@ public class DataService extends BaseService {
 		AnalysisBean mobileData = new AnalysisBean();
 		AnalysisBean unicomData = new AnalysisBean();
 		AnalysisBean telecomData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String projectId : projectIds) {
 			List<AnalysisBean> projectDatas = getOperatorData4Project(projectId, startDate, endDate);
 			for (AnalysisBean projectData : projectDatas) {
@@ -1731,14 +1752,20 @@ public class DataService extends BaseService {
 					putDataInBean(telecomData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
+							projectData.getJumpAmount(), projectData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(mobileData, CodeTableConstant.OPERATOR_CODE_MOBILE, CodeTableConstant.OPERATOR_NAME_MOBILE);
 		calDataInBean(unicomData, CodeTableConstant.OPERATOR_CODE_UNICOM, CodeTableConstant.OPERATOR_NAME_UNICOM);
 		calDataInBean(telecomData, CodeTableConstant.OPERATOR_CODE_TELECOM, CodeTableConstant.OPERATOR_NAME_TELECOM);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		advertiserDatas.add(mobileData);
 		advertiserDatas.add(unicomData);
 		advertiserDatas.add(telecomData);
+		advertiserDatas.add(otherData);
 		
 		return advertiserDatas;
 	}
@@ -1754,24 +1781,30 @@ public class DataService extends BaseService {
 			AnalysisBean n3gData = new AnalysisBean();
 			AnalysisBean n4gData = new AnalysisBean();
 			AnalysisBean wifiData = new AnalysisBean();
+			AnalysisBean otherData = new AnalysisBean();
 			for (String day : days) {
 				// 2g
-				putDataInBean(n2gData, dayData, day + CREATIVE_DATA_TYPE.NETWORK + CodeTableConstant.NETWORK_CODE_2G);
+				putMapDataInBean(n2gData, dayData, day, CREATIVE_DATA_TYPE.NETWORK, CodeTableConstant.NETWORK_CODE_2G);
 				// 3g
-				putDataInBean(n3gData, dayData, day + CREATIVE_DATA_TYPE.NETWORK + CodeTableConstant.NETWORK_CODE_3G);
+				putMapDataInBean(n3gData, dayData, day, CREATIVE_DATA_TYPE.NETWORK, CodeTableConstant.NETWORK_CODE_3G);
 				// 4g
-				putDataInBean(n4gData, dayData, day + CREATIVE_DATA_TYPE.NETWORK + CodeTableConstant.NETWORK_CODE_4G);
+				putMapDataInBean(n4gData, dayData, day, CREATIVE_DATA_TYPE.NETWORK, CodeTableConstant.NETWORK_CODE_4G);
 				// wifi
-				putDataInBean(wifiData, dayData, day + CREATIVE_DATA_TYPE.NETWORK + CodeTableConstant.NETWORK_CODE_WIFI);
+				putMapDataInBean(wifiData, dayData, day, CREATIVE_DATA_TYPE.NETWORK, CodeTableConstant.NETWORK_CODE_WIFI);
+				// 未知
+				putOtherDataInBean(otherData, dayData, day, CREATIVE_DATA_TYPE.NETWORK, CodeTableConstant.NETWORK_CODE_2G, 
+						CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_CODE_WIFI);
 			}
 			calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
 			calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
 			calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
 			calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+			calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 			creativeDatas.add(n2gData);
 			creativeDatas.add(n3gData);
 			creativeDatas.add(n4gData);
 			creativeDatas.add(wifiData);
+			creativeDatas.add(otherData);
 		}
 		return creativeDatas;
 	}
@@ -1783,6 +1816,7 @@ public class DataService extends BaseService {
 		AnalysisBean n3gData = new AnalysisBean();
 		AnalysisBean n4gData = new AnalysisBean();
 		AnalysisBean wifiData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String creativeId : creativeIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> creativeDatas = getNetworkData4Creative(creativeId, startDate, endDate);
@@ -1804,16 +1838,22 @@ public class DataService extends BaseService {
 					putDataInBean(wifiData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
+							creativeData.getJumpAmount(), creativeData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
 		calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
 		calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
 		calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		campaignDatas.add(n2gData);
 		campaignDatas.add(n3gData);
 		campaignDatas.add(n4gData);
 		campaignDatas.add(wifiData);
+		campaignDatas.add(otherData);
 		
 		return campaignDatas;
 	}
@@ -1825,6 +1865,7 @@ public class DataService extends BaseService {
 		AnalysisBean n3gData = new AnalysisBean();
 		AnalysisBean n4gData = new AnalysisBean();
 		AnalysisBean wifiData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String campaignId : campaignIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> campaignDatas = getNetworkData4Campaign(campaignId, startDate, endDate);
@@ -1846,16 +1887,22 @@ public class DataService extends BaseService {
 					putDataInBean(wifiData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
+							campaignData.getJumpAmount(), campaignData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
 		calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
 		calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
 		calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		projectDatas.add(n2gData);
 		projectDatas.add(n3gData);
 		projectDatas.add(n4gData);
 		projectDatas.add(wifiData);
+		projectDatas.add(otherData);
 		
 		return projectDatas;
 	}
@@ -1867,6 +1914,7 @@ public class DataService extends BaseService {
 		AnalysisBean n3gData = new AnalysisBean();
 		AnalysisBean n4gData = new AnalysisBean();
 		AnalysisBean wifiData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String projectId : projectIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> projectDatas = getNetworkData4Project(projectId, startDate, endDate);
@@ -1888,16 +1936,22 @@ public class DataService extends BaseService {
 					putDataInBean(wifiData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
+							projectData.getJumpAmount(), projectData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(n2gData, CodeTableConstant.NETWORK_CODE_2G, CodeTableConstant.NETWORK_NAME_2G);
 		calDataInBean(n3gData, CodeTableConstant.NETWORK_CODE_3G, CodeTableConstant.NETWORK_NAME_3G);
 		calDataInBean(n4gData, CodeTableConstant.NETWORK_CODE_4G, CodeTableConstant.NETWORK_NAME_4G);
 		calDataInBean(wifiData, CodeTableConstant.NETWORK_CODE_WIFI, CodeTableConstant.NETWORK_NAME_WIFI);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		advertiserDatas.add(n2gData);
 		advertiserDatas.add(n3gData);
 		advertiserDatas.add(n4gData);
 		advertiserDatas.add(wifiData);
+		advertiserDatas.add(otherData);
 		
 		return advertiserDatas;
 	}
@@ -1912,20 +1966,26 @@ public class DataService extends BaseService {
 			AnalysisBean iosData = new AnalysisBean();
 			AnalysisBean androidData = new AnalysisBean();
 			AnalysisBean windowsData = new AnalysisBean();
+			AnalysisBean otherData = new AnalysisBean();
 			for (String day : days) {
 				// ios
-				putDataInBean(iosData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_CODE_IOS);
+				putMapDataInBean(iosData, dayData, day, CREATIVE_DATA_TYPE.OS, CodeTableConstant.SYSTEM_CODE_IOS);
 				// android
-				putDataInBean(androidData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_CODE_ANDROID);
+				putMapDataInBean(androidData, dayData, day, CREATIVE_DATA_TYPE.OS, CodeTableConstant.SYSTEM_CODE_ANDROID);
 				// windows
-				putDataInBean(windowsData, dayData, day + CREATIVE_DATA_TYPE.OS + CodeTableConstant.SYSTEM_CODE_WINDOWS);
+				putMapDataInBean(windowsData, dayData, day, CREATIVE_DATA_TYPE.OS, CodeTableConstant.SYSTEM_CODE_WINDOWS);
+				// 未知
+				putOtherDataInBean(otherData, dayData, day, CREATIVE_DATA_TYPE.OS, CodeTableConstant.SYSTEM_CODE_IOS, 
+						CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_CODE_WINDOWS);
 			}
 			calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
 			calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
 			calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+			calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 			creativeDatas.add(iosData);
 			creativeDatas.add(androidData);
 			creativeDatas.add(windowsData);
+			creativeDatas.add(otherData);
 		}
 		return creativeDatas;
 	}
@@ -1936,6 +1996,7 @@ public class DataService extends BaseService {
 		AnalysisBean iosData = new AnalysisBean();
 		AnalysisBean androidData = new AnalysisBean();
 		AnalysisBean windowsData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String creativeId : creativeIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> creativeDatas = getSystemData4Creative(creativeId, startDate, endDate);
@@ -1953,14 +2014,20 @@ public class DataService extends BaseService {
 					putDataInBean(windowsData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
 							creativeData.getJumpAmount(), creativeData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, creativeData.getImpressionAmount(), creativeData.getClickAmount(), 
+							creativeData.getJumpAmount(), creativeData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
 		calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
 		calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		campaignDatas.add(iosData);
 		campaignDatas.add(androidData);
 		campaignDatas.add(windowsData);
+		campaignDatas.add(otherData);
 		
 		return campaignDatas;
 	}
@@ -1971,6 +2038,7 @@ public class DataService extends BaseService {
 		AnalysisBean iosData = new AnalysisBean();
 		AnalysisBean androidData = new AnalysisBean();
 		AnalysisBean windowsData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String campaignId : campaignIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> campaignDatas = getSystemData4Campaign(campaignId, startDate, endDate);
@@ -1988,14 +2056,20 @@ public class DataService extends BaseService {
 					putDataInBean(windowsData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
 							campaignData.getJumpAmount(), campaignData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, campaignData.getImpressionAmount(), campaignData.getClickAmount(), 
+							campaignData.getJumpAmount(), campaignData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
 		calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
 		calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		projectDatas.add(iosData);
 		projectDatas.add(androidData);
 		projectDatas.add(windowsData);
+		projectDatas.add(otherData);
 		
 		return projectDatas;
 	}
@@ -2006,6 +2080,7 @@ public class DataService extends BaseService {
 		AnalysisBean iosData = new AnalysisBean();
 		AnalysisBean androidData = new AnalysisBean();
 		AnalysisBean windowsData = new AnalysisBean();
+		AnalysisBean otherData = new AnalysisBean();
 		for (String projectId : projectIds) {
 			// 遍历所有创意的数据
 			List<AnalysisBean> projectDatas = getSystemData4Project(projectId, startDate, endDate);
@@ -2023,14 +2098,20 @@ public class DataService extends BaseService {
 					putDataInBean(windowsData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
 							projectData.getJumpAmount(), projectData.getTotalCost());
 				}
+				if (CodeTableConstant.CODE_UNKNOW.equals(id)) {
+					putDataInBean(otherData, projectData.getImpressionAmount(), projectData.getClickAmount(), 
+							projectData.getJumpAmount(), projectData.getTotalCost());
+				}
 			}
 		}
 		calDataInBean(iosData, CodeTableConstant.SYSTEM_CODE_IOS, CodeTableConstant.SYSTEM_NAME_IOS);
 		calDataInBean(androidData, CodeTableConstant.SYSTEM_CODE_ANDROID, CodeTableConstant.SYSTEM_NAME_ANDROID);
 		calDataInBean(windowsData, CodeTableConstant.SYSTEM_CODE_WINDOWS, CodeTableConstant.SYSTEM_NAME_WINDOWS);
+		calDataInBean(otherData, CodeTableConstant.CODE_UNKNOW, CodeTableConstant.NAME_UNKNOW);
 		advertiserDatas.add(iosData);
 		advertiserDatas.add(androidData);
 		advertiserDatas.add(windowsData);
+		advertiserDatas.add(otherData);
 		
 		return advertiserDatas;
 	}
@@ -2124,23 +2205,58 @@ public class DataService extends BaseService {
 	 * @param dataMap
 	 * @param prefix
 	 */
-	private void putDataInBean(AnalysisBean bean, Map<String, String> dataMap, String prefix) {
+	private void putMapDataInBean(AnalysisBean bean, Map<String, String> dataMap, String day, String type, String code) {
 		String key;
-		key = prefix + CREATIVE_DATA_SUFFIX.IMPRESSION;
+		key = day + type + code + CREATIVE_DATA_SUFFIX.IMPRESSION;
 		if (dataMap.containsKey(key)) {
 			bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(dataMap.get(key)));
 		}
-		key = prefix + CREATIVE_DATA_SUFFIX.CLICK;
+		key = day + type + code + CREATIVE_DATA_SUFFIX.CLICK;
 		if (dataMap.containsKey(key)) {
 			bean.setClickAmount(bean.getClickAmount() + Long.parseLong(dataMap.get(key)));
 		}
-		key = prefix + CREATIVE_DATA_SUFFIX.JUMP;
+		key = day + type + code + CREATIVE_DATA_SUFFIX.JUMP;
 		if (dataMap.containsKey(key)) {
 			bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(dataMap.get(key)));
 		}
-		key = prefix + CREATIVE_DATA_SUFFIX.EXPENSE;
+		key = day + type + code + CREATIVE_DATA_SUFFIX.EXPENSE;
 		if (dataMap.containsKey(key)) {
 			bean.setTotalCost(bean.getTotalCost() + Double.parseDouble(dataMap.get(key)) / 100);
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	private void putOtherDataInBean(AnalysisBean bean, Map<String, String> dataMap, String day, String type, String... codes) {
+		List<String> filter = new ArrayList<String>();
+		for (String code : codes) {
+			filter.add(day + type + code);
+		}
+		for (String key : dataMap.keySet()) {
+			if (key.contains(day) && key.contains(type)) {
+				boolean flag = true;
+				for (String code : codes) {
+					if (key.contains(day + type + code)) {
+						flag = false;
+						break;
+					}
+				}
+				if (flag) {
+					if (key.contains(CREATIVE_DATA_SUFFIX.IMPRESSION)) {
+						bean.setImpressionAmount(bean.getImpressionAmount() + Long.parseLong(dataMap.get(key)));
+					}
+					if (key.contains(CREATIVE_DATA_SUFFIX.CLICK)) {
+						bean.setClickAmount(bean.getClickAmount() + Long.parseLong(dataMap.get(key)));
+					}
+					if (key.contains(CREATIVE_DATA_SUFFIX.JUMP)) {
+						bean.setJumpAmount(bean.getJumpAmount() + Long.parseLong(dataMap.get(key)));
+					}
+					if (key.contains(CREATIVE_DATA_SUFFIX.EXPENSE)) {
+						bean.setTotalCost(bean.getTotalCost() + Double.parseDouble(dataMap.get(key)) / 100);
+					}
+				}
+			}
 		}
 	}
 	

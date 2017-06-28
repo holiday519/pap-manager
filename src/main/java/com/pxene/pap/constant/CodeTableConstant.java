@@ -47,6 +47,8 @@ public class CodeTableConstant {
 	
 	public static final String SYSTEM_NAME_WINDOWS = "windows";
 	
+	public static final String CODE_UNKNOW = "0";
+	
 	public static final String NAME_UNKNOW = "unknow";
 	
 	public static final String CAMPAIGN_NOT_UNIFORM = "0";
