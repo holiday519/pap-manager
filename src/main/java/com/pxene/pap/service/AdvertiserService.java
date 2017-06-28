@@ -358,6 +358,10 @@ public class AdvertiserService extends BaseService
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 			audits[i].setName(adxModel.getName());
+			//如果message为null,设置为空字符串
+			if(audits[i].getMessage() == null){
+				audits[i].setMessage("");
+			}
 		}
 		bean.setAudits(audits);
                 

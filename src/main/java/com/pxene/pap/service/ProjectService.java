@@ -1465,6 +1465,9 @@ public class ProjectService extends BaseService {
 		// 如果有一个静态值下被公式或规则引用，则放弃整个删除
 		RuleModelExample ruleModelExample = new RuleModelExample();
 		ruleModelExample.createCriteria().andStaticvalIdIn(Arrays.asList(ids));
+		for(String id : ids) {
+			ruleModelExample.or().andTriggerConditionLike("%" +id+"%");
+		}
 		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
 		if(ruleModels != null && ruleModels.size()>0){
 			throw new ResourceNotFoundException(PhrasesConstant.STATIC_RULER_DELETE_ERROR);
@@ -1472,6 +1475,9 @@ public class ProjectService extends BaseService {
 
 		FormulaModelExample formulaModelExample = new FormulaModelExample();
 		formulaModelExample.createCriteria().andStaticvalIdIn(Arrays.asList(ids));
+		for(String id : ids) {
+			formulaModelExample.or().andFormulaLike("%" +id+"%");
+		}
 		List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
 		if(formulaModels != null && formulaModels.size()>0){
 			throw new ResourceNotFoundException(PhrasesConstant.STATIC_FORMULATE_DELETE_ERROR);
