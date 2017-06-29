@@ -800,19 +800,26 @@ public class DataService extends BaseService {
 		// REVIEW ME: 字符串操作尽量避免中文
 		if (type.equals(CodeTableConstant.SUMMARYWAY_TOTAL)) {//汇总
 			if (fileName.startsWith("creatives")) {
-				recoresColumns = new String[]{"ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
-				recoresFields = new String[]{"id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
-			} else {
+				recoresColumns = new String[]{"ID_#_3000","活动_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"id", "campaignName", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
+			} else if(fileName.startsWith("campaigns")){
+				recoresColumns = new String[]{"名称_#_3000","APP_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "修正成本_#_3000","千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"name","apps", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
+			}else{
 				recoresColumns = new String[]{"名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "修正成本_#_3000","千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
 				recoresFields = new String[]{"name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
 			}
 		} else {
 			if (fileName.startsWith("creatives")) {
-				recoresColumns = new String[]{"日期_#_3000", "ID_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
-				recoresFields = new String[]{"date", "id", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
-			} else {
+				recoresColumns = new String[]{"日期_#_3000", "ID_#_3000", "活动_#_3000","展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000","修正成本_#_3000", "千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"date", "id", "campaignName","impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
+			} else  if(fileName.startsWith("campaigns")) {
+				recoresColumns = new String[]{"日期_#_3000", "名称_#_3000", "APP_#_3000","展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "修正成本_#_3000","千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
+				recoresFields = new String[]{"date", "name","apps", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
+			}else{
 				recoresColumns = new String[]{"日期_#_3000", "名称_#_3000", "展现数_#_3000", "点击数_#_3000", "CTR_#_3000", "二跳数_#_3000", "成本_#_3000", "修正成本_#_3000","千次展现成本_#_4000", "点击成本_#_3000", "二跳成本_#_3000"};
 				recoresFields = new String[]{"date", "name", "impressionAmount", "clickAmount", "clickRate", "jumpAmount", "totalCost","adxCost", "impressionCost", "clickCost", "jumpCost"};
+
 			}
 		}
 
@@ -892,6 +899,39 @@ public class DataService extends BaseService {
 					}
 					cell.setCellValue(name);
 				}
+				if("apps".equals(fieldName)){
+					StringBuffer sb = new StringBuffer();
+					sb.setLength(0);
+					if (data instanceof CampaignBean) {
+						CampaignBean bean = (CampaignBean)data;
+						CampaignBean.Target target = bean.getTarget();
+						if(target!=null){
+							CampaignBean.Target.App[] apps = target.getApps();
+							if(apps !=null) {
+								for (int j=0;j<apps.length;j++){
+									if(apps[j]!=null){
+										if(sb.length()==0){
+											sb.append(apps[j].getName());
+										}else{
+											sb.append(","+apps[j].getName());
+										}
+									}
+								}
+							}
+						}
+
+					}
+					cell.setCellValue(sb.toString());
+				}
+				if("campaignName".equals(fieldName)){
+					String campaignName = "";
+					if (data instanceof CreativeBean) {
+						CreativeBean bean = (CreativeBean)data;
+						campaignName = bean.getCampaignName();
+					}
+					cell.setCellValue(campaignName);
+				}
+
 				if ("date".equals(fieldName)) {
 					cell.setCellValue(data.getDate());
 				}
@@ -1158,7 +1198,7 @@ public class DataService extends BaseService {
 	
 	/**
 	 * 获取单个客户一个时间段内的数据
-	 * @param creativeId
+	 * @param advertiserId
 	 * @param startDate
 	 * @param endDate
 	 * @return
@@ -1466,7 +1506,7 @@ public class DataService extends BaseService {
 	
 	/**
 	 * 为活动查询地域数据
-	 * @param creativeId
+	 * @param campaignId
 	 * @param startDate
 	 * @param endDate
 	 * @return
@@ -1515,7 +1555,7 @@ public class DataService extends BaseService {
 	
 	/**
 	 * 为项目查询地域数据
-	 * @param creativeId
+	 * @param projectId
 	 * @param startDate
 	 * @param endDate
 	 * @return
@@ -1564,7 +1604,7 @@ public class DataService extends BaseService {
 	
 	/**
 	 * 为客户查询地域数据
-	 * @param creativeId
+	 * @param advertiserId
 	 * @param startDate
 	 * @param endDate
 	 * @return

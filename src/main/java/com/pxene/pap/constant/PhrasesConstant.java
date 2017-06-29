@@ -176,7 +176,7 @@ public class PhrasesConstant
 
 	public static final String STATIC_RULER_DELETE_ERROR = "静态值正在被规则引用，删除失败！";
 	public static final String STATIC_FORMULATE_DELETE_ERROR = "静态值正在被公式引用，删除失败！";
-	public static final String STATIC_VALUE_LENGTH_TOO_LANG = "静态值的整数部分不能超过8位，小数部位不能超过4位";
+	public static final String STATIC_VALUE_LENGTH_TOO_LANG = "静态值的取值不能大于99999999.9999和小于-99999999.9999";
 	public static final String FORMULA_REFERENCE_VALUE_NULL = "公式参考值不能为空！";
 	public static final String RULE_REFERENCE_VALUE_NULL = "规则参考值不能为空！";
 	public static final String RULEID_IS_NULL = "规则ID不能为空";
