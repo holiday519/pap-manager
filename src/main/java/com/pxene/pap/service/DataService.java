@@ -1047,7 +1047,7 @@ public class DataService extends BaseService {
 						// 获取当天的修正比
 						AdxCostModelExample adxCostExample = new AdxCostModelExample();
 						Date dayDate = DateUtils.strToDate(day, "yyyyMMdd");
-						adxCostExample.createCriteria().andAdxIdEqualTo(adxId).andStartDateLessThanOrEqualTo(dayDate).andEndDateGreaterThanOrEqualTo(dayDate);
+						adxCostExample.createCriteria().andAdxIdEqualTo(adxId).andFixDateEqualTo(dayDate);
 						List<AdxCostModel> adxCosts = adxCostDao.selectByExample(adxCostExample);
 						if (adxCosts.isEmpty()) {
 							continue;

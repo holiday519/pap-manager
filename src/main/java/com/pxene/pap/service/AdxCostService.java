@@ -8,16 +8,19 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.domain.beans.AdxCostBean;
 import com.pxene.pap.domain.beans.AdxCostBean.Adxes;
 import com.pxene.pap.domain.beans.AdxCostData;
 import com.pxene.pap.domain.models.AdxCostModel;
+import com.pxene.pap.domain.models.AdxCostModelExample;
 import com.pxene.pap.domain.models.CreativeBasicModel;
 import com.pxene.pap.domain.models.CreativeBasicModelExample;
 import com.pxene.pap.exception.IllegalArgumentException;
@@ -31,7 +34,7 @@ public class AdxCostService extends BaseService
     private static final String REDIS_KEY_PREFIX = "creativeDataDay_";
 
     private static final String REDIS_FIELD_PATTERN = "{0}_adx_{1}@{2}";
-
+    
     @Autowired
     private AdxCostDao adxCostDao;
     
@@ -59,20 +62,40 @@ public class AdxCostService extends BaseService
         
         Date startDate = adxCost.getStartDate();
         Date endDate = adxCost.getEndDate();
+        List<Date> days = DateUtils.listDatesBetweenTwoDates(new LocalDate(startDate), new LocalDate(endDate), true);
         
-        AdxCostModel record = null;
-        Adxes[] adxes = adxCost.getAdxes();
+        AdxCostModelExample example = new AdxCostModelExample();
         
-        for (Adxes adx : adxes)
+        for (Date day : days)
         {
-            record = new AdxCostModel();
-            record.setId(UUIDGenerator.getUUID());
-            record.setStartDate(startDate);
-            record.setEndDate(endDate);
-            record.setAdxId(adx.getAdxId());
-            record.setRatio(adx.getRatio());
+            Adxes[] adxItems = adxCost.getAdxes();
             
-            adxCostDao.insert(record);
+            for (Adxes adxItem : adxItems)
+            {
+                String uuid = UUIDGenerator.getUUID();
+                String adxId = adxItem.getAdxId();
+                Float ratio = adxItem.getRatio();
+                
+                AdxCostModel record = new AdxCostModel();
+                record.setId(uuid);
+                record.setFixDate(day);
+                record.setAdxId(adxId);
+                record.setRatio(ratio);
+                
+                example.clear();
+                example.createCriteria().andAdxIdEqualTo(adxId).andFixDateEqualTo(day);
+                
+                List<AdxCostModel> adxCostsInDB = adxCostDao.selectByExample(example);
+                if (adxCostsInDB != null && !adxCostsInDB.isEmpty())
+                {
+                    record.setId(adxCostsInDB.get(0).getId());
+                    adxCostDao.updateByPrimaryKey(record);
+                }
+                else
+                {
+                    adxCostDao.insert(record);
+                }
+            }
         }
     }
 
@@ -88,7 +111,7 @@ public class AdxCostService extends BaseService
         
         Date currentDate = new Date();
         
-        // 根据活动时间，查询出所有的创意
+        // 根据活动时间，从视图“pap_v_creative_basic”中查询出所有的创意
         CreativeBasicModelExample example = new CreativeBasicModelExample();
         example.createCriteria().andCampaignStartDateLessThanOrEqualTo(currentDate).andCampaignEndDateGreaterThanOrEqualTo(currentDate);
         List<CreativeBasicModel> rows = creativeBasicDao.selectByExampleWithBLOBs(example);
