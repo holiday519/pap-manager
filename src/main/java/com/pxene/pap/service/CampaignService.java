@@ -352,7 +352,10 @@ public class CampaignService extends BaseService {
 			checkStartDate(startDate);
 		} else {
 			// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
-			checkStartDate(startDate);
+			if (!startDate.equals(startDateInDB)) {
+				// 如果活动的开始时间有改变
+				checkStartDate(startDate);
+			}			
 			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
 			checkEndDate(endDate);
 		}
@@ -1596,7 +1599,10 @@ public class CampaignService extends BaseService {
 			checkStartDate(startDate);
 		} else {
 			// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
-			checkStartDate(startDate);
+			if (!startDate.equals(startDateInDB)) {
+				// 如果活动的开始时间有改变
+				checkStartDate(startDate);
+			}			
 			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
 			checkEndDate(endDate);
 		}
