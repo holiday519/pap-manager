@@ -154,9 +154,10 @@ public class LandpageService extends BaseService {
 		} else {
 			String nameInDB = landpageInDB.getName();
 			String name = bean.getName();
-			if (!nameInDB.equalsIgnoreCase(name)) {
+			if (!nameInDB.equals(name)) {
+				// 验证名称重复，排除自己使得同一落地页可用字母大小写不同的同一名称
 				LandpageModelExample landpageExample = new LandpageModelExample();
-				landpageExample.createCriteria().andNameEqualTo(name);
+				landpageExample.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
 				List<LandpageModel> landpages = landpageDao.selectByExample(landpageExample);
 				if (landpages != null && !landpages.isEmpty()) {
 					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
@@ -406,18 +407,13 @@ public class LandpageService extends BaseService {
      * @param landpageId 落地页id
      * @throws Exception
      */
-    public void creativeCodeHistoryInfo(String campaignId,String landpageId) throws Exception {
+    public void creativeCodeHistoryInfo(String campaignId,String landpageId,Date startDate,Date endDate) throws Exception {
     	// 根据活动id查询活动信息
+    	// FIXME 传新的时间
     	CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
     	if (campaign == null) {
     		throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-    	}
-    	
-    	// 活动的开始时间
-    	Date startDate = campaign.getStartDate();
-    	
-		// 获取一天中最小时间
-//		Date todayStart = DateUtils.getSmallHourOfDay(current);
+    	}    	  	
 		
 		// 根据落地页id查询落地页监测码信息
 		LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
@@ -431,22 +427,23 @@ public class LandpageService extends BaseService {
 				listCodes.add(code);
 			}
 			String[] codes = listCodes.toArray(new String[landpageCodes.size()]);
-			String strCodes = org.apache.commons.lang3.StringUtils.join(codes, ",");
-			// 当前时间（有时分秒）
+			String strCodes = org.apache.commons.lang3.StringUtils.join(codes, ",");	
+			// 当前时间
 			Date current = new Date();
 			// 写入数据的信息
 			LandpageCodeHistoryModel landpageCodeHistory = new LandpageCodeHistoryModel();
 			landpageCodeHistory.setId(UUIDGenerator.getUUID()); // id
 			landpageCodeHistory.setCampaignId(campaignId); // 活动id
 			landpageCodeHistory.setCodes(strCodes); // 监测码
+			// 监测码使用的开始时间
 			if (startDate.after(current)) {
-				// 如果活动未投放，即活动在开始时间在今天之后,监测码使用的开始时间为创建活动的时间
+				// 如果活动的开始时间在今天之后，监测码使用的开始时间为活动的开始时间
 				landpageCodeHistory.setStartTime(startDate);
 			} else {
-				// 否则监测码使用的开始时间为当前时间
-				landpageCodeHistory.setStartTime(current); 
-			}			
-			landpageCodeHistory.setEndTime(campaign.getEndDate()); // 监测码使用的结束时间设置活动的结束时间
+				// 如果活动的开始时间是今天，监测码使用的开始时间为当前时间
+				landpageCodeHistory.setStartTime(current);
+			}			 						
+			landpageCodeHistory.setEndTime(endDate); // 监测码使用的结束时间设置活动的结束时间
 			// 插入数据
 			landpageCodeHistoryDao.insertSelective(landpageCodeHistory);
 		}
@@ -455,9 +452,11 @@ public class LandpageService extends BaseService {
     /**
      * 更新监测码历史记录表的使用结束时间
      * @param campaignId 活动id
+     * @param startDate 活动开始时间
+     * @param endDate 活动结束时间
      * @throws Exception
      */
-    public void updateCodeHistoryEndTimeByCampaignId(String campaignId) throws Exception {
+    public void updateCodeHistoryEndTime(String campaignId) throws Exception {
     	// 根据活动id查询落地页监测码历史记录信息
     	LandpageCodeHistoryModelExample codeHistoryEx = new LandpageCodeHistoryModelExample();
     	codeHistoryEx.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -469,14 +468,14 @@ public class LandpageService extends BaseService {
     		// 如果监测码历史记录不为空，更新距离现在时间最近的一条监测码历史记录的结束时间（一个活动可以对应多个监测码历史记录）
     		// 取出距离现在时间最近的一条监测码历史记录信息
     		LandpageCodeHistoryModel codeHistory = codeHistorys.get(0);
-    		// 结束时间：当前时间 
-        	Date endTime = new Date();
-    		// 将监测码使用的结束时间设置为当前时间
-    		codeHistory.setEndTime(endTime);
+    		// 当前时间 
+        	Date current = new Date(); 
+			// 将监测码使用的结束时间设置为当前时间
+    		codeHistory.setEndTime(current);
     		codeHistory.setId(codeHistory.getId());
     		landpageCodeHistoryDao.updateByPrimaryKeySelective(codeHistory);
     	}
-    }
+    }   
     
     /**
      * 删除监测码历史记录信息
@@ -490,5 +489,44 @@ public class LandpageService extends BaseService {
     	codeHistorys.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeGreaterThan(new Date());
     	// 删除
     	landpageCodeHistoryDao.deleteByExample(codeHistorys);
+    }
+    
+    /**
+     * 
+     * @param campaignId
+     * @param startDate
+     * @param endDate
+     * @throws Exception
+     */
+    public void updateCodeCodeHistoryInfo(String campaignId,String landpageId,Date startDate,Date endDate) throws Exception {
+    	// 当前时间
+    	Date current = new Date();
+    	// 一天中的最小时间
+    	Date todayStart = DateUtils.getSmallHourOfDay(current);
+    	if (startDate.equals(todayStart)) {
+    		// 修改后的活动开始时间是今天,更新监测码历史记录表中监测码使用的结束时间为调整后的活动结束时间
+    		// 根据活动id查询落地页监测码历史记录信息
+        	LandpageCodeHistoryModelExample codeHistoryEx = new LandpageCodeHistoryModelExample();
+        	codeHistoryEx.createCriteria().andCampaignIdEqualTo(campaignId);
+        	// 按开始时间进行倒序排序
+        	codeHistoryEx.setOrderByClause("start_time DESC");
+        	List<LandpageCodeHistoryModel> codeHistorys = landpageCodeHistoryDao.selectByExample(codeHistoryEx);   	
+        	// 更新监测码历史记录的结束时间
+        	if (codeHistorys != null && !codeHistorys.isEmpty()) {
+        		// 如果监测码历史记录不为空，更新距离现在时间最近的一条监测码历史记录的结束时间（一个活动可以对应多个监测码历史记录）
+        		// 取出距离现在时间最近的一条监测码历史记录信息
+        		LandpageCodeHistoryModel codeHistory = codeHistorys.get(0);
+        		// 将监测码使用的结束时间设置为活动的结束时间
+        		codeHistory.setEndTime(endDate);
+        		codeHistory.setId(codeHistory.getId());
+        		landpageCodeHistoryDao.updateByPrimaryKeySelective(codeHistory);
+        	}
+    	} else {
+    		// 修改后的活动开始时间不是今天---即今天之后
+    		// 更新监测码使用的结束时间为当前时间
+    		updateCodeHistoryEndTime(campaignId);
+    		// 重新插入一条监测码使用记录,其中监测码使用的开始时间为修改后的活动开始时间、使用的结束时间为修改后的活动结束时间
+    		creativeCodeHistoryInfo(campaignId,landpageId,startDate,endDate);
+    	}
     }
 }

@@ -126,9 +126,10 @@ public class PopulationService extends BaseService {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		} else {
 			String nameInDB = model.getName();
-			if (!nameInDB.equalsIgnoreCase(name)) {
+			if (!nameInDB.equals(name)) {
+				// 验证名称重复，排除自己使得同一人群定向文件可用字母大小写不同的同一名称
 				PopulationModelExample example = new PopulationModelExample();
-				example.createCriteria().andNameEqualTo(name);
+				example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
 				List<PopulationModel> models = populationDao.selectByExample(example);
 				if (models != null && !models.isEmpty()) {
 					throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);

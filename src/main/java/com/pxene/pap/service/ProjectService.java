@@ -1,6 +1,7 @@
 package com.pxene.pap.service;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -204,10 +205,11 @@ public class ProjectService extends BaseService {
             String nameInDB = projectInDB.getName(); // 数据库中的项目名
             String name = bean.getName();            // 欲修改成的项目名
 
-            if (!nameInDB.equalsIgnoreCase(name))
+            if (!nameInDB.equals(name))
             {
+            	// 验证名称重复，排除自己使得同一项目可用字母大小写不同的同一名称
                 ProjectModelExample projectExample = new ProjectModelExample();
-                projectExample.createCriteria().andNameEqualTo(name);
+                projectExample.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
 
                 // 如果数据库中其它项目的名称与欲修改成的项目名称重复，则禁止修改
                 List<ProjectModel> projects = projectDao.selectByExample(projectExample);
@@ -659,13 +661,13 @@ public class ProjectService extends BaseService {
         // 判断名称是否重复
         EffectDicModel effectDic = effectDicDao.selectByPrimaryKey(fieldId);
         String nameDB = effectDic.getColumnName();
-        if (!name.equalsIgnoreCase(nameDB)) {
+        if (!name.equals(nameDB)) {
         	// 判断同一项目下转换值名称是否相同
         	String projectId = effectDic.getProjectId();
-            checkSameOfEffectDicName(name,projectId);
+            checkSameOfEffectDicName(name,projectId,fieldId);
             
             // 判断同一项目下转换值与静态值是否相同
-            checkSameOfStaticName(name,projectId);
+            checkSameOfStaticName(name,projectId,null);
             
             // 判断转化值名称是否使用：展现数、点击数、二跳、成本、修正成本
             checkUseFixedName(name);
@@ -932,7 +934,7 @@ public class ProjectService extends BaseService {
 		String ruleName = bean.getName();		
 
 		// 验证同一项目下规则名称是否存在
-		checkSameOfRuleName(ruleName,bean.getProjectId());
+		checkSameOfRuleName(ruleName,bean.getProjectId(),null);
 		
 		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
 		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticvalId());
@@ -974,11 +976,13 @@ public class ProjectService extends BaseService {
 		}
 		
 		// 判断权重之和是否为1
-		float weight = 0;
+		BigDecimal weight = new BigDecimal("0");
 		for (Formulas formulaBean : formulas) {
-			weight += formulaBean.getWeight();
+			Float weightFloat = formulaBean.getWeight();
+			BigDecimal weightBigDecimal = new BigDecimal(String.valueOf(weightFloat));						
+			weight = weight.add(weightBigDecimal);
 		}
-		if (weight != 1) {
+		if (weight.floatValue() != 1) {
 			throw new IllegalArgumentException(PhrasesConstant.WEIGHTS_ISNOT_CORRECT);
 		}
 		
@@ -1145,9 +1149,9 @@ public class ProjectService extends BaseService {
 			// 判断同一项目下规则名称是否重复
 			String nameInDB = rule.getName();  // 数据库中的规则名称
 			String name = bean.getName();      // 欲修改规则名称	
-			if (!nameInDB.equalsIgnoreCase(name)) {
+			if (!nameInDB.equals(name)) {
 				// 如果数据库中其它规则的名称与欲修改成的规则名称重复，则禁止修改
-				checkSameOfRuleName(name,bean.getProjectId());
+				checkSameOfRuleName(name,bean.getProjectId(),id);
 			}			
 		}	
 		
@@ -1280,13 +1284,19 @@ public class ProjectService extends BaseService {
 	 * 验证同一项目下规则名称是否相同
 	 * @param name 规则名称
 	 * @param projectId 项目id
+	 * @param ruleId 规则id
 	 * @throws Exception
 	 */
-	private void checkSameOfRuleName(String name,String projectId) throws Exception {	
+	private void checkSameOfRuleName(String name,String projectId,String ruleId) throws Exception {	
 		// FIXME : 名称规范
 		// 根据规则名称和项目id查询规则信息
 		RuleModelExample ruleEx = new RuleModelExample();
-		ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
+		if (ruleId == null) {
+			ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
+		} else {
+			// 排除自己
+			ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId).andIdNotEqualTo(ruleId);
+		}		
 		List<RuleModel> ruleList = ruleDao.selectByExample(ruleEx);
 		if (ruleList != null && !ruleList.isEmpty()) {
 			// 如果项目下有相同的名称，则抛异常
@@ -1331,10 +1341,10 @@ public class ProjectService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.STATIC_VALUE_LENGTH_TOO_LANG);
 		}
 		// 验证同一项目下静态值名称是否相同
-		checkSameOfStaticName(name,projectId);
+		checkSameOfStaticName(name,projectId,null);
 		
 		// 判断同一项目下静态值与转换值名称是否相同
-		checkSameOfEffectDicName(name,projectId);
+		checkSameOfEffectDicName(name,projectId,null);
 		
 		// 判断静态值名称是否使用：展现数、点击数、二跳、成本、修正成本
 		checkUseFixedName(name);
@@ -1413,16 +1423,16 @@ public class ProjectService extends BaseService {
 			String nameInDB = staticInDB.getName(); // 数据库中的静态值名称
 			String name = bean.getName();           // 欲修改的静态值名称
 			
-			if (!nameInDB.equalsIgnoreCase(name))
+			if (!nameInDB.equals(name))
 			{
 				// 项目id			
 				String projectId = staticInDB.getProjectId();
 				
 				// 判断同一项目下的静态值名称是否相同
-				checkSameOfStaticName(name,projectId);
+				checkSameOfStaticName(name,projectId,id);
 				
 				// 判断同一项目下静态值与转换值名称是否相同
-				checkSameOfEffectDicName(name,projectId);
+				checkSameOfEffectDicName(name,projectId,null);
 				
 				// 判断静态值名称是否使用：展现数、点击数、二跳、成本、修正成本
 				checkUseFixedName(name);
@@ -1485,12 +1495,18 @@ public class ProjectService extends BaseService {
 	 * 判断同一项目下静态值名称是否重复
 	 * @param name 静态值名称
 	 * @param projectId 项目id
+	 * @param staticvalId 静态值id
 	 * @throws Exception
 	 */
-	private void checkSameOfStaticName(String name,String projectId) throws Exception {
+	private void checkSameOfStaticName(String name,String projectId,String staticvalId) throws Exception {
 		// 根据静态值名称和项目id查询转换值信息
 		StaticvalModelExample staticEx = new StaticvalModelExample();
-		staticEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
+		if (staticvalId == null) {
+			staticEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
+		} else {
+			// 排除自己
+			staticEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId).andIdNotEqualTo(staticvalId);
+		}		
 		List<StaticvalModel> statics = staticvalDao.selectByExample(staticEx);
 		if (statics != null && !statics.isEmpty()) {
 			// 如果项目id下存在静态值名称，则抛出异常
@@ -1503,12 +1519,18 @@ public class ProjectService extends BaseService {
 	 * 判断同一项目转换值名称是否重复
 	 * @param name 转化值名称
 	 * @param projectId
+	 * @param fieldId 转化值id
 	 * @throws Exception
 	 */
-	private void checkSameOfEffectDicName(String name, String projectId) throws Exception {
+	private void checkSameOfEffectDicName(String name, String projectId, String fieldId) throws Exception {
 		// 根据转化值名称和项目id查询转换值信息
 		EffectDicModelExample effectDicEx = new EffectDicModelExample();
-		effectDicEx.createCriteria().andColumnNameEqualTo(name).andProjectIdEqualTo(projectId);
+		if (fieldId == null) {
+			effectDicEx.createCriteria().andColumnNameEqualTo(name).andProjectIdEqualTo(projectId);
+		} else {
+			// 排除自己
+			effectDicEx.createCriteria().andColumnNameEqualTo(name).andProjectIdEqualTo(projectId).andIdNotEqualTo(fieldId);
+		}		
 		List<EffectDicModel> effectDic = effectDicDao.selectByExample(effectDicEx);
 		if (effectDic != null && !effectDic.isEmpty()) {
 			// 如果项目id下存在转化值名称，则抛出异常

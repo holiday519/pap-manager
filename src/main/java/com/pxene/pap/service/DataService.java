@@ -532,7 +532,7 @@ public class DataService extends BaseService {
         }
         
         // 匹配的监测码
-        List<String>  marryCodes = new ArrayList<String>();
+        int codes = 0;
         
         // 遍历Excel文件中的每个数据行
         for (EffectModel model : modelList)
@@ -581,11 +581,13 @@ public class DataService extends BaseService {
 	            		exampleHistory.createCriteria().andCodesLike("%" + code + "%").andCampaignIdEqualTo(campaign.getId())
 	            			.andStartTimeLessThanOrEqualTo(endDate).andEndTimeGreaterThanOrEqualTo(endDate);
 	            		List<LandpageCodeHistoryModel> historys = landpageCodeHistoryDao.selectByExample(exampleHistory);
-	            		if (historys != null && historys.size() > 0) {
-	            			marryCodes.add(code);
-	            		}
-	            	}
-	            }
+	            		if (historys != null && historys.size() > 0) {	
+	            			// 匹配的监测码	             
+	    		            codes++;
+	            			break;	            			
+	            		}	            		
+	            	}	            	
+	            }	            
 			}           
         }
         
@@ -599,7 +601,7 @@ public class DataService extends BaseService {
         effectFile.setName(file.getOriginalFilename());        // 文件名称
         effectFile.setProjectId(projectId);                    // 项目id
         effectFile.setProjectName(projectName);                // 项目名称
-        effectFile.setAmount(marryCodes.size());               // 匹配数量
+        effectFile.setAmount(codes);                           // 匹配数量
         // 3.插入
         effectFileDao.insert(effectFile);
     }

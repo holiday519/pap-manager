@@ -303,10 +303,10 @@ public class AdvertiserService extends BaseService
         } else {
         	String nameInDB = advertiserInDB.getName();
         	String name = bean.getName();
-        	if (!nameInDB.equalsIgnoreCase(name)) {
-        		// 验证名称重复
+        	if (!nameInDB.equals(name)) {
+        		// 验证名称重复，排除自己使得同一广告主可用字母大小写不同的同一名称
             	AdvertiserModelExample example = new AdvertiserModelExample();
-            	example.createCriteria().andNameEqualTo(name);
+            	example.createCriteria().andNameEqualTo(name).andIdNotEqualTo(id);
         		List<AdvertiserModel> advertisers = advertiserDao.selectByExample(example);
         		if (advertisers != null && !advertisers.isEmpty()) {
         			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
