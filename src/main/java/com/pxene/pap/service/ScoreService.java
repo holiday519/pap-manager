@@ -45,6 +45,7 @@ import com.pxene.pap.domain.models.FormulaModel;
 import com.pxene.pap.domain.models.FormulaModelExample;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
+import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample.Criteria;
 import com.pxene.pap.domain.models.RuleModel;
 import com.pxene.pap.domain.models.RuleModelExample;
 import com.pxene.pap.domain.models.StaticvalModel;
@@ -237,13 +238,26 @@ public class ScoreService extends BaseService
 
 
     /**
-     * 查询在指定的日期段内，某活动的全部效果数据（从客户回收的数据）的总和（A1~A10）。
+     * 查询在指定的日期段内，某活动的全部效果数据（从客户回收的数据）的总和（A1~A10）。<br>
+     * <pre>
+     * 根据活动ID和查询时间段从“pap_t_landpage_code_history”表中查询监测码的使用历史
+     *      S                                    E
+     *      +------------------------------------+
+     * 情况1：(始 <= S) && (止 > S)
+     * [==============]
+     * 始                         止
+     * 
+     * 
+     * 情况2：(始 >= S) && (始 <= S)
+     *              [==============]
+     *              始                         止
+     * </pre>
      * @param campaignId    活动ID
      * @param startDate     起始日期
      * @param endDate       结束日期
      * @return  保存着效果数据变量值的Map，其中Map的Key表示变量名，即“A1”~“A10”，Value表示变量值
      * @throws ParseException 
-     */
+     */             
     private Map<String, Number> getEffectSum(String projectId, String campaignId, Date startDate, Date endDate) throws ParseException
     {
         Map<String, Number> result = new HashMap<String, Number>();
@@ -254,9 +268,11 @@ public class ScoreService extends BaseService
         
         EffectModelExample effectExample = new EffectModelExample();
         
-        // 根据活动ID和日期段从“pap_t_landpage_code_history”表中查询监测码的使用历史
         LandpageCodeHistoryModelExample historyCodeExample = new LandpageCodeHistoryModelExample();
-        historyCodeExample.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeGreaterThanOrEqualTo(startDate).andEndTimeLessThanOrEqualTo(endDate);
+        historyCodeExample.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeBetween(startDate, endDate);
+        historyCodeExample.or().andCampaignIdEqualTo(campaignId).andStartTimeLessThanOrEqualTo(startDate).andEndTimeGreaterThanOrEqualTo(startDate);
+        
+        
         List<LandpageCodeHistoryModel> items = landpageCodeHistoryDao.selectByExample(historyCodeExample);
         
         Map<String, Set<String>> map = new HashMap<String, Set<String>>();
