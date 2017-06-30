@@ -1013,7 +1013,9 @@ public class CampaignService extends BaseService {
 		deleteFrequency(campaignId);
 		//删除控制策略
 		deleteCampaignMonitor(campaignId);
-		//删除活动
+		// 删除监测码历史记录表中该活动对应的监测码历史记录信息
+		deleteCampaignCodeHistory(campaignId);
+		// 删除活动
 		campaignDao.deleteByPrimaryKey(campaignId);
 		// 移除redis
 		launchService.removeCampaignId4Project(campaignId, campaignInDB.getProjectId());
@@ -1057,6 +1059,8 @@ public class CampaignService extends BaseService {
 			deleteFrequency(id);
 			//删除控制策略
 			deleteCampaignMonitor(id);
+			// 删除监测码历史记录表中该活动对应的监测码历史记录信息
+			deleteCampaignCodeHistory(id);
 			
 			launchService.removeCampaignId4Project(id, campaign.getProjectId());
 		}
@@ -1905,5 +1909,18 @@ public class CampaignService extends BaseService {
 		}
 		// 如果监测码没有改变，返回false
 		return false;
+	}
+	
+	/**
+	 * 删除一个活动的监测码历史记录信息
+	 * @param campaignId 活动id
+	 * @throws Exception
+	 */
+	private void deleteCampaignCodeHistory(String campaignId) throws Exception {
+		// 根据活动id查询监测码
+    	LandpageCodeHistoryModelExample codeHistorys = new LandpageCodeHistoryModelExample();
+    	codeHistorys.createCriteria().andCampaignIdEqualTo(campaignId);
+    	// 删除
+    	landpageCodeHistoryDao.deleteByExample(codeHistorys);
 	}
 }
