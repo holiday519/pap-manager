@@ -1,5 +1,9 @@
 package com.pxene.pap.service;
 
+import static com.pxene.pap.constant.PhrasesConstant.CAMPAIGN_SCORE_ERROR;
+import static com.pxene.pap.constant.PhrasesConstant.FORMULA_RESULT_ERROR;
+import static com.pxene.pap.constant.RedisKeyConstant.CREATIVE_DATA_DAY;
+
 import java.lang.reflect.Method;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -45,7 +49,6 @@ import com.pxene.pap.domain.models.FormulaModel;
 import com.pxene.pap.domain.models.FormulaModelExample;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
 import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
-import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample.Criteria;
 import com.pxene.pap.domain.models.RuleModel;
 import com.pxene.pap.domain.models.RuleModelExample;
 import com.pxene.pap.domain.models.StaticvalModel;
@@ -57,9 +60,6 @@ import com.pxene.pap.repository.basic.FormulaDao;
 import com.pxene.pap.repository.basic.LandpageCodeHistoryDao;
 import com.pxene.pap.repository.basic.RuleDao;
 import com.pxene.pap.repository.basic.StaticvalDao;
-
-import static com.pxene.pap.constant.RedisKeyConstant.*;
-import static com.pxene.pap.constant.PhrasesConstant.*;
 
 /**
  * 评分服务
@@ -848,7 +848,15 @@ public class ScoreService extends BaseService
             String newPattern = "";
             if (type.equalsIgnoreCase("value"))
             {
-                newPattern = String.valueOf(getStaticValueById(uuid).getValue());
+                Double value = getStaticValueById(uuid).getValue();
+                if (value < 0) // 当静态值是负数，需要替换为(静态值)，防止静态值作前面有操作符，变成+-xxx这种格式
+                {
+                    newPattern = "(" + value + ")";
+                }
+                else
+                {
+                    newPattern = String.valueOf(value);
+                }
             }
             if (type.equalsIgnoreCase("name"))
             {
