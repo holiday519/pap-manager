@@ -41,8 +41,8 @@ public class PhrasesConstant
 	public static final String APP_NOT_FOUND = "活动定向中未选定APP";
 	public static final String LANDPAGE_CODE_USED = "正在使用监测码，不能重复使用。";
 	public static final String LANDPAGE_CODE_TODAY_USED = "今天已监测码，不能重复使用。";
-	public static final String CAMPAIGN_STARTDATE_BEFORE_TODAY = "活动的开始时间，不能在今天之前";
-	public static final String CAMPAIGN_ENDDATE_BEFORE_TODAY = "活动的开始时间，不能在今天之前";
+	public static final String CAMPAIGN_STARTDATE_BEFORE_TODAY = "活动的开始时间，不能在今天之前。";
+	public static final String CAMPAIGN_ENDDATE_BEFORE_TODAY = "活动的结束时间，不能在今天之前。";
 	// 创意
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     public static final String CREATIVE_NOT_FOUND = "该创意不存在";
