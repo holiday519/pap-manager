@@ -1170,9 +1170,14 @@ public class ProjectService extends BaseService {
 		// 判断项目是否存在
 		checkHaveProject(bean.getProjectId());
 		
-		bean.setId(id);
-		bean.setUpdateTime(new Date());
-		RuleModel ruleModel = modelMapper.map(bean, RuleModel.class);
+		// 编辑后的规则
+		RuleModel ruleModel = new  RuleModel();
+		ruleModel.setId(id);
+		ruleModel.setName(bean.getName());
+		ruleModel.setProjectId(bean.getProjectId());
+		ruleModel.setRelation(bean.getRelation());
+		ruleModel.setStaticvalId(bean.getStaticvalId());
+		ruleModel.setTriggerCondition(bean.getTriggerCondition());
 		
 		// 删除公式
 		deleteFormula(id);
@@ -1180,7 +1185,7 @@ public class ProjectService extends BaseService {
 		addFormula(bean,id);
 		
 		// 更新规则
-		ruleDao.updateByPrimaryKey(ruleModel);
+		ruleDao.updateByPrimaryKeySelective(ruleModel);
 	}
 	
 	/**
@@ -1353,9 +1358,6 @@ public class ProjectService extends BaseService {
 		StaticvalModel staticModel = modelMapper.map(bean, StaticvalModel.class);
 		String staticId=UUIDGenerator.getUUID();
 		staticModel.setId(staticId);
-		Date currenDate = new Date();
-		staticModel.setCreateTime(currenDate);
-		staticModel.setUpdateTime(currenDate);
 		bean.setId(staticId);
 		staticvalDao.insertSelective(staticModel);
 	}
@@ -1397,9 +1399,10 @@ public class ProjectService extends BaseService {
 			double value = bean.getValue();
 			if (valueInDB!=value)
 			{
-				staticInDB.setValue(value);
-				staticInDB.setUpdateTime(new Date());
-				staticvalDao.updateByPrimaryKeySelective(staticInDB);
+				StaticvalModel staticval = new StaticvalModel();
+				staticval.setId(staticInDB.getId());
+				staticval.setValue(value);
+				staticvalDao.updateByPrimaryKeySelective(staticval);
 			}
 		}
 	}
@@ -1438,9 +1441,10 @@ public class ProjectService extends BaseService {
 				checkUseFixedName(name);
 				
 				// 更新数据库
-				staticInDB.setName(name);
-				staticInDB.setUpdateTime(new Date());
-				staticvalDao.updateByPrimaryKeySelective(staticInDB);
+				StaticvalModel staticval = new StaticvalModel();
+				staticval.setId(staticInDB.getId());
+				staticval.setName(name);
+				staticvalDao.updateByPrimaryKeySelective(staticval);
 			}
 		}
 	}
