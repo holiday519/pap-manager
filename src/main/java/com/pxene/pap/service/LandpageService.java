@@ -407,7 +407,7 @@ public class LandpageService extends BaseService {
      * @param landpageId 落地页id
      * @throws Exception
      */
-    public void creativeCodeHistoryInfo(String campaignId,String landpageId,Date startDate,Date endDate) throws Exception {
+    public void creativeCodeHistoryInfo(String campaignId, String landpageId, Date startDate, Date endDate) throws Exception {
     	// 根据活动id查询活动信息
     	// FIXME 传新的时间
     	CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
@@ -498,7 +498,7 @@ public class LandpageService extends BaseService {
      * @param endDate
      * @throws Exception
      */
-    public void updateCodeCodeHistoryInfo(String campaignId,String landpageId,Date startDate,Date endDate) throws Exception {
+    public void updateCodeCodeHistoryInfo(String campaignId, String landpageId, Date startDate, Date endDate) throws Exception {
     	// 当前时间
     	Date current = new Date();
     	// 一天中的最小时间
@@ -526,7 +526,7 @@ public class LandpageService extends BaseService {
     		// 更新监测码使用的结束时间为当前时间
     		updateCodeHistoryEndTime(campaignId);
     		// 重新插入一条监测码使用记录,其中监测码使用的开始时间为修改后的活动开始时间、使用的结束时间为修改后的活动结束时间
-    		creativeCodeHistoryInfo(campaignId,landpageId,startDate,endDate);
+    		creativeCodeHistoryInfo(campaignId, landpageId, startDate, endDate);
     	}
     }
 }

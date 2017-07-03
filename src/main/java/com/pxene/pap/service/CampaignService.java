@@ -357,7 +357,6 @@ public class CampaignService extends BaseService {
 				checkStartDate(startDate);
 			}			
 			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
-			// FIXME 当是已完成状态时，如果结束时间不变，这个会报异常
 			if (!(endDateInDB.before(current) && endDate.equals(endDateInDB))) {
 				// ！（活动已完成  && 结束时间不变）
 				checkEndDate(endDate);
@@ -384,7 +383,6 @@ public class CampaignService extends BaseService {
 		}
 						
 		// 判断落地页监测码是否被其他开启并且未结束的活动使用
-		// FIXME 判断条件有问题，后面的两个条件要用括号扩起
 		if (StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus()) 
 				&& (!(startDate.after(startDateInDB) && endDate.before(endDateInDB))
 				|| isChangeCode(dbLandpageId, beanLandpageId))) {
@@ -453,7 +451,6 @@ public class CampaignService extends BaseService {
 		
 		
 		// 更新监测码历史记录表
-		// FIXME 判断条件不正确
 		if (StatusConstant.CAMPAIGN_PROCEED.equals(bean.getStatus()) 
 				&& isChangeCode(dbLandpageId, beanLandpageId)
 				&& (!startDateInDB.equals(startDate) || !endDateInDB.equals(endDate))) {
@@ -463,32 +460,32 @@ public class CampaignService extends BaseService {
 				// 删除监测码历史记录表中原来的记录
 				landpageService.deleteCodeHistoryInfo(id);
 				// 重新插入一条记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);			
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);			
 			} else if (startDateInDB.before(current) && endDateInDB.after(current)) {
 				// 活动已开始并且未结束
 				// 编辑监测码历史记录表中原记录的结束时间为当前时间
 				landpageService.updateCodeHistoryEndTime(id);
 				// 重新插入一条监测码使用记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);						
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);						
 			} else {
 				// 活动已结束，插入一条新的记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);				
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
 			}
 		} else if (StatusConstant.CAMPAIGN_PROCEED.equals(bean.getStatus()) 
-				&& isChangeCode(dbLandpageId,beanLandpageId)) {
+				&& isChangeCode(dbLandpageId, beanLandpageId)) {
 			// 如果活动打开  && 活动周期不变 （/code改变）
 			if (startDateInDB.after(current)) {
 				// 活动未开始
 				// 删除监测码历史记录表中原来的记录
 				landpageService.deleteCodeHistoryInfo(id);
 				// 重新插入一条记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);				
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
 			} else if (startDateInDB.before(current) && endDateInDB.after(current)) {
 				// 活动已开始并且未结束
 				// 编辑监测码历史记录表中原记录的结束时间为当前时间
 				landpageService.updateCodeHistoryEndTime(id);
 				// 重新插入一条监测码使用记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,current,endDate);
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);
 			}
 		} else if (StatusConstant.CAMPAIGN_PROCEED.equals(bean.getStatus()) 
 				&& (!startDateInDB.equals(startDate) || !endDateInDB.equals(endDate))) {
@@ -497,13 +494,13 @@ public class CampaignService extends BaseService {
 				// 删除监测码历史记录表中原来的记录
 				landpageService.deleteCodeHistoryInfo(id);
 				// 重新插入一条记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);				
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
 			} else if (startDateInDB.before(current) && endDateInDB.after(current)) {
 				// 活动在投放中---即已开始并未结束				
-				landpageService.updateCodeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);
+				landpageService.updateCodeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);
 			} else {
 				// 活动已结束，重新插入一条记录
-				landpageService.creativeCodeHistoryInfo(id,beanLandpageId,startDate,endDate);				
+				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
 			}
 		}
 			
