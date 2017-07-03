@@ -66,6 +66,7 @@ public class PopulationController {
     @ResponseBody
     public void updatePopulation(@PathVariable String id, @RequestPart(value = "file", required = true) MultipartFile file, @RequestPart(value = "name", required = true) String name,HttpServletResponse response) throws Exception 
 	{
+		name = new String(name.getBytes(Charset.forName("iso-8859-1")), Charset.forName("utf-8"));
 	    populationService.updatePopulation(id, file, name);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
