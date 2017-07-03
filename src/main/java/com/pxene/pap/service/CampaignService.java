@@ -357,6 +357,7 @@ public class CampaignService extends BaseService {
 				checkStartDate(startDate);
 			}			
 			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
+			// FIXME 当是已完成状态时，如果结束时间不变，这个会报异常
 			checkEndDate(endDate);
 		}
 		
@@ -380,16 +381,17 @@ public class CampaignService extends BaseService {
 		}
 						
 		// 判断落地页监测码是否被其他开启并且未结束的活动使用
+		// FIXME 判断条件有问题，后面的两个条件要用括号扩起
 		if (StatusConstant.CAMPAIGN_PROCEED.equals(campaignInDB.getStatus()) 
 				&& !(startDate.after(startDateInDB) && endDate.before(endDateInDB))
-				|| isChangeCode(dbLandpageId,beanLandpageId)) {
+				|| isChangeCode(dbLandpageId, beanLandpageId)) {
 			// 如果活动打开、新的活动时间范围不在旧的活动时间范围、监测码发生改变
 			LandpageCodeModelExample example = new LandpageCodeModelExample();
 			example.createCriteria().andLandpageIdEqualTo(beanLandpageId);
 			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);
 			for (LandpageCodeModel code : codes) {
 				// 判断监测码是否被占用
-				String usedCodeCampaignId = checkUsedLandpageCode(code.getCode(), startDate, endDate,id);
+				String usedCodeCampaignId = checkUsedLandpageCode(code.getCode(), startDate, endDate, id);
 				if (usedCodeCampaignId != null) {
 					// 如果返回不为空，则说明监测码被占用
 					String campaignName = getNameByCampaignId(usedCodeCampaignId);;
@@ -448,8 +450,9 @@ public class CampaignService extends BaseService {
 		
 		
 		// 更新监测码历史记录表
+		// FIXME 判断条件不正确
 		if (StatusConstant.CAMPAIGN_PROCEED.equals(bean.getStatus()) 
-				&& isChangeCode(dbLandpageId,beanLandpageId)
+				&& isChangeCode(dbLandpageId, beanLandpageId)
 				&& !startDateInDB.equals(startDate) || !endDateInDB.equals(endDate)) {
 			// 如果活动打开 && 活动周期改变  && code改变
 			if (startDateInDB.after(current)) {
@@ -1874,7 +1877,7 @@ public class CampaignService extends BaseService {
 	 * @param beanLandpageId
 	 * @throws Exception
 	 */
-	private boolean isChangeCode(String dbLandpageId,String beanLandpageId) throws Exception {
+	private boolean isChangeCode(String dbLandpageId, String beanLandpageId) throws Exception {
 		// 更换落地页，判断监测码是否更换
 		if (!dbLandpageId.equals(beanLandpageId)) {
 			// bean中落地页id对应的监测码
@@ -1923,4 +1926,5 @@ public class CampaignService extends BaseService {
     	// 删除
     	landpageCodeHistoryDao.deleteByExample(codeHistorys);
 	}
+	
 }
