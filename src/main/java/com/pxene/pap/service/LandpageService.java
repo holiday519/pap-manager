@@ -498,12 +498,12 @@ public class LandpageService extends BaseService {
      * @param endDate
      * @throws Exception
      */
-    public void updateCodeCodeHistoryInfo(String campaignId, String landpageId, Date startDate, Date endDate) throws Exception {
+    public void updateCodeCodeHistoryInfo(String campaignId, String landpageId, Date startDate, Date endDate, Date startDateInDB) throws Exception {
     	// 当前时间
     	Date current = new Date();
     	// 一天中的最小时间
     	Date todayStart = DateUtils.getSmallHourOfDay(current);
-    	if (startDate.equals(todayStart)) {
+    	if (startDate.equals(todayStart) || startDate.equals(startDateInDB)) {
     		// 修改后的活动开始时间是今天,更新监测码历史记录表中监测码使用的结束时间为调整后的活动结束时间
     		// 根据活动id查询落地页监测码历史记录信息
         	LandpageCodeHistoryModelExample codeHistoryEx = new LandpageCodeHistoryModelExample();

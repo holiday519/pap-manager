@@ -347,21 +347,21 @@ public class CampaignService extends BaseService {
 		Date current = new Date();                        // 当前时间
 		Date startDateInDB = campaignInDB.getStartDate(); // 修改时间之前的活动开始时间
 		Date endDateInDB = campaignInDB.getEndDate();     // 修改时间之后的活动结束时间
-		if (startDateInDB.after(current)) {
-			// 如果活动未开始，判断欲修改的活动开始时间是否在今天之前
-			checkStartDate(startDate);
-		} else {
-			// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
-			if (!startDate.equals(startDateInDB)) {
-				// 如果活动的开始时间有改变
+		if (!startDate.equals(startDateInDB) || !endDate.equals(endDateInDB)) {
+			// 如果时间发生改变，则判断其开始时间和结束时间是否在今天之前
+			if (startDateInDB.after(current)) {
+				// 如果活动未开始，判断欲修改的活动开始时间是否在今天之前
 				checkStartDate(startDate);
-			}			
-			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
-			if (!(endDateInDB.before(current) && endDate.equals(endDateInDB))) {
-				// ！（活动已完成  && 结束时间不变）
-				checkEndDate(endDate);
-			}			
-		}
+			} else {
+				// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
+				if (!startDate.equals(startDateInDB)) {
+					// 如果活动的开始时间有改变
+					checkStartDate(startDate);
+				}			
+				// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前			
+				checkEndDate(endDate);						
+			}
+		}		
 		
 		// bean中放入ID，用于更新关联关系表中数据
 		bean.setId(id);					
@@ -497,7 +497,7 @@ public class CampaignService extends BaseService {
 				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
 			} else if (startDateInDB.before(current) && endDateInDB.after(current)) {
 				// 活动在投放中---即已开始并未结束				
-				landpageService.updateCodeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);
+				landpageService.updateCodeCodeHistoryInfo(id, beanLandpageId, startDate, endDate,startDateInDB);
 			} else {
 				// 活动已结束，重新插入一条记录
 				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
@@ -1592,30 +1592,34 @@ public class CampaignService extends BaseService {
 		if (campaignInDB == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 		}
+		
+		// 判断时间是否改变
+		Date startDateInDB = campaignInDB.getStartDate(); // 修改时间之前的活动开始时间
+		Date endDateInDB = campaignInDB.getEndDate();     // 修改时间之前的活动结束时间
+		if (startDate.equals(startDateInDB) && endDate.equals(endDateInDB)) {
+			// 如果时间不改变，直接返回即可
+			return;
+		}
+		
 		// 监测日期范围是否正确
 		if (startDate != null && endDate != null && startDate.after(endDate)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_DATE_ERROR);
 		}
 		
 		// 判断活动的开始时间和结束时间是否在今天之前
-		Date current = new Date();                        // 当前时间
-		Date startDateInDB = campaignInDB.getStartDate(); // 修改时间之前的活动开始时间
-		Date endDateInDB = campaignInDB.getEndDate();     // 修改时间之后的活动结束时间
-		if (!startDate.equals(startDateInDB) || !endDate.equals(endDateInDB)) {
-			// 如果时间发生改变，则判断其开始时间和结束时间是否在今天之前
-			if (startDateInDB.after(current)) {
-				// 如果活动未开始，判断欲修改的活动开始时间是否在今天之前
+		Date current = new Date();                        // 当前时间			
+		if (startDateInDB.after(current)) {
+			// 如果活动未开始，判断欲修改的活动开始时间是否在今天之前
+			checkStartDate(startDate);
+		} else {
+			// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
+			if (!startDate.equals(startDateInDB)) {
+				// 如果活动的开始时间有改变
 				checkStartDate(startDate);
-			} else {
-				// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
-				if (!startDate.equals(startDateInDB)) {
-					// 如果活动的开始时间有改变
-					checkStartDate(startDate);
-				}			
-				// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
-				checkEndDate(endDate);
-			}
-		}		
+			}			
+			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
+			checkEndDate(endDate);
+		}
 		
 		// 落地页id
 		String landpageId = campaignInDB.getLandpageId();
@@ -1654,7 +1658,7 @@ public class CampaignService extends BaseService {
 				landpageService.creativeCodeHistoryInfo(id,landpageId,startDate,endDate);				
 			} else if (startDateInDB.before(current) && endDateInDB.after(current)) {
 				// 活动在投放中---即已开始并未结束				
-				landpageService.updateCodeCodeHistoryInfo(id,landpageId,startDate,endDate);
+				landpageService.updateCodeCodeHistoryInfo(id,landpageId,startDate,endDate,startDateInDB);
 			} else {
 				// 活动已结束，重新插入一条记录
 				landpageService.creativeCodeHistoryInfo(id,landpageId,startDate,endDate);				
