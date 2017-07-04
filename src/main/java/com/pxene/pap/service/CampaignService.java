@@ -1667,7 +1667,26 @@ public class CampaignService extends BaseService {
 				// 活动已结束，重新插入一条记录
 				landpageService.creativeCodeHistoryInfo(id,landpageId,startDate,endDate);				
 			}
-		} 		
+		} 
+		
+		// 投放量控制策略
+		QuantityModelExample quantityEx = new QuantityModelExample();
+		quantityEx.createCriteria().andCampaignIdEqualTo(id);
+		List<QuantityModel> quantitys = quantityDao.selectByExample(quantityEx);
+		if (quantitys != null && !quantitys.isEmpty()) {
+			if (quantitys.size() == 1) {
+				// 如果活动对应一个策略则修改策略的开始日期和结束日期为活动的开始/结束日期
+				String quantityId = quantitys.get(0).getId();
+				QuantityModel quantity = new QuantityModel();
+				quantity.setId(quantityId);
+				quantity.setStartDate(startDate);
+				quantity.setEndDate(endDate);
+				quantityDao.updateByPrimaryKeySelective(quantity);
+			} else {
+				// 如果有多个策略，则抛异常
+				throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_QUANTITY_NOTONLY_ONE);
+			}
+		}
 				
 		// 获取修改开始时间和结束时间后的活动信息
 		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
