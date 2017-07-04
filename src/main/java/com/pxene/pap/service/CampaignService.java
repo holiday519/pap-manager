@@ -504,7 +504,6 @@ public class CampaignService extends BaseService {
 			}
 		}
 			
-		
 		if (!beanLandpageId.equals(dbLandpageId)) {
 			// 如果两个落地页id不相同				
 			// 1.停止活动下面的所有创意投放
@@ -1130,7 +1129,6 @@ public class CampaignService extends BaseService {
 	public List<CampaignBean> listCampaigns(String name, String projectId, Long startDate, Long endDate, String sortKey, String sortType, boolean calScore) throws Exception {
 		CampaignModelExample example = new CampaignModelExample();
 		
-
 		//设置排序
 		if(sortKey == null ||sortKey.isEmpty()) {
 			// 按更新时间进行倒序排序
@@ -1578,7 +1576,7 @@ public class CampaignService extends BaseService {
      * @throws Exception
      */
     @Transactional
-    public void updateCampaignStartAndEndDate(String id,Map<String,String> map) throws Exception{
+    public void updateCampaignStartAndEndDate(String id, Map<String, String> map) throws Exception{
     	// 获取开始时间和结束时间
     	String sDate = map.get("startDate");
     	String eDate = map.get("endDate");

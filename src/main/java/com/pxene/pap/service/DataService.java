@@ -23,10 +23,10 @@ import com.pxene.pap.common.ExcelOperateUtil;
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
-
 import com.pxene.pap.domain.beans.*;
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.repository.basic.*;
+
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -97,6 +97,9 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private LandpageCodeHistoryDao landpageCodeHistoryDao;
+	
+	@Autowired
+	private LaunchService launchService;
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
 	
@@ -999,6 +1002,7 @@ public class DataService extends BaseService {
 	 * @param startDate
 	 * @param endDate
 	 * @return
+	 * @throws Exception 
 	 */
 	public CreativeBean getCreativeData(String creativeId, long startDate, long endDate) {
 		// 先从redis中查询是否有该创意的数据
@@ -1009,12 +1013,15 @@ public class DataService extends BaseService {
 			String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 			// 修正花费要查出的相关信息
 			// 1.创意投放的adxID
-			CreativeBasicModelExample creativeBasicExample = new CreativeBasicModelExample();
-			creativeBasicExample.createCriteria().andCreativeIdsLike("%" + creativeId + "%");
-			List<CreativeBasicModel> creativeBasics = creativeBasicDao.selectByExampleWithBLOBs(creativeBasicExample);
-			if (creativeBasics.isEmpty()) {
-				return creativeData;
-			}
+//			CreativeBasicModelExample creativeBasicExample = new CreativeBasicModelExample();
+//			creativeBasicExample.createCriteria().andCreativeIdsLike("%" + creativeId + "%");
+//			List<CreativeBasicModel> creativeBasics = creativeBasicDao.selectByExample(creativeBasicExample);
+//			if (creativeBasics.isEmpty()) {
+//				return creativeData;
+//			}
+			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+			List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
+			
 			// 获取日数据对象
 			Map<String, String> dayData = redisHelper3.hget(dayKey);
 			long impression = 0L, click = 0L, jump = 0L;
@@ -1039,8 +1046,8 @@ public class DataService extends BaseService {
 				}
 				
 				// 修正花费累加
-				for (CreativeBasicModel basic : creativeBasics) {
-					String adxId = basic.getAdxId();
+				for (Map<String, String> adx : adxes) {
+					String adxId = adx.get("adxId");
 					String adxExpenseKey = day + CREATIVE_DATA_TYPE.ADX + adxId + CREATIVE_DATA_SUFFIX.EXPENSE;
 					// 判断该adx是否有数据
 					if (dayData.containsKey(adxExpenseKey)) {
@@ -1059,7 +1066,7 @@ public class DataService extends BaseService {
 					}
 				}
 			}
-//			creativeData.setId(creativeId);
+			creativeData.setId(creativeId);
 			creativeData.setImpressionAmount(impression);
 			creativeData.setClickAmount(click);
 			creativeData.setJumpAmount(jump);
@@ -1082,7 +1089,7 @@ public class DataService extends BaseService {
 	 * 素材路径，活动名称
 	 * @param creativeBean
      */
-	public void addOtherInfoToCreativeBean(CreativeBean creativeBean){
+	private void addOtherInfoToCreativeBean(CreativeBean creativeBean){
 		if (creativeBean != null) {
 			String creativeId = creativeBean.getId();
 			if(creativeId !=null && !creativeId.isEmpty()){
@@ -1110,6 +1117,7 @@ public class DataService extends BaseService {
 	 * @param startDate
 	 * @param endDate
 	 * @return
+	 * @throws Exception 
 	 */
 	public CampaignBean getCampaignData(String campaignId, long startDate, long endDate) {
 		CampaignBean campaignData = new CampaignBean();
@@ -1144,7 +1152,7 @@ public class DataService extends BaseService {
 	 * 将app信息添加到活动
 	 * @param campaignBean
      */
-	public void addAppToCampaign(CampaignBean campaignBean){
+	private void addAppToCampaign(CampaignBean campaignBean){
 
 		if(campaignBean != null && campaignBean.getId()!=null) {
 			String campaignId = campaignBean.getId();
@@ -1170,6 +1178,7 @@ public class DataService extends BaseService {
 	 * @param startDate
 	 * @param endDate
 	 * @return
+	 * @throws Exception 
 	 */
 	public ProjectBean getProjectData(String projectId, long startDate, long endDate) {
 		ProjectBean projectData = new ProjectBean();
@@ -1204,6 +1213,7 @@ public class DataService extends BaseService {
 	 * @param startDate
 	 * @param endDate
 	 * @return
+	 * @throws Exception 
 	 */
 	public AdvertiserBean getAdvertiserData(String advertiserId, long startDate, long endDate) {
 		AdvertiserBean advertiserData = new AdvertiserBean();
@@ -2332,5 +2342,14 @@ public class DataService extends BaseService {
 		return bean.getImpressionAmount() == 0 && bean.getClickAmount() == 0 
 				&& bean.getJumpAmount() == 0 && bean.getTotalCost() == 0;
 	}
+	
+//	private String[] getAdxIdsByCreativeId(String creativeId) {
+//		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
+//		String tmplId = creative.getTmplId();
+//		AppTmplModelExample appTmplEx = new AppTmplModelExample();
+//		appTmplEx.createCriteria().andTmplIdEqualTo(tmplId);
+//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplEx);
+//		for
+//	}
 	
 }

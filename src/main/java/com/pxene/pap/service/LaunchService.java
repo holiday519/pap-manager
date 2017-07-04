@@ -862,7 +862,7 @@ public class LaunchService extends BaseService {
 	}
 	
 	
-	public List<Map<String, String>> getAdxByCreative(CreativeModel creative) throws Exception {
+	public List<Map<String, String>> getAdxByCreative(CreativeModel creative) {
 		// 根据创意的模板查模板id
 		String tmplId = creative.getTmplId();
 		// 通过模板id查询app模板信息
@@ -889,10 +889,12 @@ public class LaunchService extends BaseService {
 		List<Map<String, String>> adxes = getAdxByCampaign(campaign);
 		for (Map<String, String> adx : adxes) {
 			String adxId = adx.get("adxId");
+			String adxName = adx.get("adxName");
 			if (adxIds.contains(adxId)) {
 				// 如果adxIds中包含adxId
 				Map<String, String> result = new HashMap<String, String>();
 				result.put("adxId", adxId);
+				result.put("adxName", adxName);
 				CreativeAuditModelExample example = new CreativeAuditModelExample();
 				example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(creativeId);
 				List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);
@@ -910,7 +912,7 @@ public class LaunchService extends BaseService {
 		return results;
 	}
 	
-	private List<Map<String, String>> getAdxByCampaign(CampaignModel campaign) throws Exception {
+	private List<Map<String, String>> getAdxByCampaign(CampaignModel campaign) {
 		List<Map<String, String>> results = new ArrayList<Map<String, String>>();
 		String campaignId = campaign.getId();
 		String projectId = campaign.getProjectId();
@@ -935,16 +937,17 @@ public class LaunchService extends BaseService {
 			appExample.createCriteria().andIdIn(appIds);
 			List<AppModel> apps = appDao.selectByExample(appExample);
 			if (apps != null && !apps.isEmpty()) {
-				//Map<String, String> result = new HashMap<String, String>();
-				// 去重
-				Set<String> adxIds = new HashSet<String>();
+				Map<String, String> cache = new HashMap<String, String>();
 				for (AppModel app : apps) {
 					String adxId = app.getAdxId();
-					adxIds.add(adxId);
+					String adxName = app.getAppName();
+					cache.put(adxId, adxName);
 				}
-				for (String adxId : adxIds) {
+				for (Entry<String, String> entry : cache.entrySet()) {
 					Map<String, String> result = new HashMap<String, String>();
+					String adxId = entry.getKey();
 					result.put("adxId", adxId);
+					result.put("adxName", entry.getValue());
 					AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
 					example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(adxId);
 					List<AdvertiserAuditModel> audits = advertiserAuditDao.selectByExample(example);
