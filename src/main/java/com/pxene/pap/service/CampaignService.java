@@ -352,14 +352,17 @@ public class CampaignService extends BaseService {
 			if (startDateInDB.after(current)) {
 				// 如果活动未开始，判断欲修改的活动开始时间是否在今天之前
 				checkStartDate(startDate);
-			} else {
-				// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
+			} else if (startDateInDB.before(current) && endDateInDB.after(current)) {
+				// 如果活动在投放中，判断欲修改的活动开始时间是否在今天之前
 				if (!startDate.equals(startDateInDB)) {
 					// 如果活动的开始时间有改变
 					checkStartDate(startDate);
 				}			
-				// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前			
+				// 如果活动在投放中，判断欲修改的活动结束时间是否在今天之前			
 				checkEndDate(endDate);						
+			} else {
+				// 如果活动已完成，判断欲修改的活动开始时间是否在今天之前
+				checkStartDate(startDate);
 			}
 		}		
 		
@@ -1609,14 +1612,17 @@ public class CampaignService extends BaseService {
 		if (startDateInDB.after(current)) {
 			// 如果活动未开始，判断欲修改的活动开始时间是否在今天之前
 			checkStartDate(startDate);
-		} else {
-			// 如果活动在投放中或已完成，判断欲修改的活动开始时间是否在今天之前
+		} else if (startDateInDB.before(current) && endDateInDB.after(current)){
+			// 如果活动在投放中，判断欲修改的活动开始时间是否在今天之前
 			if (!startDate.equals(startDateInDB)) {
 				// 如果活动的开始时间有改变
 				checkStartDate(startDate);
 			}			
-			// 如果活动在投放中或已完成，判断欲修改的活动结束时间是否在今天之前
+			// 如果活动在投放中，判断欲修改的活动结束时间是否在今天之前
 			checkEndDate(endDate);
+		} else {
+			// 如果活动已完成，判断欲修改的活动开始时间是否在今天之前
+			checkStartDate(startDate);
 		}
 		
 		// 落地页id

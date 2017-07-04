@@ -1185,7 +1185,7 @@ public class ProjectService extends BaseService {
 		addFormula(bean,id);
 		
 		// 更新规则
-		ruleDao.updateByPrimaryKeySelective(ruleModel);
+		ruleDao.updateByPrimaryKey(ruleModel);
 	}
 	
 	/**
