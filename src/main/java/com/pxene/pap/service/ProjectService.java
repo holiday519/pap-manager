@@ -898,10 +898,10 @@ public class ProjectService extends BaseService {
 			arraySize += effectDics.size();
 		}
 		String[] fisrtHeaders =new String[arraySize];
-		fisrtHeaders[0]="_#_3000";
+		fisrtHeaders[0]="_#_6000";
 		fisrtHeaders[1]="_#_3000";
 		String[] secondHeaders =new String[arraySize];
-		secondHeaders[0]= "日期";
+		secondHeaders[0]= "日期(格式:yyyy/MM/dd)";
 		secondHeaders[1]= "监测码";
 
 		if(effectDics!=null) {
