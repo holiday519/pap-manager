@@ -103,20 +103,22 @@ public class TmplService extends BaseService {
 				if (!StringUtils.isEmpty(tmplId)) {
 					// 查询该tmplId是否出现过
 					ImageTmpl imageTmpl = null;
+					AppModel app = getAppById(appTmpl.getAppId());
 					if (tmplMap.containsKey(tmplId)) {
 						imageTmpl = tmplMap.get(tmplId);
-						AppModel app = getAppById(appTmpl.getAppId());
+//						AppModel app = getAppById(appTmpl.getAppId());
 						if (app != null) {
 							imageTmpl.setAppName(imageTmpl.getAppName() + "," + app.getAppName());
 						}
 					} else {
 						imageTmpl = getImageTmplDetail(tmplId);
-						AppModel app = getAppById(appTmpl.getAppId());
+//						AppModel app = getAppById(appTmpl.getAppId());
 						 if (app != null && imageTmpl !=null) {
 		                	 imageTmpl.setAppId(app.getId());
 		                	 imageTmpl.setAppName(app.getAppName());
+							 tmplMap.put(tmplId, imageTmpl);
 		                }
-						tmplMap.put(tmplId, imageTmpl);
+
 					}
 				}
 			}
