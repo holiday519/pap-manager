@@ -5,9 +5,11 @@ public class PhrasesConstant
 	// 通用
 	public static final String ID_NOT_NULL = "ID不能为空";
 	public static final String NAME_NOT_NULL = "名称不能为空";
+	public static final String CODE_NOT_NULL = "项目编号不能为空";
 	public static final String NAME_NOT_REPEAT = "名称不能重复";
 	public static final String OBJECT_NOT_FOUND = "该对象不存在";
 	public static final String LENGTH_ERROR_NAME = "名称长度超过限定";
+	public static final String LENGTH_ERROR_CODE = "项目编号长度超过限定";
 	public static final String LACK_NECESSARY_PARAM = "缺少必要的参数";
 	public static final String ARGUMENT_FORMAT_INCORRECT = "参数格式不正确";
 	public static final String PARAM_OUT_OF_RANGE = "参数值超出了其允许的范围";

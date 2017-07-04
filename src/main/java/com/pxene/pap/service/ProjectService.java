@@ -472,7 +472,7 @@ public class ProjectService extends BaseService {
 				//查询每个项目的投放信息
 //				getData(beginTime, endTime, bean);
 				ProjectBean data = (ProjectBean)dataService.getProjectData(model.getId(), startDate, endDate);
-				BeanUtils.copyProperties(data, bean, "id", "name", "advertiserId", "advertiserName", "industryId", 
+				BeanUtils.copyProperties(data, bean, "id", "name", "code", "advertiserId", "advertiserName", "industryId", 
 						"industryName", "totalBudget", "remark", "status", "effectFields", "statics", "rules");
 			}
 

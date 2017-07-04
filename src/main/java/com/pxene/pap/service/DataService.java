@@ -2343,13 +2343,4 @@ public class DataService extends BaseService {
 				&& bean.getJumpAmount() == 0 && bean.getTotalCost() == 0;
 	}
 	
-//	private String[] getAdxIdsByCreativeId(String creativeId) {
-//		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
-//		String tmplId = creative.getTmplId();
-//		AppTmplModelExample appTmplEx = new AppTmplModelExample();
-//		appTmplEx.createCriteria().andTmplIdEqualTo(tmplId);
-//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplEx);
-//		for
-//	}
-	
 }

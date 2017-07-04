@@ -19,6 +19,11 @@ public class ProjectBean extends BasicDataBean {
 	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
+	
+	@NotNull(message = PhrasesConstant.CODE_NOT_NULL)
+	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_CODE)
+	private String code;
+	
 	/**
 	 * 广告主id
 	 */
