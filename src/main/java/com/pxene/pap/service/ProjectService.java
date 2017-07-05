@@ -147,11 +147,20 @@ public class ProjectService extends BaseService {
         // 验证项目名称是否已存在
         ProjectModelExample example = new ProjectModelExample();
         example.createCriteria().andNameEqualTo(bean.getName());
-        List<ProjectModel> projects = projectDao.selectByExample(example);
-        if (projects != null && !projects.isEmpty())
+        List<ProjectModel> projects1 = projectDao.selectByExample(example);
+        if (projects1 != null && !projects1.isEmpty())
         {
             throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
         }
+        
+        example.clear();
+        example.createCriteria().andCodeEqualTo(bean.getCode());
+        List<ProjectModel> projects2 = projectDao.selectByExample(example);
+        if (projects2 != null && !projects2.isEmpty())
+        {
+            throw new DuplicateEntityException(PhrasesConstant.PROJECT_CODE_NOT_REPEAT);
+        }
+
 
         // 查询广告主是否存在
         String advertiserId = bean.getAdvertiserId();
@@ -204,7 +213,6 @@ public class ProjectService extends BaseService {
         {
             String nameInDB = projectInDB.getName(); // 数据库中的项目名
             String name = bean.getName();            // 欲修改成的项目名
-
             if (!nameInDB.equals(name))
             {
             	// 验证名称重复，排除自己使得同一项目可用字母大小写不同的同一名称
@@ -216,6 +224,18 @@ public class ProjectService extends BaseService {
                 if (projects != null & !projects.isEmpty())
                 {
                     throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+                }
+            }
+            
+            String codeInDB = projectInDB.getCode();
+            String code = bean.getCode();
+            if (!codeInDB.equals(code)) {
+            	ProjectModelExample projectExample = new ProjectModelExample();
+            	projectExample.createCriteria().andCodeEqualTo(code).andIdNotEqualTo(id);
+            	
+            	List<ProjectModel> projects = projectDao.selectByExample(projectExample);
+                if (projects != null & !projects.isEmpty()) {
+                    throw new DuplicateEntityException(PhrasesConstant.PROJECT_CODE_NOT_REPEAT);
                 }
             }
         }
