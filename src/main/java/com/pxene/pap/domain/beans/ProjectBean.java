@@ -24,7 +24,16 @@ public class ProjectBean extends BasicDataBean {
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_CODE)
 	private String code;
 	
-	/**
+	public String getCode()
+    {
+        return code;
+    }
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    /**
 	 * 广告主id
 	 */
 	@NotNull(message = PhrasesConstant.PROJECT_NOTNULL_ADVERTISERID)

@@ -8,10 +8,10 @@ public class AdxCostData
     private String projectName;
     private String projectCode;
     private String mode;
-    private int impressionAmount;
-    private int clickAmount;
-    private float clickRate;
-    private float cost;
+    private long impressionAmount;
+    private long clickAmount;
+    private double clickRate;
+    private double cost;
     private String status;
     
     
@@ -63,35 +63,35 @@ public class AdxCostData
     {
         this.mode = mode;
     }
-    public int getImpressionAmount()
+    public Long getImpressionAmount()
     {
         return impressionAmount;
     }
-    public void setImpressionAmount(int impressionAmount)
+    public void setImpressionAmount(Long impressionAmount)
     {
         this.impressionAmount = impressionAmount;
     }
-    public int getClickAmount()
+    public Long getClickAmount()
     {
         return clickAmount;
     }
-    public void setClickAmount(int clickAmount)
+    public void setClickAmount(Long clickAmount)
     {
         this.clickAmount = clickAmount;
     }
-    public float getClickRate()
+    public double getClickRate()
     {
         return clickRate;
     }
-    public void setClickRate(float clickRate)
+    public void setClickRate(double clickRate)
     {
         this.clickRate = clickRate;
     }
-    public float getCost()
+    public double getCost()
     {
         return cost;
     }
-    public void setCost(float cost)
+    public void setCost(double cost)
     {
         this.cost = cost;
     }
