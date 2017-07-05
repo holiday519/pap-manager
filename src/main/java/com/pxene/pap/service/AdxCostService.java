@@ -31,6 +31,7 @@ import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ProjectModel;
+import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxCostDao;
@@ -100,6 +101,9 @@ public class AdxCostService extends BaseService
                 String uuid = UUIDGenerator.getUUID();
                 String adxId = adxItem.getAdxId();
                 Float ratio = adxItem.getRatio();
+                if (ratio < 0 || ratio > 100) {
+                	continue;
+                }
                 
                 AdxCostModel record = new AdxCostModel();
                 record.setId(uuid);
