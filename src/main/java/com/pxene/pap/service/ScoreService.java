@@ -279,10 +279,9 @@ public class ScoreService extends BaseService
         historyCodeExample.createCriteria().andCampaignIdEqualTo(campaignId).andStartTimeBetween(startDate, endDate);
         historyCodeExample.or().andCampaignIdEqualTo(campaignId).andStartTimeLessThanOrEqualTo(startDate).andEndTimeGreaterThanOrEqualTo(startDate);
         
-        
         List<LandpageCodeHistoryModel> items = landpageCodeHistoryDao.selectByExample(historyCodeExample);
         
-        Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+        Map<String, Set<String>> tmpMap = new HashMap<String, Set<String>>();
         
         String key = null;
         Set<String> codeSet = null;
@@ -290,17 +289,15 @@ public class ScoreService extends BaseService
         for (LandpageCodeHistoryModel item : items)
         {
             String codesStr = item.getCodes();
-            Date startTime = item.getStartTime();
-            Date endTime = item.getEndTime();
-            List<Date> days = DateUtils.listDatesBetweenTwoDates(new LocalDate(startTime), new LocalDate(endTime), true);
+            List<Date> days = DateUtils.listDatesBetweenTwoDates(new LocalDate(startDate), new LocalDate(endDate), true);
             
             for (Date day : days)
             {
                 key = DATATIME_FORMATTER.format(day);
                 
-                if (map.containsKey(key))
+                if (tmpMap.containsKey(key))
                 {
-                    codeSet = map.get(key);
+                    codeSet = tmpMap.get(key);
                 }
                 else
                 {
@@ -314,12 +311,12 @@ public class ScoreService extends BaseService
                     {
                         codeSet.add(code);
                     }
-                    map.put(key, codeSet);
+                    tmpMap.put(key, codeSet);
                 }
             }
         }
         
-        for (Map.Entry<String, Set<String>> entry : map.entrySet())
+        for (Map.Entry<String, Set<String>> entry : tmpMap.entrySet())
         {
             String dateStr = entry.getKey();
             Set<String> codes = entry.getValue();
