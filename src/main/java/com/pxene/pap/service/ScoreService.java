@@ -5,6 +5,7 @@ import static com.pxene.pap.constant.PhrasesConstant.FORMULA_RESULT_ERROR;
 import static com.pxene.pap.constant.RedisKeyConstant.CREATIVE_DATA_DAY;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
@@ -78,6 +79,10 @@ public class ScoreService extends BaseService
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScoreService.class);
     
+    private static final BigDecimal BIGDECIMAL_50 = BigDecimal.valueOf(50);
+    
+    private static final BigDecimal BIGDECIMAL_100 = BigDecimal.valueOf(100);
+    
     @Autowired
     private StaticvalDao staticvalDao;
     
@@ -133,7 +138,7 @@ public class ScoreService extends BaseService
         }
         
         // 声明活动总得分
-        double campaignScore = 0.0;
+        BigDecimal campaignScore = BigDecimal.ZERO;
         
         try
         {
@@ -198,13 +203,15 @@ public class ScoreService extends BaseService
                         tmpVal = SCORE_DECIMAL_FORMAT.format(formulaResult);
                         
                         // 根据游标系计算得分
-                        double score = score(formulaResult, baseVal, forwardVernier, negativeVernier);
+                        BigDecimal score = score(BigDecimal.valueOf(formulaResult), BigDecimal.valueOf(baseVal), BigDecimal.valueOf(forwardVernier), BigDecimal.valueOf(negativeVernier));
                         
                         // 一个评分规则有多条公式，每个公式计算出的得分需要乘权重，才是这个公式的最终得分
-                        double weightedScore = score * weight;
+                        BigDecimal weightBigDecimal = new BigDecimal(String.valueOf(weight));
+                        
+                        BigDecimal weightedScore = score.multiply(weightBigDecimal);
                         
                         // 累加得分总和
-                        campaignScore = campaignScore + weightedScore;
+                        campaignScore = campaignScore.add(weightedScore);
                     }
                     
                     Map<String, String> formulaMap = new HashMap<String, String>();
@@ -248,7 +255,7 @@ public class ScoreService extends BaseService
      * 始                         止
      * 
      * 
-     * 情况2：(始 >= S) && (始 <= S)
+     * 情况2：(始 >= S) && (始 <= E)
      *              [==============]
      *              始                         止
      * </pre>
@@ -653,87 +660,87 @@ public class ScoreService extends BaseService
      * @param backwardStep  负向游标
      * @return 公式的得分
      */
-    private double score(double target, double baseVal, double forwardStep, double backwardStep)
+    private BigDecimal score(BigDecimal target, BigDecimal baseVal, BigDecimal forwardStep, BigDecimal backwardStep)
     {
-        double scores = 0.0d;
+        BigDecimal scores = BigDecimal.ZERO;
         
-        double forwardBoundary = baseVal + forwardStep;      // 正向边界
-        double backwardBoundary = baseVal + backwardStep;    // 反向边界
+        BigDecimal forwardBoundary = baseVal.add(forwardStep);      // 正向边界
+        BigDecimal backwardBoundary = baseVal.add(backwardStep);    // 反向边界
         
         LOGGER.debug(backwardBoundary + "(零分) ----- " + baseVal + "(伍拾分) ----- " + forwardBoundary + "(满分)");
         
         if (target == backwardBoundary)
         {
             LOGGER.debug("公式结果等于反向边界值，不需计算，得分为零分");
-            return 0;
+            return BigDecimal.ZERO;
         }
         
         if (target == baseVal)
         {
             LOGGER.debug("公式结果等于参考值，不需计算，得分为伍拾分");
-            return 50;
+            return BIGDECIMAL_50;
         }
         
         if (target == forwardBoundary)
         {
             LOGGER.debug("公式结果等于正向边界值，不需计算，得分为满分");
-            return 100;
+            return BIGDECIMAL_100;
         }
         
-        double forwardSeg = Math.abs(forwardStep);
-        double backwardSeg = Math.abs(backwardStep);
+        BigDecimal forwardSeg = forwardStep.abs();
+        BigDecimal backwardSeg = backwardStep.abs();
         
         // 目标值与参考值的差，代表有多少个评分单元。
-        double units = Math.abs(baseVal - target);
+        BigDecimal units = (baseVal.subtract(target)).abs();
         
         LOGGER.debug("反向区间：" + backwardSeg + ", 正向区间：" + forwardSeg);
         
-        double forwardScoreUnit = 50 / forwardSeg;   // 在“正向区间”，每个评分单元可以打多少分数
-        double backwardScoreUnit = 50 / backwardSeg; // 在“反向区间”，每个评分单元可以打多少分数
+        BigDecimal forwardScoreUnit = BIGDECIMAL_50.divide(forwardSeg, 100, RoundingMode.HALF_UP);   // 在“正向区间”，每个评分单元可以打多少分数
+        BigDecimal backwardScoreUnit = BIGDECIMAL_50.divide(backwardSeg, 100, RoundingMode.HALF_UP); // 在“反向区间”，每个评分单元可以打多少分数
         
         
-        if ((baseVal > backwardBoundary) && (baseVal < forwardBoundary))        // 适用于升序情况，如：30 --> 60 --> 110
+        if ((baseVal.compareTo(backwardBoundary) > 0) && (baseVal.compareTo(forwardBoundary) < 0))        // 适用于升序情况，如：30 --> 60 --> 110
         {
-            if (target < backwardBoundary)
+            if (target.compareTo(backwardBoundary) < 0)
             {
                 LOGGER.debug("在升序情况下，公式结果比反向边界值还要小，得分为零分");
-                return 0;
+                return BigDecimal.ZERO;
             }
-            if (target > forwardBoundary)
+            if (target.compareTo(forwardBoundary) > 0)
             {
                 LOGGER.debug("在升序情况下，公式结果比正向边界值还要大，得分为满分");
-                return 100;
+                return BIGDECIMAL_100;
             }
             
-            if (target > baseVal)
+            if (target.compareTo(baseVal) > 0)
             {
-                scores = forwardScoreUnit * units;
+                scores = forwardScoreUnit.multiply(units);
             }
             else
             {
-                scores = -(backwardScoreUnit * units);
+                scores = backwardScoreUnit.multiply(units).negate();
             }
         }
-        else if ((baseVal < backwardBoundary) && (baseVal > forwardBoundary))   // 适用于降序情况，如：130 --> 60 --> 10
+        else if ((baseVal.compareTo(backwardBoundary) < 0) && (baseVal.compareTo(forwardBoundary) > 0))   // 适用于降序情况，如：130 --> 60 --> 10
         {
-            if (target > backwardBoundary)
+            if (target.compareTo(backwardBoundary) > 0)
             {
                 LOGGER.debug("在降序情况下，公式结果比反向边界值还要大，得分为零分");
-                return 0;
+                return BigDecimal.ZERO;
             }
-            if (target < forwardBoundary)
+            if (target.compareTo(forwardBoundary) < 0)
             {
                 LOGGER.debug("在降序情况下，公式结果比正向边界值还要小，得分为满分");
-                return 100;
+                return BIGDECIMAL_100;
             }
             
-            if (target > baseVal)
+            if (target.compareTo(baseVal) > 0)
             {
-                scores = -(backwardScoreUnit * units);
+                scores = backwardScoreUnit.multiply(units).negate();
             }
             else
             {
-                scores = forwardScoreUnit * units;
+                scores = forwardScoreUnit.multiply(units);
             }
         }
         else
@@ -741,7 +748,7 @@ public class ScoreService extends BaseService
             throw new IllegalArgumentException();
         }
         
-        return 50 + scores;
+        return BIGDECIMAL_50.add(scores);
     }
     
     /**
