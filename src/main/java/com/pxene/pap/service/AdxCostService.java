@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +70,6 @@ public class AdxCostService extends BaseService
     
     @Autowired
     private LaunchService launchService;
-    
     
     @PostConstruct
     public void selectRedis()
@@ -268,5 +268,25 @@ public class AdxCostService extends BaseService
             adxCostData.setCost(Double.parseDouble(costAmountStr) / 100);
         }
         return adxCostData;
+    }
+    
+    @Transactional
+    public List<Map<String, String>> getProjectNames(String[] codes) {
+    	if (codes.length == 0) {
+    		return new ArrayList<Map<String, String>>();
+    	}
+    	List<Map<String, String>> results = new ArrayList<Map<String, String>>(); 
+    	
+    	ProjectModelExample ex = new ProjectModelExample();
+    	ex.createCriteria().andCodeIn(Arrays.asList(codes));
+    	List<ProjectModel> projects = projectDao.selectByExample(ex);
+    	for (ProjectModel project : projects) {
+    		Map<String, String> result = new HashMap<String, String>();
+    		result.put("code", project.getCode());
+    		result.put("name", project.getName());
+    		results.add(result);
+    	}
+    	
+    	return results;
     }
 }

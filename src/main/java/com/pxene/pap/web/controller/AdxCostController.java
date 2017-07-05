@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pxene.pap.common.ResponseUtils;
@@ -57,5 +58,15 @@ public class AdxCostController
         o.put("items", beans);
         
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), o, response);
+    }
+    
+    
+    @RequestMapping(value = "/adxcost/project", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String getProjectNames(@RequestParam String[] codes, HttpServletResponse response) throws Exception
+    {
+        List<Map<String, String>> results = adxCostService.getProjectNames(codes);
+        
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), results, response);
     }
 }
