@@ -7,14 +7,8 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
@@ -1454,64 +1448,132 @@ public class DataService extends BaseService {
 		String dayKey = RedisKeyConstant.CREATIVE_DATA_DAY + creativeId;
 		
 		if (redisHelper3.exists(dayKey)) {
-			// 查该创意所属的活动
-			CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
-			String campaignId = creativeModel.getCampaignId();
-			// 查询该创意定向的地域
-			CampaignTargetModelExample campaignTargetExample = new CampaignTargetModelExample();
-			campaignTargetExample.createCriteria().andIdEqualTo(campaignId);
-			List<CampaignTargetModel> campaignTargetModels = campaignTargetDao.selectByExampleWithBLOBs(campaignTargetExample);
-			if (!campaignTargetModels.isEmpty()) {
+//			 // 查该创意所属的活动
+//			CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+//			String campaignId = creativeModel.getCampaignId();
+//			// 查询该创意定向的地域
+//			CampaignTargetModelExample campaignTargetExample = new CampaignTargetModelExample();
+//			campaignTargetExample.createCriteria().andIdEqualTo(campaignId);
+//			List<CampaignTargetModel> campaignTargetModels = campaignTargetDao.selectByExampleWithBLOBs(campaignTargetExample);
+//			if (!campaignTargetModels.isEmpty()) {
 				String[] days = DateUtils.getDaysBetween(new Date(startDate), new Date(endDate));
 				Map<String, String> dayData = redisHelper3.hget(dayKey);
 				// 地域数组
-				String regionIds = campaignTargetModels.get(0).getRegionId();
-				if (regionIds == null || regionIds.isEmpty()) {
+//				String regionIds = campaignTargetModels.get(0).getRegionId();
+//				if (regionIds == null || regionIds.isEmpty()) {
 					// 查地域表获取所有地域ID
-					regionIds = customRegionDao.selectRegionIds();
+//					regionIds = customRegionDao.selectRegionIds();
+//				}
+//				for (String regionId : regionIds.split(",")) {
+//				    //地域ID转化,redis中地域是10位，数据库中是6位，所以要加上1156
+//                    regionId = "1156" + regionId;
+//					// 查询地域名称
+//					RegionModel regionModel = regionDao.selectByPrimaryKey(regionId);
+//					if (regionModel == null) {
+//						continue;
+//					}
+//					String regionName = regionModel.getName();
+//					AnalysisBean creativeData = new AnalysisBean();
+//					long impression = 0L, click = 0L, jump = 0L;
+//					double expense = 0D;
+//					for (String day : days) {
+//						String impressionKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.IMPRESSION;
+//						if (dayData.containsKey(impressionKey)) {
+//							impression += Long.parseLong(dayData.get(impressionKey));
+//						}
+//						String clickKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.CLICK;
+//						if (dayData.containsKey(clickKey)) {
+//							click += Long.parseLong(dayData.get(clickKey));
+//						}
+//						String jumpKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.JUMP;
+//						if (dayData.containsKey(jumpKey)) {
+//							jump += Long.parseLong(dayData.get(jumpKey));
+//						}
+//						String expenseKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.EXPENSE;
+//						if (dayData.containsKey(expenseKey)) {
+//							expense += Double.parseDouble(dayData.get(expenseKey)) / 100;
+//						}
+//					}
+//					creativeData.setId(regionId);
+//					creativeData.setName(regionName);
+//					creativeData.setImpressionAmount(impression);
+//					creativeData.setClickAmount(click);
+//					creativeData.setClickRate(impression == 0 ? 0f : (float)(click/(double)impression));
+//					creativeData.setJumpAmount(jump);
+//					creativeData.setTotalCost(expense);
+//					creativeData.setClickRate(impression == 0 ? 0f : (float)(expense/impression));
+//					creativeData.setClickRate(click == 0 ? 0f : (float)(expense/click));
+//					creativeData.setClickRate(jump == 0 ? 0f : (float)(expense/jump));
+//					creativeDatas.add(creativeData);
+//				}
+//			}
+			//把数组转换为list
+			List<String> days_list = Arrays.asList(days);
+			//key:regionId value: analysisBean
+			Map<String, AnalysisBean> regionIdAndDataMap = new HashMap<>();
+
+			//循环redis 的key，把数据取出来
+			for(String key : dayData.keySet()){
+				//key：20170703_region_1156110000@e
+				String[] arr = key.split("_");
+				//包含指定的日期，并且是region数据
+				if(arr.length != 3 || !days_list.contains(arr[0]) || !"region".equals(arr[1])){
+					continue;
 				}
-				for (String regionId : regionIds.split(",")) {
+				String[] arr2 = arr[2].split("@");
+				if(arr2.length != 2){
+					continue;
+				}
+				String regionId = arr2[0];
+				String type = arr2[1];
+				AnalysisBean creativeData;
+				//获取到key对应的redis的值
+				String value = dayData.get(key);
+				if(!regionIdAndDataMap.containsKey(regionId)) {
+					creativeData = new AnalysisBean();
+
 					// 查询地域名称
-					RegionModel regionModel = regionDao.selectByPrimaryKey(regionId);
+					String regionDbId = regionId.substring(4);
+					RegionModel regionModel = regionDao.selectByPrimaryKey(regionDbId);
 					if (regionModel == null) {
 						continue;
 					}
-					String regionName = regionModel.getName();
-					AnalysisBean creativeData = new AnalysisBean();
-					long impression = 0L, click = 0L, jump = 0L;
-					double expense = 0D;
-					for (String day : days) {
-						String impressionKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.IMPRESSION;
-						if (dayData.containsKey(impressionKey)) {
-							impression += Long.parseLong(dayData.get(impressionKey));
-						}
-						String clickKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.CLICK;
-						if (dayData.containsKey(clickKey)) {
-							click += Long.parseLong(dayData.get(clickKey));
-						}
-						String jumpKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.JUMP;
-						if (dayData.containsKey(jumpKey)) {
-							jump += Long.parseLong(dayData.get(jumpKey));
-						}
-						String expenseKey = day + CREATIVE_DATA_TYPE.REGION + regionId + CREATIVE_DATA_SUFFIX.EXPENSE;
-						if (dayData.containsKey(expenseKey)) {
-							expense += Double.parseDouble(dayData.get(expenseKey)) / 100;
-						} 
-					}
-					creativeData.setId(regionId);
-					creativeData.setName(regionName);
-					creativeData.setImpressionAmount(impression);
-					creativeData.setClickAmount(click);
-					creativeData.setClickRate(impression == 0 ? 0f : (float)(click/(double)impression));
-					creativeData.setJumpAmount(jump);
-					creativeData.setTotalCost(expense);
-					creativeData.setClickRate(impression == 0 ? 0f : (float)(expense/impression));
-					creativeData.setClickRate(click == 0 ? 0f : (float)(expense/click));
-					creativeData.setClickRate(jump == 0 ? 0f : (float)(expense/jump));
-					creativeDatas.add(creativeData);
+					creativeData.setId(regionDbId);
+					creativeData.setName(regionModel.getName());
+
+					regionIdAndDataMap.put(regionId,creativeData);
+				}else{
+					creativeData = regionIdAndDataMap.get(regionId);
 				}
+				//判断type类型(m,c,e)
+				if("m".equals(type)){	//展现
+					creativeData.setImpressionAmount(creativeData.getImpressionAmount() + Long.parseLong(value));
+					//点击率
+					creativeData.setClickRate(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getClickAmount()/(double)creativeData.getImpressionAmount()));
+					//设置展现成本
+					creativeData.setImpressionCost(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getImpressionAmount()));
+				}else if("c".equals(type)){	//点击
+					creativeData.setClickAmount(creativeData.getClickAmount() + Long.parseLong(value));
+					//点击率
+					creativeData.setClickRate(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getClickAmount()/creativeData.getImpressionAmount()));
+					//点击成本
+					creativeData.setClickCost(creativeData.getClickAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getClickAmount()));
+				}else if("j".equals(type)){	//二跳
+					creativeData.setJumpAmount(creativeData.getJumpAmount() + Long.parseLong(value));
+					//二跳成本
+					creativeData.setJumpCost(creativeData.getJumpAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getJumpAmount()));
+				}else if("e".equals(type)){	//花费
+					creativeData.setTotalCost(creativeData.getTotalCost() + Double.parseDouble(value)/100);
+					//设置展现成本
+					creativeData.setImpressionCost(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getImpressionAmount()));
+					//点击成本
+					creativeData.setClickCost(creativeData.getClickAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getClickAmount()));
+					//二跳成本
+					creativeData.setJumpCost(creativeData.getJumpAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getJumpAmount()));
+				}
+
 			}
-			
+			creativeDatas.addAll(regionIdAndDataMap.values());
 		}
 		return creativeDatas;
 	}
@@ -2255,7 +2317,9 @@ public class DataService extends BaseService {
 	 * 根据前缀读取redis，并存入相应的bean中
 	 * @param bean
 	 * @param dataMap
-	 * @param prefix
+	 * @param day
+	 * @param type
+	 * @param code
 	 */
 	private void putMapDataInBean(AnalysisBean bean, Map<String, String> dataMap, String day, String type, String code) {
 		String key;
