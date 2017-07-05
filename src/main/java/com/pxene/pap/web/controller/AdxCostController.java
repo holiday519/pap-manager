@@ -65,8 +65,10 @@ public class AdxCostController
     @ResponseBody
     public String getProjectNames(@RequestParam String[] codes, HttpServletResponse response) throws Exception
     {
-        List<Map<String, String>> results = adxCostService.getProjectNames(codes);
+        List<Map<String, String>> projectNames = adxCostService.getProjectNames(codes);
+        Map<String, List<Map<String, String>>> result = new HashMap<String, List<Map<String, String>>>();
+        result.put("items", projectNames);
         
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), results, response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 }
