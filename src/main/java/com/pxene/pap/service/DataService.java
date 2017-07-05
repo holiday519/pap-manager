@@ -1549,13 +1549,13 @@ public class DataService extends BaseService {
 				if("m".equals(type)){	//展现
 					creativeData.setImpressionAmount(creativeData.getImpressionAmount() + Long.parseLong(value));
 					//点击率
-					creativeData.setClickRate(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getClickAmount()/(double)creativeData.getImpressionAmount()));
+					creativeData.setClickRate(creativeData.getImpressionAmount() == 0 ? 0f : (float)((double)creativeData.getClickAmount()/creativeData.getImpressionAmount()));
 					//设置展现成本
 					creativeData.setImpressionCost(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getImpressionAmount()));
 				}else if("c".equals(type)){	//点击
 					creativeData.setClickAmount(creativeData.getClickAmount() + Long.parseLong(value));
 					//点击率
-					creativeData.setClickRate(creativeData.getImpressionAmount() == 0 ? 0f : (float)(creativeData.getClickAmount()/creativeData.getImpressionAmount()));
+					creativeData.setClickRate(creativeData.getImpressionAmount() == 0 ? 0f : (float)((double)creativeData.getClickAmount()/creativeData.getImpressionAmount()));
 					//点击成本
 					creativeData.setClickCost(creativeData.getClickAmount() == 0 ? 0f : (float)(creativeData.getTotalCost()/creativeData.getClickAmount()));
 				}else if("j".equals(type)){	//二跳
