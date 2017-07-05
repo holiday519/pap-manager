@@ -221,6 +221,7 @@ public class AdxCostService extends BaseService
                 AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(advertiserId);
                 
                 data.setProjectCode(projectCode);
+                data.setProjectName(projectModel.getName());
                 data.setAdxId(adxId);
                 data.setMode(mode);
                 data.setStatus(status);
