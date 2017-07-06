@@ -180,10 +180,11 @@ public class ProjectController {
 	 * @param id   项目ID
 	 * @param map  位于Http Body中的请求参数，包含项目预算budget
 	 * @param response
+	 * @throws Exception 
 	 */
 	@RequestMapping(value = "/project/budget/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public void changeProjectBudget(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response)
+	public void changeProjectBudget(@PathVariable String id, @RequestBody Map<String,String> map, HttpServletResponse response) throws Exception
 	{
 	    projectService.changeProjectBudget(id, map);
 	    response.setStatus(HttpStatus.NO_CONTENT.value());

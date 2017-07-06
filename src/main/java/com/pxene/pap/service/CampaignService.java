@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -407,7 +406,7 @@ public class CampaignService extends BaseService {
 		// 编辑活动时判断是否已经投放过，即不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {			
 			// 改变预算(日均预算、总预算)、展现时修改redis中的值
-			changeBudgetAndCounter(id, bean.getQuantities());
+			changeBudgetAndCounter(id, projectModel.getId(), bean.getQuantities());
 		}
 		
 		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
@@ -543,7 +542,8 @@ public class CampaignService extends BaseService {
 				// 修改时间前后状态改变：不投放到投放--->没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
 				launchService.write4FirstTime(campaignModel);
 				// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
-				if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+				if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) 
+						&& launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
 					boolean writeResult = launchService.launchCampaignRepeatable(id);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
@@ -562,7 +562,7 @@ public class CampaignService extends BaseService {
 	 * @param quantities
 	 * @throws Exception
 	 */
-	private void changeBudgetAndCounter(String campaignId, Quantity[] quantities) throws Exception {
+	private void changeBudgetAndCounter(String campaignId, String projectId, Quantity[] quantities) throws Exception {
 		if (quantities != null && quantities.length > 0) {
 			Date current = new Date();
 			String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
@@ -598,6 +598,7 @@ public class CampaignService extends BaseService {
 				}
 			}
 			
+			double redisBudget = redisHelper.getDouble(budgetKey) / 100;
 			if (newBudget == null) {
 				if (oldBudget != null) {
 					if (redisHelper.exists(budgetKey)) {
@@ -609,7 +610,6 @@ public class CampaignService extends BaseService {
 					redisHelper.set(budgetKey, (int)newBudget);
 				} else {
 					if (redisHelper.exists(budgetKey)) {
-						double redisBudget = redisHelper.getDouble(budgetKey) / 100;
 						int difBudget = newBudget - oldBudget;
 						if (difBudget < 0 && Math.abs(difBudget) > redisBudget) {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_DAILY_BIGGER_REDIS);
@@ -621,6 +621,7 @@ public class CampaignService extends BaseService {
 				}
 			}
 			
+			int redisImpression = redisHelper.getInt(countKey);
 			if (newImpression == null) {
 				if (oldImpression != null) {
 					if (redisHelper.exists(countKey)) {
@@ -632,7 +633,6 @@ public class CampaignService extends BaseService {
 					redisHelper.set(countKey, (int)newImpression);
 				} else {
 					if (redisHelper.exists(countKey)) {
-						int redisImpression = redisHelper.getInt(countKey);
 						int difImpression = newImpression - oldImpression;
 						if (difImpression < 0 && Math.abs(difImpression) > redisImpression) {
 							throw new IllegalArgumentException(PhrasesConstant.DIF_IMPRESSION_BIGGER_REDIS);
@@ -640,6 +640,17 @@ public class CampaignService extends BaseService {
 						if (difImpression != 0) {
 							redisHelper.incrybyInt(countKey, difImpression);
 						}
+					}
+				}
+			}
+			
+			// 判断当前这个活动的预算或者展现数是否已经用光
+			if (redisBudget < 0 || redisImpression < 0) {
+				// 如果预算和展现数字调高了，就继续投放
+				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId)) {
+					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+					if (!writeResult) {
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 					}
 				}
 			}

@@ -11,10 +11,10 @@ import javax.transaction.Transactional;
 
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.repository.basic.*;
+
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
-/*import org.apache.log4j.Logger;*/
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +25,11 @@ import org.springframework.util.StringUtils;
 import com.pxene.pap.common.ExcelUtil;
 import com.pxene.pap.common.FormulaUtils;
 import com.pxene.pap.common.RedisHelper;
-import com.pxene.pap.common.ScriptUtils;
 import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectBean.EffectField;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas;
@@ -42,8 +40,6 @@ import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.EffectDicModel;
 import com.pxene.pap.domain.models.EffectDicModelExample;
 import com.pxene.pap.domain.models.FormulaModel;
@@ -55,8 +51,6 @@ import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
 import com.pxene.pap.domain.models.RuleModel;
 import com.pxene.pap.domain.models.RuleModelExample;
-import com.pxene.pap.domain.models.FormulaModel;
-import com.pxene.pap.domain.models.FormulaModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
@@ -121,7 +115,7 @@ public class ProjectService extends BaseService {
 
 	@Autowired
 	private LandpageService landpageService;
-
+	
     @Autowired
     public ProjectService(Environment env)
     {
@@ -351,8 +345,8 @@ public class ProjectService extends BaseService {
 		File excelFile= new File(excelSavePath + "/" + id + ".xlsx");
 		if(excelFile.exists()){
 			boolean res =excelFile.delete();
-			if(!res){
-				throw new IllegalStatusException("删除excel文件失败：projectid="+id);
+			if (!res) {
+				throw new IllegalStatusException(PhrasesConstant.EXCEL_DELETE_ERROR);
 			}
 		}
 
@@ -407,15 +401,14 @@ public class ProjectService extends BaseService {
         // 删除项目转化字段
         destoryEffectField(Arrays.asList(ids));
 
-
 		//删除对应的excel模板
 		File excelFile;
 		for (String id : ids) {
 			excelFile = new File(excelSavePath + "/" + id + ".xlsx");
 			if (excelFile.exists()) {
 				boolean res =excelFile.delete();
-				if(!res){
-					throw new IllegalStatusException("生成excel文件失败:projectId="+id);
+				if (!res) {
+					throw new IllegalStatusException(PhrasesConstant.EXCEL_CREATE_ERROR);
 				}
 			}
 		}
@@ -702,7 +695,7 @@ public class ProjectService extends BaseService {
 		//生成excel模板文件
 		boolean res = getEffectDataToCreateExcel(fieldId);
 		if (!res) {
-			throw new IllegalStatusException("生成excel文件失败");
+			throw new IllegalStatusException(PhrasesConstant.EXCEL_CREATE_ERROR);
 		}
     }
 
@@ -717,7 +710,7 @@ public class ProjectService extends BaseService {
 
 		//判断转换值对应的名称是否为空
 		EffectDicModel effectDicModel = effectDicDao.selectByPrimaryKey(fieldId);
-		if(effectDicModel == null || effectDicModel.getColumnName()==null  || effectDicModel.getColumnName().isEmpty()){
+		if(effectDicModel == null || effectDicModel.getColumnName() == null || effectDicModel.getColumnName().isEmpty()){
 			throw new IllegalArgumentException(PhrasesConstant.EFFECTDIC_NAME_IS_NULL);
 		}
 
@@ -741,12 +734,12 @@ public class ProjectService extends BaseService {
 		//生成excel模板文件
 		boolean res = getEffectDataToCreateExcel(fieldId);
 		if (!res) {
-			throw new IllegalStatusException("生成excel文件失败");
+			throw new IllegalStatusException(PhrasesConstant.EXCEL_CREATE_ERROR);
 		}
     }
 
 	@Transactional
-    public void changeProjectBudget(String id, Map<String, String> map)
+    public void changeProjectBudget(String id, Map<String, String> map) throws Exception
     {
         String budgetStr = map.get("budget");
 
@@ -803,15 +796,15 @@ public class ProjectService extends BaseService {
      * 修改Reids中保存的项目总预算
      * @param projectId 项目ID
      * @param formVal   欲修改成的项目总预算值（表单值）
+     * @throws Exception 
      */
-    private void changeBudgetInRedis(String projectId, int oldBudget, int newBudget)
+    private void changeBudgetInRedis(String projectId, int oldBudget, int newBudget) throws Exception
     {
         String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
 
         // Redis中保存的项目剩余预算(分)
         Jedis jedis = redisHelper.getJedis();
         jedis.watch(projectBudgetKey);
-        // TODO : zytosee
         double redisBudget = Double.parseDouble(jedis.get(projectBudgetKey));
 
         // 已消耗掉的项目预算(分)
@@ -828,6 +821,24 @@ public class ProjectService extends BaseService {
         if (!casFlag)
         {
             throw new ServerFailureException();
+        }
+        
+        // 如果redis的项目预算已经用光
+        if (redisBudget < 0) {
+        	CampaignModelExample ex = new CampaignModelExample();
+        	ex.createCriteria().andProjectIdEqualTo(projectId);
+        	List<CampaignModel> campaigns = campaignDao.selectByExample(ex);
+        	for (CampaignModel campaign : campaigns) {
+        		String campaignId = campaign.getId();
+        		// 如果预算和展现数字调高了，就继续投放
+				if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId) 
+						&& launchService.notOverDailyCounter(campaignId)) {
+					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+					if (!writeResult) {
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					}
+				}
+        	}
         }
     }
 
@@ -857,7 +868,7 @@ public class ProjectService extends BaseService {
      */
     private void destoryEffectField(List<String> projectIds)
     {
-    	if(projectIds == null || projectIds.size()==0){
+    	if(projectIds == null || projectIds.size() == 0){
 			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
         EffectDicModelExample example = new EffectDicModelExample();
@@ -990,7 +1001,6 @@ public class ProjectService extends BaseService {
 		// 公式
 		Formulas[] formulas = bean.getFormulas();
 		
-		// FIXME : 没有公式抛异常，判断为空即可
 		if (formulas == null || formulas.length == 0) {
 			throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
 		}
@@ -1178,7 +1188,6 @@ public class ProjectService extends BaseService {
 		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
 		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticvalId());
 		
-		// FIXME ： 判断条件是否为空
 		// 判断公式是否合法
 		String triggerCondition = bean.getTriggerCondition();
 		if (triggerCondition != null && !triggerCondition.isEmpty()) {
@@ -1313,7 +1322,6 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	private void checkSameOfRuleName(String name,String projectId,String ruleId) throws Exception {	
-		// FIXME : 名称规范
 		// 根据规则名称和项目id查询规则信息
 		RuleModelExample ruleEx = new RuleModelExample();
 		if (ruleId == null) {

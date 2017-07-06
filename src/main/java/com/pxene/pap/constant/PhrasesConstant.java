@@ -206,4 +206,7 @@ public class PhrasesConstant
     public static final String FORMULA_RESULT_ERROR = "公式结果异常";
     public static final String CAMPAIGN_SCORE_ERROR = "评分异常";
     
+    public static final String EXCEL_CREATE_ERROR = "excel文件生成失败";
+    public static final String EXCEL_DELETE_ERROR = "excel文件删除失败";
+    
 }
