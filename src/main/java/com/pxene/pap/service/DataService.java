@@ -708,14 +708,23 @@ public class DataService extends BaseService {
             Class<EffectModel> effectClass = EffectModel.class;
             EffectModel td = effectClass.newInstance();
             
-            // 判断Excel中每一行的值是否有负数，有负数则忽略该条数据
+            // 判断Excel中每一行的值是否有负数，有负数则忽略该条数据 
+            int number = 0 ;
             for (int j = 2; j < lastCellIndex ; j++) {
             	Cell effectCell = tmpRow.getCell(j);
+            	if (effectCell == null) {
+            		continue;
+            	}
             	double cell = effectCell.getNumericCellValue();
             	if (cell < 0) {
+            		number = 1;
             		break;
-            	}
+            	}           	
             }
+            if (number == 1) {
+            	continue;
+            }
+            
             
             // 取日期和监测码
             Cell dateCell = tmpRow.getCell(0);
