@@ -646,9 +646,14 @@ public class CampaignService extends BaseService {
 			
 			// 判断当前这个活动的预算或者展现数是否已经用光
 			if (redisBudget <= 0 || redisImpression <= 0) {
+				ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+	        	CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
+				
 				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId) 
 						&& launchService.notOverDailyBudget(campaignId) 
-						&& launchService.notOverDailyCounter(campaignId)) {
+						&& launchService.notOverDailyCounter(campaignId)
+						&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);

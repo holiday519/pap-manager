@@ -825,15 +825,19 @@ public class ProjectService extends BaseService {
         
         // 如果redis的项目预算已经用光
         if (redisBudget <= 0) {
-        	CampaignModelExample ex = new CampaignModelExample();
-        	ex.createCriteria().andProjectIdEqualTo(projectId);
-        	List<CampaignModel> campaigns = campaignDao.selectByExample(ex);
+        	ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+        	String projectStatus = project.getStatus();
+        	CampaignModelExample campaignEx = new CampaignModelExample();
+        	campaignEx.createCriteria().andProjectIdEqualTo(projectId);
+        	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
         	for (CampaignModel campaign : campaigns) {
         		String campaignId = campaign.getId();
         		// 如果预算和展现数字调高了，就继续投放
 				if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId) 
 						&& launchService.notOverDailyCounter(campaignId)
-						&& launchService.notOverProjectBudget(projectId)) {
+						&& launchService.notOverProjectBudget(projectId)
+						&& StatusConstant.PROJECT_PROCEED.equals(projectStatus)
+						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
