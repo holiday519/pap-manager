@@ -338,6 +338,12 @@ public class LaunchService extends BaseService {
 			campaignExample.createCriteria().andEndDateEqualTo(end);
 			List<CampaignModel> delCampaigns = campaignDao.selectByExample(campaignExample);
 			for (CampaignModel campaign : delCampaigns) {
+				// 将开关关闭
+				CampaignModel campaignModel = new CampaignModel();
+				campaignModel.setId(campaign.getId());
+				campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
+				campaignDao.updateByPrimaryKeySelective(campaignModel);
+				// 删除redis的信息
 				remove4EndDate(campaign);
 			}
 

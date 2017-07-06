@@ -529,7 +529,31 @@ public class CampaignService extends BaseService {
 			// 写入活动下的创意基本信息 dsp_mapid_*，修改落地页等相关信息
 			launchService.writeCreativeInfo(id);
 		}
-					
+		
+		// 如果编辑时间
+		if (!startDate.equals(startDateInDB) || !endDate.equals(endDateInDB)) {
+			// 获取编辑后的活动信息
+			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
+			// 修改redis中的信息		
+			String projectId = campaignModel.getProjectId();
+			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+			if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id)  &&
+					StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
+				// 修改时间前后状态改变：不投放到投放--->没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
+				launchService.write4FirstTime(campaignModel);
+				// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
+				if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+					boolean writeResult = launchService.launchCampaignRepeatable(id);
+					if (!writeResult) {
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					}
+				}
+			} else if (launchService.isHaveLaunched(id) && !isOnLaunchDate(id)) {
+				// 修改时间前后状态改变：投放到不投放--->如果之间投放过，并且修改时间后不在投放时间段内，则将其信息从redis中删除
+				launchService.remove4EndDate(campaignModel);
+			}		
+		}				
 	}		
 	
 	/**
@@ -659,6 +683,10 @@ public class CampaignService extends BaseService {
 			// 按照活动暂停
 			pauseCampaign(campaignModel);
 		} else if (StatusConstant.CAMPAIGN_PROCEED.equals(status)) {	
+			// 检查活动是否已过期，已完成的活动不让打开
+			if (endDate.before(new Date())) {
+				throw new ResourceNotFoundException(PhrasesConstant.CAMPAIGN_IS_END_NOT_OPEN);
+			}
 			// 落地页id
 			String landpageId = campaignModel.getLandpageId();
 			// 判断落地页监测码是否被其他开启并且未结束的活动使用				
@@ -1417,7 +1445,7 @@ public class CampaignService extends BaseService {
 		String landpageId = campaign.getLandpageId();
 		if (StringUtils.isEmpty(landpageId)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
-		}
+		}		
 		// 检查是否有创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
