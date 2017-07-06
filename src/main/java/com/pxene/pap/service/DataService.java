@@ -516,6 +516,16 @@ public class DataService extends BaseService {
     public void importEffect(MultipartFile file, String projectId) throws IOException, EncryptedDocumentException, IllegalArgumentException, InvalidFormatException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, InvocationTargetException
     {
         InputStream inputStream = file.getInputStream();
+
+        // 禁止一个项目中是否存在相同的文件名
+        String originalFilename = file.getOriginalFilename();
+        EffectFileModelExample effectFileExample = new EffectFileModelExample();
+        effectFileExample.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(originalFilename);
+        List<EffectFileModel> effectFileModels = effectFileDao.selectByExample(effectFileExample);
+        if (effectFileModels != null && !effectFileModels.isEmpty())
+        {
+            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FILE_HAVE_EXISTS);
+        }
        
         List<EffectModel> modelList = null;
         try
