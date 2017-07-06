@@ -824,7 +824,7 @@ public class ProjectService extends BaseService {
         }
         
         // 如果redis的项目预算已经用光
-        if (redisBudget < 0) {
+        if (redisBudget <= 0) {
         	CampaignModelExample ex = new CampaignModelExample();
         	ex.createCriteria().andProjectIdEqualTo(projectId);
         	List<CampaignModel> campaigns = campaignDao.selectByExample(ex);

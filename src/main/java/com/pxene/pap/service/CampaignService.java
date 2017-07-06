@@ -645,7 +645,7 @@ public class CampaignService extends BaseService {
 			}
 			
 			// 判断当前这个活动的预算或者展现数是否已经用光
-			if (redisBudget < 0 || redisImpression < 0) {
+			if (redisBudget <= 0 || redisImpression <= 0) {
 				// 如果预算和展现数字调高了，就继续投放
 				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId)) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
