@@ -1725,4 +1725,20 @@ public class LaunchService extends BaseService {
 		redisHelper.delete(RedisKeyConstant.PROJECT_CAMPAIGNIDS + projectId);
 	}
 
+	public boolean haveCreatives(String campaignId) {
+		CreativeModelExample ex = new CreativeModelExample();
+		ex.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<CreativeModel> campaigns = creativeDao.selectByExample(ex);
+		
+		return campaigns.size() > 0;
+	}
+	
+	public boolean isInLaunchPeriod(String campaignId) {
+		CampaignModel model = campaignDao.selectByPrimaryKey(campaignId);
+		Date current = new Date();
+		Date start = model.getStartDate();
+		Date end = model.getEndDate();
+		
+		return current.before(end) && current.after(start);
+	}
 }

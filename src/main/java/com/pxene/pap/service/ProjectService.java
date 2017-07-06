@@ -837,7 +837,9 @@ public class ProjectService extends BaseService {
 						&& launchService.notOverDailyCounter(campaignId)
 						&& launchService.notOverProjectBudget(projectId)
 						&& StatusConstant.PROJECT_PROCEED.equals(projectStatus)
-						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())) {
+						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
+						&& launchService.haveCreatives(campaignId)
+						&& launchService.isInLaunchPeriod(campaignId)) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
