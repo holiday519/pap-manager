@@ -805,18 +805,8 @@ public class ScoreService extends BaseService
         {
             String key = entry.getKey();
             Number val = entry.getValue();
-            String value;
             
-            if (val.doubleValue() < 0) // 当变量值是负数（A1~A10，B1~B5），需要替换为括号包围的变量值，即，“(变量值)”，防止变量值作前面有操作符，变成+-xxx这种格式
-            {
-                value = "(" + val + ")";
-            }
-            else
-            {
-                value = val.toString();
-            }
-            
-            formula = StringUtils.replace(formula, key, value);
+            formula = StringUtils.replace(formula, key, val.toString());
         }
         
         return formula;
