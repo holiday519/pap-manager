@@ -1728,9 +1728,9 @@ public class LaunchService extends BaseService {
 	public boolean haveCreatives(String campaignId) {
 		CreativeModelExample ex = new CreativeModelExample();
 		ex.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> campaigns = creativeDao.selectByExample(ex);
+		List<CreativeModel> creatives = creativeDao.selectByExample(ex);
 		
-		return campaigns.size() > 0;
+		return creatives.size() > 0;
 	}
 	
 	public boolean isInLaunchPeriod(String campaignId) {
