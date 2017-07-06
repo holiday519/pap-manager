@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
+import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
 import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.IllegalArgumentException;
@@ -91,6 +92,9 @@ public class DataService extends BaseService {
 	
 	@Autowired
 	private LandpageCodeHistoryDao landpageCodeHistoryDao;
+	
+	@Autowired
+	private EffectDicDao effectDicDao;
 	
 	@Autowired
 	private LaunchService launchService;
@@ -516,12 +520,12 @@ public class DataService extends BaseService {
         List<EffectModel> modelList = null;
         try
         {
-            modelList = readTemplateFile(inputStream);
+            modelList = readTemplateFile(inputStream, projectId);
         }
         catch (Exception e)
         {
             throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
-        }
+        }       
         
         if (modelList == null || modelList.isEmpty())
         {
@@ -634,13 +638,15 @@ public class DataService extends BaseService {
      * @throws IllegalArgumentException
      * @throws InvocationTargetException
      */
-    private List<EffectModel> readTemplateFile(InputStream inp) throws EncryptedDocumentException, InvalidFormatException, FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException
+    private List<EffectModel> readTemplateFile(InputStream inp, String projectId) throws EncryptedDocumentException, InvalidFormatException, FileNotFoundException, IOException, InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException
     {
         Workbook wb = WorkbookFactory.create(inp);
        
         Sheet sheet = wb.getSheetAt(0);
         
         Row firstRow = sheet.getRow(0);
+        
+        Row secondRow = sheet.getRow(1);
         
         // 模板文件中数据行的行号（base 0）：除去指标行（A1，A2....A10)、除去列头（日期、监测码、注册数...）
         int beginDataLine = 2;
@@ -659,6 +665,9 @@ public class DataService extends BaseService {
         
         // 构建第一行中的物理列号与单元格内容的映射
         Map<Integer, String> titleMap = buildColumnCellMap(firstRow, firstCellIndex, lastCellIndex);
+        
+        // 构建第二行中的物理列号与单元格内容的映射
+        Map<Integer, String> nameMap = buildColumnContentMap(secondRow, firstCellIndex, lastCellIndex);
         
         // --> 检查列边界：保证“指标”列左侧有日期和监测码两列，保证“指标”列最多为10列，保证“指标列”不间断
         if (firstCellIndex < 2 || lastCellIndex > 12)
@@ -694,19 +703,21 @@ public class DataService extends BaseService {
             Class<EffectModel> effectClass = EffectModel.class;
             EffectModel td = effectClass.newInstance();
             
+            // 取日期和监测码
             Cell dateCell = tmpRow.getCell(0);
-            Cell codeCell = tmpRow.getCell(1);
-            
+            Cell codeCell = tmpRow.getCell(1);             
+
             // 如果第一列日期设置不正确
             if (dateCell == null || codeCell == null)
             {
-                throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            	// 如果日期为空 || 监测码为空  || 日期格式不正确，则忽略该条记录
+            	continue;
             }
             
             Date firstColumnValue = dateCell.getDateCellValue();
             if (firstColumnValue == null)
             {
-                throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            	continue;
             }
             else
             {
@@ -731,8 +742,52 @@ public class DataService extends BaseService {
             }
             else 
             {
-                throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            	continue;
             }
+            
+            
+            // 上传的模板必须与下载的模板对应关系相同
+            // 查询要上传转化数据的项目用到的转化字段信息
+            EffectDicModelExample effectdicEx = new EffectDicModelExample();
+            effectdicEx.createCriteria().andProjectIdEqualTo(projectId).andEnableEqualTo(StatusConstant.EFFECT_STATUS_ENABLE);
+            List<EffectDicModel> effectDics = effectDicDao.selectByExample(effectdicEx); 
+            int effectDicCellIndex = lastCellIndex-2; // 获得“指标”不为空的逻辑单元格，即“指标”的第一列到最后一列（最小为A1，最大为A10）
+            if (effectDics != null && !effectDics.isEmpty()) {
+            	if (effectDics.size() != effectDicCellIndex) {
+            		// 如果项目使用的转化字段长度与Excel中的A1—A10的长度不一致，说明模板不匹配
+            		throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+            	} else {
+            		// 如果长度相同的话，则将columnCode和columnName放到map中
+            		Map<String, String> effectDicMap = new HashMap<String, String>();
+            		for (EffectDicModel effectDic : effectDics) {
+            			String columnCode = effectDic.getColumnCode();
+            			String columnName = effectDic.getColumnName();
+            			effectDicMap.put(columnCode, columnName);
+            		}            		
+            		 // 欲上传的Excel中A1-A10及对应的字段名称
+                    Map<String, String> excelMap = new HashMap<String, String>();
+                    for (int j = firstCellIndex; j < lastCellIndex; j++) {
+                    	String column = titleMap.get(j);// 根据指定的物理列号，获得它是属于哪个指标，如：第2列，对应的是A3
+                    	String nameVal = nameMap.get(j); // 根据指定的物理列号，获得它名称
+                    	excelMap.put(column, nameVal);
+                    }
+                    // 比较两个map的信息是否相同
+                    for ( String code : excelMap.keySet()) {
+                    	if (!effectDicMap.containsKey(code)) {
+                    		// 如果项目使用的转化字段不包含Excel转来的转化字段，则说明模板不一样
+                    		throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+                    	} else {
+                    		// 如果项目使用的转化字段与Excel转来的转化字段一样，则比较转化字段的名称是否相同
+                    		String codeName = excelMap.get(code);
+                    		String codeNameInDB = effectDicMap.get(code);
+                    		if (!codeName.equals(codeNameInDB)) {
+                    			// 如果转化字段对应的转化值名称不一样，说明模板不一样
+                    			throw new InvalidFormatException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
+                    		}
+                    	}
+                    }
+            	}
+            }          
             
             
             // 遍历全部的“指标”列（不包含第一列日期，第二列监测码以外的全部列，形如A1, A2, ... , A10）
@@ -743,10 +798,15 @@ public class DataService extends BaseService {
                 String columnVal = titleMap.get(j);// 根据指定的物理列号，获得它是属于哪个指标，如：第2列，对应的是A3，则调用setA3()
                 
                 String methodName = "set" + columnVal;// 拼接成反射需要调用的方法名
-                
+                                             
                 Method method = effectClass.getDeclaredMethod(methodName, Double.class);
-               
-                method.invoke(td, tmpCell.getNumericCellValue());
+                
+                double effectVal = 0.0;
+                if (tmpCell == null) {
+                	method.invoke(td, effectVal);
+                } else {
+                	method.invoke(td, tmpCell.getNumericCellValue());
+                }
             }
             
             list.add(td);
@@ -773,6 +833,21 @@ public class DataService extends BaseService {
             titleMap.put(i, firstRow.getCell(i).getStringCellValue());
         }
         return titleMap;
+    }
+    
+    /**
+     * 构建第二行中的自定义列名与物理列值的映射
+     * @param secondRow 第二行对象
+     * @param firstCellIndex 获取第一个不为空的单元格是第几列（物理列号）
+     * @param lastCellIndex 获取最后一个不为空的单元格是第几列（物理列号）
+     * @return
+     */
+    private static Map<Integer, String> buildColumnContentMap(Row secondRow, int firstCellIndex, int lastCellIndex ) {
+    	Map<Integer, String> contentMap = new HashMap<Integer, String>();
+    	for (int i = firstCellIndex; i < lastCellIndex; i++) {
+    		contentMap.put(i, secondRow.getCell(i).getStringCellValue());
+    	}
+    	return contentMap;
     }
 
 	/**
