@@ -832,7 +832,8 @@ public class ProjectService extends BaseService {
         		String campaignId = campaign.getId();
         		// 如果预算和展现数字调高了，就继续投放
 				if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId) 
-						&& launchService.notOverDailyCounter(campaignId)) {
+						&& launchService.notOverDailyCounter(campaignId)
+						&& launchService.notOverProjectBudget(projectId)) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);

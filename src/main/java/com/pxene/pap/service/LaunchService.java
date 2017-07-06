@@ -1268,7 +1268,6 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void writeCreativeId(String campaignId) throws Exception {
-		// FIXME : 创意开关是开着、创意审核状态是通过  --- OK
 		//查询活动下创意
 		CreativeModelExample creativeExample = new CreativeModelExample();
 		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -1538,7 +1537,6 @@ public class LaunchService extends BaseService {
 		String redisKey = RedisKeyConstant.CAMPAIGN_BUDGET + campaignId;
 		if (redisHelper.exists(redisKey)) {
 			// 转换类型
-			// TODO : zytosee
 			double dayJudge = redisHelper.getDouble(redisKey);
 			// 判断是否超出日预算
 			if (dayJudge > 0) {
@@ -1609,7 +1607,6 @@ public class LaunchService extends BaseService {
 		String redisKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
 		if (redisHelper.exists(redisKey)) {
 			// 转换类型
-			// TODO : zytosee
 			double projectBudget = redisHelper.getDouble(redisKey);
 			if (projectBudget > 0) {
 				return true;
@@ -1644,7 +1641,6 @@ public class LaunchService extends BaseService {
 			// 将删除后剩下的元素再放回redis中
 			JsonObject resultJson = new JsonObject();
 			resultJson.add("mapids", jsonArray);
-			// FIXME : 去掉上两行代码是否写回redis？write
 			redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId,
 					resultJson.toString());
 		}
