@@ -1490,7 +1490,8 @@ public class CampaignService extends BaseService {
 					}
 				}
 				if (isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
-						&& launchService.notOverDailyCounter(campaignId)) {
+						&& launchService.notOverDailyCounter(campaignId) 
+						&& launchService.notOverProjectBudget(projectId)) {
 					// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {

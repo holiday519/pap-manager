@@ -606,7 +606,7 @@ public class ProjectService extends BaseService {
 						launchService.write4FirstTime(campaign);
 					}
 					if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
-							&& launchService.notOverDailyCounter(campaignId)) {
+							&& launchService.notOverDailyCounter(campaignId) && launchService.notOverProjectBudget(projectId)) {
 						// 如果在定向的时间里，将campaignId写入到redis的投放groups中
 						// 活动没有超出每天的日预算并且日均最大展现未达到上限
 						// launchService.writeCampaignId(campaignId);
