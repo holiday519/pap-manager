@@ -525,12 +525,7 @@ public class DataService extends BaseService {
         catch (Exception e)
         {
             throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
-        }       
-        
-        if (modelList == null || modelList.isEmpty())
-        {
-            throw new IllegalArgumentException(PhrasesConstant.EFFECT_TEMPLATE_FORMAT_ERROR);
-        }
+        }               
         
         // 匹配的监测码
         int codes = 0;
@@ -707,15 +702,25 @@ public class DataService extends BaseService {
             Cell dateCell = tmpRow.getCell(0);
             Cell codeCell = tmpRow.getCell(1);             
 
-            // 如果第一列日期设置不正确
+            // 如果第一列日期和第二列监测码是否为空
             if (dateCell == null || codeCell == null)
             {
-            	// 如果日期为空 || 监测码为空  || 日期格式不正确，则忽略该条记录
+            	// 如果日期为空 || 监测码为空  
             	continue;
             }
             
-            Date firstColumnValue = dateCell.getDateCellValue();
-            if (firstColumnValue == null)
+            // 如果第一列日期设置不正确：日期列为空或日期列输入不能转成日期的字段，导入时忽略该条信息
+            Date firstColumnValue = null;
+            boolean dateflag = true;
+            try
+            {
+            	firstColumnValue = dateCell.getDateCellValue();
+            }
+            catch (Exception e)
+            {
+            	dateflag = false;
+            }
+            if (firstColumnValue == null || !dateflag)
             {
             	continue;
             }
@@ -803,6 +808,7 @@ public class DataService extends BaseService {
                 
                 double effectVal = 0.0;
                 if (tmpCell == null) {
+                	// 如果“指标”列为空，默认为0
                 	method.invoke(td, effectVal);
                 } else {
                 	method.invoke(td, tmpCell.getNumericCellValue());
