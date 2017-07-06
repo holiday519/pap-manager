@@ -645,9 +645,21 @@ public class CampaignService extends BaseService {
 			}
 			
 			// 判断当前这个活动的预算或者展现数是否已经用光
-			if (redisBudget <= 0 || redisImpression <= 0) {
+			if (redisBudget <= 0) {
 				// 如果预算和展现数字调高了，就继续投放
-				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId)) {
+				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId) 
+						&& launchService.notOverDailyCounter(campaignId)) {
+					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+					if (!writeResult) {
+						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+					}
+				}
+			}
+			
+			
+			if (redisImpression <= 0) {
+				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId) 
+						&& launchService.notOverDailyBudget(campaignId)) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
