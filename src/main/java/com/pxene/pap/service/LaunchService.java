@@ -1183,7 +1183,10 @@ public class LaunchService extends BaseService {
 						weekHours.add(timeTarget.getTime());
 					}
 					// 每小时投放的数量 = 每日最大展现数 / adx的个数 / 时间定向（有几个时间段）
-					int hourImpression = dailyImpression / adxes.size() / timeTargets.size();
+					int hourImpression = 0;
+					if(adxes.size() != 0 && timeTargets != null && timeTargets.size() != 0) {
+						hourImpression = dailyImpression / adxes.size() / timeTargets.size();
+					}
 					for (int i=0; i<24; i++) {
 						String weekHour = week + String.format("%02d", i);
 						if (weekHours.contains(weekHour)) {
