@@ -198,7 +198,10 @@ public class ExcelUtil<T>
 
             // 设置填充模式为：实线填充
             style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
+            //文本类型
+            XSSFDataFormat format = workBook.createDataFormat();
+            style.setDataFormat(format.getFormat("@"));
+            
             XSSFFont font = workBook.createFont();
             font.setColor(HSSFColor.BLACK.index);
             font.setFontHeightInPoints((short) 12);
