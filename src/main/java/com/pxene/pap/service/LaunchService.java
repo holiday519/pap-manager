@@ -386,15 +386,15 @@ public class LaunchService extends BaseService {
 		// 每个小时判断时间定向，将不在该时间内的活动移除
 		for (CampaignModel campaign : launchCampaigns) {
 			String campaignId = campaign.getId();
-			// 投放需满足项目开启、活动开启、在活动时间范围里、当前时间在定向时间内，活动没有超出每天的日预算并且日均最大展现未达到上限
+			// 投放需满足项目开启、活动开启、在活动时间范围里、当前时间在定向时间内，活动没有超出每天的日预算并且日均最大展现未达到上限，项目预算没有达到上限
 			String projectId = campaign.getProjectId();
 			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
 			if(project == null){
 				continue;
 			}
 			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
-					&& campaignService.isOnLaunchDate(campaignId) && campaignService.isOnTargetTime(campaignId)
+					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus()) && campaignService.isOnLaunchDate(campaignId) 
+					&& campaignService.isOnTargetTime(campaignId) && notOverProjectBudget(projectId)
 					&& notOverDailyBudget(campaignId) && notOverDailyCounter(campaignId)) {
 				// writeCampaignId(campaignId);
 				boolean writeResult = launchCampaignRepeatable(campaignId);
