@@ -204,7 +204,7 @@ public class CampaignService extends BaseService {
 	private DataService dataService;
 	
 	@Autowired
-	private LandpageService landpageService;
+	private LandpageService landpageService;	
 	
 	@Autowired
 	private RedisHelper redisHelper;
@@ -536,8 +536,8 @@ public class CampaignService extends BaseService {
 			// 修改redis中的信息		
 			String projectId = campaignModel.getProjectId();
 			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-			if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id)  &&
-					StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+			if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id) && launchService.haveCreatives(id)
+					&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
 				// 修改时间前后状态改变：不投放到投放--->没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
 				launchService.write4FirstTime(campaignModel);
@@ -705,6 +705,13 @@ public class CampaignService extends BaseService {
 			// 检查活动是否已过期，已完成的活动不让打开
 			if (endDate.before(new Date())) {
 				throw new ResourceNotFoundException(PhrasesConstant.CAMPAIGN_IS_END_NOT_OPEN);
+			}
+			// 判断是否设置定向，没有设置定向不能打开活动开关
+			AppTargetModelExample apptargetEx = new AppTargetModelExample();
+			apptargetEx.createCriteria().andCampaignIdEqualTo(id);
+			List<AppTargetModel> apptargets = appTargetDao.selectByExample(apptargetEx);
+			if (apptargets == null || apptargets.isEmpty()) {
+				throw new ResourceNotFoundException(PhrasesConstant.CAMPAIGN_APPTARGET_IS_NULL);
 			}
 			// 落地页id
 			String landpageId = campaignModel.getLandpageId();
@@ -1743,8 +1750,8 @@ public class CampaignService extends BaseService {
 		//2.修改时间前后状态改变：不投放到投放；3.修改时间前后状态改变：投放到不投放)
 		String projectId = campaignModel.getProjectId();
 		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id)  &&
-				StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+		if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id) && launchService.haveCreatives(id)
+				&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
 			// 没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
 			launchService.write4FirstTime(campaignModel);

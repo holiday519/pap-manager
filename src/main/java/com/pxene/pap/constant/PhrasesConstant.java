@@ -48,6 +48,7 @@ public class PhrasesConstant
 	public static final String CAMPAIGN_ENDDATE_BEFORE_TODAY = "活动的结束时间，不能在今天之前。";
 	public static final String CAMPAIGN_QUANTITY_NOTONLY_ONE = "活动存在高级设置，不能编辑时间。";
 	public static final String CAMPAIGN_IS_END_NOT_OPEN = "活动已完成，不能打开开关。";
+	public static final String CAMPAIGN_APPTARGET_IS_NULL = "没有设置定向，不能打开开关。";
 	// 创意
     public static final String INVALID_PHONE = "不是正确的手机号码或座机号码";
     public static final String CREATIVE_NOT_FOUND = "该创意不存在";
