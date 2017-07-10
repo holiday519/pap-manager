@@ -193,7 +193,7 @@ public class MomoAuditService extends AuditService {
         data.addProperty("sign", sign);
 		// 创意审核地址
         AdxModel momoAdx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
-		String auditUrl = momoAdx.getCreativeAuditUrl();
+		String auditUrl = momoAdx.getCreativeAddUrl();
 		//提交陌陌审核并
         String creativeAuditResult = HttpClientUtil.getInstance().sendHttpPostForm(auditUrl, "data=" + data.toString());
 		if(creativeAuditResult == null){
@@ -241,7 +241,7 @@ public class MomoAuditService extends AuditService {
 	public void synchronizeCreative(String creativeId) throws Exception{
 		//根据审核主查询adx信息，获取审核Url
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
-		String syncUrl = adxModel.getCreativeSyncUrl();
+		String syncUrl = adxModel.getCreativeAuditStateQueryUrl();
 		//私密key将dspid为一个值"pxene"
 		String dspid = adxModel.getDspId();	
 		//设置同步方法参数

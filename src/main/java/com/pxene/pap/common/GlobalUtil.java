@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -25,6 +25,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -273,5 +275,15 @@ public class GlobalUtil {
         JsonElement jsonTree = gson.toJsonTree(list);
         
         return jsonTree.getAsJsonArray(); 
+    }
+    
+    public static String writeObject2Json(Object object, boolean needFormat) throws JsonProcessingException
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        if (needFormat)
+        {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        }
+        return objectMapper.writeValueAsString(object);
     }
 }
