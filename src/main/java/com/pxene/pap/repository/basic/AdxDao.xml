@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.basic.AdxDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.AdxModel">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="dsp_id" jdbcType="VARCHAR" property="dspId" />
+    <result column="dsp_name" jdbcType="VARCHAR" property="dspName" />
+    <result column="iurl" jdbcType="VARCHAR" property="iurl" />
+    <result column="curl" jdbcType="VARCHAR" property="curl" />
+    <result column="advertiser_add_url" jdbcType="VARCHAR" property="advertiserAddUrl" />
+    <result column="advertiser_update_url" jdbcType="VARCHAR" property="advertiserUpdateUrl" />
+    <result column="advertiser_query_url" jdbcType="VARCHAR" property="advertiserQueryUrl" />
+    <result column="qualification_add_url" jdbcType="VARCHAR" property="qualificationAddUrl" />
+    <result column="qualification_update_url" jdbcType="VARCHAR" property="qualificationUpdateUrl" />
+    <result column="qualification_query_url" jdbcType="VARCHAR" property="qualificationQueryUrl" />
+    <result column="creative_add_url" jdbcType="VARCHAR" property="creativeAddUrl" />
+    <result column="creative_update_url" jdbcType="VARCHAR" property="creativeUpdateUrl" />
+    <result column="creative_query_url" jdbcType="VARCHAR" property="creativeQueryUrl" />
+    <result column="creative_audit_state_query_url" jdbcType="VARCHAR" property="creativeAuditStateQueryUrl" />
+    <result column="sign_key" jdbcType="VARCHAR" property="signKey" />
+    <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, name, dsp_id, dsp_name, iurl, curl, advertiser_add_url, advertiser_update_url, 
+    advertiser_query_url, qualification_add_url, qualification_update_url, qualification_query_url, 
+    creative_add_url, creative_update_url, creative_query_url, creative_audit_state_query_url, 
+    sign_key, remark, create_time, update_time
+  </sql>
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.AdxModelExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_t_adx
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from pap_t_adx
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from pap_t_adx
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.AdxModelExample">
+    delete from pap_t_adx
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.AdxModel">
+    insert into pap_t_adx (id, name, dsp_id, 
+      dsp_name, iurl, curl, 
+      advertiser_add_url, advertiser_update_url, 
+      advertiser_query_url, qualification_add_url, 
+      qualification_update_url, qualification_query_url, 
+      creative_add_url, creative_update_url, creative_query_url, 
+      creative_audit_state_query_url, sign_key, remark, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{dspId,jdbcType=VARCHAR}, 
+      #{dspName,jdbcType=VARCHAR}, #{iurl,jdbcType=VARCHAR}, #{curl,jdbcType=VARCHAR}, 
+      #{advertiserAddUrl,jdbcType=VARCHAR}, #{advertiserUpdateUrl,jdbcType=VARCHAR}, 
+      #{advertiserQueryUrl,jdbcType=VARCHAR}, #{qualificationAddUrl,jdbcType=VARCHAR}, 
+      #{qualificationUpdateUrl,jdbcType=VARCHAR}, #{qualificationQueryUrl,jdbcType=VARCHAR}, 
+      #{creativeAddUrl,jdbcType=VARCHAR}, #{creativeUpdateUrl,jdbcType=VARCHAR}, #{creativeQueryUrl,jdbcType=VARCHAR}, 
+      #{creativeAuditStateQueryUrl,jdbcType=VARCHAR}, #{signKey,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.AdxModel">
+    insert into pap_t_adx
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="dspId != null">
+        dsp_id,
+      </if>
+      <if test="dspName != null">
+        dsp_name,
+      </if>
+      <if test="iurl != null">
+        iurl,
+      </if>
+      <if test="curl != null">
+        curl,
+      </if>
+      <if test="advertiserAddUrl != null">
+        advertiser_add_url,
+      </if>
+      <if test="advertiserUpdateUrl != null">
+        advertiser_update_url,
+      </if>
+      <if test="advertiserQueryUrl != null">
+        advertiser_query_url,
+      </if>
+      <if test="qualificationAddUrl != null">
+        qualification_add_url,
+      </if>
+      <if test="qualificationUpdateUrl != null">
+        qualification_update_url,
+      </if>
+      <if test="qualificationQueryUrl != null">
+        qualification_query_url,
+      </if>
+      <if test="creativeAddUrl != null">
+        creative_add_url,
+      </if>
+      <if test="creativeUpdateUrl != null">
+        creative_update_url,
+      </if>
+      <if test="creativeQueryUrl != null">
+        creative_query_url,
+      </if>
+      <if test="creativeAuditStateQueryUrl != null">
+        creative_audit_state_query_url,
+      </if>
+      <if test="signKey != null">
+        sign_key,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="dspId != null">
+        #{dspId,jdbcType=VARCHAR},
+      </if>
+      <if test="dspName != null">
+        #{dspName,jdbcType=VARCHAR},
+      </if>
+      <if test="iurl != null">
+        #{iurl,jdbcType=VARCHAR},
+      </if>
+      <if test="curl != null">
+        #{curl,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserAddUrl != null">
+        #{advertiserAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserUpdateUrl != null">
+        #{advertiserUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserQueryUrl != null">
+        #{advertiserQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qualificationAddUrl != null">
+        #{qualificationAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qualificationUpdateUrl != null">
+        #{qualificationUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qualificationQueryUrl != null">
+        #{qualificationQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeAddUrl != null">
+        #{creativeAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeUpdateUrl != null">
+        #{creativeUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeQueryUrl != null">
+        #{creativeQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeAuditStateQueryUrl != null">
+        #{creativeAuditStateQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="signKey != null">
+        #{signKey,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.AdxModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_adx
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update pap_t_adx
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dspId != null">
+        dsp_id = #{record.dspId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dspName != null">
+        dsp_name = #{record.dspName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.iurl != null">
+        iurl = #{record.iurl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.curl != null">
+        curl = #{record.curl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advertiserAddUrl != null">
+        advertiser_add_url = #{record.advertiserAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advertiserUpdateUrl != null">
+        advertiser_update_url = #{record.advertiserUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.advertiserQueryUrl != null">
+        advertiser_query_url = #{record.advertiserQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualificationAddUrl != null">
+        qualification_add_url = #{record.qualificationAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualificationUpdateUrl != null">
+        qualification_update_url = #{record.qualificationUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.qualificationQueryUrl != null">
+        qualification_query_url = #{record.qualificationQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creativeAddUrl != null">
+        creative_add_url = #{record.creativeAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creativeUpdateUrl != null">
+        creative_update_url = #{record.creativeUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creativeQueryUrl != null">
+        creative_query_url = #{record.creativeQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creativeAuditStateQueryUrl != null">
+        creative_audit_state_query_url = #{record.creativeAuditStateQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.signKey != null">
+        sign_key = #{record.signKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update pap_t_adx
+    set id = #{record.id,jdbcType=VARCHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      dsp_id = #{record.dspId,jdbcType=VARCHAR},
+      dsp_name = #{record.dspName,jdbcType=VARCHAR},
+      iurl = #{record.iurl,jdbcType=VARCHAR},
+      curl = #{record.curl,jdbcType=VARCHAR},
+      advertiser_add_url = #{record.advertiserAddUrl,jdbcType=VARCHAR},
+      advertiser_update_url = #{record.advertiserUpdateUrl,jdbcType=VARCHAR},
+      advertiser_query_url = #{record.advertiserQueryUrl,jdbcType=VARCHAR},
+      qualification_add_url = #{record.qualificationAddUrl,jdbcType=VARCHAR},
+      qualification_update_url = #{record.qualificationUpdateUrl,jdbcType=VARCHAR},
+      qualification_query_url = #{record.qualificationQueryUrl,jdbcType=VARCHAR},
+      creative_add_url = #{record.creativeAddUrl,jdbcType=VARCHAR},
+      creative_update_url = #{record.creativeUpdateUrl,jdbcType=VARCHAR},
+      creative_query_url = #{record.creativeQueryUrl,jdbcType=VARCHAR},
+      creative_audit_state_query_url = #{record.creativeAuditStateQueryUrl,jdbcType=VARCHAR},
+      sign_key = #{record.signKey,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.AdxModel">
+    update pap_t_adx
+    <set>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="dspId != null">
+        dsp_id = #{dspId,jdbcType=VARCHAR},
+      </if>
+      <if test="dspName != null">
+        dsp_name = #{dspName,jdbcType=VARCHAR},
+      </if>
+      <if test="iurl != null">
+        iurl = #{iurl,jdbcType=VARCHAR},
+      </if>
+      <if test="curl != null">
+        curl = #{curl,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserAddUrl != null">
+        advertiser_add_url = #{advertiserAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserUpdateUrl != null">
+        advertiser_update_url = #{advertiserUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="advertiserQueryUrl != null">
+        advertiser_query_url = #{advertiserQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qualificationAddUrl != null">
+        qualification_add_url = #{qualificationAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qualificationUpdateUrl != null">
+        qualification_update_url = #{qualificationUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="qualificationQueryUrl != null">
+        qualification_query_url = #{qualificationQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeAddUrl != null">
+        creative_add_url = #{creativeAddUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeUpdateUrl != null">
+        creative_update_url = #{creativeUpdateUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeQueryUrl != null">
+        creative_query_url = #{creativeQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="creativeAuditStateQueryUrl != null">
+        creative_audit_state_query_url = #{creativeAuditStateQueryUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="signKey != null">
+        sign_key = #{signKey,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.AdxModel">
+    update pap_t_adx
+    set name = #{name,jdbcType=VARCHAR},
+      dsp_id = #{dspId,jdbcType=VARCHAR},
+      dsp_name = #{dspName,jdbcType=VARCHAR},
+      iurl = #{iurl,jdbcType=VARCHAR},
+      curl = #{curl,jdbcType=VARCHAR},
+      advertiser_add_url = #{advertiserAddUrl,jdbcType=VARCHAR},
+      advertiser_update_url = #{advertiserUpdateUrl,jdbcType=VARCHAR},
+      advertiser_query_url = #{advertiserQueryUrl,jdbcType=VARCHAR},
+      qualification_add_url = #{qualificationAddUrl,jdbcType=VARCHAR},
+      qualification_update_url = #{qualificationUpdateUrl,jdbcType=VARCHAR},
+      qualification_query_url = #{qualificationQueryUrl,jdbcType=VARCHAR},
+      creative_add_url = #{creativeAddUrl,jdbcType=VARCHAR},
+      creative_update_url = #{creativeUpdateUrl,jdbcType=VARCHAR},
+      creative_query_url = #{creativeQueryUrl,jdbcType=VARCHAR},
+      creative_audit_state_query_url = #{creativeAuditStateQueryUrl,jdbcType=VARCHAR},
+      sign_key = #{signKey,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>
