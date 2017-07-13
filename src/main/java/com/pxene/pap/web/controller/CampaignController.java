@@ -52,12 +52,12 @@ public class CampaignController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/campaign/target/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-	@ResponseBody
-	public void createCampaignTarget(@PathVariable String id, @RequestBody CampaignTargetBean bean, HttpServletResponse response) throws Exception {
-		campaignService.createCampaignTarget(id, bean);
-		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}
+//	@RequestMapping(value = "/campaign/target/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//	@ResponseBody
+//	public void createCampaignTarget(@PathVariable String id, @RequestBody CampaignTargetBean bean, HttpServletResponse response) throws Exception {
+//		campaignService.createCampaignTarget(id, bean);
+//		response.setStatus(HttpStatus.NO_CONTENT.value());
+//	}
 	
 	/**
 	 * 修改活动

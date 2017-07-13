@@ -36,6 +36,7 @@ import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.RegionBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
@@ -60,6 +61,8 @@ import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
+import com.pxene.pap.domain.models.RegionModel;
+import com.pxene.pap.domain.models.RegionModelExample;
 import com.pxene.pap.domain.models.TimeTargetModel;
 import com.pxene.pap.domain.models.TimeTargetModelExample;
 import com.pxene.pap.domain.models.view.CampaignTargetModel;
@@ -87,6 +90,7 @@ import com.pxene.pap.repository.basic.PopulationDao;
 import com.pxene.pap.repository.basic.PopulationTargetDao;
 import com.pxene.pap.repository.basic.ProjectDao;
 import com.pxene.pap.repository.basic.QuantityDao;
+import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
 import com.pxene.pap.repository.basic.view.CampaignTargetDao;
@@ -208,6 +212,9 @@ public class LaunchService extends BaseService {
 	
 	@Autowired
 	private AppTmplDao appTmplDao;
+	
+	@Autowired
+	private RegionDao regionDao;
 	
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
@@ -1050,12 +1057,54 @@ public class LaunchService extends BaseService {
 			int flag = 0;
 			CampaignTargetModel model = models.get(0);
 			targetJson.addProperty("groupid", campaignId);
-			JsonArray region = targetStr2Jarr(model.getRegionId());
 			JsonArray network = targetStr2Jarr(model.getNetwork());
 			JsonArray os = targetStr2Jarr(model.getOs());
 			JsonArray operator = targetStr2Jarr(model.getOperator());
 			JsonArray device = targetStr2Jarr(model.getDevice());
 			JsonArray brand = targetStr2Jarr(model.getBrandId());
+			
+			// 地域定向：redis中写的是市id，如果选项的是省，找到省下的市id写入
+			JsonArray region = null;
+			String[] regionIds = model.getRegionId().split(",");
+			if (regionIds != null && regionIds.length > 0) {				
+				// 查询所有市的id
+				RegionModelExample regionExample = new RegionModelExample();
+				List<RegionModel> regions = regionDao.selectByExample(regionExample);
+				List<String> cityIds = new ArrayList<String>();
+				for (RegionModel regionModel : regions) {
+					String regionIdInDB = regionModel.getId();
+					if(!"000000".equals(regionIdInDB)) {
+						if (!regionIdInDB.endsWith("0000")) {
+							// 不以“0000”结尾的市
+							cityIds.add(regionIdInDB);
+						}
+					}
+				}
+				// 判断是省还是市
+				for (String regionId : regionIds) {
+					if(!"000000".equals(regionId)) {
+						region = new JsonArray();
+						// 如果不是未知
+						String provinceStr = regionId.substring(0,2);
+						if (regionId.endsWith("0000") && (!provinceStr.equals("11") || !provinceStr.equals("12")
+								|| !provinceStr.equals("31") || !provinceStr.equals("50"))) {
+							// 以“0000”结尾的并且不是直辖市的是省，将省下的市id添加到region中
+							for (String cityId : cityIds) {
+								String pId = regionId.substring(0, 4) + "00";
+								String cId = cityId.substring(0, 2) + "0000";
+								if (pId.equals(cId)) {
+									// 如果市属于定向的省，则将市添加
+									region.add(cityId);
+								}
+							}
+						} else {
+							// 除了省份就是城市
+							region.add(regionId);
+						}
+					}
+				}
+			}
+						
 			if (region.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("region")[1];
 				deviceJson.add("regioncode", region);

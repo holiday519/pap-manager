@@ -287,6 +287,9 @@ public class CampaignService extends BaseService {
 		// 添加投放量控制策略
 		addCampaignQuantity(bean);
 		
+		// 设置活动定向
+		addCampaignTarget(bean.getTarget(),id);
+		
 		campaignModel.setStatus(StatusConstant.CAMPAIGN_PAUSE);
 		campaignDao.insertSelective(campaignModel);
 		
@@ -450,7 +453,10 @@ public class CampaignService extends BaseService {
 		deleteCampaignQuantity(id);
 		//添加投放量控制策略
 		addCampaignQuantity(bean);	
-		
+		// 删除活动定向
+		deleteCampaignTarget(id);
+		// 添加活动定向
+		addCampaignTarget(bean.getTarget(),id);
 		
 		// 更新监测码历史记录表
 		if (StatusConstant.CAMPAIGN_PROCEED.equals(bean.getStatus()) 
@@ -751,7 +757,7 @@ public class CampaignService extends BaseService {
 		// 删除掉定向
 		deleteCampaignTarget(id);
 		// 添加定向
-		addCampaignTarget(bean);
+//		addCampaignTarget(bean);
 		// 修改定向时更新redis中活动定向信息（是否已经投放过，投放过再修改）
 		if (launchService.isHaveLaunched(id)) {
 			// 活动定向写入redis
@@ -813,8 +819,9 @@ public class CampaignService extends BaseService {
 	 * 添加活动定向
 	 * @param bean
 	 */
-	private void addCampaignTarget(CampaignTargetBean bean) throws Exception {
-		String id = bean.getId();
+//	private void addCampaignTarget(CampaignTargetBean bean) throws Exception {
+	private void addCampaignTarget(Target bean, String id) throws Exception {
+//		String id = bean.getId();
 		String[] regionTarget = bean.getRegion();//地域
 		String[] adTypeTarget = bean.getAdType();//广告类型
 		String[] timeTarget = bean.getTime();//时间
@@ -824,7 +831,8 @@ public class CampaignService extends BaseService {
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
 		String[] appTarget = bean.getApp();//app
-		Population populationTarget = bean.getPopulation(); // 人群
+//		Population populationTarget = bean.getPopulation(); // 人群
+		PopulationTargetBean populationTarget = bean.getPopulation(); // 人群
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region = new RegionTargetModel();
 			for (String regionId : regionTarget) {
