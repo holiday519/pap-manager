@@ -1,6 +1,8 @@
 package com.pxene.pap.domain.beans;
 
 
+import java.util.Date;
+
 public class AppBean {
 	
 	private String id;
@@ -14,6 +16,16 @@ public class AppBean {
     private String appType;
 
     private String pkgName;
+
+	private String parentType;
+
+	private String downloadUrl;
+
+	private String osType;
+
+	private Date createTime;
+
+	private Date updateTime;
 
 	public String getId() {
 		return id;
@@ -63,11 +75,51 @@ public class AppBean {
 		this.pkgName = pkgName;
 	}
 
+	public String getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(String parentType) {
+		this.parentType = parentType;
+	}
+
+	public String getDownloadUrl() {
+		return downloadUrl;
+	}
+
+	public void setDownloadUrl(String downloadUrl) {
+		this.downloadUrl = downloadUrl;
+	}
+
+	public String getOsType() {
+		return osType;
+	}
+
+	public void setOsType(String osType) {
+		this.osType = osType;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
 	@Override
 	public String toString() {
 		return "AppBean [id=" + id + ", appId=" + appId + ", adxId=" + adxId
 				+ ", appName=" + appName + ", appType=" + appType
-				+ ", pkgName=" + pkgName + "]";
+				+ ", pkgName=" + pkgName +", parentType="+parentType +",downloadUrl="+downloadUrl+",osType="+osType+"]";
 	}
 
 }

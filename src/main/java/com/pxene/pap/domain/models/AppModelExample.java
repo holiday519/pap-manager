@@ -455,6 +455,76 @@ public class AppModelExample {
             return (Criteria) this;
         }
 
+        public Criteria andParentTypeIsNull() {
+            addCriterion("parent_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeIsNotNull() {
+            addCriterion("parent_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeEqualTo(String value) {
+            addCriterion("parent_type =", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeNotEqualTo(String value) {
+            addCriterion("parent_type <>", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeGreaterThan(String value) {
+            addCriterion("parent_type >", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("parent_type >=", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeLessThan(String value) {
+            addCriterion("parent_type <", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeLessThanOrEqualTo(String value) {
+            addCriterion("parent_type <=", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeLike(String value) {
+            addCriterion("parent_type like", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeNotLike(String value) {
+            addCriterion("parent_type not like", value, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeIn(List<String> values) {
+            addCriterion("parent_type in", values, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeNotIn(List<String> values) {
+            addCriterion("parent_type not in", values, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeBetween(String value1, String value2) {
+            addCriterion("parent_type between", value1, value2, "parentType");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentTypeNotBetween(String value1, String value2) {
+            addCriterion("parent_type not between", value1, value2, "parentType");
+            return (Criteria) this;
+        }
+
         public Criteria andPkgNameIsNull() {
             addCriterion("pkg_name is null");
             return (Criteria) this;
@@ -522,6 +592,146 @@ public class AppModelExample {
 
         public Criteria andPkgNameNotBetween(String value1, String value2) {
             addCriterion("pkg_name not between", value1, value2, "pkgName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeIsNull() {
+            addCriterion("os_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeIsNotNull() {
+            addCriterion("os_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeEqualTo(String value) {
+            addCriterion("os_type =", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeNotEqualTo(String value) {
+            addCriterion("os_type <>", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeGreaterThan(String value) {
+            addCriterion("os_type >", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("os_type >=", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeLessThan(String value) {
+            addCriterion("os_type <", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeLessThanOrEqualTo(String value) {
+            addCriterion("os_type <=", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeLike(String value) {
+            addCriterion("os_type like", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeNotLike(String value) {
+            addCriterion("os_type not like", value, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeIn(List<String> values) {
+            addCriterion("os_type in", values, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeNotIn(List<String> values) {
+            addCriterion("os_type not in", values, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeBetween(String value1, String value2) {
+            addCriterion("os_type between", value1, value2, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOsTypeNotBetween(String value1, String value2) {
+            addCriterion("os_type not between", value1, value2, "osType");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIsNull() {
+            addCriterion("download_url is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIsNotNull() {
+            addCriterion("download_url is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlEqualTo(String value) {
+            addCriterion("download_url =", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotEqualTo(String value) {
+            addCriterion("download_url <>", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlGreaterThan(String value) {
+            addCriterion("download_url >", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlGreaterThanOrEqualTo(String value) {
+            addCriterion("download_url >=", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLessThan(String value) {
+            addCriterion("download_url <", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLessThanOrEqualTo(String value) {
+            addCriterion("download_url <=", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlLike(String value) {
+            addCriterion("download_url like", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotLike(String value) {
+            addCriterion("download_url not like", value, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlIn(List<String> values) {
+            addCriterion("download_url in", values, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotIn(List<String> values) {
+            addCriterion("download_url not in", values, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlBetween(String value1, String value2) {
+            addCriterion("download_url between", value1, value2, "downloadUrl");
+            return (Criteria) this;
+        }
+
+        public Criteria andDownloadUrlNotBetween(String value1, String value2) {
+            addCriterion("download_url not between", value1, value2, "downloadUrl");
             return (Criteria) this;
         }
 

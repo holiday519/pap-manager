@@ -13,7 +13,13 @@ public class AppModel {
 
     private String appType;
 
+    private String parentType;
+
     private String pkgName;
+
+    private String osType;
+
+    private String downloadUrl;
 
     private Date createTime;
 
@@ -59,12 +65,36 @@ public class AppModel {
         this.appType = appType == null ? null : appType.trim();
     }
 
+    public String getParentType() {
+        return parentType;
+    }
+
+    public void setParentType(String parentType) {
+        this.parentType = parentType == null ? null : parentType.trim();
+    }
+
     public String getPkgName() {
         return pkgName;
     }
 
     public void setPkgName(String pkgName) {
         this.pkgName = pkgName == null ? null : pkgName.trim();
+    }
+
+    public String getOsType() {
+        return osType;
+    }
+
+    public void setOsType(String osType) {
+        this.osType = osType == null ? null : osType.trim();
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl == null ? null : downloadUrl.trim();
     }
 
     public Date getCreateTime() {
@@ -94,7 +124,10 @@ public class AppModel {
         sb.append(", adxId=").append(adxId);
         sb.append(", appName=").append(appName);
         sb.append(", appType=").append(appType);
+        sb.append(", parentType=").append(parentType);
         sb.append(", pkgName=").append(pkgName);
+        sb.append(", osType=").append(osType);
+        sb.append(", downloadUrl=").append(downloadUrl);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append("]");

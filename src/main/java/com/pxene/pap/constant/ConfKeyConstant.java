@@ -29,4 +29,9 @@ public class ConfKeyConstant {
 	public static final String CLICK_URL_PREFIX = "pap.click.url.prefix";
 	
 	public static final String IMPRESSION_URL_PREFIX = "pap.impression.url.prefix";
+
+	public static final String DSP_REVIEW_DB_DRIVER = "dsp.review.db.driver";
+	public static final String DSP_REVIEW_DB_URL = "dsp.review.db.url";
+	public static final String DSP_REVIEW_DB_USER = "dsp.review.db.user";
+	public static final String DSP_REVIEW_DB_PWD = "dsp.review.db.pwd";
 }
