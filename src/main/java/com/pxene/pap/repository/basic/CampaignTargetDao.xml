@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pxene.pap.repository.basic.CampaignTargetDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.CampaignTargetModel">
+    <result column="id" jdbcType="VARCHAR" property="id" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.pxene.pap.domain.models.CampaignTargetModel">
+    <result column="region_id" jdbcType="LONGVARCHAR" property="regionId" />
+    <result column="ad_type" jdbcType="LONGVARCHAR" property="adType" />
+    <result column="time_id" jdbcType="LONGVARCHAR" property="timeId" />
+    <result column="network" jdbcType="LONGVARCHAR" property="network" />
+    <result column="operator" jdbcType="LONGVARCHAR" property="operator" />
+    <result column="device" jdbcType="LONGVARCHAR" property="device" />
+    <result column="os" jdbcType="LONGVARCHAR" property="os" />
+    <result column="brand_id" jdbcType="LONGVARCHAR" property="brandId" />
+    <result column="population_id" jdbcType="LONGVARCHAR" property="populationId" />
+    <result column="population_type" jdbcType="LONGVARCHAR" property="populationType" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id
+  </sql>
+  <sql id="Blob_Column_List">
+    region_id, ad_type, time_id, network, operator, device, os, brand_id, population_id, 
+    population_type
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="com.pxene.pap.domain.models.CampaignTargetModelExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from pap_v_campaign_target
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.CampaignTargetModelExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from pap_v_campaign_target
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.CampaignTargetModelExample">
+    delete from pap_v_campaign_target
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.CampaignTargetModel">
+    insert into pap_v_campaign_target (id, region_id, ad_type, 
+      time_id, network, operator, 
+      device, os, brand_id, 
+      population_id, population_type)
+    values (#{id,jdbcType=VARCHAR}, #{regionId,jdbcType=LONGVARCHAR}, #{adType,jdbcType=LONGVARCHAR}, 
+      #{timeId,jdbcType=LONGVARCHAR}, #{network,jdbcType=LONGVARCHAR}, #{operator,jdbcType=LONGVARCHAR}, 
+      #{device,jdbcType=LONGVARCHAR}, #{os,jdbcType=LONGVARCHAR}, #{brandId,jdbcType=LONGVARCHAR}, 
+      #{populationId,jdbcType=LONGVARCHAR}, #{populationType,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.CampaignTargetModel">
+    insert into pap_v_campaign_target
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="regionId != null">
+        region_id,
+      </if>
+      <if test="adType != null">
+        ad_type,
+      </if>
+      <if test="timeId != null">
+        time_id,
+      </if>
+      <if test="network != null">
+        network,
+      </if>
+      <if test="operator != null">
+        operator,
+      </if>
+      <if test="device != null">
+        device,
+      </if>
+      <if test="os != null">
+        os,
+      </if>
+      <if test="brandId != null">
+        brand_id,
+      </if>
+      <if test="populationId != null">
+        population_id,
+      </if>
+      <if test="populationType != null">
+        population_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="regionId != null">
+        #{regionId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="adType != null">
+        #{adType,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="timeId != null">
+        #{timeId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="network != null">
+        #{network,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="operator != null">
+        #{operator,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="device != null">
+        #{device,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="os != null">
+        #{os,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="brandId != null">
+        #{brandId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="populationId != null">
+        #{populationId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="populationType != null">
+        #{populationType,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.CampaignTargetModelExample" resultType="java.lang.Long">
+    select count(*) from pap_v_campaign_target
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update pap_v_campaign_target
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.regionId != null">
+        region_id = #{record.regionId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.adType != null">
+        ad_type = #{record.adType,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.timeId != null">
+        time_id = #{record.timeId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.network != null">
+        network = #{record.network,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.operator != null">
+        operator = #{record.operator,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.device != null">
+        device = #{record.device,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.os != null">
+        os = #{record.os,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.brandId != null">
+        brand_id = #{record.brandId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.populationId != null">
+        population_id = #{record.populationId,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.populationType != null">
+        population_type = #{record.populationType,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update pap_v_campaign_target
+    set id = #{record.id,jdbcType=VARCHAR},
+      region_id = #{record.regionId,jdbcType=LONGVARCHAR},
+      ad_type = #{record.adType,jdbcType=LONGVARCHAR},
+      time_id = #{record.timeId,jdbcType=LONGVARCHAR},
+      network = #{record.network,jdbcType=LONGVARCHAR},
+      operator = #{record.operator,jdbcType=LONGVARCHAR},
+      device = #{record.device,jdbcType=LONGVARCHAR},
+      os = #{record.os,jdbcType=LONGVARCHAR},
+      brand_id = #{record.brandId,jdbcType=LONGVARCHAR},
+      population_id = #{record.populationId,jdbcType=LONGVARCHAR},
+      population_type = #{record.populationType,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update pap_v_campaign_target
+    set id = #{record.id,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+</mapper>
