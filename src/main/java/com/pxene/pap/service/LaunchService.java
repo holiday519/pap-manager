@@ -40,6 +40,9 @@ import com.pxene.pap.domain.beans.RegionBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
+import com.pxene.pap.domain.models.AdxModel;
+import com.pxene.pap.domain.models.AdxTargetModel;
+import com.pxene.pap.domain.models.AdxTargetModelExample;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
 import com.pxene.pap.domain.models.AppTargetModel;
@@ -48,6 +51,8 @@ import com.pxene.pap.domain.models.AppTmplModel;
 import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CampaignTargetModel;
+import com.pxene.pap.domain.models.CampaignTargetModelExample;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
@@ -65,8 +70,7 @@ import com.pxene.pap.domain.models.RegionModel;
 import com.pxene.pap.domain.models.RegionModelExample;
 import com.pxene.pap.domain.models.TimeTargetModel;
 import com.pxene.pap.domain.models.TimeTargetModelExample;
-import com.pxene.pap.domain.models.view.CampaignTargetModel;
-import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
+
 import com.pxene.pap.domain.models.view.CreativeImageModelExample;
 import com.pxene.pap.domain.models.view.CreativeImageModelWithBLOBs;
 import com.pxene.pap.domain.models.view.CreativeInfoflowModelExample;
@@ -78,10 +82,12 @@ import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdvertiserAuditDao;
 import com.pxene.pap.repository.basic.AdvertiserDao;
 import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.AdxTargetDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CampaignTargetDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.FrequencyDao;
@@ -93,7 +99,7 @@ import com.pxene.pap.repository.basic.QuantityDao;
 import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
-import com.pxene.pap.repository.basic.view.CampaignTargetDao;
+
 import com.pxene.pap.repository.basic.view.CreativeImageDao;
 import com.pxene.pap.repository.basic.view.CreativeInfoflowDao;
 import com.pxene.pap.repository.basic.view.CreativeVideoDao;
@@ -215,6 +221,9 @@ public class LaunchService extends BaseService {
 	
 	@Autowired
 	private RegionDao regionDao;
+	
+	@Autowired
+	private AdxTargetDao adxTargetDao;
 	
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
@@ -933,46 +942,68 @@ public class LaunchService extends BaseService {
 		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
 		String advertiserId = projectModel.getAdvertiserId();
 		
-		AppTargetModelExample appTargetExample = new AppTargetModelExample();
-		appTargetExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<AppTargetModel> appTargets = appTargetDao.selectByExample(appTargetExample);
-		
-		if (appTargets != null && !appTargets.isEmpty()) {
-			List<String> appIds = new ArrayList<String>();
-			for (AppTargetModel target : appTargets) {
-				String appId = target.getAppId();
-				appIds.add(appId);
+		AdxTargetModelExample adxTargetExample = new AdxTargetModelExample();
+		adxTargetExample.createCriteria().andCampaignIdEqualTo(campaignId);
+		List<AdxTargetModel> adxTargets = adxTargetDao.selectByExample(adxTargetExample);
+		if (adxTargets != null && !adxTargets.isEmpty()) {
+			// 一个活动对应一个ADX
+			String adxId = adxTargets.get(0).getAdxId();
+			AdxModel adx = adxDao.selectByPrimaryKey(adxId);
+			String adxName = adx.getName();
+			Map<String, String> result = new HashMap<String, String>();
+			result.put("adxId", adxId);
+			result.put("adxName", adxName);
+			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+			example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(adxId);
+			List<AdvertiserAuditModel> audits = advertiserAuditDao.selectByExample(example);
+			if (audits != null && !audits.isEmpty()) {						
+				AdvertiserAuditModel audit = audits.get(0);
+				String auditValue = audit.getAuditValue();
+				result.put("advertiserAudit", auditValue);
 			}
-			if (appIds == null || appIds.size() == 0) {
-				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-			}
-			AppModelExample appExample = new AppModelExample();
-			appExample.createCriteria().andIdIn(appIds);
-			List<AppModel> apps = appDao.selectByExample(appExample);
-			if (apps != null && !apps.isEmpty()) {
-				Map<String, String> cache = new HashMap<String, String>();
-				for (AppModel app : apps) {
-					String adxId = app.getAdxId();
-					String adxName = app.getAppName();
-					cache.put(adxId, adxName);
-				}
-				for (Entry<String, String> entry : cache.entrySet()) {
-					Map<String, String> result = new HashMap<String, String>();
-					String adxId = entry.getKey();
-					result.put("adxId", adxId);
-					result.put("adxName", entry.getValue());
-					AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
-					example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(adxId);
-					List<AdvertiserAuditModel> audits = advertiserAuditDao.selectByExample(example);
-					if (audits != null && !audits.isEmpty()) {						
-						AdvertiserAuditModel audit = audits.get(0);
-						String auditValue = audit.getAuditValue();
-						result.put("advertiserAudit", auditValue);
-					}
-					results.add(result);
-				}
-			}
+			results.add(result);
 		}
+		
+//		AppTargetModelExample appTargetExample = new AppTargetModelExample();
+//		appTargetExample.createCriteria().andCampaignIdEqualTo(campaignId);
+//		List<AppTargetModel> appTargets = appTargetDao.selectByExample(appTargetExample);
+//		
+//		if (appTargets != null && !appTargets.isEmpty()) {
+//			List<String> appIds = new ArrayList<String>();
+//			for (AppTargetModel target : appTargets) {
+//				String appId = target.getAppId();
+//				appIds.add(appId);
+//			}
+//			if (appIds == null || appIds.size() == 0) {
+//				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+//			}
+//			AppModelExample appExample = new AppModelExample();
+//			appExample.createCriteria().andIdIn(appIds);
+//			List<AppModel> apps = appDao.selectByExample(appExample);
+//			if (apps != null && !apps.isEmpty()) {
+//				Map<String, String> cache = new HashMap<String, String>();
+//				for (AppModel app : apps) {
+//					String adxId = app.getAdxId();
+//					String adxName = app.getAppName();
+//					cache.put(adxId, adxName);
+//				}
+//				for (Entry<String, String> entry : cache.entrySet()) {
+//					Map<String, String> result = new HashMap<String, String>();
+//					String adxId = entry.getKey();
+//					result.put("adxId", adxId);
+//					result.put("adxName", entry.getValue());
+//					AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
+//					example.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(adxId);
+//					List<AdvertiserAuditModel> audits = advertiserAuditDao.selectByExample(example);
+//					if (audits != null && !audits.isEmpty()) {						
+//						AdvertiserAuditModel audit = audits.get(0);
+//						String auditValue = audit.getAuditValue();
+//						result.put("advertiserAudit", auditValue);
+//					}
+//					results.add(result);
+//				}
+//			}
+//		}
 		return results;
 	}
 	
@@ -1132,34 +1163,34 @@ public class LaunchService extends BaseService {
 			deviceJson.addProperty("flag", flag);
 			targetJson.add("device", deviceJson);
 			// app定向
-			String[] appIds = model.getAppId().split(",");
-			if (appIds.length == 0) {
-				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-			}
-			AppModelExample appExample = new AppModelExample();
-			appExample.createCriteria().andIdIn(Arrays.asList(appIds));
-			List<AppModel> apps = appDao.selectByExample(appExample);
+//			String[] appIds = model.getAppId().split(",");
+//			if (appIds.length == 0) {
+//				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+//			}
+//			AppModelExample appExample = new AppModelExample();
+//			appExample.createCriteria().andIdIn(Arrays.asList(appIds));
+//			List<AppModel> apps = appDao.selectByExample(appExample);
 			JsonArray appJsons = new JsonArray();
 			Map<String, JsonObject> adxMap = new HashMap<String, JsonObject>();
 			JsonObject appObjects = new JsonObject();
-			for (AppModel app : apps) {
-				String adxId = app.getAdxId();
-				if (adxMap.containsKey(adxId)) {
-					JsonObject adxJson = adxMap.get(adxId);
-					JsonArray appIdJsons = adxJson.get("wlist").getAsJsonArray();
-					appIdJsons.add(app.getAppId());
-					adxJson.add("wlist", appIdJsons);
-					adxMap.put(adxId, adxJson);
-				} else {
-					JsonObject adxJson = new JsonObject();
-					adxJson.addProperty("adx", Integer.parseInt(adxId));
-					adxJson.addProperty("flag", 1);
-					JsonArray appIdJsons = new JsonArray();
-					appIdJsons.add(app.getAppId());
-					adxJson.add("wlist", appIdJsons);
-					adxMap.put(adxId, adxJson);
-				}
-			}
+//			for (AppModel app : apps) {
+//				String adxId = app.getAdxId();
+//				if (adxMap.containsKey(adxId)) {
+//					JsonObject adxJson = adxMap.get(adxId);
+//					JsonArray appIdJsons = adxJson.get("wlist").getAsJsonArray();
+//					appIdJsons.add(app.getAppId());
+//					adxJson.add("wlist", appIdJsons);
+//					adxMap.put(adxId, adxJson);
+//				} else {
+//					JsonObject adxJson = new JsonObject();
+//					adxJson.addProperty("adx", Integer.parseInt(adxId));
+//					adxJson.addProperty("flag", 1);
+//					JsonArray appIdJsons = new JsonArray();
+//					appIdJsons.add(app.getAppId());
+//					adxJson.add("wlist", appIdJsons);
+//					adxMap.put(adxId, adxJson);
+//				}
+//			}
 			for (Entry<String, JsonObject> entry : adxMap.entrySet()) {
 				appJsons.add(entry.getValue());
 			}

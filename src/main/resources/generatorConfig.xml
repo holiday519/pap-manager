@@ -13,7 +13,7 @@
         </commentGenerator>
         
         <!-- 数据库链接URL，用户名、密码 -->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.3.92:3306/pap-manager-1.2.0?characterEncoding=utf8&amp;useSSL=true" userId="root" password="123456"> 
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://192.168.3.92:3306/pap-manager-1.3.0?characterEncoding=utf8&amp;useSSL=true" userId="root" password="123456"> 
         </jdbcConnection>
         
         <javaTypeResolver>
@@ -43,7 +43,7 @@
 <!-- 	        <table tableName="pap_t_adx" domainObjectName="AdxModel" mapperName="AdxDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table>  -->
 <!-- 		<table tableName="pap_t_app" domainObjectName="AppModel" mapperName="AppDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_app_tmpl" domainObjectName="AppTmplModel" mapperName="AppTmplDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
-<!-- 		<table tableName="pap_t_apptarget" domainObjectName="AppTargetModel" mapperName="AppTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!--		<table tableName="pap_t_apptarget" domainObjectName="AppTargetModel" mapperName="AppTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_brand" domainObjectName="BrandModel" mapperName="BrandDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_brandtarget" domainObjectName="BrandTargetModel"  mapperName="BrandTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_campaign" domainObjectName="CampaignModel" mapperName="CampaignDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
@@ -81,6 +81,8 @@
 <!-- 		<table tableName="pap_t_static" domainObjectName="StaticModel" mapperName="StaticDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!--        <table tableName="pap_t_rule" domainObjectName="RuleModel" mapperName="RuleDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!-- 		<table tableName="pap_t_formula" domainObjectName="FormulaModel" mapperName="FormulaDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!--		<table tableName="pap_t_adxtarget" domainObjectName="AdxTargetModel" mapperName="AdxTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
+<!--		<table tableName="pap_t_apptarget_detail" domainObjectName="AppTargetDetailModel" mapperName="AppTargetDetailDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 
 <!--     	<table tableName="pap_v_campaign_kpi" domainObjectName="CampaignKpiModel" mapperName="CampaignKpiDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->
 <!--     	<table tableName="pap_v_campaign_target" domainObjectName="CampaignTargetModel" mapperName="CampaignTargetDao" enableCountByExample="true" enableUpdateByExample="true" enableDeleteByExample="true" enableSelectByExample="true" selectByExampleQueryId="true"></table> -->

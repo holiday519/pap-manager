@@ -60,11 +60,11 @@ public class CreativeBean extends BasicDataBean {
 	/**
 	 * APPID
 	 */
-	private String appId;
+//	private String appId;
 	/**
 	 * APP名称
 	 */
-	private String appName;
+//	private String appName;
 	/**
 	 * 创意的状态
 	 */
@@ -152,21 +152,21 @@ public class CreativeBean extends BasicDataBean {
 		this.materialId = materialId;
 	}
 
-	public String getAppId() {
-		return appId;
-	}
-
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
-
-	public String getAppName() {
-		return appName;
-	}
-
-	public void setAppName(String appName) {
-		this.appName = appName;
-	}
+//	public String getAppId() {
+//		return appId;
+//	}
+//
+//	public void setAppId(String appId) {
+//		this.appId = appId;
+//	}
+//
+//	public String getAppName() {
+//		return appName;
+//	}
+//
+//	public void setAppName(String appName) {
+//		this.appName = appName;
+//	}
 
 	public String getEnable() {
 		return enable;
@@ -230,7 +230,8 @@ public class CreativeBean extends BasicDataBean {
 				+ ", status=" + status + ", campaignId=" + campaignId
 				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
 				+ ", remark=" + remark + ", materialId=" + materialId  + ",title=" + title + ",description=" + description
-				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +", message=" + message+"]";
+//				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +", message=" + message+"]";
+				+ ", enable=" + enable +", message=" + message+"]";
 	}
 	
 }

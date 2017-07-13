@@ -33,7 +33,6 @@ import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
-import com.pxene.pap.domain.beans.CampaignBean.Target.App;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
 import com.pxene.pap.domain.beans.CampaignScoreBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
@@ -48,6 +47,8 @@ import com.pxene.pap.domain.models.BrandTargetModel;
 import com.pxene.pap.domain.models.BrandTargetModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
+import com.pxene.pap.domain.models.CampaignTargetModel;
+import com.pxene.pap.domain.models.CampaignTargetModelExample;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
@@ -77,8 +78,7 @@ import com.pxene.pap.domain.models.RegionTargetModel;
 import com.pxene.pap.domain.models.RegionTargetModelExample;
 import com.pxene.pap.domain.models.TimeTargetModel;
 import com.pxene.pap.domain.models.TimeTargetModelExample;
-import com.pxene.pap.domain.models.view.CampaignTargetModel;
-import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
+
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
@@ -89,6 +89,7 @@ import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.CampaignTargetDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.DeviceTargetDao;
@@ -106,7 +107,7 @@ import com.pxene.pap.repository.basic.QuantityDao;
 import com.pxene.pap.repository.basic.RegionDao;
 import com.pxene.pap.repository.basic.RegionTargetDao;
 import com.pxene.pap.repository.basic.TimeTargetDao;
-import com.pxene.pap.repository.basic.view.CampaignTargetDao;
+
 
 @Service
 public class CampaignService extends BaseService {
@@ -830,7 +831,7 @@ public class CampaignService extends BaseService {
 		String[] deviceTarget = bean.getDevice();//设备
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
-		String[] appTarget = bean.getApp();//app
+//		String[] appTarget = bean.getApp();//app
 //		Population populationTarget = bean.getPopulation(); // 人群
 		PopulationTargetBean populationTarget = bean.getPopulation(); // 人群
 		if (regionTarget != null && regionTarget.length > 0) {
@@ -905,15 +906,15 @@ public class CampaignService extends BaseService {
 				brandTargetDao.insertSelective(brand);
 			}
 		}
-		if (appTarget != null && appTarget.length > 0) {
-			AppTargetModel app = new AppTargetModel();
-			for (String appId : appTarget) {
-				app.setId(UUIDGenerator.getUUID());
-				app.setCampaignId(id);
-				app.setAppId(appId);
-				appTargetDao.insertSelective(app);
-			}
-		}
+//		if (appTarget != null && appTarget.length > 0) {
+//			AppTargetModel app = new AppTargetModel();
+//			for (String appId : appTarget) {
+//				app.setId(UUIDGenerator.getUUID());
+//				app.setCampaignId(id);
+//				app.setAppId(appId);
+//				appTargetDao.insertSelective(app);
+//			}
+//		}
 		if (!StringUtils.isEmpty(populationTarget)) {
 			PopulationTargetModel population = new PopulationTargetModel();
 			population.setId(UUIDGenerator.getUUID());
@@ -1379,28 +1380,28 @@ public class CampaignService extends BaseService {
 					}
 				}
 				//app定向信息返回名称和id
-				String[] AppArray = formatTargetStringToArray(campaignTargetModel.getAppId());
-				if (AppArray != null) {
-					AppModel appModel = null;
-					App app = null;
-					List<App> appList = new ArrayList<CampaignBean.Target.App>();
-					for (String ap : AppArray) {
-						appModel = appDao.selectByPrimaryKey(ap);
-						if (appModel != null) {
-							app = new App();
-							app.setName(appModel.getAppName());
-							app.setId(appModel.getId());
-							appList.add(app);
-						}
-					}
-					if (!appList.isEmpty()) {
-						App[] apps = new App[appList.size()];
-						for (int i = 0; i < appList.size(); i++) {
-							apps[i] = appList.get(i);
-						}
-						target.setApps(apps);
-					}
-				}
+//				String[] AppArray = formatTargetStringToArray(campaignTargetModel.getAppId());
+//				if (AppArray != null) {
+//					AppModel appModel = null;
+//					App app = null;
+//					List<App> appList = new ArrayList<CampaignBean.Target.App>();
+//					for (String ap : AppArray) {
+//						appModel = appDao.selectByPrimaryKey(ap);
+//						if (appModel != null) {
+//							app = new App();
+//							app.setName(appModel.getAppName());
+//							app.setId(appModel.getId());
+//							appList.add(app);
+//						}
+//					}
+//					if (!appList.isEmpty()) {
+//						App[] apps = new App[appList.size()];
+//						for (int i = 0; i < appList.size(); i++) {
+//							apps[i] = appList.get(i);
+//						}
+//						target.setApps(apps);
+//					}
+//				}
 				// 查询活动的人群定向信息
 				String populationId = campaignTargetModel.getPopulationId();
 				String populationType = campaignTargetModel.getPopulationType();

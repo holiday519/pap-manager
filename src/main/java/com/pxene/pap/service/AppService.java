@@ -123,28 +123,28 @@ public class AppService extends BaseService {
 	 * @param campaignId
 	 * @return
      */
-	public List<AppModel> getAppByCampaignId(String campaignId){
-		//先根据活动id获取appTarget，再找到appid
-		List<AppTargetModel> appTargetModels = getAppTargetByCampaignId(campaignId);
-		if(appTargetModels != null && !appTargetModels.isEmpty()){
-			//用set对appId去重
-			Set<String> appIds_set = new HashSet<>();
-			for(AppTargetModel appTargetModel : appTargetModels){
-				appIds_set.add(appTargetModel.getAppId());
-			}
-
-			if(appIds_set.size()>0){
-				//将set转换为list
-				List<String> appIds_list = new ArrayList<>();
-				appIds_list.addAll(appIds_set);
-				//获取app信息
-				List<AppModel> appModels = getAppModelByAppIds(appIds_list);
-				return appModels;
-			}
-		}
-
-		return null;
-	}
+//	public List<AppModel> getAppByCampaignId(String campaignId){
+//		//先根据活动id获取appTarget，再找到appid
+//		List<AppTargetModel> appTargetModels = getAppTargetByCampaignId(campaignId);
+//		if(appTargetModels != null && !appTargetModels.isEmpty()){
+//			//用set对appId去重
+//			Set<String> appIds_set = new HashSet<>();
+//			for(AppTargetModel appTargetModel : appTargetModels){
+//				appIds_set.add(appTargetModel.getAppId());
+//			}
+//
+//			if(appIds_set.size()>0){
+//				//将set转换为list
+//				List<String> appIds_list = new ArrayList<>();
+//				appIds_list.addAll(appIds_set);
+//				//获取app信息
+//				List<AppModel> appModels = getAppModelByAppIds(appIds_list);
+//				return appModels;
+//			}
+//		}
+//
+//		return null;
+//	}
 
 	/**
 	 * 根据单个活动id获取appTarget

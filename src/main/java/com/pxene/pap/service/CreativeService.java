@@ -550,7 +550,7 @@ public class CreativeService extends BaseService {
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
-				Map<String, String> appInfo = getAppInfo(creative);
+//				Map<String, String> appInfo = getAppInfo(creative);
 				CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
@@ -575,8 +575,8 @@ public class CreativeService extends BaseService {
 							image.setImageId(creative.getMaterialId());
 							image.setImagePath(imageModel.getPath());
 							
-							image.setAppId(appInfo.get("appIds"));  
-							image.setAppName(appInfo.get("appNames")); 
+//							image.setAppId(appInfo.get("appIds"));  
+//							image.setAppName(appInfo.get("appNames")); 
 							image.setEnable(creative.getEnable());
 
 							//查询投放数据
@@ -616,8 +616,8 @@ public class CreativeService extends BaseService {
 						video.setVideoId(creative.getMaterialId());
 						video.setVideoPath(videoModel.getPath());
 						
-						video.setAppId(appInfo.get("appIds"));  
-						video.setAppName(appInfo.get("appNames")); 
+//						video.setAppId(appInfo.get("appIds"));  
+//						video.setAppName(appInfo.get("appNames")); 
 						video.setEnable(creative.getEnable());
 
 						//查询投放数据
@@ -648,8 +648,8 @@ public class CreativeService extends BaseService {
 						}
 						info.setPrice(creative.getPrice().floatValue());
 						
-						info.setAppId(appInfo.get("appIds"));  
-						info.setAppName(appInfo.get("appNames")); 
+//						info.setAppId(appInfo.get("appIds"));  
+//						info.setAppName(appInfo.get("appNames")); 
 						info.setEnable(creative.getEnable());
 
 						info.setTitle(infoflowModel.getTitle());                   //标题
@@ -700,8 +700,8 @@ public class CreativeService extends BaseService {
 					}
 				} else {
 					base = modelMapper.map(creative, CreativeBean.class);
-					base.setAppId(appInfo.get("appIds"));  
-					base.setAppName(appInfo.get("appNames")); 
+//					base.setAppId(appInfo.get("appIds"));  
+//					base.setAppName(appInfo.get("appNames")); 
 					String creativeType = creative.getType();
 					String[] materialPaths = null;
 					// 创意显示活动周期
@@ -833,9 +833,9 @@ public class CreativeService extends BaseService {
 		ImageCreativeBean image = null;
 		VideoCreativeBean video = null;
 		InfoflowCreativeBean info = null;
-		Map<String, String> appInfo = getAppInfo(creative);
-		String appId = appInfo.get("appIds");
-		String appName = appInfo.get("appNames");
+//		Map<String, String> appInfo = getAppInfo(creative);
+//		String appId = appInfo.get("appIds");
+//		String appName = appInfo.get("appNames");
 		//查询审核信息
 		CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 
@@ -861,8 +861,8 @@ public class CreativeService extends BaseService {
 				}
 				image.setPrice(creative.getPrice().floatValue());          //创意价格
 				image.setTmplId(creative.getTmplId());                     //模板ID
-				image.setAppId(appId);                           //appId
-				image.setAppName(appName);                       //app名称
+//				image.setAppId(appId);                           //appId
+//				image.setAppName(appName);                       //app名称
 				image.setEnable(creative.getEnable());           //创意的状态
 				
 				image.setImageId(imageModel.getId());   //图片id
@@ -911,8 +911,8 @@ public class CreativeService extends BaseService {
 				}
 				video.setPrice(creative.getPrice().floatValue());          //创意价格
 				video.setTmplId(creative.getTmplId());                     //模板Id
-				video.setAppId(appId);                                     //AppID
-				video.setAppName(appName);                                 //app名称
+//				video.setAppId(appId);                                     //AppID
+//				video.setAppName(appName);                                 //app名称
 				video.setEnable(creative.getEnable());                     //创意状态
 				
 				video.setImageId(imageId);                                 //图片id
@@ -961,8 +961,8 @@ public class CreativeService extends BaseService {
 				}
 				info.setPrice(creative.getPrice().floatValue());           //创意价格
 				info.setTmplId(creative.getTmplId());                      //模板Id
-				info.setAppId(appId);                                      //AppID
-				info.setAppName(appName);                                  //app名称
+//				info.setAppId(appId);                                      //AppID
+//				info.setAppName(appName);                                  //app名称
 				info.setEnable(creative.getEnable());                      //创意状态
 				info.setTitle(infoflowModel.getTitle());                   //标题
 				info.setDescription(infoflowModel.getDescription());       //描述
@@ -1002,8 +1002,8 @@ public class CreativeService extends BaseService {
 		} else {
 			//否则
 			base = modelMapper.map(creative, CreativeBean.class);
-			base.setAppId(appId);
-			base.setAppName(appName);
+//			base.setAppId(appId);
+//			base.setAppName(appName);
 			//查询投放数据
 			if (startDate != null && endDate != null) {
 				String creativeId = creative.getId();
@@ -1136,34 +1136,34 @@ public class CreativeService extends BaseService {
 		}
 	}
 	
-	private Map<String, String> getAppInfo(CreativeModel creative) throws Exception {
-		String campaignId = creative.getCampaignId();
-		String tmplId = creative.getTmplId();
-		
-		//获取活动下的APPId
-        List<String> appIdList = tmplService.getAppidByCampaignId(campaignId);
-		
-		Map<String, String> result = new HashMap<String, String>();
-		String appIds = "";
-		String appNames = "";
-		
-		AppTmplModelExample appTmplExample = new AppTmplModelExample();
-		appTmplExample.createCriteria().andTmplIdEqualTo(tmplId);
-		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplExample);
-		for (AppTmplModel tmpl : appTmpls) {
-			String appId = tmpl.getAppId();
-			if (appIdList.contains(appId)) {
-				AppModel app = appDao.selectByPrimaryKey(appId);
-				appIds = appIds + appId + ",";
-				appNames = appNames + app.getAppName() + ",";
-			}
-		}
-		if (appIds.length() > 1 && appNames.length() > 1) {
-			result.put("appIds", appIds.substring(0, appIds.length()-1));
-			result.put("appNames", appNames.substring(0, appNames.length()-1));
-		}
-		return result;
-	}
+//	private Map<String, String> getAppInfo(CreativeModel creative) throws Exception {
+//		String campaignId = creative.getCampaignId();
+//		String tmplId = creative.getTmplId();
+//		
+//		//获取活动下的APPId
+//        List<String> appIdList = tmplService.getAppidByCampaignId(campaignId);
+//		
+//		Map<String, String> result = new HashMap<String, String>();
+//		String appIds = "";
+//		String appNames = "";
+//		
+//		AppTmplModelExample appTmplExample = new AppTmplModelExample();
+//		appTmplExample.createCriteria().andTmplIdEqualTo(tmplId);
+//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplExample);
+//		for (AppTmplModel tmpl : appTmpls) {
+//			String appId = tmpl.getAppId();
+//			if (appIdList.contains(appId)) {
+//				AppModel app = appDao.selectByPrimaryKey(appId);
+//				appIds = appIds + appId + ",";
+//				appNames = appNames + app.getAppName() + ",";
+//			}
+//		}
+//		if (appIds.length() > 1 && appNames.length() > 1) {
+//			result.put("appIds", appIds.substring(0, appIds.length()-1));
+//			result.put("appNames", appNames.substring(0, appNames.length()-1));
+//		}
+//		return result;
+//	}
 	
 	/**
 	 * 修改创意

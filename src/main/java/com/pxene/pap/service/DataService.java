@@ -42,10 +42,7 @@ import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.models.view.CampaignTargetModel;
-import com.pxene.pap.domain.models.view.CampaignTargetModelExample;
 import com.pxene.pap.exception.IllegalArgumentException;
-import com.pxene.pap.repository.basic.view.CampaignTargetDao;
 import com.pxene.pap.repository.basic.view.CreativeBasicDao;
 import com.pxene.pap.repository.custom.CustomRegionDao;
 
@@ -1007,30 +1004,30 @@ public class DataService extends BaseService {
 					}
 					cell.setCellValue(name);
 				}
-				if("apps".equals(fieldName)){
-					StringBuffer sb = new StringBuffer();
-					sb.setLength(0);
-					if (data instanceof CampaignBean) {
-						CampaignBean bean = (CampaignBean)data;
-						CampaignBean.Target target = bean.getTarget();
-						if(target!=null){
-							CampaignBean.Target.App[] apps = target.getApps();
-							if(apps !=null) {
-								for (int j=0;j<apps.length;j++){
-									if(apps[j]!=null){
-										if(sb.length()==0){
-											sb.append(apps[j].getName());
-										}else{
-											sb.append(","+apps[j].getName());
-										}
-									}
-								}
-							}
-						}
-
-					}
-					cell.setCellValue(sb.toString());
-				}
+//				if("apps".equals(fieldName)){
+//					StringBuffer sb = new StringBuffer();
+//					sb.setLength(0);
+//					if (data instanceof CampaignBean) {
+//						CampaignBean bean = (CampaignBean)data;
+//						CampaignBean.Target target = bean.getTarget();
+//						if(target!=null){
+//							CampaignBean.Target.App[] apps = target.getApps();
+//							if(apps !=null) {
+//								for (int j=0;j<apps.length;j++){
+//									if(apps[j]!=null){
+//										if(sb.length()==0){
+//											sb.append(apps[j].getName());
+//										}else{
+//											sb.append(","+apps[j].getName());
+//										}
+//									}
+//								}
+//							}
+//						}
+//
+//					}
+//					cell.setCellValue(sb.toString());
+//				}
 				if("campaignName".equals(fieldName)){
 					String campaignName = "";
 					if (data instanceof CreativeBean) {
@@ -1246,7 +1243,7 @@ public class DataService extends BaseService {
 		campaignData.setClickCost(click == 0 ? 0f : (float)(expense/click));
 		campaignData.setJumpCost(jump == 0 ? 0f : (float)(expense/jump));
 		//将app信息添加到活动
-		addAppToCampaign(campaignData);
+//		addAppToCampaign(campaignData);
 
 		return campaignData;
 	}
@@ -1255,25 +1252,25 @@ public class DataService extends BaseService {
 	 * 将app信息添加到活动
 	 * @param campaignBean
      */
-	private void addAppToCampaign(CampaignBean campaignBean){
-
-		if(campaignBean != null && campaignBean.getId()!=null) {
-			String campaignId = campaignBean.getId();
-			List<AppModel> appModels = appService.getAppByCampaignId(campaignId);
-			if(appModels != null && !appModels.isEmpty()){
-				CampaignBean.Target target = new CampaignBean.Target();
-				CampaignBean.Target.App[] apps = new CampaignBean.Target.App[appModels.size()];
-				int i=0;
-				for(AppModel appModel : appModels){
-					CampaignBean.Target.App app = new CampaignBean.Target.App();
-					app.setName(appModel.getAppName());
-					apps[i++]=app;
-				}
-				target.setApps(apps);
-				campaignBean.setTarget(target);
-			}
-		}
-	}
+//	private void addAppToCampaign(CampaignBean campaignBean){
+//
+//		if(campaignBean != null && campaignBean.getId()!=null) {
+//			String campaignId = campaignBean.getId();
+//			List<AppModel> appModels = appService.getAppByCampaignId(campaignId);
+//			if(appModels != null && !appModels.isEmpty()){
+//				CampaignBean.Target target = new CampaignBean.Target();
+//				CampaignBean.Target.App[] apps = new CampaignBean.Target.App[appModels.size()];
+//				int i=0;
+//				for(AppModel appModel : appModels){
+//					CampaignBean.Target.App app = new CampaignBean.Target.App();
+//					app.setName(appModel.getAppName());
+//					apps[i++]=app;
+//				}
+//				target.setApps(apps);
+//				campaignBean.setTarget(target);
+//			}
+//		}
+//	}
 	
 	/**
 	 * 获取单个项目一个时间段内的数据

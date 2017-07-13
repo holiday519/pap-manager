@@ -146,35 +146,35 @@ public class CampaignBean extends BasicDataBean {
 		/**
 		 * app定向
 		 */
-		private String[] app;
-
-		private App[] apps;
-
-		public static class App {
-			private String id;
-			private String name;
-
-			public String getId() {
-				return id;
-			}
-
-			public void setId(String id) {
-				this.id = id;
-			}
-
-			public String getName() {
-				return name;
-			}
-
-			public void setName(String name) {
-				this.name = name;
-			}
-
-			@Override
-			public String toString() {
-				return "App [id=" + id + ", name=" + name + "]";
-			}
-		}
+//		private String[] app;
+//
+//		private App[] apps;
+//
+//		public static class App {
+//			private String id;
+//			private String name;
+//
+//			public String getId() {
+//				return id;
+//			}
+//
+//			public void setId(String id) {
+//				this.id = id;
+//			}
+//
+//			public String getName() {
+//				return name;
+//			}
+//
+//			public void setName(String name) {
+//				this.name = name;
+//			}
+//
+//			@Override
+//			public String toString() {
+//				return "App [id=" + id + ", name=" + name + "]";
+//			}
+//		}
 
 		public Region[] getRegions() {
 			return regions;
@@ -184,13 +184,13 @@ public class CampaignBean extends BasicDataBean {
 			this.regions = regions;
 		}
 
-		public App[] getApps() {
-			return apps;
-		}
-
-		public void setApps(App[] apps) {
-			this.apps = apps;
-		}
+//		public App[] getApps() {
+//			return apps;
+//		}
+//
+//		public void setApps(App[] apps) {
+//			this.apps = apps;
+//		}
 		
 		/**
 		 * 人群定向
@@ -262,13 +262,13 @@ public class CampaignBean extends BasicDataBean {
 			this.brand = brand;
 		}
 
-		public String[] getApp() {
-			return app;
-		}
-
-		public void setApp(String[] app) {
-			this.app = app;
-		}
+//		public String[] getApp() {
+//			return app;
+//		}
+//
+//		public void setApp(String[] app) {
+//			this.app = app;
+//		}
 		
 		public PopulationTargetBean getPopulation() {
 			return population;
@@ -287,8 +287,9 @@ public class CampaignBean extends BasicDataBean {
 					+ Arrays.toString(network) + ", operator="
 					+ Arrays.toString(operator) + ", device="
 					+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
-					+ ", brand=" + Arrays.toString(brand) + ", app="
-					+ Arrays.toString(app) + ", apps=" + Arrays.toString(apps)
+//					+ ", brand=" + Arrays.toString(brand) + ", app="
+//					+ Arrays.toString(app) + ", apps=" + Arrays.toString(apps)
+					+ ", brand=" + Arrays.toString(brand) 
 					+ ", population=" + population + "]";
 		}	
 	
