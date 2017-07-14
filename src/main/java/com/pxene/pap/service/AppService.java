@@ -17,6 +17,8 @@ import com.pxene.pap.common.CharacterUtils;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.DspReviewDbUtils;
 import com.pxene.pap.common.UUIDGenerator;
+import com.pxene.pap.constant.CodeTableConstant;
+import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.repository.basic.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,7 @@ public class AppService extends BaseService {
 
 	@Autowired
 	private Environment env;
+
 	
 	/**
 	 * 查询app列表
@@ -104,6 +107,146 @@ public class AppService extends BaseService {
 		}
 		
 		return result;
+	}
+
+	/**
+	 * 根据app定向明细查询app
+	 * @param appTargetDetailModels
+	 * @param adx
+	 * @return
+     */
+	public List<AppModel> listAppsByAppTargetDetail(List<AppTargetDetailModel> appTargetDetailModels,String adx){
+		if(appTargetDetailModels !=null) {
+			AppModelExample appModelExample = new AppModelExample();
+
+			List<AppTargetDetailModel> includes = new ArrayList<>();//包含条件
+			List<AppTargetDetailModel> excludes = new ArrayList<>();//不包含条件
+
+			for (AppTargetDetailModel appTargetDetailModel : appTargetDetailModels) {
+				if(appTargetDetailModel.getFilterType().equals(CodeTableConstant.FILTER_TYPE_INCLUDE)) {
+					//包含条件
+					includes.add(appTargetDetailModel);
+				}else if(appTargetDetailModel.getFilterType().equals(CodeTableConstant.FILTER_TYPE_EXCLUDE)){
+					//不包含条件
+					excludes.add(appTargetDetailModel);
+				}
+			}
+
+			boolean flag =false;
+			if(includes !=null && includes.size() >0) {
+				flag =true;
+				for (AppTargetDetailModel appTargetDetailModel : includes) {
+					Criteria criteria = getCriteriaOfAppByAppDetail(excludes,appModelExample,adx);
+					if (appTargetDetailModel.getMatchType().equals(CodeTableConstant.MATCH_TYPE_EQUAL)) {//精确匹配
+						criteria.andAppNameEqualTo(appTargetDetailModel.getWord());
+					} else if (appTargetDetailModel.getMatchType().equals(CodeTableConstant.MATCH_TYPE_LIKE)) {//模糊匹配
+						criteria.andAppNameLike("%" + appTargetDetailModel.getWord() + "%");
+					}
+					appModelExample.or(criteria);
+				}
+			}
+
+			if(!flag){
+				getCriteriaOfAppByAppDetail(excludes,appModelExample,adx);
+			}
+
+			List<AppModel> appModels = appDao.selectByExample(appModelExample);
+			return appModels;
+		}
+		return null;
+	}
+
+	/**
+	 * 获取Criteria
+	 * @param excludes
+	 * @param appModelExample
+	 * @param adx
+     * @return
+     */
+	public Criteria getCriteriaOfAppByAppDetail(List<AppTargetDetailModel> excludes, AppModelExample appModelExample,String adx){
+		Criteria criteria = appModelExample.createCriteria();
+		criteria.andAdxIdEqualTo(adx);
+
+		if(excludes !=null && excludes.size() >0) {
+			for (AppTargetDetailModel appTargetDetailModel : excludes) {
+				if (appTargetDetailModel.getMatchType().equals(CodeTableConstant.MATCH_TYPE_EQUAL)) {//精确匹配
+					criteria.andAppNameNotEqualTo(appTargetDetailModel.getWord());
+				} else if (appTargetDetailModel.getMatchType().equals(CodeTableConstant.MATCH_TYPE_LIKE)) {//模糊匹配
+					criteria.andAppNameNotLike("%" + appTargetDetailModel.getWord() + "%");
+				}
+			}
+		}
+		return criteria;
+	}
+
+	/**
+	 * 根据app查询条件获取app个数
+	 * @param target
+	 * @return
+	 * @throws Exception
+     */
+//	public int  getAppNumsByQueryCondition(CampaignBean.Target target) throws Exception {
+//		if(target !=null){
+//			List<String> appIds = customAppDao.selectApps(target);
+//			return appIds.size();
+//		}
+//		return 0;
+//	}
+
+	public int  getAppNumsByQueryCondition(CampaignBean.Target target) throws Exception {
+		if(target !=null){
+
+			AppModelExample appModelExample = new AppModelExample();
+
+			//包含条件
+			CampaignBean.Target.Include[] includes = target.getInclude();
+			boolean flag =false;
+			if(includes !=null && includes.length >0) {
+				flag =true;
+				for (CampaignBean.Target.Include include : includes) {
+					Criteria criteria = getAndCriteriaOfApp(target,appModelExample);
+					if (include.getType().equals(CodeTableConstant.MATCH_TYPE_EQUAL)) {//精确匹配
+						criteria.andAppNameEqualTo(include.getWord());
+
+					} else if (include.getType().equals(CodeTableConstant.MATCH_TYPE_LIKE)) {//模糊匹配
+						criteria.andAppNameLike("%" + include.getWord() + "%");
+
+					}
+					appModelExample.or(criteria);
+				}
+			}
+
+			if(!flag){
+				getAndCriteriaOfApp(target,appModelExample);
+			}
+
+
+			List<AppModel> appModels = appDao.selectByExample(appModelExample);
+			return appModels.size();
+		}
+		return 0;
+	}
+
+	/**
+	 * 获取Criteria
+	 * @param target
+	 * @param appModelExample
+     * @return
+     */
+	public Criteria getAndCriteriaOfApp(CampaignBean.Target target, AppModelExample appModelExample){
+		Criteria criteria = appModelExample.createCriteria();
+		criteria.andAdxIdEqualTo(target.getAdx());
+		CampaignBean.Target.Exclude[] excludes = target.getExclude();
+		if(excludes !=null && excludes.length >0) {
+			for (CampaignBean.Target.Exclude exclude : excludes) {
+				if (exclude.getType().equals(CodeTableConstant.MATCH_TYPE_EQUAL)) {//精确匹配
+					criteria.andAppNameNotEqualTo(exclude.getWord());
+				} else if (exclude.getType().equals(CodeTableConstant.MATCH_TYPE_LIKE)) {//模糊匹配
+					criteria.andAppNameNotLike("%" + exclude.getWord() + "%");
+				}
+			}
+		}
+		return criteria;
 	}
 
 	/**

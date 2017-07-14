@@ -100,4 +100,25 @@ public class CodeTableConstant {
 	public static final String COST = "成本";
 	
 	public static final String ADX_COST = "修正成本";
+
+	/**
+	 * 匹配模式---精确匹配
+     */
+	public static final String MATCH_TYPE_EQUAL = "01";
+
+	/**
+	 * 匹配模式--模糊匹配
+     */
+	public static final String MATCH_TYPE_LIKE = "02";
+
+	/**
+	 * 过滤类型--包含
+     */
+	public static final String FILTER_TYPE_INCLUDE = "01";
+
+	/**
+	 * 过滤类型--不包含
+     */
+	public static final String FILTER_TYPE_EXCLUDE = "02";
+
 }
