@@ -171,6 +171,7 @@ public class PhrasesConstant
 	
 	public static final String CREATIVE_HAVE_CHECKED = "审核过的创意不能再次提交审核";
 	public static final String CREATIVE_HAVE_SYCHRONIZED = "审核过的创意不能再次同步";
+	public static final String CREATIVE_TYPE_NOT_SUPPORT = "不支持的创意类型";
 	
 	
 	public static final String DIF_TOTAL_BIGGER_REDIS = "设置的总预算不能小于已消费的预算";//"总预算减小值大于redis中剩余值，修改失败！";
