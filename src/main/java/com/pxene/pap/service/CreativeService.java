@@ -173,6 +173,9 @@ public class CreativeService extends BaseService {
 	private AutohomeAuditService autohomeAuditService;
 	
 	@Autowired
+	private BaiduAuditService baiduAuditService;
+	
+	@Autowired
 	private TmplService tmplService;
 
 	@Autowired
@@ -478,6 +481,9 @@ public class CreativeService extends BaseService {
 			if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
                 autohomeAuditService.auditCreative(id);
             }
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+			    baiduAuditService.auditCreative(id);
+			}
 		}
 	}
 
@@ -518,6 +524,9 @@ public class CreativeService extends BaseService {
 				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
 				    autohomeAuditService.synchronizeCreative(id);
                 }
+				if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+	                baiduAuditService.synchronizeCreative(id);
+	            }
 			}
 		}
 	}
@@ -1376,6 +1385,9 @@ public class CreativeService extends BaseService {
 						// 如果ADX属于汽车之家，则同步汽车之家审核结果
 						autohomeAuditService.synchronizeCreative(creativeId);
 					}
+					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+		                baiduAuditService.synchronizeCreative(creativeId);
+		            }
 				}
 			}
 			// 如果审核通过，则将创意id写入门到redis的mapids中
@@ -1443,6 +1455,9 @@ public class CreativeService extends BaseService {
 						// 如果ADX属于汽车之家，则提交汽车之家审核
 						autohomeAuditService.auditCreative(creativeId);
 					}
+					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+                        baiduAuditService.auditCreative(creativeId);
+                    }
 				} else {
 					// 如果创意审核信息不为空
 
@@ -1459,6 +1474,9 @@ public class CreativeService extends BaseService {
 						// 如果ADX属于汽车之家，则提交汽车之家审核
 						autohomeAuditService.auditCreative(creativeId);
 					}
+					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+                        baiduAuditService.auditCreative(creativeId);
+                    }
 				}
 			}
 		}

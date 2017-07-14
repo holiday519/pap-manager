@@ -2,7 +2,7 @@ package com.pxene.pap.domain.beans.baidu;
 
 import java.util.Arrays;
 
-public class Response extends BaseBean
+public class BaiduResponse extends BaseBean
 {
     /**
      * 返回状态码。
@@ -34,11 +34,11 @@ public class Response extends BaseBean
     }
     
     
-    public Response()
+    public BaiduResponse()
     {
         super();
     }
-    public Response(int status, Error[] errors)
+    public BaiduResponse(int status, Error[] errors)
     {
         super();
         this.status = status;

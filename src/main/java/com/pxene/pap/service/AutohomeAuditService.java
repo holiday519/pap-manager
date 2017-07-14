@@ -831,6 +831,7 @@ class CreativeRichBean
     private CampaignModel campaignInfo;
     private ProjectModel projectInfo;
     private AdvertiserModel advertiserInfo;
+    private List<CreativeAuditModel> creativeAuditInfoList;
     
     
     public String getId()
@@ -881,6 +882,14 @@ class CreativeRichBean
     {
         this.advertiserInfo = advertiserInfo;
     }
+    public List<CreativeAuditModel> getCreativeAuditInfoList()
+    {
+        return creativeAuditInfoList;
+    }
+    public void setCreativeAuditInfoList(List<CreativeAuditModel> creativeAuditInfoList)
+    {
+        this.creativeAuditInfoList = creativeAuditInfoList;
+    }
     
     
     public CreativeRichBean()
@@ -897,12 +906,24 @@ class CreativeRichBean
         this.projectInfo = projectInfo;
         this.advertiserInfo = advertiserInfo;
     }
+    public CreativeRichBean(String id, LandpageModel landpageInfo, CreativeModel creativeInfo, CampaignModel campaignInfo, ProjectModel projectInfo, AdvertiserModel advertiserInfo,
+            List<CreativeAuditModel> creativeAuditInfoList)
+    {
+        super();
+        this.id = id;
+        this.landpageInfo = landpageInfo;
+        this.creativeInfo = creativeInfo;
+        this.campaignInfo = campaignInfo;
+        this.projectInfo = projectInfo;
+        this.advertiserInfo = advertiserInfo;
+        this.creativeAuditInfoList = creativeAuditInfoList;
+    }
     
     
     @Override
     public String toString()
     {
         return "CreativeRichBean [id=" + id + ", landpageInfo=" + landpageInfo + ", creativeInfo=" + creativeInfo + ", campaignInfo=" + campaignInfo + ", projectInfo=" + projectInfo
-                + ", advertiserInfo=" + advertiserInfo + "]";
+                + ", advertiserInfo=" + advertiserInfo + ", creativeAuditInfoList=" + creativeAuditInfoList + "]";
     }
 }

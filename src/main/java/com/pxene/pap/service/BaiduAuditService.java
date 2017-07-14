@@ -1,75 +1,78 @@
 package com.pxene.pap.service;
 
+import static com.pxene.pap.constant.StatusConstant.ADVERTISER_AUDIT_FAILURE;
+import static com.pxene.pap.constant.StatusConstant.ADVERTISER_AUDIT_NOCHECK;
+import static com.pxene.pap.constant.StatusConstant.ADVERTISER_AUDIT_SUCCESS;
+import static com.pxene.pap.constant.StatusConstant.ADVERTISER_AUDIT_WATING;
+
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomUtils;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.HttpClientUtil;
-import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.ConfKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.baidu.APIAdvertiserQualificationInfo;
+import com.pxene.pap.domain.beans.baidu.APIAdvertiserLicence;
+import com.pxene.pap.domain.beans.baidu.APIAdvertiserQualificationStatus;
+import com.pxene.pap.domain.beans.baidu.APIAdvertiserQualificationUpload;
+import com.pxene.pap.domain.beans.baidu.APIUploadQualificationResult;
 import com.pxene.pap.domain.beans.baidu.Advertiser;
 import com.pxene.pap.domain.beans.baidu.BaiduRequest;
+import com.pxene.pap.domain.beans.baidu.BaiduResponse;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
-import com.pxene.pap.domain.models.AdxModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CreativeAuditModel;
 import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
-import com.pxene.pap.domain.models.IndustryModel;
+import com.pxene.pap.domain.models.IndustryAdxModel;
+import com.pxene.pap.domain.models.IndustryAdxModelExample;
 import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
-import com.pxene.pap.repository.basic.IndustryDao;
+import com.pxene.pap.exception.ThirdPartyAuditException;
+import com.pxene.pap.repository.basic.IndustryAdxDao;
 
 /**
- * 百度流量交易平台（BES）相关审核、同步服务
+ * 百度流量交易平台（BES）相关审核、同步服务。
  * @author ningyu
  */
 @Service
 public class BaiduAuditService extends AuditService
 {
-	
-	private static final Logger LOGGER = LoggerFactory.getLogger(BaiduAuditService.class);
-    /**
-     * 创意审核信息的过期天数
-     */
-	private static final int CREATIVE_AUDIT_EXPIRE_DAYS = 120;
+	//private static final Logger LOGGER = LoggerFactory.getLogger(BaiduAuditService.class);
 	
 	/**
 	 * 素材文件服务器的URL前缀
@@ -92,14 +95,16 @@ public class BaiduAuditService extends AuditService
 	private JsonParser parser = new JsonParser();
 	
     @Autowired
-	private IndustryDao industryDao;
+    private IndustryAdxDao industryAdxDao;
     
     
     @Autowired
 	public BaiduAuditService(Environment env) 
 	{
 		super(env);
+		
         String uploadMode = env.getProperty(ConfKeyConstant.FILESERVER_MODE);
+        
         if ("local".equals(uploadMode))
         {
             urlPrefix = env.getProperty(ConfKeyConstant.FILESERVER_LOCAL_URL_PREFIX);
@@ -113,179 +118,522 @@ public class BaiduAuditService extends AuditService
         impURLPrefix = env.getProperty(ConfKeyConstant.IMPRESSION_URL_PREFIX);
 	}
 	
-
+    
 	/**
-	 * 提交广告主到ADX进行审核（更新广告主审核表数据）
+	 * 提交广告主到BES进行审核（创建广告主、上传广告主资质、更新广告主审核表数据）
 	 */
 	@Override
 	@Transactional
     public void auditAdvertiser(String auditId) throws Exception
     {
-        // 查询广告主审核信息
+	    // 查询广告主审核信息
         AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
-        if (advertiserAudit != null)
+        String auditValue = advertiserAudit.getAuditValue();
+        String advertiserId = advertiserAudit.getAdvertiserId();
+        String adxId = advertiserAudit.getAdxId();
+        String auditStatus = advertiserAudit.getStatus();
+        
+        // “正在审核中”和“审核通过”的广告主不需要再提审
+        if (auditStatus == ADVERTISER_AUDIT_WATING)
         {
-            // 如果广告主审核信息不为空，则修改广告审核的状态：审核中
-            advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
+            throw new IllegalStatusException("广告主正在审核中，请注意同步审核状态。");
+        }
+        if (auditStatus == ADVERTISER_AUDIT_SUCCESS)
+        {
+            throw new IllegalStatusException("广告主已经审核通过，不需要重新提审。");
+        }
+        
+        // 查询广告主信息
+        AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId);
+        
+        // 查询ADX信息
+        AdxModel adx = adxDao.selectByPrimaryKey(adxId);
+        
+        
+        // 如果是“未审核”状态，则需要新建广告主，否则修改广告主
+        if (auditStatus == ADVERTISER_AUDIT_NOCHECK)
+        {
+            Long dspSideAdvertiserId = RandomUtils.nextLong(); 
             
-            // DSP 侧内部的广告主ID，需要保证DSP内部不重复，由于ADX要求是int值，因此不能用UUID。
-            int auditValue = RandomUtils.nextInt();
-            advertiserAudit.setAuditValue(String.valueOf(auditValue));
+            boolean createResult = createAdvertiserInBES(dspSideAdvertiserId, adx, advertiser);
             
-            // 更新数据库信息
-            advertiserAuditDao.updateByPrimaryKeySelective(advertiserAudit);
+            // 广告主如果创建成功，则在DB中插入audit_value，状态修改为“审核未通过”
+            if (createResult)
+            {
+                updateAdvertiserAuditInfo(auditId, String.valueOf(dspSideAdvertiserId), ADVERTISER_AUDIT_FAILURE, null);
+                
+                // 如果创建成功，继续上传资质，如果上传成功，则将状态修改为“审核中”
+                int qulificationUploadStatus = uploadQulificationToBES(dspSideAdvertiserId, adx, advertiser);
+                if (qulificationUploadStatus == 1 || qulificationUploadStatus == 2) // 0：提交失败， 1：已提交，2：免提交
+                {
+                    updateAdvertiserAuditInfo(auditId, null, ADVERTISER_AUDIT_WATING, null);
+                }
+            }
+        }
+        else // 如果是“审核未通过”状态，则编辑广告主
+        {
+            Long dspSideAdvertiserId = Long.valueOf(auditValue);
+            
+            // 编辑广告主信息
+            boolean updateResult = updateAdvertiserInBES(dspSideAdvertiserId, adx, advertiser);
+            if (updateResult)
+            {
+                // 修改广告主主体资质
+                int qulificationUpdateStatus = updateQulificationInBES(dspSideAdvertiserId, adx, advertiser);
+                
+                // 0：提交失败， 1：已提交，2：免提交
+                if (qulificationUpdateStatus == 1 || qulificationUpdateStatus == 2)
+                {
+                    updateAdvertiserAuditInfo(auditId, String.valueOf(dspSideAdvertiserId), ADVERTISER_AUDIT_WATING, null);
+                }
+            }
         }
     }
 
 	/**
-	 * 查询广告主在ADX的审核状态（由于DSP已经审核过BES查询广告主资质）
+	 * 查询广告主在ADX的审核状态，通过调用百度查询广告主资质API实现。<br>
+	 * （由于DSP已经在百度审核过广告主————上海银行的资质，因此这里直接从数据库中读取出审核值作为Baidu分配给蓬景的ADX_ID）
 	 */
 	@Override
 	@Transactional
     public void synchronizeAdvertiser(String auditId) throws Exception
     {
+	    if (StringUtils.isEmpty(auditId))
+	    {
+	        throw new IllegalArgumentException();
+	    }
+	    
 	    // 查询广告主审核信息
 	    AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 	    String advertiserId = advertiserAudit.getAuditValue();
 	    String adxId = advertiserAudit.getAdxId();
 	    
-	    AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserAudit.getAdvertiserId());
-	    
 	    // 查询ADX信息
-	    AdxModelExample adxExample = new AdxModelExample();
-	    adxExample.createCriteria().andIdEqualTo(adxId);
-	    
-	    List<AdxModel> adxList = adxDao.selectByExample(adxExample);
-	    if (adxList != null && adxList.isEmpty())
-	    {
-	        AdxModel adx = adxList.get(0);
-	        String dspId = adx.getDspId();
-	        String token = adx.getSignKey();
-	        
-	        Map<String, String> authHeaderMap = getAuthHeaderMap(dspId, token);
-	        
-	        APIAdvertiserQualificationInfo info = new APIAdvertiserQualificationInfo();
-	        info.setAdvertiserId(Long.valueOf(advertiserId));
-	        info.setNickname(advertiser.getName());
-	    }
-	    
-       
-        if (advertiserAudit != null)
+        AdxModel adx = adxDao.selectByPrimaryKey(adxId);
+        String url = adx.getQualificationQueryUrl();   // 查询广告主资质API URL
+        Long dspId = Long.valueOf(adx.getDspId());     // DSP ID
+        String token = adx.getSignKey();               // 百度为DSP颁发的Token
+        
+        // -##- 构建请求头
+        JsonObject requestHeader = new JsonObject();
+        requestHeader.addProperty("dspId", dspId);
+        requestHeader.addProperty("token", token);
+        
+        // -#- 构建请求参数
+        JsonObject requestObj = new JsonObject();
+        requestObj.add("authHeader", requestHeader);
+        requestObj.addProperty("advertiserId", advertiserId);
+        requestObj.addProperty("needLicenceImgUrl", true);
+        
+        // 构建审核请求对象
+        String jsonStrRequest = requestObj.toString();
+        
+        // 发送HTTP POST请求
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        
+        // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
+        if (!StringUtils.isEmpty(jsonStrResponse))
         {
-            // 如果广告主审核信息不为空，则修改广告主审核表状态：审核通过
-            advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_SUCCESS);
+            // 检查响应对象中的status属性的值是否是0和1
+            boolean respStatus = checkResponseStatus(jsonStrResponse);
             
-            // 更新广告主审核表数据
-            advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
+            if (respStatus)
+            {
+                JsonObject respObj = parser.parse(jsonStrResponse).getAsJsonObject();
+                JsonObject qualificationObj = respObj.get("qualification").getAsJsonObject();
+                if (qualificationObj.has("auditState"))
+                {
+                    int auditState = qualificationObj.get("auditState").getAsInt();
+                    
+                    if (auditState == 0) // 审核通过
+                    {
+                        advertiserAudit.setStatus(ADVERTISER_AUDIT_SUCCESS);
+                    }
+                    else if (auditState == 1) // 审核中
+                    {
+                        advertiserAudit.setStatus(ADVERTISER_AUDIT_WATING);
+                    }
+                    else if (auditState == 2) // 审核拒绝
+                    {
+                        advertiserAudit.setStatus(ADVERTISER_AUDIT_FAILURE);
+                    }
+                    
+                    // 更新广告主的审核表状态
+                    advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
+                }
+            }
         }
     }
 
 	/**
-	 * 提交创意到汽车之家进行审核
+	 * 提交创意到百度进行审核
 	 */
 	@Override
 	@Transactional(dontRollbackOn = IllegalStatusException.class)
     public void auditCreative(String creativeId) throws Exception
     {
+	    // 根据创意ID，查询创意信息
+        CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+        
+        // 判断创意是否存在
+        if (creativeModel == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.CREATIVE_NOT_FOUND);
+        }
+        
+        // 创意类型
+        String creativeType = creativeModel.getType();
+        
+        // 检查创意类型
+        if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(creativeType))
+        {
+            throw new ThirdPartyAuditException(PhrasesConstant.CREATIVE_TYPE_NOT_SUPPORT);
+        }
+        
+        // 百度的ADX信息
+        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
+        Long dspId = Long.valueOf(adx.getDspId());                      // DSP ID
+        String url = adx.getQualificationQueryUrl();                    // 创意审核URL
+        String token = adx.getSignKey();                                // 百度为DSP颁发的Token
+        String iURL = adx.getIurl();                                    // 曝光监测地址
+        String cURL = adx.getCurl();                                    // 点击监测地址
+        
+        // 查询出创意的相关信息
+        CreativeRichBean richCreative = buildRelation(creativeId);
+        
+        // 广告主信息
+        AdvertiserModel advertiserModel = richCreative.getAdvertiserInfo();
+        
+        // 广告主所属行业ID
+        String industryId = advertiserModel.getIndustryId();
+        
+        // DSP端的广告主ID
+        Long advertiserId = getAdvertiserIDInDSP(advertiserModel.getId());   
+        if (advertiserId == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
+        }
+        
+        // DSP端的创意ID
+        Long dspSideCreativeId = RandomUtils.nextLong();
+        
+        // 查询出创意所属广告行业
+        String creativeTradeId = getCreativeTradeId(industryId);
+        
+        // 创意素材ID
+        String materialId = creativeModel.getMaterialId();
+        
+        // 落地页信息
+        LandpageModel landpageInfo = richCreative.getLandpageInfo();
+        
+        // 拼接成点击地址（302跳转）
+        cURL = cURL.replace("#BID#", "1").replace("#DEVICEID#", "1").replace("#DEVICEIDTYPE#", "1").replace("#MAPID#", creativeId);
+        String link = clkURLPrefix + cURL;
+        String landpageURL = URLEncoder.encode(landpageInfo.getUrl(), StandardCharsets.UTF_8.displayName());
+        link = link + "&curl=" + landpageURL;
+
+        // -###- 构建广告监测链接数组
+        JsonArray monitorUrlArray = new JsonArray();
+        monitorUrlArray.add(impURLPrefix + iURL);
+        
+        // -##- 构建请求头
+        JsonObject requestHeader = new JsonObject();
+        requestHeader.addProperty("dspId", dspId);
+        requestHeader.addProperty("token", token);
+        
+        // -##- 构建请求体
+        JsonArray requestBody = new JsonArray();
+        JsonObject item = new JsonObject();
+        item.addProperty("creativeId", dspSideCreativeId);
+        item.addProperty("adviewType", 2);   // 2：Mobile流量
+        item.addProperty("targetUrl", link);
+        item.addProperty("landingPage", landpageURL);
+        item.add("monitorUrls", monitorUrlArray);
+        item.addProperty("creativeTradeId", creativeTradeId);
+        item.addProperty("advertiserId", advertiserId);
+        item.addProperty("interactiveStyle", 0); // 互动样式（移动创意必填 ），0：无
+        
+        if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType))         // 如果是图片创意，则读取图片素材表，取得图片ID，再根据图片ID，取得详细的图片信息
+        {
+            ImageMaterialModel imageMaterial = imageMaterialDao.selectByPrimaryKey(materialId);
+            String imageId = imageMaterial.getImageId();
+            
+            if (StringUtils.isEmpty(imageId))
+            {
+                throw new IllegalArgumentException();
+            }
+            
+            // 根据图片ID取得图片素材信息
+            ImageModel imageInfo = imageDao.selectByPrimaryKey(imageId);
+            
+            // 获得图片的二进制数据的字符串表示（Base64编码）
+            String binaryDataBase64Str = getBase64ImageStrByImageId(imageInfo);
+            
+            item.addProperty("type", 1); // 1：图片
+            item.addProperty("binaryData", binaryDataBase64Str);
+            item.addProperty("width", imageInfo.getWidth());
+            item.addProperty("height", imageInfo.getHeight());
+        }
+        else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(creativeType)) // 如果是信息流创意，则读取信息流素材表，取得第一张图片ID
+        {
+            InfoflowMaterialModel infoflowMaterial = infoflowMaterialDao.selectByPrimaryKey(materialId);
+            
+            String title = infoflowMaterial.getTitle();
+            String descp = infoflowMaterial.getDescription();
+            String brandName = advertiserModel.getBrandName();
+            
+            String iconId = infoflowMaterial.getIconId();
+            String image1Id = infoflowMaterial.getImage1Id();
+            
+            // 根据图片ID取得图片素材信息
+            ImageModel logoImageInfo = imageDao.selectByPrimaryKey(iconId);
+            ImageModel image1Info = imageDao.selectByPrimaryKey(image1Id);
+            
+            // 获得图片的二进制数据的字符串表示（Base64编码）
+            String logoBinaryDataBase64Str = getBase64ImageStrByImageId(logoImageInfo);
+            String image1BinaryDataBase64Str = getBase64ImageStrByImageId(image1Info);
+            
+            // -###- 图文创意二进制数据的数组
+            JsonArray binaryDatas = new JsonArray();
+            binaryDatas.add(logoBinaryDataBase64Str);
+            binaryDatas.add(image1BinaryDataBase64Str);
+            
+            item.addProperty("type", 4);                // 4：图文
+            item.addProperty("style", 5);               // 5：APP图文信息流，要求adviewType必须为2
+            item.addProperty("title", title);           // 主标题
+            item.addProperty("description", descp);     // 描述
+            item.addProperty("brandName", brandName);   // 品牌名称 
+            item.add("binaryDatas", binaryDatas);       // 图文创意二进制数据列表
+        }
+        
+        requestBody.add(item);
+        
+        // -#- 构建请求参数
+        JsonObject requestObj = new JsonObject();
+        requestObj.add("authHeader", requestHeader);
+        requestObj.add("request", requestBody);
+        
+        // 构建审核请求对象
+        String jsonStrRequest = requestObj.toString();
+        
+        // 发送HTTP POST请求
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        
+        // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
+        if (!StringUtils.isEmpty(jsonStrResponse))
+        {
+            // 检查响应对象中的status属性的值是否是0和1
+            boolean respStatus = checkResponseStatus(jsonStrResponse);
+            
+            if (respStatus)
+            {
+                // 将生成的随机数，作为ID（此 id 为 dsp 系统的创意 id），插入到创意审核表中的audit_value字段中
+                initCreativeId(creativeId, dspSideCreativeId);
+                
+                Map<Integer, Object> creativeAuditStatus = getCreativeAuditStatus(jsonStrResponse);
+                if (creativeAuditStatus != null)
+                {
+                    int state = (int) creativeAuditStatus.get("state");
+                    String[] refuseReason = (String[]) creativeAuditStatus.get("refuseReason");
+                    
+                    // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
+                    if (state == 0)
+                    {
+                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
+                    }
+                    else if (state == 1)
+                    {
+                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_WATING, "");
+                    }
+                    else if (state == 2)
+                    {
+                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, org.apache.commons.lang3.StringUtils.join(refuseReason,  ", "));
+                    }
+                }
+                else
+                {
+                    throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
+                }
+            }
+        }
+        else 
+        {
+            throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
+        }
     }
+	
+	/**
+	 * 修改广告主的审核信息，包括审核值、审核状态、审核信息。
+	 * @param auditId  审核ID，主键
+	 * @param status   审核状态
+	 * @param auditValue   审核值
+	 * @param message  审核信息
+	 */
+	private void updateAdvertiserAuditInfo(String auditId, String status, String auditValue, String message)
+	{
+	    AdvertiserAuditModel tmpRecord = new AdvertiserAuditModel();
+	    
+        tmpRecord.setId(auditId);
+        if (!StringUtils.isEmpty(status))
+        {
+            tmpRecord.setStatus(status);
+        }
+        if (!StringUtils.isEmpty(auditValue))
+        {
+            tmpRecord.setAuditValue(auditValue);
+        }
+        if (!StringUtils.isEmpty(message))
+        {
+            tmpRecord.setMessage(message);
+        }
+        
+        advertiserAuditDao.updateByPrimaryKeySelective(tmpRecord);
+	}
 
 	/**
-     * 查询汽车之前针对某创意的审核结果
+     * 查询百度对某创意的审核结果
      */
     @Override
     @Transactional(dontRollbackOn = IllegalStatusException.class)
     public void synchronizeCreative(String creativeId) throws Exception
     {
         // 根据创意ID查询创意信息
-        CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+        CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
         
         // 判断创意是否存在
-        if (creativeModel == null)
+        if (creative == null)
         {
             throw new ResourceNotFoundException();
         }
         
-        // 判断“创意审核表”中是否存在该创意的审核信息
+        Long auditValue = null;
+        
+        // 判断“创意审核表(pap_t_creative_audit)”中是否存在该创意的审核信息
         CreativeAuditModelExample example = new CreativeAuditModelExample();
-        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
         List<CreativeAuditModel> modelList = creativeAuditDao.selectByExample(example);
         if (modelList == null || modelList.isEmpty())
         {
             throw new ResourceNotFoundException();
         }
-        
-        // 汽车之家在提交审核后返回的ADX端的创意ID
-        ArrayList<String> creativeIds = new ArrayList<String>();
-        for (CreativeAuditModel model : modelList)
+        else
         {
-            creativeIds.add(model.getAuditValue());
+            auditValue = Long.valueOf(modelList.get(0).getAuditValue());
         }
         
-        // 汽车之家的ADX信息
-        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
-        int dspId = Integer.valueOf(adx.getDspId());                    // DSP ID
-        String checkURL = adx.getCreativeAuditStateQueryUrl();                     // 创意审核状态查询URL
-        String signKey = adx.getSignKey();                              // 汽车之家为DSP颁发的SignKey
-     
-        // 构建基础的请求URL参数
-        Map<String, String> requestParams = new HashMap<String, String>();
-        requestParams.put("dspId", String.valueOf(dspId));
-        requestParams.put("creativeId", org.apache.commons.lang3.StringUtils.join(creativeIds, ","));
-        requestParams.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        // Baidu的ADX信息
+        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
+        Long dspId = Long.valueOf(adx.getDspId());                      // DSP ID
+        String token = adx.getSignKey();                                // 百度为DSP颁发的Token
         
-        // 构建请求验证签名
-        String sign = getSign4PlainText(requestParams, signKey);
+        // 查询创意审核状态URL
+        String url = adx.getCreativeAuditStateQueryUrl();
         
-        requestParams.put("sign", sign);
+        // ## 构建请求头
+        JsonObject requestHeader = new JsonObject();
+        requestHeader.addProperty("dspId", dspId);
+        requestHeader.addProperty("token", token);
         
-        // 发送HTTP GET请求
-        String httpUrl = checkURL + "?" + buildRequestParams(requestParams);
-        String respStr = HttpClientUtil.getInstance().sendHttpGet(httpUrl);
+        // ## 构建请求体
+        JsonArray requestBody = new JsonArray();
+        requestBody.add(auditValue);
         
-        // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
-        if (!StringUtils.isEmpty(respStr))
+        // # 构建请求参数
+        JsonObject requestObj = new JsonObject();
+        requestObj.add("authHeader", requestHeader);
+        requestObj.add("creativeIds", requestBody);
+        
+        // 构建审核请求对象
+        String jsonStrRequest = requestObj.toString();
+        
+        // 发送HTTP POST请求
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        
+        if (!StringUtils.isEmpty(jsonStrResponse))
         {
-            // 检查status是否为1
-            boolean respFlag = checkResponseStatus(respStr);
-            if (respFlag)
+            // 检查响应对象中的status属性的值是否是0和1
+            boolean respStatus = checkResponseStatus(jsonStrResponse);
+            
+            if (respStatus)
             {
-                Map<String, String> auditResultMap = checkAuditStatus(respStr);
-                String code = auditResultMap.get("code");
-                String msg = auditResultMap.get("msg");
-                
-                if ("1".equals(code))
+                Map<Integer, Object> creativeAuditStatus = getCreativeAuditStatus(jsonStrResponse);
+                if (creativeAuditStatus != null)
                 {
-                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
+                    int state = (int) creativeAuditStatus.get("state");
+                    String[] refuseReason = (String[]) creativeAuditStatus.get("refuseReason");
+                    
+                    // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
+                    if (state == 0)
+                    {
+                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
+                    }
+                    else if (state == 1)
+                    {
+                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_WATING, "");
+                    }
+                    else if (state == 2)
+                    {
+                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, org.apache.commons.lang3.StringUtils.join(refuseReason,  ", "));
+                    }
                 }
-                else if ("2".equals(code))
+                else
                 {
-                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, msg);
+                    throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
                 }
-                else if ("0".equals(code))
-                {
-                    changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_WATING, msg);
-                }
-            }
-            else
-            {
-                throw new IllegalStatusException(parseResponseErrorInfo(respStr));
             }
         }
         else 
         {
-            throw new IllegalStatusException(AuditErrorConstant.AUTOHOME_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
+            throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
         }
     }
     
     /**
-     * 构建调用请求的验证信息。
-     * @param dspId ADX分配给DSP的ID
-     * @param token ADX分配给DSP的认证Token
-     * @return Key为dspId和token的Map
+     * 将生成的随机数，作为ID（此 id 为 dsp 系统的创意 id），插入到创意审核表中的audit_value字段中
+     * @param creativeId           PAP-系统中的创意ID（UUID）
+     * @param dspSideCreativeId    DSP-系统中的创意ID（经百度确认后的Long型ID）
      */
-    private static Map<String, String> getAuthHeaderMap(String dspId, String token)
+    private void initCreativeId(String creativeId, Long dspSideCreativeId)
     {
-        Map<String, String> authHeader = new HashMap<String, String>();
+        CreativeAuditModel record = new CreativeAuditModel();
+        record.setAuditValue(String.valueOf(dspSideCreativeId));
+        
+        CreativeAuditModelExample example = new CreativeAuditModelExample();
+        example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE).andCreativeIdEqualTo(creativeId);
+        creativeAuditDao.updateByExampleSelective(record, example);
+    }
+
+
+    /**
+     * 根据广告主的行业ID，取得行业编号。
+     * @param industryId   行业ID
+     * @return
+     */
+    private String getCreativeTradeId(String industryId)
+    {
+        IndustryAdxModelExample industryAdxModelExample = new IndustryAdxModelExample();
+        industryAdxModelExample.createCriteria().andAdxIdEqualTo("").andIndustryIdEqualTo(industryId);
+        List<IndustryAdxModel> industryAdxList = industryAdxDao.selectByExample(industryAdxModelExample);
+        
+        if (industryAdxList != null && !industryAdxList.isEmpty())
+        {
+            return industryAdxList.get(0).getIndustryCode();
+        }
+        
+        return null;
+    }
+
+    /**
+     * 构建请求认证信息
+     * @param adx
+     * @return
+     */
+    private Map<String, Object> getAuthHeader(AdxModel adx)
+    {
+        String dspId = adx.getDspId();
+        String token = adx.getSignKey();
+        
+        Map<String, Object> authHeader = new HashMap<String, Object>();
         
         authHeader.put("dspId", dspId);
         authHeader.put("token", token);
@@ -294,16 +642,175 @@ public class BaiduAuditService extends AuditService
     }
 
     /**
-     * 根据广告主的UUID获得DSP端的广告主ID（广告主审核表中保存的由ADX返回的审核后的广告主ID）
+     * 新增广告主
+     * @param adx               pap_t_adx表的记录对象
+     * @param advertiserModel   pap_t_advertiser表的记录对象 
+     * @throws IOException 
+     */
+    private boolean createAdvertiserInBES(Long advertiserId, AdxModel adx, AdvertiserModel advertiserModel) throws IOException
+    {
+        return createOrUpdateAdvertiserInBES("add", advertiserId, adx, advertiserModel);
+    }
+
+    /**
+     * 修改广告主
+     * @param adx               pap_t_adx表的记录对象
+     * @param advertiserModel   pap_t_advertiser表的记录对象 
+     * @throws IOException 
+     */
+    private boolean updateAdvertiserInBES(Long advertiserId, AdxModel adx, AdvertiserModel advertiserModel) throws IOException
+    {
+        return createOrUpdateAdvertiserInBES("update", advertiserId, adx, advertiserModel);
+    }
+
+    /**
+     * 新增或修改广告主
+     * @param type              操作类型，add：新增、update：修改
+     * @param adx               pap_t_adx表的记录对象
+     * @param advertiserModel   pap_t_advertiser表的记录对象 
+     * @throws IOException 
+     */
+    private boolean createOrUpdateAdvertiserInBES(String type, Long advertiserId, AdxModel adx, AdvertiserModel advertiserModel) throws IOException
+    {
+        String url = "";
+        if (type.equals("add"))
+        {
+            url = adx.getAdvertiserAddUrl();
+        }
+        else
+        {
+            url = adx.getAdvertiserUpdateUrl();
+        }
+    
+        Advertiser advertiser = new Advertiser();
+        advertiser.setAdvertiserId(advertiserId);
+        advertiser.setAdvertiserLiteName(advertiserModel.getName());
+        advertiser.setAdvertiserName(advertiserModel.getLegalName());
+        advertiser.setSiteName(advertiserModel.getSiteName());
+        advertiser.setSiteUrl(advertiserModel.getSiteUrl());
+        advertiser.setTelephone(advertiserModel.getPhone());
+        advertiser.setAddress(advertiserModel.getAddress());
+        
+        Map<String, Object> authHeader = getAuthHeader(adx);
+        
+        Advertiser[] advertisers = new Advertiser[]{ advertiser };
+        
+        BaiduRequest request = new BaiduRequest();
+        request.setAuthHeader(authHeader);
+        request.setRequest(advertisers);
+        
+        String jsonStrRequest = GlobalUtil.writeObject2Json(request, false);
+        
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        
+        if (jsonStrResponse != null)
+        {
+            ObjectMapper objectMapper = new ObjectMapper();
+            BaiduResponse operateResult = objectMapper.readValue(jsonStrResponse, BaiduResponse.class);
+            
+            // 请求全部成功或部分成功
+            if (operateResult.getStatus() == 0 || operateResult.getStatus() == 1)
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
+     * 上传广告主资质
+     * @param advertiserId      此id为dsp系统的广告主id
+     * @param adx               pap_t_adx表的记录对象
+     * @param advertiserModel   pap_t_advertiser表的记录对象 
+     * @throws IOException
+     */
+    private int uploadQulificationToBES(Long advertiserId, AdxModel adx, AdvertiserModel advertiserModel) throws IOException
+    {
+        return uploadOrUpdateQulificationToBES("upload", advertiserId, adx, advertiserModel);
+    }
+
+    /**
+     * 编辑广告主资质
+     * @param advertiserId      此id为dsp系统的广告主id
+     * @param adx               pap_t_adx表的记录对象
+     * @param advertiserModel   pap_t_advertiser表的记录对象 
+     * @return 是否编辑成功，true：是，false：否
+     * @throws IOException
+     */
+    private int updateQulificationInBES(Long advertiserId, AdxModel adx, AdvertiserModel advertiserModel) throws IOException
+    {
+        return uploadOrUpdateQulificationToBES("update", advertiserId, adx, advertiserModel);
+    }
+
+    /**
+     * 上传或编辑广告主资质
+     * @param adx               pap_t_adx表的记录对象
+     * @param advertiserModel   pap_t_advertiser表的记录对象 
+     * @throws IOException 
+     */
+    private int uploadOrUpdateQulificationToBES(String type, Long advertiserId, AdxModel adx, AdvertiserModel advertiserModel) throws IOException
+    {
+        String url = "";
+        if ("upload".equals(type))
+        {
+            url = adx.getQualificationAddUrl();
+        }
+        else
+        {
+            url = adx.getQualificationUpdateUrl();
+        }
+        
+        String licensePath = advertiserModel.getLicensePath();
+        String licenseURL = urlPrefix + licensePath;
+        
+        List<String> imgUrls = new ArrayList<String>();
+        imgUrls.add(licenseURL);
+        
+        APIAdvertiserLicence licence = new APIAdvertiserLicence();
+        licence.setType(1);
+        licence.setName(advertiserModel.getLegalName());
+        licence.setNumber(advertiserModel.getLicenseNo());
+        licence.setValidDate(advertiserModel.getValidDate());
+        licence.setImgUrls(imgUrls);
+    
+        APIAdvertiserQualificationUpload request = new APIAdvertiserQualificationUpload(advertiserId, licence, null);
+        
+        String jsonStrRequest = GlobalUtil.writeObject2Json(request, false);
+        
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        
+        if (jsonStrResponse != null)
+        {
+            ObjectMapper objectMapper = new ObjectMapper();
+            APIUploadQualificationResult operateResult = objectMapper.readValue(jsonStrResponse, APIUploadQualificationResult.class);
+            
+            if (operateResult.getStatus() == 0)
+            {
+                List<APIAdvertiserQualificationStatus> qualificationStatuses = operateResult.getQualificationStatuses();
+                if (qualificationStatuses != null && !qualificationStatuses.isEmpty())
+                {
+                    int status = qualificationStatuses.get(0).getStatus();
+                    
+                    return status;
+                }
+            }
+        }
+        
+        return 0;
+    }
+
+    /**
+     * 根据广告主的UUID获得DSP端的广告主ID（广告主审核表中保存的由ADX返回的审核后的广告主ID），采用包装类型是为了判断是否能成功取出。
      * @param id 广告主ID
      * @return  DSP颁发的广告主ID
      */
-    private Integer getAdvertiserIDInDSP(String id)
+    private Long getAdvertiserIDInDSP(String id)
     {
-        Integer advertiserID = null;
+        Long advertiserID = null;
         
         AdvertiserAuditModelExample advertiserAuditExample = new AdvertiserAuditModelExample();
-        advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+        advertiserAuditExample.createCriteria().andAdvertiserIdEqualTo(id).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
     
         List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditExample);
         if (advertiserAudits != null && !advertiserAudits.isEmpty())
@@ -316,21 +823,21 @@ public class BaiduAuditService extends AuditService
                 throw new IllegalArgumentException(PhrasesConstant.ADVERTISER_AUDIT_ERROR);
             }
             
-            advertiserID = Integer.valueOf(auditValue);
+            advertiserID = Long.valueOf(auditValue);
         }
         return advertiserID;
     }
 
-
     /**
-     * 修改创意审核状态
+     * 修改创意的审核状态。
      * @param creativeId    创意ID
      * @param status        欲修改为的创意审核状态
+     * @param message       审核信息
      */
     private void changeCreativeAuditStatus(String creativeId, String status, String message)
     {
         CreativeAuditModelExample example = new CreativeAuditModelExample();
-        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
         
         CreativeAuditModel model = new CreativeAuditModel();
         model.setStatus(status);
@@ -339,373 +846,147 @@ public class BaiduAuditService extends AuditService
     }
 
 
-    /**
-	 * 解析响应请求中的错误信息
-	 * @param respStr  请求返回的JSON字符串
-	 * @return
-	 */
-	private String parseResponseErrorInfo(String respStr)
-	{
-	    JsonObject respObj = parser.parse(respStr).getAsJsonObject();
-        if (respObj != null && respObj.has("statusInfo") && respObj.get("statusInfo").isJsonObject())
-        {
-            JsonObject statusInfo = respObj.get("statusInfo").getAsJsonObject();
-            String errMsg = statusInfo.get("global").getAsString();
-            return errMsg;
-        }
-        else
-        {
-            return AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL;
-        }
-	}
-	
-	/**
-	 * 检查提交的创意审核是否返回了正确的ADX端的创意ID
-	 * @param respStr
-	 * @return
-	 */
-	private int checkUploadStatus(String respStr)
-    {
-        JsonObject respObj = parser.parse(respStr).getAsJsonObject();
-        
-        if (respObj != null && respObj.has("data") && respObj.get("data").isJsonObject())
-        {
-            JsonObject dataObj = respObj.get("data").getAsJsonObject();
-            if (dataObj.has("creativeIds") && dataObj.get("creativeIds").isJsonArray())
-            {
-                JsonArray array = dataObj.get("creativeIds").getAsJsonArray();
-                if (array != null && array.size() > 0)
-                {
-                    return array.get(0).getAsInt();
-                }
-            }
-        }
-        
-        return -1;
-    }
-	
-	/**
-	 * 检查创意的审核状态，如果审核成功则返回null表示成功；否则返回值为ADX返回的审核错误原因
-	 * @param respStr
-	 * @return
-	 */
-    private Map<String, String> checkAuditStatus(String respStr)
-    {
-        Map<String, String> result = new HashMap<String, String>();
-        
-        JsonObject respObj = parser.parse(respStr).getAsJsonObject();
-        
-        JsonObject dataObj = respObj.get("data").getAsJsonObject();
-        if (dataObj.has("creative") && dataObj.get("creative").isJsonArray())
-        {
-            JsonArray array = dataObj.get("creative").getAsJsonArray();
-            
-            for (JsonElement jsonElement : array)
-            {
-                JsonObject o = jsonElement.getAsJsonObject();
-                int id = o.get("id").getAsInt();
-                
-                JsonElement tmpElement = o.get("auditStatus");
-                int auditStatus = 2; //拒绝
-                if (!tmpElement.isJsonNull())
-                {
-                    auditStatus= tmpElement.getAsInt();
-                }
-                result.put("code", String.valueOf(auditStatus));
-                
-                JsonElement element = o.get("auditComment");
-                String msg = "";
-                if (!element.isJsonNull())
-                {
-                    String auditComment = element.getAsString();
-                    msg = "ID: " + id + ", " + auditComment;
-                }
-                result.put("msg", msg);
-            }
-        }
-        
-        return result;
-    }
 
 	/**
-	 * 检查请求响应结果是否正确
+	 * 判断接口调用是否正确。<br>
+	 * 获得API调用结果的状态码，判断这个状态码是否是0（成功）和1（部分成功），如果是则返回true；否则返回false。
 	 * @param respStr 请求返回的JSON字符串
-	 * @return
+	 * @return true：调用成功；false：调用失败
 	 */
-    private boolean checkResponseStatus(String respStr)
+    private boolean checkResponseStatus(String responseStr)
     {
-        boolean respFlag = false;
-        JsonObject respObj = parser.parse(respStr).getAsJsonObject();
-        
-        if (respObj != null && respObj.has("status") && respObj.get("status").getAsInt() == 1)
+        Integer status = parseResponseStatus(responseStr);
+        if (status != null)
         {
-            respFlag = true;
-        }
-        
-        return respFlag;
-    }
-
-
-    private JsonObject buildSnippetContentImg(String imageId, String type)
-    {
-        JsonObject content = null;
-        if (!StringUtils.isEmpty(imageId))
-        {
-            // 根据图片ID取得图片素材信息
-            ImageModel imageInfo = imageDao.selectByPrimaryKey(imageId);
-            if (imageInfo != null)
+            if (status == 0 || status == 1)
             {
-                // 拼接上图片服务器前缀，获得完整的图片URL
-                String src = urlPrefix + imageInfo.getPath();
-                
-                content = new JsonObject();
-                content.addProperty("src", src);
-                content.addProperty("type", type);
+                return true;
             }
         }
-        return content;
+        return false;
     }
     
-    private JsonObject buildSnippetContentText(String text, String type) {
-    	JsonObject content = null;
-        if (!StringUtils.isEmpty(text)) {
-        	content = new JsonObject();
-            content.addProperty("src", text);
-            content.addProperty("type", type);
-        }
-        return content;
-    }
-
     /**
-     * 生成GET和POST请求验证签名
-     * @param params
-     * @param signKey
+     * 获得接口的调用状态码。<br>
+     * 将API调用请求返回的JSON字符串转化为一个JsonObject，返回其中的status属性的值。
+     * @param responseStr 请求返回的JSON字符串
      * @return
      */
-    private String getSign4PlainText(Map<String, String> params, String signKey)
+    private Integer parseResponseStatus(String responseStr)
     {
-        String str = buildRequestParams(params);
-        
-        String sign = GlobalUtil.MD5(str + signKey);
-        return sign;
-       }
-
-
-    private String buildRequestParams(Map<String, String> params)
-    {
-        // 获得URL参数中所有的参数名（key）
-        Set<String> keySet = params.keySet();
-
-        // 将所有参数名按字典序从小到大排序
-        List<String> keyList = new ArrayList<String>();
-        keyList.addAll(keySet);
-        Collections.sort(keyList);
-        
-        // 按新的顺序构造一个新的包含参数名值对的ArrayList
-        List<String> paramList = new ArrayList<String>();
-        for (String key: keyList)
+        JsonObject respObj = parser.parse(responseStr).getAsJsonObject();
+        if (respObj != null && respObj.has("status"))
         {
-            paramList.add(key + "=" + params.get(key));
+            return respObj.get("status").getAsInt();
         }
-        
-        // 在参数最后添加一个时间戳字段
-        //paramList.add("timestamp=" + System.currentTimeMillis());
-        
-        // 将参数名和参数值用=和&连接
-        String str = org.apache.commons.lang3.StringUtils.join(paramList, "&");
-        return str;
+        return null;
     }
-
+    
     /**
-     * 生成POST json 请求验证签名
-     * @param obj
-     * @param signKey
-     * @return
+     * 获得指定创意的审核状态。
+     * <pre>
+     * state码表如下：
+     * 0：检查通过
+     * 1：待检查（默认）
+     * 2：检查未通过
+     * </pre>
+     * @param responseStr   请求返回的JSON字符串
+     * @return  HashMap，其中键名state，对应的键值为审核状态；键名refuseReson，对应的键值为创意被拒绝的原因。
+     * @throws JsonParseException
+     * @throws JsonMappingException
+     * @throws IOException
      */
-    private String getSign4Json(JsonObject obj, String signKey)
+    private Map<Integer, Object> getCreativeAuditStatus(String responseStr) throws JsonParseException, JsonMappingException, IOException
     {
-        obj.addProperty("timestamp", System.currentTimeMillis());
-        String str = obj.toString();
-        String sign = GlobalUtil.MD5(str + signKey);
-        return sign;
-    }
-
-    private JsonObject buildAuditObj(int dspId, String dspName, long timestamp, JsonArray creatives)
-    {
-        JsonObject auditRequest = new JsonObject();
-        auditRequest.addProperty("dspId", dspId);       // 设置所属 DSP ID
-        auditRequest.addProperty("dspName", dspName);   // 设置所属 DSP 名称
-        auditRequest.add("creative", creatives);        // 创意list
-        auditRequest.addProperty("timestamp", Double.valueOf(timestamp)); // 设置验签时间戳（1970 年 1 月 1 日至今毫秒值）
-        return auditRequest;
-    }
-
-
-    private JsonObject buildCreativeObj(int advertiserId, String advertiserName, String industryId, String industryName, String creativeTypeId, String templateId, JsonObject adSnippetObj)
-    {
-        JsonObject creative = new JsonObject();
+        Map<String, Object> result = new HashMap<>();
         
-        creative.addProperty("advertiserId", advertiserId);     // 设置所属广告主 ID
-        creative.addProperty("advertiserName", advertiserName); // 设置所属广告主名称，需要填写全称,与注册名称一致
-        creative.addProperty("industryId", industryId);         // 设置所属行业 ID
-        creative.addProperty("industryName", industryName);     // 设置所属行业名称
-        creative.addProperty("creativeTypeId", creativeTypeId); // 设置素材类型 ID：1001-文字链，1002-图片，1003-图文
-        creative.addProperty("width", 0);                       // 设置广告位宽度，如果不知道宽度则填充 0
-        creative.addProperty("height", 0);                      // 设置广告位高度，如果不知道高度则填充 0
-        creative.addProperty("repeatedCode", "");               // 设置去重码，预留字段，填充固定值空字符串””
-        creative.add("adsnippet", adSnippetObj);
-        creative.addProperty("platform", 2);                    // 广告形式：PC/M=1，App=2
-        if (StringUtils.isEmpty(templateId))
+        int state = 1;
+        List<String> refuseReason = new ArrayList<String>();
+        
+        JsonObject respObj = parser.parse(responseStr).getAsJsonObject();
+        
+        if (respObj != null && respObj.has("response"))
         {
-            creative.addProperty("templateId", templateId);     // 设置模板 ID（参考 2.1.5 广告形式说明）
-        }
-        
-        return creative;
-    }
-
-	/**
-	 * 新建一条创意审核信息或更新已有创意审核信息。
-	 * @param creativeId 创意ID
-	 * @param auditValue ADX返回的创意ID
-	 */
-    private void insertOrUpdateToDB(String creativeId, int auditValue)
-    {
-        // 根据创意ID 和 ADX ID查询指定创意的审核信息（二者组合可以确定唯一一条创意审核信息）
-        CreativeAuditModelExample example = new CreativeAuditModelExample();
-        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
-        List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
-        
-        // 如果创意审核表信息已存在，更新数据库中原记录的状态为审核中
-        if (auditsInDB != null && !auditsInDB.isEmpty())
-        {
-            for (CreativeAuditModel auditInDB : auditsInDB)
+            JsonArray responseArray = respObj.get("response").getAsJsonArray();
+            
+            if (responseArray.size() > 0)
             {
-                auditInDB.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-                auditInDB.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
-                auditInDB.setAuditValue(String.valueOf(auditValue));
-                creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
+                JsonObject tmpObj = responseArray.get(0).getAsJsonObject();
+                
+                if (tmpObj.has("state"))
+                {
+                    state = tmpObj.get("state").getAsInt();
+                }
+                if (tmpObj.has("refuseReason"))
+                {
+                    JsonArray tmpArray = tmpObj.get("refuseReason").getAsJsonArray();
+                    for (JsonElement tmpElement : tmpArray)
+                    {
+                        refuseReason.add(tmpElement.getAsString());
+                    }
+                }
+                
+                result.put("state", state);
+                result.put("refuseReason", refuseReason.toArray());
             }
         }
-        else // 否则在数据库中添加一条审核记录，设置状态为未审核。
-        {
-            CreativeAuditModel model = new CreativeAuditModel();
-            model.setId(UUIDGenerator.getUUID());
-            model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
-            model.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
-            model.setAdxId(AdxKeyConstant.ADX_AUTOHOME_VALUE);
-            model.setCreativeId(creativeId);
-            model.setAuditValue(String.valueOf(auditValue));
-            creativeAuditDao.insertSelective(model);
-        }
-    }
-
-	/**
-	 * 将PAP业务中的创意类型（图片01，视频02，信息流03）转换成汽车之家的素材类型ID。
-	 * <ul>
-	 *     <li>图片：1002</li>
-     *     <li>信息流：1003</li> 
-     *     <li>不支持文字链</li>
-     * </ul>
-	 * @param creativeType PAP业务中的创意类型
-	 * @return
-	 */
-	private String getCreativeTypeId(String creativeType)
-    {
-        if ("01".equals(creativeType))
-        {
-            return "1002";
-        }
-        if ("03".equals(creativeType))
-        {
-            return "1003";
-        }
+        
         return null;
     }
 
+
     /**
-	 * 根据行业ID获得行业名称。
-	 * @param industryId   行业ID
-	 * @return
-	 */
-    private String getIndustryName(String industryId)
+     * 根据图片的ID，获得图片的Base64编码的字符串。
+     * @param imageInfo 图片信息对象
+     * @return 图片的字符串表示
+     */
+    private String getBase64ImageStrByImageId(ImageModel imageInfo)
     {
-        IndustryModel industryModel = industryDao.selectByPrimaryKey(industryId);
-        if (industryModel != null)
+        if (imageInfo != null)
         {
-            return industryModel.getName();
+            // 拼接上图片服务器前缀，获得完整的图片URL
+            String src = urlPrefix + imageInfo.getPath();
+            
+            byte[] binaryData;
+            try
+            {
+                binaryData = GlobalUtil.recoverImageFromUrl(src);
+                return Base64.encodeBase64String(binaryData);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
         return null;
     }
 
 
-
-    /**
-     * 提交广告主到ADX进行审核（更新广告主审核表数据）
-     */
-    @Transactional
-    public void auditAdvertiser1(String auditId) throws Exception
+    private CreativeRichBean buildRelation(String creativeId)
     {
-        // 查询广告主审核信息
-        AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
-        if (advertiserAudit != null)
-        {
-            // DSP 侧内部的广告主ID，需要保证DSP内部不重复，由于ADX要求是int值，因此不能用UUID。
-            Long auditValue = RandomUtils.nextLong();
-
-            AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserAudit.getAdvertiserId());
-            AdxModel adx = adxDao.selectByPrimaryKey("8");
-            
-            String advertiserLiteName = advertiser.getName();
-            String advertiserName = "";//TODO;
-            String siteName = advertiser.getSiteName();
-            String siteUrl = advertiser.getSiteUrl();
-            String telephone = advertiser.getPhone();
-            String address = advertiser.getAddress();
-            
-            Advertiser baiduAdvertiser = new Advertiser();
-            baiduAdvertiser.setAdvertiserId(auditValue);
-            baiduAdvertiser.setAdvertiserLiteName(advertiserLiteName);
-            baiduAdvertiser.setAdvertiserName(advertiserName);
-            baiduAdvertiser.setSiteName(siteName);
-            baiduAdvertiser.setSiteUrl(siteUrl);
-            baiduAdvertiser.setTelephone(telephone);
-            baiduAdvertiser.setAddress(address);
-            baiduAdvertiser.setIsWhiteUser(0);
-            
-            Advertiser[] advertisers = new Advertiser[]{baiduAdvertiser};
-            
-            batchAddAdvertiser(advertisers, adx);
-            
-            
-            // 修改广告审核的状态：审核中
-            advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
-            
-            // 将生成的Long类型的广告主ID，插入到审核表中
-            advertiserAudit.setAuditValue(String.valueOf(auditValue));
-            
-            // 更新数据库信息
-            advertiserAuditDao.updateByPrimaryKeySelective(advertiserAudit);
-        }
-    }
-
-    /**
-     * 批量新增广告主
-     * @param advertisers 广告主
-     * @param adx
-     */
-    private void batchAddAdvertiser(Advertiser[] advertisers, AdxModel adx)
-    {
-        Map<String, Object> authHeader = new HashMap<String, Object>();
-        authHeader.put("dspId", adx.getDspId());
-        authHeader.put("token", adx.getSignKey());
+        // 创意审核数据
+        CreativeAuditModelExample example = new CreativeAuditModelExample();
+        example.createCriteria().andCreativeIdEqualTo(creativeId);
+        List<CreativeAuditModel> creativeAuditList = creativeAuditDao.selectByExample(example);
         
-        BaiduRequest req = new BaiduRequest(authHeader, advertisers);
-        String requestBody = req.toJsonString();
+        // 根据创意ID查询创意信息
+        CreativeModel creativeInfo = creativeDao.selectByPrimaryKey(creativeId);
         
-        String url = "https://api.es.baidu.com/v1/advertiser/add##";
+        // 根据活动ID查询项目ID
+        CampaignModel campaignInfo = campaignDao.selectByPrimaryKey(creativeInfo.getCampaignId());
+        String projectId = campaignInfo.getProjectId();
         
-        // 发送HTTP POST请求
-        String respStr = HttpClientUtil.getInstance().sendHttpPostJson(url, requestBody);
+        // 根据活动ID查询落地页信息
+        LandpageModel landpageInfo = landpageDao.selectByPrimaryKey(campaignInfo.getLandpageId());
         
+        // 根据项目ID查询广告主ID
+        ProjectModel projectInfo = projectDao.selectByPrimaryKey(projectId);
+        String advertiserId = projectInfo.getAdvertiserId();
+        
+        // 根据广告主ID查询广告主
+        AdvertiserModel advertiserInfo = advertiserDao.selectByPrimaryKey(advertiserId);
+        
+        CreativeRichBean result = new CreativeRichBean(creativeId, landpageInfo, creativeInfo, campaignInfo, projectInfo, advertiserInfo, creativeAuditList);
+        return result ;
     }
 }

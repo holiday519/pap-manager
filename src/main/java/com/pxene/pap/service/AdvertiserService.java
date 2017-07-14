@@ -26,7 +26,6 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.AdvertiserBean.Audit;
-import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
@@ -34,10 +33,6 @@ import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdvertiserModelExample;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.AdxModelExample;
-import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.CampaignModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
@@ -86,6 +81,9 @@ public class AdvertiserService extends BaseService
 	
 	@Autowired
 	private AutohomeAuditService autohomeAuditService;
+	
+	@Autowired
+	private BaiduAuditService baiduAuditService;
     
     private static final String TEMP_DIR = "temp/";
     
@@ -621,6 +619,10 @@ public class AdvertiserService extends BaseService
 			// 如果adxId是汽车之家，则提交汽车之家审核
 			autohomeAuditService.auditAdvertiser(auditId);
 		}
+		if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+		    // 如果adxId是百度，则提交百度BES审核
+		    baiduAuditService.auditAdvertiser(auditId);
+		}
 	}
     
     /**
@@ -649,6 +651,10 @@ public class AdvertiserService extends BaseService
 		if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
 			// 如果adxId是汽车之家，则同步汽车之家审核结果
 			autohomeAuditService.synchronizeAdvertiser(auditId);
+		}
+		if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+		    // 如果adxId是百度，则同步百度BES审核结果
+		    baiduAuditService.synchronizeAdvertiser(auditId);
 		}
 	}
 

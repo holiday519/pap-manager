@@ -8,4 +8,6 @@ public class AdxKeyConstant {
 	
 	public static final String ADX_INMOBI_VALUE = "3";
 	
+	public static final String ADX_BAIDU_VALUE = "8";
+	
 }

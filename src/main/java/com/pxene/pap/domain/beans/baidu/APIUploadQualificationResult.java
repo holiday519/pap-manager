@@ -7,7 +7,7 @@ import java.util.List;
  * 批量上传广告主资质响应。
  * @author ningyu
  */
-public class APIUploadQualificationResult extends Response
+public class APIUploadQualificationResult extends BaiduResponse
 {
     /**
      * 广告主资质提交状态。
