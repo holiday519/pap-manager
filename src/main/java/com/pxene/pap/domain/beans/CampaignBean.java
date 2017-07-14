@@ -143,39 +143,10 @@ public class CampaignBean extends BasicDataBean {
 		 * 品牌定向
 		 */
 		private String[] brand;
+		
 		/**
-		 * app定向
+		 * 地域定向
 		 */
-//		private String[] app;
-//
-//		private App[] apps;
-//
-//		public static class App {
-//			private String id;
-//			private String name;
-//
-//			public String getId() {
-//				return id;
-//			}
-//
-//			public void setId(String id) {
-//				this.id = id;
-//			}
-//
-//			public String getName() {
-//				return name;
-//			}
-//
-//			public void setName(String name) {
-//				this.name = name;
-//			}
-//
-//			@Override
-//			public String toString() {
-//				return "App [id=" + id + ", name=" + name + "]";
-//			}
-//		}
-
 		public Region[] getRegions() {
 			return regions;
 		}
@@ -183,20 +154,68 @@ public class CampaignBean extends BasicDataBean {
 		public void setRegions(Region[] regions) {
 			this.regions = regions;
 		}
-
-//		public App[] getApps() {
-//			return apps;
-//		}
-//
-//		public void setApps(App[] apps) {
-//			this.apps = apps;
-//		}
 		
 		/**
 		 * 人群定向
 		 */
-		private PopulationTargetBean population;		
+		private PopulationTargetBean population;	
 		
+		/**
+		 * adx定向
+		 */
+		private String adx;
+		
+		/**
+		 * 筛选条件
+		 */
+		private Include[] include;
+		public static class Include {
+			private String word;
+			private String type;
+			public String getWord() {
+				return word;
+			}
+			public void setWord(String word) {
+				this.word = word;
+			}
+			public String getType() {
+				return type;
+			}
+			public void setType(String type) {
+				this.type = type;
+			}	
+			
+			@Override
+			public String toString() {
+				return "Include [word=" + word + ", type=" + type + "]";
+			}
+		}
+		
+		/**
+		 * 排除条件
+		 */
+		private Exclude[] exclude;
+		public static class Exclude {
+			private String word;
+			private String type;
+			public String getWord() {
+				return word;
+			}
+			public void setWord(String word) {
+				this.word = word;
+			}
+			public String getType() {
+				return type;
+			}
+			public void setType(String type) {
+				this.type = type;
+			}
+			
+			@Override
+			public String toString() {
+				return "Exclude [word=" + word + ", type=" + type + "]";
+			}
+		}
 
 		public String[] getRegion() {
 			return region;
@@ -261,14 +280,6 @@ public class CampaignBean extends BasicDataBean {
 		public void setBrand(String[] brand) {
 			this.brand = brand;
 		}
-
-//		public String[] getApp() {
-//			return app;
-//		}
-//
-//		public void setApp(String[] app) {
-//			this.app = app;
-//		}
 		
 		public PopulationTargetBean getPopulation() {
 			return population;
@@ -276,6 +287,30 @@ public class CampaignBean extends BasicDataBean {
 
 		public void setPopulation(PopulationTargetBean population) {
 			this.population = population;
+		}				
+
+		public String getAdx() {
+			return adx;
+		}
+
+		public void setAdx(String adx) {
+			this.adx = adx;
+		}
+
+		public Include[] getInclude() {
+			return include;
+		}
+
+		public void setInclude(Include[] include) {
+			this.include = include;
+		}
+
+		public Exclude[] getExclude() {
+			return exclude;
+		}
+
+		public void setExclude(Exclude[] exclude) {
+			this.exclude = exclude;
 		}
 
 		@Override
@@ -287,10 +322,9 @@ public class CampaignBean extends BasicDataBean {
 					+ Arrays.toString(network) + ", operator="
 					+ Arrays.toString(operator) + ", device="
 					+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
-//					+ ", brand=" + Arrays.toString(brand) + ", app="
-//					+ Arrays.toString(app) + ", apps=" + Arrays.toString(apps)
-					+ ", brand=" + Arrays.toString(brand) 
-					+ ", population=" + population + "]";
+					+ ", brand=" + Arrays.toString(brand) + ", population=" + population 
+					+ ", adx=" + adx + ", include=" + Arrays.toString(include)
+					+ ", exclude" + Arrays.toString(exclude) + "]";
 		}	
 	
 	}
