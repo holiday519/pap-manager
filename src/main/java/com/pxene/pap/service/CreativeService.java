@@ -452,80 +452,80 @@ public class CreativeService extends BaseService {
 	 * @param id
 	 * @throws Exception
 	 */
-	@Transactional
-	public void auditCreative(String id) throws Exception {
-		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
-		if (creative == null) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
-		String status = getCreativeAuditStatus(id);
-		if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status)) {
-			return;
-		}
-		
-		// 查询adx列表，判断是哪个adx
-		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
-		// 审核创意
-		for (Map<String, String> adx : adxes) {
-			String adxId = adx.get("adxId");
-			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-				momoAuditService.auditCreative(id);
-			}
-			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-				inmobiAuditService.auditCreative(id);
-			}
-			if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-                autohomeAuditService.auditCreative(id);
-            }
-			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-			    baiduAuditService.auditCreative(id);
-			}
-		}
-	}
+//	@Transactional
+//	public void auditCreative(String id) throws Exception {
+//		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+//		if (creative == null) {
+//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+//		}
+//		String status = getCreativeAuditStatus(id);
+//		if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status)) {
+//			return;
+//		}
+//		
+//		// 查询adx列表，判断是哪个adx
+//		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
+//		// 审核创意
+//		for (Map<String, String> adx : adxes) {
+//			String adxId = adx.get("adxId");
+//			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+//				momoAuditService.auditCreative(id);
+//			}
+//			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+//				inmobiAuditService.auditCreative(id);
+//			}
+//			if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+//                autohomeAuditService.auditCreative(id);
+//            }
+//			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+//			    baiduAuditService.auditCreative(id);
+//			}
+//		}
+//	}
 
 	/**
 	 * 同步创意第三方审核结果
 	 * @param id
 	 * @throws Exception
 	 */
-	@Transactional
-	public void synchronizeCreative(String id) throws Exception {
-		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
-		if (creative == null) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-		}
-		String status = getCreativeAuditStatus(id);
-		if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status) 
-				|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
-			return;
-		}
-		
-		// 查询adx列表
-		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
-		//同步结果
-		for (Map<String, String> adx : adxes) {
-			CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
-			creativeAuditExample.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adx.get("adxId"));
-			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(creativeAuditExample);
-			if (audits == null || audits.isEmpty()) {
-				throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
-			} else {
-				String adxId = adx.get("adxId");
-				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-					momoAuditService.synchronizeCreative(id);
-				}
-				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-					inmobiAuditService.synchronizeCreative(id);
-				}
-				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-				    autohomeAuditService.synchronizeCreative(id);
-                }
-				if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-	                baiduAuditService.synchronizeCreative(id);
-	            }
-			}
-		}
-	}
+//	@Transactional
+//	public void synchronizeCreative(String id) throws Exception {
+//		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
+//		if (creative == null) {
+//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+//		}
+//		String status = getCreativeAuditStatus(id);
+//		if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status) 
+//				|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
+//			return;
+//		}
+//		
+//		// 查询adx列表
+//		List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
+//		//同步结果
+//		for (Map<String, String> adx : adxes) {
+//			CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
+//			creativeAuditExample.createCriteria().andCreativeIdEqualTo(id).andAdxIdEqualTo(adx.get("adxId"));
+//			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(creativeAuditExample);
+//			if (audits == null || audits.isEmpty()) {
+//				throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
+//			} else {
+//				String adxId = adx.get("adxId");
+//				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+//					momoAuditService.synchronizeCreative(id);
+//				}
+//				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+//					inmobiAuditService.synchronizeCreative(id);
+//				}
+//				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+//				    autohomeAuditService.synchronizeCreative(id);
+//                }
+//				if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+//	                baiduAuditService.synchronizeCreative(id);
+//	            }
+//			}
+//		}
+//	}
 	
 	/**
 	 * 批量查询创意
@@ -591,7 +591,7 @@ public class CreativeService extends BaseService {
 								String creativeId = creative.getId();
 								CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 								BeanUtils.copyProperties(data, image, "id", "type", "status", "campaignId", "campaignName", "price", 
-										"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+										"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
 										"materialPaths", "imageId", "imagePath","message");
 							}
 							result.add(image);
@@ -632,7 +632,7 @@ public class CreativeService extends BaseService {
 							String creativeId = creative.getId();
 							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 							BeanUtils.copyProperties(data, video, "id", "type", "status", "campaignId", "campaignName", "price", 
-									"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+									"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
 									"materialPaths", "videoId", "videoPath", "imageId", "imagePath","message");
 						}
 						result.add(video);
@@ -697,7 +697,7 @@ public class CreativeService extends BaseService {
 							String creativeId = creative.getId();
 							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 							BeanUtils.copyProperties(data, info, "id", "type", "status", "campaignId", "campaignName", "price", 
-									"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+									"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
 									"materialPaths", "infoflowId", "title", "description", "mustDescription", "ctaDescription", 
 									"mustCtaDescription", "iconId", "iconPath", "image1Id", "image2Id", "image3Id", "image4Id", 
 									"image5Id", "image1Path", "image2Path", "image3Path", "image4Path", "image5Path", 
@@ -803,7 +803,7 @@ public class CreativeService extends BaseService {
 						String creativeId = creative.getId();
 						CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
 						BeanUtils.copyProperties(data, base, "id", "type", "status", "campaignId", "campaignName", "price", 
-								"tmplId", "materialId", "remark", "appId", "appName", "enable", "startDate", "endDate", 
+								"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
 								"materialPaths","message", "title", "description");
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));

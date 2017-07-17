@@ -167,12 +167,12 @@ public class CreativeController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/creative/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public void auditCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
-    	creativeService.auditCreative(id);
-    	response.setStatus(HttpStatus.NO_CONTENT.value());
-    }
+//    @RequestMapping(value = "/creative/audit/{id}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    @ResponseBody
+//    public void auditCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
+//    	creativeService.auditCreative(id);
+//    	response.setStatus(HttpStatus.NO_CONTENT.value());
+//    }
     
     /**
      * 同步创意第三方审核结果
@@ -180,12 +180,12 @@ public class CreativeController {
      * @param response
      * @throws Exception
      */
-    @RequestMapping(value = "/creative/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public void synchronizeCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
-    	creativeService.synchronizeCreative(id);
-    	response.setStatus(HttpStatus.NO_CONTENT.value());
-    }
+//    @RequestMapping(value = "/creative/synchronize/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    @ResponseBody
+//    public void synchronizeCreative(@PathVariable String id, HttpServletResponse response) throws Exception {
+//    	creativeService.synchronizeCreative(id);
+//    	response.setStatus(HttpStatus.NO_CONTENT.value());
+//    }
     
     /**
 	 * 查询创意列表
