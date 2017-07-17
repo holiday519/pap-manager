@@ -17,6 +17,8 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -72,7 +74,7 @@ import com.pxene.pap.repository.basic.IndustryAdxDao;
 @Service
 public class BaiduAuditService extends AuditService
 {
-	//private static final Logger LOGGER = LoggerFactory.getLogger(BaiduAuditService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaiduAuditService.class);
 	
 	/**
 	 * 素材文件服务器的URL前缀
@@ -418,6 +420,7 @@ public class BaiduAuditService extends AuditService
         
         // 发送HTTP POST请求
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.info("<== PAP-Manager ==> audit creative " + creativeId + "to Baidu url = " + url + ", params = " + jsonStrRequest);
         
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
         if (!StringUtils.isEmpty(jsonStrResponse))
@@ -462,34 +465,6 @@ public class BaiduAuditService extends AuditService
         }
     }
 	
-	/**
-	 * 修改广告主的审核信息，包括审核值、审核状态、审核信息。
-	 * @param auditId  审核ID，主键
-	 * @param status   审核状态
-	 * @param auditValue   审核值
-	 * @param message  审核信息
-	 */
-	private void updateAdvertiserAuditInfo(String auditId, String status, String auditValue, String message)
-	{
-	    AdvertiserAuditModel tmpRecord = new AdvertiserAuditModel();
-	    
-        tmpRecord.setId(auditId);
-        if (!StringUtils.isEmpty(status))
-        {
-            tmpRecord.setStatus(status);
-        }
-        if (!StringUtils.isEmpty(auditValue))
-        {
-            tmpRecord.setAuditValue(auditValue);
-        }
-        if (!StringUtils.isEmpty(message))
-        {
-            tmpRecord.setMessage(message);
-        }
-        
-        advertiserAuditDao.updateByPrimaryKeySelective(tmpRecord);
-	}
-
 	/**
      * 查询百度对某创意的审核结果
      */
@@ -588,6 +563,35 @@ public class BaiduAuditService extends AuditService
         }
     }
     
+    /**
+     * 修改广告主的审核信息，包括审核值、审核状态、审核信息。
+     * @param auditId  审核ID，主键
+     * @param status   审核状态
+     * @param auditValue   审核值
+     * @param message  审核信息
+     */
+    private void updateAdvertiserAuditInfo(String auditId, String status, String auditValue, String message)
+    {
+        AdvertiserAuditModel tmpRecord = new AdvertiserAuditModel();
+        
+        tmpRecord.setId(auditId);
+        if (!StringUtils.isEmpty(status))
+        {
+            tmpRecord.setStatus(status);
+        }
+        if (!StringUtils.isEmpty(auditValue))
+        {
+            tmpRecord.setAuditValue(auditValue);
+        }
+        if (!StringUtils.isEmpty(message))
+        {
+            tmpRecord.setMessage(message);
+        }
+        
+        advertiserAuditDao.updateByPrimaryKeySelective(tmpRecord);
+    }
+
+
     /**
      * 将生成的随机数，作为ID（此 id 为 dsp 系统的创意 id），插入到创意审核表中的audit_value字段中
      * @param creativeId           PAP-系统中的创意ID（UUID）
