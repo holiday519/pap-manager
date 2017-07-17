@@ -426,9 +426,11 @@ public class CampaignService extends BaseService {
 		// 编辑活动时判断是否已经投放过，即不是第一次投放修改redis中相关的信息
 		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + id;
 		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + id;
-		double redisOldBudget = redisHelper.getDouble(budgetKey) / 100;
-		int redisOldImpression = redisHelper.getInt(countKey);
-		if (launchService.isHaveLaunched(id)) {				
+		double redisOldBudget = 0;
+		int redisOldImpression = 0;
+		if (launchService.isHaveLaunched(id)) {	
+			redisOldBudget = redisHelper.getDouble(budgetKey) / 100;
+			redisOldImpression = redisHelper.getInt(countKey);
 			// 改变预算(日均预算、总预算)、展现时修改redis中的值
 			changeBudgetAndCounter(id, projectModel.getId(), bean.getQuantities());
 		}		
@@ -953,7 +955,7 @@ public class CampaignService extends BaseService {
 		if (adxId != null && !adxId.isEmpty()) {
 			// Adx定向
 			AdxTargetModel adxTarget = new AdxTargetModel();
-			adxTarget.setAdxId(UUIDGenerator.getUUID());
+			adxTarget.setId(UUIDGenerator.getUUID());;
 			adxTarget.setCampaignId(id);
 			adxTarget.setAdxId(adxId);
 			adxTargetDao.insertSelective(adxTarget);
@@ -1037,9 +1039,26 @@ public class CampaignService extends BaseService {
 		brand.createCriteria().andCampaignIdEqualTo(campaignId);
 		brandTargetDao.deleteByExample(brand);
 		//删除APP定向
-		AppTargetModelExample app = new AppTargetModelExample();
-		app.createCriteria().andCampaignIdEqualTo(campaignId);
-		appTargetDao.deleteByExample(app);
+//		AppTargetModelExample app = new AppTargetModelExample();
+//		app.createCriteria().andCampaignIdEqualTo(campaignId);
+//		appTargetDao.deleteByExample(app);
+		
+		// 删除ADX定向：ADX定向表
+		AdxTargetModelExample adxTargetEx = new AdxTargetModelExample();
+		adxTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+		adxTargetDao.deleteByExample(adxTargetEx);
+		// 删除ADX定向：App定向表和App定向详情表
+		AppTargetModelExample appTargetEx = new AppTargetModelExample();
+		appTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);		
+		List<AppTargetModel> appTargets = appTargetDao.selectByExample(appTargetEx);
+		String appTargetId = appTargets.get(0).getId(); // 一个活动对应一个ADX
+		AppTargetDetailModelExample appTargetDetailEx = new AppTargetDetailModelExample();
+		appTargetDetailEx.createCriteria().andApptargetIdEqualTo(appTargetId);
+		List<AppTargetDetailModel> appTargetDetails = appTargetDetailDao.selectByExample(appTargetDetailEx);
+		if (appTargetDetails != null && !appTargetDetails.isEmpty()) {
+			appTargetDetailDao.deleteByExample(appTargetDetailEx);
+		}
+		appTargetDao.deleteByExample(appTargetEx);
 		//删除人群定向
 		PopulationTargetModelExample pop = new PopulationTargetModelExample();
 		pop.createCriteria().andCampaignIdEqualTo(campaignId);
@@ -1609,56 +1628,101 @@ public class CampaignService extends BaseService {
 		String landpageId = campaign.getLandpageId();
 		if (StringUtils.isEmpty(landpageId)) {
 			throw new IllegalArgumentException(PhrasesConstant.CAMPAIGN_NO_LANDPAGE);
-		}		
-		// 检查是否有创意
-		CreativeModelExample creativeExample = new CreativeModelExample();
-		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
-		if (creatives != null && !creatives.isEmpty()) {
-			// 活动下有创意
-			campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
-			// 投放
-			String projectId = campaign.getProjectId();
-			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
-				if (!launchService.isHaveLaunched(campaignId)) {
-					launchService.write4FirstTime(campaign);
-				}
-				// 添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
-				// 1.查询该活动在redis中的活动信息
-				String strCampaingInfo = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
-				if (strCampaingInfo != null && !strCampaingInfo.isEmpty()) {
-					// 2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
-					for (CreativeModel creative : creatives) {
-						// 3.从redis中获取创意信息
-						String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creative.getId());
-						if (strCreativeId == null || strCreativeId.isEmpty()) {
-							// 4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
-							// 写入活动下的创意基本信息 dsp_mapid_*
-							launchService.writeCreativeInfo(campaignId);
-							// 写入活动下的创意ID dsp_group_mapids_*
-							launchService.writeCreativeId(campaignId);
-						}
-					}
-				}
-				if (isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
-						&& launchService.notOverDailyCounter(campaignId) 
-						&& launchService.notOverProjectBudget(projectId)) {
-					// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
-					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
-					if (!writeResult) {
-						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+		}
+		
+		
+		// 活动下有创意
+		campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+		// 投放
+		String projectId = campaign.getProjectId();
+		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
+			if (!launchService.isHaveLaunched(campaignId)) {
+				launchService.write4FirstTime(campaign);
+			}
+			// 添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
+			CreativeModelExample creativeExample = new CreativeModelExample();
+			creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+			// 1.查询该活动在redis中的活动信息
+			String strCampaingInfo = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+			if (strCampaingInfo != null && !strCampaingInfo.isEmpty()) {
+			// 2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
+				for (CreativeModel creative : creatives) {
+					// 3.从redis中获取创意信息
+					String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creative.getId());
+					if (strCreativeId == null || strCreativeId.isEmpty()) {
+						// 4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
+						// 写入活动下的创意基本信息 dsp_mapid_*
+						launchService.writeCreativeInfo(campaignId);
+						// 写入活动下的创意ID dsp_group_mapids_*
+						launchService.writeCreativeId(campaignId);
 					}
 				}
 			}
-			// 改变数据库状态
-			campaignDao.updateByPrimaryKeySelective(campaign);
-		} else {
-			// 活动下无创意，可以打开开关
-			campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
-			// 改变数据库状态
-			campaignDao.updateByPrimaryKeySelective(campaign);
+			if (isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
+					&& launchService.notOverDailyCounter(campaignId) 
+					&& launchService.notOverProjectBudget(projectId)) {
+				// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
+				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+				if (!writeResult) {
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				}
+			}
 		}
+		// 改变数据库状态
+		campaignDao.updateByPrimaryKeySelective(campaign);
+		
+		
+//		// 检查是否有创意
+//		CreativeModelExample creativeExample = new CreativeModelExample();
+//		creativeExample.createCriteria().andCampaignIdEqualTo(campaignId);
+//		List<CreativeModel> creatives = creativeDao.selectByExample(creativeExample);
+//		if (creatives != null && !creatives.isEmpty()) {
+//			// 活动下有创意
+//			campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+//			// 投放
+//			String projectId = campaign.getProjectId();
+//			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+//			if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus()) && isOnLaunchDate(campaignId)) {
+//				if (!launchService.isHaveLaunched(campaignId)) {
+//					launchService.write4FirstTime(campaign);
+//				}
+//				// 添加创意时如果活动投放的基本信息已经写入redis则将新添加的创意信息写入redis
+//				// 1.查询该活动在redis中的活动信息
+//				String strCampaingInfo = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_INFO + campaignId);
+//				if (strCampaingInfo != null && !strCampaingInfo.isEmpty()) {
+//					// 2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
+//					for (CreativeModel creative : creatives) {
+//						// 3.从redis中获取创意信息
+//						String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creative.getId());
+//						if (strCreativeId == null || strCreativeId.isEmpty()) {
+//							// 4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
+//							// 写入活动下的创意基本信息 dsp_mapid_*
+//							launchService.writeCreativeInfo(campaignId);
+//							// 写入活动下的创意ID dsp_group_mapids_*
+//							launchService.writeCreativeId(campaignId);
+//						}y
+//					}
+//				}
+//				if (isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
+//						&& launchService.notOverDailyCounter(campaignId) 
+//						&& launchService.notOverProjectBudget(projectId)) {
+//					// 在定向时间里、活动没有超出每天的日预算并且日均最大展现未达到上限
+//					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+//					if (!writeResult) {
+//						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+//					}
+//				}
+//			}
+//			// 改变数据库状态
+//			campaignDao.updateByPrimaryKeySelective(campaign);
+//		} else {
+//			// 活动下无创意，可以打开开关
+//			campaign.setStatus(StatusConstant.CAMPAIGN_PROCEED);
+//			// 改变数据库状态
+//			campaignDao.updateByPrimaryKeySelective(campaign);
+//		}
 	}
 	
 	/**

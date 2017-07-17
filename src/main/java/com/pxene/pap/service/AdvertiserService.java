@@ -355,7 +355,9 @@ public class AdvertiserService extends BaseService
 			// 获取adx的名称（从adx表中获得其名称）
 			String adxId = advertiserAudits.get(i).getAdxId();
 			AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
-			audits[i].setName(adxModel.getName());
+			if (adxModel != null) {
+				audits[i].setName(adxModel.getName());
+			}			
 			//如果message为null,设置为空字符串
 			if(audits[i].getMessage() == null){
 				audits[i].setMessage("");

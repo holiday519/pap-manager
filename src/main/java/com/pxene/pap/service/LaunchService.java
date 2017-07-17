@@ -1040,7 +1040,11 @@ public class LaunchService extends BaseService {
 			
 			// 地域定向：redis中写的是市id，如果选项的是省，找到省下的市id写入
 			JsonArray region = null;
-			String[] regionIds = model.getRegionId().split(",");
+			String regionsModel = model.getRegionId();
+			String[] regionIds = null;
+			if (regionsModel != null && !regionsModel.isEmpty()) {
+				regionIds = model.getRegionId().split(",");
+			}			
 			if (regionIds != null && regionIds.length > 0) {				
 				// 查询所有市的id
 				RegionModelExample regionExample = new RegionModelExample();
@@ -1080,7 +1084,7 @@ public class LaunchService extends BaseService {
 				}
 			}
 						
-			if (region.size() > 0) {
+			if (region != null && region.size() > 0) {
 				flag = flag | RedisKeyConstant.TARGET_CODES.get("region")[1];
 				deviceJson.add("regioncode", region);
 			}
@@ -1777,9 +1781,10 @@ public class LaunchService extends BaseService {
 				creativeAuditEx.createCriteria().andCreativeIdEqualTo(creativeId).andStatusEqualTo(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 				creativeAudits = creativeAuditDao.selectByExample(creativeAuditEx);
 			}
+			return creativeAudits.size() > 0;
 		}
-		
-		return creativeAudits.size() > 0;
+		return false;
+//		return creativeAudits.size() > 0;
 	}
 	
 	public boolean isInLaunchPeriod(String campaignId) throws Exception {
