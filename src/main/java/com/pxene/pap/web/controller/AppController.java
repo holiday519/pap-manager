@@ -45,5 +45,13 @@ public class AppController {
 		int amount = appService.getAppNumsByQueryCondition(target);
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), "amount", String.valueOf(amount), response);
 	}
-	
+
+	@RequestMapping(value = "/app/synAppInfo", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@ResponseBody
+	public String synAppInfo(HttpServletResponse response) throws Exception {
+
+		boolean result = appService.synAppInfo();
+
+		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result,response);
+	}
 }

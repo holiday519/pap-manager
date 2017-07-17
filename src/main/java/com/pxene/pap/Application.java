@@ -113,6 +113,7 @@ public class Application
         urlPatterns.add("/landpage");
         urlPatterns.add("/landpages");
         urlPatterns.add("/apps");
+        urlPatterns.add("/app");
         urlPatterns.add("/tmpl");
         urlPatterns.add("/industries");
         urlPatterns.add("/data");

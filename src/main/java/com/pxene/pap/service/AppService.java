@@ -483,5 +483,15 @@ public class AppService extends BaseService {
 		return true;
 	}
 
+	/**
+	 * 手动同步app信息
+	 * @return
+     */
+	public boolean synAppInfo(){
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String date = sdf.format(new Date());
+		synApp2Mysql(date);
+		return true;
+	}
 
 }
