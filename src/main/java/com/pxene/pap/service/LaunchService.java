@@ -45,6 +45,8 @@ import com.pxene.pap.domain.models.AdxTargetModel;
 import com.pxene.pap.domain.models.AdxTargetModelExample;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppModelExample;
+import com.pxene.pap.domain.models.AppTargetDetailModel;
+import com.pxene.pap.domain.models.AppTargetDetailModelExample;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -83,6 +85,7 @@ import com.pxene.pap.repository.basic.AdxDao;
 import com.pxene.pap.repository.basic.AdxTargetDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
+import com.pxene.pap.repository.basic.AppTargetDetailDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignTargetDao;
 import com.pxene.pap.repository.basic.CreativeAuditDao;
@@ -219,6 +222,12 @@ public class LaunchService extends BaseService {
 	@Autowired
 	private AdxTargetDao adxTargetDao;
 	
+	@Autowired
+	private AppTargetDetailDao appTargetDetailDao;
+	
+	@Autowired
+	private AppService appService;
+	
 	private static Gson gson = new Gson();
 	private static JsonParser parser = new JsonParser();
 		
@@ -246,7 +255,7 @@ public class LaunchService extends BaseService {
 	public void write4StartDate(CampaignModel campaign) throws Exception {
 		String campaignId = campaign.getId();
 		// 有可投放的创意，则将创意id写入到mapids、将创意基本信息写到mapid中
-		if (haveLaunchCreatives(campaignId)) {
+		if (ishaveLaunchCreatives(campaignId)) {
 			//写入活动下的创意基本信息   dsp_mapid_*
 			writeCreativeInfo(campaignId);
 			//写入活动下的创意ID dsp_group_mapids_*
@@ -410,14 +419,12 @@ public class LaunchService extends BaseService {
 				if (StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus()) 
 						&& isWriteGroupIds(projectId,campaignId)) {
-					// writeCampaignId(campaignId);
 					boolean writeResult = launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 					}
 				}				
 			} else {
-				// removeCampaignId(campaignId);
 				// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
 				boolean removeResult = pauseCampaignRepeatable(campaignId);
 				if (!removeResult) {
@@ -1111,39 +1118,44 @@ public class LaunchService extends BaseService {
 			deviceJson.addProperty("flag", flag);
 			targetJson.add("device", deviceJson);
 			// app定向
-//			String[] appIds = model.getAppId().split(",");
-//			if (appIds.length == 0) {
-//				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-//			}
-//			AppModelExample appExample = new AppModelExample();
-//			appExample.createCriteria().andIdIn(Arrays.asList(appIds));
-//			List<AppModel> apps = appDao.selectByExample(appExample);
+			AdxTargetModelExample adxTargetEx = new AdxTargetModelExample();
+			adxTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<AdxTargetModel> adxTargets = adxTargetDao.selectByExample(adxTargetEx);
+			AdxTargetModel adxTarget = adxTargets.get(0); // 一个活动对应一个ADX 
+			String adx = adxTarget.getAdxId();
+			if (adx == null || adx.isEmpty()) {
+				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+			}
+			AppTargetDetailModelExample adxTargetDetailEx = new AppTargetDetailModelExample();
+			adxTargetDetailEx.createCriteria().andApptargetIdEqualTo(adxTarget.getId());
+			List<AppTargetDetailModel> appTargetDetails = appTargetDetailDao.selectByExample(adxTargetDetailEx);
+			List<AppModel> apps = appService.listAppsByAppTargetDetail(appTargetDetails, adx);			
 			JsonArray appJsons = new JsonArray();
 			Map<String, JsonObject> adxMap = new HashMap<String, JsonObject>();
 			JsonObject appObjects = new JsonObject();
-//			for (AppModel app : apps) {
-//				String adxId = app.getAdxId();
-//				if (adxMap.containsKey(adxId)) {
-//					JsonObject adxJson = adxMap.get(adxId);
-//					JsonArray appIdJsons = adxJson.get("wlist").getAsJsonArray();
-//					appIdJsons.add(app.getAppId());
-//					adxJson.add("wlist", appIdJsons);
-//					adxMap.put(adxId, adxJson);
-//				} else {
-//					JsonObject adxJson = new JsonObject();
-//					adxJson.addProperty("adx", Integer.parseInt(adxId));
-//					adxJson.addProperty("flag", 1);
-//					JsonArray appIdJsons = new JsonArray();
-//					appIdJsons.add(app.getAppId());
-//					adxJson.add("wlist", appIdJsons);
-//					adxMap.put(adxId, adxJson);
-//				}
-//			}
+			for (AppModel app : apps) {
+				String adxId = app.getAdxId();
+				if (adxMap.containsKey(adxId)) {
+					JsonObject adxJson = adxMap.get(adxId);
+					JsonArray appIdJsons = adxJson.get("wlist").getAsJsonArray();
+					appIdJsons.add(app.getAppId());
+					adxJson.add("wlist", appIdJsons);
+					adxMap.put(adxId, adxJson);
+				} else {
+					JsonObject adxJson = new JsonObject();
+					adxJson.addProperty("adx", Integer.parseInt(adxId));
+					adxJson.addProperty("flag", 1);
+					JsonArray appIdJsons = new JsonArray();
+					appIdJsons.add(app.getAppId());
+					adxJson.add("wlist", appIdJsons);
+					adxMap.put(adxId, adxJson);
+				}
+			}
 			for (Entry<String, JsonObject> entry : adxMap.entrySet()) {
 				appJsons.add(entry.getValue());
 			}
 			appObjects.add("id", appJsons);
-//			targetJson.add("app", appObjects);
+			targetJson.add("app", appObjects);
 			
 			redisHelper.set(RedisKeyConstant.CAMPAIGN_TARGET + campaignId, targetJson.toString());
 		}
@@ -1322,7 +1334,6 @@ public class LaunchService extends BaseService {
 				}
 			}
 		}
-		//resultJson.add("mapids", resultJson); add加了自己，导致栈溢出
 		resultJson.add("mapids", creativeIdJsons);
 		redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
 	}
@@ -1679,41 +1690,6 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public void writeOneCreativeId(String campaignId, String creativeId) throws Exception {
-//		// 1.查询改创意的审核信息
-//		CreativeAuditModelExample auditExample = new CreativeAuditModelExample();
-//		auditExample.createCriteria().andCreativeIdEqualTo(creativeId);
-//		List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(auditExample);
-//		if (creativeAudit == null || creativeAudit.isEmpty()) {
-//			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-//		}
-//		// 查询创意信息
-//		CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
-//		String enable = creative.getEnable();
-//		// 2.获取审核的状态
-//		String auditStatus = creativeAudit.get(0).getStatus();
-//		// 3.判断是否通过并且创意开关打开，通过则写入
-//		if (auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS)
-//				&& enable.equals(StatusConstant.CREATIVE_IS_ENABLE)) {
-//			String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
-//			if (mapids != null && !mapids.isEmpty()) {
-//				// 判断redis的mapids中是否存在创意id，不存在则将其写入
-//				// 1.将gson字符串转换成JsonObject对象
-//				JsonObject mapidsObject = parser.parse(mapids).getAsJsonObject();
-//				// 2.将mapidsObject节点下的内容转为JsonArray
-//				JsonArray mapidsArray = mapidsObject.getAsJsonArray("mapids");
-//				// 3.添加单个创意id
-//				// 转换格式
-//				JsonElement elementCreativeId = parser.parse(creativeId);
-//				if (!mapidsArray.contains(elementCreativeId)) {
-//					// 如果不包含这个创意id，则将其添加
-//					mapidsArray.add(creativeId);
-//				}
-//				// 将添加新创意id后的所有元素放回redis中
-//				JsonObject resultJson = new JsonObject();
-//				resultJson.add("mapids", mapidsArray);
-//				redisHelper.set(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId, resultJson.toString());
-//			}
-//		}
 		String mapids = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
 		if (mapids != null && !mapids.isEmpty()) {
 			// 判断redis的mapids中是否存在创意id，不存在则将其写入
@@ -1769,7 +1745,7 @@ public class LaunchService extends BaseService {
 	 * @param campaignId
 	 * @return
 	 */
-	public boolean haveLaunchCreatives(String campaignId) throws Exception {
+	public boolean ishaveLaunchCreatives(String campaignId) throws Exception {
 		CreativeModelExample ex = new CreativeModelExample();
 		ex.createCriteria().andCampaignIdEqualTo(campaignId).andEnableEqualTo(StatusConstant.CREATIVE_IS_ENABLE);
 		List<CreativeModel> creatives = creativeDao.selectByExample(ex);
@@ -1784,7 +1760,6 @@ public class LaunchService extends BaseService {
 			return creativeAudits.size() > 0;
 		}
 		return false;
-//		return creativeAudits.size() > 0;
 	}
 	
 	public boolean isInLaunchPeriod(String campaignId) throws Exception {
@@ -1819,7 +1794,8 @@ public class LaunchService extends BaseService {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isHaveCreativeInfoInRedis (String campaignId) throws Exception {
-		return redisHelper.exists(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + campaignId);
+	public boolean isHaveCreativeInfoInRedis (String creativeId) throws Exception {
+		return redisHelper.exists(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creativeId);
 	}
+	
 }

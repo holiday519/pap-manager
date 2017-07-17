@@ -1966,7 +1966,7 @@ public class CreativeService extends BaseService {
 			// 将创意id写入redis的mapids
 			launchService.writeOneCreativeId(campaignId, creativeId);
 			//写入活动下的创意基本信息   dsp_mapid_*		
-			if (launchService.isHaveCreativeInfoInRedis(campaignId)) {					
+			if (!launchService.isHaveCreativeInfoInRedis(creativeId)) {					
 				launchService.writeCreativeInfo(campaignId);
 			}
 		}	
