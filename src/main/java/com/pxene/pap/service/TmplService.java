@@ -18,11 +18,12 @@ import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.TmplBean.ImageTmpl;
 import com.pxene.pap.domain.beans.TmplBean.InfoflowTmpl;
 import com.pxene.pap.domain.beans.TmplBean.VideoTmpl;
+import com.pxene.pap.domain.models.AdxModel;
+import com.pxene.pap.domain.models.AdxTmplModel;
+import com.pxene.pap.domain.models.AdxTmplModelExample;
 import com.pxene.pap.domain.models.AppModel;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
-import com.pxene.pap.domain.models.AppTmplModel;
-import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.CreativeModelExample;
 import com.pxene.pap.domain.models.ImageTmplModel;
@@ -31,9 +32,10 @@ import com.pxene.pap.domain.models.VideoTmplModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.repository.basic.AdxDao;
+import com.pxene.pap.repository.basic.AdxTmplDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
-import com.pxene.pap.repository.basic.AppTmplDao;
 import com.pxene.pap.repository.basic.CreativeDao;
 import com.pxene.pap.repository.basic.ImageTmplDao;
 import com.pxene.pap.repository.basic.InfoflowTmplDao;
@@ -46,10 +48,7 @@ public class TmplService extends BaseService {
 	private ImageTmplDao imageTmplDao;
 	
 	@Autowired
-	private VideoTmplDao videoTmplDao;
-	
-	@Autowired
-	private AppTmplDao appTmplDao;
+	private VideoTmplDao videoTmplDao;	
 	
 	@Autowired
 	private AppTargetDao appTargetDao;
@@ -64,7 +63,14 @@ public class TmplService extends BaseService {
 	private CreativeDao creativeDao;
 	
 	@Autowired
+	private AdxTmplDao adxTmplDao;
+	
+	@Autowired
+	private AdxDao adxDao;
+	
+	@Autowired
 	private CreativeService creativeService;
+	 
 	
 	/**
 	 * 查询图片模版详细信息
@@ -73,77 +79,33 @@ public class TmplService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public List<ImageTmpl> listImageTmpls(String campaignId, String status) throws Exception {
-		if (StringUtils.isEmpty(campaignId)) {
-			throw new IllegalArgumentException();
+	public List<ImageTmpl> listImageTmpls(String adxId) throws Exception {
+		
+		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();;
+		// 查询图片模板id
+		AdxTmplModelExample  adxTmpleEx = new AdxTmplModelExample();
+		adxTmpleEx.createCriteria().andAdxIdEqualTo(adxId).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_IMAGE);
+		List<AdxTmplModel> adxTmpls = adxTmplDao.selectByExample(adxTmpleEx);
+		
+		if (adxTmpls != null && !adxTmpls.isEmpty()) {
+			ImageTmpl imageTmpl = null;
+			for (AdxTmplModel adxTmpl : adxTmpls) {
+				// 根据图片模板id查询图片模板详情
+				String tmplId = adxTmpl.getTmplId();
+				if (!StringUtils.isEmpty(tmplId)) {
+					imageTmpl = getImageTmplDetail(tmplId);
+					// 根据AdxId查询ADX信息
+					AdxModel adx = getAdxById(adxId);
+					if (imageTmpl != null && adx != null) {
+						// 图片模板信息和ADX信息不为空，将图片模板信息放到list中
+						imageTmpl.setAdxId(adxId);
+						imageTmpl.setAdxName(adx.getName());
+						imageTmplList.add(imageTmpl);
+					}
+				}				
+			}
 		}
-		//获取活动下的APPId
-//		List<String> appIdList = getAppidByCampaignId(campaignId);
-		
-//		if (appIdList.size() == 0) {
-//			throw new IllegalStatusException(PhrasesConstant.APP_NOT_FOUND);
-//		}
-		
-		List<ImageTmpl> imageTmplList = new ArrayList<ImageTmpl>();
-		List<ImageTmpl> imageTmplListNotUse = new ArrayList<ImageTmpl>();
-		List<ImageTmpl> imageTmplListAll = new ArrayList<ImageTmpl>();
-
-		// 查询app的模版
-		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
-		
-//		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_IMAGE);
-//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
-		
-//		if (appTmpls != null && !appTmpls.isEmpty()) {
-//			// 缓存模板信息
-//			Map<String, ImageTmpl> tmplMap = new HashMap<String, ImageTmpl>();
-//			for (AppTmplModel appTmpl : appTmpls) {
-//				// 根据模版id查询信息
-//				String tmplId = appTmpl.getTmplId();
-//				if (!StringUtils.isEmpty(tmplId)) {
-//					// 查询该tmplId是否出现过
-//					ImageTmpl imageTmpl = null;
-//					AppModel app = getAppById(appTmpl.getAppId());
-//					if (tmplMap.containsKey(tmplId)) {
-//						imageTmpl = tmplMap.get(tmplId);
-////						AppModel app = getAppById(appTmpl.getAppId());
-//						if (app != null) {
-//							imageTmpl.setAppName(imageTmpl.getAppName() + "," + app.getAppName());
-//						}
-//					} else {
-//						imageTmpl = getImageTmplDetail(tmplId);
-////						AppModel app = getAppById(appTmpl.getAppId());
-//						 if (app != null && imageTmpl !=null) {
-//		                	 imageTmpl.setAppId(app.getId());
-//		                	 imageTmpl.setAppName(app.getAppName());
-//							 tmplMap.put(tmplId, imageTmpl);
-//		                }
-//
-//					}
-//				}
-//			}
-//			for (Entry<String, ImageTmpl> entry : tmplMap.entrySet()) {
-//				String tmplId = entry.getKey();
-//				ImageTmpl imageTmpl = entry.getValue();
-//				if (StringUtils.isEmpty(status)) {
-//					imageTmplListAll.add(imageTmpl);
-//				} else {
-//					if (tmplIsUsed(campaignId, tmplId)) {
-//						imageTmplList.add(imageTmpl);
-//					} else {
-//						imageTmplListNotUse.add(imageTmpl);
-//					}
-//				}
-//			}
-//		}
-		
-		if ("01".equals(status)) {//用着的
-			return imageTmplList;
-		} else if ("02".equals(status)) {
-			return imageTmplListNotUse;
-		} else {
-			return imageTmplListAll;
-		}
+		return imageTmplList;						
 	}
 	
 	/**
@@ -153,77 +115,42 @@ public class TmplService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public List<VideoTmpl> listVideoTmpls(String campaignId, String status) throws Exception {
-		if (StringUtils.isEmpty(campaignId)) {
-			throw new IllegalArgumentException();
-		}
-		//获取活动下的APPId
-//		List<String> appIdList = getAppidByCampaignId(campaignId);
-//		if (appIdList.size() == 0) {
-//			throw new IllegalStatusException(PhrasesConstant.APP_NOT_FOUND);
-//		}
-				
-		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
-		List<VideoTmpl> videpTmplListNotUse = new ArrayList<VideoTmpl>();
-		List<VideoTmpl> videpTmplListAll = new ArrayList<VideoTmpl>();
-		// 查询app的模版
-//		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
-//		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_VIDEO);
-//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
+	public List<VideoTmpl> listVideoTmpls(String adxId) throws Exception {
 		
-//		if (appTmpls != null && !appTmpls.isEmpty()) {
-//			// 缓存模板信息
-//			Map<String, VideoTmpl> tmplMap = new HashMap<String, VideoTmpl>();
-//			for (AppTmplModel appTmpl : appTmpls) {
-//				String tmplId = appTmpl.getTmplId();
-//				if (!StringUtils.isEmpty(tmplId)) {
-//					VideoTmpl videoTmpl = null;
-//					if (tmplMap.containsKey(tmplId)) {
-//						videoTmpl = tmplMap.get(tmplId);
-//						AppModel app = getAppById(appTmpl.getAppId());
-//						if (app != null) {
-//							videoTmpl.setAppName(videoTmpl.getAppName() + "," + app.getAppName());
-//						}
-//					} else {
-//						VideoTmplModel model = videoTmplDao.selectByPrimaryKey(tmplId);
-//						videoTmpl = modelMapper.map(model, VideoTmpl.class);
-//						AppModel app = getAppById(appTmpl.getAppId());
-//						if (app != null) {
-//							 videoTmpl.setAppId(app.getId());
-//							 videoTmpl.setAppName(app.getAppName());
-//		                }
-//						String imageTmplId = model.getImageId();
-//						if (!StringUtils.isEmpty(imageTmplId)) {
-//							ImageTmpl imageTmpl = getImageTmplDetail(imageTmplId);
-//							if (imageTmpl != null) {
-//								videoTmpl.setImageTmpl(imageTmpl);
-//							}
-//						}
-//						tmplMap.put(tmplId, videoTmpl);
-//					}
-//				}
-//			}
-//			for (Entry<String, VideoTmpl> entry : tmplMap.entrySet()) {
-//				String tmplId = entry.getKey();
-//				VideoTmpl videoTmpl = entry.getValue();
-//				if (StringUtils.isEmpty(status)) {
-//					videpTmplListAll.add(videoTmpl);
-//				} else {
-//					if (tmplIsUsed(campaignId, tmplId)) {
-//						videpTmplList.add(videoTmpl);
-//					} else {
-//						videpTmplListNotUse.add(videoTmpl);
-//					}
-//				}
-//			}
-//		}
-		if ("01".equals(status)) {//用着的
-			return videpTmplList;
-		} else if ("02".equals(status)) {
-			return videpTmplListNotUse;
-		} else {
-			return videpTmplListAll;
+		List<VideoTmpl> videpTmplList = new ArrayList<VideoTmpl>();
+		
+		// 查询视频模板id
+		AdxTmplModelExample  adxTmpleEx = new AdxTmplModelExample();
+		adxTmpleEx.createCriteria().andAdxIdEqualTo(adxId).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_VIDEO);
+		List<AdxTmplModel> adxTmpls = adxTmplDao.selectByExample(adxTmpleEx);
+		
+		if (adxTmpls != null && !adxTmpls.isEmpty()) {
+			VideoTmpl videoTmpl = null;
+			for (AdxTmplModel adxTmpl : adxTmpls) {
+				// 根据视频模板id查询视频模板详情
+				String tmplId = adxTmpl.getTmplId();
+				if (!StringUtils.isEmpty(tmplId)) {
+					VideoTmplModel model = videoTmplDao.selectByPrimaryKey(tmplId);
+					videoTmpl = modelMapper.map(model, VideoTmpl.class);
+					// 根据AdxId查询ADX信息
+					AdxModel adx = getAdxById(adxId);
+					if (adx != null) {
+						 videoTmpl.setAdxId(adxId);
+						 videoTmpl.setAdxName(adx.getName());
+	                }
+					// 根据图片id查询图片模板信息
+					String imageTmplId = model.getImageId();
+					if (!StringUtils.isEmpty(imageTmplId)) {
+						ImageTmpl imageTmpl = getImageTmplDetail(imageTmplId);
+						if (imageTmpl != null) {
+							videoTmpl.setImageTmpl(imageTmpl);
+						}
+					}
+					videpTmplList.add(videoTmpl);
+				}				
+			}
 		}
+		return videpTmplList;
 	}
 
 	/**
@@ -231,10 +158,10 @@ public class TmplService extends BaseService {
 	 * @param appId appid
 	 * @return
 	 */
-    private AppModel getAppById(String appId)
-    {
-        return appDao.selectByPrimaryKey(appId);
-    }
+//    private AppModel getAppById(String appId)
+//    {
+//        return appDao.selectByPrimaryKey(appId);
+//    }
 	
 	/**
 	 * 查询信息流模版详细信息
@@ -243,97 +170,61 @@ public class TmplService extends BaseService {
 	 * @throws Exception
 	 */
     @Transactional
-	public List<InfoflowTmpl> listInfoflowTmpls(String campaignId, String status) throws Exception {
-		if (StringUtils.isEmpty(campaignId)) {
-			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-		}
-		
-		//获取活动下的APPId
-//		List<String> appIdList = getAppidByCampaignId(campaignId);
-//		if (appIdList.size() == 0) {
-//			throw new IllegalStatusException(PhrasesConstant.APP_NOT_FOUND);
-//		}
+	public List<InfoflowTmpl> listInfoflowTmpls(String adxId) throws Exception {				
 				
 		List<InfoflowTmpl> infoTmplList = new ArrayList<InfoflowTmpl>();
-		List<InfoflowTmpl> infoTmplListNotUse = new ArrayList<InfoflowTmpl>();
-		List<InfoflowTmpl> infoTmplListAll = new ArrayList<InfoflowTmpl>();
-		// 查询app的模版
-//		AppTmplModelExample appTmplModelExample = new AppTmplModelExample();
-//		appTmplModelExample.createCriteria().andAppIdIn(appIdList).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_INFOFLOW);
-//		List<AppTmplModel> appTmpls = appTmplDao.selectByExample(appTmplModelExample);
-//		if (appTmpls != null && !appTmpls.isEmpty()) {
-//			Map<String, InfoflowTmpl> tmplMap = new HashMap<String, InfoflowTmpl>();
-//			for (AppTmplModel appTmpl : appTmpls) {
-//				String tmplId = appTmpl.getTmplId();
-//				if (!StringUtils.isEmpty(tmplId)) {
-//					InfoflowTmpl infoflowTmpl = null;
-//					if (appTmpls.contains(tmplId)) {
-//						infoflowTmpl = tmplMap.get(tmplId);
-//						AppModel app = getAppById(appTmpl.getAppId());
-//		                if (app != null) {
-//		                	infoflowTmpl.setAppName(infoflowTmpl.getAppName() + "," + app.getAppName());
-//		                }
-//					} else {
-//						InfoflowTmplModel model = infoflowTmplDao.selectByPrimaryKey(tmplId);
-//						infoflowTmpl = modelMapper.map(model, InfoflowTmpl.class);
-//						AppModel app = getAppById(appTmpl.getAppId());
-//		                if (app != null) {
-//		                	infoflowTmpl.setAppId(app.getId());
-//		                	infoflowTmpl.setAppName(app.getAppName());
-//		                }
-//		                // 小图信息
-//						if (!StringUtils.isEmpty(model.getIconId())) {
-//							ImageTmpl icon = getImageTmplDetail(model.getIconId());
-//							infoflowTmpl.setIcon(icon);
-//						}
-//						ImageTmpl image = null;
-//						// 大图信息（最多五个）
-//						if (!StringUtils.isEmpty(model.getImage1Id())) {
-//							image = getImageTmplDetail(model.getImage1Id());
-//							infoflowTmpl.setImage1(image);
-//						}
-//						if (!StringUtils.isEmpty(model.getImage2Id())) {
-//							image = getImageTmplDetail(model.getImage2Id());
-//							infoflowTmpl.setImage2(image);
-//						}
-//						if (!StringUtils.isEmpty(model.getImage3Id())) {
-//							image = getImageTmplDetail(model.getImage3Id());
-//							infoflowTmpl.setImage3(image);
-//						}
-//						if (!StringUtils.isEmpty(model.getImage4Id())) {
-//							image = getImageTmplDetail(model.getImage4Id());
-//							infoflowTmpl.setImage4(image);
-//						}
-//						if (!StringUtils.isEmpty(model.getImage5Id())) {
-//							image = getImageTmplDetail(model.getImage5Id());
-//							infoflowTmpl.setImage5(image);
-//						}
-//						tmplMap.put(tmplId, infoflowTmpl);
-//					}
-//				}
-//			}
-//			
-//			for (Entry<String, InfoflowTmpl> entry : tmplMap.entrySet()) {
-//				String tmplId = entry.getKey();
-//				InfoflowTmpl infoflowTmpl = entry.getValue();
-//				if (StringUtils.isEmpty(status)) {
-//					infoTmplListAll.add(infoflowTmpl);
-//				} else {
-//					if (tmplIsUsed(campaignId, tmplId)) {
-//						infoTmplList.add(infoflowTmpl);
-//					} else {
-//						infoTmplListNotUse.add(infoflowTmpl);
-//					}
-//				}
-//			}
-//		}
-		if ("01".equals(status)) {//用着的
-			return infoTmplList;
-		} else if ("02".equals(status)) {
-			return infoTmplListNotUse;
-		} else {
-			return infoTmplListAll;
+
+		// 查询信息流模板id
+		AdxTmplModelExample  adxTmpleEx = new AdxTmplModelExample();
+		adxTmpleEx.createCriteria().andAdxIdEqualTo(adxId).andAdTypeEqualTo(CodeTableConstant.CREATIVE_TYPE_INFOFLOW);
+		List<AdxTmplModel> adxTmpls = adxTmplDao.selectByExample(adxTmpleEx);
+				
+		if (adxTmpls != null && !adxTmpls.isEmpty()) {
+			InfoflowTmpl infoflowTmpl = null;
+			for (AdxTmplModel adxTmpl : adxTmpls) {
+				String tmplId = adxTmpl.getTmplId();
+				if (!StringUtils.isEmpty(tmplId)) {
+					// 根据信息流模板id查询信息流模板信息
+					InfoflowTmplModel model = infoflowTmplDao.selectByPrimaryKey(tmplId);
+					infoflowTmpl = modelMapper.map(model, InfoflowTmpl.class);
+					// 查询ADX信息
+					AdxModel adx = getAdxById(adxId);
+	                if (adx != null) {
+	                	infoflowTmpl.setAdxId(adxId);;
+	                	infoflowTmpl.setAdxName(adx.getName());;
+	                }
+	                // 小图信息
+					if (!StringUtils.isEmpty(model.getIconId())) {
+						ImageTmpl icon = getImageTmplDetail(model.getIconId());
+						infoflowTmpl.setIcon(icon);
+					}
+					ImageTmpl image = null;
+					// 大图信息（最多五个）
+					if (!StringUtils.isEmpty(model.getImage1Id())) {
+						image = getImageTmplDetail(model.getImage1Id());
+						infoflowTmpl.setImage1(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage2Id())) {
+						image = getImageTmplDetail(model.getImage2Id());
+						infoflowTmpl.setImage2(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage3Id())) {
+						image = getImageTmplDetail(model.getImage3Id());
+						infoflowTmpl.setImage3(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage4Id())) {
+						image = getImageTmplDetail(model.getImage4Id());
+						infoflowTmpl.setImage4(image);
+					}
+					if (!StringUtils.isEmpty(model.getImage5Id())) {
+						image = getImageTmplDetail(model.getImage5Id());
+						infoflowTmpl.setImage5(image);
+					}
+					infoTmplList.add(infoflowTmpl);
+				}
+			}
 		}
+		return infoTmplList;		
 	}
 	
 	/**
@@ -491,5 +382,16 @@ public class TmplService extends BaseService {
 		}
 		
 		return infoflowTmpl;
+	}
+	
+	/**
+	 * 通过ADXId找ADX名称
+	 * @param adxId
+	 * @return
+	 * @throws Exception
+	 */
+	public AdxModel getAdxById(String adxId) throws Exception {
+		AdxModel adx = adxDao.selectByPrimaryKey(adxId);
+		return adx;
 	}
 }

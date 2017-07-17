@@ -264,6 +264,7 @@ public class ProjectService extends BaseService {
         	}
         }
 
+        // 编辑redis中的项目总预算
         changeBudgetInRedis(id, oldBudget, newBudget);
 
         // 将请求参数转换成MyBatis Model
@@ -598,15 +599,13 @@ public class ProjectService extends BaseService {
 		if (campaigns != null && !campaigns.isEmpty()) {
 			for (CampaignModel campaign : campaigns) {
 				String campaignId = campaign.getId();
-				if (StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
-						&& campaignService.isOnLaunchDate(campaignId)) {
+				if (campaignService.isOnLaunchDate(campaignId)) {
 					// 如果活动状态为开启，并且在活动的投放时间里
 					if (!launchService.isHaveLaunched(campaignId)) {
 						// 如果campaignId还没有投放，则写入信息
 						launchService.write4FirstTime(campaign);
 					}
-					if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId)
-							&& launchService.notOverDailyCounter(campaignId) && launchService.notOverProjectBudget(projectId)) {
+					if (launchService.isWriteGroupIds(projectId,campaignId)) {
 						// 如果在定向的时间里，将campaignId写入到redis的投放groups中
 						// 活动没有超出每天的日预算并且日均最大展现未达到上限
 						// launchService.writeCampaignId(campaignId);
@@ -833,13 +832,7 @@ public class ProjectService extends BaseService {
         	for (CampaignModel campaign : campaigns) {
         		String campaignId = campaign.getId();
         		// 如果预算和展现数字调高了，就继续投放
-				if (campaignService.isOnTargetTime(campaignId) && launchService.notOverDailyBudget(campaignId) 
-						&& launchService.notOverDailyCounter(campaignId)
-						&& launchService.notOverProjectBudget(projectId)
-						&& StatusConstant.PROJECT_PROCEED.equals(projectStatus)
-						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
-						&& launchService.haveCreatives(campaignId)
-						&& launchService.isInLaunchPeriod(campaignId)) {
+				if (isWriteGroupidsByUpdateProjectBudget(campaignId, projectStatus, campaign.getStatus())) {
 					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
@@ -1652,5 +1645,21 @@ public class ProjectService extends BaseService {
 
 		return false;
 	}
-
+	
+	/**
+	 * 修改项目预算，判断是否需要将项目下的活动id重新写入到groupids中
+	 * @param campaignId
+	 * @param projectStatus
+	 * @param campaignStatus
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean isWriteGroupidsByUpdateProjectBudget (String campaignId, String projectStatus, String campaignStatus) throws Exception {
+		return campaignService.isOnTargetTime(campaignId) 
+				&& launchService.notOverDailyBudget(campaignId) 
+				&& launchService.notOverDailyCounter(campaignId)
+				&& StatusConstant.PROJECT_PROCEED.equals(projectStatus)
+				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignStatus)
+				&& launchService.isInLaunchPeriod(campaignId);
+	}
 }

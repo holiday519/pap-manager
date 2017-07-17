@@ -30,6 +30,7 @@ import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
+import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.BasicDataBean;
 import com.pxene.pap.domain.beans.CreativeBean;
@@ -40,8 +41,6 @@ import com.pxene.pap.domain.beans.MediaBean;
 import com.pxene.pap.domain.beans.VideoBean;
 import com.pxene.pap.domain.beans.VideoCreativeBean;
 import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.AppTmplModel;
-import com.pxene.pap.domain.models.AppTmplModelExample;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
 import com.pxene.pap.domain.models.CreativeAuditModel;
@@ -137,10 +136,7 @@ public class CreativeService extends BaseService {
 	private ImageTmplDao imageTmplDao;
 	
 	@Autowired
-	private VideoTmplDao videoTmplDao;
-	
-	@Autowired
-	private AppTmplDao appTmplDao;
+	private VideoTmplDao videoTmplDao;	
 	
 	@Autowired
 	private AppDao appDao;
@@ -185,7 +181,7 @@ public class CreativeService extends BaseService {
 	private ProjectDao projectDao;
 
 	@Autowired
-	private DataService dataService;
+	private DataService dataService;	
 
 	/**
 	 * 创建创意
@@ -559,7 +555,9 @@ public class CreativeService extends BaseService {
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
-//				Map<String, String> appInfo = getAppInfo(creative);
+				List<Map<String, String>> adxInfo = launchService.getAdxByCreative(creative);
+				String adxId = adxInfo.get(0).get("adxId");
+				String adxName = adxInfo.get(0).get("adxName");
 				CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
@@ -584,8 +582,8 @@ public class CreativeService extends BaseService {
 							image.setImageId(creative.getMaterialId());
 							image.setImagePath(imageModel.getPath());
 							
-//							image.setAppId(appInfo.get("appIds"));  
-//							image.setAppName(appInfo.get("appNames")); 
+							image.setAdxId(adxId);
+							image.setAdxName(adxName);
 							image.setEnable(creative.getEnable());
 
 							//查询投放数据
@@ -625,8 +623,8 @@ public class CreativeService extends BaseService {
 						video.setVideoId(creative.getMaterialId());
 						video.setVideoPath(videoModel.getPath());
 						
-//						video.setAppId(appInfo.get("appIds"));  
-//						video.setAppName(appInfo.get("appNames")); 
+						video.setAdxId(adxId);
+						video.setAdxName(adxName);
 						video.setEnable(creative.getEnable());
 
 						//查询投放数据
@@ -657,8 +655,8 @@ public class CreativeService extends BaseService {
 						}
 						info.setPrice(creative.getPrice().floatValue());
 						
-//						info.setAppId(appInfo.get("appIds"));  
-//						info.setAppName(appInfo.get("appNames")); 
+						info.setAdxId(adxId);
+						info.setAdxName(adxName);
 						info.setEnable(creative.getEnable());
 
 						info.setTitle(infoflowModel.getTitle());                   //标题
@@ -709,8 +707,8 @@ public class CreativeService extends BaseService {
 					}
 				} else {
 					base = modelMapper.map(creative, CreativeBean.class);
-//					base.setAppId(appInfo.get("appIds"));  
-//					base.setAppName(appInfo.get("appNames")); 
+					base.setAdxId(adxId);
+					base.setAdxName(adxName);
 					String creativeType = creative.getType();
 					String[] materialPaths = null;
 					// 创意显示活动周期
@@ -842,9 +840,9 @@ public class CreativeService extends BaseService {
 		ImageCreativeBean image = null;
 		VideoCreativeBean video = null;
 		InfoflowCreativeBean info = null;
-//		Map<String, String> appInfo = getAppInfo(creative);
-//		String appId = appInfo.get("appIds");
-//		String appName = appInfo.get("appNames");
+		List<Map<String, String>> adxInfo = launchService.getAdxByCreative(creative);
+		String adxId = adxInfo.get(0).get("adxId");
+		String adxName = adxInfo.get(0).get("adxName");
 		//查询审核信息
 		CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 
@@ -870,8 +868,8 @@ public class CreativeService extends BaseService {
 				}
 				image.setPrice(creative.getPrice().floatValue());          //创意价格
 				image.setTmplId(creative.getTmplId());                     //模板ID
-//				image.setAppId(appId);                           //appId
-//				image.setAppName(appName);                       //app名称
+				image.setAdxId(adxId);
+				image.setAdxName(adxName);
 				image.setEnable(creative.getEnable());           //创意的状态
 				
 				image.setImageId(imageModel.getId());   //图片id
@@ -920,8 +918,8 @@ public class CreativeService extends BaseService {
 				}
 				video.setPrice(creative.getPrice().floatValue());          //创意价格
 				video.setTmplId(creative.getTmplId());                     //模板Id
-//				video.setAppId(appId);                                     //AppID
-//				video.setAppName(appName);                                 //app名称
+				video.setAdxId(adxId);
+				video.setAdxName(adxName);
 				video.setEnable(creative.getEnable());                     //创意状态
 				
 				video.setImageId(imageId);                                 //图片id
@@ -970,8 +968,8 @@ public class CreativeService extends BaseService {
 				}
 				info.setPrice(creative.getPrice().floatValue());           //创意价格
 				info.setTmplId(creative.getTmplId());                      //模板Id
-//				info.setAppId(appId);                                      //AppID
-//				info.setAppName(appName);                                  //app名称
+				info.setAdxId(adxId);
+				info.setAdxName(adxName);
 				info.setEnable(creative.getEnable());                      //创意状态
 				info.setTitle(infoflowModel.getTitle());                   //标题
 				info.setDescription(infoflowModel.getDescription());       //描述
@@ -1011,8 +1009,8 @@ public class CreativeService extends BaseService {
 		} else {
 			//否则
 			base = modelMapper.map(creative, CreativeBean.class);
-//			base.setAppId(appId);
-//			base.setAppName(appName);
+			base.setAdxId(adxId);
+			base.setAdxName(adxName);
 			//查询投放数据
 			if (startDate != null && endDate != null) {
 				String creativeId = creative.getId();
@@ -1390,8 +1388,11 @@ public class CreativeService extends BaseService {
 		            }
 				}
 			}
-			// 如果审核通过，则将创意id写入门到redis的mapids中
-			launchService.writeOneCreativeId(creative.getCampaignId(), creativeId);
+			// 如果审核通过，则创意没有map基本信息将单个创意基本信息写入到redis中；将创意id写入门到redis的mapids中，
+			String campaignId = creative.getCampaignId();
+			if (StatusConstant.CREATIVE_IS_ENABLE.equals(creative.getEnable())) {
+				writeCreativeInfoAndIdToRedis(campaignId, creativeId);
+			}			
 		}
 	}
 	
@@ -1519,21 +1520,9 @@ public class CreativeService extends BaseService {
 			creativeModel.setEnable(StatusConstant.CREATIVE_IS_ENABLE);
 			// 更新数据库中状态
 			creativeDao.updateByPrimaryKeySelective(creativeModel);
-			// 如果在投放时间并且创意已经审核通过，则将创意id写入门redis的dsp_groupid_mapids_中
-			// 1.查询创意审核信息
-			CreativeAuditModelExample creativeAuditEx = new CreativeAuditModelExample();
-			creativeAuditEx.createCriteria().andCreativeIdEqualTo(creativeId);
-			List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditEx);
-			if (creativeAudits != null && !creativeAudits.isEmpty()) {
-				// 如果创意审核信息存在
-				// 2.判断该创意是否审核通过
-				for (CreativeAuditModel creativeAudit : creativeAudits) {
-					if (campaignService.isOnLaunchDate(campaignId) && StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(creativeAudit.getStatus())) {
-						launchService.writeOneCreativeId(campaignId, creativeId);
-					}
-				}
-				
-			}			
+			// 创意审核通过 && 创意开关打开 && 项目打开 && 活动打开 && 当前活动在投放日期内
+			// 创意id不在mapids中,将单个创意id添加到mapids中；创意没有map基本信息，将单个创意基本信息写入到redis中
+			writeCreativeInfoAndIdToRedis(campaignId, creativeId);
 		}
 	}
 	
@@ -1938,4 +1927,48 @@ public class CreativeService extends BaseService {
 		creativeBean.setMaterialPaths(materialPaths);
 	}
 
+	/**
+	 * 判断是否写创意id和创意信息到redis中：创意审核通过 && （创意开关打开 &&） 项目打开 && 活动打开 && 当前活动在投放日期内
+	 * @param campaignId 活动id
+	 * @param creativeId 创意id
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean iswriteCreativeInfoAndId (String campaignId, String creativeId) throws Exception{
+		// 查询创意对应的活动信息
+		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
+		// 查询创意对应的项目信息
+		ProjectModel project = projectDao.selectByPrimaryKey(campaign.getProjectId());
+		// 查询创意的审核信息
+		CreativeAuditModelExample auditExample = new CreativeAuditModelExample();
+		auditExample.createCriteria().andCreativeIdEqualTo(creativeId);
+		List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(auditExample);
+		if (creativeAudit == null || creativeAudit.isEmpty()) {
+			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		}
+		// 获取审核的状态
+		String auditStatus = creativeAudit.get(0).getStatus();
+		return StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
+				&& campaignService.isOnLaunchDate(campaignId) 
+				&& auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+	}
+	
+	/**
+	 * 向redis中写入创意基本信息和单个创意id
+	 * @param campaignId 活动id
+	 * @param creativeId 创意id
+	 * @throws Exception
+	 */
+	private void writeCreativeInfoAndIdToRedis (String campaignId, String creativeId) throws Exception{
+		if (iswriteCreativeInfoAndId(campaignId, creativeId)) {
+			// 创意审核通过 （&& 创意开关打开） && 项目打开 && 活动打开 && 当前活动在投放日期内
+			// 将创意id写入redis的mapids
+			launchService.writeOneCreativeId(campaignId, creativeId);
+			//写入活动下的创意基本信息   dsp_mapid_*		
+			if (launchService.isHaveCreativeInfoInRedis(campaignId)) {					
+				launchService.writeCreativeInfo(campaignId);
+			}
+		}	
+	}
 }

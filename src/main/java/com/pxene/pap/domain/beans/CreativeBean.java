@@ -58,13 +58,13 @@ public class CreativeBean extends BasicDataBean {
 	private String remark;
 	
 	/**
-	 * APPID
+	 * ADXID
 	 */
-//	private String appId;
+	private String adxId;
 	/**
-	 * APP名称
+	 * ADX名称
 	 */
-//	private String appName;
+	private String adxName;
 	/**
 	 * 创意的状态
 	 */
@@ -151,27 +151,26 @@ public class CreativeBean extends BasicDataBean {
 	public void setMaterialId(String materialId) {
 		this.materialId = materialId;
 	}
+		
+	public String getAdxId() {
+		return adxId;
+	}
 
-//	public String getAppId() {
-//		return appId;
-//	}
-//
-//	public void setAppId(String appId) {
-//		this.appId = appId;
-//	}
-//
-//	public String getAppName() {
-//		return appName;
-//	}
-//
-//	public void setAppName(String appName) {
-//		this.appName = appName;
-//	}
+	public void setAdxId(String adxId) {
+		this.adxId = adxId;
+	}
 
+	public String getAdxName() {
+		return adxName;
+	}
+
+	public void setAdxName(String adxName) {
+		this.adxName = adxName;
+	}
+	
 	public String getEnable() {
 		return enable;
 	}
-
 	public void setEnable(String enable) {
 		this.enable = enable;
 	}
@@ -230,8 +229,7 @@ public class CreativeBean extends BasicDataBean {
 				+ ", status=" + status + ", campaignId=" + campaignId
 				+ ", campaignName=" + campaignName + ", price=" + price + ",tmplId=" + tmplId
 				+ ", remark=" + remark + ", materialId=" + materialId  + ",title=" + title + ",description=" + description
-//				+ ", appId=" + appId + ", appName=" + appName + ", enable=" + enable +", message=" + message+"]";
-				+ ", enable=" + enable +", message=" + message+"]";
+				+ ", adxId=" + adxId + ", adxName=" + adxName + ", enable=" + enable +", message=" + message+"]";
 	}
 	
 }

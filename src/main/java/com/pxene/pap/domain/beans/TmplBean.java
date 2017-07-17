@@ -13,8 +13,8 @@ public class TmplBean {
 		private Integer width;
 		private Integer height;
 		private String formats;
-		private String appId;
-		private String appName;
+		private String adxId;
+		private String adxName;
 
 		public String getId() {
 			return id;
@@ -54,30 +54,28 @@ public class TmplBean {
 
 		public void setFormats(String formats) {
 			this.formats = formats;
-		}
-		
-		public String getAppName()
-        {
-            return appName;
-        }
+		}				
 
-        public void setAppName(String appName)
-        {
-            this.appName = appName;
-        }
-
-		public String getAppId() {
-			return appId;
+		public String getAdxId() {
+			return adxId;
 		}
 
-		public void setAppId(String appId) {
-			this.appId = appId;
+		public void setAdxId(String adxId) {
+			this.adxId = adxId;
+		}
+
+		public String getAdxName() {
+			return adxName;
+		}
+
+		public void setAdxName(String adxName) {
+			this.adxName = adxName;
 		}
 
 		@Override
         public String toString()
         {
-            return "ImageTmpl [id=" + id + ", maxVolume=" + maxVolume + ", width=" + width + ", height=" + height + ", formats=" + formats + ", appName=" + appName + "]";
+            return "ImageTmpl [id=" + id + ", maxVolume=" + maxVolume + ", width=" + width + ", height=" + height + ", formats=" + formats + ", adxName=" + adxName + "]";
         }
 
 	}
@@ -91,8 +89,8 @@ public class TmplBean {
 		private Integer width;
 		private Integer height;
 		private ImageTmpl imageTmpl;
-		private String appName;
-		private String appId;
+		private String adxName;
+		private String adxId;
 
 		public String getId() {
 			return id;
@@ -140,31 +138,29 @@ public class TmplBean {
 
 		public void setImageTmpl(ImageTmpl imageTmpl) {
 			this.imageTmpl = imageTmpl;
-		}
-		
-		public String getAppName()
-        {
-            return appName;
-        }
+		}				
 
-        public void setAppName(String appName)
-        {
-            this.appName = appName;
-        }
-
-        public String getAppId() {
-			return appId;
+		public String getAdxName() {
+			return adxName;
 		}
 
-		public void setAppId(String appId) {
-			this.appId = appId;
+		public void setAdxName(String adxName) {
+			this.adxName = adxName;
+		}
+
+		public String getAdxId() {
+			return adxId;
+		}
+
+		public void setAdxId(String adxId) {
+			this.adxId = adxId;
 		}
 
 		@Override
         public String toString()
         {
-            return "VideoTmpl [id=" + id + ", maxVolume=" + maxVolume + ", maxTimelength=" + maxTimelength + ", width=" + width + ", height=" + height + ", imageTmpl=" + imageTmpl + ", appName="
-                    + appName + "]";
+            return "VideoTmpl [id=" + id + ", maxVolume=" + maxVolume + ", maxTimelength=" + maxTimelength + ", width=" + width + ", height=" + height + ", imageTmpl=" + imageTmpl + ", adxName="
+                    + adxName + "]";
         }
 
 	}
@@ -185,8 +181,8 @@ public class TmplBean {
 		private ImageTmpl image4;
 		private ImageTmpl image5;
 //		private String isAppStar;
-		private String appName;
-		private String appId;
+		private String adxName;
+		private String adxId;
 
 		public String getId() {
 			return id;
@@ -292,22 +288,20 @@ public class TmplBean {
 //			this.isAppStar = isAppStar;
 //		}
 		
-		public String getAppName()
-        {
-            return appName;
-        }
-
-        public void setAppName(String appName)
-        {
-            this.appName = appName;
-        }
-
-        public String getAppId() {
-			return appId;
+		public String getAdxName() {
+			return adxName;
 		}
 
-		public void setAppId(String appId) {
-			this.appId = appId;
+		public void setAdxName(String adxName) {
+			this.adxName = adxName;
+		}
+
+		public String getAdxId() {
+			return adxId;
+		}
+
+		public void setAdxId(String adxId) {
+			this.adxId = adxId;
 		}
 
 		@Override
@@ -315,9 +309,8 @@ public class TmplBean {
         {
             return "InfoTmpl [id=" + id + ", maxTitle=" + maxTitle + ", maxDescription=" + maxDescription + ", mustDescription=" + mustDescription + ", maxCtaDescription=" + maxCtaDescription
                     + ", mustCtaDescription=" + mustCtaDescription + ", icon=" + icon + ", image1=" + image1 + ", image2=" + image2 + ", image3=" + image3 + ", image4=" + image4 + ", image5=" + image5
-                    + ", appName=" + appName + "]";
-        }
-
+                    + ", adxName=" + adxName + "]";
+        }		
 	}
 
 	public ImageTmpl[] getImageTmpls() {

@@ -164,7 +164,27 @@ public class CampaignBean extends BasicDataBean {
 		 * adx定向
 		 */
 		private String adx;
-		
+		private Adx adxs;
+		public static class Adx {
+			private String id;
+			private String name;
+			public String getId() {
+				return id;
+			}
+			public void setId(String id) {
+				this.id = id;
+			}
+			public String getName() {
+				return name;
+			}
+			public void setName(String name) {
+				this.name = name;
+			}
+			@Override
+			public String toString() {
+				return "Adx [id=" + id + ", name=" + name + "]";
+			}
+		}
 		/**
 		 * 筛选条件
 		 */
@@ -295,6 +315,14 @@ public class CampaignBean extends BasicDataBean {
 
 		public void setAdx(String adx) {
 			this.adx = adx;
+		}		
+
+		public Adx getAdxs() {
+			return adxs;
+		}
+
+		public void setAdxs(Adx adxs) {
+			this.adxs = adxs;
 		}
 
 		public Include[] getInclude() {
@@ -321,9 +349,11 @@ public class CampaignBean extends BasicDataBean {
 					+ Arrays.toString(time) + ", network="
 					+ Arrays.toString(network) + ", operator="
 					+ Arrays.toString(operator) + ", device="
-					+ Arrays.toString(device) + ", os=" + Arrays.toString(os)
-					+ ", brand=" + Arrays.toString(brand) + ", population=" + population 
-					+ ", adx=" + adx + ", include=" + Arrays.toString(include)
+					+ Arrays.toString(device) + ", os=" 
+					+ Arrays.toString(os) + ", brand=" 
+					+ Arrays.toString(brand) + ", population=" + population 
+					+ ", adx=" + adx + ", adxs=" + adxs
+					+ ", include=" + Arrays.toString(include)
 					+ ", exclude" + Arrays.toString(exclude) + "]";
 		}	
 	

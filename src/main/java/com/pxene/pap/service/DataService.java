@@ -94,6 +94,12 @@ public class DataService extends BaseService {
 	private EffectDicDao effectDicDao;
 	
 	@Autowired
+	private AdxTargetDao adxTargetDao;
+	
+	@Autowired
+	private AdxDao adxDao;
+	
+	@Autowired
 	private LaunchService launchService;
 	
 	private static Map<String, Set<String>> table = new HashMap<String, Set<String>>();
@@ -1244,6 +1250,8 @@ public class DataService extends BaseService {
 		campaignData.setJumpCost(jump == 0 ? 0f : (float)(expense/jump));
 		//将app信息添加到活动
 //		addAppToCampaign(campaignData);
+		// 将ADX信息添加到活动
+		addAdxToCampaign(campaignData);
 
 		return campaignData;
 	}
@@ -1271,6 +1279,32 @@ public class DataService extends BaseService {
 //			}
 //		}
 //	}
+	
+	/**
+	 * 将ADX信息添加到活动
+	 * @param campaignBean
+	 */
+	private void addAdxToCampaign(CampaignBean campaignBean) {
+		String campaignId = campaignBean.getId();
+		if (campaignBean != null && campaignId != null) {
+			// 根据活动查询查询ADXId
+			AdxTargetModelExample adxTargetEx = new AdxTargetModelExample();
+			adxTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<AdxTargetModel> adxTargets = adxTargetDao.selectByExample(adxTargetEx);
+			if (adxTargets != null && !adxTargets.isEmpty()) {
+				CampaignBean.Target target = new CampaignBean.Target();
+				// 一个活动对应一个ADX，根据ADXid查询ADX信息
+				String adxId =  adxTargets.get(0).getAdxId();
+				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
+				// 将ADX信息放到活动bean中
+				String adxName = adxModel.getName();
+				CampaignBean.Target.Adx adx = new CampaignBean.Target.Adx();
+				adx.setName(adxName);
+				target.setAdxs(adx);
+				campaignBean.setTarget(target);
+			}			
+		}
+	}
 	
 	/**
 	 * 获取单个项目一个时间段内的数据

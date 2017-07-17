@@ -26,6 +26,7 @@ import com.google.gson.JsonParser;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.common.UUIDGenerator;
+import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -33,6 +34,8 @@ import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
+import com.pxene.pap.domain.beans.CampaignBean.Target.Exclude;
+import com.pxene.pap.domain.beans.CampaignBean.Target.Include;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
 import com.pxene.pap.domain.beans.CampaignScoreBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean;
@@ -40,7 +43,12 @@ import com.pxene.pap.domain.beans.CampaignTargetBean.Population;
 import com.pxene.pap.domain.beans.PopulationTargetBean;
 import com.pxene.pap.domain.models.AdTypeTargetModel;
 import com.pxene.pap.domain.models.AdTypeTargetModelExample;
+import com.pxene.pap.domain.models.AdxModelExample;
+import com.pxene.pap.domain.models.AdxTargetModel;
+import com.pxene.pap.domain.models.AdxTargetModelExample;
 import com.pxene.pap.domain.models.AppModel;
+import com.pxene.pap.domain.models.AppTargetDetailModel;
+import com.pxene.pap.domain.models.AppTargetDetailModelExample;
 import com.pxene.pap.domain.models.AppTargetModel;
 import com.pxene.pap.domain.models.AppTargetModelExample;
 import com.pxene.pap.domain.models.BrandTargetModel;
@@ -85,8 +93,10 @@ import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.repository.basic.AdTypeTargetDao;
+import com.pxene.pap.repository.basic.AdxTargetDao;
 import com.pxene.pap.repository.basic.AppDao;
 import com.pxene.pap.repository.basic.AppTargetDao;
+import com.pxene.pap.repository.basic.AppTargetDetailDao;
 import com.pxene.pap.repository.basic.BrandTargetDao;
 import com.pxene.pap.repository.basic.CampaignDao;
 import com.pxene.pap.repository.basic.CampaignTargetDao;
@@ -200,6 +210,12 @@ public class CampaignService extends BaseService {
 	
 	@Autowired
 	private LandpageCodeDao landpageCodeDao;
+	
+	@Autowired
+	private AdxTargetDao adxTargetDao;
+	
+	@Autowired
+	private AppTargetDetailDao appTargetDetailDao;
 	
 	@Autowired
 	private DataService dataService;
@@ -408,10 +424,14 @@ public class CampaignService extends BaseService {
 		}
 								
 		// 编辑活动时判断是否已经投放过，即不是第一次投放修改redis中相关的信息
-		if (launchService.isHaveLaunched(id)) {			
+		String budgetKey = RedisKeyConstant.CAMPAIGN_BUDGET + id;
+		String countKey = RedisKeyConstant.CAMPAIGN_COUNTER + id;
+		double redisOldBudget = redisHelper.getDouble(budgetKey) / 100;
+		int redisOldImpression = redisHelper.getInt(countKey);
+		if (launchService.isHaveLaunched(id)) {				
 			// 改变预算(日均预算、总预算)、展现时修改redis中的值
 			changeBudgetAndCounter(id, projectModel.getId(), bean.getQuantities());
-		}
+		}		
 		
 		CampaignModel campaign = modelMapper.map(bean, CampaignModel.class);
 		// 编辑频次
@@ -528,38 +548,54 @@ public class CampaignService extends BaseService {
 		
 		// 修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
+		
 		// 编辑活动时判断是否已经投放过，及不是第一次投放修改redis中相关的信息
 		if (launchService.isHaveLaunched(id)) {
 			// 写入活动频次信息 dsp_groupid_frequencycapping_*，修改频次信息/是否匀速等相关信息
 			launchService.writeCampaignFrequency(campaign);
 			// 写入活动下的创意基本信息 dsp_mapid_*，修改落地页等相关信息
 			launchService.writeCreativeInfo(id);
-		}
-		
-		// 如果编辑时间
-		if (!startDate.equals(startDateInDB) || !endDate.equals(endDateInDB)) {
-			// 获取编辑后的活动信息
-			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
-			// 修改redis中的信息		
-			String projectId = campaignModel.getProjectId();
-			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-			if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id) && launchService.haveCreatives(id)
-					&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
-				// 修改时间前后状态改变：不投放到投放--->没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
-				launchService.write4FirstTime(campaignModel);
-				// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
-				if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) 
-						&& launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+			// 判断活动id是否需要重新写入groupids中
+			if (redisOldBudget<= 0 || redisOldImpression<= 0) {
+				double redisNewBudget = redisHelper.getDouble(budgetKey) / 100;
+				int redisNewImpression = redisHelper.getInt(countKey);
+				if (redisNewBudget > 0 && redisNewImpression > 0 
+						&& isWriteGroupidsByUpdateBudgetOrImpression(id, projectModel, bean.getStatus()) ) {
 					boolean writeResult = launchService.launchCampaignRepeatable(id);
 					if (!writeResult) {
 						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 					}
 				}
-			} else if (launchService.isHaveLaunched(id) && !isOnLaunchDate(id)) {
-				// 修改时间前后状态改变：投放到不投放--->如果之间投放过，并且修改时间后不在投放时间段内，则将其信息从redis中删除
-				launchService.remove4EndDate(campaignModel);
-			}		
+			}
+		}
+		
+		// 如果编辑时间
+		if (!startDate.equals(startDateInDB) || !endDate.equals(endDateInDB)) {
+//			// 获取编辑后的活动信息
+//			CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
+//			// 修改redis中的信息		
+//			String projectId = campaignModel.getProjectId();
+//			ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+//			if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id) 
+//					&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+//					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
+//				// 修改时间前后状态改变：不投放到投放--->没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
+//				launchService.write4FirstTime(campaignModel);
+//				// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
+//				if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) 
+//						&& launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+//					boolean writeResult = launchService.launchCampaignRepeatable(id);
+//					if (!writeResult) {
+//						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+//					}
+//				}
+//			} else if (launchService.isHaveLaunched(id) && !isOnLaunchDate(id)) {
+//				// 修改时间前后状态改变：投放到不投放--->如果之间投放过，并且修改时间后不在投放时间段内，则将其信息从redis中删除
+//				launchService.remove4EndDate(campaignModel);
+//			}
+			
+			// 修改redis中的信息
+			writeLaunchInfoToRedisByUpdateTime(id);
 		}				
 	}		
 	
@@ -652,23 +688,22 @@ public class CampaignService extends BaseService {
 			}
 			
 			// 判断当前这个活动的预算或者展现数是否已经用光
-			if (redisBudget <= 0 || redisImpression <= 0) {
-				ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-	        	CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
-				
-				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId) 
-						&& launchService.notOverDailyBudget(campaignId) 
-						&& launchService.notOverDailyCounter(campaignId)
-						&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
-						&& launchService.haveCreatives(campaignId)
-						&& launchService.isInLaunchPeriod(campaignId)) {
-					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
-					if (!writeResult) {
-						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-					}
-				}
-			}
+//			if (redisBudget <= 0 || redisImpression <= 0) {
+//				ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+//	        	CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
+//				
+//				if (isOnTargetTime(campaignId) && launchService.notOverProjectBudget(projectId) 
+//						&& launchService.notOverDailyBudget(campaignId) 
+//						&& launchService.notOverDailyCounter(campaignId)
+//						&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+//						&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
+//						&& launchService.isInLaunchPeriod(campaignId)) {
+//					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+//					if (!writeResult) {
+//						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+//					}
+//				}
+//			}
 		}
 	}
 	
@@ -820,9 +855,7 @@ public class CampaignService extends BaseService {
 	 * 添加活动定向
 	 * @param bean
 	 */
-//	private void addCampaignTarget(CampaignTargetBean bean) throws Exception {
 	private void addCampaignTarget(Target bean, String id) throws Exception {
-//		String id = bean.getId();
 		String[] regionTarget = bean.getRegion();//地域
 		String[] adTypeTarget = bean.getAdType();//广告类型
 		String[] timeTarget = bean.getTime();//时间
@@ -831,9 +864,12 @@ public class CampaignService extends BaseService {
 		String[] deviceTarget = bean.getDevice();//设备
 		String[] osTarget = bean.getOs();//系统
 		String[] brandTarget = bean.getBrand();//品牌
-//		String[] appTarget = bean.getApp();//app
-//		Population populationTarget = bean.getPopulation(); // 人群
 		PopulationTargetBean populationTarget = bean.getPopulation(); // 人群
+		String adxId = bean.getAdx(); // ADX
+		Include[] includes = bean.getInclude(); //筛选条件
+		Exclude[] excludes = bean.getExclude(); //排除条件
+		
+		// 地域定向
 		if (regionTarget != null && regionTarget.length > 0) {
 			RegionTargetModel region = new RegionTargetModel();
 			for (String regionId : regionTarget) {
@@ -843,6 +879,7 @@ public class CampaignService extends BaseService {
 				regionTargetDao.insertSelective(region);
 			}
 		}
+		// 广告类型定向
 		if (adTypeTarget != null && adTypeTarget.length > 0) {
 			AdTypeTargetModel adType = new AdTypeTargetModel();
 			for (String adTypeId : adTypeTarget) {
@@ -852,6 +889,7 @@ public class CampaignService extends BaseService {
 				adtypeTargetDao.insertSelective(adType);
 			}
 		}
+		// 时间定向
 		if (timeTarget != null && timeTarget.length > 0) {
 			TimeTargetModel time = new TimeTargetModel();
 			for (String timeId : timeTarget) {
@@ -861,6 +899,7 @@ public class CampaignService extends BaseService {
 				timeTargetDao.insertSelective(time);
 			}
 		}
+		// 网络定向
 		if (networkTarget != null && networkTarget.length > 0) {
 			NetworkTargetModel network = new NetworkTargetModel();
 			for (String networkid : networkTarget) {
@@ -870,6 +909,7 @@ public class CampaignService extends BaseService {
 				networkTargetDao.insertSelective(network);
 			}
 		}
+		// 运营商定向
 		if (operatorTarget != null && operatorTarget.length > 0) {
 			OperatorTargetModel operator = new OperatorTargetModel();
 			for (String operatorId : operatorTarget) {
@@ -879,6 +919,7 @@ public class CampaignService extends BaseService {
 				operatorTargetDao.insertSelective(operator);
 			}
 		}
+		// 设备定向
 		if (deviceTarget != null && deviceTarget.length > 0) {
 			DeviceTargetModel device = new DeviceTargetModel();
 			for (String deviceId : deviceTarget) {
@@ -888,6 +929,7 @@ public class CampaignService extends BaseService {
 				deviceTargetDao.insertSelective(device);
 			}
 		}
+		// 系统定向
 		if (osTarget != null && osTarget.length > 0) {
 			OsTargetModel os = new OsTargetModel();
 			for (String osId : osTarget) {
@@ -897,6 +939,7 @@ public class CampaignService extends BaseService {
 				osTargetDao.insertSelective(os);
 			}
 		}
+		// 品牌定向
 		if (brandTarget != null && brandTarget.length > 0) {
 			BrandTargetModel brand = new BrandTargetModel();
 			for (String brandId : brandTarget) {
@@ -906,15 +949,46 @@ public class CampaignService extends BaseService {
 				brandTargetDao.insertSelective(brand);
 			}
 		}
-//		if (appTarget != null && appTarget.length > 0) {
-//			AppTargetModel app = new AppTargetModel();
-//			for (String appId : appTarget) {
-//				app.setId(UUIDGenerator.getUUID());
-//				app.setCampaignId(id);
-//				app.setAppId(appId);
-//				appTargetDao.insertSelective(app);
-//			}
-//		}
+		// ADX定向
+		if (adxId != null && !adxId.isEmpty()) {
+			// Adx定向
+			AdxTargetModel adxTarget = new AdxTargetModel();
+			adxTarget.setAdxId(UUIDGenerator.getUUID());
+			adxTarget.setCampaignId(id);
+			adxTarget.setAdxId(adxId);
+			adxTargetDao.insertSelective(adxTarget);
+			// App定向
+			AppTargetModel appTarget = new AppTargetModel();
+			String appTargetId = UUIDGenerator.getUUID();
+			appTarget.setId(appTargetId);
+			appTarget.setCampaignId(id);
+			appTargetDao.insertSelective(appTarget);
+			// app定向详情：筛选
+			if (includes != null && includes.length > 0) {				
+				AppTargetDetailModel appTargetDetail = new AppTargetDetailModel();
+				for (Include include : includes) {
+					appTargetDetail.setId(UUIDGenerator.getUUID());
+					appTargetDetail.setApptargetId(appTargetId);
+					appTargetDetail.setMatchType(include.getType());
+					appTargetDetail.setWord(include.getWord());
+					appTargetDetail.setFilterType(CodeTableConstant.FILTER_TYPE_INCLUDE);
+					appTargetDetailDao.insertSelective(appTargetDetail);
+				}		
+			}
+			// app定向详情：排除
+			if (excludes != null && excludes.length > 0) {
+				AppTargetDetailModel appTargetDetail = new AppTargetDetailModel();
+				for (Exclude exclude : excludes) {
+					appTargetDetail.setId(UUIDGenerator.getUUID());
+					appTargetDetail.setApptargetId(appTargetId);
+					appTargetDetail.setMatchType(exclude.getType());
+					appTargetDetail.setWord(exclude.getWord());
+					appTargetDetail.setFilterType(CodeTableConstant.FILTER_TYPE_EXCLUDE);
+					appTargetDetailDao.insertSelective(appTargetDetail);
+				}	
+			}
+		}
+		// 人群定向
 		if (!StringUtils.isEmpty(populationTarget)) {
 			PopulationTargetModel population = new PopulationTargetModel();
 			population.setId(UUIDGenerator.getUUID());
@@ -1150,13 +1224,13 @@ public class CampaignService extends BaseService {
 		CampaignBean bean = modelMapper.map(model, CampaignBean.class);
 		addParamToCampaign(bean, model.getId(), model.getFrequencyId());
 		// 落地页信息
-		LandpageCodeModelExample example = new LandpageCodeModelExample();
-		example.createCriteria().andLandpageIdEqualTo(model.getLandpageId());
+//		LandpageCodeModelExample example = new LandpageCodeModelExample();
+//		example.createCriteria().andLandpageIdEqualTo(model.getLandpageId());
 //		List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(example);	
 		// 查询活动下的创意信息
-		CreativeModelExample creativeEx = new CreativeModelExample();
-		creativeEx.createCriteria().andCampaignIdEqualTo(model.getId());
-		List<CreativeModel> creatives = creativeDao.selectByExample(creativeEx);
+//		CreativeModelExample creativeEx = new CreativeModelExample();
+//		creativeEx.createCriteria().andCampaignIdEqualTo(model.getId());
+//		List<CreativeModel> creatives = creativeDao.selectByExample(creativeEx);
 		// 活动未正常投放原因
 		if (launchService.isHaveLaunched(model.getId())) {
 			// 是否已经投放过，投放过可能出现预算和展现数上限
@@ -1238,9 +1312,9 @@ public class CampaignService extends BaseService {
 						"target", "frequency", "quantities", "landpageId", "landpageName", "landpageUrl", "campaignScore");
 			}
 			// 落地页信息
-			CampaignModel campaign = campaignDao.selectByPrimaryKey(model.getId());		
-			LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
-			landpageCodeEx.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
+//			CampaignModel campaign = campaignDao.selectByPrimaryKey(model.getId());		
+//			LandpageCodeModelExample landpageCodeEx = new LandpageCodeModelExample();
+//			landpageCodeEx.createCriteria().andLandpageIdEqualTo(campaign.getLandpageId());
 //			List<LandpageCodeModel> codes = landpageCodeDao.selectByExample(landpageCodeEx);
 			// 查询活动下的创意信息
 //			CreativeModelExample creativeEx = new CreativeModelExample();
@@ -1402,6 +1476,61 @@ public class CampaignService extends BaseService {
 //						target.setApps(apps);
 //					}
 //				}
+				
+				// ADX定向：ADX
+				AdxTargetModelExample adxTargetEx = new AdxTargetModelExample();
+				adxTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+				List<AdxTargetModel> adxTarget = adxTargetDao.selectByExample(adxTargetEx);
+				if (adxTarget != null && !adxTarget.isEmpty()) {
+					// 一个活动对应一个ADX
+					target.setAdx(adxTarget.get(0).getAdxId());
+				}
+				// ADX定向：条件
+				AppTargetModelExample appTargetEx = new AppTargetModelExample();
+				appTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+				List<AppTargetModel> appTarget = appTargetDao.selectByExample(appTargetEx);
+				if (appTarget != null && !appTarget.isEmpty()) {
+					// 一个活动对应一条App定向记录，存的是条件
+					String appTargetId = appTarget.get(0).getId();
+					AppTargetDetailModelExample appTargetDetailEx = new AppTargetDetailModelExample();
+					appTargetDetailEx.createCriteria().andApptargetIdEqualTo(appTargetId);
+					List<AppTargetDetailModel> appTargetDetails = appTargetDetailDao.selectByExample(appTargetDetailEx);
+					if (appTargetDetails != null && !appTargetDetails.isEmpty()) {
+						Include include = null;
+						Exclude exclude = null;
+						List<Include> includeList = new ArrayList<Include>();
+						List<Exclude> excludeList = new ArrayList<Exclude>();
+						for (AppTargetDetailModel appTargetDetail : appTargetDetails) {
+							String filterType = appTargetDetail.getFilterType();
+							if (filterType.equals(CodeTableConstant.FILTER_TYPE_INCLUDE)) {
+								include = new Include();
+								include.setWord(appTargetDetail.getWord());
+								include.setType(appTargetDetail.getMatchType());
+								includeList.add(include);
+							} else {
+								exclude = new Exclude();
+								exclude.setWord(appTargetDetail.getWord());
+								exclude.setType(appTargetDetail.getMatchType());
+								excludeList.add(exclude);
+							}
+						}
+						if (includeList != null && includeList.size() > 0) {
+							Include[] includes = new Include[includeList.size()];
+							for (int i = 0; i < includeList.size(); i++) {
+								includes[i] = includeList.get(i);
+							}
+							target.setInclude(includes);
+						}
+						if (excludeList != null && excludeList.size() > 0) {
+							Exclude[] excludes = new Exclude[excludeList.size()];
+							for (int i = 0; i < excludeList.size(); i++) {
+								excludes[i] = excludeList.get(i);
+							}
+							target.setExclude(excludes);
+						}
+					}
+				}
+				
 				// 查询活动的人群定向信息
 				String populationId = campaignTargetModel.getPopulationId();
 				String populationType = campaignTargetModel.getPopulationType();
@@ -1502,8 +1631,7 @@ public class CampaignService extends BaseService {
 					// 2.如果活动信息不为空说明已经投放的基本信息写入redis，则看创意信息是否都写入redis
 					for (CreativeModel creative : creatives) {
 						// 3.从redis中获取创意信息
-						String strCreativeId = redisHelper
-								.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creative.getId());
+						String strCreativeId = redisHelper.getStr(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creative.getId());
 						if (strCreativeId == null || strCreativeId.isEmpty()) {
 							// 4.如果创意的mapids为空的话说明该创意信息不在redis中，则将其写入
 							// 写入活动下的创意基本信息 dsp_mapid_*
@@ -1540,14 +1668,19 @@ public class CampaignService extends BaseService {
 	 */
 	private void pauseCampaign(CampaignModel campaign) throws Exception {
 		campaign.setStatus(StatusConstant.CAMPAIGN_PAUSE);
-		String projectId = campaign.getProjectId();
-		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
-		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
-			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
-			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
-			if (!removeResult) {
-				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-			}
+//		String projectId = campaign.getProjectId();
+//		ProjectModel projectModel = projectDao.selectByPrimaryKey(projectId);
+//		if (StatusConstant.PROJECT_PROCEED.equals(projectModel.getStatus())) {
+//			// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+//			boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
+//			if (!removeResult) {
+//				throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+//			}
+//		}
+		// 将不在满足条件的活动将其活动id从redis的groupids中删除--停止投放
+		boolean removeResult = launchService.pauseCampaignRepeatable(campaign.getId());
+		if (!removeResult) {
+			throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
 		}
 		// 改变数据库状态
 		campaignDao.updateByPrimaryKeySelective(campaign);
@@ -1752,29 +1885,32 @@ public class CampaignService extends BaseService {
 			}
 		}
 				
-		// 获取修改开始时间和结束时间后的活动信息
-		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
-		// 修改redis中的信息
-		//(原来的状态、现在的状态--->1.改了时间前后状态，投放还是投放、不投放还是不投放：不用处理；
-		//2.修改时间前后状态改变：不投放到投放；3.修改时间前后状态改变：投放到不投放)
-		String projectId = campaignModel.getProjectId();
-		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id) && launchService.haveCreatives(id)
-				&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
-			// 没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
-			launchService.write4FirstTime(campaignModel);
-			// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
-			if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
-				boolean writeResult = launchService.launchCampaignRepeatable(id);
-				if (!writeResult) {
-					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-				}
-			}
-		} else if (launchService.isHaveLaunched(id) && !isOnLaunchDate(id)) {
-			// 如果之间投放过，并且修改时间后不在投放时间段内，则将其信息从redis中删除
-			launchService.remove4EndDate(campaignModel);
-		}				
+//		// 获取修改开始时间和结束时间后的活动信息
+//		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(id);
+//		// 修改redis中的信息
+//		//(原来的状态、现在的状态--->1.改了时间前后状态，投放还是投放、不投放还是不投放：不用处理；
+//		//2.修改时间前后状态改变：不投放到投放；3.修改时间前后状态改变：投放到不投放)
+//		String projectId = campaignModel.getProjectId();
+//		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+//		if (!launchService.isHaveLaunched(id) && isOnLaunchDate(id) 
+//				&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+//				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignModel.getStatus())) {
+//			// 没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
+//			launchService.write4FirstTime(campaignModel);
+//			// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
+//			if (isOnTargetTime(id) && launchService.notOverProjectBudget(projectId) && launchService.notOverDailyBudget(id) && launchService.notOverDailyCounter(id)) {
+//				boolean writeResult = launchService.launchCampaignRepeatable(id);
+//				if (!writeResult) {
+//					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+//				}
+//			}
+//		} else if (launchService.isHaveLaunched(id) && !isOnLaunchDate(id)) {
+//			// 如果之间投放过，并且修改时间后不在投放时间段内，则将其信息从redis中删除
+//			launchService.remove4EndDate(campaignModel);
+//		}	
+		
+		// 修改开始时间和结束时间后修改redis中的信息
+		writeLaunchInfoToRedisByUpdateTime(id);
     }        
 	
 	/**
@@ -1811,8 +1947,12 @@ public class CampaignService extends BaseService {
 			for (CreativeModel creative : creativeList) {
 				creative.setPrice(Float.parseFloat(map.get("price")));
 				creativeDao.updateByPrimaryKeySelective(creative);
+				// 活动已经投放,修改创意基本信息中的创意价格
+				if (launchService.isHaveLaunched(campaignId)) {
+					launchService.updateCreativePrice(creative.getId());
+				}
 			}
-			launchService.writeCreativeInfo(campaignId);
+//			launchService.writeCreativeInfo(campaignId);
 		}
 	}
 	
@@ -2021,4 +2161,59 @@ public class CampaignService extends BaseService {
     	landpageCodeHistoryDao.deleteByExample(codeHistorys);
 	}
 	
+	/**
+	 * 修改日预算或日展现，判断是否要将活动id重新写入groupids中
+	 * @param campaignId
+	 * @param project
+	 * @param campaignStatus
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean isWriteGroupidsByUpdateBudgetOrImpression (String campaignId, ProjectModel project, String campaignStatus) throws Exception {
+		return isOnTargetTime(campaignId) && isOnLaunchDate(campaignId) 
+				&& launchService.notOverProjectBudget(project.getId()) 
+				&& StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignStatus); 
+	}
+	
+	/**
+	 * 更新活动周期操作redis的信息
+	 * @param campaignId 活动id
+	 * @throws Exception
+	 */
+	private void writeLaunchInfoToRedisByUpdateTime (String campaignId) throws Exception {
+		// 获取编辑后的活动信息
+		CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
+		// 修改redis中的信息		
+		String projectId = campaignModel.getProjectId();
+		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+		if (isWriteCampaignInfo(campaignModel, project.getStatus())) {
+			// 修改时间前后状态改变：不投放到投放--->没有投放过、修改时间后再投放时间内、项目开关开启、活动开关开启，则向redis中写入活动的基本信息
+			launchService.write4FirstTime(campaignModel);
+			// 如果在定向时间段内&&没有超出日预算和日均最大展现数，则可以投放，向redis的groupids写入信息
+			if (launchService.isWriteGroupIds(projectId, campaignId)) {
+				boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+				if (!writeResult) {
+					throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+				}
+			}
+		} else if (launchService.isHaveLaunched(campaignId) && !isOnLaunchDate(campaignId)) {
+			// 修改时间前后状态改变：投放到不投放--->如果之间投放过，并且修改时间后不在投放时间段内，则将其信息从redis中删除
+			launchService.remove4EndDate(campaignModel);
+		}		
+	}
+	
+	/**
+	 * 判断是否要写活动基本信息到redis中
+	 * @param campaign 活动信息
+	 * @param projectStatus 项目状态
+	 * @return
+	 * @throws Exception
+	 */
+	private boolean isWriteCampaignInfo(CampaignModel campaign, String projectStatus) throws Exception {
+		String campaignId = campaign.getId();
+		return !launchService.isHaveLaunched(campaignId) && isOnLaunchDate(campaignId) 
+				&& StatusConstant.PROJECT_PROCEED.equals(projectStatus)
+				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus());
+	}
 }
