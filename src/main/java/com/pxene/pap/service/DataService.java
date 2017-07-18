@@ -1296,7 +1296,10 @@ public class DataService extends BaseService {
 				String adxId =  adxTargets.get(0).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 				// 将ADX信息放到活动bean中
-				String adxName = adxModel.getName();
+				String adxName = null;
+				if (adxModel != null) {
+					 adxName = adxModel.getName();
+				}				
 				campaignBean.setAdxId(adxId);
 				campaignBean.setAdxName(adxName);
 			}			
