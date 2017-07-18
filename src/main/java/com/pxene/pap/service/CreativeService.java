@@ -1943,15 +1943,15 @@ public class CreativeService extends BaseService {
 		CreativeAuditModelExample auditExample = new CreativeAuditModelExample();
 		auditExample.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(auditExample);
-		if (creativeAudit == null || creativeAudit.isEmpty()) {
-			throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+		if (creativeAudit != null && !creativeAudit.isEmpty()) {
+			// 获取审核的状态
+			String auditStatus = creativeAudit.get(0).getStatus();
+			return StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
+					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
+					&& campaignService.isOnLaunchDate(campaignId) 
+					&& auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 		}
-		// 获取审核的状态
-		String auditStatus = creativeAudit.get(0).getStatus();
-		return StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
-				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
-				&& campaignService.isOnLaunchDate(campaignId) 
-				&& auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS);
+		return false;
 	}
 	
 	/**
