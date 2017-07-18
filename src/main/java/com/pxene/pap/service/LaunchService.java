@@ -1046,7 +1046,7 @@ public class LaunchService extends BaseService {
 			JsonArray brand = targetStr2Jarr(model.getBrandId());
 			
 			// 地域定向：redis中写的是市id，如果选项的是省，找到省下的市id写入
-			JsonArray region = null;
+			JsonArray region = new JsonArray();
 			String regionsModel = model.getRegionId();
 			String[] regionIds = null;
 			if (regionsModel != null && !regionsModel.isEmpty()) {
@@ -1069,18 +1069,21 @@ public class LaunchService extends BaseService {
 				// 判断是省还是市
 				for (String regionId : regionIds) {
 					if(!"000000".equals(regionId)) {
-						region = new JsonArray();
 						// 如果不是未知
 						String provinceStr = regionId.substring(0,2);
-						if (regionId.endsWith("0000") && (!provinceStr.equals("11") || !provinceStr.equals("12")
-								|| !provinceStr.equals("31") || !provinceStr.equals("50"))) {
-							// 以“0000”结尾的并且不是直辖市的是省，将省下的市id添加到region中
-							for (String cityId : cityIds) {
-								String pId = regionId.substring(0, 4) + "00";
-								String cId = cityId.substring(0, 2) + "0000";
-								if (pId.equals(cId)) {
-									// 如果市属于定向的省，则将市添加
-									region.add(cityId);
+						if (regionId.endsWith("0000")) {
+							if (provinceStr.equals("11") || provinceStr.equals("12")
+									|| provinceStr.equals("31") || provinceStr.equals("50")) {
+								region.add(regionId);
+							} else {
+								// 以“0000”结尾的并且不是直辖市的是省，将省下的市id添加到region中
+								for (String cityId : cityIds) {
+									String pId = regionId.substring(0, 4) + "00";
+									String cId = cityId.substring(0, 2) + "0000";
+									if (pId.equals(cId)) {
+										// 如果市属于定向的省，则将市添加
+										region.add(cityId);
+									}
 								}
 							}
 						} else {
@@ -1117,7 +1120,9 @@ public class LaunchService extends BaseService {
 			}
 			deviceJson.addProperty("flag", flag);
 			targetJson.add("device", deviceJson);
+			
 			// app定向
+			// 获取ADXId
 			AdxTargetModelExample adxTargetEx = new AdxTargetModelExample();
 			adxTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
 			List<AdxTargetModel> adxTargets = adxTargetDao.selectByExample(adxTargetEx);
@@ -1126,10 +1131,17 @@ public class LaunchService extends BaseService {
 			if (adx == null || adx.isEmpty()) {
 				throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 			}
+			// 获取App定向id
+			AppTargetModelExample appTargetEx = new AppTargetModelExample();
+			appTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
+			List<AppTargetModel> appTargets = appTargetDao.selectByExample(appTargetEx);
+			AppTargetModel appTarget = appTargets.get(0); // 一个活动对应一条App定向信息
+			// 获取App定向详情信息
 			AppTargetDetailModelExample adxTargetDetailEx = new AppTargetDetailModelExample();
-			adxTargetDetailEx.createCriteria().andApptargetIdEqualTo(adxTarget.getId());
+			adxTargetDetailEx.createCriteria().andApptargetIdEqualTo(appTarget.getId());			
 			List<AppTargetDetailModel> appTargetDetails = appTargetDetailDao.selectByExample(adxTargetDetailEx);
-			List<AppModel> apps = appService.listAppsByAppTargetDetail(appTargetDetails, adx);			
+			// 查询App定向信息
+			List<AppModel> apps = appService.listAppsByAppTargetDetail(appTargetDetails, adx);
 			JsonArray appJsons = new JsonArray();
 			Map<String, JsonObject> adxMap = new HashMap<String, JsonObject>();
 			JsonObject appObjects = new JsonObject();
