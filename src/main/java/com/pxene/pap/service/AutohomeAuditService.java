@@ -401,7 +401,7 @@ public class AutohomeAuditService extends AuditService
         // 汽车之家的ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
         int dspId = Integer.valueOf(adx.getDspId());                    // DSP ID
-        String checkURL = adx.getCreativeAuditStateQueryUrl();          // 创意审核状态查询URL
+        String checkURL = adx.getCreativeQueryUrl();                    // 创意审核状态查询URL
         String signKey = adx.getSignKey();                              // 汽车之家为DSP颁发的SignKey
      
         // 构建基础的请求URL参数

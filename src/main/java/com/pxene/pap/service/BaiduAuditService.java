@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pxene.pap.common.GlobalUtil;
 import com.pxene.pap.common.HttpClientUtil;
+import com.pxene.pap.common.UUIDGenerator;
 import com.pxene.pap.constant.AdxKeyConstant;
 import com.pxene.pap.constant.AuditErrorConstant;
 import com.pxene.pap.constant.CodeTableConstant;
@@ -75,6 +78,11 @@ import com.pxene.pap.repository.basic.IndustryAdxDao;
 public class BaiduAuditService extends AuditService
 {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BaiduAuditService.class);
+	
+	/**
+     * 创意审核信息的过期天数
+     */
+    private static final int CREATIVE_AUDIT_EXPIRE_DAYS = 365;
 	
 	/**
 	 * 素材文件服务器的URL前缀
@@ -419,8 +427,8 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = requestObj.toString();
         
         // 发送HTTP POST请求
+        LOGGER.info("### PAP-Manager ### audit creative " + creativeId + "to Baidu url = " + url + ", params = " + jsonStrRequest);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
-        LOGGER.info("<== PAP-Manager ==> audit creative " + creativeId + "to Baidu url = " + url + ", params = " + jsonStrRequest);
         
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
         if (!StringUtils.isEmpty(jsonStrResponse))
@@ -430,38 +438,16 @@ public class BaiduAuditService extends AuditService
             
             if (respStatus)
             {
-                // 将生成的随机数，作为ID（此 id 为 dsp 系统的创意 id），插入到创意审核表中的audit_value字段中
-                initCreativeId(creativeId, dspSideCreativeId);
-                
-                Map<Integer, Object> creativeAuditStatus = getCreativeAuditStatus(jsonStrResponse);
-                if (creativeAuditStatus != null)
-                {
-                    int state = (int) creativeAuditStatus.get("state");
-                    String[] refuseReason = (String[]) creativeAuditStatus.get("refuseReason");
-                    
-                    // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
-                    if (state == 0)
-                    {
-                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
-                    }
-                    else if (state == 1)
-                    {
-                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_WATING, "");
-                    }
-                    else if (state == 2)
-                    {
-                        changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, org.apache.commons.lang3.StringUtils.join(refuseReason,  ", "));
-                    }
-                }
-                else
-                {
-                    throw new IllegalStatusException(AuditErrorConstant.BAIDU_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
-                }
+                insertOrUpdateToDB(creativeId, dspSideCreativeId);
+            }
+            else
+            {
+                throw new ThirdPartyAuditException(AuditErrorConstant.BAIDU_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
             }
         }
         else 
         {
-            throw new IllegalStatusException(AuditErrorConstant.BAIDU_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
+            throw new ThirdPartyAuditException(AuditErrorConstant.BAIDU_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
         }
     }
 	
@@ -502,7 +488,7 @@ public class BaiduAuditService extends AuditService
         String token = adx.getSignKey();                                // 百度为DSP颁发的Token
         
         // 查询创意审核状态URL
-        String url = adx.getCreativeAuditStateQueryUrl();
+        String url = adx.getCreativeQueryUrl();
         
         // ## 构建请求头
         JsonObject requestHeader = new JsonObject();
@@ -522,8 +508,8 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = requestObj.toString();
         
         // 发送HTTP POST请求
-        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         LOGGER.info("<== PAP-Manager ==> synchronize creative " + creativeId + "to Baidu url = " + url + ", params = " + jsonStrRequest);
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         
         if (!StringUtils.isEmpty(jsonStrResponse))
         {
@@ -591,23 +577,6 @@ public class BaiduAuditService extends AuditService
         
         advertiserAuditDao.updateByPrimaryKeySelective(tmpRecord);
     }
-
-
-    /**
-     * 将生成的随机数，作为ID（此 id 为 dsp 系统的创意 id），插入到创意审核表中的audit_value字段中
-     * @param creativeId           PAP-系统中的创意ID（UUID）
-     * @param dspSideCreativeId    DSP-系统中的创意ID（经百度确认后的Long型ID）
-     */
-    private void initCreativeId(String creativeId, Long dspSideCreativeId)
-    {
-        CreativeAuditModel record = new CreativeAuditModel();
-        record.setAuditValue(String.valueOf(dspSideCreativeId));
-        
-        CreativeAuditModelExample example = new CreativeAuditModelExample();
-        example.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE).andCreativeIdEqualTo(creativeId);
-        creativeAuditDao.updateByExampleSelective(record, example);
-    }
-
 
     /**
      * 根据广告主的行业ID，取得行业编号。
@@ -966,6 +935,41 @@ public class BaiduAuditService extends AuditService
         return null;
     }
 
+    /**
+     * 新建一条创意审核信息或更新已有创意审核信息。
+     * @param creativeId 创意ID
+     * @param auditValue ADX返回的创意ID
+     */
+    private void insertOrUpdateToDB(String creativeId, Long auditValue)
+    {
+        // 根据创意ID 和 ADX ID查询指定创意的审核信息（二者组合可以确定唯一一条创意审核信息）
+        CreativeAuditModelExample example = new CreativeAuditModelExample();
+        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE);
+        List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
+        
+        // 如果创意审核表信息已存在，更新数据库中原记录的状态为审核中
+        if (auditsInDB != null && !auditsInDB.isEmpty())
+        {
+            for (CreativeAuditModel auditInDB : auditsInDB)
+            {
+                auditInDB.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+                auditInDB.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
+                auditInDB.setAuditValue(String.valueOf(auditValue));
+                creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
+            }
+        }
+        else // 否则在数据库中添加一条审核记录，设置状态为未审核。
+        {
+            CreativeAuditModel model = new CreativeAuditModel();
+            model.setId(UUIDGenerator.getUUID());
+            model.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
+            model.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
+            model.setAdxId(AdxKeyConstant.ADX_BAIDU_VALUE);
+            model.setCreativeId(creativeId);
+            model.setAuditValue(String.valueOf(auditValue));
+            creativeAuditDao.insertSelective(model);
+        }
+    }
 
     private CreativeRichBean buildRelation(String creativeId)
     {

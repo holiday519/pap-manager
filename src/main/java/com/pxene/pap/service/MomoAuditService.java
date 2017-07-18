@@ -241,7 +241,7 @@ public class MomoAuditService extends AuditService {
 	public void synchronizeCreative(String creativeId) throws Exception{
 		//根据审核主查询adx信息，获取审核Url
 		AdxModel adxModel = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_MOMO_VALUE);
-		String syncUrl = adxModel.getCreativeAuditStateQueryUrl();
+		String syncUrl = adxModel.getCreativeQueryUrl();
 		//私密key将dspid为一个值"pxene"
 		String dspid = adxModel.getDspId();	
 		//设置同步方法参数
