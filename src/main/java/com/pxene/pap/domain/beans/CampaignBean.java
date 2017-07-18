@@ -72,6 +72,15 @@ public class CampaignBean extends BasicDataBean {
 	 * 创意数（审核通过数/审核未通过数/总数）
 	 */
 	private String creativeNum;
+	
+	/**
+	 * ADXId
+	 */
+	private String adxId;
+	/**
+	 * ADX名称
+	 */
+	private String adxName;
 	/**
 	 * 定向
 	 */
@@ -164,27 +173,7 @@ public class CampaignBean extends BasicDataBean {
 		 * adx定向
 		 */
 		private String adx;
-		private Adx adxs;
-		public static class Adx {
-			private String id;
-			private String name;
-			public String getId() {
-				return id;
-			}
-			public void setId(String id) {
-				this.id = id;
-			}
-			public String getName() {
-				return name;
-			}
-			public void setName(String name) {
-				this.name = name;
-			}
-			@Override
-			public String toString() {
-				return "Adx [id=" + id + ", name=" + name + "]";
-			}
-		}
+		
 		/**
 		 * 筛选条件
 		 */
@@ -317,14 +306,6 @@ public class CampaignBean extends BasicDataBean {
 			this.adx = adx;
 		}		
 
-		public Adx getAdxs() {
-			return adxs;
-		}
-
-		public void setAdxs(Adx adxs) {
-			this.adxs = adxs;
-		}
-
 		public Include[] getInclude() {
 			return include;
 		}
@@ -352,8 +333,7 @@ public class CampaignBean extends BasicDataBean {
 					+ Arrays.toString(device) + ", os=" 
 					+ Arrays.toString(os) + ", brand=" 
 					+ Arrays.toString(brand) + ", population=" + population 
-					+ ", adx=" + adx + ", adxs=" + adxs
-					+ ", include=" + Arrays.toString(include)
+					+ ", adx=" + adx + ", include=" + Arrays.toString(include)
 					+ ", exclude" + Arrays.toString(exclude) + "]";
 		}	
 	
@@ -629,15 +609,31 @@ public class CampaignBean extends BasicDataBean {
     public void setCampaignScore(CampaignScoreBean campaignScore)
     {
         this.campaignScore = campaignScore;
-    }
+    }        
 
-    @Override
+    public String getAdxId() {
+		return adxId;
+	}
+
+	public void setAdxId(String adxId) {
+		this.adxId = adxId;
+	}
+
+	public String getAdxName() {
+		return adxName;
+	}
+
+	public void setAdxName(String adxName) {
+		this.adxName = adxName;
+	}
+
+	@Override
     public String toString()
     {
         return "CampaignBean [id=" + id + ", projectId=" + projectId + ", projectName=" + projectName + ", name=" + name + ", remark=" + remark + ", creativeAmount=" + creativeAmount + ", status="
                 + status + ", reason=" + reason + ", startDate=" + startDate + ", endDate=" + endDate + ", uniform=" + uniform + ", creativeNum=" + creativeNum + ", target=" + target
                 + ", campaignScore=" + campaignScore + ", frequency=" + frequency + ", quantities=" + Arrays.toString(quantities) + ", landpageId=" + landpageId + ", landpageName=" + landpageName
-                + ", landpageUrl=" + landpageUrl + "]";
+                + ", landpageUrl=" + landpageUrl + ", adxId=" + adxId + ", adxName=" + adxName + "]";
     }
 
 }

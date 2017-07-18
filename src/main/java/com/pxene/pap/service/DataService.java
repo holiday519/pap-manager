@@ -1292,16 +1292,13 @@ public class DataService extends BaseService {
 			adxTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);
 			List<AdxTargetModel> adxTargets = adxTargetDao.selectByExample(adxTargetEx);
 			if (adxTargets != null && !adxTargets.isEmpty()) {
-				CampaignBean.Target target = new CampaignBean.Target();
 				// 一个活动对应一个ADX，根据ADXid查询ADX信息
 				String adxId =  adxTargets.get(0).getAdxId();
 				AdxModel adxModel = adxDao.selectByPrimaryKey(adxId);
 				// 将ADX信息放到活动bean中
 				String adxName = adxModel.getName();
-				CampaignBean.Target.Adx adx = new CampaignBean.Target.Adx();
-				adx.setName(adxName);
-				target.setAdxs(adx);
-				campaignBean.setTarget(target);
+				campaignBean.setAdxId(adxId);
+				campaignBean.setAdxName(adxName);
 			}			
 		}
 	}
