@@ -1807,7 +1807,7 @@ public class LaunchService extends BaseService {
 	 * @throws Exception
 	 */
 	public boolean isHaveCreativeInfoInRedis (String creativeId) throws Exception {
-		return redisHelper.exists(RedisKeyConstant.CAMPAIGN_CREATIVEIDS + creativeId);
+		return redisHelper.exists(RedisKeyConstant.CREATIVE_INFO + creativeId);
 	}
 	
 }
