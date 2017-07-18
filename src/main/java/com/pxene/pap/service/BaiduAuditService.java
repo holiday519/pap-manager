@@ -303,7 +303,7 @@ public class BaiduAuditService extends AuditService
         // 百度的ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_BAIDU_VALUE);
         Long dspId = Long.valueOf(adx.getDspId());                      // DSP ID
-        String url = adx.getQualificationQueryUrl();                    // 创意审核URL
+        String url = adx.getCreativeAddUrl();                           // 创意审核URL
         String token = adx.getSignKey();                                // 百度为DSP颁发的Token
         String iURL = adx.getIurl();                                    // 曝光监测地址
         String cURL = adx.getCurl();                                    // 点击监测地址
