@@ -138,11 +138,11 @@ public class BaiduAuditService extends AuditService
         // “正在审核中”和“审核通过”的广告主不需要再提审
         if (auditStatus == ADVERTISER_AUDIT_WATING)
         {
-            throw new IllegalStatusException("广告主正在审核中，请注意同步审核状态。");
+            throw new IllegalStatusException(AuditErrorConstant.COMMON_ADVERTISER_IS_AUDITING);
         }
         if (auditStatus == ADVERTISER_AUDIT_SUCCESS)
         {
-            throw new IllegalStatusException("广告主已经审核通过，不需要重新提审。");
+            throw new IllegalStatusException(AuditErrorConstant.COMMON_ADVERTISER_HAS_AUDITTED);
         }
         
         // 查询广告主信息
@@ -455,13 +455,13 @@ public class BaiduAuditService extends AuditService
                 }
                 else
                 {
-                    throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
+                    throw new IllegalStatusException(AuditErrorConstant.BAIDU_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
                 }
             }
         }
         else 
         {
-            throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
+            throw new IllegalStatusException(AuditErrorConstant.BAIDU_CREATIVE_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
         }
     }
 	
@@ -523,6 +523,7 @@ public class BaiduAuditService extends AuditService
         
         // 发送HTTP POST请求
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.info("<== PAP-Manager ==> synchronize creative " + creativeId + "to Baidu url = " + url + ", params = " + jsonStrRequest);
         
         if (!StringUtils.isEmpty(jsonStrResponse))
         {
@@ -553,13 +554,13 @@ public class BaiduAuditService extends AuditService
                 }
                 else
                 {
-                    throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
+                    throw new IllegalStatusException(AuditErrorConstant.BAIDU_CREATIVE_SYNC_ERROR_REASON + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
                 }
             }
         }
         else 
         {
-            throw new IllegalStatusException("提交创意到百度审核执行失败！原因：" + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
+            throw new IllegalStatusException(AuditErrorConstant.BAIDU_CREATIVE_SYNC_ERROR_REASON + AuditErrorConstant.COMMON_REQUEST_SENT_FAIL);
         }
     }
     
