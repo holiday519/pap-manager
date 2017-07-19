@@ -84,6 +84,9 @@ public class AdvertiserService extends BaseService
 	
 	@Autowired
 	private BaiduAuditService baiduAuditService;
+	
+	@Autowired
+	private TencentAuditService tencentAuditService;
     
     private static final String TEMP_DIR = "temp/";
     
@@ -625,6 +628,9 @@ public class AdvertiserService extends BaseService
 		    // 如果adxId是百度，则提交百度BES审核
 		    baiduAuditService.auditAdvertiser(auditId);
 		}
+		if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
+			tencentAuditService.auditAdvertiser(auditId);
+		}
 	}
     
     /**
@@ -657,6 +663,9 @@ public class AdvertiserService extends BaseService
 		if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
 		    // 如果adxId是百度，则同步百度BES审核结果
 		    baiduAuditService.synchronizeAdvertiser(auditId);
+		}
+		if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
+			tencentAuditService.synchronizeAdvertiser(auditId);
 		}
 	}
 

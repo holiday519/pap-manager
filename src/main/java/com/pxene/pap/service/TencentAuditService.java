@@ -30,6 +30,7 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CreativeRichBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
+import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -45,6 +46,7 @@ import com.pxene.pap.domain.models.LandpageModel;
 import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.exception.ServerFailureException;
 import com.pxene.pap.exception.ThirdPartyAuditException;
 import com.pxene.pap.repository.basic.IndustryDao;
 
@@ -143,6 +145,7 @@ public class TencentAuditService extends AuditService
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit != null) {
 			String advertiserId = advertiserAudit.getAdvertiserId();
+			String auditValue = advertiserAudit.getAuditValue();
 			AdvertiserModel advertiser = advertiserDao.selectByPrimaryKey(advertiserId);
 			String legalName = advertiser.getLegalName();
 			String siteUrl = advertiser.getSiteUrl();
@@ -160,7 +163,13 @@ public class TencentAuditService extends AuditService
 			JsonObject requestBody = new JsonObject();
 			JsonArray advertiserJsons = new JsonArray();
 			JsonObject advertiserJson = new JsonObject();
-			advertiserJson.addProperty("advertiser_id", advertiserId);
+			if (StringUtils.isEmpty(auditValue)) {
+				// 未审核过
+				advertiserJson.addProperty("advertiser_id", advertiserId);
+			} else {
+				// 审核过
+				advertiserJson.addProperty("advertiser_id", auditValue);
+			}
 			advertiserJson.addProperty("name", legalName);
 			advertiserJson.addProperty("homepage", siteUrl);
 			advertiserJson.addProperty("industry_id", Integer.parseInt(industryCode));
@@ -173,11 +182,10 @@ public class TencentAuditService extends AuditService
 			requestBody.add("data", advertiserJsons);
 			
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
-			String auditValue = advertiserAudit.getAuditValue();
 			String respStr = null;
 			Map<String, String> headers = new HashMap<String, String>();
 			headers.put("Authorization", adx.getSignKey());
-			if (auditValue == null) {
+			if (StringUtils.isEmpty(auditValue)) {
 				// 调用创建接口
 				String addUrl = adx.getAdvertiserAddUrl();
 				respStr = HttpClientUtil.getInstance().sendHttpPostJson(addUrl, requestBody.getAsString(), headers);
@@ -190,8 +198,10 @@ public class TencentAuditService extends AuditService
 	        if (!StringUtils.isEmpty(respStr)) {
 	            if (isResponseSuccess(respStr)) {
 	            	// 成功
+	            	if (StringUtils.isEmpty(auditValue)) {
+	            		advertiserAudit.setAuditValue(advertiserId);
+	            	}
 	            	advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_WATING);
-					advertiserAudit.setAuditValue(advertiserId);
 					advertiserAuditDao.updateByPrimaryKey(advertiserAudit);
 	            } else {
 	            	// 失败
@@ -210,11 +220,15 @@ public class TencentAuditService extends AuditService
 		// 查询广告主审核信息
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit != null) {
-			String advertiserId = advertiserAudit.getAdvertiserId();
+			String auditValue = advertiserAudit.getAuditValue();
+			if (StringUtils.isEmpty(auditValue)) {
+				throw new ServerFailureException();
+			}
+			
 			JsonObject requestBody = new JsonObject();
-			JsonArray advertiserIds = new JsonArray();
-			advertiserIds.add(advertiserId);
-			requestBody.add("data", advertiserIds);
+			JsonArray auditValues = new JsonArray();
+			auditValues.add(auditValue);
+			requestBody.add("data", auditValues);
 			
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
 			Map<String, String> headers = new HashMap<String, String>();
@@ -283,7 +297,19 @@ public class TencentAuditService extends AuditService
         AdvertiserModel advertiserModel = richCreative.getAdvertiserInfo();
         
         String advertiserId = advertiserModel.getId();
-        creativeJson.addProperty("advertiser_id", advertiserId);
+        // 查询审核表
+        AdvertiserAuditModelExample advertiserAuditEx = new AdvertiserAuditModelExample();
+        advertiserAuditEx.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_TENCENT_VALUE);
+        List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditEx);
+        if (advertiserAudits.isEmpty()) {
+        	throw new ServerFailureException();
+        }
+        String auditValue = advertiserAudits.get(0).getAuditValue();
+        if (StringUtils.isEmpty(auditValue)) {
+        	throw new ServerFailureException();
+        }
+        
+        creativeJson.addProperty("advertiser_id", auditValue);
         
         // 创意ID
         creativeJson.addProperty("creative_id", creativeId);
@@ -291,7 +317,7 @@ public class TencentAuditService extends AuditService
         // 落地页信息
         LandpageModel landpageInfo = richCreative.getLandpageInfo();
         String landpageURL = URLEncoder.encode(landpageInfo.getUrl(), StandardCharsets.UTF_8.displayName());
-        creativeJson.addProperty("landing_page", landpageURL);
+        creativeJson.addProperty("landing_page", landpageInfo.getUrl());
         creativeJson.addProperty("target_url", clkURLPrefix + cURL + "&curl=" + landpageURL);
         creativeJson.addProperty("monitor_url1", impURLPrefix + iURL);
         
@@ -367,7 +393,7 @@ public class TencentAuditService extends AuditService
             	}
             }
             
-            int spec = creativeInfoflowSpecs.get(imgNum + "x" + textNum + "|" + img1WH);
+            int spec = creativeInfoflowSpecs.get(imgNum + "+" + textNum + "|" + img1WH);
             creativeJson.addProperty("creative_spec", spec);
             
 //            String image4Id = infoflowMaterial.getImage4Id();
@@ -458,7 +484,20 @@ public class TencentAuditService extends AuditService
         CreativeRichBean richCreative = buildRelation(creativeId);
         // 广告主信息
         AdvertiserModel advertiserModel = richCreative.getAdvertiserInfo();
-        creativeJson.addProperty("advertiser_id", advertiserModel.getId());
+        String advertiserId = advertiserModel.getId();
+        // 查询审核表
+        AdvertiserAuditModelExample advertiserAuditEx = new AdvertiserAuditModelExample();
+        advertiserAuditEx.createCriteria().andAdvertiserIdEqualTo(advertiserId).andAdxIdEqualTo(AdxKeyConstant.ADX_TENCENT_VALUE);
+        List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditEx);
+        if (advertiserAudits.isEmpty()) {
+        	throw new ServerFailureException();
+        }
+        String auditValue = advertiserAudits.get(0).getAuditValue();
+        if (StringUtils.isEmpty(auditValue)) {
+        	throw new ServerFailureException();
+        }
+        
+        creativeJson.addProperty("advertiser_id", auditValue);
         creativeJson.addProperty("creative_id", creativeId);
         creativeJsons.add(creativeJson);
         requestBody.add("data", creativeJsons);

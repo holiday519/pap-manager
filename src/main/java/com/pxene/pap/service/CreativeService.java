@@ -172,6 +172,9 @@ public class CreativeService extends BaseService {
 	private BaiduAuditService baiduAuditService;
 	
 	@Autowired
+	private TencentAuditService tencentAuditService;
+	
+	@Autowired
 	private TmplService tmplService;
 
 	@Autowired
@@ -1386,6 +1389,9 @@ public class CreativeService extends BaseService {
 					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
 		                baiduAuditService.synchronizeCreative(creativeId);
 		            }
+					if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
+						tencentAuditService.synchronizeCreative(creativeId);
+					}
 				}
 			}
 			// 如果审核通过，则创意没有map基本信息将单个创意基本信息写入到redis中；将创意id写入门到redis的mapids中，
@@ -1432,52 +1438,35 @@ public class CreativeService extends BaseService {
 				String adxId = adx.get("adxId");
 				// 审核：未审核和审核未通过的创意
 				// 1.审核的状态
-				List<String> statusList = new ArrayList<String>();
-				statusList.add(StatusConstant.CREATIVE_AUDIT_NOCHECK);
-				statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
-				if (statusList == null || statusList.size() == 0) {
-					throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-				}
+//				List<String> statusList = new ArrayList<String>();
+//				statusList.add(StatusConstant.CREATIVE_AUDIT_NOCHECK);
+//				statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
+//				if (statusList == null || statusList.size() == 0) {
+//					throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+//				}
 				// 2.查询审核信息
-				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
-				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
-				List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditExample);
-				if (creativeAudits == null || creativeAudits.isEmpty()) {
-					// 如果数据库中没有该创意为未审核的创意审核信息，则提交对应的平台进行审核
-					if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-						// 如果ADX属于陌陌，则提交陌陌审核
-						momoAuditService.auditCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-						// 如果ADX属于inmobi，则提交inmobi审核
-						inmobiAuditService.auditCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-						// 如果ADX属于汽车之家，则提交汽车之家审核
-						autohomeAuditService.auditCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-                        baiduAuditService.auditCreative(creativeId);
-                    }
-				} else {
-					// 如果创意审核信息不为空
-
-					// 如果审核未通过的创意审核信息，则提交对应的平台进行审核
-					if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-						// 如果ADX属于陌陌，则提交陌陌审核
-						momoAuditService.auditCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-						// 如果ADX属于inmobi，则提交inmobi审核
-						inmobiAuditService.auditCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-						// 如果ADX属于汽车之家，则提交汽车之家审核
-						autohomeAuditService.auditCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-                        baiduAuditService.auditCreative(creativeId);
-                    }
+//				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
+//				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
+//				List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditExample);
+				
+				// 如果数据库中没有该创意为未审核的创意审核信息，则提交对应的平台进行审核
+				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+					// 如果ADX属于陌陌，则提交陌陌审核
+					momoAuditService.auditCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+					// 如果ADX属于inmobi，则提交inmobi审核
+					inmobiAuditService.auditCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+					// 如果ADX属于汽车之家，则提交汽车之家审核
+					autohomeAuditService.auditCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+                    baiduAuditService.auditCreative(creativeId);
+                }
+				if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
+					tencentAuditService.auditCreative(creativeId);
 				}
 			}
 		}
