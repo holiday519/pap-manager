@@ -1635,16 +1635,16 @@ public class LaunchService extends BaseService {
 		// 查询创意
 		CreativeModel creative = creativeDao.selectByPrimaryKey(id);
 		String creativeId = creative.getId();
-		String creativeMapid = redisHelper
-				.getStr(RedisKeyConstant.CREATIVE_INFO + creativeId);
-		JsonObject returnData = parser.parse(creativeMapid).getAsJsonObject();
-		JsonArray jsonArray = returnData.get("price_adx").getAsJsonArray();
-		for (int i = 0; i < jsonArray.size(); i++) {
-			JsonObject price = jsonArray.get(i).getAsJsonObject();
-			price.addProperty("price", creative.getPrice());
-		}
-		redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId,
-				returnData.toString());
+		String creativeMapid = redisHelper.getStr(RedisKeyConstant.CREATIVE_INFO + creativeId);
+		if (creativeMapid != null && !creativeMapid.isEmpty()) {
+			JsonObject returnData = parser.parse(creativeMapid).getAsJsonObject();
+			JsonArray jsonArray = returnData.get("price_adx").getAsJsonArray();
+			for (int i = 0; i < jsonArray.size(); i++) {
+				JsonObject price = jsonArray.get(i).getAsJsonObject();
+				price.addProperty("price", creative.getPrice());
+			}
+			redisHelper.set(RedisKeyConstant.CREATIVE_INFO + creativeId,returnData.toString());
+		}		
 	}
 
 	/**

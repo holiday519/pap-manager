@@ -1880,8 +1880,7 @@ public class CampaignService extends BaseService {
 				creative.setPrice(Float.parseFloat(map.get("price")));
 				creativeDao.updateByPrimaryKeySelective(creative);
 				// 活动已经投放,修改创意基本信息中的创意价格
-				if (launchService.isHaveLaunched(campaignId) 
-						&& launchService.isHaveCreativeInfoInRedis(creative.getId())) {
+				if (launchService.isHaveLaunched(campaignId)) {
 					launchService.updateCreativePrice(creative.getId());
 				}
 			}

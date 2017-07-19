@@ -318,8 +318,7 @@ public class CreativeService extends BaseService {
 		String price = map.get("price");
 		creative.setPrice(Float.parseFloat(price));
 		creativeDao.updateByPrimaryKey(creative);
-		if (launchService.isHaveLaunched(creative.getCampaignId())
-				&& launchService.isHaveCreativeInfoInRedis(creative.getId())) {
+		if (launchService.isHaveLaunched(creative.getCampaignId())) {
 			launchService.updateCreativePrice(id);
 		}
 	}
