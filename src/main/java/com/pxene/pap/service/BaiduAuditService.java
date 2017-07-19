@@ -360,7 +360,7 @@ public class BaiduAuditService extends AuditService
         item.addProperty("creativeId", dspSideCreativeId);
         item.addProperty("adviewType", 2);   // 2：Mobile流量
         item.addProperty("targetUrl", link);
-        item.addProperty("landingPage", landpageURL);
+        item.addProperty("landingPage", landpageInfo.getUrl());
         item.add("monitorUrls", monitorUrlArray);
         item.addProperty("creativeTradeId", creativeTradeId);
         item.addProperty("advertiserId", advertiserId);
