@@ -587,7 +587,7 @@ public class BaiduAuditService extends AuditService
     private String getCreativeTradeId(String industryId)
     {
         IndustryAdxModelExample industryAdxModelExample = new IndustryAdxModelExample();
-        industryAdxModelExample.createCriteria().andAdxIdEqualTo("").andIndustryIdEqualTo(industryId);
+        industryAdxModelExample.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_BAIDU_VALUE).andIndustryIdEqualTo(industryId);
         List<IndustryAdxModel> industryAdxList = industryAdxDao.selectByExample(industryAdxModelExample);
         
         if (industryAdxList != null && !industryAdxList.isEmpty())
