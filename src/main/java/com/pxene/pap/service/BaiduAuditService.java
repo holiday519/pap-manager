@@ -42,6 +42,7 @@ import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.ConfKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.CreativeRichBean;
 import com.pxene.pap.domain.beans.baidu.APIAdvertiserLicence;
 import com.pxene.pap.domain.beans.baidu.APIAdvertiserQualificationStatus;
 import com.pxene.pap.domain.beans.baidu.APIAdvertiserQualificationUpload;

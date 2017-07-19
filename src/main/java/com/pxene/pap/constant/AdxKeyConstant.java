@@ -11,4 +11,6 @@ public class AdxKeyConstant {
 	public static final String ADX_BAIDU_VALUE = "8";
 	
 	public static final String ADX_ADVIEW_VALUE = "14";
+	
+	public static final String ADX_TENCENT_VALUE = "21";
 }

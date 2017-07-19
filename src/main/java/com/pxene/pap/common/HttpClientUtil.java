@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -82,6 +83,31 @@ public class HttpClientUtil
         return sendHttpPost(httpPost);
     }
     
+    /**
+     * 用来发送有其他header信息的请求
+     * @param httpUrl
+     * @param requestBody
+     * @param headers
+     * @return
+     */
+    public String sendHttpPostJson(String httpUrl, String requestBody, Map<String, String> headers)
+    {
+        HttpPost httpPost = new HttpPost(httpUrl);
+        for (Entry<String, String> entry : headers.entrySet()) {
+        	httpPost.setHeader(entry.getKey(), entry.getValue());
+        }
+        try
+        {
+            StringEntity stringEntity = new StringEntity(requestBody, CHARSET_UTF_8);
+            stringEntity.setContentType(ContentType.APPLICATION_JSON.toString());
+            httpPost.setEntity(stringEntity);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return sendHttpPost(httpPost);
+    }
     
     /**
      * 发送基于表单的的HTTP POST请求。

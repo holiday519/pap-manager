@@ -30,6 +30,7 @@ import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.ConfKeyConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
+import com.pxene.pap.domain.beans.CreativeRichBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
