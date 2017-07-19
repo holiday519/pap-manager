@@ -533,7 +533,15 @@ public class CampaignService extends BaseService {
 				// 活动已结束，重新插入一条记录
 				landpageService.creativeCodeHistoryInfo(id, beanLandpageId, startDate, endDate);				
 			}
-		}			
+		}	
+		
+		// 如果两个落地页id不相同：将创意id从mapids中删除，把活动下面的所有创意状态改为未审核	
+		if (!beanLandpageId.equals(dbLandpageId)) {							
+			// 1.停止活动下面的所有创意投放
+			launchService.removeCreativeId(id);
+			// 2.把活动下面的所有创意状态改为未审核
+			creativeService.updateCreativeAuditStatusByCampaignId(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);			
+		}
 		
 		// 修改基本信息
 		campaignDao.updateByPrimaryKeySelective(campaign);
@@ -568,15 +576,7 @@ public class CampaignService extends BaseService {
 			// 先移除以前的白名单
 			launchService.removeWhiteBlack(id);
 			// 在添加最新的白名单
-			launchService.writeWhiteBlack(id);
-			
-			// 如果两个落地页id不相同：将创意id从mapids中删除，把活动下面的所有创意状态改为未审核	
-			if (!beanLandpageId.equals(dbLandpageId)) {							
-				// 1.停止活动下面的所有创意投放
-				launchService.removeCreativeId(id);
-				// 2.把活动下面的所有创意状态改为未审核
-				creativeService.updateCreativeAuditStatusByCampaignId(id,StatusConstant.CREATIVE_AUDIT_NOCHECK);			
-			}
+			launchService.writeWhiteBlack(id);			
 			
 			// 编辑定向时间可添加、删除redis中的对应的groupids
 			String projectId = campaign.getProjectId();
