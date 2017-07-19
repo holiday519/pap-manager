@@ -278,7 +278,7 @@ public class AdviewAuditService extends AuditService
         request.add("orig", orig);
         
         // 发送HTTP POST请求
-        LOGGER.debug("<== PAP-Manager ==> audit creative " + creativeId + "to AdView url = " + uploadURL + ", params = " + request);
+        LOGGER.debug("<== PAP-Manager ==> Audit creative [" + creativeId + "] to AdView： url = " + uploadURL + ", params = " + request);
         String respStr = HttpClientUtil.getInstance().sendHttpPostJson(uploadURL, request.toString());
         
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
@@ -342,8 +342,8 @@ public class AdviewAuditService extends AuditService
         request.addProperty("originalityId", creativeId);
     
         // 发送HTTP POST请求
+        LOGGER.debug("<== PAP-Manager ==> Synchronize creative [" + creativeId + "] to AdView： url = " + checkURL + ", params = " + request);
         String respStr = HttpClientUtil.getInstance().sendHttpPostJson(checkURL, request.toString());
-        LOGGER.debug("<== PAP-Manager ==> synchronize creative " + creativeId + "to AdView url = " + checkURL + ", params = " + request);
         
         // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
         if (!StringUtils.isEmpty(respStr))
