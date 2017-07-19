@@ -523,22 +523,22 @@ public class BaiduAuditService extends AuditService
             
             if (respStatus)
             {
-                Map<Integer, Object> creativeAuditStatus = getCreativeAuditStatus(jsonStrResponse);
+                Map<String, String> creativeAuditStatus = getCreativeAuditStatus(jsonStrResponse);
                 if (creativeAuditStatus != null)
                 {
-                    int state = (int) creativeAuditStatus.get("state");
-                    String[] refuseReason = (String[]) creativeAuditStatus.get("refuseReason");
+                    String state = creativeAuditStatus.get("state");
+                    String refuseReason = creativeAuditStatus.get("refuseReason");
                     
                     // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
-                    if (state == 0)
+                    if ("0".equals(state))
                     {
                         changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_SUCCESS, "");
                     }
-                    else if (state == 1)
+                    else if ("1".equals(state))
                     {
                         changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_WATING, "");
                     }
-                    else if (state == 2)
+                    else if ("2".equals(state))
                     {
                         changeCreativeAuditStatus(creativeId, StatusConstant.CREATIVE_AUDIT_FAILURE, org.apache.commons.lang3.StringUtils.join(refuseReason,  ", "));
                     }
@@ -882,9 +882,9 @@ public class BaiduAuditService extends AuditService
      * @throws JsonMappingException
      * @throws IOException
      */
-    private Map<Integer, Object> getCreativeAuditStatus(String responseStr) throws JsonParseException, JsonMappingException, IOException
+    private Map<String, String> getCreativeAuditStatus(String responseStr) throws JsonParseException, JsonMappingException, IOException
     {
-        Map<String, Object> result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
         
         int state = 1;
         List<String> refuseReason = new ArrayList<String>();
@@ -912,8 +912,10 @@ public class BaiduAuditService extends AuditService
                     }
                 }
                 
-                result.put("state", state);
-                result.put("refuseReason", refuseReason.toArray());
+                result.put("state", String.valueOf(state));
+                result.put("refuseReason", org.apache.commons.lang3.StringUtils.join(refuseReason, ", "));
+                
+                return result;
             }
         }
         
