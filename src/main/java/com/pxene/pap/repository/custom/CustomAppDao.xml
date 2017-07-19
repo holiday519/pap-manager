@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pxene.pap.repository.custom.CustomAppDao">
+
+    <select id="selectAppNum" resultType="int">
+        SELECT count(*) FROM pap_t_app
+        <where>
+            adx_id = #{adx}
+            <if test="encludes != null">
+                <foreach collection="encludes" item="enclude" index="index"  open=" and (" separator="and" close=")">
+                    <choose>
+                        <when test="enclude.type == '01'">
+                            app_name != #{enclude.word}
+                        </when>
+                        <when test="enclude.type == '02'">
+                            app_name not like concat(concat('%',#{enclude.word}),'%')
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+
+            <if test="includes != null">
+                <foreach collection="includes" item="include" index="index"  open=" and (" separator="or" close=")">
+                    <choose>
+                        <when test="include.type == '01'">
+                            app_name = #{include.word}
+                        </when>
+                        <when test="include.type == '02'">
+                            app_name like concat(concat('%',#{include.word}),'%')
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+
+        </where>
+    </select>
+
+    <select id="selectAppIds" resultType="java.util.List">
+        SELECT app_id FROM pap_t_app
+        <where>
+            adx_id = #{adx}
+            <if test="encludes != null">
+                <foreach collection="encludes" item="enclude" index="index"  open=" and (" separator="and" close=")">
+                    <choose>
+                        <when test="enclude.matchType == '01'">
+                            app_name != #{enclude.word}
+                        </when>
+                        <when test="enclude.matchType == '02'">
+                            app_name not like concat(concat('%',#{enclude.word}),'%')
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+
+            <if test="includes != null">
+                <foreach collection="includes" item="include" index="index"  open=" and (" separator="or" close=")">
+                    <choose>
+                        <when test="include.matchType == '01'">
+                            app_name = #{include.word}
+                        </when>
+                        <when test="include.matchType == '02'">
+                            app_name like concat(concat('%',#{include.word}),'%')
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+
+        </where>
+    </select>
+
+</mapper>
