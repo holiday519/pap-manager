@@ -160,7 +160,6 @@ public class BaiduAuditService extends AuditService
         // 查询ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(adxId);
         
-        
         // 如果是“未审核”状态，则需要新建广告主，否则修改广告主
         if (auditStatus == ADVERTISER_AUDIT_NOCHECK)
         {
@@ -240,7 +239,10 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = requestObj.toString();
         
         // 发送HTTP POST请求
+        LOGGER.info("<== PAP-Manager ==> Synchronize advertiser [" + advertiserId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.debug("### PAP-Manager ### Synchronize advertiser [" + advertiserId + "] state from Baidu：result = " + jsonStrResponse);
+        
         
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
         if (!StringUtils.isEmpty(jsonStrResponse))
@@ -430,6 +432,7 @@ public class BaiduAuditService extends AuditService
         // 发送HTTP POST请求
         LOGGER.debug("### PAP-Manager ### Audit creative [" + creativeId + "] to Baidu： url = " + url + ", params = " + jsonStrRequest);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.debug("### PAP-Manager ### Audit creative [" + creativeId + "] to Baidu：result = " + jsonStrResponse);
         
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
         if (!StringUtils.isEmpty(jsonStrResponse))
@@ -509,8 +512,9 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = requestObj.toString();
         
         // 发送HTTP POST请求
-        LOGGER.info("<== PAP-Manager ==> Synchronize creative [" + creativeId + "] fromo Baidu： url = " + url + ", params = " + jsonStrRequest);
+        LOGGER.info("<== PAP-Manager ==> Synchronize creative [" + creativeId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] state from Baidu：result = " + jsonStrResponse);
         
         if (!StringUtils.isEmpty(jsonStrResponse))
         {
@@ -676,7 +680,9 @@ public class BaiduAuditService extends AuditService
         
         String jsonStrRequest = GlobalUtil.writeObject2Json(request, false);
         
+        LOGGER.info("<== PAP-Manager ==> Create or Update advertiser [" + advertiserId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest + ", type = " + type);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.debug("### PAP-Manager ### Create or Update advertiser [" + advertiserId + "] state from Baidu：result = " + jsonStrResponse);
         
         if (jsonStrResponse != null)
         {
@@ -753,7 +759,12 @@ public class BaiduAuditService extends AuditService
         
         String jsonStrRequest = GlobalUtil.writeObject2Json(request, false);
         
+        
+        LOGGER.info("<== PAP-Manager ==> Upload or Update qulification [" + advertiserId + "] to Baidu： url = " + url + ", params = " + jsonStrRequest + ", type = " + type);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
+        LOGGER.debug("### PAP-Manager ### Upload or Update qulification [" + advertiserId + "] to Baidu：result = " + jsonStrResponse);
+        
+        
         
         if (jsonStrResponse != null)
         {
