@@ -374,6 +374,8 @@ public class LaunchService extends BaseService {
 				String campaignId = campaign.getId();
 				writeCampaignBudget(campaign);
 				writeCampaignCounter(campaignId);
+				//写入活动频次信息   dsp_groupid_frequencycapping_*
+				writeCampaignFrequency(campaign);
 			}
 
 			// 每天晚上检查groupids中是否存在已经过期的campaignId，如果有则删除
