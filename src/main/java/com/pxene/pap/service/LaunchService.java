@@ -1152,7 +1152,7 @@ public class LaunchService extends BaseService {
 				if (adxMap.containsKey(adxId)) {
 					JsonObject adxJson = adxMap.get(adxId);
 					JsonArray appIdJsons = adxJson.get("wlist").getAsJsonArray();
-					appIdJsons.add(app.getAppId());
+					appIdJsons.add(app.getId());
 					adxJson.add("wlist", appIdJsons);
 					adxMap.put(adxId, adxJson);
 				} else {
@@ -1160,7 +1160,7 @@ public class LaunchService extends BaseService {
 					adxJson.addProperty("adx", Integer.parseInt(adxId));
 					adxJson.addProperty("flag", 1);
 					JsonArray appIdJsons = new JsonArray();
-					appIdJsons.add(app.getAppId());
+					appIdJsons.add(app.getId());
 					adxJson.add("wlist", appIdJsons);
 					adxMap.put(adxId, adxJson);
 				}
