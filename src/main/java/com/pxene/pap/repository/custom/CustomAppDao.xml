@@ -36,7 +36,7 @@
     </select>
 
     <select id="selectAppIds" resultType="java.util.List">
-        SELECT app_id FROM pap_t_app
+        SELECT id FROM pap_t_app
         <where>
             adx_id = #{adx}
             <if test="encludes != null">

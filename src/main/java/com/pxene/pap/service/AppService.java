@@ -410,7 +410,7 @@ public class AppService extends BaseService {
 				}
 
 				AppBean appBean = new AppBean();
-				appBean.setAppId(appId);
+				appBean.setId(appId);
 				appBean.setAppType(category.trim());
 				appBean.setParentType(parentCode.trim());
 				appBean.setPkgName(appPackage.trim());
@@ -425,19 +425,17 @@ public class AppService extends BaseService {
 				if(res) {
 					//根据appid和adx去数据库中查找
 					AppModelExample queryApp = new AppModelExample();
-					queryApp.createCriteria().andAppIdEqualTo(appId).andAdxIdEqualTo(adxType);
+					queryApp.createCriteria().andIdEqualTo(appId).andAdxIdEqualTo(adxType);
 					List<AppModel> appModels = appDao.selectByExample(queryApp);
 
 					if(appModels!=null && !appModels.isEmpty()){	//有则更新
 						AppModel appModel_db = appModels.get(0);
 						//pap数据库中的更新时间小于dsp的，就更新
 						if(appModel_db.getUpdateTime().getTime() < updateTime.getTime()) {
-							appBean.setId(appModel_db.getId());
 							AppModel appModel = modelMapper.map(appBean, AppModel.class);
 							appDao.updateByPrimaryKey(appModel);
 						}
 					}else{	//没有则插入
-						appBean.setId(UUIDGenerator.getUUID());
 						AppModel appModel =modelMapper.map(appBean, AppModel.class);
 						appDao.insertSelective(appModel);
 					}
@@ -457,29 +455,35 @@ public class AppService extends BaseService {
 	 * @return
      */
 	private boolean checkApp(AppBean appBean) {
+		String appId = appBean.getId();
+		String category = appBean.getAppType();
+		String appPackage = appBean.getPkgName();
+		String appName = appBean.getAppName();
+		String downloadUrl = appBean.getDownloadUrl();
+		String osType = appBean.getOsType();
 		//appid过滤
-		if (appBean.getAppId().length() > 100 || CharacterUtils.containsEmoji(appBean.getAppId()) || appBean.getAppId().equals("") || appBean.getAppId().equalsIgnoreCase("NULL") || CharacterUtils.isGarbledCode(appBean.getAppId()) || CharacterUtils.checkfirstChar(appBean.getAppId())) {
+		if (appId.length() > 100 || CharacterUtils.containsEmoji(appId) || appId.equals("") || appId.equalsIgnoreCase("NULL") || CharacterUtils.isGarbledCode(appId) || CharacterUtils.checkfirstChar(appId)) {
 			return false;
 		}
 		//category
-		if (appBean.getAppType().length() > 20 || CharacterUtils.containsEmoji(appBean.getAppType())) {
+		if (category.length() > 20 || CharacterUtils.containsEmoji(category)) {
 			return false;
 		}
 		//apppackage
-		if (appBean.getPkgName().length() > 200 || CharacterUtils.containsEmoji(appBean.getPkgName())) {
+		if (appPackage.length() > 200 || CharacterUtils.containsEmoji(appPackage)) {
 			return false;
 		}
 		//appname
-		if (appBean.getAppName().length() > 200 || CharacterUtils.containsEmoji(appBean.getAppName()) || CharacterUtils.isMessyCode(appBean.getAppName())) {
+		if (appName.length() > 200 || CharacterUtils.containsEmoji(appName) || CharacterUtils.isMessyCode(appName)) {
 			return false;
 		}
 		//downloadurl
-		if (appBean.getDownloadUrl().length() > 300 || CharacterUtils.containsEmoji(appBean.getDownloadUrl())) {
+		if (downloadUrl.length() > 300 || CharacterUtils.containsEmoji(downloadUrl)) {
 			return false;
 		}
 		//systemname 转换
 		String systemname = "04";
-		if (CharacterUtils.containsEmoji(appBean.getOsType()) || CharacterUtils.isMessyCode(appBean.getOsType())) {
+		if (CharacterUtils.containsEmoji(osType) || CharacterUtils.isMessyCode(osType)) {
 			systemname = "04";
 		} else {
 			String[] systems = systemname.split(",");
@@ -513,7 +517,7 @@ public class AppService extends BaseService {
 	}
 
 	/**
-	 * 手动同步app信息
+	 * 手动同步app信息--默认是同步今天数据
 	 * @return
      */
 	public boolean synAppInfo(){

@@ -7,7 +7,7 @@ public class AppBean {
 	
 	private String id;
 
-    private String appId;
+//    private String appId;
 
     private String adxId;
 
@@ -35,13 +35,13 @@ public class AppBean {
 		this.id = id;
 	}
 
-	public String getAppId() {
-		return appId;
-	}
-
-	public void setAppId(String appId) {
-		this.appId = appId;
-	}
+//	public String getAppId() {
+//		return appId;
+//	}
+//
+//	public void setAppId(String appId) {
+//		this.appId = appId;
+//	}
 
 	public String getAdxId() {
 		return adxId;
@@ -117,7 +117,7 @@ public class AppBean {
 
 	@Override
 	public String toString() {
-		return "AppBean [id=" + id + ", appId=" + appId + ", adxId=" + adxId
+		return "AppBean [id=" + id + ", adxId=" + adxId
 				+ ", appName=" + appName + ", appType=" + appType
 				+ ", pkgName=" + pkgName +", parentType="+parentType +",downloadUrl="+downloadUrl+",osType="+osType+"]";
 	}
