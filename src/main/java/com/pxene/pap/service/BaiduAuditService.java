@@ -512,7 +512,7 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = requestObj.toString();
         
         // 发送HTTP POST请求
-        LOGGER.info("<== PAP-Manager ==> Synchronize creative [" + creativeId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest);
+        LOGGER.info("### PAP-Manager ### Synchronize creative [" + creativeId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] state from Baidu：result = " + jsonStrResponse);
         

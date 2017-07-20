@@ -87,6 +87,9 @@ public class AdvertiserService extends BaseService
 	
 	@Autowired
 	private TencentAuditService tencentAuditService;
+	
+	@Autowired
+	private AdviewAuditService adviewAuditService;
     
     private static final String TEMP_DIR = "temp/";
     
@@ -631,6 +634,9 @@ public class AdvertiserService extends BaseService
 		if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
 			tencentAuditService.auditAdvertiser(auditId);
 		}
+		if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+		    adviewAuditService.auditAdvertiser(auditId);
+		}
 	}
     
     /**
@@ -666,6 +672,9 @@ public class AdvertiserService extends BaseService
 		}
 		if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
 			tencentAuditService.synchronizeAdvertiser(auditId);
+		}
+		if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+		    adviewAuditService.synchronizeAdvertiser(auditId);
 		}
 	}
 

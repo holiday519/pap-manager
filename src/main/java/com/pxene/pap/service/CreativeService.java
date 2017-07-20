@@ -175,6 +175,9 @@ public class CreativeService extends BaseService {
 	private TencentAuditService tencentAuditService;
 	
 	@Autowired
+	private AdviewAuditService adviewAuditService;
+	
+	@Autowired
 	private TmplService tmplService;
 
 	@Autowired
@@ -1392,6 +1395,9 @@ public class CreativeService extends BaseService {
 					if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
 						tencentAuditService.synchronizeCreative(creativeId);
 					}
+					if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+					    adviewAuditService.synchronizeCreative(creativeId);
+					}
 				}
 			}
 			// 如果审核通过，则创意没有map基本信息将单个创意基本信息写入到redis中；将创意id写入门到redis的mapids中，
@@ -1467,6 +1473,9 @@ public class CreativeService extends BaseService {
                 }
 				if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
 					tencentAuditService.auditCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+				    adviewAuditService.auditCreative(creativeId);
 				}
 			}
 		}

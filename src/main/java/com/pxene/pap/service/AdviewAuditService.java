@@ -174,7 +174,7 @@ public class AdviewAuditService extends AuditService
         }
         
         // AdView的ADX信息
-        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_ADVIEW_VALUE);
         String uploadURL = adx.getCreativeAddUrl();                     // 创意审核URL
         String accessKey = adx.getSignKey();                            // AdView下发给合作伙伴授权使用该API的密钥。
         String userId = adx.getDspName();                               // 由合作伙伴在 AdView 平台注册，并且通过 AdView 审核的账号。（审核方式是线下审核。）
@@ -279,21 +279,23 @@ public class AdviewAuditService extends AuditService
         request.add("orig", orig);
         
         // 发送HTTP POST请求
-        LOGGER.debug("<== PAP-Manager ==> Audit creative [" + creativeId + "] to AdView： url = " + uploadURL + ", params = " + request);
-        String respStr = HttpClientUtil.getInstance().sendHttpPostJson(uploadURL, request.toString());
+        LOGGER.debug("### PAP-Manager ### Audit creative [" + creativeId + "] to AdView： url = " + uploadURL + ", params = " + request);
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(uploadURL, request.toString());
+        LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] state from AdView = " + jsonStrResponse);
+
         
         // 如果请求发送成功且应答响应成功，则将审核信息插入或更新至数据库中，否则提示审核失败的原因
-        if (!StringUtils.isEmpty(respStr))
+        if (!StringUtils.isEmpty(jsonStrResponse))
         {
             // 检查status是否为0
-            boolean respFlag = checkResponseStatus(respStr);
+            boolean respFlag = checkResponseStatus(jsonStrResponse);
             if (respFlag)
             {
                 insertOrUpdateToDB(creativeId);
             }
             else
             {
-                throw new IllegalStatusException(parseResponseErrorInfo(respStr));
+                throw new IllegalStatusException(parseResponseErrorInfo(jsonStrResponse));
             }
         }
         else 
@@ -328,8 +330,8 @@ public class AdviewAuditService extends AuditService
         }
         
         // AdView的ADX信息
-        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_AUTOHOME_VALUE);
-        String checkURL = adx.getCreativeAddUrl();                      // 创意审核URL
+        AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_ADVIEW_VALUE);
+        String checkURL = adx.getCreativeQueryUrl();                    // 创意审核URL
         String accessKey = adx.getSignKey();                            // AdView下发给合作伙伴授权使用该API的密钥。
         String userId = adx.getDspName();                               // 由合作伙伴在 AdView 平台注册，并且通过 AdView 审核的账号。（审核方式是线下审核。）
         Integer channel = Integer.valueOf(adx.getDspId());              // 渠道编号，由AdView分配，蓬景为75
@@ -343,17 +345,19 @@ public class AdviewAuditService extends AuditService
         request.addProperty("originalityId", creativeId);
     
         // 发送HTTP POST请求
-        LOGGER.debug("<== PAP-Manager ==> Synchronize creative [" + creativeId + "] to AdView： url = " + checkURL + ", params = " + request);
-        String respStr = HttpClientUtil.getInstance().sendHttpPostJson(checkURL, request.toString());
+        LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] to AdView： url = " + checkURL + ", params = " + request);
+        String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(checkURL, request.toString());
+        LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] state from AdView = " + jsonStrResponse);
+
         
         // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
-        if (!StringUtils.isEmpty(respStr))
+        if (!StringUtils.isEmpty(jsonStrResponse))
         {
             // 检查status是否为1
-            boolean respFlag = checkResponseStatus(respStr);
+            boolean respFlag = checkResponseStatus(jsonStrResponse);
             if (respFlag)
             {
-                Integer origStatus = getOrigStatus(respStr, creativeId);
+                Integer origStatus = getOrigStatus(jsonStrResponse, creativeId);
                 if (origStatus != null)
                 {
                     if (origStatus == 1)        // 未审核
@@ -372,7 +376,7 @@ public class AdviewAuditService extends AuditService
             }
             else
             {
-                throw new IllegalStatusException(parseResponseErrorInfo(respStr));
+                throw new IllegalStatusException(parseResponseErrorInfo(jsonStrResponse));
             }
         }
         else 
@@ -496,7 +500,7 @@ public class AdviewAuditService extends AuditService
     private String getCreativeTradeId(String industryId)
     {
         IndustryAdxModelExample industryAdxModelExample = new IndustryAdxModelExample();
-        industryAdxModelExample.createCriteria().andAdxIdEqualTo("").andIndustryIdEqualTo(industryId);
+        industryAdxModelExample.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_ADVIEW_VALUE).andIndustryIdEqualTo(industryId);
         List<IndustryAdxModel> industryAdxList = industryAdxDao.selectByExample(industryAdxModelExample);
         
         if (industryAdxList != null && !industryAdxList.isEmpty())
