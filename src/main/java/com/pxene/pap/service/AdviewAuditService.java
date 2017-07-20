@@ -349,7 +349,6 @@ public class AdviewAuditService extends AuditService
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(checkURL, request.toString());
         LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] state from AdView = " + jsonStrResponse);
 
-        
         // 如果请求发送成功且应答响应成功，则将审核结果更新至数据库中，否则不修改数据库中的审核状态，直接提示审核失败的原因
         if (!StringUtils.isEmpty(jsonStrResponse))
         {
