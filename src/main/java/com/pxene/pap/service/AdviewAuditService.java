@@ -184,6 +184,27 @@ public class AdviewAuditService extends AuditService
         // 查询出创意的相关信息
         CreativeRichBean richCreative = buildRelation(creativeId);
         
+        // 查询出创意的审核信息
+        String auditValue = null;
+        CreativeAuditModelExample example = new CreativeAuditModelExample();
+        example.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(AdxKeyConstant.ADX_ADVIEW_VALUE);
+        List<CreativeAuditModel> creativeAuditList = creativeAuditDao.selectByExample(example);
+        if (creativeAuditList != null && creativeAuditList.size() > 0)
+        {
+            auditValue = creativeAuditList.get(0).getAuditValue();
+        }
+        
+        // 广告创意素材若为审核通过状态，创意信息不会改变。因此，当编辑完某创意之后，需要重新生成一个表示创意ID的originalityId
+        String originalityId = null;
+        if (auditValue != null)
+        {
+            originalityId = auditValue;
+        }
+        else
+        {
+            originalityId = UUIDGenerator.getUUID();
+        }
+        
         // 广告主信息
         AdvertiserModel advertiserModel = richCreative.getAdvertiserInfo();
         String domainName = advertiserModel.getSiteUrl();                   // 广告主公司官网地址
@@ -219,7 +240,7 @@ public class AdviewAuditService extends AuditService
         JsonArray orig = new JsonArray();
         
         JsonObject origObj = new JsonObject();
-        origObj.addProperty("originalityId", creativeId);       // 创意 id，唯一标识该广告创意。
+        origObj.addProperty("originalityId", originalityId);    // 创意 id，唯一标识该广告创意。
         origObj.addProperty("clickURL", landpageInfo.getUrl()); // 点击跳转落地页
         
         if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType))         // 如果创意是图片，则读取图片素材表，取得图片ID，再根据图片ID，取得详细的图片信息
@@ -291,7 +312,7 @@ public class AdviewAuditService extends AuditService
             boolean respFlag = checkResponseStatus(jsonStrResponse);
             if (respFlag)
             {
-                insertOrUpdateToDB(creativeId);
+                insertOrUpdateToDB(creativeId, auditValue);
             }
             else
             {
@@ -329,6 +350,8 @@ public class AdviewAuditService extends AuditService
             throw new ResourceNotFoundException();
         }
         
+        String auditValue = modelList.get(0).getAuditValue();
+        
         // AdView的ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_ADVIEW_VALUE);
         String checkURL = adx.getCreativeQueryUrl();                    // 创意审核URL
@@ -342,7 +365,7 @@ public class AdviewAuditService extends AuditService
         request.addProperty("channel", channel);
         request.addProperty("userId", userId);
         request.addProperty("token", token);
-        request.addProperty("originalityId", creativeId);
+        request.addProperty("originalityId", auditValue);
     
         // 发送HTTP POST请求
         LOGGER.debug("### PAP-Manager ### Synchronize creative [" + creativeId + "] to AdView： url = " + checkURL + ", params = " + request);
@@ -450,10 +473,9 @@ public class AdviewAuditService extends AuditService
 	                obj.addProperty("url", urlPrefix + imageInfo.getPath());    // 拼接上图片服务器前缀，获得完整的图片URL
 	                
 	                result.add(obj);
-	                
-	                return result;
 	            }
             }
+	        return result;
         }
 	    return null;
 	}
@@ -564,12 +586,12 @@ public class AdviewAuditService extends AuditService
         return respFlag;
     }
     
-	/**
-	 * 新建一条创意审核信息或更新已有创意审核信息。
-	 * @param creativeId 创意ID
-	 * @param auditValue ADX返回的创意ID
-	 */
-    private void insertOrUpdateToDB(String creativeId)
+    /**
+     * 新建一条创意审核信息或更新已有创意审核信息。
+     * @param creativeId 创意ID
+     * @param auditValue ADX返回的创意ID
+     */
+    private void insertOrUpdateToDB(String creativeId, String auditValue)
     {
         // 根据创意ID 和 ADX ID查询指定创意的审核信息（二者组合可以确定唯一一条创意审核信息）
         CreativeAuditModelExample example = new CreativeAuditModelExample();
@@ -583,6 +605,7 @@ public class AdviewAuditService extends AuditService
             {
                 auditInDB.setStatus(StatusConstant.CREATIVE_AUDIT_WATING);
                 auditInDB.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
+                auditInDB.setAuditValue(auditValue);
                 creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
             }
         }
@@ -594,6 +617,7 @@ public class AdviewAuditService extends AuditService
             model.setExpiryDate(new DateTime(new Date()).plusDays(CREATIVE_AUDIT_EXPIRE_DAYS).toDate());
             model.setAdxId(AdxKeyConstant.ADX_ADVIEW_VALUE);
             model.setCreativeId(creativeId);
+            model.setAuditValue(auditValue);
             creativeAuditDao.insertSelective(model);
         }
     }
