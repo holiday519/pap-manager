@@ -801,9 +801,8 @@ public class ProjectService extends BaseService {
      */
     private void changeBudgetInRedis(String projectId, int oldBudget, int newBudget) throws Exception
     {
-        String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
-        String strProjectBudgetKey = redisHelper.getStr(projectBudgetKey);
-        if (strProjectBudgetKey != null && !strProjectBudgetKey.isEmpty()) {
+        String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + projectId;       
+		if (redisHelper.exists(projectBudgetKey)) {
         	// Redis中保存的项目剩余预算(分)
             Jedis jedis = redisHelper.getJedis();
             jedis.watch(projectBudgetKey);
@@ -843,7 +842,9 @@ public class ProjectService extends BaseService {
     				}
             	}
             }	
-        }               	
+        } else {
+        	throw new ServerFailureException();
+        }
     }
 
     /**
