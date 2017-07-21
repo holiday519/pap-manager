@@ -500,20 +500,26 @@ public class AdviewAuditService extends AuditService
     {
         JsonArray result = new JsonArray();
         
-        JsonObject titleObj = new JsonObject();
-        titleObj.addProperty("type", "2");
-        titleObj.addProperty("data", title);
-        result.add(titleObj);
+        if (title != null) {
+        	JsonObject titleObj = new JsonObject();
+            titleObj.addProperty("type", "2");
+            titleObj.addProperty("data", title);
+            result.add(titleObj);
+        }
         
-        JsonObject descpObj = new JsonObject();
-        descpObj.addProperty("type", "10");
-        descpObj.addProperty("data", descp);
-        result.add(descpObj);
+        if (descp != null) {
+        	JsonObject descpObj = new JsonObject();
+            descpObj.addProperty("type", "10");
+            descpObj.addProperty("data", descp);
+            result.add(descpObj);
+        }
         
-        JsonObject ctaDescpObj = new JsonObject();
-        ctaDescpObj.addProperty("type", "12");
-        ctaDescpObj.addProperty("data", ctaDescription);
-        result.add(ctaDescpObj);
+        if (ctaDescription != null) {
+        	JsonObject ctaDescpObj = new JsonObject();
+            ctaDescpObj.addProperty("type", "12");
+            ctaDescpObj.addProperty("data", ctaDescription);
+            result.add(ctaDescpObj);
+        }
         
         return result;
     }
