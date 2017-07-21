@@ -32,6 +32,7 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.CreativeRichBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
+import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.AdxModel;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -48,6 +49,7 @@ import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
+import com.pxene.pap.exception.ThirdPartyAuditException;
 
 /**
  * 对接AdView相关广告主、创意的审核、同步服务。
@@ -193,17 +195,19 @@ public class AdviewAuditService extends AuditService
         {
             auditValue = creativeAuditList.get(0).getAuditValue();
         }
-        
+        if (auditValue == null) {
+        	auditValue = String.valueOf(RandomUtils.nextInt());
+        }
         // 广告创意素材若为审核通过状态，创意信息不会改变。因此，当编辑完某创意之后，需要重新生成一个表示创意ID的originalityId
-        String originalityId = null;
-        if (auditValue != null)
-        {
-            originalityId = auditValue;
-        }
-        else
-        {
-            originalityId = UUIDGenerator.getUUID();
-        }
+//        String originalityId = null;
+//        if (auditValue != null)
+//        {
+//            originalityId = auditValue;
+//        }
+//        else
+//        {
+//            originalityId = UUIDGenerator.getUUID();
+//        }
         
         // 广告主信息
         AdvertiserModel advertiserModel = richCreative.getAdvertiserInfo();
@@ -212,9 +216,19 @@ public class AdviewAuditService extends AuditService
         String businessType = getCreativeTradeId(industryId);               // 行业类型
         
         // 活动信息
-        CampaignModel campaignInfo = richCreative.getCampaignInfo();
-        String campaignId = campaignInfo.getId();       // 活动ID
-        String campaignName = campaignInfo.getName();   // 活动名称
+//        CampaignModel campaignInfo = richCreative.getCampaignInfo();
+//        String campaignId = campaignInfo.getId();       // 活动ID
+//        String campaignName = campaignInfo.getName();   // 活动名称
+        // 查询审核信息
+        AdvertiserAuditModelExample advertiserAuditEx = new AdvertiserAuditModelExample();
+        advertiserAuditEx.createCriteria().andAdvertiserIdEqualTo(advertiserModel.getId()).andAdxIdEqualTo(AdxKeyConstant.ADX_ADVIEW_VALUE);
+        List<AdvertiserAuditModel> advertiserAudits = advertiserAuditDao.selectByExample(advertiserAuditEx);
+        String aderAuditValue = null; 
+        if (!advertiserAudits.isEmpty()) {
+        	aderAuditValue = advertiserAudits.get(0).getAuditValue();
+        } else {
+        	throw new ThirdPartyAuditException();
+        }
         
         // 创意类型
         String creativeType = creative.getType();
@@ -230,8 +244,10 @@ public class AdviewAuditService extends AuditService
         request.addProperty("userId", userId);
         request.addProperty("channel", channel);
         request.addProperty("token", token);
-        request.addProperty("adId", campaignId);
-        request.addProperty("adName", campaignName);
+//        request.addProperty("adId", campaignId);
+//        request.addProperty("adName", campaignName);
+        request.addProperty("adId", aderAuditValue);
+        request.addProperty("adName", advertiserModel.getName());
         request.addProperty("domainName", domainName);
         request.addProperty("system", -1);
         request.addProperty("businessType", businessType);
@@ -240,7 +256,7 @@ public class AdviewAuditService extends AuditService
         JsonArray orig = new JsonArray();
         
         JsonObject origObj = new JsonObject();
-        origObj.addProperty("originalityId", originalityId);    // 创意 id，唯一标识该广告创意。
+        origObj.addProperty("originalityId", auditValue);    // 创意 id，唯一标识该广告创意。
         origObj.addProperty("clickURL", landpageInfo.getUrl()); // 点击跳转落地页
         
         if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType))         // 如果创意是图片，则读取图片素材表，取得图片ID，再根据图片ID，取得详细的图片信息
