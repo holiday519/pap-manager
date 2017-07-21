@@ -428,19 +428,19 @@ public class AdviewAuditService extends AuditService
 	 * @param imageWidthHeightStr
 	 * @return
 	 */
-	private int getAdType(String imageWidthHeightStr)
+    private String getAdType(String imageWidthHeightStr)
     {
 	    if (adType0Set.contains(imageWidthHeightStr))
 	    {
-	        return 0;
+	    	return "0";
 	    }
 	    else if (adType1Set.contains(imageWidthHeightStr))
         {
-            return 1;
+	    	return "1";
         }
 	    else
 	    {
-	        return 4;
+	    	return "4";
 	    }
     }
 	
