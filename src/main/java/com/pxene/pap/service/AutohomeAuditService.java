@@ -45,6 +45,8 @@ import com.pxene.pap.domain.models.CreativeAuditModelExample;
 import com.pxene.pap.domain.models.CreativeModel;
 import com.pxene.pap.domain.models.ImageMaterialModel;
 import com.pxene.pap.domain.models.ImageModel;
+import com.pxene.pap.domain.models.IndustryAdxModel;
+import com.pxene.pap.domain.models.IndustryAdxModelExample;
 import com.pxene.pap.domain.models.IndustryModel;
 import com.pxene.pap.domain.models.InfoflowMaterialModel;
 import com.pxene.pap.domain.models.LandpageModel;
@@ -197,8 +199,8 @@ public class AutohomeAuditService extends AuditService
         
         int advertiserId = advertiserIdObj;                                 // DSP端的广告主ID
         String advertiserName = advertiserModel.getName();                  // 广告主名称
-        String industryId = advertiserModel.getIndustryId();                // 行业ID
-        String industryName = getIndustryName(industryId);                  // 行业名称
+        String industryCode = getIndustryCode(advertiserModel.getIndustryId());                // 行业ID
+        String industryName = getIndustryName(advertiserModel.getIndustryId());                  // 行业名称
         
         // 创意类型
         String creativeType = creativeModel.getType();
@@ -324,7 +326,7 @@ public class AutohomeAuditService extends AuditService
         adSnippetObj.add("pv", pv);
         
         // -###- 构建创意对象
-        JsonObject creative = buildCreativeObj(advertiserId, advertiserName, industryId, industryName, creativeTypeId, null, adSnippetObj);                // 设置广告内容
+        JsonObject creative = buildCreativeObj(advertiserId, advertiserName, industryCode, industryName, creativeTypeId, null, adSnippetObj);                // 设置广告内容
         
         // -##- 构建创意对象数组
         JsonArray creatives = new JsonArray();
@@ -703,13 +705,13 @@ public class AutohomeAuditService extends AuditService
     }
 
 
-    private JsonObject buildCreativeObj(int advertiserId, String advertiserName, String industryId, String industryName, String creativeTypeId, String templateId, JsonObject adSnippetObj)
+    private JsonObject buildCreativeObj(int advertiserId, String advertiserName, String industryCode, String industryName, String creativeTypeId, String templateId, JsonObject adSnippetObj)
     {
         JsonObject creative = new JsonObject();
         
         creative.addProperty("advertiserId", advertiserId);     // 设置所属广告主 ID
         creative.addProperty("advertiserName", advertiserName); // 设置所属广告主名称，需要填写全称,与注册名称一致
-        creative.addProperty("industryId", industryId);         // 设置所属行业 ID
+        creative.addProperty("industryId", industryCode);         // 设置所属行业 ID
         creative.addProperty("industryName", industryName);     // 设置所属行业名称
         creative.addProperty("creativeTypeId", creativeTypeId); // 设置素材类型 ID：1001-文字链，1002-图片，1003-图文
         creative.addProperty("width", 0);                       // 设置广告位宽度，如果不知道宽度则填充 0
@@ -784,6 +786,18 @@ public class AutohomeAuditService extends AuditService
         return null;
     }
 
+	private String getIndustryCode(String industryId) {
+		IndustryAdxModelExample industryAdxEx = new IndustryAdxModelExample();
+		industryAdxEx.createCriteria().andIndustryIdEqualTo(industryId).andAdxIdEqualTo(AdxKeyConstant.ADX_AUTOHOME_VALUE);
+		List<IndustryAdxModel> industryAdxs = industryAdxDao.selectByExample(industryAdxEx);
+		String code = null;
+		if (!industryAdxs.isEmpty()) {
+			code = industryAdxs.get(0).getIndustryCode();
+		}
+		
+		return code;
+	}
+	
     /**
 	 * 根据行业ID获得行业名称。
 	 * @param industryId   行业ID
