@@ -265,7 +265,9 @@ public class ProjectService extends BaseService {
         }
 
         // 编辑redis中的项目总预算
-        changeBudgetInRedis(id, oldBudget, newBudget);
+        if (newBudget != oldBudget) {
+        	changeBudgetInRedis(id, oldBudget, newBudget);
+        }
 
         // 将请求参数转换成MyBatis Model
         ProjectModel model = modelMapper.map(bean, ProjectModel.class);
@@ -800,46 +802,48 @@ public class ProjectService extends BaseService {
     private void changeBudgetInRedis(String projectId, int oldBudget, int newBudget) throws Exception
     {
         String projectBudgetKey = RedisKeyConstant.PROJECT_BUDGET + projectId;
+        String strProjectBudgetKey = redisHelper.getStr(projectBudgetKey);
+        if (strProjectBudgetKey != null && !strProjectBudgetKey.isEmpty()) {
+        	// Redis中保存的项目剩余预算(分)
+            Jedis jedis = redisHelper.getJedis();
+            jedis.watch(projectBudgetKey);
+            double redisBudget = Double.parseDouble(jedis.get(projectBudgetKey));
 
-        // Redis中保存的项目剩余预算(分)
-        Jedis jedis = redisHelper.getJedis();
-        jedis.watch(projectBudgetKey);
-        double redisBudget = Double.parseDouble(jedis.get(projectBudgetKey));
+            // 已消耗掉的项目预算(分)
+            double usedBudget = oldBudget * 100 - redisBudget;
 
-        // 已消耗掉的项目预算(分)
-        double usedBudget = oldBudget * 100 - redisBudget;
+            // 如果欲修改的预算值不足以支付已消耗掉的项目预算，则抛出异常
+            if (newBudget * 100 < usedBudget)
+            {
+                throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
+            }
 
-        // 如果欲修改的预算值不足以支付已消耗掉的项目预算，则抛出异常
-        if (newBudget * 100 < usedBudget)
-        {
-            throw new IllegalArgumentException(PhrasesConstant.DIF_TOTAL_BIGGER_REDIS);
-        }
-
-        // 将表单值减去已消耗掉的值更新回Redis中
-        boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(newBudget * 100 - usedBudget));
-        if (!casFlag)
-        {
-            throw new ServerFailureException();
-        }
-        
-        // 如果redis的项目预算已经用光
-        if (redisBudget <= 0) {
-        	ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-        	String projectStatus = project.getStatus();
-        	CampaignModelExample campaignEx = new CampaignModelExample();
-        	campaignEx.createCriteria().andProjectIdEqualTo(projectId);
-        	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
-        	for (CampaignModel campaign : campaigns) {
-        		String campaignId = campaign.getId();
-        		// 如果预算和展现数字调高了，就继续投放
-				if (isWriteGroupidsByUpdateProjectBudget(campaignId, projectStatus, campaign.getStatus())) {
-					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
-					if (!writeResult) {
-						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
-					}
-				}
-        	}
-        }
+            // 将表单值减去已消耗掉的值更新回Redis中
+            boolean casFlag = redisHelper.doTransaction(jedis, projectBudgetKey, String.valueOf(newBudget * 100 - usedBudget));
+            if (!casFlag)
+            {
+                throw new ServerFailureException();
+            }
+            
+            // 如果redis的项目预算已经用光
+            if (redisBudget <= 0) {
+            	ProjectModel project = projectDao.selectByPrimaryKey(projectId);
+            	String projectStatus = project.getStatus();
+            	CampaignModelExample campaignEx = new CampaignModelExample();
+            	campaignEx.createCriteria().andProjectIdEqualTo(projectId);
+            	List<CampaignModel> campaigns = campaignDao.selectByExample(campaignEx);
+            	for (CampaignModel campaign : campaigns) {
+            		String campaignId = campaign.getId();
+            		// 如果预算和展现数字调高了，就继续投放
+    				if (isWriteGroupidsByUpdateProjectBudget(campaignId, projectStatus, campaign.getStatus())) {
+    					boolean writeResult = launchService.launchCampaignRepeatable(campaignId);
+    					if (!writeResult) {
+    						throw new ServerFailureException(PhrasesConstant.REDIS_KEY_LOCK);
+    					}
+    				}
+            	}
+            }	
+        }               	
     }
 
     /**
