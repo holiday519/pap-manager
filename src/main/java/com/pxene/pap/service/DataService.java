@@ -1126,7 +1126,7 @@ public class DataService extends BaseService {
 //				return creativeData;
 //			}
 			CreativeModel creative = creativeDao.selectByPrimaryKey(creativeId);
-			List<Map<String, String>> adxes = launchService.getAdxByCreative(creative);
+			Map<String, String> adx = launchService.getAdxByCreative(creative);
 			
 			// 获取日数据对象
 			Map<String, String> dayData = redisHelper3.hget(dayKey);
@@ -1152,24 +1152,22 @@ public class DataService extends BaseService {
 				}
 				
 				// 修正花费累加
-				for (Map<String, String> adx : adxes) {
-					String adxId = adx.get("adxId");
-					String adxExpenseKey = day + CREATIVE_DATA_TYPE.ADX + adxId + CREATIVE_DATA_SUFFIX.EXPENSE;
-					// 判断该adx是否有数据
-					if (dayData.containsKey(adxExpenseKey)) {
-						// 获取当天的花费
-						double adxExpenseVal = Double.parseDouble(dayData.get(adxExpenseKey)) / 100;
-						// 获取当天的修正比
-						AdxCostModelExample adxCostExample = new AdxCostModelExample();
-						Date dayDate = DateUtils.strToDate(day, "yyyyMMdd");
-						adxCostExample.createCriteria().andAdxIdEqualTo(adxId).andFixDateEqualTo(dayDate);
-						List<AdxCostModel> adxCosts = adxCostDao.selectByExample(adxCostExample);
-						if (adxCosts.isEmpty()) {
-							continue;
-						}
-						float ratio = adxCosts.get(0).getRatio();
-						adxExpense += adxExpenseVal * ratio;
+				String adxId = adx.get("adxId");
+				String adxExpenseKey = day + CREATIVE_DATA_TYPE.ADX + adxId + CREATIVE_DATA_SUFFIX.EXPENSE;
+				// 判断该adx是否有数据
+				if (dayData.containsKey(adxExpenseKey)) {
+					// 获取当天的花费
+					double adxExpenseVal = Double.parseDouble(dayData.get(adxExpenseKey)) / 100;
+					// 获取当天的修正比
+					AdxCostModelExample adxCostExample = new AdxCostModelExample();
+					Date dayDate = DateUtils.strToDate(day, "yyyyMMdd");
+					adxCostExample.createCriteria().andAdxIdEqualTo(adxId).andFixDateEqualTo(dayDate);
+					List<AdxCostModel> adxCosts = adxCostDao.selectByExample(adxCostExample);
+					if (adxCosts.isEmpty()) {
+						continue;
 					}
+					float ratio = adxCosts.get(0).getRatio();
+					adxExpense += adxExpenseVal * ratio;
 				}
 			}
 			creativeData.setId(creativeId);

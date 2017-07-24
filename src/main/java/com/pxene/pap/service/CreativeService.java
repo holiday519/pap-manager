@@ -561,9 +561,9 @@ public class CreativeService extends BaseService {
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
-				List<Map<String, String>> adxInfo = launchService.getAdxByCreative(creative);
-				String adxId = adxInfo.get(0).get("adxId");
-				String adxName = adxInfo.get(0).get("adxName");
+				Map<String, String> adxInfo= launchService.getAdxByCreative(creative);
+				String adxId = adxInfo.get("adxId");
+				String adxName = adxInfo.get("adxName");
 				CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 				if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 					ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
@@ -846,9 +846,9 @@ public class CreativeService extends BaseService {
 		ImageCreativeBean image = null;
 		VideoCreativeBean video = null;
 		InfoflowCreativeBean info = null;
-		List<Map<String, String>> adxInfo = launchService.getAdxByCreative(creative);
-		String adxId = adxInfo.get(0).get("adxId");
-		String adxName = adxInfo.get(0).get("adxName");
+		Map<String, String> adxInfo= launchService.getAdxByCreative(creative);
+		String adxId = adxInfo.get("adxId");
+		String adxName = adxInfo.get("adxName");
 		//查询审核信息
 		CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
 
@@ -1360,46 +1360,45 @@ public class CreativeService extends BaseService {
 				continue;
 			}
 			// 查询adx列表，一个创意可以由多个ADX审核  
-			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
+			Map<String, String> adx = launchService.getAdxByCreative(creative);
 			
 			// 同步审核结果
-			for (Map<String,String> adx : adxes) {
-				// 获取adxId
-				String adxId = adx.get("adxId");
-				// 判断创意审核表中该创意的审核信息是否为空，不为空判断是由哪个adx广告平台审核--对应同步其审核结果
-				// 1.查询广告主审核信息：根据创意id + adxId + 审核状态为审核中
-				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
-				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId);
-				List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditExample);
-				// 2.判断广告主信息是否为空
-				if (creativeAudit == null || creativeAudit.isEmpty()) {
-					// 如果创意审核信息为空  
-					throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
-				} else if (StatusConstant.CREATIVE_AUDIT_WATING.equals(creativeAudit.get(0).getStatus())) {
-					// 则创意审核信息不为空，判断哪个ADX审核
-					if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-						// 如果ADX为陌陌，则同步陌陌审核结果
-						momoAuditService.synchronizeCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-						// 如果ADX为inmobi，则同步inmobi的审核结果
-						inmobiAuditService.synchronizeCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-						// 如果ADX属于汽车之家，则同步汽车之家审核结果
-						autohomeAuditService.synchronizeCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-		                baiduAuditService.synchronizeCreative(creativeId);
-		            }
-					if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
-						tencentAuditService.synchronizeCreative(creativeId);
-					}
-					if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
-					    adviewAuditService.synchronizeCreative(creativeId);
-					}
+			// 获取adxId
+			String adxId = adx.get("adxId");
+			// 判断创意审核表中该创意的审核信息是否为空，不为空判断是由哪个adx广告平台审核--对应同步其审核结果
+			// 1.查询广告主审核信息：根据创意id + adxId + 审核状态为审核中
+			CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
+			creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId);
+			List<CreativeAuditModel> creativeAudit = creativeAuditDao.selectByExample(creativeAuditExample);
+			// 2.判断广告主信息是否为空
+			if (creativeAudit == null || creativeAudit.isEmpty()) {
+				// 如果创意审核信息为空
+				throw new ServerFailureException(PhrasesConstant.CREATIVE_AUDIT_NULL);
+			} else if (StatusConstant.CREATIVE_AUDIT_WATING.equals(creativeAudit.get(0).getStatus())) {
+				// 则创意审核信息不为空，判断哪个ADX审核
+				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+					// 如果ADX为陌陌，则同步陌陌审核结果
+					momoAuditService.synchronizeCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+					// 如果ADX为inmobi，则同步inmobi的审核结果
+					inmobiAuditService.synchronizeCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+					// 如果ADX属于汽车之家，则同步汽车之家审核结果
+					autohomeAuditService.synchronizeCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+					baiduAuditService.synchronizeCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
+					tencentAuditService.synchronizeCreative(creativeId);
+				}
+				if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+					adviewAuditService.synchronizeCreative(creativeId);
 				}
 			}
+
 			// 如果审核通过，则创意没有map基本信息将单个创意基本信息写入到redis中；将创意id写入门到redis的mapids中，
 			String campaignId = creative.getCampaignId();
 			if (StatusConstant.CREATIVE_IS_ENABLE.equals(creative.getEnable())) {
@@ -1437,46 +1436,47 @@ public class CreativeService extends BaseService {
 			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status)) {
 				continue;
 			}
-			List<Map<String,String>> adxes = launchService.getAdxByCreative(creative);
-			//根据不同的ADX到不同的广告审核平台审核
-			for (Map<String,String> adx : adxes) {
-				// 获取ADX的Id，根据ADXID判断属于哪个ADX
-				String adxId = adx.get("adxId");
-				// 审核：未审核和审核未通过的创意
-				// 1.审核的状态
-//				List<String> statusList = new ArrayList<String>();
-//				statusList.add(StatusConstant.CREATIVE_AUDIT_NOCHECK);
-//				statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
-//				if (statusList == null || statusList.size() == 0) {
-//					throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-//				}
-				// 2.查询审核信息
-//				CreativeAuditModelExample creativeAuditExample = new CreativeAuditModelExample();
-//				creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
-//				List<CreativeAuditModel> creativeAudits = creativeAuditDao.selectByExample(creativeAuditExample);
-				
-				// 如果数据库中没有该创意为未审核的创意审核信息，则提交对应的平台进行审核
-				if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
-					// 如果ADX属于陌陌，则提交陌陌审核
-					momoAuditService.auditCreative(creativeId);
-				}
-				if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
-					// 如果ADX属于inmobi，则提交inmobi审核
-					inmobiAuditService.auditCreative(creativeId);
-				}
-				if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
-					// 如果ADX属于汽车之家，则提交汽车之家审核
-					autohomeAuditService.auditCreative(creativeId);
-				}
-				if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
-                    baiduAuditService.auditCreative(creativeId);
-                }
-				if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
-					tencentAuditService.auditCreative(creativeId);
-				}
-				if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
-				    adviewAuditService.auditCreative(creativeId);
-				}
+			Map<String, String> adx = launchService.getAdxByCreative(creative);
+			// 根据不同的ADX到不同的广告审核平台审核
+			// 获取ADX的Id，根据ADXID判断属于哪个ADX
+			String adxId = adx.get("adxId");
+			// 审核：未审核和审核未通过的创意
+			// 1.审核的状态
+			// List<String> statusList = new ArrayList<String>();
+			// statusList.add(StatusConstant.CREATIVE_AUDIT_NOCHECK);
+			// statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
+			// if (statusList == null || statusList.size() == 0) {
+			// throw new
+			// IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+			// }
+			// 2.查询审核信息
+			// CreativeAuditModelExample creativeAuditExample = new
+			// CreativeAuditModelExample();
+			// creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
+			// List<CreativeAuditModel> creativeAudits =
+			// creativeAuditDao.selectByExample(creativeAuditExample);
+
+			// 如果数据库中没有该创意为未审核的创意审核信息，则提交对应的平台进行审核
+			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
+				// 如果ADX属于陌陌，则提交陌陌审核
+				momoAuditService.auditCreative(creativeId);
+			}
+			if (AdxKeyConstant.ADX_INMOBI_VALUE.equals(adxId)) {
+				// 如果ADX属于inmobi，则提交inmobi审核
+				inmobiAuditService.auditCreative(creativeId);
+			}
+			if (AdxKeyConstant.ADX_AUTOHOME_VALUE.equals(adxId)) {
+				// 如果ADX属于汽车之家，则提交汽车之家审核
+				autohomeAuditService.auditCreative(creativeId);
+			}
+			if (AdxKeyConstant.ADX_BAIDU_VALUE.equals(adxId)) {
+				baiduAuditService.auditCreative(creativeId);
+			}
+			if (AdxKeyConstant.ADX_TENCENT_VALUE.equals(adxId)) {
+				tencentAuditService.auditCreative(creativeId);
+			}
+			if (AdxKeyConstant.ADX_ADVIEW_VALUE.equals(adxId)) {
+				adviewAuditService.auditCreative(creativeId);
 			}
 		}
 	}

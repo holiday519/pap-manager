@@ -652,21 +652,21 @@ public class LaunchService extends BaseService {
 				if (model.getFormat() != null) {
 					creativeObj.addProperty("ftype", Integer.parseInt(model.getFormat()));
 				}
-				List<Map<String, String>> adxes = getAdxByCreative(creative);
+				Map<String, String> adx = getAdxByCreative(creative);
 				JsonArray prices = new JsonArray();
 				JsonArray exts = new JsonArray();
-				for (Map<String, String> adx : adxes) {
-					JsonObject price = new JsonObject();
-					price.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-					price.addProperty("price", creative.getPrice());
-					prices.add(price);
-					if (adx.containsKey("creativeAudit")) {
-						JsonObject ext = new JsonObject();
-						ext.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-						ext.addProperty("id", adx.get("creativeAudit"));
-						exts.add(ext);
-					}
+				
+				JsonObject price = new JsonObject();
+				price.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+				price.addProperty("price", creative.getPrice());
+				prices.add(price);
+				if (adx.containsKey("creativeAudit")) {
+					JsonObject ext = new JsonObject();
+					ext.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+					ext.addProperty("id", adx.get("creativeAudit"));
+					exts.add(ext);
 				}
+
 				creativeObj.add("price_adx", prices);
 				if (exts.size() > 0) {
 					creativeObj.add("exts", exts);
@@ -719,21 +719,21 @@ public class LaunchService extends BaseService {
 				creativeObj.addProperty("groupid", model.getCampaignId());
 				creativeObj.addProperty("type", 6);
 				creativeObj.addProperty("ftype", model.getFormat());
-				List<Map<String, String>> adxes = getAdxByCreative(creative);
+				Map<String, String> adx = getAdxByCreative(creative);
 				JsonArray prices = new JsonArray();
 				JsonArray exts = new JsonArray();
-				for (Map<String, String> adx : adxes) {
-					JsonObject price = new JsonObject();
-					price.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-					price.addProperty("price", creative.getPrice());
-					prices.add(price);
-					if (adx.containsKey("creativeAudit")) {
-						JsonObject ext = new JsonObject();
-						ext.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-						ext.addProperty("id", adx.get("creativeAudit"));
-						exts.add(ext);
-					}
+				
+				JsonObject price = new JsonObject();
+				price.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+				price.addProperty("price", creative.getPrice());
+				prices.add(price);
+				if (adx.containsKey("creativeAudit")) {
+					JsonObject ext = new JsonObject();
+					ext.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+					ext.addProperty("id", adx.get("creativeAudit"));
+					exts.add(ext);
 				}
+
 				creativeObj.add("price_adx", prices);
 				if (exts.size() > 0) {
 					creativeObj.add("exts", exts);
@@ -785,21 +785,21 @@ public class LaunchService extends BaseService {
 				creativeObj.addProperty("mapid", model.getCreativeId());
 				creativeObj.addProperty("groupid", model.getCampaignId());
 				creativeObj.addProperty("type", 9);
-				List<Map<String, String>> adxes = getAdxByCreative(creative);
+				Map<String, String> adx = getAdxByCreative(creative);
 				JsonArray prices = new JsonArray();
 				JsonArray exts = new JsonArray();
-				for (Map<String, String> adx : adxes) {
-					JsonObject price = new JsonObject();
-					price.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-					price.addProperty("price", creative.getPrice());
-					prices.add(price);
-					if (adx.containsKey("creativeAudit")) {
-						JsonObject ext = new JsonObject();
-						ext.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-						ext.addProperty("id", adx.get("creativeAudit"));
-						exts.add(ext);
-					}
+				
+				JsonObject price = new JsonObject();
+				price.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+				price.addProperty("price", creative.getPrice());
+				prices.add(price);
+				if (adx.containsKey("creativeAudit")) {
+					JsonObject ext = new JsonObject();
+					ext.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+					ext.addProperty("id", adx.get("creativeAudit"));
+					exts.add(ext);
 				}
+
 				creativeObj.add("price_adx", prices);
 				if (exts.size() > 0) {
 					creativeObj.add("exts", exts);
@@ -895,32 +895,34 @@ public class LaunchService extends BaseService {
 	 * 通过创意获取ADX信息
 	 * @param creative
 	 * @return
-	 */
-	public List<Map<String, String>> getAdxByCreative(CreativeModel creative) {		
-		List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+	 */	
+	public Map<String, String> getAdxByCreative(CreativeModel creative) {
 		String campaignId = creative.getCampaignId();
 		String creativeId = creative.getId();
-		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
-		List<Map<String, String>> adxes = getAdxByCampaign(campaign);
+		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);		
 		// 一个活动只有一个ADX
-		String adxId = adxes.get(0).get("adxId");
-		String adxName = adxes.get(0).get("adxName");
-		Map<String, String> result = new HashMap<String, String>();
-		result.put("adxId", adxId);
-		result.put("adxName", adxName);
-		CreativeAuditModelExample example = new CreativeAuditModelExample();
-		example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(creativeId);
-		List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);
-		if (audits != null && !audits.isEmpty()) {
-			CreativeAuditModel audit = audits.get(0);
-			String auditValue = audit.getAuditValue();
-			//判断审核值是否为空
-			if(auditValue !=null && !auditValue.isEmpty()) {
-				result.put("creativeAudit", auditValue);
+		Map<String, String> adx = getAdxByCampaign(campaign);
+		Map<String, String> result = null;
+		if (adx != null && !adx.isEmpty()) {
+			String adxId = adx.get("adxId");
+			String adxName = adx.get("adxName");
+			result = new HashMap<String, String>();
+			result.put("adxId", adxId);
+			result.put("adxName", adxName);
+			CreativeAuditModelExample example = new CreativeAuditModelExample();
+			example.createCriteria().andAdxIdEqualTo(adxId).andCreativeIdEqualTo(creativeId);
+			List<CreativeAuditModel> audits = creativeAuditDao.selectByExample(example);
+			if (audits != null && !audits.isEmpty()) {
+				CreativeAuditModel audit = audits.get(0);
+				String auditValue = audit.getAuditValue();
+				// 判断审核值是否为空
+				if (auditValue != null && !auditValue.isEmpty()) {
+					result.put("creativeAudit", auditValue);
+				}
 			}
-		}
-		results.add(result);
-		return results;
+		}		
+		return result;
+		
 	}
 	
 	/**
@@ -928,8 +930,7 @@ public class LaunchService extends BaseService {
 	 * @param campaign
 	 * @return
 	 */
-	private List<Map<String, String>> getAdxByCampaign(CampaignModel campaign) {
-		List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+	private Map<String, String> getAdxByCampaign(CampaignModel campaign) {
 		String campaignId = campaign.getId();
 		String projectId = campaign.getProjectId();
 		//查询广告主ID
@@ -939,12 +940,13 @@ public class LaunchService extends BaseService {
 		AdxTargetModelExample adxTargetExample = new AdxTargetModelExample();
 		adxTargetExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<AdxTargetModel> adxTargets = adxTargetDao.selectByExample(adxTargetExample);
+		Map<String, String> result = null;
 		if (adxTargets != null && !adxTargets.isEmpty()) {
 			// 一个活动对应一个ADX
 			String adxId = adxTargets.get(0).getAdxId();
 			AdxModel adx = adxDao.selectByPrimaryKey(adxId);
 			String adxName = adx.getName();
-			Map<String, String> result = new HashMap<String, String>();
+			result = new HashMap<String, String>();
 			result.put("adxId", adxId);
 			result.put("adxName", adxName);
 			AdvertiserAuditModelExample example = new AdvertiserAuditModelExample();
@@ -955,9 +957,8 @@ public class LaunchService extends BaseService {
 				String auditValue = audit.getAuditValue();
 				result.put("advertiserAudit", auditValue);
 			}
-			results.add(result);
-		}		
-		return results;
+		}
+		return result;
 	}
 	
 	/**
@@ -985,26 +986,25 @@ public class LaunchService extends BaseService {
 		String adomain = GlobalUtil.parseString(advertiser.getSiteUrl(), "").replace("http://www.", "").replace("www.", "");
 		campaignJson.addProperty("adomain", adomain);
 		
-		List<Map<String, String>> adxes = getAdxByCampaign(campaign);
-		for (Map<String, String> adx : adxes) {
-			String adxId = adx.get("adxId");
-			adxJsons.add(Integer.parseInt(adxId));
-			
-			JsonObject auctiontypeJson = new JsonObject();
-			auctiontypeJson.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-			auctiontypeJson.addProperty("at", 0);
-			auctiontypeJsons.add(auctiontypeJson);
-			
-			if (adx.containsKey("advertiserAudit")) {
-				JsonObject extJson = new JsonObject();
-				extJson.addProperty("adx", Integer.parseInt(adxId));
-				String auditValue = adx.get("advertiserAudit");
-				if(auditValue!=null && !auditValue.isEmpty()) {
-					extJson.addProperty("advid", auditValue);
-				}
-				extJsons.add(extJson);
+		Map<String, String> adx = getAdxByCampaign(campaign);
+		String adxId = adx.get("adxId");
+		adxJsons.add(Integer.parseInt(adxId));
+		
+		JsonObject auctiontypeJson = new JsonObject();
+		auctiontypeJson.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+		auctiontypeJson.addProperty("at", 0);
+		auctiontypeJsons.add(auctiontypeJson);
+		
+		if (adx.containsKey("advertiserAudit")) {
+			JsonObject extJson = new JsonObject();
+			extJson.addProperty("adx", Integer.parseInt(adxId));
+			String auditValue = adx.get("advertiserAudit");
+			if(auditValue!=null && !auditValue.isEmpty()) {
+				extJson.addProperty("advid", auditValue);
 			}
+			extJsons.add(extJson);
 		}
+
 		campaignJson.add("adx", adxJsons);
 		campaignJson.add("auctiontype", auctiontypeJsons);
 		campaignJson.add("exts", extJsons);
@@ -1213,8 +1213,8 @@ public class LaunchService extends BaseService {
 		JsonObject resultJson = new JsonObject();
 		resultJson.addProperty("groupid", campaignId);
 		JsonArray groupJsons = new JsonArray();
-		List<Map<String, String>> adxes = getAdxByCampaign(campaign);
-		if (adxes != null && !adxes.isEmpty()) {
+		Map<String, String> adx = getAdxByCampaign(campaign);
+		if (adx != null && !adx.isEmpty()) {	
 			// 如果adx信息不为空
 			String uniform = campaign.getUniform();
 			JsonArray frequencyJsons = null;
@@ -1244,9 +1244,10 @@ public class LaunchService extends BaseService {
 					}
 					// 每小时投放的数量 = 每日最大展现数 / adx的个数 / 时间定向（有几个时间段）
 					int hourImpression = 0;
-					if(adxes.size() != 0 && timeTargets != null && timeTargets.size() != 0) {
-						hourImpression = dailyImpression / adxes.size() / timeTargets.size();
+					if(adx.size() != 0 && timeTargets != null && timeTargets.size() != 0) {
+						hourImpression = dailyImpression / adx.size() / timeTargets.size();
 					}
+
 					for (int i=0; i<24; i++) {
 						String weekHour = week + String.format("%02d", i);
 						if (weekHours.contains(weekHour)) {
@@ -1258,21 +1259,19 @@ public class LaunchService extends BaseService {
 				}
 			}
 			// 是否匀速
-			for (Map<String, String> adx : adxes) {
-				JsonObject groupObject = new JsonObject();
-				groupObject.addProperty("adx", Integer.parseInt(adx.get("adxId")));
-				if (frequencyJsons == null) {
-					// 不匀速
-					groupObject.addProperty("type", 0);
-					groupObject.addProperty("period", 3);
-				} else {
-					// 匀速
-					groupObject.addProperty("type", 1);
-					groupObject.addProperty("period", 2);
-					groupObject.add("frequency", frequencyJsons);
-				}
-				groupJsons.add(groupObject);
+			JsonObject groupObject = new JsonObject();
+			groupObject.addProperty("adx", Integer.parseInt(adx.get("adxId")));
+			if (frequencyJsons == null) {
+				// 不匀速
+				groupObject.addProperty("type", 0);
+				groupObject.addProperty("period", 3);
+			} else {
+				// 匀速
+				groupObject.addProperty("type", 1);
+				groupObject.addProperty("period", 2);
+				groupObject.add("frequency", frequencyJsons);
 			}
+			groupJsons.add(groupObject);
 			resultJson.add("group", groupJsons);
 		}
 		//设置频次

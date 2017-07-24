@@ -164,31 +164,28 @@ public class AdxCostService extends BaseService
             {
                 String creativeId = creative.getId();
                 
-                List<Map<String, String>> adxCreativeList = launchService.getAdxByCreative(creative);
-                for (Map<String, String> entry : adxCreativeList)
+                Map<String, String> entry = launchService.getAdxByCreative(creative);
+                String adxId = entry.get("adxId");
+                String adxName = entry.get("adxName");
+                String idGroup = projectId + "_" + adxId;
+                
+                if (tmpMap.containsKey(idGroup))
                 {
-                    String adxId = entry.get("adxId");
-                    String adxName = entry.get("adxName");
-                    String idGroup = projectId + "_" + adxId;
+                    AdxCostData oldAdxCostData = tmpMap.get(idGroup);
+                    AdxCostData newAdxCostData = getCreativeStatics(date, creativeId, adxId);
                     
-                    if (tmpMap.containsKey(idGroup))
-                    {
-                        AdxCostData oldAdxCostData = tmpMap.get(idGroup);
-                        AdxCostData newAdxCostData = getCreativeStatics(date, creativeId, adxId);
-                        
-                        oldAdxCostData.setImpressionAmount(oldAdxCostData.getImpressionAmount() + newAdxCostData.getImpressionAmount());
-                        oldAdxCostData.setClickAmount(oldAdxCostData.getClickAmount() + newAdxCostData.getClickAmount());
-                        oldAdxCostData.setCost(oldAdxCostData.getCost() + newAdxCostData.getCost());
-                        
-//                        oldAdxCostData.setAdxName(adxName);
-                    }
-                    else
-                    {
-                        AdxCostData adxCostData = getCreativeStatics(date, creativeId, adxId);
-                        adxCostData.setAdxName(adxName);
-                        
-                        tmpMap.put(idGroup, adxCostData);
-                    }
+                    oldAdxCostData.setImpressionAmount(oldAdxCostData.getImpressionAmount() + newAdxCostData.getImpressionAmount());
+                    oldAdxCostData.setClickAmount(oldAdxCostData.getClickAmount() + newAdxCostData.getClickAmount());
+                    oldAdxCostData.setCost(oldAdxCostData.getCost() + newAdxCostData.getCost());
+                    
+//                    oldAdxCostData.setAdxName(adxName);
+                }
+                else
+                {
+                    AdxCostData adxCostData = getCreativeStatics(date, creativeId, adxId);
+                    adxCostData.setAdxName(adxName);
+                    
+                    tmpMap.put(idGroup, adxCostData);
                 }
             }
         }
