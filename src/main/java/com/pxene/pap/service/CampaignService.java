@@ -1178,6 +1178,8 @@ public class CampaignService extends BaseService {
 		campaignDao.deleteByPrimaryKey(campaignId);
 		// 移除redis
 		launchService.removeCampaignId4Project(campaignId, campaignInDB.getProjectId());
+		// 删除redis中的活动基本信息
+		launchService.remove4EndDate(campaignInDB);
 	}
 	
 	/**
@@ -1220,8 +1222,10 @@ public class CampaignService extends BaseService {
 			deleteCampaignMonitor(id);
 			// 删除监测码历史记录表中该活动对应的监测码历史记录信息
 			deleteCampaignCodeHistory(id);
-			
+			// 将活动id从redis中对应项目下活动id组中删除
 			launchService.removeCampaignId4Project(id, campaign.getProjectId());
+			// 删除redis中的活动基本信息
+			launchService.remove4EndDate(campaign);
 		}
 		//删除活动
 		campaignDao.deleteByExample(ex);
