@@ -217,7 +217,7 @@ public class AdvertiserService extends BaseService
     @Transactional
     public void deleteAdvertisers(String[] ids) throws Exception
     {
-    	if (ids.length ==0) {
+    	if (ids.length == 0) {
     		throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
     	// 操作前先查询一次数据库，判断指定的资源是否存在
@@ -364,7 +364,7 @@ public class AdvertiserService extends BaseService
 			if (adxModel != null) {
 				audits[i].setName(adxModel.getName());
 			}			
-			//如果message为null,设置为空字符串
+			// 如果message为null,设置为空字符串
 			if(audits[i].getMessage() == null){
 				audits[i].setMessage("");
 			}
