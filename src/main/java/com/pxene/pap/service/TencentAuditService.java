@@ -150,7 +150,7 @@ public class TencentAuditService extends AuditService
 			String legalName = advertiser.getLegalName();
 			String siteUrl = advertiser.getSiteUrl();
 			String industryId = advertiser.getIndustryId();
-			String licensePath = advertiser.getLicensePath();
+			String qualificationPath = advertiser.getQualificationPath();
 			// 查询行业编码
 			IndustryAdxModelExample industryAdxEx = new IndustryAdxModelExample();
 			industryAdxEx.createCriteria().andAdxIdEqualTo(AdxKeyConstant.ADX_TENCENT_VALUE).andIndustryIdEqualTo(industryId);
@@ -175,7 +175,7 @@ public class TencentAuditService extends AuditService
 			advertiserJson.addProperty("industry_id", Integer.parseInt(industryCode));
 			JsonArray qualificationJsons = new JsonArray();
 			JsonObject qualificationJson = new JsonObject();
-			qualificationJson.addProperty("file_url", urlPrefix + licensePath);
+			qualificationJson.addProperty("file_url", urlPrefix + qualificationPath);
 			qualificationJsons.add(qualificationJson);
 			advertiserJson.add("qualifications", qualificationJsons);
 			advertiserJsons.add(advertiserJson);

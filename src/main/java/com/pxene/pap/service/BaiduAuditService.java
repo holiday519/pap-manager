@@ -18,6 +18,7 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.tools.ant.util.DateUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -667,8 +668,6 @@ public class BaiduAuditService extends AuditService
         advertiser.setAdvertiserName(advertiserModel.getLegalName());
         advertiser.setSiteName(advertiserModel.getSiteName());
         advertiser.setSiteUrl(advertiserModel.getSiteUrl());
-        advertiser.setTelephone(advertiserModel.getPhone());
-        advertiser.setAddress(advertiserModel.getAddress());
         
         Map<String, Object> authHeader = getAuthHeader(adx);
         
@@ -742,17 +741,17 @@ public class BaiduAuditService extends AuditService
             url = adx.getQualificationUpdateUrl();
         }
         
-        String licensePath = advertiserModel.getLicensePath();
-        String licenseURL = urlPrefix + licensePath;
+        String qualificationPath = advertiserModel.getQualificationPath();
+        String qualificationURL = urlPrefix + qualificationPath;
         
         List<String> imgUrls = new ArrayList<String>();
-        imgUrls.add(licenseURL);
+        imgUrls.add(qualificationURL);
         
         APIAdvertiserLicence licence = new APIAdvertiserLicence();
         licence.setType(1);
         licence.setName(advertiserModel.getLegalName());
-        licence.setNumber(advertiserModel.getLicenseNo());
-        licence.setValidDate(advertiserModel.getValidDate());
+        licence.setNumber(advertiserModel.getQualificationNo());
+        licence.setValidDate(DateUtils.format(advertiserModel.getValidDate(), "yyyy-MM-dd"));
         licence.setImgUrls(imgUrls);
     
         APIAdvertiserQualificationUpload request = new APIAdvertiserQualificationUpload(advertiserId, licence, null);

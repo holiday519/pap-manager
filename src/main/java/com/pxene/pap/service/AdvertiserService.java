@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,6 @@ import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.AdvertiserBean;
 import com.pxene.pap.domain.beans.AdvertiserBean.Audit;
-import com.pxene.pap.domain.beans.ImageBean;
 import com.pxene.pap.domain.models.AdvertiserAuditModel;
 import com.pxene.pap.domain.models.AdvertiserAuditModelExample;
 import com.pxene.pap.domain.models.AdvertiserModel;
@@ -141,6 +141,12 @@ public class AdvertiserService extends BaseService
 		if (advertisers != null && !advertisers.isEmpty()) {
 			throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
 		}
+		
+		String[] adxIds = bean.getAdxIds();
+		if (adxIds.length == 0) {
+			throw new IllegalArgumentException(PhrasesConstant.ADVERTISER_NOTNULL_ADX);
+		}
+		
 		// 先将临时目录中的图片拷贝到正式目录，并将bean中路径替换为正式目录
 		copyTempToFormal(bean);
 		// 将path替换成正式目录
@@ -155,6 +161,7 @@ public class AdvertiserService extends BaseService
 		// 创建广告主时向广告主审核表添加信息，审核平台列表中有几个adx则向广告主审核表中加入几条数据
 		// 查询ADX列表
 		AdxModelExample adxExample = new AdxModelExample();
+		adxExample.createCriteria().andIdIn(Arrays.asList(adxIds));
 		List<AdxModel> adxes = adxDao.selectByExample(adxExample);
 		for (AdxModel adx : adxes) {
 			// 1.如果广告主审核信息为空，则向广告主审核表插入数据
@@ -318,12 +325,48 @@ public class AdvertiserService extends BaseService
         	}
         }
         
+        List<String> newIds = Arrays.asList(bean.getAdxIds());
+        if (newIds.isEmpty()) {
+			throw new IllegalArgumentException(PhrasesConstant.ADVERTISER_NOTNULL_ADX);
+		}
+        
         copyTempToFormal(bean);
         // 将传输对象映射成数据库Model
         AdvertiserModel model = modelMapper.map(bean, AdvertiserModel.class);
         model.setId(id);
         
         advertiserDao.updateByPrimaryKey(model);
+        
+        AdvertiserAuditModelExample auditEx = new AdvertiserAuditModelExample();
+        auditEx.createCriteria().andAdvertiserIdEqualTo(id);
+        List<AdvertiserAuditModel> audits = advertiserAuditDao.selectByExample(auditEx);
+        List<String> oldIds = new ArrayList<String>();
+        Map<String, AdvertiserAuditModel> cache = new HashMap<String, AdvertiserAuditModel>();
+        for (AdvertiserAuditModel audit : audits) {
+        	String adxId = audit.getAdxId();
+        	oldIds.add(adxId);
+        	cache.put(adxId, audit);
+        }
+        Map<String, List<String>> adxIdMap = getAddAndDelAdxIds(newIds, oldIds);
+        List<String> addIds = adxIdMap.get("add");
+        List<String> delIds = adxIdMap.get("del");
+        for (String addId : addIds) {
+			AdvertiserAuditModel advertiserAudit = new AdvertiserAuditModel();
+			advertiserAudit.setId(UUIDGenerator.getUUID());
+			advertiserAudit.setAdvertiserId(id);
+			advertiserAudit.setAdxId(addId);
+			advertiserAudit.setStatus(StatusConstant.ADVERTISER_AUDIT_NOCHECK);
+			advertiserAudit.setEnable(StatusConstant.ADVERTISER_ADX_DISABLE);
+			
+			advertiserAuditDao.insertSelective(advertiserAudit);
+        }
+        for (String delId : delIds) {
+        	AdvertiserAuditModel audit = cache.get(delId);
+        	if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(audit.getStatus())) {
+        		throw new IllegalStatusException(PhrasesConstant.ADVERVISER_ADX_AUDIT_SUCCESS);
+        	}
+        	advertiserAuditDao.deleteByPrimaryKey(audit.getId());
+        }
     }
 
     /**
@@ -364,7 +407,7 @@ public class AdvertiserService extends BaseService
 			if (adxModel != null) {
 				audits[i].setName(adxModel.getName());
 			}			
-			// 如果message为null,设置为空字符串
+			// 如果message为null, 设置为空字符串
 			if(audits[i].getMessage() == null){
 				audits[i].setMessage("");
 			}
@@ -505,94 +548,46 @@ public class AdvertiserService extends BaseService
      * @return
      * @throws Exception
      */
-    @Transactional
-    public String uploadQualification4Logo(MultipartFile file) throws Exception {
-    	ImageBean bean = (ImageBean) FileUtils.checkFile(file);
-    	Integer width = bean.getWidth();
-    	Integer height = bean.getHeight();
-    	if (width != 80 || height != 80) {
-    		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_SIZE);
-    	}
-    	Float volume = bean.getVolume();
-    	if (volume > 30) {
-    		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
-    	}
-    	// 图片绝对路径
-    	String path = FileUtils.uploadFileToLocal(uploadDir + TEMP_DIR, UUIDGenerator.getUUID(), file);
-    	// 返回相对路径
-    	return path.replace(uploadDir, "");
-    }
+//    @Transactional
+//    public String uploadQualification4Logo(MultipartFile file) throws Exception {
+//    	ImageBean bean = (ImageBean) FileUtils.checkFile(file);
+//    	Integer width = bean.getWidth();
+//    	Integer height = bean.getHeight();
+//    	if (width != 80 || height != 80) {
+//    		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_SIZE);
+//    	}
+//    	Float volume = bean.getVolume();
+//    	if (volume > 30) {
+//    		throw new IllegalArgumentException(PhrasesConstant.IMAGE_NOT_MAP_VOLUME);
+//    	}
+//    	// 图片绝对路径
+//    	String path = FileUtils.uploadFileToLocal(uploadDir + TEMP_DIR, UUIDGenerator.getUUID(), file);
+//    	// 返回相对路径
+//    	return path.replace(uploadDir, "");
+//    }
     
     private void copyTempToFormal(AdvertiserBean advertiserBean) throws Exception
     {
-        String logoPath = advertiserBean.getLogoPath();
-        String accountPath = advertiserBean.getAccountPath();
-        String licensePath = advertiserBean.getLicensePath();
-        String organizationPath = advertiserBean.getOrganizationPath();
-        String icpPath = advertiserBean.getIcpPath();
+        String qualificationPath = advertiserBean.getQualificationPath();
         
         File destDir = new File(uploadDir + FORMAL_DIR);
         
-        if (logoPath != null && logoPath.contains(TEMP_DIR))
+        if (qualificationPath != null && qualificationPath.contains(TEMP_DIR))
         {
             //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + logoPath), destDir);
-            doCopy(logoPath, destDir);
-            advertiserBean.setLogoPath(logoPath.replace(TEMP_DIR, FORMAL_DIR));
-        }
-        
-        if (accountPath != null && accountPath.contains(TEMP_DIR))
-        {
-            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + accountPath), destDir);
-            doCopy(accountPath, destDir);
-            advertiserBean.setAccountPath(accountPath.replace(TEMP_DIR, FORMAL_DIR));
-        }
-        
-        if (licensePath != null && licensePath.contains(TEMP_DIR))
-        {
-            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + licensePath), destDir);
-            doCopy(licensePath, destDir);
-            advertiserBean.setLicensePath(licensePath.replace(TEMP_DIR, FORMAL_DIR));
-        }
-        
-        if (organizationPath != null && organizationPath.contains(TEMP_DIR))
-        {
-            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + organizationPath), destDir);
-            doCopy(organizationPath, destDir);
-            advertiserBean.setOrganizationPath(organizationPath.replace(TEMP_DIR, FORMAL_DIR));
-        }
-        
-        if (icpPath != null && icpPath.contains(TEMP_DIR))
-        {
-            //org.apache.commons.io.FileUtils.copyFileToDirectory(new File(UPLOAD_DIR + icpPath), destDir);
-            doCopy(icpPath, destDir);
-            advertiserBean.setIcpPath(icpPath.replace(TEMP_DIR, FORMAL_DIR));
+            doCopy(qualificationPath, destDir);
+            advertiserBean.setQualificationPath(qualificationPath.replace(TEMP_DIR, FORMAL_DIR));
         }
     }
     
     private void removeImages(String advertiserId) {
     	// 查询出广告主下的图片
     	AdvertiserModel advertiserModel = advertiserDao.selectByPrimaryKey(advertiserId);
-    	String logoPath = advertiserModel.getLogoPath();
-        String accountPath = advertiserModel.getAccountPath();
-        String licensePath = advertiserModel.getLicensePath();
-        String organizationPath = advertiserModel.getOrganizationPath();
-        String icpPath = advertiserModel.getIcpPath();
+    	String qualificationPath = advertiserModel.getQualificationPath();
         
         // 删除
-        if (!StringUtils.isEmpty(logoPath)) {
-        	org.apache.commons.io.FileUtils.deleteQuietly(new File(logoPath));
-        }
-        if (!StringUtils.isEmpty(accountPath)) {
-        	org.apache.commons.io.FileUtils.deleteQuietly(new File(accountPath));
-        }
-        if (!StringUtils.isEmpty(licensePath)) {
-        	org.apache.commons.io.FileUtils.deleteQuietly(new File(licensePath));
-        }
-        if (!StringUtils.isEmpty(organizationPath)) {
-        	org.apache.commons.io.FileUtils.deleteQuietly(new File(organizationPath));
-        }
-        if (!StringUtils.isEmpty(icpPath)) {
-        	org.apache.commons.io.FileUtils.deleteQuietly(new File(icpPath));
+        if (!StringUtils.isEmpty(qualificationPath)) {
+        	org.apache.commons.io.FileUtils.deleteQuietly(new File(qualificationPath));
         }
     	
     }
@@ -748,5 +743,31 @@ public class AdvertiserService extends BaseService
 			// 否则抛出异常
 			throw new IllegalArgumentException(PhrasesConstant.PARAM_OUT_OF_RANGE);
 		}
+    }
+    
+    /**
+     * 获取两个id组之间的差异
+     * @param newIds
+     * @param oldIds
+     * @return
+     */
+    private Map<String, List<String>> getAddAndDelAdxIds(List<String> newIds, List<String> oldIds) {
+    	List<String> addIds = new ArrayList<String>();
+    	List<String> delIds = new ArrayList<String>();
+    	for (String id : newIds) {
+    		if (!oldIds.contains(id)) {
+    			addIds.add(id);
+    		}
+    	}
+    	for (String id : oldIds) {
+    		if (!newIds.contains(id)) {
+    			delIds.add(id);
+    		}
+    	}
+    	Map<String, List<String>> result = new HashMap<String, List<String>>();
+    	result.put("add", addIds);
+    	result.put("del", delIds);
+    	
+    	return result;
     }
 }

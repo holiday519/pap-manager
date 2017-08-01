@@ -19,6 +19,7 @@ public class PhrasesConstant
 	public static final String ADVERTISER_AUDIT_NOT_FOUND = "该客户审核信息不存在";
 	public static final String ADVERVISER_HAVE_PROJECT = "该客户下存在项目，不能删除";
 	public static final String ADVERVISER_NOT_HAVE_ADX = "客户下没有可用的ADX";
+	public static final String ADVERVISER_ADX_AUDIT_SUCCESS = "已审核成功的ADX不能取消";
 	// 项目
 	public static final String PROJECT_BUDGET_UNDER_CAMPAIGN = "项目预算不能小于项目下活动日预算";
 	public static final String EFFECT_CODE_NOT_FOUND = "转化字段编号不存在";
@@ -62,8 +63,6 @@ public class PhrasesConstant
 	public static final String REDIS_CAMPAIGNINFO_NULL = "redis中没有活动信息";
 	public static final String REDIS_PROJECTBUDGET_NULL = "redis中项目预算为空";
 	
-	
-	
 	public static final String ADX_NOT_FOUND = "ADX不存在";
 	public static final String POPULATION_FILE_USED = "名单被使用，不能删除";
     public static final String INVALID_CAMPAIGN_NAME = "项目名称不能为空";
@@ -91,25 +90,15 @@ public class PhrasesConstant
 	
 	public static final String ADVERTISER_NOTNULL_INDUSTY = "必须选择行业";
 	public static final String ADVERTISER_NOTNULL_COMPANY = "必须填写公司名称";
-	public static final String ADVERTISER_NOTNULL_SITEURL = "必须填写公司官网地址";
-	public static final String ADVERTISER_NOTNULL_SITENAME = "必须填写公司官网名称";
-	public static final String ADVERTISER_NOTNULL_CONTACT = "必须填写联系人";
-	public static final String ADVERTISER_NOTNULL_PHONE = "必须填写联系电话";
-	public static final String ADVERTISER_NOTNULL_LICENSENO = "必须填写营业执照编号";
-	public static final String ADVERTISER_NOTNULL_LICENSEPATH = "必须上传营业执照图片";
+	public static final String ADVERTISER_NOTNULL_ADX = "必须选择ADX";
 	
 	public static final String ADVERTISER_LENGTH_ERROR_COMPANY = "公司名称长度不能超过100";
-	public static final String ADVERTISER_LENGTH_ERROR_ADDRESS= "公司地址长度不能超过200";
 	public static final String ADVERTISER_LENGTH_ERROR_SITEURL = "公司官网地址长度不能超过200";
 	public static final String ADVERTISER_LENGTH_ERROR_SITENAME = "公司官网名称长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_BRANDNAME = "品牌名称长度不能超过100";
-	public static final String ADVERTISER_LENGTH_ERROR_CONTACT = "联系人长度不能超过20";
-	public static final String ADVERTISER_LENGTH_ERROR_PHONE= "联系电话长度不能超过20";
-	public static final String ADVERTISER_LENGTH_ERROR_EMAIL = "邮箱长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_QQ = "QQ号码长度不能超过20";
-	public static final String ADVERTISER_LENGTH_ERROR_LICENSENO = "营业执照编号长度不能超过100";
-	public static final String ADVERTISER_LENGTH_ERROR_ORGANIZATIONNO = "组织机构代码长度不能超过100";
-	public static final String ADVERTISER_LENGTH_ERROR_ZIP = "邮政编码长度不能超过6";
+	public static final String ADVERTISER_LENGTH_ERROR_QUALIFICATIONNO = "资质编号长度不能超过100";
+	public static final String ADVERTISER_LENGTH_ERROR_QUALIFICATIONPATH = "资质图片路径长度不能超过200";
 	public static final String ADVERTISER_AUDIT_ERROR = "广告主未通过ADX审核";
 	
 	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
