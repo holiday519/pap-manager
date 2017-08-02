@@ -121,4 +121,31 @@ public class CodeTableConstant {
      */
 	public static final String FILTER_TYPE_EXCLUDE = "02";
 
+	/**
+	 * dsp广告创意类型--未知
+     */
+	public static final int ADVERTISE_CREATVIE_TYPE_UNKNOWN = 0;
+	/**
+	 * dsp广告创意类型--图片
+	 */
+	public static final int ADVERTISE_CREATVIE_TYPE_IMAGE= 2;
+	/**
+	 * dsp广告创意类型--视频
+	 */
+	public static final int ADVERTISE_CREATVIE_TYPE_VIDEO = 6;
+	/**
+	 * dsp广告创意类型--信息流
+	 */
+	public static final int ADVERTISE_CREATVIE_TYPE_INFOFLOW= 9;
+
+	/**
+	 * 按小时
+     */
+	public static final String 	TYPE_DAY = "01";
+
+	/**
+	 * 按天
+     */
+	public static final String 	TYPE_HOUR = "02";
+
 }

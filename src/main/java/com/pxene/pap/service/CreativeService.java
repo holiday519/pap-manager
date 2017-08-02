@@ -546,14 +546,14 @@ public class CreativeService extends BaseService {
 		CreativeModelExample example = new CreativeModelExample();
 		
 		// 按更新时间进行倒序排序
-        example.setOrderByClause("update_time DESC");
-	
-        if (!StringUtils.isEmpty(name)) {
+		example.setOrderByClause("update_time DESC");
+
+		if (!StringUtils.isEmpty(name)) {
 			example.createCriteria().andCampaignIdEqualTo(campaignId).andNameLike("%" + name + "%");
 		} else {
 			example.createCriteria().andCampaignIdEqualTo(campaignId);
-		} 
-        
+		}
+
 		List<CreativeModel> creatives = creativeDao.selectByExample(example);
 		if (creatives != null && !creatives.isEmpty()) {
 			CreativeBean base = null;
@@ -561,7 +561,7 @@ public class CreativeService extends BaseService {
 			VideoCreativeBean video = null;
 			InfoflowCreativeBean info = null;
 			for (CreativeModel creative : creatives) {
-				Map<String, String> adxInfo= launchService.getAdxByCreative(creative);
+				Map<String, String> adxInfo = launchService.getAdxByCreative(creative);
 				String adxId = adxInfo.get("adxId");
 				String adxName = adxInfo.get("adxName");
 				CreativeAuditModel creativeAuditModel = getCreativeAuditModelByCreativeId(creative.getId());
@@ -578,16 +578,16 @@ public class CreativeService extends BaseService {
 							
 							image.setStatus(getCreativeAuditStatus(creative.getId()));
 							//设置message
-							if(creativeAuditModel!=null){
+							if (creativeAuditModel != null) {
 								image.setMessage(creativeAuditModel.getMessage());
-							}else{
+							} else {
 								image.setMessage("");
 							}
 							image.setPrice(creative.getPrice().floatValue());
-							
+
 							image.setImageId(creative.getMaterialId());
 							image.setImagePath(imageModel.getPath());
-							
+
 							image.setAdxId(adxId);
 							image.setAdxName(adxName);
 							image.setEnable(creative.getEnable());
@@ -595,20 +595,20 @@ public class CreativeService extends BaseService {
 							//查询投放数据
 							if (startDate != null && endDate != null) {
 								String creativeId = creative.getId();
-								CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
-								BeanUtils.copyProperties(data, image, "id", "type", "status", "campaignId", "campaignName", "price", 
-										"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
-										"materialPaths", "imageId", "imagePath","message");
+								CreativeBean data = (CreativeBean) dataService.getCreativeData(creativeId, startDate, endDate);
+								BeanUtils.copyProperties(data, image, "id", "type", "status", "campaignId", "campaignName", "price",
+										"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate",
+										"materialPaths", "imageId", "imagePath", "message");
 							}
 							result.add(image);
 						}
 					}
 				} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(creative.getMaterialId());
-					if (videoMaterialModel == null ) {
+					if (videoMaterialModel == null) {
 						throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 					}
-					String imageId = videoMaterialModel.getImageId();					
+					String imageId = videoMaterialModel.getImageId();
 					VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
 					if (videoModel != null) {
 						video = new VideoCreativeBean();
@@ -617,18 +617,18 @@ public class CreativeService extends BaseService {
 						video.setCampaignId(campaignId);
 						video.setStatus(getCreativeAuditStatus(creative.getId()));
 						//设置message
-						if(creativeAuditModel!=null){
+						if (creativeAuditModel != null) {
 							video.setMessage(creativeAuditModel.getMessage());
-						}else{
+						} else {
 							video.setMessage("");
 						}
 						video.setPrice(creative.getPrice().floatValue());
-						
+
 						video.setImageId(imageId);
 						video.setImagePath(getImagePath(imageId));
 						video.setVideoId(creative.getMaterialId());
 						video.setVideoPath(videoModel.getPath());
-						
+
 						video.setAdxId(adxId);
 						video.setAdxName(adxName);
 						video.setEnable(creative.getEnable());
@@ -636,10 +636,10 @@ public class CreativeService extends BaseService {
 						//查询投放数据
 						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
-							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
-							BeanUtils.copyProperties(data, video, "id", "type", "status", "campaignId", "campaignName", "price", 
-									"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
-									"materialPaths", "videoId", "videoPath", "imageId", "imagePath","message");
+							CreativeBean data = (CreativeBean) dataService.getCreativeData(creativeId, startDate, endDate);
+							BeanUtils.copyProperties(data, video, "id", "type", "status", "campaignId", "campaignName", "price",
+									"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate",
+									"materialPaths", "videoId", "videoPath", "imageId", "imagePath", "message");
 						}
 						result.add(video);
 					}
@@ -654,13 +654,13 @@ public class CreativeService extends BaseService {
 						info.setCampaignId(campaignId);
 						info.setStatus(getCreativeAuditStatus(creative.getId()));
 						//设置message
-						if(creativeAuditModel!=null){
+						if (creativeAuditModel != null) {
 							info.setMessage(creativeAuditModel.getMessage());
-						}else{
+						} else {
 							info.setMessage("");
 						}
 						info.setPrice(creative.getPrice().floatValue());
-						
+
 						info.setAdxId(adxId);
 						info.setAdxName(adxName);
 						info.setEnable(creative.getEnable());
@@ -672,8 +672,8 @@ public class CreativeService extends BaseService {
 						info.setMustCtaDescription(InfoflowTmpl.getMustCtaDescription()); //CTA描述是否必填
 						info.setHaveDescription(InfoflowTmpl.getHaveDescription());  // 是否有描述
 						info.setHaveCtaDescription(InfoflowTmpl.getHaveCtaDescription()); // 是否有CTA描述
-						
-						
+
+
 						if (!StringUtils.isEmpty(infoflowModel.getIconId())) {
 							info.setIconId(infoflowModel.getIconId());
 							info.setIconPath(getImagePath(infoflowModel.getIconId()));
@@ -701,13 +701,13 @@ public class CreativeService extends BaseService {
 						//查询投放数据
 						if (startDate != null && endDate != null) {
 							String creativeId = creative.getId();
-							CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
-							BeanUtils.copyProperties(data, info, "id", "type", "status", "campaignId", "campaignName", "price", 
-									"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
-									"materialPaths", "infoflowId", "title", "description", "mustDescription", "ctaDescription", 
-									"mustCtaDescription", "iconId", "iconPath", "image1Id", "image2Id", "image3Id", "image4Id", 
-									"image5Id", "image1Path", "image2Path", "image3Path", "image4Path", "image5Path", 
-									"haveDescription", "haveCtaDescription","message");
+							CreativeBean data = (CreativeBean) dataService.getCreativeData(creativeId, startDate, endDate);
+							BeanUtils.copyProperties(data, info, "id", "type", "status", "campaignId", "campaignName", "price",
+									"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate",
+									"materialPaths", "infoflowId", "title", "description", "mustDescription", "ctaDescription",
+									"mustCtaDescription", "iconId", "iconPath", "image1Id", "image2Id", "image3Id", "image4Id",
+									"image5Id", "image1Path", "image2Path", "image3Path", "image4Path", "image5Path",
+									"haveDescription", "haveCtaDescription", "message");
 						}
 						result.add(info);
 					}
@@ -723,7 +723,7 @@ public class CreativeService extends BaseService {
 					Date campaignEndDate = campaign.getEndDate();
 					base.setStartDate(campaignStartDate);
 					base.setEndDate(campaignEndDate);
-					
+
 					if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(creativeType)) {
 						ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
 						if (imageMaterialModel != null) {
@@ -807,10 +807,10 @@ public class CreativeService extends BaseService {
 					//查询投放数据
 					if (startDate != null && endDate != null) {
 						String creativeId = creative.getId();
-						CreativeBean data = (CreativeBean)dataService.getCreativeData(creativeId, startDate, endDate);
-						BeanUtils.copyProperties(data, base, "id", "type", "status", "campaignId", "campaignName", "price", 
-								"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate", 
-								"materialPaths","message", "title", "description");
+						CreativeBean data = (CreativeBean) dataService.getCreativeData(creativeId, startDate, endDate);
+						BeanUtils.copyProperties(data, base, "id", "type", "status", "campaignId", "campaignName", "price",
+								"tmplId", "materialId", "remark", "adxId", "adxName", "enable", "startDate", "endDate",
+								"materialPaths", "message", "title", "description");
 					}
 					base.setStatus(getCreativeAuditStatus(creative.getId()));
 					//设置message
@@ -825,12 +825,13 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * 查询单个创意
+	 *
 	 * @param id
 	 * @return
 	 */
@@ -846,7 +847,7 @@ public class CreativeService extends BaseService {
 		ImageCreativeBean image = null;
 		VideoCreativeBean video = null;
 		InfoflowCreativeBean info = null;
-		Map<String, String> adxInfo= launchService.getAdxByCreative(creative);
+		Map<String, String> adxInfo = launchService.getAdxByCreative(creative);
 		String adxId = adxInfo.get("adxId");
 		String adxName = adxInfo.get("adxName");
 		//查询审核信息
@@ -855,21 +856,21 @@ public class CreativeService extends BaseService {
 		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			//如果创意类型是图片
 			ImageMaterialModel imageMaterialModel = imageMaterialDao.selectByPrimaryKey(creative.getMaterialId());
-			if (imageMaterialModel == null ) {
+			if (imageMaterialModel == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
-			ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());			
+			ImageModel imageModel = imageDao.selectByPrimaryKey(imageMaterialModel.getImageId());
 			if (imageModel != null) {
-				image = new ImageCreativeBean();				
+				image = new ImageCreativeBean();
 				image.setId(creative.getId());       //创意id
 				image.setType(type);                 //创意类型
 				image.setCampaignId(campaignId);     //活动id
-				
+
 				image.setStatus(getCreativeAuditStatus(creative.getId())); //创意审核状态
 				//设置message
-				if(creativeAuditModel!=null){
+				if (creativeAuditModel != null) {
 					image.setMessage(creativeAuditModel.getMessage());
-				}else{
+				} else {
 					image.setMessage("");
 				}
 				image.setPrice(creative.getPrice().floatValue());          //创意价格
@@ -877,11 +878,11 @@ public class CreativeService extends BaseService {
 				image.setAdxId(adxId);
 				image.setAdxName(adxName);
 				image.setEnable(creative.getEnable());           //创意的状态
-				
+
 				image.setImageId(imageModel.getId());   //图片id
 				image.setImagePath(imageModel.getPath());     //图片路径
 
-				
+
 				//查询投放数据
 				if (startDate != null && endDate != null) {
 					String creativeId = creative.getId();
@@ -897,7 +898,7 @@ public class CreativeService extends BaseService {
 						image.setClickCost(dataBean.getClickCost());               //点击成本
 						image.setClickRate(dataBean.getClickRate());               //点击率
 						image.setJumpCost(dataBean.getJumpCost());                 //二跳成本
-						image.setAdxCost(dataBean.getAdxCost());		//修正成本
+						image.setAdxCost(dataBean.getAdxCost());        //修正成本
 					}
 				}
 				return image;
@@ -905,10 +906,10 @@ public class CreativeService extends BaseService {
 		} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果创意类型是视频
 			VideoMaterialModel videoMaterialModel = videoMaterialDao.selectByPrimaryKey(creative.getMaterialId());
-			if (videoMaterialModel == null ) {
+			if (videoMaterialModel == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
-			String imageId = videoMaterialModel.getImageId();			
+			String imageId = videoMaterialModel.getImageId();
 			VideoModel videoModel = videoDao.selectByPrimaryKey(videoMaterialModel.getVideoId());
 			if (videoModel != null) {
 				video = new VideoCreativeBean();
@@ -917,9 +918,9 @@ public class CreativeService extends BaseService {
 				video.setCampaignId(campaignId);                           //活动id
 				video.setStatus(getCreativeAuditStatus(creative.getId())); //创意审核状态
 				//设置message
-				if(creativeAuditModel!=null){
+				if (creativeAuditModel != null) {
 					video.setMessage(creativeAuditModel.getMessage());
-				}else{
+				} else {
 					video.setMessage("");
 				}
 				video.setPrice(creative.getPrice().floatValue());          //创意价格
@@ -927,7 +928,7 @@ public class CreativeService extends BaseService {
 				video.setAdxId(adxId);
 				video.setAdxName(adxName);
 				video.setEnable(creative.getEnable());                     //创意状态
-				
+
 				video.setImageId(imageId);                                 //图片id
 				video.setImagePath(getImagePath(imageId));                 //图片路径
 				video.setVideoId(creative.getMaterialId());                //视频id
@@ -948,10 +949,10 @@ public class CreativeService extends BaseService {
 						video.setClickCost(dataBean.getClickCost());                  //点击成本
 						video.setClickRate(dataBean.getClickRate());                  //点击率
 						video.setJumpCost(dataBean.getJumpCost());                    //二跳成本
-						video.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
+						video.setAdxCost(dataBean.getAdxCost());          //修正成本
 					}
 				}
-				
+
 				return video;
 			}
 		} else if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
@@ -967,9 +968,9 @@ public class CreativeService extends BaseService {
 				info.setCampaignId(campaignId);                            //活动id
 				info.setStatus(getCreativeAuditStatus(creative.getId()));  //创意的审核状态
 				//设置message
-				if(creativeAuditModel!=null){
+				if (creativeAuditModel != null) {
 					info.setMessage(creativeAuditModel.getMessage());
-				}else{
+				} else {
 					info.setMessage("");
 				}
 				info.setPrice(creative.getPrice().floatValue());           //创意价格
@@ -1009,7 +1010,7 @@ public class CreativeService extends BaseService {
 					info.setImage5Id(infoflowModel.getImage5Id());
 					info.setImage5Path(getImagePath(infoflowModel.getImage5Id()));
 				}
-				
+
 				return info;
 			}
 		} else {
@@ -1032,26 +1033,27 @@ public class CreativeService extends BaseService {
 					base.setClickCost(dataBean.getClickCost());                      //点击成本
 					base.setClickRate(dataBean.getClickRate());                      //点击率
 					base.setJumpCost(dataBean.getJumpCost());                        //二跳成本
-					base.setAdxCost(dataBean.getAdxCost()); 		  //修正成本
+					base.setAdxCost(dataBean.getAdxCost());          //修正成本
 				}
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId()));                //创意的审核状态
 			//设置message
-			if (creativeAuditModel!=null) {
+			if (creativeAuditModel != null) {
 				base.setMessage(creativeAuditModel.getMessage());
 			} else {
 				base.setMessage("");
 			}
 			base.setStatus(getCreativeAuditStatus(creative.getId())); //创意的审核状态
-			
+
 			return base;
 		}
 		return new BasicDataBean();
 	}
-	
-	
+
+
 	/**
 	 * 根据图片素材id查询图片路径
+	 *
 	 * @param imageId
 	 * @return
 	 */
@@ -1065,9 +1067,10 @@ public class CreativeService extends BaseService {
 		}
 		return path;
 	}
-	
+
 	/**
 	 * 创意审核状态
+	 *
 	 * @param creativeId
 	 * @return
 	 */
@@ -1080,7 +1083,7 @@ public class CreativeService extends BaseService {
 		for (CreativeAuditModel model : models) {
 			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(model.getStatus())) {
 				status = StatusConstant.CREATIVE_AUDIT_SUCCESS;
-				successFlag  = true;
+				successFlag = true;
 				break;
 			}
 		}
@@ -1102,31 +1105,29 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
-		
+
 		return status;
 	}
-	
+
 	/**
-     * 根据配置文件中的设置，来绝定上传文件至本地文件服务器或远程文件服务器
-     * @param env   SpringBoot Environment配置
-     * @param file  multipart/form-data对象
-     * @return
-	 * @throws IOException 
-     */
-    private String doUpload(String uploadDir, String fileName, MultipartFile file) throws IOException
-    {
-        if ("local".equalsIgnoreCase(uploadMode))
-        {
-            return FileUtils.uploadFileToLocal(uploadDir, fileName, file);
-        }
-        else
-        {
-            return FileUtils.uploadFileToRemote(host, port, username, password, uploadDir, fileName, file);
-        }
-    }
-	
+	 * 根据配置文件中的设置，来绝定上传文件至本地文件服务器或远程文件服务器
+	 *
+	 * @param env  SpringBoot Environment配置
+	 * @param file multipart/form-data对象
+	 * @return
+	 * @throws IOException
+	 */
+	private String doUpload(String uploadDir, String fileName, MultipartFile file) throws IOException {
+		if ("local".equalsIgnoreCase(uploadMode)) {
+			return FileUtils.uploadFileToLocal(uploadDir, fileName, file);
+		} else {
+			return FileUtils.uploadFileToRemote(host, port, username, password, uploadDir, fileName, file);
+		}
+	}
+
 	/**
 	 * 修改已到过期时间的创意审核状态为“已过期”————————定时器
+	 *
 	 * @throws Exception
 	 */
 	@Scheduled(cron = "0 0 0 * * ?")
@@ -1148,7 +1149,7 @@ public class CreativeService extends BaseService {
 			}
 		}
 	}
-	
+
 //	private Map<String, String> getAppInfo(CreativeModel creative) throws Exception {
 //		String campaignId = creative.getCampaignId();
 //		String tmplId = creative.getTmplId();
@@ -1177,15 +1178,16 @@ public class CreativeService extends BaseService {
 //		}
 //		return result;
 //	}
-	
+
 	/**
 	 * 修改创意
+	 *
 	 * @param id
 	 * @param creativeBean
-	 * @throws Exception   
+	 * @throws Exception
 	 */
 	@Transactional
-	public void updateCreative(String id,CreativeBean creativeBean) throws Exception{
+	public void updateCreative(String id, CreativeBean creativeBean) throws Exception {
 		CreativeModel creativeModel = creativeDao.selectByPrimaryKey(id);
 		if (creativeModel == null) {
 			// 如果没有该对象不能修改创意
@@ -1202,16 +1204,16 @@ public class CreativeService extends BaseService {
 		if (CodeTableConstant.CREATIVE_TYPE_IMAGE.equals(type)) {
 			ImageMaterialModel imageMeterial = imageMaterialDao.selectByPrimaryKey(materialId);
 			if (imageMeterial == null) {
-				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);			
+				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
-			ImageCreativeBean imageBean = (ImageCreativeBean)creativeBean;
+			ImageCreativeBean imageBean = (ImageCreativeBean) creativeBean;
 			creativeModel = modelMapper.map(imageBean, CreativeModel.class);
 			ImageMaterialModel imageMaterialModel = modelMapper.map(imageBean, ImageMaterialModel.class);
 			imageMaterialModel.setId(materialId);
 			imageMaterialDao.updateByPrimaryKeySelective(imageMaterialModel);
 			launchService.writeImgCreativeInfo(creativeModel);
 			//判断除了了价格外，是否还更改了其他，如果更改了，则要在下面停止项目的投放
-			if((imageMeterial.getImageId()==null && imageMaterialModel.getImageId()!=null)||(imageMeterial.getImageId()!=null && !imageMeterial.getImageId().equals(imageMaterialModel.getImageId()))){
+			if ((imageMeterial.getImageId() == null && imageMaterialModel.getImageId() != null) || (imageMeterial.getImageId() != null && !imageMeterial.getImageId().equals(imageMaterialModel.getImageId()))) {
 				flag = true;
 			}
 		}
@@ -1221,7 +1223,7 @@ public class CreativeService extends BaseService {
 			if (videoMaterial == null) {
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
 			}
-			VideoCreativeBean videoBean = (VideoCreativeBean)creativeBean;
+			VideoCreativeBean videoBean = (VideoCreativeBean) creativeBean;
 			creativeModel = modelMapper.map(videoBean, CreativeModel.class);
 			VideoMaterialModel videoMaterialModel = modelMapper.map(videoBean, VideoMaterialModel.class);
 			videoMaterialModel.setId(materialId);
@@ -1229,14 +1231,14 @@ public class CreativeService extends BaseService {
 			launchService.writeVideoCreativeInfo(creativeModel);
 		}
 		// 信息流
-		if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) { 
+		if (CodeTableConstant.CREATIVE_TYPE_INFOFLOW.equals(type)) {
 			// 查询信息流信息
 			InfoflowMaterialModel infoflowMaterial = infoMaterialDao.selectByPrimaryKey(materialId);
 			if (infoflowMaterial == null) {
 				// 如果信息流信息为空
 				throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
-			}			
-			InfoflowCreativeBean infoBean = (InfoflowCreativeBean)creativeBean;
+			}
+			InfoflowCreativeBean infoBean = (InfoflowCreativeBean) creativeBean;
 			creativeModel = modelMapper.map(infoBean, CreativeModel.class);
 			InfoflowMaterialModel infoflowMaterialModel = modelMapper.map(infoBean, InfoflowMaterialModel.class);
 			// 放入ID，用于更新关联关系表中数据
@@ -1245,22 +1247,22 @@ public class CreativeService extends BaseService {
 			infoMaterialDao.updateByPrimaryKeySelective(infoflowMaterialModel);
 			launchService.writeInfoflowCreativeInfo(creativeModel);
 			//判断除了了价格外，是否还更改了其他，如果更改了，则要在下面停止项目的投放
-			if(!infoflowMaterial.getTitle().equals(infoflowMaterialModel.getTitle()) ||
-					(infoflowMaterial.getDescription() == null && infoflowMaterialModel.getDescription()!=null) ||(infoflowMaterial.getDescription()!=null && !infoflowMaterial.getDescription().equals(infoflowMaterialModel.getDescription()))
-					|| (infoflowMaterial.getIconId() ==null && infoflowMaterialModel.getIconId()!=null) || (infoflowMaterial.getIconId() !=null && !infoflowMaterial.getIconId().equals(infoflowMaterialModel.getIconId()))
-					|| (infoflowMaterial.getImage1Id() ==null && infoflowMaterialModel.getImage1Id()!=null) || (infoflowMaterial.getImage1Id() !=null && !infoflowMaterial.getImage1Id().equals(infoflowMaterialModel.getImage1Id()))
-					|| (infoflowMaterial.getImage2Id() ==null && infoflowMaterialModel.getImage2Id()!=null) || (infoflowMaterial.getImage2Id() !=null && !infoflowMaterial.getImage2Id().equals(infoflowMaterialModel.getImage2Id()))
-					|| (infoflowMaterial.getImage3Id() ==null && infoflowMaterialModel.getImage3Id()!=null) || (infoflowMaterial.getImage3Id() !=null && !infoflowMaterial.getImage3Id().equals(infoflowMaterialModel.getImage3Id()))
-					|| (infoflowMaterial.getImage4Id() ==null && infoflowMaterialModel.getImage4Id()!=null) || (infoflowMaterial.getImage4Id() !=null && !infoflowMaterial.getImage4Id().equals(infoflowMaterialModel.getImage4Id()))
-					|| (infoflowMaterial.getImage5Id() ==null && infoflowMaterialModel.getImage5Id()!=null) || (infoflowMaterial.getImage5Id() !=null && !infoflowMaterial.getImage5Id().equals(infoflowMaterialModel.getImage5Id()))
-					){
+			if (!infoflowMaterial.getTitle().equals(infoflowMaterialModel.getTitle()) ||
+					(infoflowMaterial.getDescription() == null && infoflowMaterialModel.getDescription() != null) || (infoflowMaterial.getDescription() != null && !infoflowMaterial.getDescription().equals(infoflowMaterialModel.getDescription()))
+					|| (infoflowMaterial.getIconId() == null && infoflowMaterialModel.getIconId() != null) || (infoflowMaterial.getIconId() != null && !infoflowMaterial.getIconId().equals(infoflowMaterialModel.getIconId()))
+					|| (infoflowMaterial.getImage1Id() == null && infoflowMaterialModel.getImage1Id() != null) || (infoflowMaterial.getImage1Id() != null && !infoflowMaterial.getImage1Id().equals(infoflowMaterialModel.getImage1Id()))
+					|| (infoflowMaterial.getImage2Id() == null && infoflowMaterialModel.getImage2Id() != null) || (infoflowMaterial.getImage2Id() != null && !infoflowMaterial.getImage2Id().equals(infoflowMaterialModel.getImage2Id()))
+					|| (infoflowMaterial.getImage3Id() == null && infoflowMaterialModel.getImage3Id() != null) || (infoflowMaterial.getImage3Id() != null && !infoflowMaterial.getImage3Id().equals(infoflowMaterialModel.getImage3Id()))
+					|| (infoflowMaterial.getImage4Id() == null && infoflowMaterialModel.getImage4Id() != null) || (infoflowMaterial.getImage4Id() != null && !infoflowMaterial.getImage4Id().equals(infoflowMaterialModel.getImage4Id()))
+					|| (infoflowMaterial.getImage5Id() == null && infoflowMaterialModel.getImage5Id() != null) || (infoflowMaterial.getImage5Id() != null && !infoflowMaterial.getImage5Id().equals(infoflowMaterialModel.getImage5Id()))
+					) {
 				flag = true;
 			}
 		}
 		// 放入ID，用于更新关联关系表中数据
 		creativeModel.setId(id);
 
-		if(flag) {
+		if (flag) {
 			//停止创意投放
 			launchService.removeOneCreativeId(campaignId, id);
 			//把状态改为未审核
@@ -1272,38 +1274,39 @@ public class CreativeService extends BaseService {
 
 	/**
 	 * 更改创意的审核状态为指定状态
+	 *
 	 * @param creativeId 创意id
-	 * @param status 状态值
+	 * @param status     状态值
 	 */
-	public void updateCreativeAuditStatusByCreativeId(String creativeId,String status){
+	public void updateCreativeAuditStatusByCreativeId(String creativeId, String status) {
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		example.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
 
 		// 如果创意审核表信息已存在，更新数据库中原记录的状态
-		if (auditsInDB != null && !auditsInDB.isEmpty())
-		{
-			updateCreativeAuditStatus(auditsInDB,status);
+		if (auditsInDB != null && !auditsInDB.isEmpty()) {
+			updateCreativeAuditStatus(auditsInDB, status);
 		}
 	}
 
 	/**
 	 * 更改活动下面的所有创意审核状态为指定状态
+	 *
 	 * @param campaignId
 	 * @param status
 	 */
-	public void updateCreativeAuditStatusByCampaignId(String campaignId,String status){
+	public void updateCreativeAuditStatusByCampaignId(String campaignId, String status) {
 		//查询活动下面的所有创意
 		CreativeModelExample creativeModelExample = new CreativeModelExample();
 		creativeModelExample.createCriteria().andCampaignIdEqualTo(campaignId);
 		List<CreativeModel> creativeModels = creativeDao.selectByExample(creativeModelExample);
 		List<String> creativeIds = new ArrayList<String>();
-		if(creativeModels != null && !creativeModels.isEmpty()){
-			for(CreativeModel creativeModel: creativeModels){
+		if (creativeModels != null && !creativeModels.isEmpty()) {
+			for (CreativeModel creativeModel : creativeModels) {
 				creativeIds.add(creativeModel.getId());
 			}
 		}
-		if(creativeIds.isEmpty()){
+		if (creativeIds.isEmpty()) {
 			return;
 		}
 		//根据创意id查询创意审核
@@ -1312,29 +1315,29 @@ public class CreativeService extends BaseService {
 		List<CreativeAuditModel> auditsInDB = creativeAuditDao.selectByExample(example);
 
 		// 如果创意审核表信息已存在，更新数据库中原记录的状态
-		if (auditsInDB != null && !auditsInDB.isEmpty())
-		{
-			updateCreativeAuditStatus(auditsInDB,status);
+		if (auditsInDB != null && !auditsInDB.isEmpty()) {
+			updateCreativeAuditStatus(auditsInDB, status);
 		}
 	}
 
 	/**
 	 * 更改创意审核状态为指定状态
+	 *
 	 * @param auditsInDB
 	 * @param status
 	 */
-	public void updateCreativeAuditStatus(List<CreativeAuditModel> auditsInDB,String status){
-		for (CreativeAuditModel auditInDB : auditsInDB)
-		{
-			if(!auditInDB.getStatus().equals(status)) {
+	public void updateCreativeAuditStatus(List<CreativeAuditModel> auditsInDB, String status) {
+		for (CreativeAuditModel auditInDB : auditsInDB) {
+			if (!auditInDB.getStatus().equals(status)) {
 				auditInDB.setStatus(status);
 				creativeAuditDao.updateByPrimaryKeySelective(auditInDB);
 			}
 		}
 	}
-	
+
 	/**
 	 * 批量同步创意
+	 *
 	 * @param creativeIds 创意ids
 	 * @throws Exception
 	 */
@@ -1355,13 +1358,13 @@ public class CreativeService extends BaseService {
 		for (CreativeModel creative : creativeModels) {
 			String creativeId = creative.getId();
 			String status = getCreativeAuditStatus(creativeId);
-			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status) 
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status)
 					|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
 				continue;
 			}
 			// 查询adx列表，一个创意可以由多个ADX审核  
 			Map<String, String> adx = launchService.getAdxByCreative(creative);
-			
+
 			// 同步审核结果
 			// 获取adxId
 			String adxId = adx.get("adxId");
@@ -1403,12 +1406,13 @@ public class CreativeService extends BaseService {
 			String campaignId = creative.getCampaignId();
 			if (StatusConstant.CREATIVE_IS_ENABLE.equals(creative.getEnable())) {
 				writeCreativeInfoAndIdToRedis(campaignId, creativeId);
-			}			
+			}
 		}
 	}
-	
+
 	/**
 	 * 批量审核创意
+	 *
 	 * @param creativeIds 创意ids
 	 * @throws Exception
 	 */
@@ -1480,15 +1484,16 @@ public class CreativeService extends BaseService {
 			}
 		}
 	}
-	
+
 	/**
 	 * 编辑创意的状态，启动/暂停创意
+	 *
 	 * @param creativeId
 	 * @param map
 	 * @throws Exception
 	 */
 	@Transactional
-	public void updateCreativeStatus(String creativeId,Map<String,String> map) throws Exception {
+	public void updateCreativeStatus(String creativeId, Map<String, String> map) throws Exception {
 		// 获取传来的创意状态
 		String enable = map.get("enable");
 		// 判断传来的状态是否为空 
@@ -1523,14 +1528,15 @@ public class CreativeService extends BaseService {
 			writeCreativeInfoAndIdToRedis(campaignId, creativeId);
 		}
 	}
-	
+
 	/**
 	 * 查询导入的素材
+	 *
 	 * @param map
 	 * @return
 	 * @throws Exception
 	 */
-	public List<MediaBean> listCreativeMaterials(Integer width,Integer height,String type,String advertiserId,String[] formats,String projectId,String campaignId) throws Exception {
+	public List<MediaBean> listCreativeMaterials(Integer width, Integer height, String type, String advertiserId, String[] formats, String projectId, String campaignId) throws Exception {
 		List<ImageModel> images = null;
 		List<VideoModel> videos = null;
 		List<MediaBean> result = new ArrayList<MediaBean>();
@@ -1538,8 +1544,8 @@ public class CreativeService extends BaseService {
 			throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
 		}
 		// 转换类型
-		List<String> formatList = Arrays.asList(formats);	
-		
+		List<String> formatList = Arrays.asList(formats);
+
 		// 1.查询广告主下的素材：根据广告id查询项目，项目id查询活动，活动可获得用过的素材id
 		Set<String> advertiserMaterialIds = new HashSet<String>();
 		// 根据广告主id查询广告主下的项目
@@ -1561,7 +1567,7 @@ public class CreativeService extends BaseService {
 								for (String materialId : videoMaterialIds) {
 									advertiserMaterialIds.add(materialId);
 								}
-							}	
+							}
 						} else {
 							// 如果是图片，查询广告主下的图片
 							Set<String> imageMaterialIds = listImageIdByCampaign(campaign.getId());
@@ -1575,7 +1581,7 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
-		
+
 		// 2.满足宽、高、规格要求的并且属于某一个广告主的图片/视频集合：取出满足要求的素材与属于广告主的素材取交集
 		if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 			// 如果是视频，查询视频素材
@@ -1592,9 +1598,9 @@ public class CreativeService extends BaseService {
 						VideoModel video = videoDao.selectByPrimaryKey(videoId);
 						videos.add(video);
 					}
-					
+
 				}
-			}						
+			}
 		} else {
 			// 如果是图片或信息流，查询图片素材
 			ImageModelExample imageEx = new ImageModelExample();
@@ -1613,7 +1619,7 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
-		
+
 		// 3.判读项目id/活动id是否为空
 		Set<String> materialIds = new HashSet<String>();
 		if (StringUtils.isEmpty(projectId) && StringUtils.isEmpty(campaignId)) {
@@ -1655,27 +1661,27 @@ public class CreativeService extends BaseService {
 								for (String materialId : setMaterialIds) {
 									materialIds.add(materialId);
 								}
-							}	
+							}
 						} else {
 							Set<String> setMaterialIds = listImageIdByCampaign(campaign.getId());
 							if (setMaterialIds != null && !setMaterialIds.isEmpty()) {
 								for (String materialId : setMaterialIds) {
 									materialIds.add(materialId);
 								}
-							}	
+							}
 						}
 					}
 				}
-				
+
 			} else if (!StringUtils.isEmpty(campaignId)) {
 				if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					// 如果项目id不为空，活动id不为，根据活动id查询使用过的素材
-					 materialIds = listVideoIdByCampaign(campaignId);
+					materialIds = listVideoIdByCampaign(campaignId);
 				} else {
 					// 如果项目id不为空，活动id不为，根据活动id查询使用过的素材
-					 materialIds = listImageIdByCampaign(campaignId);
+					materialIds = listImageIdByCampaign(campaignId);
 				}
-			} 
+			}
 			// 5.当项目id/活动id不为空时根据类型取交集返回结果
 			if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 				// 如果是视频
@@ -1706,13 +1712,14 @@ public class CreativeService extends BaseService {
 				}
 			}
 		}
-										
+
 		return result;
 	}
-		
-	
+
+
 	/**
 	 * 根据活动id查询活动下的图片id的集合
+	 *
 	 * @param campaignId
 	 * @return
 	 * @throws Exception
@@ -1735,7 +1742,7 @@ public class CreativeService extends BaseService {
 					// 将图片的id作为查询素材的条件之一
 					if (imageId != null && !imageId.isEmpty()) {
 						imageIds.add(imageId);
-					}					
+					}
 				} else if (CodeTableConstant.CREATIVE_TYPE_VIDEO.equals(type)) {
 					// 视频
 					VideoMaterialModel videoMaterial = videoMaterialDao.selectByPrimaryKey(materialId);
@@ -1771,15 +1778,16 @@ public class CreativeService extends BaseService {
 					String image5Id = infoflowMaterial.getImage5Id();
 					if (image5Id != null && !image5Id.isEmpty()) {
 						imageIds.add(image5Id);
-					}					
+					}
 				}
 			}
-		}		
+		}
 		return imageIds;
 	}
-	
+
 	/**
 	 * 根据活动id查询活动下的图片id的集合
+	 *
 	 * @param campaignId 活动id
 	 * @return
 	 * @throws Exception
@@ -1811,14 +1819,15 @@ public class CreativeService extends BaseService {
 
 	/**
 	 * 根据创意查询创意审核
+	 *
 	 * @param creativeId
 	 * @return
-     */
-	public CreativeAuditModel getCreativeAuditModelByCreativeId(String creativeId){
+	 */
+	public CreativeAuditModel getCreativeAuditModelByCreativeId(String creativeId) {
 		CreativeAuditModelExample example = new CreativeAuditModelExample();
 		example.createCriteria().andCreativeIdEqualTo(creativeId);
 		List<CreativeAuditModel> models = creativeAuditDao.selectByExample(example);
-		if(models !=null && !models.isEmpty()){
+		if (models != null && !models.isEmpty()) {
 			return models.get(0);
 		}
 		return null;
@@ -1826,10 +1835,11 @@ public class CreativeService extends BaseService {
 
 	/**
 	 * 获取素材信息
+	 *
 	 * @param creativeModel
 	 * @return
-     */
-	public void getMaterialInfoByCreativeModel(CreativeModel creativeModel,CreativeBean creativeBean) {
+	 */
+	public void getMaterialInfoByCreativeModel(CreativeModel creativeModel, CreativeBean creativeBean) {
 		String creativeType = creativeModel.getType();
 
 		String[] materialPaths = null;
@@ -1917,7 +1927,7 @@ public class CreativeService extends BaseService {
 		} else {
 			throw new IllegalArgumentException();
 		}
-		if(materialPaths == null){
+		if (materialPaths == null) {
 			materialPaths = new String[1];
 		}
 		creativeBean.setTitle(title);
@@ -1927,12 +1937,13 @@ public class CreativeService extends BaseService {
 
 	/**
 	 * 判断是否写创意id和创意信息到redis中：创意审核通过 && （创意开关打开 &&） 项目打开 && 活动打开 && 当前活动在投放日期内
+	 *
 	 * @param campaignId 活动id
 	 * @param creativeId 创意id
 	 * @return
 	 * @throws Exception
 	 */
-	private boolean iswriteCreativeInfoAndId (String campaignId, String creativeId) throws Exception{
+	private boolean iswriteCreativeInfoAndId(String campaignId, String creativeId) throws Exception {
 		// 查询创意对应的活动信息
 		CampaignModel campaign = campaignDao.selectByPrimaryKey(campaignId);
 		// 查询创意对应的项目信息
@@ -1946,27 +1957,49 @@ public class CreativeService extends BaseService {
 			String auditStatus = creativeAudit.get(0).getStatus();
 			return StatusConstant.PROJECT_PROCEED.equals(project.getStatus())
 					&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus())
-					&& campaignService.isOnLaunchDate(campaignId) 
+					&& campaignService.isOnLaunchDate(campaignId)
 					&& auditStatus.equals(StatusConstant.CREATIVE_AUDIT_SUCCESS);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 向redis中写入创意基本信息和单个创意id
+	 *
 	 * @param campaignId 活动id
 	 * @param creativeId 创意id
 	 * @throws Exception
 	 */
-	private void writeCreativeInfoAndIdToRedis (String campaignId, String creativeId) throws Exception{
+	private void writeCreativeInfoAndIdToRedis(String campaignId, String creativeId) throws Exception {
 		if (iswriteCreativeInfoAndId(campaignId, creativeId)) {
 			// 创意审核通过 （&& 创意开关打开） && 项目打开 && 活动打开 && 当前活动在投放日期内
 			// 将创意id写入redis的mapids
 			launchService.writeOneCreativeId(campaignId, creativeId);
 			//写入活动下的创意基本信息   dsp_mapid_*		
-			if (!launchService.isHaveCreativeInfoInRedis(creativeId)) {					
+			if (!launchService.isHaveCreativeInfoInRedis(creativeId)) {
 				launchService.writeCreativeInfo(campaignId);
 			}
-		}	
+		}
 	}
+
+	/**
+	 * 获取投放时间在当前时间的创意
+	 * @return
+	 */
+	public List<CreativeModel> getCreativeOfCurrentPuttingTime(){
+		List<CreativeModel> creativeModels = null;
+		//获取投放时间在当前时间内的活动
+		List<CampaignModel> campaignModels = campaignService.getCampaignOfCurrentPuttingTime();
+		if(campaignModels != null && !campaignModels.isEmpty()) {
+			List<String> campIds = new ArrayList<>();
+			for (CampaignModel campaignModel : campaignModels) {
+				campIds.add(campaignModel.getId());
+			}
+			CreativeModelExample creativeModelExample = new CreativeModelExample();
+			creativeModelExample.createCriteria().andCampaignIdIn(campIds);
+			creativeModels = creativeDao.selectByExample(creativeModelExample);
+		}
+		return creativeModels;
+	}
+
 }

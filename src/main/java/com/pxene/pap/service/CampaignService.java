@@ -13,6 +13,8 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
+import com.pxene.pap.domain.beans.*;
+import com.pxene.pap.domain.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -30,62 +32,13 @@ import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.CampaignBean;
 import com.pxene.pap.domain.beans.CampaignBean.Frequency;
 import com.pxene.pap.domain.beans.CampaignBean.Quantity;
 import com.pxene.pap.domain.beans.CampaignBean.Target;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Exclude;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Include;
 import com.pxene.pap.domain.beans.CampaignBean.Target.Region;
-import com.pxene.pap.domain.beans.CampaignScoreBean;
-import com.pxene.pap.domain.beans.CampaignTargetBean;
 import com.pxene.pap.domain.beans.CampaignTargetBean.Population;
-import com.pxene.pap.domain.beans.PopulationTargetBean;
-import com.pxene.pap.domain.models.AdTypeTargetModel;
-import com.pxene.pap.domain.models.AdTypeTargetModelExample;
-import com.pxene.pap.domain.models.AdxModelExample;
-import com.pxene.pap.domain.models.AdxTargetModel;
-import com.pxene.pap.domain.models.AdxTargetModelExample;
-import com.pxene.pap.domain.models.AppModel;
-import com.pxene.pap.domain.models.AppTargetDetailModel;
-import com.pxene.pap.domain.models.AppTargetDetailModelExample;
-import com.pxene.pap.domain.models.AppTargetModel;
-import com.pxene.pap.domain.models.AppTargetModelExample;
-import com.pxene.pap.domain.models.BrandTargetModel;
-import com.pxene.pap.domain.models.BrandTargetModelExample;
-import com.pxene.pap.domain.models.CampaignModel;
-import com.pxene.pap.domain.models.CampaignModelExample;
-import com.pxene.pap.domain.models.CampaignTargetModel;
-import com.pxene.pap.domain.models.CampaignTargetModelExample;
-import com.pxene.pap.domain.models.CreativeAuditModel;
-import com.pxene.pap.domain.models.CreativeAuditModelExample;
-import com.pxene.pap.domain.models.CreativeModel;
-import com.pxene.pap.domain.models.CreativeModelExample;
-import com.pxene.pap.domain.models.DeviceTargetModel;
-import com.pxene.pap.domain.models.DeviceTargetModelExample;
-import com.pxene.pap.domain.models.FrequencyModel;
-import com.pxene.pap.domain.models.LandpageCodeHistoryModel;
-import com.pxene.pap.domain.models.LandpageCodeHistoryModelExample;
-import com.pxene.pap.domain.models.LandpageCodeModel;
-import com.pxene.pap.domain.models.LandpageCodeModelExample;
-import com.pxene.pap.domain.models.LandpageModel;
-import com.pxene.pap.domain.models.MonitorModelExample;
-import com.pxene.pap.domain.models.NetworkTargetModel;
-import com.pxene.pap.domain.models.NetworkTargetModelExample;
-import com.pxene.pap.domain.models.OperatorTargetModel;
-import com.pxene.pap.domain.models.OperatorTargetModelExample;
-import com.pxene.pap.domain.models.OsTargetModel;
-import com.pxene.pap.domain.models.OsTargetModelExample;
-import com.pxene.pap.domain.models.PopulationTargetModel;
-import com.pxene.pap.domain.models.PopulationTargetModelExample;
-import com.pxene.pap.domain.models.ProjectModel;
-import com.pxene.pap.domain.models.QuantityModel;
-import com.pxene.pap.domain.models.QuantityModelExample;
-import com.pxene.pap.domain.models.RegionModel;
-import com.pxene.pap.domain.models.RegionTargetModel;
-import com.pxene.pap.domain.models.RegionTargetModelExample;
-import com.pxene.pap.domain.models.TimeTargetModel;
-import com.pxene.pap.domain.models.TimeTargetModelExample;
 
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
@@ -2151,4 +2104,19 @@ public class CampaignService extends BaseService {
 				&& StatusConstant.PROJECT_PROCEED.equals(projectStatus)
 				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaign.getStatus());
 	}
+
+	/**
+	 * 获取所有投放时间在当前时间内的活动
+	 * @return
+	 */
+	public List<CampaignModel> getCampaignOfCurrentPuttingTime(){
+
+		Date currentDate = new Date();
+		CampaignModelExample campaignModelExample = new CampaignModelExample();
+		campaignModelExample.createCriteria().andStartDateLessThanOrEqualTo(currentDate)
+				.andEndDateGreaterThanOrEqualTo(currentDate);
+		List<CampaignModel> campaignModels = campaignDao.selectByExample(campaignModelExample);
+		return campaignModels;
+	}
+
 }
