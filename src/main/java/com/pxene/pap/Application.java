@@ -103,23 +103,24 @@ public class Application
         
         List<String> urlPatterns = new ArrayList<String>();
         urlPatterns.add("/advertisers");
-        urlPatterns.add("/advertiser");
-        urlPatterns.add("/project");
+        urlPatterns.add("/advertiser/*");
         urlPatterns.add("/projects");
-        urlPatterns.add("/campaign");
+        urlPatterns.add("/project/*");
         urlPatterns.add("/campaigns");
-        urlPatterns.add("/creative");
+        urlPatterns.add("/campaign/*");
         urlPatterns.add("/creatives");
-        urlPatterns.add("/landpage");
+        urlPatterns.add("/creative/*");
         urlPatterns.add("/landpages");
+        urlPatterns.add("/landpage/*");
         urlPatterns.add("/apps");
-        urlPatterns.add("/app");
-        urlPatterns.add("/tmpl");
+        urlPatterns.add("/app/*");
+        urlPatterns.add("/tmpl/*");
         urlPatterns.add("/industries");
-        urlPatterns.add("/data");
-        urlPatterns.add("/population");
+        urlPatterns.add("/data/*");
         urlPatterns.add("/populations");
+        urlPatterns.add("/population/*");
         urlPatterns.add("/regions");
+        urlPatterns.add("/adxcost/*");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;

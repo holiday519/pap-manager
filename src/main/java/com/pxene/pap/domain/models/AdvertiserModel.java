@@ -11,41 +11,23 @@ public class AdvertiserModel {
 
     private String company;
 
-    private String address;
-
     private String siteUrl;
 
     private String siteName;
 
     private String brandName;
 
-    private String contact;
-
-    private String phone;
-
-    private String email;
-
     private String qq;
-
-    private String zip;
 
     private String industryId;
 
-    private String licenseNo;
+    private String qualificationNo;
 
-    private String organizationNo;
+    private String qualificationPath;
 
-    private String logoPath;
+    private Date validDate;
 
-    private String accountPath;
-
-    private String licensePath;
-
-    private String validDate;
-
-    private String organizationPath;
-
-    private String icpPath;
+    private String qualificationType;
 
     private String remark;
 
@@ -85,14 +67,6 @@ public class AdvertiserModel {
         this.company = company == null ? null : company.trim();
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address == null ? null : address.trim();
-    }
-
     public String getSiteUrl() {
         return siteUrl;
     }
@@ -117,44 +91,12 @@ public class AdvertiserModel {
         this.brandName = brandName == null ? null : brandName.trim();
     }
 
-    public String getContact() {
-        return contact;
-    }
-
-    public void setContact(String contact) {
-        this.contact = contact == null ? null : contact.trim();
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone == null ? null : phone.trim();
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email == null ? null : email.trim();
-    }
-
     public String getQq() {
         return qq;
     }
 
     public void setQq(String qq) {
         this.qq = qq == null ? null : qq.trim();
-    }
-
-    public String getZip() {
-        return zip;
-    }
-
-    public void setZip(String zip) {
-        this.zip = zip == null ? null : zip.trim();
     }
 
     public String getIndustryId() {
@@ -165,68 +107,36 @@ public class AdvertiserModel {
         this.industryId = industryId == null ? null : industryId.trim();
     }
 
-    public String getLicenseNo() {
-        return licenseNo;
+    public String getQualificationNo() {
+        return qualificationNo;
     }
 
-    public void setLicenseNo(String licenseNo) {
-        this.licenseNo = licenseNo == null ? null : licenseNo.trim();
+    public void setQualificationNo(String qualificationNo) {
+        this.qualificationNo = qualificationNo == null ? null : qualificationNo.trim();
     }
 
-    public String getOrganizationNo() {
-        return organizationNo;
+    public String getQualificationPath() {
+        return qualificationPath;
     }
 
-    public void setOrganizationNo(String organizationNo) {
-        this.organizationNo = organizationNo == null ? null : organizationNo.trim();
+    public void setQualificationPath(String qualificationPath) {
+        this.qualificationPath = qualificationPath == null ? null : qualificationPath.trim();
     }
 
-    public String getLogoPath() {
-        return logoPath;
-    }
-
-    public void setLogoPath(String logoPath) {
-        this.logoPath = logoPath == null ? null : logoPath.trim();
-    }
-
-    public String getAccountPath() {
-        return accountPath;
-    }
-
-    public void setAccountPath(String accountPath) {
-        this.accountPath = accountPath == null ? null : accountPath.trim();
-    }
-
-    public String getLicensePath() {
-        return licensePath;
-    }
-
-    public void setLicensePath(String licensePath) {
-        this.licensePath = licensePath == null ? null : licensePath.trim();
-    }
-
-    public String getValidDate() {
+    public Date getValidDate() {
         return validDate;
     }
 
-    public void setValidDate(String validDate) {
-        this.validDate = validDate == null ? null : validDate.trim();
+    public void setValidDate(Date validDate) {
+        this.validDate = validDate;
     }
 
-    public String getOrganizationPath() {
-        return organizationPath;
+    public String getQualificationType() {
+        return qualificationType;
     }
 
-    public void setOrganizationPath(String organizationPath) {
-        this.organizationPath = organizationPath == null ? null : organizationPath.trim();
-    }
-
-    public String getIcpPath() {
-        return icpPath;
-    }
-
-    public void setIcpPath(String icpPath) {
-        this.icpPath = icpPath == null ? null : icpPath.trim();
+    public void setQualificationType(String qualificationType) {
+        this.qualificationType = qualificationType == null ? null : qualificationType.trim();
     }
 
     public String getRemark() {
@@ -263,24 +173,15 @@ public class AdvertiserModel {
         sb.append(", name=").append(name);
         sb.append(", legalName=").append(legalName);
         sb.append(", company=").append(company);
-        sb.append(", address=").append(address);
         sb.append(", siteUrl=").append(siteUrl);
         sb.append(", siteName=").append(siteName);
         sb.append(", brandName=").append(brandName);
-        sb.append(", contact=").append(contact);
-        sb.append(", phone=").append(phone);
-        sb.append(", email=").append(email);
         sb.append(", qq=").append(qq);
-        sb.append(", zip=").append(zip);
         sb.append(", industryId=").append(industryId);
-        sb.append(", licenseNo=").append(licenseNo);
-        sb.append(", organizationNo=").append(organizationNo);
-        sb.append(", logoPath=").append(logoPath);
-        sb.append(", accountPath=").append(accountPath);
-        sb.append(", licensePath=").append(licensePath);
+        sb.append(", qualificationNo=").append(qualificationNo);
+        sb.append(", qualificationPath=").append(qualificationPath);
         sb.append(", validDate=").append(validDate);
-        sb.append(", organizationPath=").append(organizationPath);
-        sb.append(", icpPath=").append(icpPath);
+        sb.append(", qualificationType=").append(qualificationType);
         sb.append(", remark=").append(remark);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);

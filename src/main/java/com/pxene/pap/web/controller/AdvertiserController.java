@@ -162,12 +162,12 @@ public class AdvertiserController
      * @param response
      * @return
      */
-    @RequestMapping(value = "/advertiser/upload/logo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String uploadQualification4Logo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
-    	String path = advertiserService.uploadQualification4Logo(file);
-    	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
-    }
+//    @RequestMapping(value = "/advertiser/upload/logo", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+//    @ResponseBody
+//    public String uploadQualification4Logo(@RequestPart(value = "file", required = true) MultipartFile file, HttpServletResponse response) throws Exception {
+//    	String path = advertiserService.uploadQualification4Logo(file);
+//    	return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "path", path, response);
+//    }
     
     /**
      * 广告主提交第三方审核

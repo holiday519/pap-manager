@@ -164,9 +164,9 @@ public class AdxCostService extends BaseService
             {
                 String creativeId = creative.getId();
                 
-                Map<String, String> entry = launchService.getAdxByCreative(creative);
-                String adxId = entry.get("adxId");
-                String adxName = entry.get("adxName");
+                Map<String, String> adx = launchService.getAdxByCreative(creative);
+                String adxId = adx.get("adxId");
+                String adxName = adx.get("adxName");
                 String idGroup = projectId + "_" + adxId;
                 
                 if (tmpMap.containsKey(idGroup))

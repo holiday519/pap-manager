@@ -1444,22 +1444,6 @@ public class CreativeService extends BaseService {
 			// 根据不同的ADX到不同的广告审核平台审核
 			// 获取ADX的Id，根据ADXID判断属于哪个ADX
 			String adxId = adx.get("adxId");
-			// 审核：未审核和审核未通过的创意
-			// 1.审核的状态
-			// List<String> statusList = new ArrayList<String>();
-			// statusList.add(StatusConstant.CREATIVE_AUDIT_NOCHECK);
-			// statusList.add(StatusConstant.CREATIVE_AUDIT_FAILURE);
-			// if (statusList == null || statusList.size() == 0) {
-			// throw new
-			// IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
-			// }
-			// 2.查询审核信息
-			// CreativeAuditModelExample creativeAuditExample = new
-			// CreativeAuditModelExample();
-			// creativeAuditExample.createCriteria().andCreativeIdEqualTo(creativeId).andAdxIdEqualTo(adxId).andStatusIn(statusList);
-			// List<CreativeAuditModel> creativeAudits =
-			// creativeAuditDao.selectByExample(creativeAuditExample);
-
 			// 如果数据库中没有该创意为未审核的创意审核信息，则提交对应的平台进行审核
 			if (AdxKeyConstant.ADX_MOMO_VALUE.equals(adxId)) {
 				// 如果ADX属于陌陌，则提交陌陌审核

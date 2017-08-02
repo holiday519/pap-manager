@@ -6,24 +6,15 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="legal_name" jdbcType="VARCHAR" property="legalName" />
     <result column="company" jdbcType="VARCHAR" property="company" />
-    <result column="address" jdbcType="VARCHAR" property="address" />
     <result column="site_url" jdbcType="VARCHAR" property="siteUrl" />
     <result column="site_name" jdbcType="VARCHAR" property="siteName" />
     <result column="brand_name" jdbcType="VARCHAR" property="brandName" />
-    <result column="contact" jdbcType="VARCHAR" property="contact" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="email" jdbcType="VARCHAR" property="email" />
     <result column="qq" jdbcType="VARCHAR" property="qq" />
-    <result column="zip" jdbcType="VARCHAR" property="zip" />
     <result column="industry_id" jdbcType="VARCHAR" property="industryId" />
-    <result column="license_no" jdbcType="VARCHAR" property="licenseNo" />
-    <result column="organization_no" jdbcType="VARCHAR" property="organizationNo" />
-    <result column="logo_path" jdbcType="VARCHAR" property="logoPath" />
-    <result column="account_path" jdbcType="VARCHAR" property="accountPath" />
-    <result column="license_path" jdbcType="VARCHAR" property="licensePath" />
-    <result column="valid_date" jdbcType="VARCHAR" property="validDate" />
-    <result column="organization_path" jdbcType="VARCHAR" property="organizationPath" />
-    <result column="icp_path" jdbcType="VARCHAR" property="icpPath" />
+    <result column="qualification_no" jdbcType="VARCHAR" property="qualificationNo" />
+    <result column="qualification_path" jdbcType="VARCHAR" property="qualificationPath" />
+    <result column="valid_date" jdbcType="DATE" property="validDate" />
+    <result column="qualification_type" jdbcType="VARCHAR" property="qualificationType" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -87,9 +78,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, legal_name, company, address, site_url, site_name, brand_name, contact, 
-    phone, email, qq, zip, industry_id, license_no, organization_no, logo_path, account_path, 
-    license_path, valid_date, organization_path, icp_path, remark, create_time, update_time
+    id, name, legal_name, company, site_url, site_name, brand_name, qq, industry_id, 
+    qualification_no, qualification_path, valid_date, qualification_type, remark, create_time, 
+    update_time
   </sql>
   <select id="selectByExample" parameterType="com.pxene.pap.domain.models.AdvertiserModelExample" resultMap="BaseResultMap">
     select
@@ -124,23 +115,17 @@
   </delete>
   <insert id="insert" parameterType="com.pxene.pap.domain.models.AdvertiserModel">
     insert into pap_t_advertiser (id, name, legal_name, 
-      company, address, site_url, 
-      site_name, brand_name, contact, 
-      phone, email, qq, zip, 
-      industry_id, license_no, organization_no, 
-      logo_path, account_path, license_path, 
-      valid_date, organization_path, icp_path, 
-      remark, create_time, update_time
-      )
+      company, site_url, site_name, 
+      brand_name, qq, industry_id, 
+      qualification_no, qualification_path, valid_date, 
+      qualification_type, remark, create_time, 
+      update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{legalName,jdbcType=VARCHAR}, 
-      #{company,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{siteUrl,jdbcType=VARCHAR}, 
-      #{siteName,jdbcType=VARCHAR}, #{brandName,jdbcType=VARCHAR}, #{contact,jdbcType=VARCHAR}, 
-      #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{qq,jdbcType=VARCHAR}, #{zip,jdbcType=VARCHAR}, 
-      #{industryId,jdbcType=VARCHAR}, #{licenseNo,jdbcType=VARCHAR}, #{organizationNo,jdbcType=VARCHAR}, 
-      #{logoPath,jdbcType=VARCHAR}, #{accountPath,jdbcType=VARCHAR}, #{licensePath,jdbcType=VARCHAR}, 
-      #{validDate,jdbcType=VARCHAR}, #{organizationPath,jdbcType=VARCHAR}, #{icpPath,jdbcType=VARCHAR}, 
-      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
-      )
+      #{company,jdbcType=VARCHAR}, #{siteUrl,jdbcType=VARCHAR}, #{siteName,jdbcType=VARCHAR}, 
+      #{brandName,jdbcType=VARCHAR}, #{qq,jdbcType=VARCHAR}, #{industryId,jdbcType=VARCHAR}, 
+      #{qualificationNo,jdbcType=VARCHAR}, #{qualificationPath,jdbcType=VARCHAR}, #{validDate,jdbcType=DATE}, 
+      #{qualificationType,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.AdvertiserModel">
     insert into pap_t_advertiser
@@ -157,9 +142,6 @@
       <if test="company != null">
         company,
       </if>
-      <if test="address != null">
-        address,
-      </if>
       <if test="siteUrl != null">
         site_url,
       </if>
@@ -169,47 +151,23 @@
       <if test="brandName != null">
         brand_name,
       </if>
-      <if test="contact != null">
-        contact,
-      </if>
-      <if test="phone != null">
-        phone,
-      </if>
-      <if test="email != null">
-        email,
-      </if>
       <if test="qq != null">
         qq,
-      </if>
-      <if test="zip != null">
-        zip,
       </if>
       <if test="industryId != null">
         industry_id,
       </if>
-      <if test="licenseNo != null">
-        license_no,
+      <if test="qualificationNo != null">
+        qualification_no,
       </if>
-      <if test="organizationNo != null">
-        organization_no,
-      </if>
-      <if test="logoPath != null">
-        logo_path,
-      </if>
-      <if test="accountPath != null">
-        account_path,
-      </if>
-      <if test="licensePath != null">
-        license_path,
+      <if test="qualificationPath != null">
+        qualification_path,
       </if>
       <if test="validDate != null">
         valid_date,
       </if>
-      <if test="organizationPath != null">
-        organization_path,
-      </if>
-      <if test="icpPath != null">
-        icp_path,
+      <if test="qualificationType != null">
+        qualification_type,
       </if>
       <if test="remark != null">
         remark,
@@ -234,9 +192,6 @@
       <if test="company != null">
         #{company,jdbcType=VARCHAR},
       </if>
-      <if test="address != null">
-        #{address,jdbcType=VARCHAR},
-      </if>
       <if test="siteUrl != null">
         #{siteUrl,jdbcType=VARCHAR},
       </if>
@@ -246,47 +201,23 @@
       <if test="brandName != null">
         #{brandName,jdbcType=VARCHAR},
       </if>
-      <if test="contact != null">
-        #{contact,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="email != null">
-        #{email,jdbcType=VARCHAR},
-      </if>
       <if test="qq != null">
         #{qq,jdbcType=VARCHAR},
-      </if>
-      <if test="zip != null">
-        #{zip,jdbcType=VARCHAR},
       </if>
       <if test="industryId != null">
         #{industryId,jdbcType=VARCHAR},
       </if>
-      <if test="licenseNo != null">
-        #{licenseNo,jdbcType=VARCHAR},
+      <if test="qualificationNo != null">
+        #{qualificationNo,jdbcType=VARCHAR},
       </if>
-      <if test="organizationNo != null">
-        #{organizationNo,jdbcType=VARCHAR},
-      </if>
-      <if test="logoPath != null">
-        #{logoPath,jdbcType=VARCHAR},
-      </if>
-      <if test="accountPath != null">
-        #{accountPath,jdbcType=VARCHAR},
-      </if>
-      <if test="licensePath != null">
-        #{licensePath,jdbcType=VARCHAR},
+      <if test="qualificationPath != null">
+        #{qualificationPath,jdbcType=VARCHAR},
       </if>
       <if test="validDate != null">
-        #{validDate,jdbcType=VARCHAR},
+        #{validDate,jdbcType=DATE},
       </if>
-      <if test="organizationPath != null">
-        #{organizationPath,jdbcType=VARCHAR},
-      </if>
-      <if test="icpPath != null">
-        #{icpPath,jdbcType=VARCHAR},
+      <if test="qualificationType != null">
+        #{qualificationType,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
@@ -320,9 +251,6 @@
       <if test="record.company != null">
         company = #{record.company,jdbcType=VARCHAR},
       </if>
-      <if test="record.address != null">
-        address = #{record.address,jdbcType=VARCHAR},
-      </if>
       <if test="record.siteUrl != null">
         site_url = #{record.siteUrl,jdbcType=VARCHAR},
       </if>
@@ -332,47 +260,23 @@
       <if test="record.brandName != null">
         brand_name = #{record.brandName,jdbcType=VARCHAR},
       </if>
-      <if test="record.contact != null">
-        contact = #{record.contact,jdbcType=VARCHAR},
-      </if>
-      <if test="record.phone != null">
-        phone = #{record.phone,jdbcType=VARCHAR},
-      </if>
-      <if test="record.email != null">
-        email = #{record.email,jdbcType=VARCHAR},
-      </if>
       <if test="record.qq != null">
         qq = #{record.qq,jdbcType=VARCHAR},
-      </if>
-      <if test="record.zip != null">
-        zip = #{record.zip,jdbcType=VARCHAR},
       </if>
       <if test="record.industryId != null">
         industry_id = #{record.industryId,jdbcType=VARCHAR},
       </if>
-      <if test="record.licenseNo != null">
-        license_no = #{record.licenseNo,jdbcType=VARCHAR},
+      <if test="record.qualificationNo != null">
+        qualification_no = #{record.qualificationNo,jdbcType=VARCHAR},
       </if>
-      <if test="record.organizationNo != null">
-        organization_no = #{record.organizationNo,jdbcType=VARCHAR},
-      </if>
-      <if test="record.logoPath != null">
-        logo_path = #{record.logoPath,jdbcType=VARCHAR},
-      </if>
-      <if test="record.accountPath != null">
-        account_path = #{record.accountPath,jdbcType=VARCHAR},
-      </if>
-      <if test="record.licensePath != null">
-        license_path = #{record.licensePath,jdbcType=VARCHAR},
+      <if test="record.qualificationPath != null">
+        qualification_path = #{record.qualificationPath,jdbcType=VARCHAR},
       </if>
       <if test="record.validDate != null">
-        valid_date = #{record.validDate,jdbcType=VARCHAR},
+        valid_date = #{record.validDate,jdbcType=DATE},
       </if>
-      <if test="record.organizationPath != null">
-        organization_path = #{record.organizationPath,jdbcType=VARCHAR},
-      </if>
-      <if test="record.icpPath != null">
-        icp_path = #{record.icpPath,jdbcType=VARCHAR},
+      <if test="record.qualificationType != null">
+        qualification_type = #{record.qualificationType,jdbcType=VARCHAR},
       </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=VARCHAR},
@@ -394,24 +298,15 @@
       name = #{record.name,jdbcType=VARCHAR},
       legal_name = #{record.legalName,jdbcType=VARCHAR},
       company = #{record.company,jdbcType=VARCHAR},
-      address = #{record.address,jdbcType=VARCHAR},
       site_url = #{record.siteUrl,jdbcType=VARCHAR},
       site_name = #{record.siteName,jdbcType=VARCHAR},
       brand_name = #{record.brandName,jdbcType=VARCHAR},
-      contact = #{record.contact,jdbcType=VARCHAR},
-      phone = #{record.phone,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR},
       qq = #{record.qq,jdbcType=VARCHAR},
-      zip = #{record.zip,jdbcType=VARCHAR},
       industry_id = #{record.industryId,jdbcType=VARCHAR},
-      license_no = #{record.licenseNo,jdbcType=VARCHAR},
-      organization_no = #{record.organizationNo,jdbcType=VARCHAR},
-      logo_path = #{record.logoPath,jdbcType=VARCHAR},
-      account_path = #{record.accountPath,jdbcType=VARCHAR},
-      license_path = #{record.licensePath,jdbcType=VARCHAR},
-      valid_date = #{record.validDate,jdbcType=VARCHAR},
-      organization_path = #{record.organizationPath,jdbcType=VARCHAR},
-      icp_path = #{record.icpPath,jdbcType=VARCHAR},
+      qualification_no = #{record.qualificationNo,jdbcType=VARCHAR},
+      qualification_path = #{record.qualificationPath,jdbcType=VARCHAR},
+      valid_date = #{record.validDate,jdbcType=DATE},
+      qualification_type = #{record.qualificationType,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
@@ -431,9 +326,6 @@
       <if test="company != null">
         company = #{company,jdbcType=VARCHAR},
       </if>
-      <if test="address != null">
-        address = #{address,jdbcType=VARCHAR},
-      </if>
       <if test="siteUrl != null">
         site_url = #{siteUrl,jdbcType=VARCHAR},
       </if>
@@ -443,47 +335,23 @@
       <if test="brandName != null">
         brand_name = #{brandName,jdbcType=VARCHAR},
       </if>
-      <if test="contact != null">
-        contact = #{contact,jdbcType=VARCHAR},
-      </if>
-      <if test="phone != null">
-        phone = #{phone,jdbcType=VARCHAR},
-      </if>
-      <if test="email != null">
-        email = #{email,jdbcType=VARCHAR},
-      </if>
       <if test="qq != null">
         qq = #{qq,jdbcType=VARCHAR},
-      </if>
-      <if test="zip != null">
-        zip = #{zip,jdbcType=VARCHAR},
       </if>
       <if test="industryId != null">
         industry_id = #{industryId,jdbcType=VARCHAR},
       </if>
-      <if test="licenseNo != null">
-        license_no = #{licenseNo,jdbcType=VARCHAR},
+      <if test="qualificationNo != null">
+        qualification_no = #{qualificationNo,jdbcType=VARCHAR},
       </if>
-      <if test="organizationNo != null">
-        organization_no = #{organizationNo,jdbcType=VARCHAR},
-      </if>
-      <if test="logoPath != null">
-        logo_path = #{logoPath,jdbcType=VARCHAR},
-      </if>
-      <if test="accountPath != null">
-        account_path = #{accountPath,jdbcType=VARCHAR},
-      </if>
-      <if test="licensePath != null">
-        license_path = #{licensePath,jdbcType=VARCHAR},
+      <if test="qualificationPath != null">
+        qualification_path = #{qualificationPath,jdbcType=VARCHAR},
       </if>
       <if test="validDate != null">
-        valid_date = #{validDate,jdbcType=VARCHAR},
+        valid_date = #{validDate,jdbcType=DATE},
       </if>
-      <if test="organizationPath != null">
-        organization_path = #{organizationPath,jdbcType=VARCHAR},
-      </if>
-      <if test="icpPath != null">
-        icp_path = #{icpPath,jdbcType=VARCHAR},
+      <if test="qualificationType != null">
+        qualification_type = #{qualificationType,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=VARCHAR},
@@ -502,24 +370,15 @@
     set name = #{name,jdbcType=VARCHAR},
       legal_name = #{legalName,jdbcType=VARCHAR},
       company = #{company,jdbcType=VARCHAR},
-      address = #{address,jdbcType=VARCHAR},
       site_url = #{siteUrl,jdbcType=VARCHAR},
       site_name = #{siteName,jdbcType=VARCHAR},
       brand_name = #{brandName,jdbcType=VARCHAR},
-      contact = #{contact,jdbcType=VARCHAR},
-      phone = #{phone,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR},
       qq = #{qq,jdbcType=VARCHAR},
-      zip = #{zip,jdbcType=VARCHAR},
       industry_id = #{industryId,jdbcType=VARCHAR},
-      license_no = #{licenseNo,jdbcType=VARCHAR},
-      organization_no = #{organizationNo,jdbcType=VARCHAR},
-      logo_path = #{logoPath,jdbcType=VARCHAR},
-      account_path = #{accountPath,jdbcType=VARCHAR},
-      license_path = #{licensePath,jdbcType=VARCHAR},
-      valid_date = #{validDate,jdbcType=VARCHAR},
-      organization_path = #{organizationPath,jdbcType=VARCHAR},
-      icp_path = #{icpPath,jdbcType=VARCHAR},
+      qualification_no = #{qualificationNo,jdbcType=VARCHAR},
+      qualification_path = #{qualificationPath,jdbcType=VARCHAR},
+      valid_date = #{validDate,jdbcType=DATE},
+      qualification_type = #{qualificationType,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}

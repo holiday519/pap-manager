@@ -922,7 +922,6 @@ public class LaunchService extends BaseService {
 			}
 		}		
 		return result;
-		
 	}
 	
 	/**
@@ -999,7 +998,7 @@ public class LaunchService extends BaseService {
 			JsonObject extJson = new JsonObject();
 			extJson.addProperty("adx", Integer.parseInt(adxId));
 			String auditValue = adx.get("advertiserAudit");
-			if(auditValue!=null && !auditValue.isEmpty()) {
+			if(auditValue != null && !auditValue.isEmpty()) {
 				extJson.addProperty("advid", auditValue);
 			}
 			extJsons.add(extJson);
