@@ -121,13 +121,14 @@ public class ScoreService extends BaseService
     /**
      * 计算活动得分。
      * @param projectId     项目ID
+     * @param projectId     规则组ID
      * @param campaignId    活动ID
      * @param beginTime     查询时间段：起始日期
      * @param endTime       查询时间段：查询结束日期
      * @return  活动得分
      * @throws ParseException 
      */
-    public CampaignScoreBean getCampaignScore(String projectId, String campaignId, Long beginTime, Long endTime) throws ParseException
+    public CampaignScoreBean getCampaignScore(String projectId, String ruleGroupId, String campaignId, Long beginTime, Long endTime) throws ParseException
     {
         CampaignScoreBean result = new CampaignScoreBean();
         
@@ -149,7 +150,7 @@ public class ScoreService extends BaseService
             Map<String, Number> realTimeSum = getRealTimeSum(campaignId, beginTime, endTime);
             
             // 选出满足触发条件的规则
-            RuleBean rule = pickUpRule(projectId, campaignId, endTime, endTime, effectSum, realTimeSum);
+            RuleBean rule = pickUpRule(projectId, ruleGroupId, campaignId, endTime, endTime, effectSum, realTimeSum);
             
             if (rule == null)// 遍历了全部规则，验证它们的触发条件之后，没一个规则可以被触发
             {
@@ -434,8 +435,9 @@ public class ScoreService extends BaseService
     
     
     /**
-     * 遍历项目的全部评分规则，逐个判断规则的触条发件，选出第一个触发条件满足的评分规则。
+     * 遍历规则组内的全部评分规则，逐个判断规则的触条发件，选出第一个触发条件被满足的评分规则。
      * @param projectId     项目ID
+     * @param ruleGroupId   规则组ID
      * @param campaignId    活动ID
      * @param beginTime     查询时间段的开始日期
      * @param endTime       查询时间段的结束日期
@@ -444,13 +446,13 @@ public class ScoreService extends BaseService
      * @return  第一条触发条件被满足的评分规则（按更新时间降序）
      * @throws ScriptException
      */
-    private RuleBean pickUpRule(String projectId, String campaignId, Long beginTime, Long endTime, Map<String, Number> effectSum, Map<String, Number> realTimeSum) throws ScriptException
+    private RuleBean pickUpRule(String projectId, String ruleGroupId, String campaignId, Long beginTime, Long endTime, Map<String, Number> effectSum, Map<String, Number> realTimeSum) throws ScriptException
     {
         RuleBean result = new RuleBean();
         
-        // 根据项目ID查询这个项目的全部评分规则，排序顺序为按更新时间降序
+        // 根据规则组ID查询出这个评分规则组内的全部评分规则，排序顺序为按更新时间降序
         RuleModelExample example = new RuleModelExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
+        example.createCriteria().andGroupIdEqualTo(ruleGroupId);
         example.setOrderByClause("update_time DESC");
         List<RuleModel> rules = ruleDao.selectByExample(example);
         

@@ -87,6 +87,8 @@ public class CampaignBean extends BasicDataBean {
 	private Target target;
 	
 	private CampaignScoreBean campaignScore;
+	
+	private String ruleGroupId;
 
 	public static class Target {
 
@@ -610,6 +612,16 @@ public class CampaignBean extends BasicDataBean {
     {
         this.campaignScore = campaignScore;
     }        
+    
+    public String getRuleGroupId()
+    {
+        return ruleGroupId;
+    }
+
+    public void setRuleGroupId(String ruleGroupId)
+    {
+        this.ruleGroupId = ruleGroupId;
+    }
 
     public String getAdxId() {
 		return adxId;
@@ -631,9 +643,9 @@ public class CampaignBean extends BasicDataBean {
     public String toString()
     {
         return "CampaignBean [id=" + id + ", projectId=" + projectId + ", projectName=" + projectName + ", name=" + name + ", remark=" + remark + ", creativeAmount=" + creativeAmount + ", status="
-                + status + ", reason=" + reason + ", startDate=" + startDate + ", endDate=" + endDate + ", uniform=" + uniform + ", creativeNum=" + creativeNum + ", target=" + target
-                + ", campaignScore=" + campaignScore + ", frequency=" + frequency + ", quantities=" + Arrays.toString(quantities) + ", landpageId=" + landpageId + ", landpageName=" + landpageName
-                + ", landpageUrl=" + landpageUrl + ", adxId=" + adxId + ", adxName=" + adxName + "]";
+                + status + ", reason=" + reason + ", startDate=" + startDate + ", endDate=" + endDate + ", uniform=" + uniform + ", creativeNum=" + creativeNum + ", adxId=" + adxId + ", adxName="
+                + adxName + ", target=" + target + ", campaignScore=" + campaignScore + ", ruleGroupId=" + ruleGroupId + ", frequency=" + frequency + ", quantities=" + Arrays.toString(quantities)
+                + ", landpageId=" + landpageId + ", landpageName=" + landpageName + ", landpageUrl=" + landpageUrl + "]";
     }
 
 }

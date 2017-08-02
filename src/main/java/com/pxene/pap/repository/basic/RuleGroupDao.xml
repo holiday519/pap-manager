@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pxene.pap.repository.basic.RuleDao">
-  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.RuleModel">
+<mapper namespace="com.pxene.pap.repository.basic.RuleGroupDao">
+  <resultMap id="BaseResultMap" type="com.pxene.pap.domain.models.RuleGroupModel">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="trigger_condition" jdbcType="VARCHAR" property="triggerCondition" />
-    <result column="relation" jdbcType="VARCHAR" property="relation" />
-    <result column="staticval_id" jdbcType="VARCHAR" property="staticvalId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -70,16 +67,16 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, trigger_condition, relation, staticval_id, project_id, create_time, update_time
+    id, name, project_id, create_time, update_time
   </sql>
-  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.RuleModelExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="com.pxene.pap.domain.models.RuleGroupModelExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     'true' as QUERYID,
     <include refid="Base_Column_List" />
-    from pap_t_rule
+    from pap_t_rule_group
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -90,44 +87,33 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from pap_t_rule
+    from pap_t_rule_group
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from pap_t_rule
+    delete from pap_t_rule_group
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.RuleModelExample">
-    delete from pap_t_rule
+  <delete id="deleteByExample" parameterType="com.pxene.pap.domain.models.RuleGroupModelExample">
+    delete from pap_t_rule_group
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.pxene.pap.domain.models.RuleModel">
-    insert into pap_t_rule (id, name, trigger_condition, 
-      relation, staticval_id, project_id, 
+  <insert id="insert" parameterType="com.pxene.pap.domain.models.RuleGroupModel">
+    insert into pap_t_rule_group (id, name, project_id, 
       create_time, update_time)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{triggerCondition,jdbcType=VARCHAR}, 
-      #{relation,jdbcType=VARCHAR}, #{staticvalId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.RuleModel">
-    insert into pap_t_rule
+  <insert id="insertSelective" parameterType="com.pxene.pap.domain.models.RuleGroupModel">
+    insert into pap_t_rule_group
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
       <if test="name != null">
         name,
-      </if>
-      <if test="triggerCondition != null">
-        trigger_condition,
-      </if>
-      <if test="relation != null">
-        relation,
-      </if>
-      <if test="staticvalId != null">
-        staticval_id,
       </if>
       <if test="projectId != null">
         project_id,
@@ -146,15 +132,6 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="triggerCondition != null">
-        #{triggerCondition,jdbcType=VARCHAR},
-      </if>
-      <if test="relation != null">
-        #{relation,jdbcType=VARCHAR},
-      </if>
-      <if test="staticvalId != null">
-        #{staticvalId,jdbcType=VARCHAR},
-      </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
@@ -166,29 +143,20 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="com.pxene.pap.domain.models.RuleModelExample" resultType="java.lang.Long">
-    select count(*) from pap_t_rule
+  <select id="countByExample" parameterType="com.pxene.pap.domain.models.RuleGroupModelExample" resultType="java.lang.Long">
+    select count(*) from pap_t_rule_group
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update pap_t_rule
+    update pap_t_rule_group
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         name = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.triggerCondition != null">
-        trigger_condition = #{record.triggerCondition,jdbcType=VARCHAR},
-      </if>
-      <if test="record.relation != null">
-        relation = #{record.relation,jdbcType=VARCHAR},
-      </if>
-      <if test="record.staticvalId != null">
-        staticval_id = #{record.staticvalId,jdbcType=VARCHAR},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -205,12 +173,9 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update pap_t_rule
+    update pap_t_rule_group
     set id = #{record.id,jdbcType=VARCHAR},
       name = #{record.name,jdbcType=VARCHAR},
-      trigger_condition = #{record.triggerCondition,jdbcType=VARCHAR},
-      relation = #{record.relation,jdbcType=VARCHAR},
-      staticval_id = #{record.staticvalId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP}
@@ -218,20 +183,11 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.RuleModel">
-    update pap_t_rule
+  <update id="updateByPrimaryKeySelective" parameterType="com.pxene.pap.domain.models.RuleGroupModel">
+    update pap_t_rule_group
     <set>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="triggerCondition != null">
-        trigger_condition = #{triggerCondition,jdbcType=VARCHAR},
-      </if>
-      <if test="relation != null">
-        relation = #{relation,jdbcType=VARCHAR},
-      </if>
-      <if test="staticvalId != null">
-        staticval_id = #{staticvalId,jdbcType=VARCHAR},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -245,12 +201,9 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.RuleModel">
-    update pap_t_rule
+  <update id="updateByPrimaryKey" parameterType="com.pxene.pap.domain.models.RuleGroupModel">
+    update pap_t_rule_group
     set name = #{name,jdbcType=VARCHAR},
-      trigger_condition = #{triggerCondition,jdbcType=VARCHAR},
-      relation = #{relation,jdbcType=VARCHAR},
-      staticval_id = #{staticvalId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}

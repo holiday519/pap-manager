@@ -2,20 +2,18 @@ package com.pxene.pap.service;
 
 import java.io.File;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import com.pxene.pap.domain.models.*;
-import com.pxene.pap.repository.basic.*;
-
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -32,11 +30,11 @@ import com.pxene.pap.constant.RedisKeyConstant;
 import com.pxene.pap.constant.StatusConstant;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.ProjectBean.EffectField;
+import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas.Staticvals;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Staticval;
 import com.pxene.pap.domain.beans.StaticvalBean;
-import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
 import com.pxene.pap.domain.models.CampaignModelExample;
@@ -49,31 +47,40 @@ import com.pxene.pap.domain.models.ProjectModel;
 import com.pxene.pap.domain.models.ProjectModelExample;
 import com.pxene.pap.domain.models.QuantityModel;
 import com.pxene.pap.domain.models.QuantityModelExample;
+import com.pxene.pap.domain.models.RuleGroupModel;
+import com.pxene.pap.domain.models.RuleGroupModelExample;
 import com.pxene.pap.domain.models.RuleModel;
 import com.pxene.pap.domain.models.RuleModelExample;
+import com.pxene.pap.domain.models.StaticvalModel;
+import com.pxene.pap.domain.models.StaticvalModelExample;
 import com.pxene.pap.exception.DuplicateEntityException;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.exception.IllegalStatusException;
 import com.pxene.pap.exception.ResourceNotFoundException;
 import com.pxene.pap.exception.ServerFailureException;
-import com.pxene.pap.repository.basic.RuleDao;
+import com.pxene.pap.repository.basic.AdvertiserDao;
+import com.pxene.pap.repository.basic.CampaignDao;
+import com.pxene.pap.repository.basic.EffectDicDao;
 import com.pxene.pap.repository.basic.FormulaDao;
+import com.pxene.pap.repository.basic.IndustryDao;
+import com.pxene.pap.repository.basic.ProjectDao;
+import com.pxene.pap.repository.basic.QuantityDao;
+import com.pxene.pap.repository.basic.RuleDao;
+import com.pxene.pap.repository.basic.RuleGroupDao;
+import com.pxene.pap.repository.basic.StaticvalDao;
 
 import redis.clients.jedis.Jedis;
 
 @Service
 public class ProjectService extends BaseService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LaunchService.class);
+//    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
 	@Autowired
 	private ProjectDao projectDao;
 
 	@Autowired
 	private CampaignDao campaignDao;
-
-	@Autowired
-	private CreativeDao creativeDao;
 
 	@Autowired
 	private AdvertiserDao advertiserDao;
@@ -83,9 +90,6 @@ public class ProjectService extends BaseService {
 
 	@Autowired
 	private DataService dataService;
-
-	@Autowired
-	private CreativeService creativeService;
 
 	@Autowired
 	private IndustryDao industryDao;
@@ -109,13 +113,13 @@ public class ProjectService extends BaseService {
 
 	@Autowired
 	private RuleDao ruleDao;
+	
+	@Autowired
+	private RuleGroupDao ruleGroupDao;
 
 	@Autowired
 	private FormulaDao formulaDao;
 
-	@Autowired
-	private LandpageService landpageService;
-	
     @Autowired
     public ProjectService(Environment env)
     {
@@ -966,103 +970,123 @@ public class ProjectService extends BaseService {
 	 * @throws Exception
 	 */
 	@Transactional
-	public void createRule(RuleFormulasBean bean) throws Exception {
-		String ruleName = bean.getName();		
-
-		// 验证同一项目下规则名称是否存在
-		checkSameOfRuleName(ruleName,bean.getProjectId(),null);
-		
-		// 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
-		checkRuleInfo(bean.getRelation(),bean.getRelation(),bean.getStaticvalId());
-		
-		// 判断公式是否合法
-		String triggerCondition = bean.getTriggerCondition();
-		if (triggerCondition != null && !triggerCondition.isEmpty()) {
-			if (!isFormula(triggerCondition)) {
-				throw new IllegalArgumentException(formulaErrorInfo(ruleName));
-			}
-		}		
-
-		// 判断项目是否存在
-		checkHaveProject(bean.getProjectId());
-
-		// 插入规则
-		String ruleId = UUIDGenerator.getUUID();
-		bean.setId(ruleId);
-		RuleModel rule = modelMapper.map(bean, RuleModel.class);
-		ruleDao.insertSelective(rule);				
-		
-		// 添加公式
-		addFormula(bean,ruleId);	
-		
-	}
+    public void createRule(RuleFormulasBean bean) throws Exception
+    {
+	    String groupId = bean.getGroupId();
+        String ruleName = bean.getName();
+        
+        // 检查规则组是否存在
+        RuleGroupModel group = ruleGroupDao.selectByPrimaryKey(groupId);
+        if (group == null) 
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        // 检查在指定的规则组下规则名称是否已存在
+        checkSameOfRuleName(ruleName, groupId, bean.getId());
+        
+        // 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
+        checkRuleInfo(bean.getRelation(), bean.getRelation(), bean.getStaticvalId());
+        
+        // 判断公式是否合法
+        String triggerCondition = bean.getTriggerCondition();
+        if (triggerCondition != null && !triggerCondition.isEmpty())
+        {
+            if (!isFormula(triggerCondition))
+            {
+                throw new IllegalArgumentException(formulaErrorInfo(ruleName));
+            }
+        }
+        
+        // 插入规则表（pap_t_rule）
+        String ruleId = UUIDGenerator.getUUID();
+        bean.setId(ruleId);
+        bean.setGroupId(groupId);
+        RuleModel rule = modelMapper.map(bean, RuleModel.class);
+        ruleDao.insertSelective(rule);
+        
+        // 添加公式
+        addFormula(bean, ruleId);
+    }
 	
 	/**
 	 * 添加公式
 	 * @param ruleID 规则id
 	 * @throws Exception
 	 */
-	private void addFormula(RuleFormulasBean bean,String ruleId) throws Exception {
-		// 公式
-		Formulas[] formulas = bean.getFormulas();
-		
-		if (formulas == null || formulas.length == 0) {
-			throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
-		}
-		
-		// 判断权重之和是否为1
-		BigDecimal weight = new BigDecimal("0");
-		for (Formulas formulaBean : formulas) {
-			Float weightFloat = formulaBean.getWeight();
-			BigDecimal weightBigDecimal = new BigDecimal(String.valueOf(weightFloat));						
-			weight = weight.add(weightBigDecimal);
-		}
-		if (weight.floatValue() != 1) {
-			throw new IllegalArgumentException(PhrasesConstant.WEIGHTS_ISNOT_CORRECT);
-		}
-		
-		// 添加公式		
-		for (Formulas formulaBean : formulas) {
-			// 验证同一项目下公式名称是否存在
-			// 1.根据传来的公式名称查询公式信息
-			FormulaModelExample FormulaEx = new FormulaModelExample();
-			FormulaEx.createCriteria().andNameEqualTo(formulaBean.getName());
-			List<FormulaModel> formulaList = formulaDao.selectByExample(FormulaEx);
-			if (formulaList != null && !formulaList.isEmpty()) {
-				// 2.如果存在相同名称，判断是否在同一项目下
-				for (FormulaModel formula : formulaList) {
-					// 根据规则id查询规则信息
-					RuleModel ruleModel = ruleDao.selectByPrimaryKey(formula.getRuleId());
-					String projectId = ruleModel.getProjectId();
-					// 公式名称相同的条件下查到的项目id如果与新建公式对应的项目id相同，则说明在同一项目下重名
-					if (projectId.equals(bean.getProjectId())) {
-						throw new DuplicateEntityException(PhrasesConstant.FORMULA_NAME_NOT_REPEAT);
-					}					
-				}				
-			}
-			
-			// 判断正向游标和负向游标的正负号是否相同
-			Double forwardVernier = formulaBean.getForwardVernier();
-			Double negativeVernier = formulaBean.getNegativeVernier();
-			if (!(forwardVernier > 0 && negativeVernier < 0 || forwardVernier < 0 && negativeVernier > 0)) {
-				throw new IllegalArgumentException(PhrasesConstant.VERNIER_SIGN_SYMBOL_SAME);
-			}
-			
-			// 判断公式是否合法
-			if (!isFormula(formulaBean.getFormula())) {
-				throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
-			}						
-			
-			// 判断静态值是否为空
-			String staticvalId = formulaBean.getStaticvalId();
-			checkHaveStatics(staticvalId);
-
-			FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
-			formulaModel.setId(UUIDGenerator.getUUID());
-			formulaModel.setRuleId(ruleId);
-			formulaDao.insertSelective(formulaModel);
-		}				
-	}
+    private void addFormula(RuleFormulasBean bean, String ruleId) throws Exception
+    {
+        Formulas[] formulas = bean.getFormulas();
+        
+        // 检查入参中的公式列表不能为空
+        if (formulas == null || formulas.length == 0)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.FORMULA_IS_NULL);
+        }
+        
+        // 检查全部的公式的权重之和必须为1
+        BigDecimal weight = new BigDecimal("0");
+        for (Formulas formulaBean : formulas)
+        {
+            Float weightFloat = formulaBean.getWeight();
+            BigDecimal weightBigDecimal = new BigDecimal(String.valueOf(weightFloat));
+            weight = weight.add(weightBigDecimal);
+        }
+        if (weight.floatValue() != 1)
+        {
+            throw new IllegalArgumentException(PhrasesConstant.WEIGHTS_ISNOT_CORRECT);
+        }
+        
+        // 检查公式名称在同一活动（即，同一个规则组）下是否重复
+        for (Formulas formulaBean : formulas)
+        {
+            // 1.根据传来的公式名称查询公式信息
+            // 根据传入的公式名称从公式表（pap_t_formula）中查询出全部的同名公式
+            FormulaModelExample formulaExample = new FormulaModelExample();
+            formulaExample.createCriteria().andNameEqualTo(formulaBean.getName());
+            List<FormulaModel> formulasInDB = formulaDao.selectByExample(formulaExample);
+            
+            if (formulasInDB != null && !formulasInDB.isEmpty())
+            {
+                // 2.如果存在相同名称，判断是否在同一项目下
+                for (FormulaModel formulaInDB : formulasInDB)
+                {
+                    // 根据规则ID，查询出规则所属的组ID
+                    RuleModel ruleModel = ruleDao.selectByPrimaryKey(formulaInDB.getRuleId());
+                    String groupId = ruleModel.getGroupId();
+                    
+                    // 公式名称相同的条件下查到的项目id如果与新建公式对应的项目id相同，则说明在同一项目下重名
+                    if (groupId.equals(bean.getGroupId()))
+                    {
+                        throw new DuplicateEntityException(PhrasesConstant.FORMULA_NAME_NOT_REPEAT);
+                    }
+                }
+            }
+            
+            // 判断正向游标和负向游标的正负号是否相同
+            Double forwardVernier = formulaBean.getForwardVernier();
+            Double negativeVernier = formulaBean.getNegativeVernier();
+            if (!(forwardVernier > 0 && negativeVernier < 0 || forwardVernier < 0 && negativeVernier > 0))
+            {
+                throw new IllegalArgumentException(PhrasesConstant.VERNIER_SIGN_SYMBOL_SAME);
+            }
+            
+            // 判断公式是否合法
+            if (!isFormula(formulaBean.getFormula()))
+            {
+                throw new IllegalArgumentException(formulaErrorInfo(formulaBean.getName()));
+            }
+            
+            // 判断静态值是否为空
+            String staticvalId = formulaBean.getStaticvalId();
+            checkHaveStatics(staticvalId);
+            
+            FormulaModel formulaModel = modelMapper.map(formulaBean, FormulaModel.class);
+            formulaModel.setId(UUIDGenerator.getUUID());
+            formulaModel.setRuleId(ruleId);
+            formulaDao.insertSelective(formulaModel);
+        }
+    }
 	
 	/**
 	 * 根据ID查询规则
@@ -1186,7 +1210,7 @@ public class ProjectService extends BaseService {
 			String name = bean.getName();      // 欲修改规则名称	
 			if (!nameInDB.equals(name)) {
 				// 如果数据库中其它规则的名称与欲修改成的规则名称重复，则禁止修改
-				checkSameOfRuleName(name,bean.getProjectId(),id);
+				checkSameOfRuleName(name, bean.getGroupId(), id);
 			}			
 		}	
 		
@@ -1201,14 +1225,14 @@ public class ProjectService extends BaseService {
 			}
 		}
 		
-		// 判断项目是否存在
-		checkHaveProject(bean.getProjectId());
+		// 判断规则组是否存在
+		checkHaveProject(bean.getGroupId());
 		
 		// 编辑后的规则
 		RuleModel ruleModel = new  RuleModel();
 		ruleModel.setId(id);
 		ruleModel.setName(bean.getName());
-		ruleModel.setProjectId(bean.getProjectId());
+		ruleModel.setGroupId(bean.getGroupId());
 		ruleModel.setRelation(bean.getRelation());
 		ruleModel.setStaticvalId(bean.getStaticvalId());
 		ruleModel.setTriggerCondition(bean.getTriggerCondition());
@@ -1223,14 +1247,14 @@ public class ProjectService extends BaseService {
 	}
 	
 	/**
-	 * 判断项目是否存在
-	 * @param projectId 项目id
+	 * 判断规则组是否存在
+	 * @param groupId 项目id
 	 * @throws Exception
 	 */
-	private void checkHaveProject(String projectId) throws Exception {
-		ProjectModel project = projectDao.selectByPrimaryKey(projectId);
-		if (project == null) {
-			throw new IllegalArgumentException(PhrasesConstant.PROJECT_INFO_IS_NULL);
+	private void checkHaveProject(String groupId) throws Exception {
+		RuleGroupModel ruleGroup = ruleGroupDao.selectByPrimaryKey(groupId);
+		if (ruleGroup == null) {
+			throw new IllegalArgumentException("规则组信息为空");
 		}
 	}
 	
@@ -1261,14 +1285,14 @@ public class ProjectService extends BaseService {
 	}
 	
 	/**
-	 * 根据项目id查询规则
+	 * 根据规则组ID查询规则
 	 * @param projectId 项目id
 	 * @return
 	 * @throws Exception
 	 */
-	private List<RuleModel> listRulesByProjectId(String projectId) throws Exception {
+	private List<RuleModel> listRulesByProjectId(String groupId) throws Exception {
 		RuleModelExample ruleEx = new RuleModelExample();
-		ruleEx.createCriteria().andProjectIdEqualTo(projectId);
+		ruleEx.createCriteria().andGroupIdEqualTo(groupId);
 		ruleEx.setOrderByClause(" update_time desc ");//按更新时间逆序排序
 		List<RuleModel> rules = ruleDao.selectByExample(ruleEx);
 		return rules;
@@ -1320,27 +1344,34 @@ public class ProjectService extends BaseService {
 	}
 	
 	/**
-	 * 验证同一项目下规则名称是否相同
+	 * 验证同一规则组下规则名称是否相同
 	 * @param name 规则名称
-	 * @param projectId 项目id
+	 * @param groupId 规则组id
 	 * @param ruleId 规则id
 	 * @throws Exception
 	 */
-	private void checkSameOfRuleName(String name,String projectId,String ruleId) throws Exception {	
-		// 根据规则名称和项目id查询规则信息
-		RuleModelExample ruleEx = new RuleModelExample();
-		if (ruleId == null) {
-			ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId);
-		} else {
-			// 排除自己
-			ruleEx.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectId).andIdNotEqualTo(ruleId);
-		}		
-		List<RuleModel> ruleList = ruleDao.selectByExample(ruleEx);
-		if (ruleList != null && !ruleList.isEmpty()) {
-			// 如果项目下有相同的名称，则抛异常
-			 throw new DuplicateEntityException(PhrasesConstant.RULE_NAME_NOT_REPEAT);
-		}
-	}
+    private void checkSameOfRuleName(String name, String groupId, String ruleId) throws Exception
+    {
+        // 根据规则名称和项目id查询规则信息
+        RuleModelExample ruleExample = new RuleModelExample();
+        
+        if (ruleId == null)
+        {
+            ruleExample.createCriteria().andNameEqualTo(name).andGroupIdEqualTo(groupId);
+        }
+        else
+        {
+            // 排除自己
+            ruleExample.createCriteria().andNameEqualTo(name).andGroupIdEqualTo(groupId).andIdNotEqualTo(ruleId);
+        }
+        
+        List<RuleModel> ruleList = ruleDao.selectByExample(ruleExample);
+        if (ruleList != null && !ruleList.isEmpty())
+        {
+            // 如果项目下有相同的名称，则抛异常
+            throw new DuplicateEntityException(PhrasesConstant.RULE_NAME_NOT_REPEAT);
+        }
+    }
 	
 	/**
 	 * 判断触发条件、关系、静态值是否为空：为空则三者同时为空，其中一个不为空则都不为空
@@ -1349,20 +1380,24 @@ public class ProjectService extends BaseService {
 	 * @param staticId 静态值id
 	 * @throws Exception
 	 */
-	private void checkRuleInfo(String condition,String relation,String staticId) throws Exception {
-		if ((condition != null && !condition.isEmpty()) || (relation != null && !relation.isEmpty())
-				|| (staticId != null && !staticId.isEmpty())) {
-			if (condition == null || condition.isEmpty()) {
-				throw new IllegalArgumentException(PhrasesConstant.CONDITION_IS_NULL);
-			}
-			if (relation == null || relation.isEmpty()) {
-				throw new IllegalArgumentException(PhrasesConstant.RELATION_IS_NULL);
-			}
-			if (staticId == null || staticId.isEmpty()) {
-				throw new IllegalArgumentException(PhrasesConstant.RULE_REFERENCE_VALUE_NULL);
-			}
-		}
-	}
+    private void checkRuleInfo(String condition, String relation, String staticId) throws Exception
+    {
+        if ((condition != null && !condition.isEmpty()) || (relation != null && !relation.isEmpty()) || (staticId != null && !staticId.isEmpty()))
+        {
+            if (condition == null || condition.isEmpty())
+            {
+                throw new IllegalArgumentException(PhrasesConstant.CONDITION_IS_NULL);
+            }
+            if (relation == null || relation.isEmpty())
+            {
+                throw new IllegalArgumentException(PhrasesConstant.RELATION_IS_NULL);
+            }
+            if (staticId == null || staticId.isEmpty())
+            {
+                throw new IllegalArgumentException(PhrasesConstant.RULE_REFERENCE_VALUE_NULL);
+            }
+        }
+    }
 	
 	/**
 	 * 创建静态值
@@ -1592,61 +1627,97 @@ public class ProjectService extends BaseService {
 	 * 判断转换值是否被项目下的规则引用
 	 * @return
      */
-	public boolean checkHaveEffectInRule(EffectDicModel effectDicModel){
-		RuleModelExample ruleModelExample = new RuleModelExample();
-		ruleModelExample.createCriteria().andProjectIdEqualTo(effectDicModel.getProjectId()).andTriggerConditionLike("%"+effectDicModel.getColumnCode()+"%");
-		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
-		if(ruleModels != null && ruleModels.size()>0){
-			//把UUID替换掉，再判断是否含有相应的转化值
-			for(RuleModel ruleModel : ruleModels) {
-				String rule_temp = ruleModel.getTriggerCondition();
-				//把UUID替换成1
-				rule_temp = rule_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
-				int res =rule_temp.indexOf(effectDicModel.getColumnCode());
-				if(res>-1){
-					return true;
-				}
-			}
+    public boolean checkHaveEffectInRule(EffectDicModel effectDicModel)
+    {
+        String projectId = effectDicModel.getProjectId();
 
-		}
-		return false;
-	}
+        // 根据项目ID，查询出这个项目下的全部规则组
+        RuleGroupModelExample ruleGroupExample = new RuleGroupModelExample();
+        ruleGroupExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<RuleGroupModel> ruleGroupList = ruleGroupDao.selectByExample(ruleGroupExample);
+        
+        if (ruleGroupList != null && !ruleGroupList.isEmpty())
+        {
+            for (RuleGroupModel ruleGroup : ruleGroupList)
+            {
+                String groupId = ruleGroup.getProjectId();
+                
+                RuleModelExample ruleModelExample = new RuleModelExample();
+                ruleModelExample.createCriteria().andGroupIdEqualTo(groupId).andTriggerConditionLike("%" + effectDicModel.getColumnCode() + "%");
+                List<RuleModel> ruleList = ruleDao.selectByExample(ruleModelExample);
+                
+                if (ruleList != null && ruleList.size() > 0)
+                {
+                    // 把UUID替换掉，再判断是否含有相应的转化值
+                    for (RuleModel ruleModel : ruleList)
+                    {
+                        String rule_temp = ruleModel.getTriggerCondition();
+                        // 把UUID替换成1
+                        rule_temp = rule_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]", "1");
+                        int res = rule_temp.indexOf(effectDicModel.getColumnCode());
+                        if (res > -1)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
 
 	/**
 	 * 判断转换值是否被项目下的公式引用
 	 * @return
 	 */
 	public boolean checkHaveEffectInFormula(EffectDicModel effectDicModel){
-		//先查询出规则id
-		RuleModelExample ruleModelExample = new RuleModelExample();
-		ruleModelExample.createCriteria().andProjectIdEqualTo(effectDicModel.getProjectId());
-		List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
-		if(ruleModels == null || ruleModels.size()==0) {
-			return false;
-		}
+	    String projectId = effectDicModel.getProjectId();
+	    
+	    // 根据项目ID，查询出这个项目下的全部规则组
+        RuleGroupModelExample ruleGroupExample = new RuleGroupModelExample();
+        ruleGroupExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<RuleGroupModel> ruleGroupList = ruleGroupDao.selectByExample(ruleGroupExample);
+        
+        if (ruleGroupList != null && !ruleGroupList.isEmpty())
+        {
+            for (RuleGroupModel ruleGroup : ruleGroupList)
+            {
+                String groupId = ruleGroup.getProjectId();
+                
+                //先查询出规则组id
+                RuleModelExample ruleModelExample = new RuleModelExample();
+                ruleModelExample.createCriteria().andGroupIdEqualTo(groupId);
+                List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
+                
+                if(ruleModels == null || ruleModels.size() == 0) 
+                {
+                    return false;
+                }
+                
+                List<String> ruleIds = new ArrayList<String>();
+                for(RuleModel ruleModel : ruleModels){
+                    ruleIds.add(ruleModel.getId());
+                }
 
-		List<String> ruleIds = new ArrayList<>();
-		for(RuleModel ruleModel : ruleModels){
-			ruleIds.add(ruleModel.getId());
-		}
+                //再查询公式表
+                FormulaModelExample formulaModelExample = new FormulaModelExample();
+                formulaModelExample.createCriteria().andRuleIdIn(ruleIds).andFormulaLike("%"+effectDicModel.getColumnCode()+"%");
+                List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
+                if(formulaModels != null && formulaModels.size()>0){
 
-		//再查询公式表
-		FormulaModelExample formulaModelExample = new FormulaModelExample();
-		formulaModelExample.createCriteria().andRuleIdIn(ruleIds).andFormulaLike("%"+effectDicModel.getColumnCode()+"%");
-		List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
-		if(formulaModels != null && formulaModels.size()>0){
-
-			for(FormulaModel formulaModel : formulaModels) {
-				String formula_temp = formulaModel.getFormula();
-				//把UUID替换掉，再判断是否含有相应的转化值
-				formula_temp = formula_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
-				int res =formula_temp.indexOf(effectDicModel.getColumnCode());
-				if(res>-1){
-					return true;
-				}
-			}
-
-		}
+                    for(FormulaModel formulaModel : formulaModels) {
+                        String formula_temp = formulaModel.getFormula();
+                        //把UUID替换掉，再判断是否含有相应的转化值
+                        formula_temp = formula_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
+                        int res =formula_temp.indexOf(effectDicModel.getColumnCode());
+                        if(res>-1){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
 
 		return false;
 	}
@@ -1667,4 +1738,197 @@ public class ProjectService extends BaseService {
 				&& StatusConstant.CAMPAIGN_PROCEED.equals(campaignStatus)
 				&& launchService.isInLaunchPeriod(campaignId);
 	}
+
+
+    public String createRuleGroup(Map<String, String> map)
+    {
+        String projectId = map.get("projectId");
+        String groupName = map.get("groupName");
+        
+        // 检查必传入参：项目ID，组名称
+        if (StringUtils.isEmpty(projectId) || StringUtils.isEmpty(groupName))
+        {
+            throw new IllegalArgumentException();
+        }
+        
+        // 根据组名称和项目ID查询出全部已存在的规则组
+        RuleGroupModelExample example = new RuleGroupModelExample();
+        example.createCriteria().andNameEqualTo(groupName).andProjectIdEqualTo(projectId);
+        List<RuleGroupModel> ruleGroupList = ruleGroupDao.selectByExample(example);
+        
+        // 检查规则组名称是否重复
+        if (ruleGroupList != null && !ruleGroupList.isEmpty())
+        {
+            throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+        }
+        
+        String id = UUIDGenerator.getUUID();
+        
+        RuleGroupModel record = new RuleGroupModel();
+        record.setId(id);
+        record.setName(groupName);
+        record.setProjectId(projectId);
+        
+        int insertResult = ruleGroupDao.insertSelective(record);
+        if (insertResult > 0)
+        {
+            return id;
+        }
+        
+        return null;
+    }
+
+
+    public void deleteRuleGroups(String[] ids)
+    {
+        if (ids.length == 0) 
+        {
+            throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+        }
+        
+        // 判断待删除的规则是否存在
+        RuleGroupModelExample ruleGroupExample = new RuleGroupModelExample();
+        ruleGroupExample.createCriteria().andIdIn(Arrays.asList(ids));
+        List<RuleGroupModel> ruleGroupList = ruleGroupDao.selectByExample(ruleGroupExample);
+        if (ruleGroupList == null || (ruleGroupList.size() != ids.length)) 
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        // 判断待删除的规则组是否被活动使用
+        CampaignModelExample campaignExample = new CampaignModelExample();
+        campaignExample.createCriteria().andRulegroupIdIn(Arrays.asList(ids));
+        List<CampaignModel> campaignList = campaignDao.selectByExample(campaignExample);
+        if (campaignList != null && !campaignList.isEmpty())
+        {
+            throw new IllegalStatusException("规则组正被活动使用，不能删除。");
+        }
+        
+        RuleModelExample ruleExample = new RuleModelExample();
+        FormulaModelExample formulaModelExample = new FormulaModelExample();
+        
+        // 删除规则组，级联删除规则组下的全部规则、级联删除规则下的全部公式
+        for (RuleGroupModel ruleGroup : ruleGroupList)
+        {
+            String groupId = ruleGroup.getId();
+            
+            // 查询出某个组下的全部的规则
+            ruleExample.clear();
+            ruleExample.createCriteria().andGroupIdEqualTo(groupId);
+            List<RuleModel> ruleList = ruleDao.selectByExample(ruleExample);
+            
+            if (ruleList != null && !ruleList.isEmpty())
+            {
+                for (RuleModel rule : ruleList)
+                {
+                    String ruleId = rule.getId();
+                    
+                    formulaModelExample.clear();
+                    formulaModelExample.createCriteria().andRuleIdEqualTo(ruleId);
+                    formulaDao.deleteByExample(formulaModelExample);
+                }
+            }
+            
+            // 删除规则组
+            ruleGroupDao.deleteByPrimaryKey(groupId);
+        }
+    }
+
+
+    public void updateRuleGroup(String id, String name)
+    {
+        // 判断规则组是否存在
+        RuleGroupModel ruleGroup = ruleGroupDao.selectByPrimaryKey(id);
+        
+        if (ruleGroup == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        else
+        {
+            // 规则组名称如果没有发生变化，不许更改
+            String nameInDB = ruleGroup.getName();
+            if (nameInDB.equals(name))
+            {
+                throw new DuplicateEntityException();
+            }
+            
+            RuleGroupModelExample ruleGroupModelExample = new RuleGroupModelExample();
+            ruleGroupModelExample.createCriteria().andProjectIdEqualTo(ruleGroup.getProjectId()).andNameEqualTo(name);
+            List<RuleGroupModel> ruleGroupList = ruleGroupDao.selectByExample(ruleGroupModelExample);
+            
+            // 欲修改规则名称，在项目下，不能和数据库中已有规则组的名称相同
+            if (ruleGroupList != null && !ruleGroupList.isEmpty())
+            {
+                throw new DuplicateEntityException(PhrasesConstant.NAME_NOT_REPEAT);
+            }
+            
+            // 根据ID更新规则组的名称
+            RuleGroupModel record = new RuleGroupModel();
+            record.setId(id);
+            record.setName(name);
+            ruleGroupDao.updateByPrimaryKeySelective(record);
+        }  
+        
+    }
+
+    public RuleGroupModel getRuleGroup(String id)
+    {
+        RuleGroupModel ruleGroup = ruleGroupDao.selectByPrimaryKey(id);
+        
+        if (ruleGroup == null)
+        {
+            throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
+        }
+        
+        return ruleGroup;
+    }
+
+
+    public List<RuleGroupModel> listRuleGroups(String name, String projectId, String sortKey, String sortType)
+    {
+        // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
+        if (!StringUtils.isEmpty(name) && name.contains("_"))
+        {
+            name = name.replace("_", "\\_");
+        }
+
+        RuleGroupModelExample example = new RuleGroupModelExample();
+        if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(projectId))
+        {
+            example.createCriteria().andNameLike("%" + name + "%");
+        }
+        else if (!StringUtils.isEmpty(projectId) && StringUtils.isEmpty(name))
+        {
+            example.createCriteria().andProjectIdEqualTo(projectId);
+        }
+        else if (!StringUtils.isEmpty(name) && !StringUtils.isEmpty(projectId))
+        {
+            example.createCriteria().andProjectIdEqualTo(projectId).andNameLike("%" + name + "%");
+        }
+        
+        // 设置排序，默认按创建时间降序排序
+        if (sortKey == null || sortKey.isEmpty())
+        {
+            example.setOrderByClause("create_time DESC");
+        }
+        else
+        {
+            if (sortType != null && sortType.equals(StatusConstant.SORT_TYPE_DESC))
+            {
+                example.setOrderByClause(sortKey + " DESC");
+            }
+            else if (sortType != null && sortType.equals(StatusConstant.SORT_TYPE_ASC))
+            {
+                example.setOrderByClause(sortKey + " ASC");
+            }
+            else
+            {
+                throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
+            }
+        }
+        List<RuleGroupModel> ruleGroups = ruleGroupDao.selectByExample(example);
+        
+        return ruleGroups;
+    }
 }

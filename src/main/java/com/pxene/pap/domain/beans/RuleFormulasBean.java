@@ -15,17 +15,19 @@ public class RuleFormulasBean {
 	 */
 	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
 	private String id;
+	
+	/**
+	 * 规则组ID
+	 */
+	@Length(max = 36, message = PhrasesConstant.LENGTH_ERROR_ID)
+	private String groupId;
+	
 	/**
 	 * 规则名称
 	 */
 	@NotNull(message = PhrasesConstant.NAME_NOT_NULL)
 	@Length(max = 100, message = PhrasesConstant.LENGTH_ERROR_NAME)
 	private String name;
-	/**
-	 * 项目ID
-	 */
-	@NotNull(message = PhrasesConstant.CAMPAIGN_NOTNULL_PROJECTID)
-	private String projectId;
 	/**
 	 * 触发条件
 	 */
@@ -218,22 +220,24 @@ public class RuleFormulasBean {
 	public void setId(String id) {
 		this.id = id;
 	}
+	
+	public String getGroupId()
+    {
+        return groupId;
+    }
 
-	public String getName() {
+    public void setGroupId(String groupId)
+    {
+        this.groupId = groupId;
+    }
+
+    public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	public String getProjectId() {
-		return projectId;
-	}
-
-	public void setProjectId(String projectId) {
-		this.projectId = projectId;
-	}		
 
 	public String getTriggerCondition() {
 		return triggerCondition;
@@ -284,8 +288,9 @@ public class RuleFormulasBean {
 	}
 
 	@Override
-	public String toString() {
-		return "RuleFormulasBean[id=" + id + ",name=" + name + ",projectId=" + projectId + ",triggerCondition=" + triggerCondition 
-				+ ",relation=" + relation + ",staticvalId=" + staticvalId + ",staticval=" + staticval + ",formulas=" + Arrays.toString(formulas) +",updateTime"+updateTime+ "]";
-	}
+    public String toString()
+    {
+        return "RuleFormulasBean [id=" + id + ", groupId=" + groupId + ", name=" + name + ", triggerCondition=" + triggerCondition + ", relation=" + relation + ", staticvalId=" + staticvalId
+                + ", staticval=" + staticval + ", updateTime=" + updateTime + ", formulas=" + Arrays.toString(formulas) + "]";
+    }
 }

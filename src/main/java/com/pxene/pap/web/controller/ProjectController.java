@@ -24,6 +24,7 @@ import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.domain.beans.StaticvalBean;
+import com.pxene.pap.domain.models.RuleGroupModel;
 import com.pxene.pap.service.ProjectService;
 
 @Controller
@@ -245,6 +246,7 @@ public class ProjectController {
 		projectService.deleteStatics(ids.split(","));
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
+	
 	/**
 	 * 创建规则
 	 * @param bean 规则和公式  
@@ -254,10 +256,12 @@ public class ProjectController {
 	 */
 	@RequestMapping(value = "/project/rule",method = RequestMethod.POST,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
-	public String createRule (@Valid @RequestBody RuleFormulasBean bean, HttpServletResponse response) throws Exception {
-		projectService.createRule(bean);
-		return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
-	}
+    public String createRule(@Valid @RequestBody RuleFormulasBean bean, HttpServletResponse response) throws Exception
+    {
+        projectService.createRule(bean);
+        
+        return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", bean.getId(), response);
+    }
 	
 	/**
 	 * 批量删除规则  
@@ -298,5 +302,91 @@ public class ProjectController {
 	public void updateRule(@PathVariable String id, @Valid @RequestBody RuleFormulasBean bean, HttpServletResponse response) throws Exception {
 		projectService.updateRule(id,bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
-	}	
+	}
+	
+	/**
+     * 创建规则组
+     * @param map
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/project/ruleGroup", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String createRuleGroup(@RequestBody Map<String,String> map, HttpServletResponse response) throws Exception 
+    {
+        String id = projectService.createRuleGroup(map);
+        return ResponseUtils.sendReponse(HttpStatus.CREATED.value(), "id", id, response);
+    }
+    
+    /**
+     * 批量删除规则组
+     * @param ids 要删除的规则id
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/project/ruleGroup", method = RequestMethod.DELETE)
+    @ResponseBody
+    public void deleteRuleGroups(@RequestParam(required = true)String ids, HttpServletResponse response) throws Exception 
+    {
+        projectService.deleteRuleGroups(ids.split(","));
+        response.setStatus(HttpStatus.NO_CONTENT.value());
+    }
+    
+    /**
+     * 编辑规则组（只能修改名称）
+     * @param id 规则id
+     * @param bean 规则及其对应的公式
+     * @param response
+     * @throws Exception
+     */
+    @RequestMapping(value = "/project/ruleGroup/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody  
+    public void updateRuleGroup(@PathVariable String id, @RequestBody String name, HttpServletResponse response) throws Exception 
+    {
+        projectService.updateRuleGroup(id, name);
+        response.setStatus(HttpStatus.NO_CONTENT.value());
+    }
+    
+    /**
+     * 根据ID查询规则组                                                                                                
+     * @param id 规则组ID
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/project/ruleGroup/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String getRuleGroup(@PathVariable String id, HttpServletResponse response) throws Exception
+    {
+        RuleGroupModel ruleFormulasBean = projectService.getRuleGroup(id);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), ruleFormulasBean, response);
+    }
+    
+    /**
+     * 查询规则组列表
+     * @param name
+     * @param pageNo
+     * @param pageSize
+     * @param startDate
+     * @param endDate
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/ruleGroups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String listRuleGroups(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) String sortKey, @RequestParam(required = false) String sortType,@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception 
+    {
+        Page<Object> pager = null;
+        if (pageNo != null && pageSize != null)
+        {
+            pager = PageHelper.startPage(pageNo, pageSize);
+        }
+        
+        List<RuleGroupModel> beans = projectService.listRuleGroups(name, projectId, sortKey, sortType);
+
+        PaginationBean result = new PaginationBean(beans, pager);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+    }
 }

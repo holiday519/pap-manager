@@ -2,16 +2,10 @@ package com.pxene.pap.domain.models;
 
 import java.util.Date;
 
-public class RuleModel {
+public class RuleGroupModel {
     private String id;
 
     private String name;
-
-    private String triggerCondition;
-
-    private String relation;
-
-    private String staticvalId;
 
     private String projectId;
 
@@ -33,30 +27,6 @@ public class RuleModel {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
-    }
-
-    public String getTriggerCondition() {
-        return triggerCondition;
-    }
-
-    public void setTriggerCondition(String triggerCondition) {
-        this.triggerCondition = triggerCondition == null ? null : triggerCondition.trim();
-    }
-
-    public String getRelation() {
-        return relation;
-    }
-
-    public void setRelation(String relation) {
-        this.relation = relation == null ? null : relation.trim();
-    }
-
-    public String getStaticvalId() {
-        return staticvalId;
-    }
-
-    public void setStaticvalId(String staticvalId) {
-        this.staticvalId = staticvalId == null ? null : staticvalId.trim();
     }
 
     public String getProjectId() {
@@ -91,9 +61,6 @@ public class RuleModel {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", name=").append(name);
-        sb.append(", triggerCondition=").append(triggerCondition);
-        sb.append(", relation=").append(relation);
-        sb.append(", staticvalId=").append(staticvalId);
         sb.append(", projectId=").append(projectId);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
