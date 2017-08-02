@@ -13,6 +13,7 @@ import com.pxene.pap.domain.beans.ResponseData;
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.*;
+import com.pxene.pap.repository.custom.CustomCreativeDao;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -66,6 +67,8 @@ public class NobidService {
 
     @Autowired
     private EsUtils esUtils;
+    @Autowired
+    private CustomCreativeDao customCreativeDao;
 
 
     /**
@@ -419,5 +422,9 @@ public class NobidService {
         return nobidReasonBeenList;
     }
 
+    public  List<Map<String,String>> listAllImageSizes(){
+        List<Map<String,String>> result = customCreativeDao.selectImageSizes();
+        return result;
+    }
 
 }

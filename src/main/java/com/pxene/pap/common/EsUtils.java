@@ -127,6 +127,11 @@ public class EsUtils {
         return scrollResp;
     }
 
+    /**
+     * 执行es查询
+     * @param esQueryBean
+     * @return
+     */
     public SearchResponse query(EsQueryBean esQueryBean){
         if(esQueryBean == null){
             return null;

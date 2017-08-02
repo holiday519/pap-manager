@@ -1,6 +1,7 @@
 package com.pxene.pap.web.controller;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.BidAnalyseBean;
 import com.pxene.pap.domain.beans.NobidReasonBean;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 不出价
@@ -129,9 +131,23 @@ public class NobidController {
 //                                 @RequestParam(required = false) String type ,@RequestParam(required = false) String sortType ,
 //                                 HttpServletResponse response) throws Exception {
 
-    public String queryNobidReason(BidAnalyseBean bidAnalyseBean,HttpServletResponse response) throws Exception {
+    public String queryNobidReason(BidAnalyseBean bidAnalyseBean,@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize,HttpServletResponse response) throws Exception {
         Page<Object> pager = null;
+        if (pageNo != null && pageSize != null){
+            pager = PageHelper.startPage(pageNo, pageSize);
+        }
         List<NobidReasonBean> datas = nobidService.queryNobidReason(bidAnalyseBean);
+        PaginationBean result = new PaginationBean(datas, pager);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+    }
+
+
+    @RequestMapping(value = "/nobid/imageSizes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String listAllImageSizes(HttpServletResponse response) throws Exception {
+        Page<Object> pager = null;
+
+        List<Map<String,String>> datas = nobidService.listAllImageSizes();
         PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
