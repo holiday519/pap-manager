@@ -161,7 +161,25 @@ public class DateUtils {
 		}
 		return array;
 	}
-	
+	/**
+	 * 查询两个日期中间所有的“天”
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static String[] getDaysBetween(Date start, Date end, String format) {
+		int num = getDayNumBetween(start, end);
+		if (num < 0) {
+			return null;
+		}
+		String[] array = new String[num+1];
+		for (int i = 0; i <= num; i++) {
+			array[i] = new DateTime(start).plusDays(i).toString(format);
+		}
+		return array;
+	}
+
+
 	/**
 	 * 获取两个时间之间的“小时”
 	 * @param start

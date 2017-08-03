@@ -1,15 +1,13 @@
 package com.pxene.pap.service;
 
+import com.github.pagehelper.Page;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.EsUtils;
 import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
-import com.pxene.pap.domain.beans.BidAnalyseBean;
-import com.pxene.pap.domain.beans.EsQueryBean;
-import com.pxene.pap.domain.beans.NobidReasonBean;
-import com.pxene.pap.domain.beans.ResponseData;
+import com.pxene.pap.domain.beans.*;
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.*;
@@ -240,16 +238,22 @@ public class NobidService {
      * @param bidAnalyseBean
      * @return
      */
-    public List<NobidReasonBean> queryNobidReason(BidAnalyseBean bidAnalyseBean){
+    public PaginationBean  queryNobidReason(BidAnalyseBean bidAnalyseBean, Page<Object> pager){
         if(bidAnalyseBean == null){
             return null;
         }
-        if((bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_DAY) && bidAnalyseBean.getStartDate() == 0 || bidAnalyseBean.getEndDate() == 0) || (bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_HOUR) && bidAnalyseBean.getDate() == 0)){
+        if((bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_DAY) && bidAnalyseBean.getStartDate() == 0 || bidAnalyseBean.getEndDate() == 0) || (bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_HOUR) && bidAnalyseBean.getDate() == 0)
+                || (bidAnalyseBean.getProjectId() == null && bidAnalyseBean.getCampaignId() == null)){
             throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
         }
 
         //查询
         BoolQueryBuilder boolQB = QueryBuilders.boolQuery();
+        if(bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_DAY)){//按天汇总
+            String[] days = DateUtils.getDaysBetween(new Date(bidAnalyseBean.getStartDate()), new Date(bidAnalyseBean.getEndDate()),"yyyy-MM-dd");
+            QueryBuilder date = QueryBuilders.termsQuery("date",days);
+            boolQB.must(date);
+        }
         //查询条件--项目
         QueryBuilder projectBuilder = QueryBuilders.termQuery("campaign",bidAnalyseBean.getProjectId());
         boolQB.must(projectBuilder);
@@ -280,148 +284,143 @@ public class NobidService {
         SumBuilder nbrname_sum = AggregationBuilders.sum("nbrname_sum").field("flow");
         agg_nbrname.subAggregation(nbrname_sum);
 
-        List<NobidReasonBean> result = null;
+        PaginationBean result = null;
         EsQueryBean esQueryBean = new EsQueryBean();
         esQueryBean.setType("data");
         esQueryBean.setSize(0);
         esQueryBean.setQueryBuilder(boolQB);
 
         if(bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_DAY)){//按天汇总
-            esQueryBean.setAggregation(agg_nbrname);
-            result = listNoBidReasonGroupByDay(bidAnalyseBean,esQueryBean);
+            esQueryBean.setIndex("nbr_*");//设置index
+            TermsBuilder agg_day = AggregationBuilders.terms("date").field("date").size(1000);//按date聚合
+            //按日期排序
+            if(bidAnalyseBean.getSortType() == null || bidAnalyseBean.getSortType().equals(StatusConstant.SORT_TYPE_DESC)){//逆序
+                agg_day.order(Terms.Order.term(false));
+            }else{
+                agg_day.order(Terms.Order.term(true));
+            }
+            agg_day.subAggregation(agg_nbrname);
+            esQueryBean.setAggregation(agg_day);
+            result =  queryNoBidReasonFromEs(esQueryBean,"date",pager);
         }else if(bidAnalyseBean.getType().equals(CodeTableConstant.TYPE_HOUR)){//按小时汇总
-            TermsBuilder agg_hour = AggregationBuilders.terms("hour").field("hour").size(1000).order(Terms.Order.term(false));
+            TermsBuilder agg_hour = AggregationBuilders.terms("hour").field("hour").size(1000);//按小时聚合
+            //按小时排序
+            if(bidAnalyseBean.getSortType() == null || bidAnalyseBean.getSortType().equals(StatusConstant.SORT_TYPE_DESC)){//逆序
+                agg_hour.order(Terms.Order.term(false));
+            }else{
+                agg_hour.order(Terms.Order.term(true));
+            }
             agg_hour.subAggregation(agg_nbrname);
             esQueryBean.setAggregation(agg_hour);
-            result = listNoBidReasonGroupByHour(bidAnalyseBean,esQueryBean);
+            Date date = new Date(bidAnalyseBean.getDate());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            String day = sdf.format(date);
+
+            esQueryBean.setIndex("nbr_"+day);
+
+            result = queryNoBidReasonFromEs(esQueryBean,"hour",pager);
         }
 
-        return result;
-    }
-
-    /**
-     * 按天汇总不出价原因
-     * @param bidAnalyseBean
-     * @param esQueryBean
-     * @return
-     */
-    public List<NobidReasonBean> listNoBidReasonGroupByDay(BidAnalyseBean bidAnalyseBean,EsQueryBean esQueryBean){
-
-        List<NobidReasonBean> result = new ArrayList<>();
-
-        String[] days = DateUtils.getDaysBetween(new Date(bidAnalyseBean.getStartDate()), new Date(bidAnalyseBean.getEndDate()));
-
-        if(bidAnalyseBean.getSortType() == null || bidAnalyseBean.getSortType().equals(StatusConstant.SORT_TYPE_DESC)){//逆序
-            for (int i=days.length-1; i>=0 ;i--) {
-                List<NobidReasonBean> nobidReasonBeenList =  queryNoBidReasonFromEs(days[i], esQueryBean);
-                if(nobidReasonBeenList != null){
-                    result.addAll(nobidReasonBeenList);
-                }
-            }
-
-        }else {//正序
-            for (String day : days) {
-                List<NobidReasonBean> nobidReasonBeenList =  queryNoBidReasonFromEs(day, esQueryBean);
-                if(nobidReasonBeenList != null){
-                    result.addAll(nobidReasonBeenList);
-                }
-            }
-        }
         return result;
     }
 
     /**
      * 从es查询不出价
-     * @param day
      * @param esQueryBean
      * @return
      */
-    public List<NobidReasonBean> queryNoBidReasonFromEs(String day,EsQueryBean esQueryBean){
-
-        esQueryBean.setIndex("nbr_"+day);
+    public PaginationBean queryNoBidReasonFromEs(EsQueryBean esQueryBean,String field,Page<Object> pager){
 
         //判断索引和type是否存在
         if(!esUtils.isExistsIndex(esQueryBean.getIndex()) || !esUtils.isExistsType(esQueryBean.getIndex(),esQueryBean.getType())){
             return null;
         }
+        //存放不出价原因结果集
         List<NobidReasonBean> nobidReasonBeenList = new ArrayList<>();
+        //查询es,获取结果集
         SearchResponse searchResponse = esUtils.query(esQueryBean);
-
+        //计数：查询总数
+        long total = 0L;
         if (searchResponse != null && searchResponse.getAggregations() != null) {
-            Map<String, Aggregation> aggMap = searchResponse.getAggregations().asMap();
-            StringTerms nbrnameTerms = (StringTerms) aggMap.get("nbrname");
-            Iterator<Terms.Bucket> nbrnameBucketIt = nbrnameTerms.getBuckets().iterator();
-            while (nbrnameBucketIt.hasNext()) {
-                Terms.Bucket nbrnameBuck = nbrnameBucketIt.next();
-                InternalSum sumTerms = (InternalSum) nbrnameBuck.getAggregations().get("nbrname_sum");
-
-                NobidReasonBean nobidReasonBean = new NobidReasonBean();
-                nobidReasonBean.setDate(day);
-                nobidReasonBean.setNbrName(nbrnameBuck.getKeyAsString());
-                nobidReasonBean.setAmount(Double.valueOf(sumTerms.getValue()).intValue());
-
-                nobidReasonBeenList.add(nobidReasonBean);
-            }
-
-        }
-        return nobidReasonBeenList;
-    }
-
-    /**
-     * 按小时汇总不出价原因
-     * @param bidAnalyseBean
-     * @param esQueryBean
-     * @return
-     */
-    public List<NobidReasonBean> listNoBidReasonGroupByHour(BidAnalyseBean bidAnalyseBean,EsQueryBean esQueryBean){
-
-        List<NobidReasonBean> nobidReasonBeenList = new ArrayList<>();
-
-        Date date = new Date(bidAnalyseBean.getDate());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        String day = sdf.format(date);
-
-        esQueryBean.setIndex("nbr_"+day);
-        //判断索引和type是否存在
-        if(!esUtils.isExistsIndex(esQueryBean.getIndex()) || !esUtils.isExistsType(esQueryBean.getIndex(),esQueryBean.getType())){
-            return nobidReasonBeenList;
-        }
-        SearchResponse searchResponse = esUtils.query(esQueryBean);
-
-        if (searchResponse != null && searchResponse.getAggregations() != null) {
-            Map<String, Aggregation> aggMap = searchResponse.getAggregations().asMap();
-            StringTerms teamAgg = (StringTerms) aggMap.get("hour");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             SimpleDateFormat sdf_hour = new SimpleDateFormat("HH:mm");
             SimpleDateFormat sdf_sec = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            //分页准备
+
+            int pageNo = pager.getPageNum();//页码
+            int pageSize = pager.getPageSize();//每页大小
+            int count = 0;//计数：指定分页显示的数
+            int startNum = (pageNo-1)*pageSize;//从第几个开始
+            int endNum = pageNo*pageSize;//从第几个数结束
+
+            //获取第一层聚合结果
+            Map<String, Aggregation> aggMap = searchResponse.getAggregations().asMap();
+            Terms teamAgg = (Terms) aggMap.get(field);
             Iterator<Terms.Bucket> teamBucketIt = teamAgg.getBuckets().iterator();
             while (teamBucketIt.hasNext()) {
                 Terms.Bucket buck = teamBucketIt.next();
 
-                String dateStr = (String) buck.getKey();
-                String hourStr = null;
-                try {
-                    hourStr = sdf_hour.format(sdf_sec.parse(dateStr));
-                } catch (ParseException e) {
+                StringTerms nbrnameTerms = (StringTerms) buck.getAggregations().asMap().get("nbrname");
+                total = total + nbrnameTerms.getBuckets().size();
+                //判断是不是指定页要显示的数据
+                if(total < startNum){//指定页之前的数据直接跳过
+                    count = (int) total;
                     continue;
                 }
-                StringTerms nbrnameTerms = (StringTerms) (StringTerms) buck.getAggregations().asMap().get("nbrname");
+                if(count > endNum){//指定页之后的数据直接跳过
+                    continue;
+                }
+
+                String dateStr=null;//日期时间
+                if(buck.getKey() instanceof Long){
+                    Long key = (Long) buck.getKey();
+                    dateStr = sdf.format(new Date(key));
+                } if(buck.getKey() instanceof String){
+                    dateStr = (String) buck.getKey();
+                    if(field.equals("hour")) {
+                        try {
+                            dateStr = sdf_hour.format(sdf_sec.parse(dateStr));
+                        } catch (ParseException e) {
+                            continue;
+                        }
+                    }
+                }
+
                 Iterator<Terms.Bucket> nbrnameBucketIt = nbrnameTerms.getBuckets().iterator();
                 while (nbrnameBucketIt.hasNext()) {
                     Terms.Bucket nbrnameBuck = nbrnameBucketIt.next();
-                    InternalSum sumTerms = (InternalSum) nbrnameBuck.getAggregations().get("nbrname_sum");
+                    count++;
+                    if(count > startNum && count<= endNum) {
+                        InternalSum sumTerms = (InternalSum) nbrnameBuck.getAggregations().get("nbrname_sum");
 
-                    NobidReasonBean nobidReasonBean = new NobidReasonBean();
-                    nobidReasonBean.setDate(hourStr);
-                    nobidReasonBean.setNbrName(nbrnameBuck.getKeyAsString());
-                    nobidReasonBean.setAmount(Double.valueOf(sumTerms.getValue()).intValue());
+                        NobidReasonBean nobidReasonBean = new NobidReasonBean();
+                        nobidReasonBean.setDate(dateStr);
+                        nobidReasonBean.setNbrName(nbrnameBuck.getKeyAsString());
+                        nobidReasonBean.setAmount(Double.valueOf(sumTerms.getValue()).intValue());
 
-                    nobidReasonBeenList.add(nobidReasonBean);
+                        nobidReasonBeenList.add(nobidReasonBean);
+                    }else{//数据取完后直接跳出
+                        break;
+                    }
+
                 }
             }
+
         }
-        return nobidReasonBeenList;
+        //设置总数
+        pager.setTotal(total);
+        //封装成分页
+        PaginationBean result = new PaginationBean(nobidReasonBeenList,pager);
+        return result;
     }
 
+
+    /**
+     * 列出所有图片大小，去重
+     *
+     * @return
+     */
     public  List<Map<String,String>> listAllImageSizes(){
         List<Map<String,String>> result = customCreativeDao.selectImageSizes();
         return result;

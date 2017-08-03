@@ -122,26 +122,32 @@ public class NobidController {
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 
+    /**
+     * 不出价原因列表
+     * @param bidAnalyseBean
+     * @param pageNo
+     * @param pageSize
+     * @param response
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/nobid/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-//    public void queryNobidReason(@RequestParam(required = false) long startDate, @RequestParam(required = false) long endDate,
-//                                 @RequestParam(required = false) long date, @RequestParam(required = true) String projectId ,
-//                                 @RequestParam(required = false) String campaignId ,@RequestParam(required = false) String adx ,
-//                                 @RequestParam(required = false) String materialType ,@RequestParam(required = false) String materialSize ,
-//                                 @RequestParam(required = false) String type ,@RequestParam(required = false) String sortType ,
-//                                 HttpServletResponse response) throws Exception {
-
-    public String queryNobidReason(BidAnalyseBean bidAnalyseBean,@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize,HttpServletResponse response) throws Exception {
-        Page<Object> pager = null;
-        if (pageNo != null && pageSize != null){
-            pager = PageHelper.startPage(pageNo, pageSize);
-        }
-        List<NobidReasonBean> datas = nobidService.queryNobidReason(bidAnalyseBean);
-        PaginationBean result = new PaginationBean(datas, pager);
+    public String queryNobidReason(BidAnalyseBean bidAnalyseBean,@RequestParam(required = true) Integer pageNo, @RequestParam(required = true) Integer pageSize,HttpServletResponse response) throws Exception {
+        Page<Object> pager = new Page<>();
+        pager.setPageNum(pageNo);
+        pager.setPageSize(pageSize);
+        PaginationBean result = nobidService.queryNobidReason(bidAnalyseBean,pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 
 
+    /**
+     * 列出所有图片大小(去重)
+     * @param response
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/nobid/imageSizes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String listAllImageSizes(HttpServletResponse response) throws Exception {
