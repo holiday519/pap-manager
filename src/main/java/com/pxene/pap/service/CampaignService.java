@@ -1263,9 +1263,17 @@ public class CampaignService extends BaseService {
 			
 			if (!StringUtils.isEmpty(calScore) && calScore)
 			{
-			    String rulegroupId = model.getRulegroupId();
+			    String rulegroupId = model.getRuleGroupId();
+			    CampaignScoreBean campaignScore = null;
 			    
-			    CampaignScoreBean campaignScore = scoreService.getCampaignScore(projectId, rulegroupId, model.getId(), startDate, endDate);
+			    if (!StringUtils.isEmpty(rulegroupId))
+			    {
+			        campaignScore = scoreService.getCampaignScore(projectId, rulegroupId, model.getId(), startDate, endDate);
+			    }
+			    else
+			    {
+			        campaignScore = new CampaignScoreBean();
+			    }
 			    bean.setCampaignScore(campaignScore);
 			}
 			

@@ -23,8 +23,8 @@ import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean;
+import com.pxene.pap.domain.beans.RuleGroupBean;
 import com.pxene.pap.domain.beans.StaticvalBean;
-import com.pxene.pap.domain.models.RuleGroupModel;
 import com.pxene.pap.service.ProjectService;
 
 @Controller
@@ -283,7 +283,7 @@ public class ProjectController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/project/rule/{id}",method = RequestMethod.GET,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/rule/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String getRule(@PathVariable String id, HttpServletResponse response) throws Exception {
 		RuleFormulasBean ruleFormulasBean = projectService.getRule(id);
@@ -297,10 +297,10 @@ public class ProjectController {
 	 * @param response
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/project/rule/{id}",method = RequestMethod.PUT,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/project/rule/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody  
 	public void updateRule(@PathVariable String id, @Valid @RequestBody RuleFormulasBean bean, HttpServletResponse response) throws Exception {
-		projectService.updateRule(id,bean);
+		projectService.updateRule(id, bean);
 		response.setStatus(HttpStatus.NO_CONTENT.value());
 	}
 	
@@ -342,9 +342,9 @@ public class ProjectController {
      */
     @RequestMapping(value = "/project/ruleGroup/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody  
-    public void updateRuleGroup(@PathVariable String id, @RequestBody String name, HttpServletResponse response) throws Exception 
+    public void updateRuleGroup(@PathVariable String id, @RequestBody Map<String, String> map, HttpServletResponse response) throws Exception 
     {
-        projectService.updateRuleGroup(id, name);
+        projectService.updateRuleGroup(id, map);
         response.setStatus(HttpStatus.NO_CONTENT.value());
     }
     
@@ -359,7 +359,7 @@ public class ProjectController {
     @ResponseBody
     public String getRuleGroup(@PathVariable String id, HttpServletResponse response) throws Exception
     {
-        RuleGroupModel ruleFormulasBean = projectService.getRuleGroup(id);
+        RuleGroupBean ruleFormulasBean = projectService.getRuleGroup(id);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), ruleFormulasBean, response);
     }
     
@@ -374,19 +374,12 @@ public class ProjectController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/ruleGroups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/project/ruleGroups", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String listRuleGroups(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) String sortKey, @RequestParam(required = false) String sortType,@RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception 
+    public String listRuleGroups(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) String sortKey, @RequestParam(required = false) String sortType, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception 
     {
-        Page<Object> pager = null;
-        if (pageNo != null && pageSize != null)
-        {
-            pager = PageHelper.startPage(pageNo, pageSize);
-        }
-        
-        List<RuleGroupModel> beans = projectService.listRuleGroups(name, projectId, sortKey, sortType);
+        List<RuleGroupBean> beans = projectService.listRuleGroups(name, projectId, sortKey, sortType);
 
-        PaginationBean result = new PaginationBean(beans, pager);
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), beans, response);
     }
 }

@@ -34,6 +34,7 @@ import com.pxene.pap.domain.beans.RuleFormulasBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Formulas.Staticvals;
 import com.pxene.pap.domain.beans.RuleFormulasBean.Staticval;
+import com.pxene.pap.domain.beans.RuleGroupBean;
 import com.pxene.pap.domain.beans.StaticvalBean;
 import com.pxene.pap.domain.models.AdvertiserModel;
 import com.pxene.pap.domain.models.CampaignModel;
@@ -1226,10 +1227,10 @@ public class ProjectService extends BaseService {
 		}
 		
 		// 判断规则组是否存在
-		checkHaveProject(bean.getGroupId());
+		checkHaveGroup(bean.getGroupId());
 		
 		// 编辑后的规则
-		RuleModel ruleModel = new  RuleModel();
+		RuleModel ruleModel = new RuleModel();
 		ruleModel.setId(id);
 		ruleModel.setName(bean.getName());
 		ruleModel.setGroupId(bean.getGroupId());
@@ -1251,7 +1252,7 @@ public class ProjectService extends BaseService {
 	 * @param groupId 项目id
 	 * @throws Exception
 	 */
-	private void checkHaveProject(String groupId) throws Exception {
+	private void checkHaveGroup(String groupId) throws Exception {
 		RuleGroupModel ruleGroup = ruleGroupDao.selectByPrimaryKey(groupId);
 		if (ruleGroup == null) {
 			throw new IllegalArgumentException("规则组信息为空");
@@ -1743,7 +1744,7 @@ public class ProjectService extends BaseService {
     public String createRuleGroup(Map<String, String> map)
     {
         String projectId = map.get("projectId");
-        String groupName = map.get("groupName");
+        String groupName = map.get("name");
         
         // 检查必传入参：项目ID，组名称
         if (StringUtils.isEmpty(projectId) || StringUtils.isEmpty(groupName))
@@ -1797,7 +1798,7 @@ public class ProjectService extends BaseService {
         
         // 判断待删除的规则组是否被活动使用
         CampaignModelExample campaignExample = new CampaignModelExample();
-        campaignExample.createCriteria().andRulegroupIdIn(Arrays.asList(ids));
+        campaignExample.createCriteria().andRuleGroupIdIn(Arrays.asList(ids));
         List<CampaignModel> campaignList = campaignDao.selectByExample(campaignExample);
         if (campaignList != null && !campaignList.isEmpty())
         {
@@ -1808,11 +1809,38 @@ public class ProjectService extends BaseService {
         FormulaModelExample formulaModelExample = new FormulaModelExample();
         
         // 删除规则组，级联删除规则组下的全部规则、级联删除规则下的全部公式
+        for (String id : ids)
+        {
+            // 查询出某个规则组下的全部的规则
+            ruleExample.clear();
+            ruleExample.createCriteria().andGroupIdEqualTo(id);
+            List<RuleModel> ruleList = ruleDao.selectByExample(ruleExample);
+            
+            if (ruleList != null && !ruleList.isEmpty())
+            {
+                for (RuleModel rule : ruleList)
+                {
+                    String ruleId = rule.getId();
+                    
+                    formulaModelExample.clear();
+                    formulaModelExample.createCriteria().andRuleIdEqualTo(ruleId);
+                    formulaDao.deleteByExample(formulaModelExample);
+                    
+                    ruleDao.deleteByPrimaryKey(ruleId);
+                }
+                
+                // 删除规则组
+                ruleGroupDao.deleteByPrimaryKey(id);
+            }
+        }
+        
+        /*
+        // 删除规则组，级联删除规则组下的全部规则、级联删除规则下的全部公式
         for (RuleGroupModel ruleGroup : ruleGroupList)
         {
             String groupId = ruleGroup.getId();
             
-            // 查询出某个组下的全部的规则
+            // 查询出某个规则组下的全部的规则
             ruleExample.clear();
             ruleExample.createCriteria().andGroupIdEqualTo(groupId);
             List<RuleModel> ruleList = ruleDao.selectByExample(ruleExample);
@@ -1829,14 +1857,25 @@ public class ProjectService extends BaseService {
                 }
             }
             
+            ruleDao.deleteByPrimaryKey(id);
+            
             // 删除规则组
             ruleGroupDao.deleteByPrimaryKey(groupId);
         }
+        */
     }
 
 
-    public void updateRuleGroup(String id, String name)
+    public void updateRuleGroup(String id, Map<String, String> map)
     {
+        String name = map.get("name");
+        
+        // 检查必传入参：规则组名称
+        if (StringUtils.isEmpty(name) || StringUtils.isEmpty(name))
+        {
+            throw new IllegalArgumentException();
+        }
+        
         // 判断规则组是否存在
         RuleGroupModel ruleGroup = ruleGroupDao.selectByPrimaryKey(id);
         
@@ -1872,7 +1911,7 @@ public class ProjectService extends BaseService {
         
     }
 
-    public RuleGroupModel getRuleGroup(String id)
+    public RuleGroupBean getRuleGroup(String id)
     {
         RuleGroupModel ruleGroup = ruleGroupDao.selectByPrimaryKey(id);
         
@@ -1881,19 +1920,28 @@ public class ProjectService extends BaseService {
             throw new ResourceNotFoundException(PhrasesConstant.OBJECT_NOT_FOUND);
         }
         
-        return ruleGroup;
+        RuleGroupBean result = modelMapper.map(ruleGroup, RuleGroupBean.class);
+        
+        RuleModelExample ruleModelExample = new RuleModelExample();
+        ruleModelExample.createCriteria().andGroupIdEqualTo(ruleGroup.getId());
+        List<RuleModel> rules = ruleDao.selectByExample(ruleModelExample );
+        
+        result.setRules(rules);
+        
+        return result;
     }
 
 
-    public List<RuleGroupModel> listRuleGroups(String name, String projectId, String sortKey, String sortType)
+    public List<RuleGroupBean> listRuleGroups(String name, String projectId, String sortKey, String sortType)
     {
-        // mysql 使用like关键字进行查询时，当参数包含下划线时，需要进行转义
+        // MySQL 使用like 关键字进行查询时，当参数包含下划线时，需要进行转义
         if (!StringUtils.isEmpty(name) && name.contains("_"))
         {
             name = name.replace("_", "\\_");
         }
 
         RuleGroupModelExample example = new RuleGroupModelExample();
+        
         if (!StringUtils.isEmpty(name) && StringUtils.isEmpty(projectId))
         {
             example.createCriteria().andNameLike("%" + name + "%");
@@ -1927,8 +1975,25 @@ public class ProjectService extends BaseService {
                 throw new IllegalArgumentException(PhrasesConstant.LACK_NECESSARY_PARAM);
             }
         }
-        List<RuleGroupModel> ruleGroups = ruleGroupDao.selectByExample(example);
         
-        return ruleGroups;
+        RuleModelExample ruleModelExample = new RuleModelExample();
+        
+        List<RuleGroupModel> ruleGroups = ruleGroupDao.selectByExample(example);
+        List<RuleGroupBean> result = new ArrayList<RuleGroupBean>();
+        
+        for (RuleGroupModel ruleGroup : ruleGroups)
+        {
+            RuleGroupBean tmpBean = modelMapper.map(ruleGroup, RuleGroupBean.class);
+            
+            ruleModelExample.clear();
+            ruleModelExample.createCriteria().andGroupIdEqualTo(ruleGroup.getId());
+            List<RuleModel> rules = ruleDao.selectByExample(ruleModelExample);
+            
+            tmpBean.setRules(rules);
+            
+            result.add(tmpBean);
+        }
+        
+        return result;
     }
 }
