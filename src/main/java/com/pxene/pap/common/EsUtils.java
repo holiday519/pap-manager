@@ -39,14 +39,14 @@ import java.util.Set;
 @Component
 @Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class EsUtils {
-    private static TransportClient client;
+    private  TransportClient client;
 
     @Autowired
     private EsUtils(Environment env){
         initClient(env);
     }
 
-    public static void initClient (Environment env){
+    public  void initClient (Environment env){
         String clusterName = env.getProperty("dsp.es.cluster.name");
         String clusterAddress = env.getProperty("dsp.es.cluster.address");
         String port = env.getProperty("dsp.es.port");
