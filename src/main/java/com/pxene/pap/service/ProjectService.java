@@ -1828,10 +1828,10 @@ public class ProjectService extends BaseService {
                     
                     ruleDao.deleteByPrimaryKey(ruleId);
                 }
-                
-                // 删除规则组
-                ruleGroupDao.deleteByPrimaryKey(id);
             }
+            
+            // 删除规则组
+            ruleGroupDao.deleteByPrimaryKey(id);
         }
         
         /*
