@@ -351,7 +351,7 @@ public class NobidService {
             int pageNo = pager.getPageNum();//页码
             int pageSize = pager.getPageSize();//每页大小
             int count = 0;//计数：指定分页显示的数
-            int startNum = (pageNo-1)*pageSize;//从第几个开始
+            int startNum = (pageNo-1)*pageSize+1;//从第几个开始
             int endNum = pageNo*pageSize;//从第几个数结束
 
             //获取第一层聚合结果
@@ -391,7 +391,7 @@ public class NobidService {
                 while (nbrnameBucketIt.hasNext()) {
                     Terms.Bucket nbrnameBuck = nbrnameBucketIt.next();
                     count++;
-                    if(count > startNum && count<= endNum) {
+                    if(count >= startNum && count<= endNum) {
                         InternalSum sumTerms = (InternalSum) nbrnameBuck.getAggregations().get("nbrname_sum");
 
                         NobidReasonBean nobidReasonBean = new NobidReasonBean();
@@ -400,7 +400,7 @@ public class NobidService {
                         nobidReasonBean.setAmount(Double.valueOf(sumTerms.getValue()).intValue());
 
                         nobidReasonBeenList.add(nobidReasonBean);
-                    }else{//数据取完后直接跳出
+                    }else if(count>endNum){//后面的数不再需要
                         break;
                     }
 
