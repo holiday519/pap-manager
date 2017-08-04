@@ -100,6 +100,7 @@ public class PhrasesConstant
 	public static final String ADVERTISER_LENGTH_ERROR_QUALIFICATIONNO = "资质编号长度不能超过100";
 	public static final String ADVERTISER_LENGTH_ERROR_QUALIFICATIONPATH = "资质图片路径长度不能超过200";
 	public static final String ADVERTISER_AUDIT_ERROR = "广告主未通过ADX审核";
+	public static final String ADVERTISER_LENGTH_ERROR_LEGALNAME = "客户主体名称长度不能超过100";
 	
 	public static final String PROJECT_NOTNULL_ADVERTISERID = "广告主ID不能为空";
 	public static final String CAMPAIGN_NOTNULL_PROJECTID = "项目ID不能为空";

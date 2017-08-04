@@ -49,6 +49,9 @@ public class AdvertiserBean extends BasicDataBean {
 	
 	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_SITENAME)
 	private String siteName;
+	
+	@Length(max = 100, message = PhrasesConstant.ADVERTISER_LENGTH_ERROR_LEGALNAME)
+	private String legalName;
 
 	@Length(max = 200, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
@@ -220,6 +223,14 @@ public class AdvertiserBean extends BasicDataBean {
 
 	public void setAdxIds(String[] adxIds) {
 		this.adxIds = adxIds;
+	}
+	
+	public String getLegalName() {
+		return legalName;
+	}
+
+	public void setLegalName(String legalName) {
+		this.legalName = legalName;
 	}
 
 	@Override
