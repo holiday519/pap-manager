@@ -1631,6 +1631,7 @@ public class ProjectService extends BaseService {
     public boolean checkHaveEffectInRule(EffectDicModel effectDicModel)
     {
         String projectId = effectDicModel.getProjectId();
+        List<Boolean> allFlag = new ArrayList<Boolean>();
 
         // 根据项目ID，查询出这个项目下的全部规则组
         RuleGroupModelExample ruleGroupExample = new RuleGroupModelExample();
@@ -1641,38 +1642,45 @@ public class ProjectService extends BaseService {
         {
             for (RuleGroupModel ruleGroup : ruleGroupList)
             {
-                String groupId = ruleGroup.getProjectId();
+                String groupId = ruleGroup.getId();
                 
                 RuleModelExample ruleModelExample = new RuleModelExample();
                 ruleModelExample.createCriteria().andGroupIdEqualTo(groupId).andTriggerConditionLike("%" + effectDicModel.getColumnCode() + "%");
                 List<RuleModel> ruleList = ruleDao.selectByExample(ruleModelExample);
-                
+               
+                // 如果这条规则没有触发条件，则认为本规则没有占用，再继续判断下一个规则。最终需要判断全部的规则组都没有占用，才能将这个转化规则视为没有被占用。
                 if (ruleList != null && ruleList.size() > 0)
                 {
-                    // 把UUID替换掉，再判断是否含有相应的转化值
-                    for (RuleModel ruleModel : ruleList)
-                    {
-                        String rule_temp = ruleModel.getTriggerCondition();
-                        // 把UUID替换成1
-                        rule_temp = rule_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]", "1");
-                        int res = rule_temp.indexOf(effectDicModel.getColumnCode());
-                        if (res > -1)
-                        {
-                            return true;
-                        }
-                    }
+                    allFlag.add(true);
+                }
+                else
+                {
+                    allFlag.add(false);
                 }
             }
+               
+            for (boolean flag : allFlag)
+            {
+                if (flag)
+                {
+                    return true;
+                }
+            }
+            
+            return false;
         }
-        
-        return false;
+        else // 如果这个项目没有规则组，则一定没有规则，则一定没有公式，则转化值一定不会被占用
+        {
+            return false;
+        }
     }
 
 	/**
 	 * 判断转换值是否被项目下的公式引用
 	 * @return
 	 */
-	public boolean checkHaveEffectInFormula(EffectDicModel effectDicModel){
+	public boolean checkHaveEffectInFormula(EffectDicModel effectDicModel)
+	{
 	    String projectId = effectDicModel.getProjectId();
 	    
 	    // 根据项目ID，查询出这个项目下的全部规则组
@@ -1680,47 +1688,55 @@ public class ProjectService extends BaseService {
         ruleGroupExample.createCriteria().andProjectIdEqualTo(projectId);
         List<RuleGroupModel> ruleGroupList = ruleGroupDao.selectByExample(ruleGroupExample);
         
+        // 保存全部规则组中的规则ID
+        List<String> ruleIds = new ArrayList<String>();
+        
         if (ruleGroupList != null && !ruleGroupList.isEmpty())
         {
             for (RuleGroupModel ruleGroup : ruleGroupList)
             {
-                String groupId = ruleGroup.getProjectId();
+                String groupId = ruleGroup.getId();
                 
-                //先查询出规则组id
                 RuleModelExample ruleModelExample = new RuleModelExample();
                 ruleModelExample.createCriteria().andGroupIdEqualTo(groupId);
-                List<RuleModel> ruleModels = ruleDao.selectByExample(ruleModelExample);
+                List<RuleModel> ruleList = ruleDao.selectByExample(ruleModelExample);
                 
-                if(ruleModels == null || ruleModels.size() == 0) 
+                if (ruleList != null && ruleList.size() > 0)
                 {
-                    return false;
+                    for (RuleModel rule : ruleList)
+                    {
+                        ruleIds.add(rule.getId());
+                    }
                 }
-                
-                List<String> ruleIds = new ArrayList<String>();
-                for(RuleModel ruleModel : ruleModels){
-                    ruleIds.add(ruleModel.getId());
-                }
-
-                //再查询公式表
-                FormulaModelExample formulaModelExample = new FormulaModelExample();
-                formulaModelExample.createCriteria().andRuleIdIn(ruleIds).andFormulaLike("%"+effectDicModel.getColumnCode()+"%");
-                List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
-                if(formulaModels != null && formulaModels.size()>0){
-
-                    for(FormulaModel formulaModel : formulaModels) {
-                        String formula_temp = formulaModel.getFormula();
-                        //把UUID替换掉，再判断是否含有相应的转化值
-                        formula_temp = formula_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
-                        int res =formula_temp.indexOf(effectDicModel.getColumnCode());
-                        if(res>-1){
-                            return true;
-                        }
+            }
+            
+            // 查询出全部满足条件的公式
+            FormulaModelExample formulaModelExample = new FormulaModelExample();
+            formulaModelExample.createCriteria().andRuleIdIn(ruleIds).andFormulaLike("%"+effectDicModel.getColumnCode()+"%");
+            List<FormulaModel> formulaModels = formulaDao.selectByExample(formulaModelExample);
+            
+            if(formulaModels != null && formulaModels.size() > 0)
+            {
+                for(FormulaModel formulaModel : formulaModels) 
+                {
+                    String formula_temp = formulaModel.getFormula();
+                    
+                    //把UUID替换掉，再判断是否含有相应的转化值
+                    formula_temp = formula_temp.replaceAll("[{]+[a-zA-Z0-9-]+[}]","1");
+                    int res =formula_temp.indexOf(effectDicModel.getColumnCode());
+                    if(res > -1)
+                    {
+                        return true;
                     }
                 }
             }
         }
-
-		return false;
+        else // 如果这个项目没有规则组，则一定没有规则，则一定没有公式，则转化值一定不会被占用
+        {
+            return false;
+        }
+        
+        return false;
 	}
 	
 	/**
