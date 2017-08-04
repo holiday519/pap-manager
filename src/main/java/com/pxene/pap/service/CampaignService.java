@@ -1002,13 +1002,15 @@ public class CampaignService extends BaseService {
 		AppTargetModelExample appTargetEx = new AppTargetModelExample();
 		appTargetEx.createCriteria().andCampaignIdEqualTo(campaignId);		
 		List<AppTargetModel> appTargets = appTargetDao.selectByExample(appTargetEx);
-		String appTargetId = appTargets.get(0).getId(); // 一个活动对应一个ADX
-		AppTargetDetailModelExample appTargetDetailEx = new AppTargetDetailModelExample();
-		appTargetDetailEx.createCriteria().andApptargetIdEqualTo(appTargetId);
-		List<AppTargetDetailModel> appTargetDetails = appTargetDetailDao.selectByExample(appTargetDetailEx);
-		if (appTargetDetails != null && !appTargetDetails.isEmpty()) {
-			appTargetDetailDao.deleteByExample(appTargetDetailEx);
-		}
+		if (appTargets != null && !appTargets.isEmpty()) {
+			String appTargetId = appTargets.get(0).getId(); // 一个活动对应一个ADX
+			AppTargetDetailModelExample appTargetDetailEx = new AppTargetDetailModelExample();
+			appTargetDetailEx.createCriteria().andApptargetIdEqualTo(appTargetId);
+			List<AppTargetDetailModel> appTargetDetails = appTargetDetailDao.selectByExample(appTargetDetailEx);
+			if (appTargetDetails != null && !appTargetDetails.isEmpty()) {
+				appTargetDetailDao.deleteByExample(appTargetDetailEx);
+			}
+		}				
 		appTargetDao.deleteByExample(appTargetEx);
 		//删除人群定向
 		PopulationTargetModelExample pop = new PopulationTargetModelExample();
