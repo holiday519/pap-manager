@@ -1,6 +1,7 @@
 package com.pxene.pap.domain.beans;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -55,6 +56,8 @@ public class AdvertiserBean extends BasicDataBean {
 
 	@Length(max = 200, message = PhrasesConstant.LENGTH_ERROR_REMARK)
 	private String remark;
+	
+	private Date validDate;
 	
 	private String[] adxIds;
 
@@ -217,6 +220,14 @@ public class AdvertiserBean extends BasicDataBean {
 		this.qualificationType = qualificationType;
 	}
 	
+	public Date getValidDate() {
+		return validDate;
+	}
+
+	public void setValidDate(Date validDate) {
+		this.validDate = validDate;
+	}
+
 	public String[] getAdxIds() {
 		return adxIds;
 	}
@@ -243,7 +254,7 @@ public class AdvertiserBean extends BasicDataBean {
 				+ ", qualificationPath=" + qualificationPath
 				+ ", qualificationType=" + qualificationType + ", siteUrl="
 				+ siteUrl + ", siteName=" + siteName + ", remark=" + remark
-				+ "]";
+				+ ", validDate=" + validDate + "]";
 	}
 	
 }
