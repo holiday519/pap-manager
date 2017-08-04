@@ -1,5 +1,6 @@
 package com.pxene.pap.web.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
+import com.pxene.pap.domain.beans.AdxCostData;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ProjectBean;
 import com.pxene.pap.domain.beans.RuleFormulasBean;
@@ -379,6 +381,9 @@ public class ProjectController {
     public String listRuleGroups(@RequestParam(required = false) String name, @RequestParam(required = false) String projectId, @RequestParam(required = false) String sortKey, @RequestParam(required = false) String sortType, @RequestParam(required = false) Integer pageNo, @RequestParam(required = false) Integer pageSize, HttpServletResponse response) throws Exception 
     {
         List<RuleGroupBean> beans = projectService.listRuleGroups(name, projectId, sortKey, sortType);
+        
+        Map<String, List<RuleGroupBean>> o = new HashMap<>();
+        o.put("items", beans);
 
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), beans, response);
     }
