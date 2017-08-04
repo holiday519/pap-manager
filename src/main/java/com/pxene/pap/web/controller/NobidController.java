@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -138,7 +139,11 @@ public class NobidController {
         pager.setPageNum(pageNo);
         pager.setPageSize(pageSize);
         PaginationBean result = nobidService.queryNobidReason(bidAnalyseBean,pager);
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+        if(result == null){
+            pager.setTotal(0);
+            result = new PaginationBean(new ArrayList<>(),pager);
+        }
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(),result , response);
     }
 
 
