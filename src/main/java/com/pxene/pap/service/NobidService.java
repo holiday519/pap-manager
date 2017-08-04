@@ -412,6 +412,7 @@ public class NobidService {
         pager.setTotal(total);
         //封装成分页
         PaginationBean result = new PaginationBean(nobidReasonBeenList,pager);
+        searchResponse = null;
         return result;
     }
 
