@@ -146,11 +146,11 @@ public class BaiduAuditService extends AuditService
         String auditStatus = advertiserAudit.getStatus();
         
         // “正在审核中”和“审核通过”的广告主不需要再提审
-        if (auditStatus == ADVERTISER_AUDIT_WATING)
+        if (ADVERTISER_AUDIT_WATING.equals(auditStatus))
         {
             throw new IllegalStatusException(AuditErrorConstant.COMMON_ADVERTISER_IS_AUDITING);
         }
-        if (auditStatus == ADVERTISER_AUDIT_SUCCESS)
+        if (ADVERTISER_AUDIT_SUCCESS.equals(auditStatus))
         {
             throw new IllegalStatusException(AuditErrorConstant.COMMON_ADVERTISER_HAS_AUDITTED);
         }
@@ -162,7 +162,7 @@ public class BaiduAuditService extends AuditService
         AdxModel adx = adxDao.selectByPrimaryKey(adxId);
         
         // 如果是“未审核”状态，则需要新建广告主，否则修改广告主
-        if (auditStatus == ADVERTISER_AUDIT_NOCHECK)
+        if (ADVERTISER_AUDIT_NOCHECK.equals(auditStatus))
         {
             Long dspSideAdvertiserId = RandomUtils.nextLong(); 
             
