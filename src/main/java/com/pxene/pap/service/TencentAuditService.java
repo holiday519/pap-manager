@@ -181,6 +181,8 @@ public class TencentAuditService extends AuditService
 			advertiserJsons.add(advertiserJson);
 			requestBody.add("data", advertiserJsons);
 			
+			LOGGER.info("<== PAP-Manager ==> TencentAuditService auditAdvertiser requestBody = " + requestBody);
+			
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
 			String respStr = null;
 			Map<String, String> headers = new HashMap<String, String>();
@@ -229,6 +231,8 @@ public class TencentAuditService extends AuditService
 			JsonArray auditValues = new JsonArray();
 			auditValues.add(auditValue);
 			requestBody.add("data", auditValues);
+			
+			LOGGER.info("<== PAP-Manager ==> TencentAuditService synchronizeAdvertiser requestBody = " + requestBody);
 			
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
 			Map<String, String> headers = new HashMap<String, String>();
@@ -411,7 +415,7 @@ public class TencentAuditService extends AuditService
         
         creativeJsons.add(creativeJson);
         requestBody.add("data", creativeJsons);
-        LOGGER.info("<=PAP-Manager=> tencent audit info = " + requestBody.toString());
+        LOGGER.info("<== PAP-Manager ==> TencentAuditService auditCreative requestBody = " + requestBody);
         
         Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Authorization", signKey);
@@ -501,7 +505,7 @@ public class TencentAuditService extends AuditService
         creativeJson.addProperty("creative_id", creativeId);
         creativeJsons.add(creativeJson);
         requestBody.add("data", creativeJsons);
-        LOGGER.info("<=PAP-Manager=> tencent sync info = " + requestBody.toString());
+        LOGGER.info("<== PAP-Manager ==> TencentAuditService synchronizeCreative requestBody = " + requestBody);
         // 汽车之家的ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
         Map<String, String> headers = new HashMap<String, String>();
