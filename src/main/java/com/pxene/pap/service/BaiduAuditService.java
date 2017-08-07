@@ -240,7 +240,7 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = requestObj.toString();
         
         // 发送HTTP POST请求
-        LOGGER.info("<== PAP-Manager ==> Synchronize advertiser [" + advertiserId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest);
+        LOGGER.info("### PAP-Manager ### Synchronize advertiser [" + advertiserId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         LOGGER.debug("### PAP-Manager ### Synchronize advertiser [" + advertiserId + "] state from Baidu：result = " + jsonStrResponse);
         
@@ -679,7 +679,7 @@ public class BaiduAuditService extends AuditService
         
         String jsonStrRequest = GlobalUtil.writeObject2Json(request, false);
         
-        LOGGER.info("<== PAP-Manager ==> Create or Update advertiser [" + advertiserId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest + ", type = " + type);
+        LOGGER.info("### PAP-Manager ### Create or Update advertiser [" + advertiserId + "] state from Baidu： url = " + url + ", params = " + jsonStrRequest + ", type = " + type);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         LOGGER.debug("### PAP-Manager ### Create or Update advertiser [" + advertiserId + "] state from Baidu：result = " + jsonStrResponse);
         
@@ -759,7 +759,7 @@ public class BaiduAuditService extends AuditService
         String jsonStrRequest = GlobalUtil.writeObject2Json(request, false);
         
         
-        LOGGER.info("<== PAP-Manager ==> Upload or Update qulification [" + advertiserId + "] to Baidu： url = " + url + ", params = " + jsonStrRequest + ", type = " + type);
+        LOGGER.info("### PAP-Manager ### Upload or Update qulification [" + advertiserId + "] to Baidu： url = " + url + ", params = " + jsonStrRequest + ", type = " + type);
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         LOGGER.debug("### PAP-Manager ### Upload or Update qulification [" + advertiserId + "] to Baidu：result = " + jsonStrResponse);
         
