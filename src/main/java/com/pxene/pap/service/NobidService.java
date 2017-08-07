@@ -427,4 +427,39 @@ public class NobidService {
         return result;
     }
 
+    /**
+     * 根据创意id查询活动id
+     * @param creativeId
+     * @return
+     */
+    public String getCampaignIdByCreativeId(String creativeId){
+        String result ="";
+        if(creativeId != null && !creativeId.isEmpty()){//查询单个活动相关信息
+            CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
+            result = creativeModel.getCampaignId();
+        }
+        return result;
+    }
+
+    /**
+     * 列出当前在投的所有创意id和活动id
+     * @return
+     */
+    public List<ResponseData> listCreativeIdAndCampaignId(){
+        List<ResponseData> result = new ArrayList<>();
+        //查询在投的所有活动信息
+        List<CreativeModel> creativeModels = creativeService.getCreativeOfCurrentPuttingTime();
+
+        if(creativeModels != null && !creativeModels.isEmpty()) {
+            ResponseData data;
+            for (CreativeModel creativeModel : creativeModels) {
+                data = new ResponseData();
+                data.setId(creativeModel.getId());
+                data.setValue(creativeModel.getCampaignId());
+                result.add(data);
+            }
+        }
+        return result;
+    }
+
 }

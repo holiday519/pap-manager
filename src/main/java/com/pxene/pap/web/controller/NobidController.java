@@ -162,4 +162,37 @@ public class NobidController {
         PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
+
+    /**
+     * 根据创意id查询活动id
+     * @param id
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/nobid/getCampaignIdByCreativeId/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String getCampaignsIdByCreativeId(@PathVariable String id, HttpServletResponse response) throws Exception {
+
+        String campaignsInfo = nobidService.getCampaignIdByCreativeId(id);
+
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), "value", campaignsInfo, response);
+    }
+
+
+    /**
+     * 列出在投的所有创意id和活动id
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/nobid/listCreativeIdAndCampaignId", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String listCreativeIdAndCampaignId(HttpServletResponse response) throws Exception {
+        Page<Object> pager = null;
+        List<ResponseData> datas = nobidService.listCreativeIdAndCampaignId();
+        PaginationBean result = new PaginationBean(datas, pager);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+    }
+
 }
