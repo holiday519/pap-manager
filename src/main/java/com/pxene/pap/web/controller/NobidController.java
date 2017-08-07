@@ -170,7 +170,7 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/getCampaignIdByCreativeId/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/nobid/creative/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String getCampaignsIdByCreativeId(@PathVariable String id, HttpServletResponse response) throws Exception {
 
@@ -186,7 +186,7 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/listCreativeIdAndCampaignId", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/nobid/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String listCreativeIdAndCampaignId(HttpServletResponse response) throws Exception {
         Page<Object> pager = null;
