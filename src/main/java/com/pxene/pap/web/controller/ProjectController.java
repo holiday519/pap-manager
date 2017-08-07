@@ -385,6 +385,6 @@ public class ProjectController {
         Map<String, List<RuleGroupBean>> o = new HashMap<>();
         o.put("items", beans);
 
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), beans, response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), o, response);
     }
 }
