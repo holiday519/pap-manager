@@ -172,7 +172,7 @@ public class TencentAuditService extends AuditService
 			}
 			advertiserJson.addProperty("name", legalName);
 			advertiserJson.addProperty("homepage", siteUrl);
-			advertiserJson.addProperty("industry_id", Integer.parseInt(industryCode));
+			advertiserJson.addProperty("industry_id", Long.parseLong(industryCode));
 			JsonArray qualificationJsons = new JsonArray();
 			JsonObject qualificationJson = new JsonObject();
 			qualificationJson.addProperty("file_url", urlPrefix + qualificationPath);
