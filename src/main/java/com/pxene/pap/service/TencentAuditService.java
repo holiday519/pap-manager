@@ -368,7 +368,7 @@ public class TencentAuditService extends AuditService
             	imgNum ++;
             	ImageModel image = imageDao.selectByPrimaryKey(iconId);
             	if (image != null) {
-            		creativeJson.addProperty("multimedia2", urlPrefix + image.getPath());
+            		creativeJson.addProperty("multimedia2_file_url", urlPrefix + image.getPath());
             	}
             }
             String image1Id = infoflowMaterial.getImage1Id();
@@ -377,7 +377,7 @@ public class TencentAuditService extends AuditService
             	ImageModel image = imageDao.selectByPrimaryKey(image1Id);
             	img1WH = image.getWidth() + "x" + image.getHeight();
             	if (image != null) {
-            		creativeJson.addProperty("multimedia1", urlPrefix + image.getPath());
+            		creativeJson.addProperty("multimedia1_file_url", urlPrefix + image.getPath());
             	}
             }
             String image2Id = infoflowMaterial.getImage2Id();
@@ -385,7 +385,7 @@ public class TencentAuditService extends AuditService
             	imgNum ++;
             	ImageModel image = imageDao.selectByPrimaryKey(image2Id);
             	if (image != null) {
-            		creativeJson.addProperty("multimedia3", urlPrefix + image.getPath());
+            		creativeJson.addProperty("multimedia3_file_url", urlPrefix + image.getPath());
             	}
             }
             String image3Id = infoflowMaterial.getImage3Id();
@@ -393,7 +393,7 @@ public class TencentAuditService extends AuditService
             	imgNum ++;
             	ImageModel image = imageDao.selectByPrimaryKey(image3Id);
             	if (image != null) {
-            		creativeJson.addProperty("multimedia4", urlPrefix + image.getPath());
+            		creativeJson.addProperty("multimedia4_file_url", urlPrefix + image.getPath());
             	}
             }
             
