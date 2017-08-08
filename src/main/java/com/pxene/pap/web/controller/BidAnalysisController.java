@@ -24,7 +24,7 @@ import java.util.Map;
  * Created by wangshuai on 2017/7/27.
  */
 @Controller
-public class NobidController {
+public class BidAnalysisController {
 
     @Autowired
     private NobidService nobidService;
@@ -36,11 +36,11 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/campaign/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/odin/campaign/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String getDspCampaignsInfoById(@PathVariable String id, HttpServletResponse response) throws Exception {
+    public String getCampaignsInfoById(@PathVariable String id, HttpServletResponse response) throws Exception {
 
-        String campaignsInfo = nobidService.getCampaignAndValuesBycampaignId(id);
+        String campaignsInfo = nobidService.getCampaignsInfoById(id);
 
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), "value", campaignsInfo, response);
     }
@@ -51,11 +51,11 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/odin/campaigns", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String synAllDspCampaignsInfo(HttpServletResponse response) throws Exception {
+    public String listCampaignsInfos(HttpServletResponse response) throws Exception {
         Page<Object> pager = null;
-        List<ResponseData> datas = nobidService.getAllCampaignAndValues();
+        List<ResponseData> datas = nobidService.listCampaignsInfos();
         PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
@@ -67,11 +67,11 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/size/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/odin/size/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String getImageSizeByCreativeId(@PathVariable String id, HttpServletResponse response) throws Exception {
 
-        String imageSize = nobidService.getCreativeImageSizeByCreativeId(id);
+        String imageSize = nobidService.getImageSizeByCreativeId(id);
 
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), "value", imageSize, response);
     }
@@ -82,12 +82,12 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/sizes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/odin/sizes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String getImageSizes(HttpServletResponse response) throws Exception {
+    public String listImageSizes(HttpServletResponse response) throws Exception {
 
         Page<Object> pager = null;
-        List<ResponseData> datas = nobidService.getCreativeImageSizes();
+        List<ResponseData> datas = nobidService.listImageSizes();
         PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
@@ -99,11 +99,11 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/material/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/odin/material/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String getMaterialByCreativeId(@PathVariable String id, HttpServletResponse response) throws Exception {
 
-        String type = nobidService.getMaterialTypeByCreativeId(id);
+        String type = nobidService.getMaterialByCreativeId(id);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), "value", type, response);
     }
 
@@ -113,16 +113,49 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/materials", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/odin/materials", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String getMaterials(HttpServletResponse response) throws Exception {
+    public String listMaterials(HttpServletResponse response) throws Exception {
 
         Page<Object> pager = null;
-        List<ResponseData> datas = nobidService.getMaterialTypes();
+        List<ResponseData> datas = nobidService.listMaterials();
         PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 
+    /**
+     * 根据创意ID查询活动ID
+     * @param id
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/odin/campaignId/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String getCampaignIdByCreativeId(@PathVariable String id, HttpServletResponse response) throws Exception {
+
+        String campaignsInfo = nobidService.getCampaignIdByCreativeId(id);
+
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), "value", campaignsInfo, response);
+    }
+
+
+    /**
+     * 批量查询活动ID
+     * @param response
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/odin/campaignIds", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ResponseBody
+    public String listCampaignIds(HttpServletResponse response) throws Exception {
+        Page<Object> pager = null;
+        List<ResponseData> datas = nobidService.listCampaignIds();
+        PaginationBean result = new PaginationBean(datas, pager);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
+    }
+    
+    
     /**
      * 不出价原因列表
      * @param bidAnalyseBean
@@ -132,18 +165,18 @@ public class NobidController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobid/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/nobids/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
-    public String queryNobidReason(BidAnalyseBean bidAnalyseBean,@RequestParam(required = true) Integer pageNo, @RequestParam(required = true) Integer pageSize,HttpServletResponse response) throws Exception {
-        Page<Object> pager = new Page<>();
+    public String queryNobidReason(BidAnalyseBean bidAnalyseBean, @RequestParam(required = true) Integer pageNo, @RequestParam(required = true) Integer pageSize,HttpServletResponse response) throws Exception {
+        Page<Object> pager = new Page<Object>();
         pager.setPageNum(pageNo);
         pager.setPageSize(pageSize);
         PaginationBean result = nobidService.queryNobidReason(bidAnalyseBean,pager);
-        if(result == null){
+        if (result == null) {
             pager.setTotal(0);
-            result = new PaginationBean(new ArrayList<>(),pager);
+            result = new PaginationBean(new ArrayList<>(), pager);
         }
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(),result , response);
+        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 
 
@@ -159,38 +192,6 @@ public class NobidController {
         Page<Object> pager = null;
 
         List<Map<String,String>> datas = nobidService.listAllImageSizes();
-        PaginationBean result = new PaginationBean(datas, pager);
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-
-    /**
-     * 根据创意id查询活动id
-     * @param id
-     * @param response
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/nobid/creative/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String getCampaignsIdByCreativeId(@PathVariable String id, HttpServletResponse response) throws Exception {
-
-        String campaignsInfo = nobidService.getCampaignIdByCreativeId(id);
-
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), "value", campaignsInfo, response);
-    }
-
-
-    /**
-     * 列出在投的所有创意id和活动id
-     * @param response
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/nobid/creatives", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listCreativeIdAndCampaignId(HttpServletResponse response) throws Exception {
-        Page<Object> pager = null;
-        List<ResponseData> datas = nobidService.listCreativeIdAndCampaignId();
         PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }

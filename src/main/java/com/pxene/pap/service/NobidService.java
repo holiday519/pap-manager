@@ -74,7 +74,7 @@ public class NobidService {
      * @param campaignId
      * @return
      */
-    public String getCampaignAndValuesBycampaignId(String campaignId){
+    public String getCampaignsInfoById(String campaignId){
         String result ="";
         if(campaignId != null && !campaignId.isEmpty()){//查询单个活动相关信息
             CampaignModel campaignModel = campaignDao.selectByPrimaryKey(campaignId);
@@ -88,8 +88,8 @@ public class NobidService {
      * 获取活动的id->活动名称|项目id|项目名称|项目编号
      * @return
      */
-    public List<ResponseData> getAllCampaignAndValues(){
-        List<ResponseData> result = new ArrayList<>();
+    public List<ResponseData> listCampaignsInfos() {
+        List<ResponseData> result = new ArrayList<ResponseData>();
         //查询在投的所有活动信息
         Date currentDate = new Date();
         CampaignModelExample campaignModelExample = new CampaignModelExample();
@@ -115,7 +115,7 @@ public class NobidService {
      * @param creativeId
      * @return
      */
-    public String getCreativeImageSizeByCreativeId(String creativeId){
+    public String getImageSizeByCreativeId(String creativeId) {
         String size = "";
         if(creativeId != null && !creativeId.isEmpty()){
             CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
@@ -161,13 +161,13 @@ public class NobidService {
      * 获取所有投放时间在当前时间段的活动下面的素材尺寸
      * @return
      */
-    public List<ResponseData> getCreativeImageSizes(){
+    public List<ResponseData> listImageSizes() {
         List<ResponseData> result = new ArrayList<>();
         List<CreativeModel> creativeModels = creativeService.getCreativeOfCurrentPuttingTime();
         if(creativeModels != null && !creativeModels.isEmpty()) {
             ResponseData responseData;
             for (CreativeModel creativeModel : creativeModels) {
-               String value = getCreativeImageSizeByCreativeId(creativeModel.getId());
+               String value = getImageSizeByCreativeId(creativeModel.getId());
                 responseData = new ResponseData();
                 responseData.setId(creativeModel.getId());
                 responseData.setValue(value);
@@ -183,7 +183,7 @@ public class NobidService {
      * @param creativeId
      * @return
      */
-    public String getMaterialTypeByCreativeId(String creativeId){
+    public String getMaterialByCreativeId(String creativeId){
         String marterialType = "";
         if(creativeId != null && !creativeId.isEmpty()) {
             CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
@@ -216,7 +216,7 @@ public class NobidService {
      * 获取投放时间在当前时间的创意的类型，并转换为DSP的格式
      * @return
      */
-    public List<ResponseData> getMaterialTypes(){
+    public List<ResponseData> listMaterials() {
         List<ResponseData> result = new ArrayList<>();
         //获取投放时间在当前时间内的创意
        List<CreativeModel> creativeModels = creativeService.getCreativeOfCurrentPuttingTime();
@@ -238,7 +238,7 @@ public class NobidService {
      * @param bidAnalyseBean
      * @return
      */
-    public PaginationBean  queryNobidReason(BidAnalyseBean bidAnalyseBean, Page<Object> pager){
+    public PaginationBean queryNobidReason(BidAnalyseBean bidAnalyseBean, Page<Object> pager){
         if(bidAnalyseBean == null){
             return null;
         }
@@ -364,21 +364,21 @@ public class NobidService {
                 StringTerms nbrnameTerms = (StringTerms) buck.getAggregations().asMap().get("nbrname");
                 total = total + nbrnameTerms.getBuckets().size();
                 //判断是不是指定页要显示的数据
-                if(total < startNum){//指定页之前的数据直接跳过
+                if (total < startNum) {//指定页之前的数据直接跳过
                     count = (int) total;
                     continue;
                 }
-                if(count > endNum){//指定页之后的数据直接跳过
+                if (count > endNum) {//指定页之后的数据直接跳过
                     continue;
                 }
 
                 String dateStr=null;//日期时间
-                if(buck.getKey() instanceof Long){
+                if (buck.getKey() instanceof Long) {
                     Long key = (Long) buck.getKey();
                     dateStr = sdf.format(new Date(key));
-                } if(buck.getKey() instanceof String){
+                } else if (buck.getKey() instanceof String) {
                     dateStr = (String) buck.getKey();
-                    if(field.equals("hour")) {
+                    if (field.equals("hour")) {
                         try {
                             dateStr = sdf_hour.format(sdf_sec.parse(dateStr));
                         } catch (ParseException e) {
@@ -391,7 +391,7 @@ public class NobidService {
                 while (nbrnameBucketIt.hasNext()) {
                     Terms.Bucket nbrnameBuck = nbrnameBucketIt.next();
                     count++;
-                    if(count >= startNum && count<= endNum) {
+                    if (count >= startNum && count <= endNum) {
                         InternalSum sumTerms = (InternalSum) nbrnameBuck.getAggregations().get("nbrname_sum");
 
                         NobidReasonBean nobidReasonBean = new NobidReasonBean();
@@ -400,7 +400,7 @@ public class NobidService {
                         nobidReasonBean.setAmount(Double.valueOf(sumTerms.getValue()).intValue());
 
                         nobidReasonBeenList.add(nobidReasonBean);
-                    }else if(count>endNum){//后面的数不再需要
+                    } else if (count > endNum) {//后面的数不再需要
                         break;
                     }
 
@@ -411,7 +411,7 @@ public class NobidService {
         //设置总数
         pager.setTotal(total);
         //封装成分页
-        PaginationBean result = new PaginationBean(nobidReasonBeenList,pager);
+        PaginationBean result = new PaginationBean(nobidReasonBeenList, pager);
         searchResponse = null;
         return result;
     }
@@ -433,7 +433,7 @@ public class NobidService {
      * @return
      */
     public String getCampaignIdByCreativeId(String creativeId){
-        String result ="";
+        String result = "";
         if(creativeId != null && !creativeId.isEmpty()){//查询单个活动相关信息
             CreativeModel creativeModel = creativeDao.selectByPrimaryKey(creativeId);
             result = creativeModel.getCampaignId();
@@ -445,8 +445,8 @@ public class NobidService {
      * 列出当前在投的所有创意id和活动id
      * @return
      */
-    public List<ResponseData> listCreativeIdAndCampaignId(){
-        List<ResponseData> result = new ArrayList<>();
+    public List<ResponseData> listCampaignIds() {
+        List<ResponseData> result = new ArrayList<ResponseData>();
         //查询在投的所有活动信息
         List<CreativeModel> creativeModels = creativeService.getCreativeOfCurrentPuttingTime();
 
