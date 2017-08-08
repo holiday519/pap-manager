@@ -588,7 +588,7 @@ public class DataService extends BaseService {
 	            		// 查询活动在execl文件时间里使用的监测码的情况
 	            		LandpageCodeHistoryModelExample exampleHistory = new LandpageCodeHistoryModelExample();
 	            		exampleHistory.createCriteria().andCodesLike("%" + code + "%").andCampaignIdEqualTo(campaign.getId())
-	            			.andStartTimeLessThanOrEqualTo(endDate).andEndTimeGreaterThanOrEqualTo(endDate);
+	            			.andStartTimeLessThanOrEqualTo(endDate).andEndTimeGreaterThanOrEqualTo(date);
 	            		List<LandpageCodeHistoryModel> historys = landpageCodeHistoryDao.selectByExample(exampleHistory);
 	            		if (historys != null && historys.size() > 0) {	
 	            			// 匹配的监测码	             
