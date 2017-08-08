@@ -1,13 +1,11 @@
 package com.pxene.pap.web.controller;
 
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.pxene.pap.common.ResponseUtils;
 import com.pxene.pap.domain.beans.BidAnalyseBean;
-import com.pxene.pap.domain.beans.NobidReasonBean;
 import com.pxene.pap.domain.beans.PaginationBean;
 import com.pxene.pap.domain.beans.ResponseData;
-import com.pxene.pap.service.NobidService;
+import com.pxene.pap.service.BidAnalysisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 不出价
@@ -27,8 +24,8 @@ import java.util.Map;
 public class BidAnalysisController {
 
     @Autowired
-    private NobidService nobidService;
-
+    private BidAnalysisService nobidService;
+    
     /**
      * dsp同步接口--根据活动id获取活动名称|项目id|项目名称|项目code
      * @param id
@@ -165,34 +162,17 @@ public class BidAnalysisController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/nobids/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @RequestMapping(value = "/analysis/nobids", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ResponseBody
     public String queryNobidReason(BidAnalyseBean bidAnalyseBean, @RequestParam(required = true) Integer pageNo, @RequestParam(required = true) Integer pageSize,HttpServletResponse response) throws Exception {
         Page<Object> pager = new Page<Object>();
         pager.setPageNum(pageNo);
         pager.setPageSize(pageSize);
-        PaginationBean result = nobidService.queryNobidReason(bidAnalyseBean,pager);
+        PaginationBean result = nobidService.queryNobidReason(bidAnalyseBean, pager);
         if (result == null) {
             pager.setTotal(0);
             result = new PaginationBean(new ArrayList<>(), pager);
         }
-        return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
-    }
-
-
-    /**
-     * 列出所有图片大小(去重)
-     * @param response
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/nobid/imageSizes", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @ResponseBody
-    public String listAllImageSizes(HttpServletResponse response) throws Exception {
-        Page<Object> pager = null;
-
-        List<Map<String,String>> datas = nobidService.listAllImageSizes();
-        PaginationBean result = new PaginationBean(datas, pager);
         return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
     }
 

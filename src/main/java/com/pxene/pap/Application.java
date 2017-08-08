@@ -120,7 +120,8 @@ public class Application
         urlPatterns.add("/populations");
         urlPatterns.add("/population/*");
         urlPatterns.add("/regions");
-        urlPatterns.add("/nobid/*");
+        urlPatterns.add("/sizes");
+        urlPatterns.add("/analysis/*");
         registrationBean.setUrlPatterns(urlPatterns);
         
         return registrationBean;

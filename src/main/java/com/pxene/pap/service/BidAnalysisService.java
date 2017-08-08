@@ -3,7 +3,6 @@ package com.pxene.pap.service;
 import com.github.pagehelper.Page;
 import com.pxene.pap.common.DateUtils;
 import com.pxene.pap.common.EsUtils;
-import com.pxene.pap.common.RedisHelper;
 import com.pxene.pap.constant.CodeTableConstant;
 import com.pxene.pap.constant.PhrasesConstant;
 import com.pxene.pap.constant.StatusConstant;
@@ -11,22 +10,17 @@ import com.pxene.pap.domain.beans.*;
 import com.pxene.pap.domain.models.*;
 import com.pxene.pap.exception.IllegalArgumentException;
 import com.pxene.pap.repository.basic.*;
-import com.pxene.pap.repository.custom.CustomCreativeDao;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
 import org.elasticsearch.search.aggregations.metrics.sum.SumBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,8 +35,9 @@ import java.util.*;
  * Created by wangshuai on 2017/7/27.
  */
 @Service
-public class NobidService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NobidService.class);
+public class BidAnalysisService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BidAnalysisService.class);
+    
     @Autowired
     private CampaignDao campaignDao;
 
@@ -65,9 +60,6 @@ public class NobidService {
 
     @Autowired
     private EsUtils esUtils;
-    @Autowired
-    private CustomCreativeDao customCreativeDao;
-
 
     /**
      * 根据活动的id获取活动名称|项目id|项目名称|项目编号
@@ -413,17 +405,6 @@ public class NobidService {
         //封装成分页
         PaginationBean result = new PaginationBean(nobidReasonBeenList, pager);
         searchResponse = null;
-        return result;
-    }
-
-
-    /**
-     * 列出所有图片大小，去重
-     *
-     * @return
-     */
-    public  List<Map<String,String>> listAllImageSizes(){
-        List<Map<String,String>> result = customCreativeDao.selectImageSizes();
         return result;
     }
 
