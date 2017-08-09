@@ -604,9 +604,11 @@ public class AdvertiserService extends BaseService
 		if (advertiserAudit == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
 		}
-		//判断广告主的审核状态,如果状态是审核中，审核通过，则直接返回
-		if(advertiserAudit.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_WATING) || advertiserAudit.getStatus().equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS)){
-			return ;
+		//判断广告主的审核状态,如果状态是审核中、审核通过、审核不通过，则直接返回提示信息
+		String status = advertiserAudit.getStatus();
+		if(status.equals(StatusConstant.ADVERTISER_AUDIT_WATING) || status.equals(StatusConstant.ADVERTISER_AUDIT_SUCCESS) 
+				|| status.equals(StatusConstant.ADVERTISER_AUDIT_FAILURE)){
+			throw new IllegalStatusException(PhrasesConstant.ADVERVISER_STATUS_CANNOT_AUDIT);
 		}
 		// 获取adxId
 		String adxId = advertiserAudit.getAdxId();
@@ -646,6 +648,12 @@ public class AdvertiserService extends BaseService
 		AdvertiserAuditModel advertiserAudit = advertiserAuditDao.selectByPrimaryKey(auditId);
 		if (advertiserAudit == null) {
 			throw new ResourceNotFoundException(PhrasesConstant.ADVERTISER_AUDIT_NOT_FOUND);
+		}
+		// 判断状态是否可以同步：如果状态是未审核、审核通过、审核不通过，则直接返回提示信息
+		String status = advertiserAudit.getStatus();
+		if (StatusConstant.ADVERTISER_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status)
+				|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
+			throw new IllegalStatusException(PhrasesConstant.ADVERVISER_STATUS_CANNOT_SYNCHRONIZE);
 		}
 		// 获取adxId
 		String adxId = advertiserAudit.getAdxId();

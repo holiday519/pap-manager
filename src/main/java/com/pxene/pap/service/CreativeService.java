@@ -1358,8 +1358,8 @@ public class CreativeService extends BaseService {
 		for (CreativeModel creative : creativeModels) {
 			String creativeId = creative.getId();
 			String status = getCreativeAuditStatus(creativeId);
-			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status)
-					|| StatusConstant.ADVERTISER_AUDIT_NOCHECK.equals(status)) {
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.CREATIVE_AUDIT_FAILURE.equals(status)
+					|| StatusConstant.CREATIVE_AUDIT_NOCHECK.equals(status)) {
 				continue;
 			}
 			// 查询adx列表，一个创意可以由多个ADX审核  
@@ -1437,7 +1437,7 @@ public class CreativeService extends BaseService {
 			// 创意id
 			String creativeId = creative.getId();
 			String status = getCreativeAuditStatus(creativeId);
-			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.ADVERTISER_AUDIT_WATING.equals(status) || StatusConstant.ADVERTISER_AUDIT_FAILURE.equals(status)) {
+			if (StatusConstant.CREATIVE_AUDIT_SUCCESS.equals(status) || StatusConstant.CREATIVE_AUDIT_WATING.equals(status) || StatusConstant.CREATIVE_AUDIT_FAILURE.equals(status)) {
 				continue;
 			}
 			Map<String, String> adx = launchService.getAdxByCreative(creative);
