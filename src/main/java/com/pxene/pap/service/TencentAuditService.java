@@ -190,11 +190,11 @@ public class TencentAuditService extends AuditService
 			if (StringUtils.isEmpty(auditValue)) {
 				// 调用创建接口
 				String addUrl = adx.getAdvertiserAddUrl();
-				respStr = HttpClientUtil.getInstance().sendHttpPostJson(addUrl, requestBody.getAsString(), headers);
+				respStr = HttpClientUtil.getInstance().sendHttpPostJson(addUrl, requestBody.toString(), headers);
 			} else {
 				// 调用修改接口
 				String updateUrl = adx.getAdvertiserUpdateUrl();
-				respStr = HttpClientUtil.getInstance().sendHttpPostJson(updateUrl, requestBody.getAsString(), headers);
+				respStr = HttpClientUtil.getInstance().sendHttpPostJson(updateUrl, requestBody.toString(), headers);
 			}
 			
 	        if (!StringUtils.isEmpty(respStr)) {
@@ -237,7 +237,7 @@ public class TencentAuditService extends AuditService
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
 			Map<String, String> headers = new HashMap<String, String>();
 			headers.put("Authorization", adx.getSignKey());
-			String respStr = HttpClientUtil.getInstance().sendHttpPostJson(adx.getQualificationQueryUrl(), requestBody.getAsString(), headers);
+			String respStr = HttpClientUtil.getInstance().sendHttpPostJson(adx.getQualificationQueryUrl(), requestBody.toString(), headers);
 			if (!StringUtils.isEmpty(respStr)) {
 	            if (isResponseSuccess(respStr)) {
 	            	JsonObject respObj = parser.parse(respStr).getAsJsonObject();
