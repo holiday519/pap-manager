@@ -683,15 +683,32 @@ public class BaiduAuditService extends AuditService
         String jsonStrResponse = HttpClientUtil.getInstance().sendHttpPostJson(url, jsonStrRequest);
         LOGGER.debug("### PAP-Manager ### Create or Update advertiser [" + advertiserId + "] state from Baidu：result = " + jsonStrResponse);
         
-        if (jsonStrResponse != null)
+        if (!StringUtils.isEmpty(jsonStrResponse))
         {
-            ObjectMapper objectMapper = new ObjectMapper();
-            BaiduResponse operateResult = objectMapper.readValue(jsonStrResponse, BaiduResponse.class);
+            // 检查响应对象中的status属性的值是否是0和1
+            boolean respStatus = checkResponseStatus(jsonStrResponse);
             
             // 请求全部成功或部分成功
-            if (operateResult.getStatus() == 0 || operateResult.getStatus() == 1)
+            if (respStatus)
             {
                 return true;
+            }
+            else
+            {
+                JsonObject respObj = parser.parse(jsonStrResponse).getAsJsonObject();
+                if (respObj != null && respObj.has("errors"))
+                {
+                    JsonArray errorsArray = respObj.get("errors").getAsJsonArray();
+                    if (errorsArray.size() > 0)
+                    {
+                        JsonObject errorObj = errorsArray.get(0).getAsJsonObject();
+                        throw new ThirdPartyAuditException(AuditErrorConstant.BAIDU_ADVERTISER_AUDIT_ERROR_REASON + errorObj.get("message").getAsString());
+                    }
+                    else
+                    {
+                        throw new ThirdPartyAuditException(AuditErrorConstant.BAIDU_ADVERTISER_AUDIT_ERROR_REASON + AuditErrorConstant.COMMON_RESPONSE_PARSE_FAIL);
+                    }
+                }
             }
         }
         
