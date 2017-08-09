@@ -186,7 +186,7 @@ public class TencentAuditService extends AuditService
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
 			String respStr = null;
 			Map<String, String> headers = new HashMap<String, String>();
-			headers.put("Authorization", adx.getSignKey());
+			headers.put("Authorization", "Bearer " + adx.getSignKey());
 			if (StringUtils.isEmpty(auditValue)) {
 				// 调用创建接口
 				String addUrl = adx.getAdvertiserAddUrl();
@@ -236,8 +236,8 @@ public class TencentAuditService extends AuditService
 			
 			AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
 			Map<String, String> headers = new HashMap<String, String>();
-			headers.put("Authorization", adx.getSignKey());
-			String respStr = HttpClientUtil.getInstance().sendHttpPostJson(adx.getQualificationQueryUrl(), requestBody.toString(), headers);
+			headers.put("Authorization", "Bearer " + adx.getSignKey());
+			String respStr = HttpClientUtil.getInstance().sendHttpPostJson(adx.getAdvertiserQueryUrl(), requestBody.toString(), headers);
 			if (!StringUtils.isEmpty(respStr)) {
 	            if (isResponseSuccess(respStr)) {
 	            	JsonObject respObj = parser.parse(respStr).getAsJsonObject();
@@ -418,7 +418,7 @@ public class TencentAuditService extends AuditService
         LOGGER.info("<== PAP-Manager ==> TencentAuditService auditCreative requestBody = " + requestBody);
         
         Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Authorization", signKey);
+		headers.put("Authorization", "Bearer " + signKey);
 		
 		// 判断是否审核过
 		CreativeAuditModelExample creativeAuditEx = new CreativeAuditModelExample();
@@ -509,7 +509,7 @@ public class TencentAuditService extends AuditService
         // 汽车之家的ADX信息
         AdxModel adx = adxDao.selectByPrimaryKey(AdxKeyConstant.ADX_TENCENT_VALUE);
         Map<String, String> headers = new HashMap<String, String>();
-		headers.put("Authorization", adx.getSignKey());
+		headers.put("Authorization", "Bearer " + adx.getSignKey());
 		String respStr = HttpClientUtil.getInstance().sendHttpPostJson(adx.getCreativeQueryUrl(), requestBody.toString(), headers);
 		if (!StringUtils.isEmpty(respStr)) {
             if (isResponseSuccess(respStr)) {
