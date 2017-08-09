@@ -69,8 +69,11 @@ public class ExcelOperateUtil
             excelName = excelName + ".xlsx";
         }
 //        response.setContentType("application/octet-stream");
-        response.setHeader("Content-Type","application/force-download");
-        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + URLEncoder.encode(excelName, "UTF-8"));
+//        response.setHeader("Content-Type","application/force-download");
+        response.setContentType("application/vnd.ms-excel;charset=utf-8"); 
+        response.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
+//        response.addHeader("Content-Disposition", "attachment;filename*=UTF-8''" + URLEncoder.encode(excelName, "UTF-8"));
+        response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(excelName, "UTF-8"));
 
         ServletOutputStream outputStream = null;
         try

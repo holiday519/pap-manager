@@ -174,7 +174,7 @@ public class DataController
 		return ResponseUtils.sendReponse(HttpStatus.OK.value(), result, response);
 	}
 
-	@RequestMapping(value = "/data/export/advertisers", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value = "/data/export/advertisers", method = RequestMethod.GET)
 	@ResponseBody
 	public void exportAdvertisers(@RequestParam(required = false) String advertiserId, @RequestParam(required = true) String type, @RequestParam(required = true) Long startDate,
 								  @RequestParam(required = true) Long endDate,HttpServletResponse response) throws Exception

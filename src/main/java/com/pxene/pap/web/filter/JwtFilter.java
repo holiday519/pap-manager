@@ -40,8 +40,17 @@ public class JwtFilter implements Filter
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
     {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        if ("OPTIONS".equalsIgnoreCase(httpServletRequest.getMethod()))
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        
+        httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        httpResponse.addHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
+        httpResponse.addHeader("Access-Control-Allow-Credentials", "true");
+        httpResponse.addHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT,PATCH,HEAD");
+        httpResponse.addHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+        httpResponse.addHeader("Access-Control-Expose-Headers", "Content-Disposition");
+        
+        if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod()))
         {
             chain.doFilter(request, response);
             return;
@@ -49,7 +58,6 @@ public class JwtFilter implements Filter
         
         BaseException exception = null;
         
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpSession httpSession = httpRequest.getSession();
         
         AccessTokenBean tokenInSession = (AccessTokenBean) httpSession.getAttribute("access-token");
@@ -80,16 +88,11 @@ public class JwtFilter implements Filter
         else 
         {
         	exception = new TokenInvalidException();
+        	chain.doFilter(request, response);
+            return;
         }
         
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        httpResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-        
-        httpResponse.setHeader("Access-Control-Allow-Origin", httpRequest.getHeader("Origin"));
-        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
-        httpResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT,PATCH,HEAD");
-        httpResponse.setHeader("Access-Control-Allow-Headers", "authorization, content-type");
         
         ObjectMapper mapper = new ObjectMapper();
         ResponseBean result = new ResponseBean();
