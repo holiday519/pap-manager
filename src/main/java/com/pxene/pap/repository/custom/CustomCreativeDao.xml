@@ -3,7 +3,8 @@
 <mapper namespace="com.pxene.pap.repository.custom.CustomCreativeDao">
 
     <select id="selectImageSizes" resultType="java.util.Map">
-      SELECT DISTINCT width,height FROM pap_t_imagetmpl
+      <!-- SELECT DISTINCT width,height FROM pap_t_imagetmpl -->
+      SELECT DISTINCT CONCAT(width,'*',height) AS size FROM pap_t_imagetmpl
     </select>
 
 </mapper>

@@ -20,7 +20,7 @@ public class SizeService extends BaseService {
      *
      * @return
      */
-    public List<Map<String, String>> listSizes(){
+    public List<Map<String, String>> listSizes() {
         List<Map<String, String>> result = customCreativeDao.selectImageSizes();
         return result;
     }
